@@ -1,0 +1,12 @@
+Package: rscala
+Type: Package
+Title: Bi-Directional Interface Between R and Scala with Callbacks
+Version: 0.0.0.0
+Date: 1970-01-01
+Authors@R: c(person(given="David B.",family="Dahl",role=c("aut","cre"),email="dahl@stat.byu.edu"),
+             person(family="Scala developers",role="ctb",comment="see http://scala-lang.org/"))
+URL: http://dahl.byu.edu/software/rscala/
+Imports: utils
+SystemRequirements: Scala (>= 2.10)
+Description: The Scala interpreter is embedded in R and callbacks to R from the embedded interpreter are supported.  Conversely, the R interpreter is embedded in Scala.  Scala versions 2.10 and 2.11 are supported.
+License: GPL (>= 2) | BSD_3_clause + file LICENSE

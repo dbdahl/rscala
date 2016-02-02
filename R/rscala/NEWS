@@ -1,0 +1,62 @@
+1.0.9 (20xx-xx-xx)
+  * 
+
+1.0.8 (2015-12-09)
+  * Put CRAN URL in canonical form.
+
+1.0.7 (2015-12-09)
+  * On Windows, fix problem embedding R within a JVM application.
+  * Fixed typographical error in documentation regarding 'strintrplt' function.
+  * Fixed bug causing warning 'closing unused connection ...'
+  * On Windows, also look at "...Wow6432Node..." registry key.
+
+1.0.6 (2015-05-15)
+  * Removed unnecessary 'Suggests' and 'VignetteBuilder'
+
+1.0.5 (2015-05-15)
+  * Added README.html to point to paper submitted to Journal of Stastical Software.
+  * 'scalaInfo' function is much improved and 'scalaInstall' function is new.
+  * Support of arbitrary R objects to be passed as an 'RObject' in Scala.
+  * Improved exception handling.
+  * Improved support for directly calling methods of an reference, instantiating
+    an object, and calling methods of companion objects.
+  * Check that JAR and package version match in JVM-based languages.
+  * Added scaladoc for 'RClient' and 'RObject'.
+  * Added javadoc for 'RClient'.
+  * Documentation clarifications.
+  * Minor bug fixes.
+
+1.0.4 (2015-03-24)
+  * Modified 'rscalaPackage' and 'rscalaLoad' functions to conform to CRAN
+    policies.
+  * Support for subassignment into vectors and lists in RClient.
+  * Bug fixes to respect 'java.opts' and 'java.heap.maximum' arguments.
+
+1.0.3 (2015-03-23)
+  * Added support to directly calling methods of an reference, instantiating an
+    object, and calling methods of companion objects.
+  * Added function 'scalap' to show the names and signatures of class and
+    companion objects.
+  * Added methods 'evalD0', 'evalD1', etc. and removed '%~%' method in RClient.
+  * Use 'as.reference=NA' in 'intpGet' and friends so that 'as.reference=FALSE'
+    is tried first and, if conversion is not possible, 'as.reference=TRUE' is
+    done.
+  * Added 'rscalaPackage' and 'rscalaLoad' functions to facilitate other
+    packages depending on the 'rscala' package.
+  * Determine Scala version using Java executable (as located by 'javaCmd'
+    function) instead of Scala executable.
+  * Added infrastructure to support alternative interpreters in the future.
+  * Miscellaneous bug fixes.
+
+1.0.2 (2015-03-07)
+  * On Windows, if all else fails, try to find the Java installation using the
+    Windows registry.
+  * Facilitate other packages depending on 'rscala' by explicitly importing
+    'util' package needed for 'download.file' function.
+
+1.0.1 (2015-03-05)
+  * Initial release to CRAN.
+
+1.0.0 (2015-03-03)
+  * Release to beta testers.
+

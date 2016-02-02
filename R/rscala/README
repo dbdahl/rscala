@@ -1,0 +1,9 @@
+Scala (>= 2.10) is not distributed with the rscala package.  Individuals can
+install Scala using "rscala::scalaInstall()" which places Scala in "~/.rscala"
+in the user's home directory.  System administrators should install Scala
+globally as described here: http://www.scala-lang.org/download/install.html.
+In short, simply download the archive, unpack it, and add the "scala" script to
+the path.  Note that Scala itself requires Java.  The rscala package tries
+various techniques to find a suitable Scala installation, including searching
+the path.  Details on the search is available using
+"rscala::scalaInfo(verbose=TRUE)".

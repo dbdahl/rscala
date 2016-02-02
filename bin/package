@@ -1,0 +1,142 @@
+#!/bin/bash
+
+set -e
+
+## For debugging
+# set -x
+# trap read debug
+
+PKG_NAME=rscala
+SBT="sbt"
+
+function usage() {
+  echo "Usage: $0 [ -s -r -c -f ]"
+  echo "       where -s turns on Scala compile,"
+  echo "             -r builds the R package,"
+  echo "             -c does basic checking,"
+  echo "             -f does build, and full checking."
+  exit 1
+}
+
+if [[ $# -eq 0 ]]
+then
+  DEFAULT="-r"
+  echo "Note: using default arguments: $DEFAULT"
+  set -- $DEFAULT
+fi
+
+TASK_SCALA=
+TASK_R=
+TASK_RCHECK=
+FLAG_BUILD_VIGNETTES="--no-build-vignettes"
+FLAG_CHECK_EXAMPLES="--no-examples"
+FLAG_CHECK_VIGNETTES="--no-build-vignettes --no-vignettes"
+FLAG_CHECK_CRAN=""
+
+
+while getopts ":srcf" o
+do
+  case "${o}" in
+    s)
+      TASK_SCALA=yes
+      ;;
+    r)
+      TASK_R=yes
+      ;;
+    c)
+      TASK_R=yes
+      TASK_RCHECK=yes
+      ;;
+    f)
+      TASK_R=yes
+      TASK_RCHECK=yes
+      FLAG_BUILD_VIGNETTES=
+      FLAG_CHECK_EXAMPLES=
+      FLAG_CHECK_VIGNETTES=
+      FLAG_CHECK_CRAN="--as-cran --run-dontrun --run-donttest"
+      ;;
+    *)
+      usage
+      ;;
+  esac
+done
+shift $((OPTIND-1))
+
+if [[ $# -ne 0 ]]
+then
+  usage
+fi
+
+# Set up
+set -e
+PKG_HOME=$(readlink -f $(dirname $(readlink -f "$0"))/..)
+cd "$PKG_HOME"
+
+# Set version number and data
+function setversion {
+  OLDWD="$PWD"
+  cd "$PKG_HOME"
+  sed -i 's/\(\s*val\s*Version\s*=\s*\)"\(.*\)"/\1"'"$1"'"/g' src/main/scala/org/ddahl/$PKG_NAME/server/Package.scala 
+  sed -i 's/\(\s*val\s*Date\s*=\s*\)"\(.*\)"/\1"'"$2"'"/g' src/main/scala/org/ddahl/$PKG_NAME/server/Package.scala 
+  sed -i 's/\(\s*Version\s*:\s*\)\(.*\)/\1'"$1"'/g' R/$PKG_NAME/DESCRIPTION
+  sed -i 's/\(\s*Date\s*:\s*\)\(.*\)/\1'"$2"'/g' R/$PKG_NAME/DESCRIPTION
+  cd "$OLDWD"
+}
+MAJOR=$(cat build.sbt | grep "version := " | cut -d '"' -f 2)
+setversion $MAJOR $(date +'%Y-%m-%d')
+
+# Scala stuff
+if [[ -n "$TASK_SCALA" ]]
+then
+  $SBT clean doc
+  # Package jar files
+  function package {
+    output=$($SBT $1 | tee /dev/tty)
+    echo "$output" | grep 'info.*Packaging .*\.jar ...' | awk '{print $3}'
+  }
+  JARBIN=$(package +package)
+  JARSRC=$(package +package-src)
+
+  # Copy jar file to R package
+  function copy {
+    dir="${@: -2:1}"
+    suffix="${@: -1}"
+    length=$(($#-2))
+    others="${@:1:$length}"
+    rm -rf "$dir"
+    mkdir -p "$dir"
+    cp $others "$dir"
+  }
+  copy $JARBIN "$PKG_HOME"/R/$PKG_NAME/inst/java ""
+  copy $JARSRC "$PKG_HOME"/R/$PKG_NAME/java -sources
+  javadoc -classpath "$(R --slave -e 'cat(paste(rscala::scalaInfo()$jars,collapse=":"))'):$PKG_HOME"/R/$PKG_NAME/inst/java/'*' -d "$PKG_HOME"/target/java/api/ "$PKG_HOME"/src/main/java/org/ddahl/rscala/java/RClient.java
+fi
+
+# Build R package
+TGZ_NAME=${PKG_NAME}_$MAJOR.tar.gz
+if [[ -n "$TASK_R" ]]
+then
+  cd bin
+  ./make-protocol
+  cd ..
+  cd R
+  R CMD build $FLAG_BUILD_VIGNETTES $PKG_NAME
+  R CMD INSTALL $TGZ_NAME
+  echo "---------"
+  echo Package path: "$(readlink -f "$TGZ_NAME")"
+  echo "---------"
+  cd ..
+fi
+
+# Put version back to standard to avoid unnecessary commits.
+setversion "0.0.0.0" "1970-01-01"
+
+# Check R package
+if [[ -n "$TASK_RCHECK" ]]
+then
+  R CMD check $FLAG_CHECK_CRAN $FLAG_CHECK_EXAMPLES $FLAG_CHECK_VIGNETTES R/$TGZ_NAME
+fi
+
+mkdir -p deliveries
+mv R/$TGZ_NAME deliveries
+
