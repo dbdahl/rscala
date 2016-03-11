@@ -1,5 +1,6 @@
-1.0.9 (20xx-xx-xx)
+1.0.9 (2016-03-11)
   * Bumped support to latest Scala releases (2.11.8 and 2.10.6)
+  * Fixed display of README file if no Scala installation is found.
 
 1.0.8 (2015-12-09)
   * Put CRAN URL in canonical form.
