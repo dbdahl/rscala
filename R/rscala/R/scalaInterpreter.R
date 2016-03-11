@@ -735,12 +735,12 @@ scalaInfo <- function(scala.home=NULL,verbose=FALSE) {
   if ( ! verbose ) scalaInfo(scala.home=scala.home,verbose=TRUE)
   else {
     cat("Cannot find a suitable Scala installation.\n\n")
-    f <- file(system.file(file.path("doc","README"),package="rscala"),open="r")
+    f <- file(system.file("README",package="rscala"),open="r")
     readme <- readLines(f)
     close(f)
     cat(readme,sep="\n")
     cat("\n")
-    NULL
+    invisible(NULL)
   }
 }
 
