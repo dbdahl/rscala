@@ -72,7 +72,7 @@ object Console {
   /** ANSI invisible */
   final val INVISIBLE  = "\033[8m"
 
-  // From Scala 2.10.5
+  // From Scala 2.10.6
   // Start of rscala patch which only takes effect if RSCALA_TUNNELING environment variable is TRUE.
   val baosOut = new java.io.ByteArrayOutputStream()
   val baosErr = new java.io.ByteArrayOutputStream()

@@ -2,9 +2,9 @@ name := "rscala"
 
 version := "1.0.9"
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.8"
 
-crossScalaVersions := Seq("2.11.7", "2.10.5")
+crossScalaVersions := Seq("2.11.8", "2.10.6")
 
 scalacOptions ++= List("-feature", "-deprecation", "-unchecked")
 

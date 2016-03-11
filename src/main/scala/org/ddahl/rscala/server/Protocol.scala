@@ -38,7 +38,7 @@ object Protocol {
   val UNDEFINED_IDENTIFIER = 1002
 
   // Misc.
-  val CURRENT_SUPPORTED_SCALA_VERSION = "2.11.6"
+  val CURRENT_SUPPORTED_SCALA_VERSION = "2.11.8"
 
 }
 

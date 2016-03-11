@@ -21,7 +21,7 @@ import scala.util.DynamicVariable
  */
 object Console extends DeprecatedConsole with AnsiColor {
 
-  // From Scala 2.11.6
+  // From Scala 2.11.8
   // Start of rscala patch which only takes effect if RSCALA_TUNNELING environment variable is TRUE.
   val baosOut = new java.io.ByteArrayOutputStream()
   val baosErr = new java.io.ByteArrayOutputStream()
