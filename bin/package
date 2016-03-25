@@ -110,6 +110,8 @@ then
   copy $JARBIN "$PKG_HOME"/R/$PKG_NAME/inst/java ""
   copy $JARSRC "$PKG_HOME"/R/$PKG_NAME/java -sources
   javadoc -classpath "$(R --slave -e 'cat(paste(rscala::scalaInfo()$jars,collapse=":"))'):$PKG_HOME"/R/$PKG_NAME/inst/java/'*' -d "$PKG_HOME"/target/java/api/ "$PKG_HOME"/src/main/java/org/ddahl/rscala/java/RClient.java
+  echo "Not publishing; you might want to run '$SBT publish-local' yourself.
+  # $SBT publish-local
 fi
 
 # Build R package

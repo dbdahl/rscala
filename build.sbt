@@ -2,9 +2,13 @@ name := "rscala"
 
 version := "1.0.9"
 
+organization := "org.ddahl.rscala"
+
 scalaVersion := "2.11.8"
 
 crossScalaVersions := Seq("2.11.8", "2.10.6")
+
+publishMavenStyle := true
 
 scalacOptions ++= List("-feature", "-deprecation", "-unchecked")
 
