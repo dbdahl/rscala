@@ -19,10 +19,11 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
   } else {
     out.writeInt(OK)
     out.flush
+    val packagedJarVersion = Helper.readString(in)
     try {
-      assert( Helper.readString(in) == org.ddahl.rscala.server.Version )
+      assert( packagedJarVersion == org.ddahl.rscala.server.Version )
     } catch {
-      case _: Throwable => throw new RuntimeException("The JAR file is not compatible with installed version of the rscala package.  Use the JAR indicated running `rscala::rscalaJar("+util.Properties.versionString.replaceFirst("""\.\d+$""","")+")` in R.")
+      case _: Throwable => throw new RuntimeException("The JAR file (version "+org.ddahl.rscala.server.Version+") is not compatible with installed the rscala package (version "+packagedJarVersion+").  Use the JAR indicated running `rscala::rscalaJar("+util.Properties.versionString.replaceFirst("""\.\d+$""","")+")` in R.")
     }
     repl.bind("R","org.ddahl.rscala.callback.RClient",R)
     if ( repl.interpreter.isInstanceOf[scala.tools.nsc.interpreter.IMain] ) {

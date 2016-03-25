@@ -697,11 +697,12 @@ q(save='no')
     val sockets = new ScalaSockets(portsFile.getAbsolutePath,debugger)
     sockets.out.writeInt(OK)
     sockets.out.flush()
+    val packagedJarVersion = Helper.readString(sockets.in)
     try {
-      assert( Helper.readString(sockets.in) == org.ddahl.rscala.server.Version )
+      assert( packagedJarVersion == org.ddahl.rscala.server.Version )
     } catch {
-      case _: Throwable => throw new RuntimeException("The JAR file is not compatible with installed version of the rscala package.  Use the JAR indicated running `rscala::rscalaJar("+util.Properties.versionString.replaceFirst("""\.\d+$""","")+")` in R.")
-    }
+      case _: Throwable => throw new RuntimeException("The JAR file (version "+org.ddahl.rscala.server.Version+") is not compatible with installed the rscala package (version "+packagedJarVersion+").  Use the JAR indicated running `rscala::rscalaJar("+util.Properties.versionString.replaceFirst("""\.\d+$""","")+")` in R.")
+    } 
     apply(sockets.in,sockets.out,debugger)
   }
 
