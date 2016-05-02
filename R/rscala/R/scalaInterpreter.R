@@ -45,7 +45,7 @@ scalaInterpreter <- function(classpath=character(0),scala.home=NULL,java.home=NU
 }
 
 newSockets <- function(portsFilename,debug,timeout) {
-  getPortNumbers <- function() {
+  ports <- local({
     delay <- 0.1
     start <- proc.time()[3]
     while ( TRUE ) {
@@ -57,8 +57,7 @@ newSockets <- function(portsFilename,debug,timeout) {
         if ( length(line) > 0 ) return(as.numeric(line))
       }
     }
-  }
-  ports <- getPortNumbers()
+  })
   file.remove(portsFilename)
   if ( debug ) cat("R DEBUG: Trying to connect to port:",paste(ports,collapse=","),"\n")
   socketConnectionIn  <- socketConnection(port=ports[1],blocking=TRUE,open="ab",timeout=2678400)

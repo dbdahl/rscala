@@ -625,17 +625,18 @@ object RClient {
   }
 
   private val defaultArguments = OS match {
-    case "windows" =>    Array[String]("--vanilla","--silent","--slave","--ess") 
-    case "linux" =>      Array[String]("--vanilla","--silent","--slave","--interactive")
-    case "unix" =>       Array[String]("--vanilla","--silent","--slave","--interactive")
-    case "macintosh" =>  Array[String]("--vanilla","--silent","--slave","--interactive")
+    case "windows" =>  Array[String]("--vanilla","--silent","--slave") 
+    case _ =>          Array[String]("--vanilla","--silent","--slave")
+  }
+
+  private val interactiveArguments = OS match {
+    case "windows" =>  Array[String]("--ess") 
+    case _ =>          Array[String]("--interactive")
   }
 
   private lazy val defaultRCmd = OS match {
-    case "windows" =>   findROnWindows
-    case "linux" =>     """R"""
-    case "unix" =>      """R"""
-    case "macintosh" => """R"""
+    case "windows" =>  findROnWindows
+    case _ =>          """R"""
   }
 
   private def findROnWindows: String = {
@@ -675,8 +676,12 @@ object RClient {
   * output should be display and the `timeout` to establish a connection with the R interpreter.
   */
   def apply(rCmd: String, debug: Boolean = false, timeout: Int = 60): RClient = {
+    Process(rCmd, defaultArguments ++ Seq("-e","""cat("rscala" %in% rownames(installed.packages()))""")).!!.trim match {
+      case "TRUE" => ;
+      case _ => sys.error("The rscala package is not found.  If multiple version of R are installed, make sure you are using one where rscala is installed.")
+    }
     var cmd: PrintWriter = null
-    val command = rCmd +: defaultArguments
+    val command = rCmd +: ( defaultArguments ++ interactiveArguments )
     val processCmd = Process(command)
     val debugger = new Debugger(debug)
     val processIO = new ProcessIO(
@@ -688,9 +693,9 @@ object RClient {
     val portsFile = File.createTempFile("rscala-","")
     val processInstance = processCmd.run(processIO)
     val snippet = s"""
-rscala:::rServe(rscala:::newSockets('${portsFile.getAbsolutePath.replace(File.separator,"/")}',debug=${if ( debug ) "TRUE" else "FALSE"},timeout=${timeout}))
-q(save='no')
-    """
+      rscala:::rServe(rscala:::newSockets('${portsFile.getAbsolutePath.replace(File.separator,"/")}',debug=${if ( debug ) "TRUE" else "FALSE"},timeout=${timeout}))
+      q(save='no')
+    """.stripMargin
     while ( cmd == null ) Thread.sleep(100)
     cmd.println(snippet)
     cmd.flush()
@@ -698,11 +703,9 @@ q(save='no')
     sockets.out.writeInt(OK)
     sockets.out.flush()
     val packagedJarVersion = Helper.readString(sockets.in)
-    try {
-      assert( packagedJarVersion == org.ddahl.rscala.server.Version )
-    } catch {
-      case _: Throwable => throw new RuntimeException("The JAR file (version "+org.ddahl.rscala.server.Version+") is not compatible with installed the rscala package (version "+packagedJarVersion+").  Use the JAR indicated running `rscala::rscalaJar("+util.Properties.versionString.replaceFirst("""\.\d+$""","")+")` in R.")
-    } 
+    if ( packagedJarVersion != org.ddahl.rscala.server.Version ) {
+      sys.error("The JAR file (version "+org.ddahl.rscala.server.Version+") is not compatible with installed the rscala package (version "+packagedJarVersion+").")
+    }
     apply(sockets.in,sockets.out,debugger)
   }
 
