@@ -20,7 +20,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
     out.writeInt(OK)
     out.flush
     val packagedJarVersion = Helper.readString(in)
-    if ( packagedJarVersion != org.ddahl.rscala.server.Version ) {
+    if ( ( org.ddahl.rscala.server.Version != "0.0.0.0" ) && ( packagedJarVersion != org.ddahl.rscala.server.Version ) ) {
       sys.error("The JAR file (version "+org.ddahl.rscala.server.Version+") is not compatible with installed the rscala package (version "+packagedJarVersion+").")
     }
     repl.bind("R","org.ddahl.rscala.callback.RClient",R)

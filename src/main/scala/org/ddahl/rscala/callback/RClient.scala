@@ -676,9 +676,9 @@ object RClient {
   * output should be display and the `timeout` to establish a connection with the R interpreter.
   */
   def apply(rCmd: String, debug: Boolean = false, timeout: Int = 60): RClient = {
-    Process(rCmd, defaultArguments ++ Seq("-e","""cat("rscala" %in% rownames(installed.packages()))""")).!!.trim match {
+    Process(rCmd, defaultArguments ++ Seq("-e","""cat('rscala' %in% rownames(installed.packages()))""")).!!.trim match {
       case "TRUE" => ;
-      case _ => sys.error("The rscala package is not found.  If multiple version of R are installed, make sure you are using one where rscala is installed.")
+      case _ => sys.error(s"""The rscala package is not found for this R executable: "${rCmd}".  If multiple version of R are installed, make sure you are using the right one.""")
     }
     var cmd: PrintWriter = null
     val command = rCmd +: ( defaultArguments ++ interactiveArguments )
@@ -703,7 +703,7 @@ object RClient {
     sockets.out.writeInt(OK)
     sockets.out.flush()
     val packagedJarVersion = Helper.readString(sockets.in)
-    if ( packagedJarVersion != org.ddahl.rscala.server.Version ) {
+    if ( ( org.ddahl.rscala.server.Version != "0.0.0.0" ) && ( packagedJarVersion != org.ddahl.rscala.server.Version ) ) {
       sys.error("The JAR file (version "+org.ddahl.rscala.server.Version+") is not compatible with installed the rscala package (version "+packagedJarVersion+").")
     }
     apply(sockets.in,sockets.out,debugger)
