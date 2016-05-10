@@ -9,6 +9,25 @@ set -e
 PKG_NAME=rscala
 SBT="sbt"
 
+case "$(uname -s)" in
+  Darwin)
+    SEP=':'
+    PKG_HOME=$(dirname "$0")/..
+    CWD=$(pwd -P)
+    cd "$PKG_HOME"
+    PKG_HOME=$(pwd -P)
+    cd "$CWD"
+    ;;
+  CYGWIN*|MINGW32*|MSYS*)
+    SEP=';'
+    PKG_HOME=$(readlink -f $(dirname $(readlink -f "$0"))/..)
+    ;;
+  *)
+    SEP=':'
+    PKG_HOME=$(readlink -f $(dirname $(readlink -f "$0"))/..)
+    ;;
+esac
+
 function usage() {
   echo "Usage: $0 [ -s -r -c -f ]"
   echo "       where -s turns on Scala compile,"
@@ -68,18 +87,16 @@ then
 fi
 
 # Set up
-set -e
-PKG_HOME=$(readlink -f $(dirname $(readlink -f "$0"))/..)
 cd "$PKG_HOME"
 
 # Set version number and data
 function setversion {
   OLDWD="$PWD"
   cd "$PKG_HOME"
-  sed -i 's/\(\s*val\s*Version\s*=\s*\)"\(.*\)"/\1"'"$1"'"/g' src/main/scala/org/ddahl/$PKG_NAME/server/Package.scala 
-  sed -i 's/\(\s*val\s*Date\s*=\s*\)"\(.*\)"/\1"'"$2"'"/g' src/main/scala/org/ddahl/$PKG_NAME/server/Package.scala 
-  sed -i 's/\(\s*Version\s*:\s*\)\(.*\)/\1'"$1"'/g' R/$PKG_NAME/DESCRIPTION
-  sed -i 's/\(\s*Date\s*:\s*\)\(.*\)/\1'"$2"'/g' R/$PKG_NAME/DESCRIPTION
+  sed -i '' 's/\(\s*val\s*Version\s*=\s*\)"\(.*\)"/\1"'"$1"'"/g' src/main/scala/org/ddahl/$PKG_NAME/server/Package.scala 
+  sed -i '' 's/\(\s*val\s*Date\s*=\s*\)"\(.*\)"/\1"'"$2"'"/g' src/main/scala/org/ddahl/$PKG_NAME/server/Package.scala 
+  sed -i '' 's/\(\s*Version\s*:\s*\)\(.*\)/\1'"$1"'/g' R/$PKG_NAME/DESCRIPTION
+  sed -i '' 's/\(\s*Date\s*:\s*\)\(.*\)/\1'"$2"'/g' R/$PKG_NAME/DESCRIPTION
   cd "$OLDWD"
 }
 MAJOR=$(cat build.sbt | grep "version := " | cut -d '"' -f 2)
@@ -109,10 +126,6 @@ then
   }
   copy $JARBIN "$PKG_HOME"/R/$PKG_NAME/inst/java ""
   copy $JARSRC "$PKG_HOME"/R/$PKG_NAME/java -sources
-  case "$(uname -s)" in
-    CYGWIN*|MINGW32*|MSYS*) SEP=';' ;;
-    *)                      SEP=':' ;;
-  esac
   CATPASTE="cat(paste(rscala::scalaInfo()\$jars,collapse=\"$SEP\"))"
   javadoc -classpath "$(R --slave -e "$CATPASTE"):$PKG_HOME"/R/$PKG_NAME/inst/java/'*' -d "$PKG_HOME"/target/java/api/ "$PKG_HOME"/src/main/java/org/ddahl/rscala/java/RClient.java
   rm -rf ~/.ivy2/*/org.ddahl.rscala/rscala_*/$MAJOR/
@@ -129,9 +142,6 @@ then
   cd R
   R CMD build $FLAG_BUILD_VIGNETTES $PKG_NAME
   R CMD INSTALL $TGZ_NAME
-  echo "---------"
-  echo Package path: "$(readlink -f "$TGZ_NAME")"
-  echo "---------"
   cd ..
 fi
 
@@ -144,6 +154,9 @@ then
   R CMD check $FLAG_CHECK_CRAN $FLAG_CHECK_EXAMPLES $FLAG_CHECK_VIGNETTES R/$TGZ_NAME
 fi
 
-mkdir -p deliveries
-mv R/$TGZ_NAME deliveries
+if [[ -n "$TASK_R" ]]
+then
+  mkdir -p deliveries
+  mv R/$TGZ_NAME deliveries
+fi
 
