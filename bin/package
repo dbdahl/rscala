@@ -12,6 +12,7 @@ SBT="sbt"
 case "$(uname -s)" in
   Darwin)
     SEP=':'
+    SEDOPT="-i ''"
     PKG_HOME=$(dirname "$0")/..
     CWD=$(pwd -P)
     cd "$PKG_HOME"
@@ -20,10 +21,12 @@ case "$(uname -s)" in
     ;;
   CYGWIN*|MINGW32*|MSYS*)
     SEP=';'
+    SEDOPT="-i"
     PKG_HOME=$(readlink -f $(dirname $(readlink -f "$0"))/..)
     ;;
   *)
     SEP=':'
+    SEDOPT="-i"
     PKG_HOME=$(readlink -f $(dirname $(readlink -f "$0"))/..)
     ;;
 esac
@@ -93,10 +96,10 @@ cd "$PKG_HOME"
 function setversion {
   OLDWD="$PWD"
   cd "$PKG_HOME"
-  sed -i '' 's/\(\s*val\s*Version\s*=\s*\)"\(.*\)"/\1"'"$1"'"/g' src/main/scala/org/ddahl/$PKG_NAME/server/Package.scala 
-  sed -i '' 's/\(\s*val\s*Date\s*=\s*\)"\(.*\)"/\1"'"$2"'"/g' src/main/scala/org/ddahl/$PKG_NAME/server/Package.scala 
-  sed -i '' 's/\(\s*Version\s*:\s*\)\(.*\)/\1'"$1"'/g' R/$PKG_NAME/DESCRIPTION
-  sed -i '' 's/\(\s*Date\s*:\s*\)\(.*\)/\1'"$2"'/g' R/$PKG_NAME/DESCRIPTION
+  sed $SEDOPT 's/\(\s*val\s*Version\s*=\s*\)"\(.*\)"/\1"'"$1"'"/g' src/main/scala/org/ddahl/$PKG_NAME/server/Package.scala 
+  sed $SEDOPT 's/\(\s*val\s*Date\s*=\s*\)"\(.*\)"/\1"'"$2"'"/g' src/main/scala/org/ddahl/$PKG_NAME/server/Package.scala 
+  sed $SEDOPT 's/\(\s*Version\s*:\s*\)\(.*\)/\1'"$1"'/g' R/$PKG_NAME/DESCRIPTION
+  sed $SEDOPT 's/\(\s*Date\s*:\s*\)\(.*\)/\1'"$2"'/g' R/$PKG_NAME/DESCRIPTION
   cd "$OLDWD"
 }
 MAJOR=$(cat build.sbt | grep "version := " | cut -d '"' -f 2)
