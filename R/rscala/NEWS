@@ -1,4 +1,5 @@
-1.0.10 (2016-05-09)
+1.0.10 (2016-05-11)
+  * Uploaded JARS to http://central.sonatype.org/
   * Make sure that rscala package is installed when trying to embed R in Scala.
   * Better error messages regarding compatible jars.
 
