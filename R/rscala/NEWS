@@ -1,5 +1,14 @@
+1.0.12 (2016-06-01)
+  * Fast instantiation of RClient class (which was slow in 1.0.11).
+
+1.0.11 (2016-05-12)
+  * Fixed broken URL.
+  * Ship R code in JARs so that rscala does not need to be installed when
+    embedding R in Scala.  Add the following to your build.sbt file:
+    libraryDependencies += "org.ddahl" % "rscala_2.11" % "1.0.11"
+
 1.0.10 (2016-05-11)
-  * Uploaded JARS to http://central.sonatype.org/
+  * Uploaded JARs to http://central.sonatype.org/
   * Make sure that rscala package is installed when trying to embed R in Scala.
   * Better error messages regarding compatible jars.
 

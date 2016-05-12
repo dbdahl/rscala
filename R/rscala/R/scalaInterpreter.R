@@ -73,8 +73,6 @@ newSockets <- function(portsFilename,debug,timeout) {
   class(result) <- "ScalaInterpreter"
   status <- rb(result,integer(0))
   if ( ( length(status) == 0 ) || ( status != OK ) ) stop("Error instantiating interpreter.")
-  wc(result,toString(packageVersion("rscala")))
-  flush(result[['socketIn']])
   result
 }
 
