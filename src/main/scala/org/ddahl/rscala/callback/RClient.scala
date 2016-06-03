@@ -7,9 +7,6 @@ import scala.language.dynamics
 
 import Protocol._
 
-import java.nio.file.{Files, Paths}
-import java.nio.charset.StandardCharsets
-
 /** An interface to an R interpreter.
 *
 * An object `R` is the instance of this class available in a Scala interpreter created by calling the function
@@ -699,11 +696,15 @@ object RClient {
         environment()
       })"""
     val sourceFile = File.createTempFile("rscala-","")
-    Files.write(Paths.get(sourceFile.getCanonicalPath), allCodeInR.getBytes(StandardCharsets.UTF_8) )
+    val sourceFileNameForR = sourceFile.getAbsolutePath.replace(File.separator,"/")
+    val writer = new FileWriter(sourceFile)
+    writer.write(allCodeInR)
+    writer.flush()
+    writer.close()
     val portsFile = File.createTempFile("rscala-","")
     val snippet = s"""
-      source("${sourceFile}")
-      file.remove("${sourceFile}")
+      source("${sourceFileNameForR}")
+      file.remove("${sourceFileNameForR}")
       rscala[['rServe']](rscala[['newSockets']]('${portsFile.getAbsolutePath.replace(File.separator,"/")}',debug=${if ( debug ) "TRUE" else "FALSE"},timeout=${timeout}))
       q(save='no')
     """.stripMargin

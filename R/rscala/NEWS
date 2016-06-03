@@ -1,4 +1,4 @@
-1.0.12 (2016-06-01)
+1.0.12 (2016-06-03)
   * Fast instantiation of RClient class (which was slow in 1.0.11).
 
 1.0.11 (2016-05-12)
