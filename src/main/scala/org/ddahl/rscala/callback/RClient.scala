@@ -54,6 +54,8 @@ class RClient private (private val in: DataInputStream, private val out: DataOut
     }
   }
 
+  var captureOutput = true
+
   /** Closes the interface to the R interpreter.
   * 
   * Subsequent calls to the other methods will fail.
@@ -74,7 +76,7 @@ class RClient private (private val in: DataInputStream, private val out: DataOut
   */
   def eval(snippet: String, evalOnly: Boolean = true): Any = {
     if ( debug ) debugger.msg("Sending EVAL request.")
-    out.writeInt(EVAL)
+    out.writeInt(if(captureOutput) EVAL else EVALNAKED)
     Helper.writeString(out,snippet)
     out.flush()
     val status = in.readInt()

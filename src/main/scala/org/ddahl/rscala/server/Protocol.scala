@@ -23,6 +23,7 @@ object Protocol {
   val GC            = 102
   val DEBUG         = 103
   val EVAL          = 104
+  val EVALNAKED     = 113
   val SET           = 105
   val SET_SINGLE    = 106
   val SET_DOUBLE    = 107

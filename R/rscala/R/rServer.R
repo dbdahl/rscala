@@ -14,10 +14,14 @@ rServe <- function(sockets) {
       if ( debug != newDebug ) cat("R DEBUG: Debugging is now ",newDebug,"\n",sep="")
       debug <- newDebug
       assign("debug",debug,envir=sockets[['env']])
-    } else if ( cmd == EVAL ) {
-      if ( debug ) cat("R DEBUG: Got EVAL\n")
+    } else if ( ( cmd == EVAL ) || ( cmd == EVALNAKED ) ) {
+      if ( debug ) cat("R DEBUG: Got ",cmd,"\n",sep="")
       snippet <- rc(sockets)
-      output <- capture.output(result <- try(eval(parse(text=snippet),envir=workspace)))
+      output <- if ( cmd == EVAL ) capture.output(result <- try(eval(parse(text=snippet),envir=workspace)))
+      else {
+        result <- try(eval(parse(text=snippet),envir=workspace))
+        character()
+      }
       if ( inherits(result,"try-error") ) {
         wb(sockets,ERROR)
         msg <- paste(c(output,attr(result,"condition")$message),collapse="\n")
