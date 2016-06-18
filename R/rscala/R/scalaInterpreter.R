@@ -422,6 +422,11 @@ intpSet.ScalaInterpreter <- function(interpreter,identifier,value,length.one.as.
 intpCallback.ScalaInterpreter <- function(interpreter,argsType,returnType,func,interpolate="",captureOutput=FALSE) {
   cc(interpreter)
   if ( length(argsType) != length(formals(func)) ) stop("The length of 'argsType' must match the number of arguments of 'func'.")
+  if ( length(returnType) != 1 ) stop("The length of 'returnType' must be exactly one.")
+  X <- c("I","D","B","S")
+  Y <- c("0","1","2")
+  validReturnTypes <- c(paste(rep(X,each=length(Y)),rep(Y,times=length(X)),sep=""),"R")
+  if ( ! ( returnType %in% validReturnTypes ) ) stop(paste("Unrecognized 'returnType'.  Valid values are: ",paste(validReturnTypes,collapse=", "),sep=""))
   if ( ( ( interpolate == "" ) && ( get("interpolate",envir=interpreter[['env']]) ) ) || ( interpolate == TRUE ) ) {
     argsType <- sapply(argsType,function(x) strintrplt(x,parent.frame()))
     returnType <- strintrplt(returnType,parent.frame())

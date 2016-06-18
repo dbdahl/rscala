@@ -130,6 +130,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
         val errors = new StringWriter()
         e.printStackTrace(new PrintWriter(errors))
         buffer.append(errors.toString)
+        buffer.append("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
     }
     writeAll(buffer)
     out.flush()
@@ -189,6 +190,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
               val errors = new StringWriter()
               e.printStackTrace(new PrintWriter(errors))
               buffer.append(errors.toString)
+              buffer.append("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
           }
         } catch {
           case e: Throwable =>
@@ -196,6 +198,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
             val errors = new StringWriter()
             e.printStackTrace(new PrintWriter(errors))
             buffer.append(errors.toString)
+            buffer.append("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
         }
       } catch {
         case e: Throwable =>
@@ -229,6 +232,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
         val errors = new StringWriter()
         e.printStackTrace(new PrintWriter(errors))
         buffer.append(errors.toString)
+        buffer.append("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
     }
     writeAll(buffer)
     out.flush()
@@ -317,6 +321,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
             val errors = new StringWriter()
             e.printStackTrace(new PrintWriter(errors))
             buffer.append(errors.toString)
+            buffer.append("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
         }
       case ATOMIC =>
         if ( debugger.debug ) debugger.msg("Setting atomic.")
@@ -385,6 +390,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
         e.printStackTrace(new PrintWriter(errors))
         val buffer = new StringBuffer()
         buffer.append(errors.toString)
+        buffer.append("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
         writeAll(buffer)
         out.flush()
         return
@@ -579,6 +585,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
             e.printStackTrace(new PrintWriter(errors))
             val buffer = new StringBuffer()
             buffer.append(errors.toString)
+            buffer.append("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
             writeAll(buffer)
             out.flush()
             return
