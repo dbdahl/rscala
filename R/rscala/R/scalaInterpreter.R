@@ -312,6 +312,12 @@ intpGet.ScalaInterpreter <- function(interpreter,identifier,as.reference=NA) {
       body <- strintrplt(body,parent.frame())
     }
     intpDef(interpreter,args,body,interpolate=FALSE)
+  } else if ( identifier == "callback" ) function(argsType,returnType,func,captureOutput=FALSE) {
+    if ( get("interpolate",envir=interpreter[['env']]) ) {
+      argsType <- sapply(argsType,function(x) strintrplt(x,parent.frame()))
+      returnType <- strintrplt(returnType,parent.frame())
+    }
+    intpCallback(interpreter,argsType,returnType,func,interpolate=FALSE,captureOutput=captureOutput)
   } else if ( identifier == "do" ) function(item.name) {
     result <- list(interpreter=interpreter,item.name=item.name)
     class(result) <- "ScalaInterpreterItem"
@@ -410,6 +416,34 @@ intpSet.ScalaInterpreter <- function(interpreter,identifier,value,length.one.as.
     intpSet(interpreter,identifier,value)
   }
   interpreter
+}
+
+intpCallback.ScalaInterpreter <- function(interpreter,argsType,returnType,func,interpolate="",captureOutput=FALSE) {
+  cc(interpreter)
+  if ( length(argsType) != length(formals(func)) ) stop("The length of 'argsType' must match the number of arguments of 'func'.")
+  if ( ( ( interpolate == "" ) && ( get("interpolate",envir=interpreter[['env']]) ) ) || ( interpolate == TRUE ) ) {
+    argsType <- sapply(argsType,function(x) strintrplt(x,parent.frame()))
+    returnType <- strintrplt(returnType,parent.frame())
+  }
+  assign("fff",func,env=interpreter[['workspace']])    #### Got to fix the name 'fff' so I don't stomp on another value!
+  xs <- paste("x",1:length(argsType),sep="")   #### Isn't there a better name we could use than x?  That would be less likely to clash.  Maybe okay.
+  argsScala <- paste(paste(xs,argsType,sep=": "),collapse=", ")
+  sets <- paste(paste('R.set(".',xs,'",',xs,')',sep=""),collapse="\n")
+  argsR <- paste(".",xs,sep="",collapse=",")
+  snippet <- sprintf('(%s) => {
+    locally {
+      %s
+      val captureOutput = R.captureOutput
+      R.captureOutput = @{ifelse(captureOutput,"true","false")}
+      val result = R.eval%s("fff(%s)")
+      R.captureOutput = captureOutput
+      result
+    }
+  }',argsScala,sets,returnType,argsR)
+  snippet <- strintrplt(snippet,parent.frame())
+  result <- evalAndGet(interpreter,snippet,TRUE)
+  if ( is.null(result) ) invisible(result)
+  else result
 }
 
 intpDef.ScalaInterpreter <- function(interpreter,args,body,interpolate="",quiet="",reference=NULL) {

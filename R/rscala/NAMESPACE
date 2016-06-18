@@ -29,6 +29,9 @@ S3method("intpWrap","ScalaInterpreter")
 export("intpUnwrap")
 S3method("intpUnwrap","ScalaInterpreter")
 
+export("intpCallback")
+S3method("intpCallback","ScalaInterpreter")
+
 export("intpEval")
 S3method("intpEval","ScalaInterpreter")
 export("%~%")
