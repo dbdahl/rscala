@@ -7,8 +7,9 @@ intpWrap     <- function(interpreter, value) UseMethod("intpWrap")
 intpUnwrap   <- function(interpreter, value) UseMethod("intpUnwrap")
 intpGC       <- function(interpreter) UseMethod("intpGC")
 intpReset    <- function(interpreter) UseMethod("reset")
-'%~%' <- function(interpreter,snippet) UseMethod("%~%")
+'%~%'  <- function(interpreter,snippet) UseMethod("%~%")
 '%.~%' <- function(interpreter,snippet) UseMethod("%.~%")
+'%@%'  <- function(interpreter,snippet) UseMethod("%@%")
 
 strintrplt <- function(snippet,envir=parent.frame()) {
   if ( ! is.character(snippet) ) stop("Character vector expected.")

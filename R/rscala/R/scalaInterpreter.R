@@ -114,6 +114,11 @@ intpEval.ScalaInterpreter <- function(interpreter,snippet,interpolate="",quiet="
   else result
 }
 
+'%@%.ScalaInterpreter' <- function(interpreter,snippet) {
+  cc(interpreter)
+  intpEval(interpreter,snippet)
+}
+
 print.ScalaInterpreter <- function(x,...) {
   cat("ScalaInterpreter\n")
   invisible(x)
