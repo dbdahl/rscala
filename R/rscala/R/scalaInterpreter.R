@@ -39,6 +39,7 @@ scalaInterpreter <- function(classpath=character(0),scala.home=NULL,java.home=NU
   sockets <- newSockets(portsFilename,debug,timeout)
   sockets[['scalaInfo']] <- sInfo
   assign("debug",!debug,envir=sockets[['env']])
+  assign("callbackNameCounter",0L,envir=sockets[['env']])
   assign("markedForGC",integer(0),envir=sockets[['env']])
   intpSettings(sockets,debug=debug,interpolate=TRUE,length.one.as.vector=FALSE,quiet=FALSE)
   sockets
@@ -425,8 +426,11 @@ intpCallback.ScalaInterpreter <- function(interpreter,argsType,returnType,func,i
     argsType <- sapply(argsType,function(x) strintrplt(x,parent.frame()))
     returnType <- strintrplt(returnType,parent.frame())
   }
-  assign("fff",func,env=interpreter[['workspace']])    #### Got to fix the name 'fff' so I don't stomp on another value!
-  xs <- paste("x",1:length(argsType),sep="")   #### Isn't there a better name we could use than x?  That would be less likely to clash.  Maybe okay.
+  functionNumber <- get("callbackNameCounter",envir=interpreter[['env']])
+  functionName <- paste(".f",functionNumber,sep="")
+  assign("callbackNameCounter",functionNumber+1L,envir=interpreter[['env']])
+  assign(functionName,func,env=interpreter[['workspace']])
+  xs <- paste("x",1:length(argsType),sep="")
   argsScala <- paste(paste(xs,argsType,sep=": "),collapse=", ")
   sets <- paste(paste('R.set(".',xs,'",',xs,')',sep=""),collapse="\n")
   argsR <- paste(".",xs,sep="",collapse=",")
@@ -435,11 +439,11 @@ intpCallback.ScalaInterpreter <- function(interpreter,argsType,returnType,func,i
       %s
       val captureOutput = R.captureOutput
       R.captureOutput = @{ifelse(captureOutput,"true","false")}
-      val result = R.eval%s("fff(%s)")
+      val result = R.eval%s("%s(%s)")
       R.captureOutput = captureOutput
       result
     }
-  }',argsScala,sets,returnType,argsR)
+  }',argsScala,sets,returnType,functionName,argsR)
   snippet <- strintrplt(snippet,parent.frame())
   result <- evalAndGet(interpreter,snippet,TRUE)
   if ( is.null(result) ) invisible(result)
