@@ -9,6 +9,7 @@
 \alias{intpReset}
 \alias{\%~\%}
 \alias{\%.~\%}
+\alias{\%@\%}
 \alias{$.ScalaInterpreter}
 \alias{$<-.ScalaInterpreter}
 \alias{scalap}
@@ -39,6 +40,7 @@ scalap(interpreter, item.name)
 
 interpreter \%~\% snippet
 interpreter \%.~\% snippet
+interpreter \%@\% snippet
 
 \method{$}{ScalaInterpreter}(interpreter, identifier)
 \method{$}{ScalaInterpreter}(interpreter, identifier) <- value
@@ -58,7 +60,8 @@ interpreter \%.~\% snippet
     \item{item.name}{A character vector of length one containing the name of an object/class for which the \sQuote{scalap} command should be run.}
 }
 \details{
-The convenient shorthand notation \code{interpreter \%~\% snippet} both
+The convenient shorthand notation \code{interpreter \%@\% snippet} evaulates
+the expression \var{snippet}, whereas \code{interpreter \%~\% snippet} both
 evaluates the expression \var{snippet} and attempts to return a vector or
 matrix of integers, doubles, logicals, or characters or --- if this is not
 possible --- \code{NULL} is returned.  The convenient shorthand notation
@@ -110,7 +113,7 @@ s <- scalaInterpreter()
 intpSettings(s)
 
 # Demonstrate convenient notation and string interpolation
-s \%~\% 'println("Hello @{Sys.getenv("USER")}")'
+s \%@\% 'println("Hello @{Sys.getenv("USER")}")'
 intpEval(s,'println("Hello again")')             # Results printed to console
 intpEval(s,'println("Hello again")',quiet=TRUE)  # Console output is suppressed
 
