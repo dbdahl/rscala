@@ -72,7 +72,7 @@ newSockets <- function(portsFilename,debug,timeout) {
   workspace$. <- new.env(parent=workspace)
   result <- list(socketIn=socketConnectionIn,socketOut=socketConnectionOut,env=env,workspace=workspace,functionCache=functionCache)
   class(result) <- "ScalaInterpreter"
-  status <- rb(result,integer(0))
+  status <- rb(result,"integer")
   if ( ( length(status) == 0 ) || ( status != OK ) ) stop("Error instantiating interpreter.")
   result
 }
@@ -87,7 +87,7 @@ intpEval.ScalaInterpreter <- function(interpreter,snippet,interpolate="",quiet="
   wc(interpreter,snippet)
   flush(interpreter[['socketIn']])
   rServe(interpreter)
-  status <- rb(interpreter,integer(0))
+  status <- rb(interpreter,"integer")
   echoResponseScala(interpreter,quiet)
   invisible(NULL)
 }
@@ -227,7 +227,7 @@ intpGet.ScalaInterpreter <- function(interpreter,identifier,as.reference=NA) {
     wb(interpreter,GET_REFERENCE)
     wc(interpreter,as.character(identifier[1]))
     flush(interpreter[['socketIn']])
-    response <- rb(interpreter,integer(0))
+    response <- rb(interpreter,"integer")
     if ( response == OK ) {
       id <- rc(interpreter)
       type <- rc(interpreter)
@@ -252,11 +252,11 @@ intpGet.ScalaInterpreter <- function(interpreter,identifier,as.reference=NA) {
   wb(interpreter,GET)
   wc(interpreter,i)
   flush(interpreter[['socketIn']])
-  dataStructure <- rb(interpreter,integer(0))
+  dataStructure <- rb(interpreter,"integer")
   if ( dataStructure == NULLTYPE ) {
     NULL
   } else if ( dataStructure == ATOMIC ) {
-    dataType <- rb(interpreter,integer(0))
+    dataType <- rb(interpreter,"integer")
     if ( dataType == STRING ) {
       rc(interpreter)
     } else {
@@ -265,8 +265,8 @@ intpGet.ScalaInterpreter <- function(interpreter,identifier,as.reference=NA) {
       else v
     }
   } else if ( dataStructure == VECTOR ) {
-    length <- rb(interpreter,integer(0))
-    dataType <- rb(interpreter,integer(0))
+    length <- rb(interpreter,"integer")
+    dataType <- rb(interpreter,"integer")
     if ( dataType == STRING ) {
       if ( length > 0 ) sapply(1:length,function(x) rc(interpreter))
       else character(0)
@@ -276,8 +276,8 @@ intpGet.ScalaInterpreter <- function(interpreter,identifier,as.reference=NA) {
       else v
     }
   } else if ( dataStructure == MATRIX ) {
-    dim <- rb(interpreter,integer(0),2L)
-    dataType <- rb(interpreter,integer(0))
+    dim <- rb(interpreter,"integer",2L)
+    dataType <- rb(interpreter,"integer")
     if ( dataType == STRING ) {
       v <- matrix("",nrow=dim[1],ncol=dim[2])
       if ( dim[1] > 0 ) for ( i in 1:dim[1] ) {
@@ -364,7 +364,7 @@ intpSet.ScalaInterpreter <- function(interpreter,identifier,value,length.one.as.
     wb(interpreter,REFERENCE)
     wc(interpreter,value[['identifier']])
     flush(interpreter[['socketIn']])
-    status <- rb(interpreter,integer(0))
+    status <- rb(interpreter,"integer")
     echoResponseScala(interpreter,quiet)
     if ( status == ERROR ) {
       stop("Setting error.")
@@ -476,16 +476,16 @@ intpDef.ScalaInterpreter <- function(interpreter,args,body,interpolate="",quiet=
   wc(interpreter,prependedArgs)
   wc(interpreter,body)
   flush(interpreter[['socketIn']])
-  status <- rb(interpreter,integer(0))
+  status <- rb(interpreter,"integer")
   if ( status == OK ) {
-    status <- rb(interpreter,integer(0))
+    status <- rb(interpreter,"integer")
     if ( status == OK ) {
-      status <- rb(interpreter,integer(0))
+      status <- rb(interpreter,"integer")
       if ( status == OK ) {
-        status <- rb(interpreter,integer(0))
+        status <- rb(interpreter,"integer")
         if ( status == OK ) {
           functionName <- rc(interpreter)
-          length <- rb(interpreter,integer(0))
+          length <- rb(interpreter,"integer")
           functionParamNames <- if ( length > 0 ) sapply(1:length,function(x) rc(interpreter))
           else character(0)
           functionParamTypes <- if ( length > 0 ) sapply(1:length,function(x) rc(interpreter))
@@ -507,7 +507,7 @@ intpDef.ScalaInterpreter <- function(interpreter,args,body,interpolate="",quiet=
     rscala:::wc(interpreter,"@{functionName}")
     flush(interpreter[["socketIn"]])
     rscala:::rServe(interpreter)
-    status <- rscala:::rb(interpreter,integer(0))
+    status <- rscala:::rb(interpreter,"integer")
     rscala:::echoResponseScala(interpreter,quiet)
     if ( status == rscala:::ERROR ) {
       stop("Invocation error.")
@@ -890,26 +890,30 @@ cc <- function(c) {
   if ( ! get("open",envir=c[['env']]) ) stop("The connection has already been closed.")
 }
 
-wb <- function(c,v) writeBin(v,c[['socketIn']],endian="big")
+swap.endian <- .Platform$endian != "big"
+
+wb <- function(c,v) {
+  .Internal(writeBin(v, c[['socketIn']], NA_integer_, swap.endian, FALSE))
+}
 
 wc <- function(c,v) {
   bytes <- charToRaw(v)
   wb(c,length(bytes))
-  writeBin(bytes,c[['socketIn']],endian="big",useBytes=TRUE)
+  .Internal(writeBin(bytes, c[['socketIn']], NA_integer_, swap.endian, TRUE))
 }
 
 # Sockets should be blocking, but that contract is not fulfilled when other code uses functions from the parallel library.  Program around their problem.
 rb <- function(c,v,n=1L) {
-  r <- readBin(c[['socketOut']],what=v,n=n,endian="big")
+  r <- .Internal(readBin(c[['socketOut']], v, n, NA_integer_, TRUE, swap.endian))
   if ( length(r) == n ) r
   else c(r,rb(c,v,n-length(r)))
 }
 
 # Sockets should be blocking, but that contract is not fulfilled when other code uses functions from the parallel library.  Program around their problem.
 rc <- function(c) {
-  length <- rb(c,integer(0))
-  r <- as.raw(c())
-  while ( length(r) != length ) r <- c(r,readBin(c[['socketOut']],what="raw",n=length,endian="big"))
+  length <- rb(c,"integer")
+  r <- raw(0)
+  while ( length(r) != length ) r <- c(r,.Internal(readBin(c[['socketOut']], "raw", length-length(r), NA_integer_, TRUE, swap.endian)))
   rawToChar(r)
 }
 

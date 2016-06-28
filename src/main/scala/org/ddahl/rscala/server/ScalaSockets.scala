@@ -20,8 +20,10 @@ private[rscala] class ScalaSockets(portsFilename: String, debugger: Debugger) {
   }
 
   val socketIn = serverIn.accept
+  socketIn.setTcpNoDelay(true)
   val in = new DataInputStream(new BufferedInputStream(socketIn.getInputStream))
   val socketOut = serverOut.accept
+  socketOut.setTcpNoDelay(true)
   val out = new DataOutputStream(new BufferedOutputStream(socketOut.getOutputStream))
 
 }

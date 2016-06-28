@@ -1,8 +1,8 @@
 typeMap <- list()
-typeMap[[INTEGER]] <- integer(0)
-typeMap[[DOUBLE]] <- double(0)
-typeMap[[BOOLEAN]] <- integer(0)
-typeMap[[STRING]] <- character(0)
+typeMap[[INTEGER]] <- "integer"
+typeMap[[DOUBLE]] <- "double"
+typeMap[[BOOLEAN]] <- "integer"
+typeMap[[STRING]] <- "character"
 
 .onAttach <- function(libname, pkgname) {
   output <- capture.output({

@@ -4,17 +4,8 @@ rServe <- function(sockets) {
   debug <- get("debug",envir=sockets[['env']])
   while ( TRUE ) {
     if ( debug ) cat("R DEBUG: Top of the loop waiting for a command.\n")
-    cmd <- rb(sockets,integer(0))
-    if ( cmd == EXIT ) {
-      if ( debug ) cat("R DEBUG: Got EXIT\n")
-      return()
-    } else if ( cmd == DEBUG ) {
-      if ( debug ) cat("R DEBUG: Got DEBUG\n")
-      newDebug <- ( rb(sockets,integer(0)) != 0 )
-      if ( debug != newDebug ) cat("R DEBUG: Debugging is now ",newDebug,"\n",sep="")
-      debug <- newDebug
-      assign("debug",debug,envir=sockets[['env']])
-    } else if ( ( cmd == EVAL ) || ( cmd == EVALNAKED ) ) {
+    cmd <- rb(sockets,"integer")
+    if ( ( cmd == EVAL ) || ( cmd == EVALNAKED ) ) {
       if ( debug ) cat("R DEBUG: Got ",cmd,"\n",sep="")
       snippet <- rc(sockets)
       output <- if ( cmd == EVAL ) capture.output(result <- try(eval(parse(text=snippet),envir=workspace)))
@@ -36,37 +27,37 @@ rServe <- function(sockets) {
       if ( debug ) cat("R DEBUG: Got SET\n")
       if ( cmd != SET ) index <- rc(sockets)
       identifier <- rc(sockets)
-      dataStructure <- rb(sockets,integer(0))
+      dataStructure <- rb(sockets,"integer")
       if ( dataStructure == NULLTYPE ) {
         if ( cmd == SET ) assign(identifier,NULL,envir=workspace)
         else subassign(sockets,identifier,index,NULL,cmd==SET_SINGLE)
       } else if ( dataStructure == ATOMIC ) {
-        dataType <- rb(sockets,integer(0))
-        if ( dataType == INTEGER ) value <- rb(sockets,integer(0))
-        else if ( dataType == DOUBLE ) value <- rb(sockets,double(0))
-        else if ( dataType == BOOLEAN ) value <- rb(sockets,integer(0)) != 0
+        dataType <- rb(sockets,"integer")
+        if ( dataType == INTEGER ) value <- rb(sockets,"integer")
+        else if ( dataType == DOUBLE ) value <- rb(sockets,"double")
+        else if ( dataType == BOOLEAN ) value <- rb(sockets,"integer") != 0
         else if ( dataType == STRING ) value <- rc(sockets)
         else stop(paste("Unknown data type:",dataType))
         if ( cmd == SET ) assign(identifier,value,envir=workspace)
         else subassign(sockets,identifier,index,value,cmd==SET_SINGLE)
       } else if ( dataStructure == VECTOR ) {
-        dataLength <- rb(sockets,integer(0))
-        dataType <- rb(sockets,integer(0))
-        if ( dataType == INTEGER ) value <- rb(sockets,integer(0),n=dataLength)
-        else if ( dataType == DOUBLE ) value <- rb(sockets,double(0),n=dataLength)
-        else if ( dataType == BOOLEAN ) value <- rb(sockets,integer(0),n=dataLength) != 0
+        dataLength <- rb(sockets,"integer")
+        dataType <- rb(sockets,"integer")
+        if ( dataType == INTEGER ) value <- rb(sockets,"integer",n=dataLength)
+        else if ( dataType == DOUBLE ) value <- rb(sockets,"double",n=dataLength)
+        else if ( dataType == BOOLEAN ) value <- rb(sockets,"integer",n=dataLength) != 0
         else if ( dataType == STRING ) value <- sapply(1:dataLength,function(i) rc(sockets))
         else stop(paste("Unknown data type:",dataType))
         if ( cmd == SET ) assign(identifier,value,envir=workspace)
         else subassign(sockets,identifier,index,value,cmd==SET_SINGLE)
       } else if ( dataStructure == MATRIX ) {
-        dataNRow <- rb(sockets,integer(0))
-        dataNCol <- rb(sockets,integer(0))
+        dataNRow <- rb(sockets,"integer")
+        dataNCol <- rb(sockets,"integer")
         dataLength <- dataNRow * dataNCol
-        dataType <- rb(sockets,integer(0))
-        if ( dataType == INTEGER ) value <- matrix(rb(sockets,integer(0),n=dataLength),nrow=dataNRow,byrow=TRUE)
-        else if ( dataType == DOUBLE ) value <- matrix(rb(sockets,double(0),n=dataLength),nrow=dataNRow,byrow=TRUE)
-        else if ( dataType == BOOLEAN ) value <- matrix(rb(sockets,integer(0),n=dataLength),nrow=dataNRow,byrow=TRUE) != 0
+        dataType <- rb(sockets,"integer")
+        if ( dataType == INTEGER ) value <- matrix(rb(sockets,"integer",n=dataLength),nrow=dataNRow,byrow=TRUE)
+        else if ( dataType == DOUBLE ) value <- matrix(rb(sockets,"double",n=dataLength),nrow=dataNRow,byrow=TRUE)
+        else if ( dataType == BOOLEAN ) value <- matrix(rb(sockets,"integer",n=dataLength),nrow=dataNRow,byrow=TRUE) != 0
         else if ( dataType == STRING ) value <- matrix(sapply(1:dataLength,function(i) rc(sockets)),nrow=dataNRow,byrow=TRUE)
         else stop(paste("Unknown data type:",dataType))
         if ( cmd == SET ) assign(identifier,value,envir=workspace)
@@ -135,6 +126,15 @@ rServe <- function(sockets) {
     } else if ( cmd == GC ) {
       if ( debug ) cat("R DEBUG: Got GC\n")
       workspace$. <- new.env(parent=workspace)
+    } else if ( cmd == EXIT ) {
+      if ( debug ) cat("R DEBUG: Got EXIT\n")
+      return()
+    } else if ( cmd == DEBUG ) {
+      if ( debug ) cat("R DEBUG: Got DEBUG\n")
+      newDebug <- ( rb(sockets,"integer") != 0 )
+      if ( debug != newDebug ) cat("R DEBUG: Debugging is now ",newDebug,"\n",sep="")
+      debug <- newDebug
+      assign("debug",debug,envir=sockets[['env']])
     } else stop(paste("Unknown command:",cmd))
     flush(sockets[['socketIn']])
   }
