@@ -439,7 +439,7 @@ intpCallback.ScalaInterpreter <- function(interpreter,argsType,returnType,func,i
   functionNumber <- get("callbackNameCounter",envir=interpreter[['env']])
   functionName <- paste(".f",functionNumber,sep="")
   assign("callbackNameCounter",functionNumber+1L,envir=interpreter[['env']])
-  assign(functionName,func,env=interpreter[['workspace']])
+  assign(functionName,func,envir=interpreter[['workspace']])
   xs <- paste("x",1:length(argsType),sep="")
   argsScala <- paste(paste(xs,argsType,sep=": "),collapse=", ")
   sets <- paste(paste('R.set(".',xs,'",',xs,')',sep=""),collapse="\n")
@@ -890,21 +890,19 @@ cc <- function(c) {
   if ( ! get("open",envir=c[['env']]) ) stop("The connection has already been closed.")
 }
 
-swap.endian <- .Platform$endian != "big"
-
 wb <- function(c,v) {
-  .Internal(writeBin(v, c[['socketIn']], NA_integer_, swap.endian, FALSE))
+  writeBin(v, c[['socketIn']], endian="big")
 }
 
 wc <- function(c,v) {
   bytes <- charToRaw(v)
   wb(c,length(bytes))
-  .Internal(writeBin(bytes, c[['socketIn']], NA_integer_, swap.endian, TRUE))
+  writeBin(bytes, c[['socketIn']], endian="big", useBytes=TRUE)
 }
 
 # Sockets should be blocking, but that contract is not fulfilled when other code uses functions from the parallel library.  Program around their problem.
 rb <- function(c,v,n=1L) {
-  r <- .Internal(readBin(c[['socketOut']], v, n, NA_integer_, TRUE, swap.endian))
+  r <- readBin(c[['socketOut']], v, n, endian="big")
   if ( length(r) == n ) r
   else c(r,rb(c,v,n-length(r)))
 }
@@ -913,7 +911,7 @@ rb <- function(c,v,n=1L) {
 rc <- function(c) {
   length <- rb(c,"integer")
   r <- raw(0)
-  while ( length(r) != length ) r <- c(r,.Internal(readBin(c[['socketOut']], "raw", length-length(r), NA_integer_, TRUE, swap.endian)))
+  while ( length(r) != length ) r <- c(r,readBin(c[['socketOut']], "raw", length-length(r), endian="big"))
   rawToChar(r)
 }
 
