@@ -413,7 +413,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
     }
     if ( optionWithType._2 == "org.ddahl.rscala.callback.RObject" ) {
       out.writeInt(REFERENCE)
-      Helper.writeString(out,v.asInstanceOf[org.ddahl.rscala.callback.RObject].name)
+      writeString(v.asInstanceOf[org.ddahl.rscala.callback.RObject].name)
       out.flush
       return
     }
