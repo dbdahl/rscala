@@ -492,7 +492,7 @@ intpDef.ScalaInterpreter <- function(interpreter,args,body,interpolate="",quiet=
           else paste(functionParamNames,collapse=",")
           if ( nchar(argsStr) > 0 ) argsStr <- paste(argsStr,", ",sep="")
           functionSnippet <- strintrplt('
-  tmpFunc <- function(@{argsStr}as.reference=NA,quiet="",gc=FALSE) {
+  tmpFunc <- function(@{argsStr}as.reference=NA, quiet="", gc=FALSE) {
 @{convertedCodeStr}
     if ( gc ) intpGC(interpreter)
     rscala:::wb(interpreter,rscala:::INVOKE)
