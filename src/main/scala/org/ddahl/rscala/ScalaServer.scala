@@ -2,12 +2,23 @@ package org.ddahl.rscala
 
 import java.net._
 import java.io._
-import scala.Console.{baosOut, baosErr, psOut, psErr, withOut, withErr}
+import scala.Console.{withOut, withErr}
 import scala.annotation.tailrec
 
 import Protocol._
 
 class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debugger: Debugger) {
+
+  private val baosOut = new java.io.ByteArrayOutputStream()
+  private val baosErr = new java.io.ByteArrayOutputStream()
+  private val psOut = new java.io.PrintStream(baosOut,true)
+  private val psErr = new java.io.PrintStream(baosErr,true)
+  private val originalOut = java.lang.System.out
+  private val originalErr = java.lang.System.err
+  System.setOut(psOut)
+  System.setErr(psErr)
+  baosOut.reset
+  baosErr.reset
 
   private val sockets = new ScalaSockets(portsFilename,debugger)
   import sockets.{in, out, socketIn, socketOut}
@@ -25,9 +36,6 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
       repl.eval("import org.ddahl.rscala.RObject")
     }
   }
-
-  baosOut.reset
-  baosErr.reset
 
   private var functionResult: (Any, String) = null
   private var wrapResult: Array[Array[String]] = null
@@ -267,7 +275,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
     import java.io.{ByteArrayOutputStream, PrintStream}
     val baos = new ByteArrayOutputStream()
     val ps = new PrintStream(baos,true)
-    scala.Console.withOut(ps) {
+    withOut(ps) {
       scala.tools.scalap.Main.main(Array("-cp",classpath,itemName))
     }
     writeString(baos.toString)
