@@ -1,0 +1,89 @@
+#!/bin/bash
+
+CP="RserveEngine.jar:REngine.jar:$(R --slave -e 'cat(rscala::rscalaJar("2.11"))')"
+exec scala -cp "$CP" "$0" "$@"
+scala -cp "$CP"
+
+!#
+
+class TimeMonitor (private var sum: Long, private var invocations: Long) {
+
+  def total = sum
+
+  def nInvocations = invocations
+
+  def apply[B](block: => B): B = {
+    invocations += 1
+    val t0 = System.nanoTime()
+    val result = block // call-by-name
+    sum += System.nanoTime() - t0
+    result
+  }
+
+  def /(d: TimeMonitor) = sum.toDouble / d.total
+
+  def +(d: TimeMonitor) = new TimeMonitor(sum + d.sum, invocations + d.invocations)
+
+  def rate = sum.toDouble / invocations
+
+  override def toString = "%d invocations in %4.4f seconds".format(invocations, sum / 1e9)
+
+}
+
+object TimeMonitor {
+
+  def apply() = new TimeMonitor(0L, 0L)
+
+}
+
+import scala.annotation.tailrec
+@tailrec
+def repeat(n: Long)(f: => Unit): Unit = {
+  if (n > 0) {
+    f
+    repeat(n - 1)(f)
+  }
+}
+
+import org.ddahl.rscala.RClient
+val R = RClient()
+val dataX = R.evalD1("rnorm(1000)")
+val dataY = R.evalD1("rnorm(1000)")
+
+val timerRserve = TimeMonitor()
+import org.rosuda.REngine.Rserve.RConnection
+val c1 = new RConnection()
+c1.assign("x", dataX)
+c1.assign("y", dataY)
+timerRserve {
+  repeat(10000) {
+    //c1.assign("x", dataX)
+    //c1.assign("y", dataY)
+    //val l = c1.eval("lowess(x,y)").asList
+    val l = c1.eval("1")
+    //val lx = l.at("x").asDoubles
+    //val ly = l.at("y").asDoubles
+  }
+}
+println(timerRserve)
+
+
+
+val timerrscala = TimeMonitor()
+import org.ddahl.rscala.RClient
+val c2 = RClient()
+c2.set("x", dataX)
+c2.set("y", dataY)
+timerrscala {
+  repeat(10000) {
+    //c2.set("x", dataX)
+    //c2.set("y", dataY)
+    //val l = c2.evalD2("t(as.matrix(as.data.frame(lowess(x,y))))")
+    val l = c2.eval("1")
+    //val lx = l(0)
+    //val ly = l(1)
+  }
+}
+println(timerrscala)
+
+
