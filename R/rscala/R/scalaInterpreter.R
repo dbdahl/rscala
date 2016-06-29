@@ -104,6 +104,10 @@ intpEval.ScalaInterpreter <- function(interpreter,snippet,interpolate="",quiet="
 
 '%@%.ScalaInterpreter' <- function(interpreter,snippet) {
   cc(interpreter)
+  snippet <- paste(snippet,collapse="\n")
+  if ( get("interpolate",envir=interpreter[['env']]) ) {
+    snippet <- strintrplt(snippet,parent.frame())
+  }
   intpEval(interpreter,snippet)
 }
 
