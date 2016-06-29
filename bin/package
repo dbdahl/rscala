@@ -96,11 +96,11 @@ cd "$PKG_HOME"
 function setversion {
   OLDWD="$PWD"
   cd "$PKG_HOME"
-  sed -i $SEDOPT 's/\(\s*val\s*Version\s*=\s*\)"\(.*\)"/\1"'"$1"'"/g' src/main/scala/org/ddahl/$PKG_NAME/server/Package.scala
-  sed -i $SEDOPT 's/\(\s*val\s*Date\s*=\s*\)"\(.*\)"/\1"'"$2"'"/g' src/main/scala/org/ddahl/$PKG_NAME/server/Package.scala
+  sed -i $SEDOPT 's/\(\s*val\s*Version\s*=\s*\)"\(.*\)"/\1"'"$1"'"/g' src/main/scala/org/ddahl/$PKG_NAME/Package.scala
+  sed -i $SEDOPT 's/\(\s*val\s*Date\s*=\s*\)"\(.*\)"/\1"'"$2"'"/g' src/main/scala/org/ddahl/$PKG_NAME/Package.scala
   sed -i $SEDOPT 's/\(\s*Version\s*:\s*\)\(.*\)/\1'"$1"'/g' R/$PKG_NAME/DESCRIPTION
   sed -i $SEDOPT 's/\(\s*Date\s*:\s*\)\(.*\)/\1'"$2"'/g' R/$PKG_NAME/DESCRIPTION
-  rm -f src/main/scala/org/ddahl/$PKG_NAME/server/Package.scala.trashme
+  rm -f src/main/scala/org/ddahl/$PKG_NAME/Package.scala.trashme
   rm -f R/$PKG_NAME/DESCRIPTION.trashme
   cd "$OLDWD"
 }
@@ -132,7 +132,7 @@ then
   copy $JARBIN "$PKG_HOME"/R/$PKG_NAME/inst/java ""
   copy $JARSRC "$PKG_HOME"/R/$PKG_NAME/java -sources
   CATPASTE="cat(paste(rscala::scalaInfo()\$jars,collapse=\"$SEP\"))"
-  javadoc -classpath "$(R --slave -e "$CATPASTE"):$PKG_HOME"/R/$PKG_NAME/inst/java/'*' -d "$PKG_HOME"/target/java/api/ "$PKG_HOME"/src/main/java/org/ddahl/rscala/java/RClient.java
+  javadoc -classpath "$(R --slave -e "$CATPASTE"):$PKG_HOME"/R/$PKG_NAME/inst/java/'*' -d "$PKG_HOME"/target/java/api/ "$PKG_HOME"/src/main/java/org/ddahl/rscala/RClient4Java.java
   # rm -rf ~/.ivy2/*/org.ddahl.rscala/rscala_*/$MAJOR/
   # $SBT publish-local
 fi

@@ -1,4 +1,4 @@
-package org.ddahl.rscala.server
+package org.ddahl.rscala
 
 import java.net._
 import java.io._

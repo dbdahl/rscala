@@ -1,6 +1,6 @@
-package org.ddahl.rscala.java;
+package org.ddahl.rscala;
 
-import org.ddahl.rscala.callback.RObject;
+import org.ddahl.rscala.RObject;
 import scala.Tuple2;
 
 /** An interface to an R interpreter.
@@ -15,13 +15,13 @@ import scala.Tuple2;
 * 
 * <pre><span class="inner-pre" style="font-size:-2px">
 * {@code 
-* import org.ddahl.rscala.java.RClient;
+* import org.ddahl.rscala.RClient4Java;
 * 
 * public class Example {
 * 
 *   public static void main(String[] args) {
 * 
-*     RClient R = new RClient();
+*     RClient4Java R = new RClient4Java();
 *  
 *     double a = R.evalD0("rnorm(8)");
 *     double[] b = R.evalD1("rnorm(8)");
@@ -52,7 +52,7 @@ import scala.Tuple2;
 *     R.set("myList",dd,"'counts'",false);
 *     R.eval("print(myList)");
 * 
-*     org.ddahl.rscala.callback.RObject ref = R.evalR("as.list(a)");
+*     org.ddahl.rscala.RObject ref = R.evalR("as.list(a)");
 *     R.evalD0("sum(unlist("+ref+"))");
 * 
 *   }
@@ -64,15 +64,15 @@ import scala.Tuple2;
 * </span></pre>
 * @author David B. Dahl
 */
-public class RClient {
+public class RClient4Java {
 
-  private org.ddahl.rscala.callback.RClient c;
+  private org.ddahl.rscala.RClient c;
 
-  public RClient() { c = org.ddahl.rscala.callback.RClient.apply(); }
+  public RClient4Java() { c = org.ddahl.rscala.RClient.apply(); }
 
-  public RClient(String rCmd) { c = org.ddahl.rscala.callback.RClient.apply(rCmd,false,60); }
+  public RClient4Java(String rCmd) { c = org.ddahl.rscala.RClient.apply(rCmd,false,60); }
 
-  public RClient(String rCmd, boolean debug, int timeout) { c = org.ddahl.rscala.callback.RClient.apply(rCmd,debug,timeout); }
+  public RClient4Java(String rCmd, boolean debug, int timeout) { c = org.ddahl.rscala.RClient.apply(rCmd,debug,timeout); }
 
   /** Closes the interface to the R interpreter.
   * 

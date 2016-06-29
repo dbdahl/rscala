@@ -1,4 +1,4 @@
-package org.ddahl.rscala.server
+package org.ddahl.rscala
 
 import java.net._
 import java.io._
@@ -11,7 +11,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
 
   private val sockets = new ScalaSockets(portsFilename,debugger)
   import sockets.{in, out, socketIn, socketOut}
-  private val R = org.ddahl.rscala.callback.RClient(in,out,debugger)
+  private val R = org.ddahl.rscala.RClient(in,out,debugger)
 
   if ( repl == null ) {
     out.writeInt(ERROR)
@@ -19,10 +19,10 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
   } else {
     out.writeInt(OK)
     out.flush
-    repl.bind("R","org.ddahl.rscala.callback.RClient",R)
+    repl.bind("R","org.ddahl.rscala.RClient",R)
     if ( repl.interpreter.isInstanceOf[scala.tools.nsc.interpreter.IMain] ) {
       repl.bind("$intp","scala.tools.nsc.interpreter.IMain",repl.interpreter)
-      repl.eval("import org.ddahl.rscala.callback.RObject")
+      repl.eval("import org.ddahl.rscala.RObject")
     }
   }
 
@@ -411,9 +411,9 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
       out.flush
       return
     }
-    if ( optionWithType._2 == "org.ddahl.rscala.callback.RObject" ) {
+    if ( optionWithType._2 == "org.ddahl.rscala.RObject" ) {
       out.writeInt(REFERENCE)
-      writeString(v.asInstanceOf[org.ddahl.rscala.callback.RObject].name)
+      writeString(v.asInstanceOf[org.ddahl.rscala.RObject].name)
       out.flush
       return
     }

@@ -31,7 +31,7 @@ scalaInterpreter <- function(classpath=character(0),scala.home=NULL,java.home=NU
   Sys.setenv(RSCALA_TUNNELING="TRUE")
   bootstrap.filename <- tempfile("rscala-")
   bootstrap.file <- file(bootstrap.filename, "w")
-  writeLines(c(sprintf('org.ddahl.rscala.server.ScalaServer(org.ddahl.rscala.server.ScalaInterpreterAdapter($intp),raw"%s").run()',portsFilename),'sys.exit(0)'),bootstrap.file)
+  writeLines(c(sprintf('org.ddahl.rscala.ScalaServer(org.ddahl.rscala.ScalaInterpreterAdapter($intp),raw"%s").run()',portsFilename),'sys.exit(0)'),bootstrap.file)
   close(bootstrap.file)
   stdout <- ifelse(!is.null(debug.filename),sprintf("%s-stdout",debug.filename),FALSE)
   stderr <- ifelse(!is.null(debug.filename),sprintf("%s-stderr",debug.filename),FALSE)

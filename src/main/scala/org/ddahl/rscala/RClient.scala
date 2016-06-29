@@ -1,6 +1,5 @@
-package org.ddahl.rscala.callback
+package org.ddahl.rscala
 
-import org.ddahl.rscala.server._
 import java.net._
 import java.io._
 import scala.language.dynamics
@@ -18,7 +17,7 @@ import Protocol._
 * To get just the JAR for Scala 2.11, for example, use `rscala::rscalaJar("2.11")`.
 * 
 * {{{
-* val R = org.ddahl.rscala.callback.RClient()
+* val R = org.ddahl.rscala.RClient()
 
 * val a = R.evalD0("rnorm(8)")
 * val b = R.evalD1("rnorm(8)")
@@ -612,7 +611,7 @@ class RClient private (private val in: DataInputStream, private val out: DataOut
 * The paths of the rscala's JARs, for both Scala 2.10 and 2.11, are available from [[http://www.r-project.org R]] using
 * `rscala::rscalaJar()`.  To get just the JAR for Scala 2.11, for example, use `rscala::rscalaJar("2.11")`.
 * 
-* {{{ val R = org.ddahl.rscala.callback.RClient() }}}
+* {{{ val R = org.ddahl.rscala.RClient() }}}
 */
 object RClient {
 

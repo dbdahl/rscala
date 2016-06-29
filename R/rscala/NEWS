@@ -1,8 +1,10 @@
 1.0.13 (2016-XX-XX)
-  * Added %@% operator for shorthand notation (e.g,
-    "interpreter %@% snippet") to conviently evaluate an expression without
+  * Added %@% operator for shorthand notation (e.g, "interpreter %@% snippet")
+    to conveniently evaluate an expression without the overhead involved in
     returning a result.
-  # Added intpCallback function to facilitate writing callbacks.
+  * Added intpCallback function to facilitate writing callbacks.
+  * Restructured the package hierarchy, most notably moving RClient to
+    'org.ddahl.rscala' instead of 'org.ddahl.rscala.callback'.
   * Added captureOutput variable to the RClient class.  captureOutput=FALSE
     can be helpful for interactive debugging on a non-Windows console.
 
