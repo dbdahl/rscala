@@ -1,41 +1,29 @@
 ## Scala scripting over TCP/IP
 
-scalaInterpreter <- function(classpath=character(0),scala.home=NULL,java.home=NULL,java.heap.maximum="256M",java.opts=NULL,timeout=60,debug.filename=NULL) {
+scalaInterpreter <- function(classpath=character(0),scala.home=NULL,heap.maximum="256M",command.line.options=NULL,timeout=60,debug.filename=NULL) {
   debug <- !is.null(debug.filename)
   userJars <- unlist(strsplit(classpath,.Platform$path.sep))
-  if ( is.null(java.opts) ) {
-    java.opts <- c(paste("-Xmx",java.heap.maximum,sep=""),"-Xms32M")
+  if ( is.null(command.line.options) ) {
+    command.line.options <- paste("-J",c(paste("-Xmx",heap.maximum,sep=""),"-Xms32M"),sep="")
   }
   sInfo <- scalaInfo(scala.home)
   if ( is.null(sInfo) ) stop("Cannot find a suitable Scala installation.  Please manually install Scala or run 'scalaInstall()'.")
   rsJar <- rscalaJar(sInfo$version)
   rsClasspath <- shQuote(paste(c(rsJar,userJars),collapse=.Platform$path.sep))
-  args <- c(
-    java.opts,
-    paste("-Xbootclasspath/a:",shQuote(paste(c(rsJar,sInfo$jars),collapse=.Platform$path.sep)),sep=""),
-    "-classpath",
-    '""',
-    paste("-Dscala.home=",shQuote(sInfo$home),sep=""),
-    "-Dscala.usejavacp=true",
-    "-Denv.emacs=",
-    paste("-Drscala.classpath=",rsClasspath,sep=""),
-    "scala.tools.nsc.MainGenericRunner",
-    "-howtorun:script","-Xnojline",
-    "-classpath",rsClasspath)
+  args <- c(command.line.options,"-Xnojline","-howtorun:script","-classpath",rsClasspath,paste("-Drscala.classpath=",rsClasspath,sep=""))
   if ( debug ) {
     cat("R DEBUG:\n")
     cat("Command line:\n")
     cat(paste("<",args,">",sep="",collapse="\n"),"\n",sep="")
   }
   portsFilename <- tempfile("rscala-")
-  Sys.setenv(RSCALA_TUNNELING="TRUE")
   bootstrap.filename <- tempfile("rscala-")
   bootstrap.file <- file(bootstrap.filename, "w")
   writeLines(c(sprintf('org.ddahl.rscala.ScalaServer(org.ddahl.rscala.ScalaInterpreterAdapter($intp),raw"%s").run()',portsFilename),'sys.exit(0)'),bootstrap.file)
   close(bootstrap.file)
   stdout <- ifelse(!is.null(debug.filename),sprintf("%s-stdout",debug.filename),FALSE)
   stderr <- ifelse(!is.null(debug.filename),sprintf("%s-stderr",debug.filename),FALSE)
-  system2(javaCmd(java.home),args,wait=FALSE,stdin=bootstrap.filename,stdout=stdout,stderr=stderr)
+  system2(sInfo$cmd,args,wait=FALSE,stdin=bootstrap.filename,stdout=stdout,stderr=stderr)
   sockets <- newSockets(portsFilename,debug,timeout)
   sockets[['scalaInfo']] <- sInfo
   assign("debug",!debug,envir=sockets[['env']])
@@ -616,65 +604,6 @@ rscalaJar <- function(version="") {
   if ( version == "" ) major.version <- ".*"
   else major.version <- substr(version,1,4)
   list.files(system.file("java",package="rscala"),pattern=paste("rscala_",major.version,'-.*[0-9]\\.jar$',sep=""),full.names=TRUE)
-}
-
-javaCmd <- function(java.home=NULL,verbose=FALSE) {
-  successMsg <- "SUCCESS: "
-  failureMsg <- "FAILURE: "
-  if ( verbose ) techniqueMsg <- "'java.home' argument"
-  if ( is.null(java.home) ) {
-    if ( verbose ) cat(failureMsg,techniqueMsg," is NULL","\n",sep="")
-  } else {
-    # Attempt 1
-    candidate <- normalizePath(file.path(java.home,"bin",sprintf("java%s",ifelse(.Platform$OS=="windows",".exe",""))),mustWork=FALSE)
-    if ( verbose ) techniqueMsg <- sprintf("'java.home' (%s) argument",java.home)
-    if ( file.exists(candidate) ) { if ( verbose ) cat(successMsg,techniqueMsg,"\n",sep=""); return(candidate) }
-    else if ( verbose ) cat(failureMsg,techniqueMsg,"\n",sep="")
-  }
-  # Attempt 2
-  candidate <- normalizePath(Sys.getenv("JAVACMD"),mustWork=FALSE)
-  if ( verbose ) techniqueMsg <- sprintf("JAVACMD (%s) environment variable",Sys.getenv("JAVACMD"))
-  if ( file.exists(candidate) ) { if ( verbose ) cat(successMsg,techniqueMsg,"\n",sep=""); return(candidate) }
-  else if ( verbose ) cat(failureMsg,techniqueMsg,"\n",sep="")
-  # Attempt 3
-  java.home.tmp <- Sys.getenv("JAVA_HOME")
-  if ( verbose ) techniqueMsg <- sprintf("JAVA_HOME (%s) environment variable",java.home.tmp)
-  candidate <- if ( java.home.tmp != "" ) {
-    normalizePath(file.path(java.home.tmp,"bin",sprintf("java%s",ifelse(.Platform$OS=="windows",".exe",""))),mustWork=FALSE)
-  } else ""
-  if ( file.exists(candidate) ) { if ( verbose ) cat(successMsg,techniqueMsg,"\n",sep=""); return(candidate) }
-  else if ( verbose ) cat(failureMsg,techniqueMsg,"\n",sep="")
-  # Attempt 4
-  candidate <- normalizePath(Sys.which("java"),mustWork=FALSE)
-  if ( verbose ) techniqueMsg <- "'java' in the shell's search path"
-  if ( file.exists(candidate) ) { if ( verbose ) cat(successMsg,techniqueMsg,"\n",sep=""); return(candidate) }
-  else if ( verbose ) cat(failureMsg,techniqueMsg,"\n",sep="")
-  # Attempt 5
-  if ( .Platform$OS == "windows" ) {
-    if ( verbose ) techniqueMsg <- "querying the Windows registry"
-    readRegistryKey <- function(key.name,value.name) {
-      v <- suppressWarnings(system2("reg",c("query",shQuote(key.name),"/v",value.name),stdout=TRUE))
-      a <- attr(v,"status")
-      if ( (!is.null(a)) && ( a != 0 ) ) return(NULL)
-      vv <- v[grep(value.name,v)[1]]
-      gsub("(^[[:space:]]+|[[:space:]]+$)", "",strsplit(vv,"REG_SZ")[[1]][2])
-    }
-    java.key <- "HKEY_LOCAL_MACHINE\\Software\\JavaSoft\\Java Runtime Environment"
-    java.version <- readRegistryKey(java.key,"CurrentVersion")
-    java.home <- readRegistryKey(sprintf("%s\\%s",java.key,java.version),"JavaHome")
-    if ( is.null(java.home) ) {
-      java.key <- "HKEY_LOCAL_MACHINE\\Software\\Wow6432Node\\JavaSoft\\Java Runtime Environment"
-      java.version <- readRegistryKey(java.key,"CurrentVersion")
-      java.home <- readRegistryKey(sprintf("%s\\%s",java.key,java.version),"JavaHome")
-    }
-    if ( ! is.null(java.home) ) {
-      candidate <- normalizePath(file.path(java.home,"bin",sprintf("java%s",ifelse(.Platform$OS=="windows",".exe",""))),mustWork=FALSE)
-      if ( file.exists(candidate) ) { if ( verbose ) cat(successMsg,techniqueMsg,"\n",sep=""); return(candidate) }
-      else if ( verbose ) cat(failureMsg,techniqueMsg,"\n",sep="")
-    } else if ( verbose ) cat(failureMsg,techniqueMsg,"\n",sep="")
-  }
-  if ( ! verbose ) javaCmd(java.home=java.home,verbose=TRUE)
-  else stop("Cannot find Java executable")
 }
 
 scalaInfoEngine <- function(scala.command,verbose) {

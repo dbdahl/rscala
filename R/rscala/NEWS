@@ -3,10 +3,14 @@
     to conveniently evaluate an expression without the overhead involved in
     returning a result.
   * Added intpCallback function to facilitate writing callbacks.
+  * Added captureOutput field to the RClient class.  Setting captureOutput=FALSE
+    can be helpful for interactive debugging on a non-Windows console.
   * Restructured the package hierarchy, most notably moving RClient to
     'org.ddahl.rscala' instead of 'org.ddahl.rscala.callback'.
-  * Added captureOutput variable to the RClient class.  captureOutput=FALSE
-    can be helpful for interactive debugging on a non-Windows console.
+  * Dropped the need to modify the original source of scala.Console object and
+    the need to hijack the boot classpath.  The package now uses the standard
+    'scala' executable from the Scala binary distribution, without any modified
+    code and ugly hacks.
 
 1.0.12 (2016-06-03)
   * Fast instantiation of RClient class (which was slow in 1.0.11).
@@ -39,7 +43,7 @@
   * Removed unnecessary 'Suggests' and 'VignetteBuilder'
 
 1.0.5 (2015-05-15)
-  * Added README.html to point to paper submitted to Journal of Stastical Software.
+  * Added README.html to point to paper submitted to Journal of Statistical Software.
   * 'scalaInfo' function is much improved and 'scalaInstall' function is new.
   * Support of arbitrary R objects to be passed as an 'RObject' in Scala.
   * Improved exception handling.
