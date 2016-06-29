@@ -1,0 +1,120 @@
+
+R version 3.3.0 (2016-05-03) -- "Supposedly Educational"
+Copyright (C) 2016 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(rscala)
+> s <- scalaInterpreter()
+> 
+> 
+> sleep.time <- 0
+> f <- function(x) { Sys.sleep(sleep.time); mean(x) }
+> g <- function(x) { Sys.sleep(sleep.time); sd(x) }
+> 
+> 
+> 
+> # Native R code implementation
+> doit0 <- function(x) {
++   c(f(x),g(x))
++ }
+> 
+> doit0(rnorm(10))
+[1] 0.6915338 0.7910755
+> 
+> 
+> 
+> # Single callback in interpreted code.
+> doit1 <- function(x) {
++   s$x <- x
++   s %@% 'R.set("y",x.map(2*_))'
++   c(s %~% 'R.evalD0("f(y)")',
++     s %~% 'R.evalD0("g(y)")')
++ }
+> 
+> doit1(rnorm(10))
+[1] -0.7826514  1.2407576
+> 
+> 
+> 
+> # Multiple callbacks in interpreted code.
+> # Does not work because we don't (currently) support multiple callbacks in interpreted code.
+> doit2 <- function(x) {
++   s$x <- x
++   s %~% '
++     R.set("y",x.map(2*_)
++     Array(R.evalD0("f(y)"),
++           R.evalD0("g(y)"))
++   '
++ }
+> 
+> # doit2(rnorm(10))
+> 
+> 
+> 
+> # Multiple callbacks in compiled code.
+> # This does work because we DO support multiple callbacks in compiled code.
+> doit3 <- s$def('x: Array[Double]','
++   R.set("y",x.map(2*_))
++   Array(R.evalD0("f(y)"),
++         R.evalD0("g(y)"))
++ ')
+> 
+> doit3(rnorm(10))
+[1] 0.7256091 1.7640457
+> 
+> 
+> 
+> # Benchmarks
+> 
+> library(microbenchmark)
+> 
+> sleep.time <- 0
+> microbenchmark(
++   doit0(rnorm(10)),
++   doit1(rnorm(10)),
++   #doit2(rnorm(10)),
++   doit3(rnorm(10)),
++   times=5
++ )
+Unit: microseconds
+             expr        min         lq        mean     median         uq
+ doit0(rnorm(10))     66.687     68.745     98.4224     72.845    123.323
+ doit1(rnorm(10)) 405608.215 409147.123 430664.7316 412325.524 436129.455
+ doit3(rnorm(10))   2333.063   2398.401   2648.9956   2441.973   2766.287
+        max neval
+    160.512     5
+ 490113.341     5
+   3305.254     5
+> 
+> sleep.time <- 0.1
+> microbenchmark(
++   doit0(rnorm(10)),
++   doit1(rnorm(10)),
++   #doit2(rnorm(10)),
++   doit3(rnorm(10)),
++   times=5
++ )
+Unit: milliseconds
+             expr      min       lq     mean   median       uq      max neval
+ doit0(rnorm(10)) 200.4914 200.5048 200.5255 200.5059 200.5401 200.5853     5
+ doit1(rnorm(10)) 584.5474 588.2006 620.2833 589.0371 666.4062 673.2252     5
+ doit3(rnorm(10)) 204.9433 205.1480 205.6036 205.6328 206.1142 206.1798     5
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  0.576   0.024  12.990 
