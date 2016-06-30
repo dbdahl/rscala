@@ -74,7 +74,7 @@ intpEval.ScalaInterpreter <- function(interpreter,snippet,interpolate="",quiet="
   wb(interpreter,EVAL)
   wc(interpreter,snippet)
   flush(interpreter[['socketIn']])
-  rServe(interpreter)
+  rServe(interpreter,TRUE)
   status <- rb(interpreter,"integer")
   echoResponseScala(interpreter,quiet)
   invisible(NULL)
@@ -498,7 +498,7 @@ intpDef.ScalaInterpreter <- function(interpreter,args,body,interpolate="",quiet=
     rscala:::wb(interpreter,rscala:::INVOKE)
     rscala:::wc(interpreter,"@{functionName}")
     flush(interpreter[["socketIn"]])
-    rscala:::rServe(interpreter)
+    rscala:::rServe(interpreter,TRUE)
     status <- rscala:::rb(interpreter,"integer")
     rscala:::echoResponseScala(interpreter,quiet)
     if ( status == rscala:::ERROR ) {
@@ -578,7 +578,7 @@ intpReset.ScalaInterpreter <- function(interpreter) {
 close.ScalaInterpreter <- function(con,...) {
   cc(con)
   assign("open",FALSE,envir=con[['env']])
-  wb(con,EXIT)
+  wb(con,SHUTDOWN)
   flush(con[['socketIn']])
   close(con[['socketOut']])
   close(con[['socketIn']])

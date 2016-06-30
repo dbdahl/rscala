@@ -22,7 +22,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
 
   private val sockets = new ScalaSockets(portsFilename,debugger)
   import sockets.{in, out, socketIn, socketOut}
-  private val R = org.ddahl.rscala.RClient(in,out,debugger)
+  private val R = org.ddahl.rscala.RClient(this,in,out,debugger)
 
   if ( repl == null ) {
     out.writeInt(ERROR)
@@ -627,12 +627,15 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
     }
     if ( debugger.debug ) debugger.msg("Received request: "+request)
     request match {
-      case EXIT =>
-        if ( debugger.debug ) debugger.msg("Exiting")
+      case SHUTDOWN =>
+        if ( debugger.debug ) debugger.msg("Shutting down")
         in.close()
         out.close()
         socketIn.close()
         socketOut.close()
+        return
+      case EXIT =>
+        if ( debugger.debug ) debugger.msg("Exiting")
         return
       case RESET =>
         if ( debugger.debug ) debugger.msg("Resetting")

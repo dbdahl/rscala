@@ -12,19 +12,19 @@ f <- function(counter) {
   ')
 }
 
-f(0)
 
-
-# This would be true recursion, but it does not work!
-f <- function(counter) {
+# This is true recursion.
+g <- function(counter) {
   if ( counter >= 10 ) return()
   cat("Hello",counter,"from R.\n")
   s %@% '
     println("Hello "+@{counter}+" from Scala.")
-    R.eval("f(@{counter+1})")
+    R.eval("g(@{counter+1})")
   '
 }
 
 
-f(0)
+library(microbenchmark)
+
+microbenchmark(f(0),g(0),times=5)
 

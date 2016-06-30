@@ -51,7 +51,7 @@ Type 'q()' to quit R.
 > 
 > 
 > # Multiple callbacks in interpreted code.
-> # Does not work because we don't (currently) support multiple callbacks in interpreted code.
+> # Does not work for some reason.
 > doit2 <- function(x) {
 +   s$x <- x
 +   s %~% '

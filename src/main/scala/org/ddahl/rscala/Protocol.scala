@@ -23,7 +23,6 @@ object Protocol {
   val GC            = 102
   val DEBUG         = 103
   val EVAL          = 104
-  val EVALNAKED     = 113
   val SET           = 105
   val SET_SINGLE    = 106
   val SET_DOUBLE    = 107
@@ -32,6 +31,8 @@ object Protocol {
   val DEF           = 110
   val INVOKE        = 111
   val SCALAP        = 112
+  val EVALNAKED     = 113
+  val SHUTDOWN      = 114
 
   // Result
   val OK = 1000

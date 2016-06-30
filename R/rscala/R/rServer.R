@@ -1,4 +1,4 @@
-rServe <- function(sockets) {
+rServe <- function(sockets,with.callbacks) {
   cc(sockets)
   workspace <- sockets[['workspace']]
   debug <- get("debug",envir=sockets[['env']])
@@ -13,6 +13,7 @@ rServe <- function(sockets) {
         result <- try(eval(parse(text=snippet),envir=workspace))
         character()
       }
+      if ( with.callbacks ) wb(sockets,EXIT)
       if ( inherits(result,"try-error") ) {
         wb(sockets,ERROR)
         msg <- paste(c(output,attr(result,"condition")$message),collapse="\n")
@@ -126,6 +127,9 @@ rServe <- function(sockets) {
     } else if ( cmd == GC ) {
       if ( debug ) cat("R DEBUG: Got GC\n")
       workspace$. <- new.env(parent=workspace)
+    } else if ( cmd == SHUTDOWN ) {
+      if ( debug ) cat("R DEBUG: Got SHUTDOWN\n")
+      return()
     } else if ( cmd == EXIT ) {
       if ( debug ) cat("R DEBUG: Got EXIT\n")
       return()

@@ -37,7 +37,7 @@ import Protocol._
 *
 * @author David B. Dahl
 */
-class RClient private (private val in: DataInputStream, private val out: DataOutputStream, private val debugger: Debugger) extends Dynamic {
+class RClient private (private val scalaServer: ScalaServer, private val in: DataInputStream, private val out: DataOutputStream, private val debugger: Debugger) extends Dynamic {
 
   /** __For rscala developers only__: Returns `TRUE` if debugging output is enabled. */
   def debug = debugger.debug
@@ -60,8 +60,8 @@ class RClient private (private val in: DataInputStream, private val out: DataOut
   * Subsequent calls to the other methods will fail.
   */
   def exit() = {
-    if ( debug ) debugger.msg("Sending EXIT request.")
-    out.writeInt(EXIT)
+    if ( debug ) debugger.msg("Sending SHUTDOWN request.")
+    out.writeInt(SHUTDOWN)
     out.flush()
   }
 
@@ -78,6 +78,7 @@ class RClient private (private val in: DataInputStream, private val out: DataOut
     out.writeInt(if(captureOutput) EVAL else EVALNAKED)
     Helper.writeString(out,snippet)
     out.flush()
+    if ( scalaServer != null ) scalaServer.run()
     val status = in.readInt()
     val output = Helper.readString(in)
     if ( output != "" ) println(output)
@@ -706,7 +707,7 @@ object RClient {
     val snippet = s"""
       source("${sourceFileNameForR}")
       file.remove("${sourceFileNameForR}")
-      rscala[['rServe']](rscala[['newSockets']]('${portsFile.getAbsolutePath.replace(File.separator,"/")}',debug=${if ( debug ) "TRUE" else "FALSE"},timeout=${timeout}))
+      rscala[['rServe']](rscala[['newSockets']]('${portsFile.getAbsolutePath.replace(File.separator,"/")}',debug=${if ( debug ) "TRUE" else "FALSE"},timeout=${timeout}),with.callbacks=FALSE)
       q(save='no')
     """.stripMargin
     while ( cmd == null ) Thread.sleep(100)
@@ -715,11 +716,11 @@ object RClient {
     val sockets = new ScalaSockets(portsFile.getAbsolutePath,debugger)
     sockets.out.writeInt(OK)
     sockets.out.flush()
-    apply(sockets.in,sockets.out,debugger)
+    apply(null,sockets.in,sockets.out,debugger)
   }
 
   /** __For rscala developers only__: Returns an instance of the [[RClient]] class.  */
-  def apply(in: DataInputStream, out: DataOutputStream, debugger: Debugger): RClient = new RClient(in,out,debugger)
+  def apply(scalaServer: ScalaServer, in: DataInputStream, out: DataOutputStream, debugger: Debugger): RClient = new RClient(scalaServer,in,out,debugger)
 
 }
 
