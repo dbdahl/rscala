@@ -30,22 +30,21 @@ doit1(rnorm(10))
 
 
 # Multiple callbacks in interpreted code.
-# Does not work because we don't (currently) support multiple callbacks in interpreted code.
 doit2 <- function(x) {
   s$x <- x
   s %~% '
-    R.set("y",x.map(2*_)
+    R.set("y",x.map(2*_))
     Array(R.evalD0("f(y)"),
           R.evalD0("g(y)"))
   '
 }
 
-# doit2(rnorm(10))
+doit2(rnorm(10))
+
 
 
 
 # Multiple callbacks in compiled code.
-# This does work because we DO support multiple callbacks in compiled code.
 doit3 <- s$def('x: Array[Double]','
   R.set("y",x.map(2*_))
   Array(R.evalD0("f(y)"),
@@ -64,7 +63,7 @@ sleep.time <- 0
 microbenchmark(
   doit0(rnorm(10)),
   doit1(rnorm(10)),
-  #doit2(rnorm(10)),
+  doit2(rnorm(10)),
   doit3(rnorm(10)),
   times=5
 )
@@ -73,7 +72,7 @@ sleep.time <- 0.1
 microbenchmark(
   doit0(rnorm(10)),
   doit1(rnorm(10)),
-  #doit2(rnorm(10)),
+  doit2(rnorm(10)),
   doit3(rnorm(10)),
   times=5
 )

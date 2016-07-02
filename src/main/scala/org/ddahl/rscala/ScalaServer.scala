@@ -618,7 +618,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
       socketOut.close()
       return
     }
-    if ( debugger.debug ) debugger.msg("Top of the loop waiting for a command.")
+    if ( debugger.debug ) debugger.msg("Scala server at top of the loop waiting for a command.")
     val request = try {
       in.readInt()
     } catch {
@@ -668,7 +668,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
 
 object ScalaServer {
 
-  def apply(repl: InterpreterAdapter, portsFilename: String, debug: Boolean = false): ScalaServer = new ScalaServer(repl, portsFilename, new Debugger(debug))
+  def apply(repl: InterpreterAdapter, portsFilename: String, debug: Boolean = false): ScalaServer = new ScalaServer(repl, portsFilename, new Debugger(debug,System.out))
 
 }
 

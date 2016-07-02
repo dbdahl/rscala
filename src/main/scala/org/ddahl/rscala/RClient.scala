@@ -78,10 +78,17 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
     out.writeInt(if(captureOutput) EVAL else EVALNAKED)
     Helper.writeString(out,snippet)
     out.flush()
-    if ( scalaServer != null ) scalaServer.run()
+    if ( scalaServer != null ) {
+      if ( debug ) debugger.msg("Spinning up Scala server.")
+      scalaServer.run()
+      if ( debug ) debugger.msg("Spinning down Scala server.")
+    }
     val status = in.readInt()
+    if ( debug ) debugger.msg("Status is: "+status)
     val output = Helper.readString(in)
-    if ( output != "" ) println(output)
+    if ( output != "" ) {
+      println(output)
+    } else if ( debug ) debugger.msg("No output.")
     if ( status != OK ) throw new RuntimeException("Error in R evaluation.")
     if ( evalOnly ) null else get(".rscala.last.value")._1
   }
@@ -681,7 +688,7 @@ object RClient {
     var cmd: PrintWriter = null
     val command = rCmd +: ( defaultArguments ++ interactiveArguments )
     val processCmd = Process(command)
-    val debugger = new Debugger(debug)
+    val debugger = new Debugger(debug,System.out)
     val processIO = new ProcessIO(
       o => { cmd = new PrintWriter(o) },
       reader(debugger,"STDOUT DEBUG: "),

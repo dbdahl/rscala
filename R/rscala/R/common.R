@@ -48,3 +48,8 @@ intpSettings <- function(interpreter,debug=NULL,interpolate=NULL,length.one.as.v
   }
 }
 
+msg <- function(...) {
+  msg <- paste0(...,collapse="\n")
+  cat(paste0("DEBUG (R) @ ",format(Sys.time(), "%Y-%m-%d %H:%M:%OS3"),": ",msg,"\n"))
+}
+

@@ -3,10 +3,10 @@ rServe <- function(sockets,with.callbacks) {
   workspace <- sockets[['workspace']]
   debug <- get("debug",envir=sockets[['env']])
   while ( TRUE ) {
-    if ( debug ) cat("R DEBUG: Top of the loop waiting for a command.\n")
+    if ( debug ) msg("R server at top of the loop waiting for a command.")
     cmd <- rb(sockets,"integer")
     if ( ( cmd == EVAL ) || ( cmd == EVALNAKED ) ) {
-      if ( debug ) cat("R DEBUG: Got ",cmd,"\n",sep="")
+      if ( debug ) msg("Got EVAL/EVALNAKED: ",cmd)
       snippet <- rc(sockets)
       output <- if ( cmd == EVAL ) capture.output(result <- try(eval(parse(text=snippet),envir=workspace)))
       else {
@@ -25,7 +25,7 @@ rServe <- function(sockets,with.callbacks) {
       }
       assign(".rscala.last.value",result,envir=workspace)
     } else if ( cmd %in% c(SET,SET_SINGLE,SET_DOUBLE) ) {
-      if ( debug ) cat("R DEBUG: Got SET\n")
+      if ( debug ) msg("Got SET")
       if ( cmd != SET ) index <- rc(sockets)
       identifier <- rc(sockets)
       dataStructure <- rb(sockets,"integer")
@@ -75,7 +75,7 @@ rServe <- function(sockets,with.callbacks) {
         }
       } else stop(paste("Unknown data structure:",dataStructure))
     } else if ( cmd == GET ) {
-      if ( debug ) cat("R DEBUG: Got GET\n")
+      if ( debug ) msg("Got GET")
       identifier <- rc(sockets)
       value <- tryCatch(get(identifier,envir=workspace),error=function(e) e)
       if ( is.null(value) ) {
@@ -115,7 +115,7 @@ rServe <- function(sockets,with.callbacks) {
         wb(sockets,UNSUPPORTED_STRUCTURE)
       }
     } else if ( cmd == GET_REFERENCE ) {
-      if ( debug ) cat("R DEBUG: Got GET_REFERENCE\n")
+      if ( debug ) msg("Got GET_REFERENCE")
       identifier <- rc(sockets)
       value <- tryCatch(get(identifier,envir=workspace),error=function(e) e)
       if ( inherits(value,"error") ) {
@@ -125,18 +125,18 @@ rServe <- function(sockets,with.callbacks) {
         wc(sockets,new.reference(value,workspace$.))
       }
     } else if ( cmd == GC ) {
-      if ( debug ) cat("R DEBUG: Got GC\n")
+      if ( debug ) msg("Got GC")
       workspace$. <- new.env(parent=workspace)
     } else if ( cmd == SHUTDOWN ) {
-      if ( debug ) cat("R DEBUG: Got SHUTDOWN\n")
+      if ( debug ) msg("Got SHUTDOWN")
       return()
     } else if ( cmd == EXIT ) {
-      if ( debug ) cat("R DEBUG: Got EXIT\n")
+      if ( debug ) msg("Got EXIT")
       return()
     } else if ( cmd == DEBUG ) {
-      if ( debug ) cat("R DEBUG: Got DEBUG\n")
+      if ( debug ) msg("Got DEBUG")
       newDebug <- ( rb(sockets,"integer") != 0 )
-      if ( debug != newDebug ) cat("R DEBUG: Debugging is now ",newDebug,"\n",sep="")
+      if ( debug != newDebug ) msg("Debugging is now ",newDebug,"\n",sep="")
       debug <- newDebug
       assign("debug",debug,envir=sockets[['env']])
     } else stop(paste("Unknown command:",cmd))

@@ -11,11 +11,7 @@ scalaInterpreter <- function(classpath=character(0),scala.home=NULL,heap.maximum
   rsJar <- rscalaJar(sInfo$version)
   rsClasspath <- shQuote(paste(c(rsJar,userJars),collapse=.Platform$path.sep))
   args <- c(command.line.options,"-Xnojline","-howtorun:script","-classpath",rsClasspath,paste("-Drscala.classpath=",rsClasspath,sep=""))
-  if ( debug ) {
-    cat("R DEBUG:\n")
-    cat("Command line:\n")
-    cat(paste("<",args,">",sep="",collapse="\n"),"\n",sep="")
-  }
+  if ( debug ) msg("\n",paste0("<",args,">",collapse="\n"))
   portsFilename <- tempfile("rscala-")
   bootstrap.filename <- tempfile("rscala-")
   bootstrap.file <- file(bootstrap.filename, "w")
@@ -48,9 +44,10 @@ newSockets <- function(portsFilename,debug,timeout) {
     }
   })
   file.remove(portsFilename)
-  if ( debug ) cat("R DEBUG: Trying to connect to port:",paste(ports,collapse=","),"\n")
+  if ( debug ) msg("Trying to connect to port: ",paste(ports,collapse=","))
   socketConnectionIn  <- socketConnection(port=ports[1],blocking=TRUE,open="ab",timeout=2678400)
   socketConnectionOut <- socketConnection(port=ports[2],blocking=TRUE,open="rb",timeout=2678400)
+  if ( debug ) msg("Connected")
   functionCache <- new.env()
   env <- new.env()
   assign("open",TRUE,envir=env)

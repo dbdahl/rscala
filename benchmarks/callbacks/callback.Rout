@@ -33,7 +33,7 @@ Type 'q()' to quit R.
 + }
 > 
 > doit0(rnorm(10))
-[1] 0.6915338 0.7910755
+[1] -0.497242  1.413741
 > 
 > 
 > 
@@ -46,27 +46,27 @@ Type 'q()' to quit R.
 + }
 > 
 > doit1(rnorm(10))
-[1] -0.7826514  1.2407576
+[1] -0.7617404  1.2410002
 > 
 > 
 > 
 > # Multiple callbacks in interpreted code.
-> # Does not work for some reason.
 > doit2 <- function(x) {
 +   s$x <- x
 +   s %~% '
-+     R.set("y",x.map(2*_)
++     R.set("y",x.map(2*_))
 +     Array(R.evalD0("f(y)"),
 +           R.evalD0("g(y)"))
 +   '
 + }
 > 
-> # doit2(rnorm(10))
+> doit2(rnorm(10))
+[1] 0.4455573 1.1130620
+> 
 > 
 > 
 > 
 > # Multiple callbacks in compiled code.
-> # This does work because we DO support multiple callbacks in compiled code.
 > doit3 <- s$def('x: Array[Double]','
 +   R.set("y",x.map(2*_))
 +   Array(R.evalD0("f(y)"),
@@ -74,7 +74,7 @@ Type 'q()' to quit R.
 + ')
 > 
 > doit3(rnorm(10))
-[1] 0.7256091 1.7640457
+[1] -0.9559316  2.1735145
 > 
 > 
 > 
@@ -86,35 +86,23 @@ Type 'q()' to quit R.
 > microbenchmark(
 +   doit0(rnorm(10)),
 +   doit1(rnorm(10)),
-+   #doit2(rnorm(10)),
++   doit2(rnorm(10)),
 +   doit3(rnorm(10)),
 +   times=5
 + )
 Unit: microseconds
              expr        min         lq        mean     median         uq
- doit0(rnorm(10))     66.687     68.745     98.4224     72.845    123.323
- doit1(rnorm(10)) 405608.215 409147.123 430664.7316 412325.524 436129.455
- doit3(rnorm(10))   2333.063   2398.401   2648.9956   2441.973   2766.287
+ doit0(rnorm(10))     58.507     84.744     94.2334    105.875    109.849
+ doit1(rnorm(10)) 461047.928 498089.313 528610.9830 527512.036 530576.334
+ doit2(rnorm(10)) 279571.987 389754.206 409414.0852 441503.685 448256.632
+ doit3(rnorm(10))   2015.918   2054.492   2707.3268   2840.890   3294.352
         max neval
-    160.512     5
- 490113.341     5
-   3305.254     5
+    112.192     5
+ 625829.304     5
+ 487983.916     5
+   3330.982     5
 > 
-> sleep.time <- 0.1
-> microbenchmark(
-+   doit0(rnorm(10)),
-+   doit1(rnorm(10)),
-+   #doit2(rnorm(10)),
-+   doit3(rnorm(10)),
-+   times=5
-+ )
-Unit: milliseconds
-             expr      min       lq     mean   median       uq      max neval
- doit0(rnorm(10)) 200.4914 200.5048 200.5255 200.5059 200.5401 200.5853     5
- doit1(rnorm(10)) 584.5474 588.2006 620.2833 589.0371 666.4062 673.2252     5
- doit3(rnorm(10)) 204.9433 205.1480 205.6036 205.6328 206.1142 206.1798     5
-> 
-> 
+> q()
 > proc.time()
    user  system elapsed 
-  0.576   0.024  12.990 
+  0.540   0.044  11.947 
