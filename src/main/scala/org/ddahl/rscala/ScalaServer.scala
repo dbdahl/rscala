@@ -6,11 +6,11 @@ import scala.annotation.tailrec
 
 import Protocol._
 
-class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debugger: Debugger, serializeOutput: Boolean) {
+class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debugger: Debugger, private var serializeOutput: Boolean) {
 
   private val sockets = new ScalaSockets(portsFilename,debugger)
   import sockets.{in, out, socketIn, socketOut}
-  private val R = org.ddahl.rscala.RClient(this,in,out,debugger)
+  private val R = org.ddahl.rscala.RClient(this,in,out,debugger,serializeOutput)
 
   if ( repl == null ) {
     out.writeInt(ERROR)
@@ -111,11 +111,11 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
     } catch {
       case e: Throwable =>
         if ( debugger.debug ) debugger.msg("Caught throwable: "+e.toString)
-        repl.bind("$rscalaException","Throwable",e) // So that repl.mostRecentVar is this throwable
+        repl.bind("$rscalamxception","Throwable",e) // So that repl.mostRecentVar is this throwable
         R.exit()
         out.writeInt(ERROR)
         e.printStackTrace()
-        scala.Console.err.println("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
+        scala.Console.err.println("Exception message: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
     }
   }
 
@@ -166,13 +166,13 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
             case e: Throwable =>
               out.writeInt(ERROR)
               e.printStackTrace()
-              scala.Console.err.println("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
+              scala.Console.err.println("Exception message: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
           }
         } catch {
           case e: Throwable =>
             out.writeInt(ERROR)
-            e.printStackTrace()
-            scala.Console.err.println("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
+            // e.printStackTrace()
+            scala.Console.err.println("Exception message: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
         }
       } catch {
         case e: Throwable =>
@@ -197,7 +197,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
         R.exit()
         out.writeInt(ERROR)
         e.printStackTrace()
-        scala.Console.err.println("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
+        scala.Console.err.println("Exception message: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
     }
   }
 
@@ -268,7 +268,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
             if ( debugger.debug ) debugger.msg("Caught exception: "+e)
             out.writeInt(ERROR)
             e.printStackTrace()
-            scala.Console.err.println("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
+            scala.Console.err.println("Exception message: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
         }
       case ATOMIC =>
         if ( debugger.debug ) debugger.msg("Setting atomic.")
@@ -332,7 +332,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
         if ( debugger.debug ) debugger.msg("Caught exception: "+e)
         out.writeInt(ERROR)
         e.printStackTrace()
-        scala.Console.err.println("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
+        scala.Console.err.println("Exception message: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
         return
     }
     if ( debugger.debug ) debugger.msg("Getting: "+identifier)
@@ -515,7 +515,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
             if ( debugger.debug ) debugger.msg("Caught exception: "+e)
             out.writeInt(ERROR)
             e.printStackTrace()
-            scala.Console.err.println("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
+            scala.Console.err.println("Exception message: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
             return
         }
         if ( option.isEmpty ) out.writeInt(UNDEFINED_IDENTIFIER)
@@ -552,6 +552,10 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
         val newDebug = ( in.readInt() != 0 )
         if ( debugger.debug != newDebug ) debugger.msg("Debugging is now "+newDebug)
         debugger.debug = newDebug
+      case SERIALIZE =>
+        serializeOutput = ( in.readInt() != 0 )
+        R.serializeOutput = serializeOutput
+        if ( debugger.debug ) debugger.msg("Serialize output is now "+serializeOutput)
       case EVAL =>
         doEval()
       case SET =>

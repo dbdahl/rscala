@@ -60,7 +60,8 @@ timerRserve {
     //c1.assign("x", dataX)
     //c1.assign("y", dataY)
     //val l = c1.eval("lowess(x,y)").asList
-    val l = c1.eval("1")
+    val l = c1.eval("1").asDouble
+    assert(l==1.0)
     //val lx = l.at("x").asDoubles
     //val ly = l.at("y").asDoubles
   }
@@ -79,7 +80,8 @@ timerrscala {
     //c2.set("x", dataX)
     //c2.set("y", dataY)
     //val l = c2.evalD2("t(as.matrix(as.data.frame(lowess(x,y))))")
-    val l = c2.eval("1")
+    val l = c2.evalD0("1")
+    assert(l==1)
     //val lx = l(0)
     //val ly = l(1)
   }
