@@ -533,7 +533,7 @@ intpDef.ScalaInterpreter <- function(interpreter,args,body,interpolate="",quiet=
       else result
     }
   }')
-          source(textConnection(functionSnippet),local=TRUE)
+          eval(parse(text=functionSnippet))
         } else {
           if ( get("serialize",envir=interpreter[['env']]) ) echoResponseScala(interpreter,quiet)
           stop("Evaluation error.")

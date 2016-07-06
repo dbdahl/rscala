@@ -44,7 +44,7 @@ h(0)
 i <- s$def('x: Int','
   if ( x < 10 ) {
     println(s"Hello $x from Scala.")
-    R.eval(s"""cat("Hello ${x+1} from R."); i(${x+1})""")
+    R.eval(s"""cat("Hello ${x+1} from R.\n"); i(${x+1})""")
   }
 ')
 i(0)
