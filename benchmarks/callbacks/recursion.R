@@ -7,10 +7,11 @@ f <- function(counter) {
   if ( counter >= 10 ) return(counter)
   cat("Hello",counter,"from R.\n")
   f(s %~% '
-    println("Hello from Scala.")
+    println("Hello @{counter+1} from Scala.")
     R.evalI0("@{counter+1}")
   ')
 }
+f(0)
 
 
 # This is recursion via callbacks.
@@ -22,6 +23,7 @@ g <- function(counter) {
     R.eval("g(@{counter+1})")
   '
 }
+g(0)
 
 
 # This is recursion via callbacks using predefined functions
@@ -35,6 +37,7 @@ h <- function(counter) {
   cat("Hello",counter,"from R.\n")
   hh(counter)
 }
+h(0)
 
 
 # This is very cool!
@@ -44,10 +47,15 @@ i <- s$def('x: Int','
     R.eval(s"""cat("Hello ${x+1} from R."); i(${x+1})""")
   }
 ')
+i(0)
 
 
 
 library(microbenchmark)
 
 microbenchmark(f(0),g(0),h(0),i(0),times=5)
+
+cat("####\n")
+
+microbenchmark(h(0),i(0),times=100)
 
