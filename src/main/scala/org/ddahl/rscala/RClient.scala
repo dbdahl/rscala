@@ -688,7 +688,7 @@ object RClient {
     var cmd: PrintWriter = null
     val command = rCmd +: ( defaultArguments ++ interactiveArguments )
     val processCmd = Process(command)
-    val debugger = new Debugger(debug,System.out)
+    val debugger = new Debugger(System.out,"Scala",false,debug)
     val processIO = new ProcessIO(
       o => { cmd = new PrintWriter(o) },
       reader(debugger,"STDOUT DEBUG: "),

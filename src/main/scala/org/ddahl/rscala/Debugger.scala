@@ -1,15 +1,15 @@
 package org.ddahl.rscala
 
-class Debugger(var debug: Boolean = false, out: java.io.PrintStream) {
+class Debugger(out: java.io.PrintStream, label: String, var withTime: Boolean = false, var debug: Boolean = false) {
 
   private val maxOutputLength = 2000
 
-  def timestamp = new java.sql.Timestamp(System.currentTimeMillis()).toString
+  def timestamp = new java.sql.Timestamp(System.currentTimeMillis).toString
 
   def msg(msg: String) = {
-    val label = "DEBUG "+timestamp+": "
-    if ( msg.length > maxOutputLength ) out.println(label+msg.substring(0,maxOutputLength-3)+"...")
-    else out.println(label+msg)
+    val pretext = "DEBUG ("+label+") "+(if ( withTime ) timestamp else "")+": "
+    if ( msg.length > maxOutputLength ) out.println(pretext+msg.substring(0,maxOutputLength-3)+"...")
+    else out.println(pretext+msg)
   }
 
 }

@@ -38,6 +38,7 @@ intpSettings <- function(interpreter,debug=NULL,interpolate=NULL,length.one.as.v
           cc(interpreter)
           wb(interpreter,DEBUG)
           wb(interpreter,as.integer(debug[1]))
+          if ( interpreter[['serialize']] ) echoResponseScala(interpreter,"")
         }
       }
       assign("debug",debug,envir=interpreter[['env']])
@@ -48,8 +49,8 @@ intpSettings <- function(interpreter,debug=NULL,interpolate=NULL,length.one.as.v
   }
 }
 
-msg <- function(...) {
+msg <- function(...,withTime=FALSE) {
   msg <- paste0(...,collapse="\n")
-  cat(paste0("DEBUG (R) @ ",format(Sys.time(), "%Y-%m-%d %H:%M:%OS3"),": ",msg,"\n"))
+  cat(paste0("DEBUG (  R  ) ",ifelse(withTime,format(Sys.time(), "%Y-%m-%d %H:%M:%OS3"),""),": ",msg,"\n"))
 }
 

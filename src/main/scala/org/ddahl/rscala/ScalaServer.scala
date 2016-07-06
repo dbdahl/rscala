@@ -2,23 +2,11 @@ package org.ddahl.rscala
 
 import java.net._
 import java.io._
-import scala.Console.{withOut, withErr}
 import scala.annotation.tailrec
 
 import Protocol._
 
-class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debugger: Debugger) {
-
-  private val baosOut = new java.io.ByteArrayOutputStream()
-  private val baosErr = new java.io.ByteArrayOutputStream()
-  private val psOut = new java.io.PrintStream(baosOut,true)
-  private val psErr = new java.io.PrintStream(baosErr,true)
-  private val originalOut = java.lang.System.out
-  private val originalErr = java.lang.System.err
-  System.setOut(psOut)
-  System.setErr(psErr)
-  baosOut.reset
-  baosErr.reset
+class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debugger: Debugger, serializeOutput: Boolean) {
 
   private val sockets = new ScalaSockets(portsFilename,debugger)
   import sockets.{in, out, socketIn, socketOut}
@@ -27,6 +15,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
   if ( repl == null ) {
     out.writeInt(ERROR)
     out.flush
+    sys.error("REPL is null.")
   } else {
     out.writeInt(OK)
     out.flush
@@ -90,14 +79,9 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
   }
 
   private def readString() = Helper.readString(in)
-  private def writeString(string: String): Unit = Helper.writeString(out,string)
-
-  private def writeAll(buffer: StringBuffer): Unit = {
-    buffer.append(baosOut.toString)
-    buffer.append(baosErr.toString)
-    baosOut.reset
-    baosErr.reset
-    writeString(buffer.toString)
+  private def writeString(string: String): Unit = {
+    if ( debugger.debug ) debugger.msg("Writing string: <"+string+">")
+    Helper.writeString(out,string)
   }
 
   private def setAVM(identifier: String, t: String, v: Any): Unit = {
@@ -119,13 +103,8 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
 
   private def doEval(): Unit = {
     val snippet = readString()
-    val buffer = new StringBuffer()
     try {
-      withOut(psOut) {
-        withErr(psErr) {
-          repl.eval(snippet)
-        }
-      }
+      repl.eval(snippet)
       R.exit()
       if ( debugger.debug ) debugger.msg("Eval is okay")
       out.writeInt(OK)
@@ -135,20 +114,15 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
         repl.bind("$rscalaException","Throwable",e) // So that repl.mostRecentVar is this throwable
         R.exit()
         out.writeInt(ERROR)
-        val errors = new StringWriter()
-        e.printStackTrace(new PrintWriter(errors))
-        buffer.append(errors.toString)
-        buffer.append("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
+        e.printStackTrace()
+        scala.Console.err.println("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
     }
-    writeAll(buffer)
-    out.flush()
   }
 
   private def doDef(): Unit = {
     val args = readString().trim
     val body = readString()
     if ( debugger.debug ) debugger.msg("Got arguments and body.")
-    val buffer = new StringBuffer()
     try {
       val params = if ( args != "" ) {
         val y = args.split(":").map(z => {
@@ -172,11 +146,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
         val paramTypes = params._2
         out.writeInt(OK)
         try {
-          withOut(psOut) {
-            withErr(psErr) {
-              repl.eval(s"($args) => { $body }")
-            }
-          }
+          repl.eval(s"($args) => { $body }")
           out.writeInt(OK)
           val functionName = repl.mostRecentVar
           if ( debugger.debug ) debugger.msg("Name of function is: <"+functionName+">")
@@ -195,18 +165,14 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
           } catch {
             case e: Throwable =>
               out.writeInt(ERROR)
-              val errors = new StringWriter()
-              e.printStackTrace(new PrintWriter(errors))
-              buffer.append(errors.toString)
-              buffer.append("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
+              e.printStackTrace()
+              scala.Console.err.println("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
           }
         } catch {
           case e: Throwable =>
             out.writeInt(ERROR)
-            val errors = new StringWriter()
-            e.printStackTrace(new PrintWriter(errors))
-            buffer.append(errors.toString)
-            buffer.append("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
+            e.printStackTrace()
+            scala.Console.err.println("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
         }
       } catch {
         case e: Throwable =>
@@ -216,20 +182,13 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
       case e: Throwable =>
         out.writeInt(ERROR)
     }
-    writeAll(buffer)
-    out.flush()
   }
 
   private def doInvoke(): Unit = {
     val functionName = readString()
-    val buffer = new StringBuffer()
     try {
       val f = repl.valueOfTerm(functionName).get
-      withOut(psOut) {
-        withErr(psErr) {
-          callFunction(functionName)
-        }
-      }
+      callFunction(functionName)
       R.exit()
       if ( debugger.debug ) debugger.msg("Invoke is okay")
       out.writeInt(OK)
@@ -237,13 +196,9 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
       case e: Throwable =>
         R.exit()
         out.writeInt(ERROR)
-        val errors = new StringWriter()
-        e.printStackTrace(new PrintWriter(errors))
-        buffer.append(errors.toString)
-        buffer.append("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
+        e.printStackTrace()
+        scala.Console.err.println("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
     }
-    writeAll(buffer)
-    out.flush()
   }
 
   private val RegexpVar = """^\s+(?:final )?\s*(?:override )?\s*var\s+([^(:]+):\s+([^=;]+).*""".r
@@ -272,21 +227,11 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
     if ( debugger.debug ) debugger.msg("... on "+itemName)
     val classpath = sys.props("sun.boot.class.path") + sys.props("path.separator") + sys.props("rscala.classpath")
     if ( debugger.debug ) debugger.msg("... with classpath "+classpath)
-    import java.io.{ByteArrayOutputStream, PrintStream}
-    val baos = new ByteArrayOutputStream()
-    val ps = new PrintStream(baos,true)
-    withOut(ps) {
-      scala.tools.scalap.Main.main(Array("-cp",classpath,itemName))
-    }
-    writeString(baos.toString)
-    out.flush()
-    baos.close()
-    ps.close()
+    scala.tools.scalap.Main.main(Array("-cp",classpath,itemName))
   }
 
   private def doSet(): Unit = {
     val identifier = readString()
-    val buffer = new StringBuffer()
     in.readInt() match {
       case NULLTYPE =>
         if ( debugger.debug ) debugger.msg("Setting null.")
@@ -314,11 +259,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
                 repl.bind(r._1,originalType,originalValue)
               case _ =>
                 val vt = if ( r._2 == "" ) r._1 else r._1 + ": " + r._2
-                withOut(psOut) {
-                  withErr(psErr) {
-                    repl.eval(s"val ${vt} = ${originalIdentifier}")
-                  }
-                }
+                repl.eval(s"val ${vt} = ${originalIdentifier}")
             }
           }
           out.writeInt(OK)
@@ -326,10 +267,8 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
           case e: Throwable =>
             if ( debugger.debug ) debugger.msg("Caught exception: "+e)
             out.writeInt(ERROR)
-            val errors = new StringWriter()
-            e.printStackTrace(new PrintWriter(errors))
-            buffer.append(errors.toString)
-            buffer.append("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
+            e.printStackTrace()
+            scala.Console.err.println("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
         }
       case ATOMIC =>
         if ( debugger.debug ) debugger.msg("Setting atomic.")
@@ -368,8 +307,6 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
         setAVM(identifier,t,v)
       case _ => throw new RuntimeException("Protocol error")
     }
-    writeAll(buffer)
-    out.flush()
   }
 
   private def doGet(): Unit = {
@@ -394,35 +331,25 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
       case e: Throwable =>
         if ( debugger.debug ) debugger.msg("Caught exception: "+e)
         out.writeInt(ERROR)
-        val errors = new StringWriter()
-        e.printStackTrace(new PrintWriter(errors))
-        val buffer = new StringBuffer()
-        buffer.append(errors.toString)
-        buffer.append("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
-        writeAll(buffer)
-        out.flush()
+        e.printStackTrace()
+        scala.Console.err.println("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
         return
     }
     if ( debugger.debug ) debugger.msg("Getting: "+identifier)
     if ( optionWithType._1.isEmpty ) {
       if ( debugger.debug ) debugger.msg("... which does not exist.")
       out.writeInt(UNDEFINED_IDENTIFIER)
-      val buffer = new StringBuffer()
-      writeAll(buffer)
-      out.flush()
       return
     }
     val v = optionWithType._1.get
     if ( v == null || v.isInstanceOf[Unit] ) {
       if ( debugger.debug ) debugger.msg("... which is null")
       out.writeInt(NULLTYPE)
-      out.flush
       return
     }
     if ( optionWithType._2 == "org.ddahl.rscala.RObject" ) {
       out.writeInt(REFERENCE)
       writeString(v.asInstanceOf[org.ddahl.rscala.RObject].name)
-      out.flush
       return
     }
     val t = if ( optionWithType._2 == "Any" ) {
@@ -557,7 +484,6 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
         if ( debugger.debug ) debugger.msg("Bowing out: "+identifier)
         out.writeInt(UNSUPPORTED_STRUCTURE)
     }
-    out.flush()
   }
 
   private def doGetReference(): Unit = {
@@ -579,7 +505,6 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
           out.writeInt(OK)
           writeString("null")
           writeString("Null")
-          out.flush()
           return
         }
         val id = if ( identifier == "." ) repl.mostRecentVar else identifier
@@ -589,13 +514,8 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
           case e: Throwable =>
             if ( debugger.debug ) debugger.msg("Caught exception: "+e)
             out.writeInt(ERROR)
-            val errors = new StringWriter()
-            e.printStackTrace(new PrintWriter(errors))
-            val buffer = new StringBuffer()
-            buffer.append(errors.toString)
-            buffer.append("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
-            writeAll(buffer)
-            out.flush()
+            e.printStackTrace()
+            scala.Console.err.println("ERROR MESSAGE: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
             return
         }
         if ( option.isEmpty ) out.writeInt(UNDEFINED_IDENTIFIER)
@@ -605,26 +525,12 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
           writeString(repl.typeOfTerm(id))
         }
     }
-    out.flush()
   }
 
-  @tailrec
-  final def run(): Unit = {
-    if ( repl == null ) {
-      if ( debugger.debug ) debugger.msg("Exiting")
-      in.close()
-      out.close()
-      socketIn.close()
-      socketOut.close()
-      return
-    }
-    if ( debugger.debug ) debugger.msg("Scala server at top of the loop waiting for a command.")
-    val request = try {
-      in.readInt()
-    } catch {
-      case _: Throwable =>
-        return
-    }
+  private val originalOut = java.lang.System.out
+  private val originalErr = java.lang.System.err
+
+  private def heart(request: Int): Boolean = {
     if ( debugger.debug ) debugger.msg("Received request: "+request)
     request match {
       case SHUTDOWN =>
@@ -633,10 +539,10 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
         out.close()
         socketIn.close()
         socketOut.close()
-        return
+        return false
       case EXIT =>
         if ( debugger.debug ) debugger.msg("Exiting")
-        return
+        return false
       case RESET =>
         if ( debugger.debug ) debugger.msg("Resetting")
         cacheMap.clear()
@@ -661,14 +567,43 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
       case SCALAP =>
         doScalap()
     }
-    run()
+    true
+  }
+
+  final def run(): Unit = {
+    while ( true ) {
+      if ( debugger.debug ) debugger.msg("Scala server at top of the loop waiting for a command.")
+      val request = try {
+        in.readInt()
+      } catch {
+        case _: Throwable =>
+          return
+      }
+      if ( serializeOutput ) {
+        val baosOut = new java.io.ByteArrayOutputStream()
+        val baosErr = new java.io.ByteArrayOutputStream()
+        val psOut = new java.io.PrintStream(baosOut,true)
+        val psErr = new java.io.PrintStream(baosErr,true)
+        System.setOut(psOut)
+        System.setErr(psErr)
+        scala.Console.withOut(psOut) {
+          scala.Console.withErr(psErr) {
+            if ( ! heart(request) ) return
+          }
+        }
+        writeString(baosOut.toString+baosErr.toString)
+      } else {
+        if ( ! heart(request) ) return
+      }
+      out.flush()
+    }
   }
 
 }
 
 object ScalaServer {
 
-  def apply(repl: InterpreterAdapter, portsFilename: String, debug: Boolean = false): ScalaServer = new ScalaServer(repl, portsFilename, new Debugger(debug,System.out))
+  def apply(repl: InterpreterAdapter, portsFilename: String, debug: Boolean = false, serializeOutput: Boolean = false): ScalaServer = new ScalaServer(repl, portsFilename, new Debugger(System.out,"Scala",false,debug), serializeOutput)
 
 }
 
