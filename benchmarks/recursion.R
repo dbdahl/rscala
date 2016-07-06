@@ -4,7 +4,7 @@ s <- scalaInterpreter()
 
 # This is not recursion via callbacks.
 f <- function(counter) {
-  if ( counter >= 10 ) return()
+  if ( counter >= 10 ) return(counter)
   cat("Hello",counter,"from R.\n")
   f(s %~% '
     println("Hello from Scala.")
@@ -15,7 +15,7 @@ f <- function(counter) {
 
 # This is recursion via callbacks.
 g <- function(counter) {
-  if ( counter >= 10 ) return()
+  if ( counter >= 10 ) return(counter)
   cat("Hello",counter,"from R.\n")
   s %@% '
     println("Hello @{counter} from Scala.")
@@ -24,7 +24,7 @@ g <- function(counter) {
 }
 
 
-# Oops, the output is messed up.
+# This is recursion via callbacks using predefined functions
 hh <- s$def('x: Int','
   println(s"Hello $x from Scala.")
   R.eval(s"h(${x+1})")
@@ -35,18 +35,19 @@ h <- function(counter) {
   cat("Hello",counter,"from R.\n")
   hh(counter)
 }
-h(0)
 
 
-# Why doesn't this work?
-ii <- s$def('x: Int','
-  if ( x > 100 ) x
-  else x + R.evalI0(s"ii(${x+1})")
+# This is very cool!
+i <- s$def('x: Int','
+  if ( x < 10 ) {
+    println(s"Hello $x from Scala.")
+    R.eval(s"""cat("Hello ${x+1} from R."); i(${x+1})""")
+  }
 ')
-ii(0)
+
 
 
 library(microbenchmark)
 
-microbenchmark(f(0),g(0),h(0),times=5)
+microbenchmark(f(0),g(0),h(0),i(0),times=5)
 

@@ -20,10 +20,11 @@ Type 'q()' to quit R.
 > library(rscala)
 > 
 > s <- scalaInterpreter()
+Loading /tmp/Rtmpe47weZ/rscala-2f10430945bb...
 > 
-> # This is not true recursion.
+> # This is not recursion via callbacks.
 > f <- function(counter) {
-+   if ( counter >= 10 ) return()
++   if ( counter >= 10 ) return(counter)
 +   cat("Hello",counter,"from R.\n")
 +   f(s %~% '
 +     println("Hello from Scala.")
@@ -32,140 +33,83 @@ Type 'q()' to quit R.
 + }
 > 
 > 
-> # This is true recursion.
+> # This is recursion via callbacks.
 > g <- function(counter) {
-+   if ( counter >= 10 ) return()
++   if ( counter >= 10 ) return(counter)
 +   cat("Hello",counter,"from R.\n")
 +   s %@% '
-+     println("Hello from Scala.")
++     println("Hello @{counter} from Scala.")
 +     R.eval("g(@{counter+1})")
 +   '
 + }
 > 
 > 
+> # This is recursion via callbacks using predefined functions
+> hh <- s$def('x: Int','
++   println(s"Hello $x from Scala.")
++   R.eval(s"h(${x+1})")
++ ')
+> 
+> h <- function(counter) {
++   if ( counter >= 10 ) return()
++   cat("Hello",counter,"from R.\n")
++   hh(counter)
++ }
+> 
+> 
+> # This is very cool!
+> i <- s$def('x: Int','
++   if ( x < 10 ) {
++     println(s"Hello $x from Scala.")
++     R.eval(s"""cat("Hello ${x+1} from R."); i(${x+1})""")
++   }
++ ')
+> 
+> 
+> 
 > library(microbenchmark)
 > 
-> microbenchmark(f(0),g(0),times=5)
-Hello 0 from R.
-Hello from Scala.
-Hello 1 from R.
-Hello from Scala.
-Hello 2 from R.
-Hello from Scala.
-Hello 3 from R.
-Hello from Scala.
-Hello 4 from R.
-Hello from Scala.
-Hello 5 from R.
-Hello from Scala.
-Hello 6 from R.
-Hello from Scala.
-Hello 7 from R.
-Hello from Scala.
-Hello 8 from R.
-Hello from Scala.
+> microbenchmark(f(0),g(0),h(0),i(0),times=5)
+Hello 0 from Scala.
+Hello 1 from Scala.
+Hello 2 from Scala.
+Hello 3 from Scala.
+Hello 4 from Scala.
+Hello 5 from Scala.
+Hello 6 from Scala.
+Hello 7 from Scala.
+Hello 8 from Scala.
+Hello 9 from Scala.
+Hello 10 from R.
 Hello 9 from R.
-Hello from Scala.
-Hello 0 from R.
-Hello 1 from R.
-Hello 2 from R.
-Hello 3 from R.
-Hello 4 from R.
-Hello 5 from R.
-Hello 6 from R.
-Hello 7 from R.
 Hello 8 from R.
-Hello 9 from R.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello 0 from R.
-Hello 1 from R.
-Hello 2 from R.
-Hello 3 from R.
-Hello 4 from R.
-Hello 5 from R.
-Hello 6 from R.
 Hello 7 from R.
-Hello 8 from R.
-Hello 9 from R.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello 0 from R.
-Hello from Scala.
-Hello 1 from R.
-Hello from Scala.
-Hello 2 from R.
-Hello from Scala.
-Hello 3 from R.
-Hello from Scala.
-Hello 4 from R.
-Hello from Scala.
-Hello 5 from R.
-Hello from Scala.
 Hello 6 from R.
-Hello from Scala.
-Hello 7 from R.
-Hello from Scala.
-Hello 8 from R.
-Hello from Scala.
-Hello 9 from R.
-Hello from Scala.
-Hello 0 from R.
-Hello 1 from R.
-Hello 2 from R.
-Hello 3 from R.
-Hello 4 from R.
 Hello 5 from R.
-Hello 6 from R.
-Hello 7 from R.
-Hello 8 from R.
-Hello 9 from R.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello 0 from R.
-Hello 1 from R.
-Hello 2 from R.
-Hello 3 from R.
 Hello 4 from R.
-Hello 5 from R.
-Hello 6 from R.
-Hello 7 from R.
-Hello 8 from R.
+Hello 3 from R.
+Hello 2 from R.
+Hello 1 from R.
+Hello 0 from R.
+Hello 0 from Scala.
+Hello 1 from Scala.
+Hello 2 from Scala.
+Hello 3 from Scala.
+Hello 4 from Scala.
+Hello 5 from Scala.
+Hello 6 from Scala.
+Hello 7 from Scala.
+Hello 8 from Scala.
+Hello 9 from Scala.
 Hello 9 from R.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
-Hello from Scala.
+Hello 8 from R.
+Hello 7 from R.
+Hello 6 from R.
+Hello 5 from R.
+Hello 4 from R.
+Hello 3 from R.
+Hello 2 from R.
+Hello 1 from R.
 Hello 0 from R.
 Hello from Scala.
 Hello 1 from R.
@@ -206,6 +150,26 @@ Hello 8 from R.
 Hello from Scala.
 Hello 9 from R.
 Hello from Scala.
+Hello 0 from Scala.
+Hello 1 from Scala.
+Hello 2 from Scala.
+Hello 3 from Scala.
+Hello 4 from Scala.
+Hello 5 from Scala.
+Hello 6 from Scala.
+Hello 7 from Scala.
+Hello 8 from Scala.
+Hello 9 from Scala.
+Hello 10 from R.
+Hello 9 from R.
+Hello 8 from R.
+Hello 7 from R.
+Hello 6 from R.
+Hello 5 from R.
+Hello 4 from R.
+Hello 3 from R.
+Hello 2 from R.
+Hello 1 from R.
 Hello 0 from R.
 Hello from Scala.
 Hello 1 from R.
@@ -227,31 +191,293 @@ Hello from Scala.
 Hello 9 from R.
 Hello from Scala.
 Hello 0 from R.
-Hello 1 from R.
-Hello 2 from R.
-Hello 3 from R.
-Hello 4 from R.
-Hello 5 from R.
-Hello 6 from R.
-Hello 7 from R.
+Hello 0 from Scala.
+Hello 1 from Scala.
+Hello 2 from Scala.
+Hello 3 from Scala.
+Hello 4 from Scala.
+Hello 5 from Scala.
+Hello 6 from Scala.
+Hello 7 from Scala.
+Hello 8 from Scala.
+Hello 9 from Scala.
+Hello 9 from R.
 Hello 8 from R.
+Hello 7 from R.
+Hello 6 from R.
+Hello 5 from R.
+Hello 4 from R.
+Hello 3 from R.
+Hello 2 from R.
+Hello 1 from R.
+Hello 0 from Scala.
+Hello 1 from Scala.
+Hello 2 from Scala.
+Hello 3 from Scala.
+Hello 4 from Scala.
+Hello 5 from Scala.
+Hello 6 from Scala.
+Hello 7 from Scala.
+Hello 8 from Scala.
+Hello 9 from Scala.
+Hello 10 from R.
+Hello 9 from R.
+Hello 8 from R.
+Hello 7 from R.
+Hello 6 from R.
+Hello 5 from R.
+Hello 4 from R.
+Hello 3 from R.
+Hello 2 from R.
+Hello 1 from R.
+Hello 0 from R.
+Hello 0 from Scala.
+Hello 1 from Scala.
+Hello 2 from Scala.
+Hello 3 from Scala.
+Hello 4 from Scala.
+Hello 5 from Scala.
+Hello 6 from Scala.
+Hello 7 from Scala.
+Hello 8 from Scala.
+Hello 9 from Scala.
+Hello 9 from R.
+Hello 8 from R.
+Hello 7 from R.
+Hello 6 from R.
+Hello 5 from R.
+Hello 4 from R.
+Hello 3 from R.
+Hello 2 from R.
+Hello 1 from R.
+Hello 0 from Scala.
+Hello 1 from Scala.
+Hello 2 from Scala.
+Hello 3 from Scala.
+Hello 4 from Scala.
+Hello 5 from Scala.
+Hello 6 from Scala.
+Hello 7 from Scala.
+Hello 8 from Scala.
+Hello 9 from Scala.
+Hello 10 from R.
+Hello 9 from R.
+Hello 8 from R.
+Hello 7 from R.
+Hello 6 from R.
+Hello 5 from R.
+Hello 4 from R.
+Hello 3 from R.
+Hello 2 from R.
+Hello 1 from R.
+Hello 0 from R.
+Hello 0 from Scala.
+Hello 1 from Scala.
+Hello 2 from Scala.
+Hello 3 from Scala.
+Hello 4 from Scala.
+Hello 5 from Scala.
+Hello 6 from Scala.
+Hello 7 from Scala.
+Hello 8 from Scala.
+Hello 9 from Scala.
+Hello 9 from R.
+Hello 8 from R.
+Hello 7 from R.
+Hello 6 from R.
+Hello 5 from R.
+Hello 4 from R.
+Hello 3 from R.
+Hello 2 from R.
+Hello 1 from R.
+Hello 0 from R.
+Hello from Scala.
+Hello 1 from R.
+Hello from Scala.
+Hello 2 from R.
+Hello from Scala.
+Hello 3 from R.
+Hello from Scala.
+Hello 4 from R.
+Hello from Scala.
+Hello 5 from R.
+Hello from Scala.
+Hello 6 from R.
+Hello from Scala.
+Hello 7 from R.
+Hello from Scala.
+Hello 8 from R.
+Hello from Scala.
 Hello 9 from R.
 Hello from Scala.
+Hello 0 from R.
+Hello 0 from Scala.
+Hello 1 from Scala.
+Hello 2 from Scala.
+Hello 3 from Scala.
+Hello 4 from Scala.
+Hello 5 from Scala.
+Hello 6 from Scala.
+Hello 7 from Scala.
+Hello 8 from Scala.
+Hello 9 from Scala.
+Hello 9 from R.
+Hello 8 from R.
+Hello 7 from R.
+Hello 6 from R.
+Hello 5 from R.
+Hello 4 from R.
+Hello 3 from R.
+Hello 2 from R.
+Hello 1 from R.
+Hello 0 from R.
+Hello 0 from Scala.
+Hello 1 from Scala.
+Hello 2 from Scala.
+Hello 3 from Scala.
+Hello 4 from Scala.
+Hello 5 from Scala.
+Hello 6 from Scala.
+Hello 7 from Scala.
+Hello 8 from Scala.
+Hello 9 from Scala.
+Hello 9 from R.
+Hello 8 from R.
+Hello 7 from R.
+Hello 6 from R.
+Hello 5 from R.
+Hello 4 from R.
+Hello 3 from R.
+Hello 2 from R.
+Hello 1 from R.
+Hello 0 from R.
+Hello 0 from Scala.
+Hello 1 from Scala.
+Hello 2 from Scala.
+Hello 3 from Scala.
+Hello 4 from Scala.
+Hello 5 from Scala.
+Hello 6 from Scala.
+Hello 7 from Scala.
+Hello 8 from Scala.
+Hello 9 from Scala.
+Hello 9 from R.
+Hello 8 from R.
+Hello 7 from R.
+Hello 6 from R.
+Hello 5 from R.
+Hello 4 from R.
+Hello 3 from R.
+Hello 2 from R.
+Hello 1 from R.
+Hello 0 from R.
 Hello from Scala.
+Hello 1 from R.
 Hello from Scala.
+Hello 2 from R.
 Hello from Scala.
+Hello 3 from R.
 Hello from Scala.
+Hello 4 from R.
 Hello from Scala.
+Hello 5 from R.
 Hello from Scala.
+Hello 6 from R.
 Hello from Scala.
+Hello 7 from R.
 Hello from Scala.
+Hello 8 from R.
 Hello from Scala.
+Hello 9 from R.
+Hello from Scala.
+Hello 0 from R.
+Hello 0 from Scala.
+Hello 1 from Scala.
+Hello 2 from Scala.
+Hello 3 from Scala.
+Hello 4 from Scala.
+Hello 5 from Scala.
+Hello 6 from Scala.
+Hello 7 from Scala.
+Hello 8 from Scala.
+Hello 9 from Scala.
+Hello 9 from R.
+Hello 8 from R.
+Hello 7 from R.
+Hello 6 from R.
+Hello 5 from R.
+Hello 4 from R.
+Hello 3 from R.
+Hello 2 from R.
+Hello 1 from R.
+Hello 0 from Scala.
+Hello 1 from Scala.
+Hello 2 from Scala.
+Hello 3 from Scala.
+Hello 4 from Scala.
+Hello 5 from Scala.
+Hello 6 from Scala.
+Hello 7 from Scala.
+Hello 8 from Scala.
+Hello 9 from Scala.
+Hello 10 from R.
+Hello 9 from R.
+Hello 8 from R.
+Hello 7 from R.
+Hello 6 from R.
+Hello 5 from R.
+Hello 4 from R.
+Hello 3 from R.
+Hello 2 from R.
+Hello 1 from R.
+Hello 0 from R.
+Hello 0 from Scala.
+Hello 1 from Scala.
+Hello 2 from Scala.
+Hello 3 from Scala.
+Hello 4 from Scala.
+Hello 5 from Scala.
+Hello 6 from Scala.
+Hello 7 from Scala.
+Hello 8 from Scala.
+Hello 9 from Scala.
+Hello 9 from R.
+Hello 8 from R.
+Hello 7 from R.
+Hello 6 from R.
+Hello 5 from R.
+Hello 4 from R.
+Hello 3 from R.
+Hello 2 from R.
+Hello 1 from R.
+Hello 0 from R.
+Hello 0 from Scala.
+Hello 1 from Scala.
+Hello 2 from Scala.
+Hello 3 from Scala.
+Hello 4 from Scala.
+Hello 5 from Scala.
+Hello 6 from Scala.
+Hello 7 from Scala.
+Hello 8 from Scala.
+Hello 9 from Scala.
+Hello 9 from R.
+Hello 8 from R.
+Hello 7 from R.
+Hello 6 from R.
+Hello 5 from R.
+Hello 4 from R.
+Hello 3 from R.
+Hello 2 from R.
+Hello 1 from R.
 Unit: milliseconds
- expr       min        lq      mean    median       uq       max neval
- f(0) 1038.9526 1115.0203 1489.0420 1225.4505 1560.485 2505.3012     5
- g(0)  554.3966  635.2402  707.0077  661.5085  832.556  851.3375     5
+ expr        min         lq       mean     median         uq         max neval
+ f(0) 742.833150 776.089647 943.716415 920.687841 1124.33249 1154.638950     5
+ g(0) 395.967566 403.472761 470.526237 423.171098  449.64682  680.372943     5
+ h(0)   8.155235   9.169036   9.043047   9.185328    9.27571    9.429928     5
+ i(0)   8.900445   9.633301  11.433739  11.255632   13.66339   13.715924     5
 > 
 > 
 > proc.time()
    user  system elapsed 
-  0.696   0.056  15.182 
+  0.628   0.052  11.966 
