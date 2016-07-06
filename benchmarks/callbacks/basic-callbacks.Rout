@@ -19,6 +19,7 @@ Type 'q()' to quit R.
 
 > library(rscala)
 > s <- scalaInterpreter()
+Loading /tmp/RtmpMY3kJS/rscala-313562eebe48...
 > 
 > 
 > sleep.time <- 0
@@ -33,7 +34,7 @@ Type 'q()' to quit R.
 + }
 > 
 > doit0(rnorm(10))
-[1] -0.497242  1.413741
+[1] -0.06383582  0.45043703
 > 
 > 
 > 
@@ -46,7 +47,7 @@ Type 'q()' to quit R.
 + }
 > 
 > doit1(rnorm(10))
-[1] -0.7617404  1.2410002
+[1] 1.623890 2.020046
 > 
 > 
 > 
@@ -61,7 +62,7 @@ Type 'q()' to quit R.
 + }
 > 
 > doit2(rnorm(10))
-[1] 0.4455573 1.1130620
+[1] -0.6976414  1.2137191
 > 
 > 
 > 
@@ -74,7 +75,7 @@ Type 'q()' to quit R.
 + ')
 > 
 > doit3(rnorm(10))
-[1] -0.9559316  2.1735145
+[1] -0.318258  1.865655
 > 
 > 
 > 
@@ -88,21 +89,51 @@ Type 'q()' to quit R.
 +   doit1(rnorm(10)),
 +   doit2(rnorm(10)),
 +   doit3(rnorm(10)),
-+   times=5
++   times=10
 + )
 Unit: microseconds
-             expr        min         lq        mean     median         uq
- doit0(rnorm(10))     58.507     84.744     94.2334    105.875    109.849
- doit1(rnorm(10)) 461047.928 498089.313 528610.9830 527512.036 530576.334
- doit2(rnorm(10)) 279571.987 389754.206 409414.0852 441503.685 448256.632
- doit3(rnorm(10))   2015.918   2054.492   2707.3268   2840.890   3294.352
+             expr        min         lq       mean      median         uq
+ doit0(rnorm(10))     52.582     86.616     99.708     97.8145    120.234
+ doit1(rnorm(10)) 290870.869 335060.916 364440.874 359142.4075 390019.326
+ doit2(rnorm(10)) 191278.922 206534.147 231383.439 219364.8205 264256.406
+ doit3(rnorm(10))   1611.495   2139.250   2670.537   2605.8210   3433.188
         max neval
-    112.192     5
- 625829.304     5
- 487983.916     5
-   3330.982     5
+    145.607    10
+ 452974.334    10
+ 301208.403    10
+   3629.394    10
+> microbenchmark(
++   doit0(rnorm(10)),
++   #doit1(rnorm(10)),
++   #doit2(rnorm(10)),
++   doit3(rnorm(10)),
++   times=100
++ )
+Unit: microseconds
+             expr      min       lq       mean    median       uq      max
+ doit0(rnorm(10))   28.142   35.100   46.38484   42.1605   47.649  153.765
+ doit3(rnorm(10)) 1381.194 1449.537 1606.06962 1533.9130 1637.655 3840.021
+ neval
+   100
+   100
 > 
-> q()
+> 
+> sleep.time <- 0.1
+> microbenchmark(
++   doit0(rnorm(10)),
++   doit1(rnorm(10)),
++   doit2(rnorm(10)),
++   doit3(rnorm(10)),
++   times=5
++ )
+Unit: milliseconds
+             expr      min       lq     mean   median       uq      max neval
+ doit0(rnorm(10)) 200.4540 200.4680 200.4885 200.4836 200.4883 200.5485     5
+ doit1(rnorm(10)) 524.8392 534.1186 549.8650 544.6101 570.2447 575.5122     5
+ doit2(rnorm(10)) 411.6943 439.4989 446.1608 440.5689 453.3364 485.7053     5
+ doit3(rnorm(10)) 203.4400 204.8520 205.1623 205.4681 205.8847 206.1665     5
+> 
+> 
 > proc.time()
    user  system elapsed 
-  0.540   0.044  11.947 
+  0.768   0.112  19.314 

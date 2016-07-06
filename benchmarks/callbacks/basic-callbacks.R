@@ -65,8 +65,16 @@ microbenchmark(
   doit1(rnorm(10)),
   doit2(rnorm(10)),
   doit3(rnorm(10)),
-  times=5
+  times=10
 )
+microbenchmark(
+  doit0(rnorm(10)),
+  #doit1(rnorm(10)),
+  #doit2(rnorm(10)),
+  doit3(rnorm(10)),
+  times=100
+)
+
 
 sleep.time <- 0.1
 microbenchmark(
