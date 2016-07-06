@@ -9,14 +9,19 @@ scalaInterpreter <- function(classpath=character(0),scala.home=NULL,heap.maximum
   if ( is.null(sInfo) ) stop("Cannot find a suitable Scala installation.  Please manually install Scala or run 'scalaInstall()'.")
   rsJar <- rscalaJar(sInfo$version)
   rsClasspath <- shQuote(paste(c(rsJar,userJars),collapse=.Platform$path.sep))
-  args <- c(command.line.options,"-Xnojline","-howtorun:script","-classpath",rsClasspath,paste("-Drscala.classpath=",rsClasspath,sep=""))
-  if ( debug ) msg("\n",paste0("<",args,">",collapse="\n"))
   portsFilename <- tempfile("rscala-")
   bootstrap.filename <- tempfile("rscala-")
   bootstrap.file <- file(bootstrap.filename, "w")
-  inputLines <- c(sprintf('org.ddahl.rscala.ScalaServer(org.ddahl.rscala.ScalaInterpreterAdapter($intp),raw"%s",%s,%s).run()',portsFilename,ifelse(debug,'true','false'),ifelse(serialize,'true','false')),'sys.exit(0)')
-  writeLines(inputLines,bootstrap.file)
+  bootstrap.lines <- c(
+    ':silent',
+    sprintf('org.ddahl.rscala.ScalaServer(org.ddahl.rscala.ScalaInterpreterAdapter($intp),raw"%s",%s,%s).run()',portsFilename,ifelse(debug,'true','false'),ifelse(serialize,'true','false')),
+    'sys.exit(0)'
+  )
+  writeLines(bootstrap.lines,bootstrap.file)
   close(bootstrap.file)
+  args <- c(command.line.options,"-Xnojline","-howtorun:script","-classpath",rsClasspath,paste("-Drscala.classpath=",rsClasspath,sep=""),"-i",bootstrap.filename)
+  if ( debug ) msg("\n",paste0("<",args,">",collapse="\n"))
+  stdin <- ""
   if ( debug && ( .Platform$OS.type == "windows" ) ) {
     stdout <- "STDOUT.txt"
     stderr <- "STDERR.txt"
@@ -24,7 +29,7 @@ scalaInterpreter <- function(classpath=character(0),scala.home=NULL,heap.maximum
     stdout <- ""
     stderr <- ""
   }
-  system2(sInfo$cmd,args,wait=FALSE,stdin=bootstrap.filename,stdout=stdout,stderr=stderr)
+  system2(sInfo$cmd,args,wait=FALSE,stdin=stdin,stdout=stdout,stderr=stderr)
   sockets <- newSockets(portsFilename,debug,timeout)
   sockets[['scalaInfo']] <- sInfo
   sockets[['serialize']] <- serialize
@@ -32,7 +37,8 @@ scalaInterpreter <- function(classpath=character(0),scala.home=NULL,heap.maximum
   assign("callbackNameCounter",0L,envir=sockets[['env']])
   assign("markedForGC",integer(0),envir=sockets[['env']])
   intpSettings(sockets,interpolate=TRUE,length.one.as.vector=FALSE,quiet=FALSE)
-  intpEval(sockets,'println("\\nWelcome to rscala.\\n")')
+  intpEval(sockets,'',interpolate=FALSE,quiet=TRUE)
+  if ( .Platform$OS.type != "windows" ) file.remove(bootstrap.filename)   # Would fail on Windows because the file is still open by Scala.
   sockets
 }
 
