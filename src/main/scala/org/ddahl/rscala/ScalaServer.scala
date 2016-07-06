@@ -554,7 +554,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
         debugger.debug = newDebug
       case SERIALIZE =>
         serializeOutput = ( in.readInt() != 0 )
-        R.serializeOutput = serializeOutput
+        R._serializeOutput = serializeOutput
         if ( debugger.debug ) debugger.msg("Serialize output is now "+serializeOutput)
       case EVAL =>
         doEval()

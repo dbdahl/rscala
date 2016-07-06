@@ -37,7 +37,7 @@ import Protocol._
 *
 * @author David B. Dahl
 */
-class RClient private (private val scalaServer: ScalaServer, private val in: DataInputStream, private val out: DataOutputStream, private val debugger: Debugger, private var _serializeOutput: Boolean) extends Dynamic {
+class RClient private (private val scalaServer: ScalaServer, private val in: DataInputStream, private val out: DataOutputStream, private val debugger: Debugger, private[rscala] var _serializeOutput: Boolean) extends Dynamic {
 
   /** __For rscala developers only__: Returns `TRUE` if debugging output is enabled. */
   def debug = debugger.debug
@@ -57,7 +57,9 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
 
 
   def serializeOutput_=(v: Boolean) = {
-    _serializeOutput = v
+    if ( scalaServer == null ) {
+      _serializeOutput = v
+    } else throw new IllegalStateException(s"Change this value in R via intpSettings(interpreter,serialize=${if (v) "TRUE" else "FALSE"})")
   }
 
   /** Closes the interface to the R interpreter.
@@ -696,8 +698,8 @@ object RClient {
     val debugger = new Debugger(System.out,"Scala",false,debug)
     val processIO = new ProcessIO(
       o => { cmd = new PrintWriter(o) },
-      reader(debugger,"STDOUT DEBUG: "),
-      reader(debugger,"STDERR DEBUG: "),
+      reader(debugger,"R STDOUT: "),
+      reader(debugger,"R STDERR: "),
       true
     )
     val processInstance = processCmd.run(processIO)
