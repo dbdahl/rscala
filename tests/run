@@ -1,0 +1,36 @@
+#!/bin/bash
+
+if [[ $# -eq 0 ]]
+then
+  DOALL=TRUE
+  RSCRIPTS="basics.R callbacks.R defs.R identifiers.R interpolate.R io.R lengthOneAsVector.R mistakes.R quiet.R unit-testing.R functions.R memory.R"
+else
+  DOALL=FALSE
+  RSCRIPTS="$*"
+fi
+
+if [[ "$DOALL" == TRUE ]]
+then
+  ./scala-info >| scala-info.out 2>&1
+fi
+
+# V210=2.10.5
+V211=2.11.8
+
+for SCALA_VERSION in $V210 $V211
+do
+  echo "Running battery for $SCALA_VERSION"
+  killall java > /dev/null 2>&1
+  export SCALA_HOME=~/local/scala/scala-$SCALA_VERSION
+  export SCALA_VERSION
+  if [[ "$DOALL" == TRUE ]]
+  then
+    ./rinscala.scala >| rinscala.scala.out-$SCALA_VERSION 2>&1
+  fi
+  for script in $RSCRIPTS
+  do
+    echo "  Running $script"
+    R CMD BATCH --no-restore --no-save $script ${script}out-$SCALA_VERSION
+  done
+done
+

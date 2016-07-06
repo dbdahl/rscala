@@ -1,0 +1,71 @@
+library(rscala)
+
+j <- scalaInterpreter()
+
+j %~% "util.Properties.versionNumberString"
+
+setget <- function(value,method="$",...) {
+  if ( method == "$" ) {
+    j$tt <- value
+    value2 <- j$tt
+  } else {
+    intpSet(j,"tt",value,...)
+    value2 <- intpGet(j,"tt")
+  }
+  if ( any(value != value2) ) stop(paste("Value not equal:",paste(value,collapse=","),"\n",paste(value2,collapse=",")))
+  if ( class(value) != class(value2) ) stop(paste("Class not equal:",class(value),"\n",class(value2)))
+  if ( mode(value) != mode(value2) ) stop(paste("Mode not equal:",mode(value),"\n",mode(value2)))
+}
+
+for ( method in c("$","") ) {
+
+  setget(integer(0),method=method)
+  intpSettings(j,quiet=FALSE)
+  setget(integer(0),method=method)
+  setget(integer(0),quiet=TRUE,method=method)
+  setget(integer(0),quiet=FALSE,method=method)
+  intpSettings(j,quiet=TRUE)
+
+  setget(double(0),method=method)
+  setget(logical(0),method=method)
+  setget(character(0),method=method)
+
+  setget(4L,length.one.as.vector=TRUE,method=method)
+  setget(5,length.one.as.vector=TRUE,method=method)
+  setget(TRUE,length.one.as.vector=TRUE,method=method)
+  setget(FALSE,length.one.as.vector=TRUE,method=method)
+  setget("David",length.one.as.vector=TRUE,method=method)
+
+  setget(4L,method=method)
+  setget(5,method=method)
+  setget(TRUE,method=method)
+  setget(FALSE,method=method)
+  setget("David",method=method)
+
+  setget(c(4L,3L),method=method)
+  setget(c(5,6),method=method)
+  setget(c(TRUE,FALSE),method=method)
+  setget(c("David","Dahl"),method=method)
+
+  setget(matrix(c(1L,2L,3L,4L,5L,6L),nrow=1),method=method)
+  setget(matrix(c(1,2,3,4,5,6,7,8),nrow=1),method=method)
+  setget(matrix(c(TRUE,FALSE,TRUE,TRUE,FALSE,FALSE),nrow=1),method=method)
+  setget(matrix(c("1","2","3","4","5","6","7","8"),nrow=1),method=method)
+
+  setget(matrix(c(1L,2L,3L,4L,5L,6L),nrow=2),method=method)
+  setget(matrix(c(1,2,3,4,5,6,7,8),nrow=2),method=method)
+  setget(matrix(c(TRUE,FALSE,TRUE,TRUE,FALSE,FALSE),nrow=2),method=method)
+  setget(matrix(c("1","2","3","4","5","6","7","8"),nrow=2),method=method)
+
+  a <- matrix(1:6,nrow=2)
+  setget(a[,-c(1,2,3)],method=method)
+  setget(a[-c(1,2),],method=method)
+  setget(a[-c(1,2),-c(1,2,3)],method=method)
+
+  mode(a) <- "character"
+  setget(a[,-c(1,2,3)],method=method)
+  setget(a[-c(1,2),],method=method)
+  setget(a[-c(1,2),-c(1,2,3)],method=method)
+
+}
+

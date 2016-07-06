@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# V210=2.10.5
+V211=2.11.8
+
+killall java > /dev/null 2>&1
+R --slave -e 'library(rscala); print(scalaInfo("~/local/scala/current",verbose=TRUE)$cmd)'
+
+killall java > /dev/null 2>&1
+R --slave -e 'library(rscala); print(scalaInfo("~/local/scala/scala-'$V211'",verbose=TRUE)$cmd)'
+
+# killall java > /dev/null 2>&1
+# R --slave -e 'library(rscala); print(scalaInfo("~/local/scala/scala-'$V210'",verbose=TRUE)$cmd)'
+
+
+killall java > /dev/null 2>&1
+SCALA_HOME=~/local/scala/current R --slave -e 'library(rscala); print(scalaInfo(verbose=TRUE)$cmd)'
+
+killall java > /dev/null 2>&1
+SCALA_HOME=~/local/scala/scala-$V211 R --slave -e 'library(rscala); print(scalaInfo(verbose=TRUE)$cmd)'
+
+# killall java > /dev/null 2>&1
+# SCALA_HOME=~/local/scala/scala-$V210 R --slave -e 'library(rscala); print(scalaInfo(verbose=TRUE)$cmd)'
+
+
+killall java > /dev/null 2>&1
+SCALA_HOME= PATH=~/local/scala/current/bin:$PATH R --slave -e 'library(rscala); print(scalaInfo(verbose=TRUE)$cmd)'
+
+killall java > /dev/null 2>&1
+SCALA_HOME= PATH=~/local/scala/scala-$V211/bin:$PATH R --slave -e 'library(rscala); print(scalaInfo(verbose=TRUE)$cmd)'
+
+# killall java > /dev/null 2>&1
+# SCALA_HOME= PATH=~/local/scala/scala-$V210/bin:$PATH R --slave -e 'library(rscala); print(scalaInfo(verbose=TRUE)$cmd)'
+
+mv ~/.rscala ~/.rscala-off
+killall java > /dev/null 2>&1
+SCALA_HOME= PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games ~/local/R/current/bin/R --slave -e 'library(rscala)'
+
+killall java > /dev/null 2>&1
+mv ~/.rscala-off ~/.rscala
+SCALA_HOME= PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games ~/local/R/current/bin/R --slave -e 'library(rscala); scalaInstall()'
+SCALA_HOME= PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games ~/local/R/current/bin/R --slave -e 'library(rscala); print(scalaInfo(verbose=TRUE)$cmd)'
+
