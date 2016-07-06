@@ -243,6 +243,7 @@ intpGet.ScalaInterpreter <- function(interpreter,identifier,as.reference=NA) {
         })
         env
       } else NULL
+      if ( get("serialize",envir=interpreter[['env']]) ) echoResponseScala(interpreter,FALSE)
       result <- list(interpreter=interpreter,identifier=id,type=type,env=env)
       class(result) <- "ScalaInterpreterReference"
       return(result)

@@ -1,6 +1,8 @@
 library(rscala)
 
-s <- scalaInterpreter()
+serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
+cat(serialize,"\n")
+s <- scalaInterpreter(serialize=serialize)
 
 s %~% "util.Properties.versionNumberString"
 

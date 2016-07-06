@@ -30,7 +30,10 @@ do
   for script in $RSCRIPTS
   do
     echo "  Running $script"
-    R CMD BATCH --no-restore --no-save $script ${script}out-$SCALA_VERSION
+    for SERIALIZE in TRUE FALSE
+    do
+      RSCALA_SERIALIZE=$SERIALIZE R CMD BATCH --no-restore --no-save $script ${script}out-$SERIALIZE-$SCALA_VERSION
+    done
   done
 done
 

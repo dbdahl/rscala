@@ -75,7 +75,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
       debugger.msg("There are "+functionParameters.length+" parameters.")
       debugger.msg("<<"+functionParameters.mkString(">>\n<<")+">>")
     }
-    functionResult = (m.invoke(f, functionParameters.map(_.asInstanceOf[AnyRef]): _*),resultType)
+    functionResult = (m.invoke(f, functionParameters.map(_.asInstanceOf[AnyRef]): _*), resultType)
   }
 
   private def readString() = Helper.readString(in)
@@ -196,7 +196,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
       case e: Throwable =>
         R.exit()
         out.writeInt(ERROR)
-        e.printStackTrace()
+        // e.printStackTrace()
         scala.Console.err.println("Exception message: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
     }
   }

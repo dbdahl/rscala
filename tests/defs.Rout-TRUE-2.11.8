@@ -19,8 +19,11 @@ Type 'q()' to quit R.
 
 > library(rscala)
 > 
-> s <- scalaInterpreter()
-Loading /tmp/RtmpFbwZJi/rscala-25b7e2b72de...
+> serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
+> cat(serialize,"\n")
+TRUE 
+> s <- scalaInterpreter(serialize=serialize)
+Loading /tmp/RtmpPJuvnd/rscala-4ec162393281...
 > 
 > s %~% "util.Properties.versionNumberString"
 [1] "2.11.8"
@@ -189,7 +192,7 @@ function (x, w, r, as.reference = NA, quiet = "", gc = FALSE)
         else result
     }
 }
-<environment: 0x282f698>
+<environment: 0x2f3d8d0>
 attr(,"args")
 [1] "x: Double, w: Int, r: Double"
 attr(,"body")
@@ -215,9 +218,9 @@ attr(,"type")
 > 
 > system.time(sapply(1:100,function(i) f1(i,4,54)))
    user  system elapsed 
-  0.048   0.024   0.084 
+  0.076   0.012   0.103 
 > 
 > 
 > proc.time()
    user  system elapsed 
-  0.316   0.052  11.579 
+  0.396   0.040  10.804 
