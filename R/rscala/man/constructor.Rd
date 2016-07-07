@@ -61,7 +61,7 @@ rscalaLoad(classpath=NULL, ...)
     \item{timeout}{A numeric vector of length one giving the number of seconds to wait for Scala to start before aborting.  The default value is \code{60} seconds.}
     \item{debug.filename}{An option meant only for developers of the package itself and not intended for users of the package.}
     \item{verbose}{A logical vector of length one indicating whether information regarding the search for the Scala installation should be displayed.}
-    \item{version}{If \code{""}, the package JAR files for all Scala versions are returned. Or, if \code{"2.10.*"} or \code{"2.11.*"} where \code{*} is a placeholder, the JAR file for that specific major version of Scala is returned.}
+    \item{version}{If \code{""}, the package JAR files for all Scala versions are returned. Or, if \code{"2.11.*"} where \code{*} is a placeholder, the JAR file for that specific major version of Scala is returned.}
     \item{pkgname}{A character string giving the name of the package (as provided the second argument of the \code{.onLoad} function) that wishes to depend on this package.}
     \item{...}{These arguments are passed to the \code{\link{scalaInterpreter}} function.}
 }

@@ -700,7 +700,7 @@ scalaInfoEngine <- function(scala.command,verbose) {
     if ( verbose ) cat(sprintf("Cannot get Scala version from library jar (%s)\n",libraryJar))
     return(NULL)
   }
-  if ( ! ( major.version %in% c("2.10","2.11") ) ) {
+  if ( ! ( major.version %in% c("2.11") ) ) {
     if ( verbose ) cat(sprintf("Unsupported major version (%s) from Scala executable (%s)\n",major.version,scala.command))
     return(NULL)
   }
