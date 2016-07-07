@@ -38,12 +38,19 @@ scalaInterpreter <- function(classpath=character(0),scala.home=NULL,heap.maximum
   assign("callbackNameCounter",0L,envir=sockets[['env']])
   assign("markedForGC",integer(0),envir=sockets[['env']])
   intpSettings(sockets,interpolate=TRUE,length.one.as.vector=FALSE)
-  intpEval(sockets,'',interpolate=FALSE)
   if ( .Platform$OS.type != "windows" ) file.remove(bootstrap.filename)   # Would fail on Windows because the file is still open by Scala.
   sockets
 }
 
 newSockets <- function(portsFilename,debug,serialize,timeout) {
+  functionCache <- new.env()
+  env <- new.env()
+  assign("open",TRUE,envir=env)
+  assign("debug",debug,envir=env)
+  assign("serialize",serialize,envir=env)
+  assign("length.one.as.vector",FALSE,envir=env)
+  workspace <- new.env()
+  workspace$. <- new.env(parent=workspace)
   ports <- local({
     delay <- 0.1
     start <- proc.time()[3]
@@ -62,14 +69,6 @@ newSockets <- function(portsFilename,debug,serialize,timeout) {
   socketConnectionIn  <- socketConnection(port=ports[1],blocking=TRUE,open="ab",timeout=2678400)
   socketConnectionOut <- socketConnection(port=ports[2],blocking=TRUE,open="rb",timeout=2678400)
   if ( debug ) msg("Connected")
-  functionCache <- new.env()
-  env <- new.env()
-  assign("open",TRUE,envir=env)
-  assign("debug",debug,envir=env)
-  assign("serialize",serialize,envir=env)
-  assign("length.one.as.vector",FALSE,envir=env)
-  workspace <- new.env()
-  workspace$. <- new.env(parent=workspace)
   result <- list(socketIn=socketConnectionIn,socketOut=socketConnectionOut,env=env,workspace=workspace,functionCache=functionCache)
   class(result) <- "ScalaInterpreter"
   status <- rb(result,"integer")
