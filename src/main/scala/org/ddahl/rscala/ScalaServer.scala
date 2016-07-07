@@ -6,11 +6,11 @@ import scala.annotation.tailrec
 
 import Protocol._
 
-class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debugger: Debugger, private var serializeOutput: Boolean) {
+class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debugger: Debugger, serializeOutputState: State) {
 
   private val sockets = new ScalaSockets(portsFilename,debugger)
   import sockets.{in, out, socketIn, socketOut}
-  private val R = org.ddahl.rscala.RClient(this,in,out,debugger,serializeOutput)
+  private val R = org.ddahl.rscala.RClient(this,in,out,debugger,serializeOutputState)
 
   if ( repl == null ) {
     out.writeInt(ERROR)
@@ -70,7 +70,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
     val (f,m,nArgs,resultType) = functionMap(functionName)
     val functionParameters = functionParametersStack.takeRight(nArgs)
     functionParametersStack.trimEnd(nArgs)
-    if ( debugger.debug ) {
+    if ( debugger.value ) {
       debugger.msg("Function is: "+f)
       debugger.msg("There are "+functionParameters.length+" parameters.")
       debugger.msg("<<"+functionParameters.mkString(">>\n<<")+">>")
@@ -80,12 +80,12 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
 
   private def readString() = Helper.readString(in)
   private def writeString(string: String): Unit = {
-    if ( debugger.debug ) debugger.msg("Writing string: <"+string+">")
+    if ( debugger.value ) debugger.msg("Writing string: <"+string+">")
     Helper.writeString(out,string)
   }
 
   private def setAVM(identifier: String, t: String, v: Any): Unit = {
-    if ( debugger.debug ) debugger.msg("Value is "+v)
+    if ( debugger.value ) debugger.msg("Value is "+v)
     if ( identifier == "." ) functionParametersStack.append(v)
     else repl.bind(identifier,t,v)
   }
@@ -93,9 +93,9 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
   private val sep = sys.props("line.separator")
 
   private def doGC(): Unit = {
-    if ( debugger.debug ) debugger.msg("Garbage collection")
+    if ( debugger.value ) debugger.msg("Garbage collection")
     val length = in.readInt()
-    if ( debugger.debug ) debugger.msg("... of length: "+length)
+    if ( debugger.value ) debugger.msg("... of length: "+length)
     for ( i <- 0 until length ) {
       cacheMap(in.readInt()) = null
     }
@@ -106,11 +106,11 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
     try {
       repl.eval(snippet)
       R.exit()
-      if ( debugger.debug ) debugger.msg("Eval is okay")
+      if ( debugger.value ) debugger.msg("Eval is okay")
       out.writeInt(OK)
     } catch {
       case e: Throwable =>
-        if ( debugger.debug ) debugger.msg("Caught throwable: "+e.toString)
+        if ( debugger.value ) debugger.msg("Caught throwable: "+e.toString)
         repl.bind("$rscalamxception","Throwable",e) // So that repl.mostRecentVar is this throwable
         R.exit()
         out.writeInt(ERROR)
@@ -122,7 +122,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
   private def doDef(): Unit = {
     val args = readString().trim
     val body = readString()
-    if ( debugger.debug ) debugger.msg("Got arguments and body.")
+    if ( debugger.value ) debugger.msg("Got arguments and body.")
     try {
       val params = if ( args != "" ) {
         val y = args.split(":").map(z => {
@@ -139,7 +139,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
         }
         (r,s)
       } else (Array[String](),Array[String]())
-      if ( debugger.debug ) debugger.msg("Parsed arguments.")
+      if ( debugger.value ) debugger.msg("Parsed arguments.")
       out.writeInt(OK)
       try {
         val paramNames = params._1
@@ -149,19 +149,19 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
           repl.eval(s"($args) => { $body }")
           out.writeInt(OK)
           val functionName = repl.mostRecentVar
-          if ( debugger.debug ) debugger.msg("Name of function is: <"+functionName+">")
+          if ( debugger.value ) debugger.msg("Name of function is: <"+functionName+">")
           try {
             storeFunction(functionName,paramNames.length)
-            if ( debugger.debug ) debugger.msg("Stored function.")
+            if ( debugger.value ) debugger.msg("Stored function.")
             out.writeInt(OK)
             writeString(functionName)
-            if ( debugger.debug ) debugger.msg("Everything is okay in 'def'.")
+            if ( debugger.value ) debugger.msg("Everything is okay in 'def'.")
             out.writeInt(paramNames.length)
-            if ( debugger.debug ) debugger.msg("There are "+paramNames.length+" parameters.")
+            if ( debugger.value ) debugger.msg("There are "+paramNames.length+" parameters.")
             paramNames.foreach(writeString)
             paramTypes.foreach(writeString)
             writeString(functionMap(functionName)._4)
-            if ( debugger.debug ) debugger.msg("Done.")
+            if ( debugger.value ) debugger.msg("Done.")
           } catch {
             case e: Throwable =>
               out.writeInt(ERROR)
@@ -190,7 +190,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
       val f = repl.valueOfTerm(functionName).get
       callFunction(functionName)
       R.exit()
-      if ( debugger.debug ) debugger.msg("Invoke is okay")
+      if ( debugger.value ) debugger.msg("Invoke is okay")
       out.writeInt(OK)
     } catch {
       case e: Throwable =>
@@ -222,23 +222,24 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
   }
 
   private def doScalap(): Unit = {
-    if ( debugger.debug ) debugger.msg("Doing scalap...")
+    if ( debugger.value ) debugger.msg("Doing scalap...")
     val itemName = readString()
-    if ( debugger.debug ) debugger.msg("... on "+itemName)
+    if ( debugger.value ) debugger.msg("... on "+itemName)
     val classpath = sys.props("sun.boot.class.path") + sys.props("path.separator") + sys.props("rscala.classpath")
-    if ( debugger.debug ) debugger.msg("... with classpath "+classpath)
+    if ( debugger.value ) debugger.msg("... with classpath "+classpath)
     scala.tools.scalap.Main.main(Array("-cp",classpath,itemName))
+    out.writeInt(OK)
   }
 
   private def doSet(): Unit = {
     val identifier = readString()
     in.readInt() match {
       case NULLTYPE =>
-        if ( debugger.debug ) debugger.msg("Setting null.")
+        if ( debugger.value ) debugger.msg("Setting null.")
         if ( identifier == "." ) functionParametersStack.append(null)
         else repl.bind(identifier,"Any",null)
       case REFERENCE =>
-        if ( debugger.debug ) debugger.msg("Setting reference.")
+        if ( debugger.value ) debugger.msg("Setting reference.")
         val originalIdentifier = readString()
         try {
           if ( identifier == "." ) originalIdentifier match {
@@ -265,13 +266,13 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
           out.writeInt(OK)
         } catch {
           case e: Throwable =>
-            if ( debugger.debug ) debugger.msg("Caught exception: "+e)
+            if ( debugger.value ) debugger.msg("Caught exception: "+e)
             out.writeInt(ERROR)
             e.printStackTrace()
             scala.Console.err.println("Exception message: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
         }
       case ATOMIC =>
-        if ( debugger.debug ) debugger.msg("Setting atomic.")
+        if ( debugger.value ) debugger.msg("Setting atomic.")
         val (v: Any, t: String) = in.readInt() match {
           case INTEGER => (in.readInt(),"Int")
           case DOUBLE => (in.readDouble(),"Double")
@@ -281,9 +282,9 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
         }
         setAVM(identifier,t,v)
       case VECTOR =>
-        if ( debugger.debug ) debugger.msg("Setting vector...")
+        if ( debugger.value ) debugger.msg("Setting vector...")
         val length = in.readInt()
-        if ( debugger.debug ) debugger.msg("... of length: "+length)
+        if ( debugger.value ) debugger.msg("... of length: "+length)
         val (v, t): (Any,String) = in.readInt() match {
           case INTEGER => (Array.fill(length) { in.readInt() },"Array[Int]")
           case DOUBLE => (Array.fill(length) { in.readDouble() },"Array[Double]")
@@ -293,10 +294,10 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
         }
         setAVM(identifier,t,v)
       case MATRIX =>
-        if ( debugger.debug ) debugger.msg("Setting matrix...")
+        if ( debugger.value ) debugger.msg("Setting matrix...")
         val nrow = in.readInt()
         val ncol = in.readInt()
-        if ( debugger.debug ) debugger.msg("... of dimensions: "+nrow+","+ncol)
+        if ( debugger.value ) debugger.msg("... of dimensions: "+nrow+","+ncol)
         val (v, t): (Any,String) = in.readInt() match {
           case INTEGER => (Array.fill(nrow) { Array.fill(ncol) { in.readInt() } },"Array[Array[Int]]")
           case DOUBLE => (Array.fill(nrow) { Array.fill(ncol) { in.readDouble() } },"Array[Array[Double]]")
@@ -311,7 +312,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
 
   private def doGet(): Unit = {
     val identifier = readString()
-    if ( debugger.debug ) debugger.msg("Trying to get value of: "+identifier)
+    if ( debugger.value ) debugger.msg("Trying to get value of: "+identifier)
     val optionWithType = try {
       identifier match {
         case "." => 
@@ -329,21 +330,21 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
       }
     } catch {
       case e: Throwable =>
-        if ( debugger.debug ) debugger.msg("Caught exception: "+e)
+        if ( debugger.value ) debugger.msg("Caught exception: "+e)
         out.writeInt(ERROR)
         e.printStackTrace()
         scala.Console.err.println("Exception message: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
         return
     }
-    if ( debugger.debug ) debugger.msg("Getting: "+identifier)
+    if ( debugger.value ) debugger.msg("Getting: "+identifier)
     if ( optionWithType._1.isEmpty ) {
-      if ( debugger.debug ) debugger.msg("... which does not exist.")
+      if ( debugger.value ) debugger.msg("... which does not exist.")
       out.writeInt(UNDEFINED_IDENTIFIER)
       return
     }
     val v = optionWithType._1.get
     if ( v == null || v.isInstanceOf[Unit] ) {
-      if ( debugger.debug ) debugger.msg("... which is null")
+      if ( debugger.value ) debugger.msg("... which is null")
       out.writeInt(NULLTYPE)
       return
     }
@@ -354,7 +355,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
     }
     val t = if ( optionWithType._2 == "Any" ) {
       val c = v.getClass
-      if ( debugger.debug ) debugger.msg("Trying to infer type of "+c)
+      if ( debugger.value ) debugger.msg("Trying to infer type of "+c)
       if ( c.isArray ) {
         c.getName match {
           case "[I" => "Array[Int]"
@@ -377,8 +378,8 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
         }
       }
     } else optionWithType._2
-    if ( debugger.debug ) debugger.msg("... whose type is: "+t)
-    if ( debugger.debug ) debugger.msg("... and whose value is: "+v)
+    if ( debugger.value ) debugger.msg("... whose type is: "+t)
+    if ( debugger.value ) debugger.msg("... and whose value is: "+v)
     t match {
       case "Array[Int]" =>
         val vv = v.asInstanceOf[Array[Int]]
@@ -481,14 +482,14 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
         out.writeInt(STRING)
         writeString(v.asInstanceOf[String])
       case _ =>
-        if ( debugger.debug ) debugger.msg("Bowing out: "+identifier)
+        if ( debugger.value ) debugger.msg("Bowing out: "+identifier)
         out.writeInt(UNSUPPORTED_STRUCTURE)
     }
   }
 
   private def doGetReference(): Unit = {
     val identifier = readString()
-    if ( debugger.debug ) debugger.msg("Trying to get reference for: "+identifier)
+    if ( debugger.value ) debugger.msg("Trying to get reference for: "+identifier)
     identifier match {
       case "?" =>
         cacheMap.append(functionResult)
@@ -512,7 +513,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
           repl.valueOfTerm(id)
         } catch {
           case e: Throwable =>
-            if ( debugger.debug ) debugger.msg("Caught exception: "+e)
+            if ( debugger.value ) debugger.msg("Caught exception: "+e)
             out.writeInt(ERROR)
             e.printStackTrace()
             scala.Console.err.println("Exception message: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
@@ -531,31 +532,29 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
   private val originalErr = java.lang.System.err
 
   private def heart(request: Int): Boolean = {
-    if ( debugger.debug ) debugger.msg("Received request: "+request)
+    if ( debugger.value ) debugger.msg("Received request: "+request)
     request match {
       case SHUTDOWN =>
-        if ( debugger.debug ) debugger.msg("Shutting down")
+        if ( debugger.value ) debugger.msg("Shutting down")
         in.close()
         out.close()
         socketIn.close()
         socketOut.close()
         return false
       case EXIT =>
-        if ( debugger.debug ) debugger.msg("Exiting")
+        if ( debugger.value ) debugger.msg("Exiting")
         return false
       case RESET =>
-        if ( debugger.debug ) debugger.msg("Resetting")
+        if ( debugger.value ) debugger.msg("Resetting")
         cacheMap.clear()
       case GC =>
         doGC()
       case DEBUG =>
-        val newDebug = ( in.readInt() != 0 )
-        if ( debugger.debug != newDebug ) debugger.msg("Debugging is now "+newDebug)
-        debugger.debug = newDebug
+        debugger.value = ( in.readInt() != 0 )
+        if ( debugger.value ) debugger.msg("Debugging is now "+debugger.value)
       case SERIALIZE =>
-        serializeOutput = ( in.readInt() != 0 )
-        R._serializeOutput = serializeOutput
-        if ( debugger.debug ) debugger.msg("Serialize output is now "+serializeOutput)
+        serializeOutputState.value = ( in.readInt() != 0 )
+        if ( debugger.value ) debugger.msg("Serialize output is now "+serializeOutputState.value)
       case EVAL =>
         doEval()
       case SET =>
@@ -576,14 +575,14 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
 
   final def run(): Unit = {
     while ( true ) {
-      if ( debugger.debug ) debugger.msg("Scala server at top of the loop waiting for a command.")
+      if ( debugger.value ) debugger.msg("Scala server at top of the loop waiting for a command.")
       val request = try {
         in.readInt()
       } catch {
         case _: Throwable =>
           return
       }
-      if ( serializeOutput ) {
+      if ( serializeOutputState.value ) {
         val baosOut = new java.io.ByteArrayOutputStream()
         val baosErr = new java.io.ByteArrayOutputStream()
         val psOut = new java.io.PrintStream(baosOut,true)
@@ -607,7 +606,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
 
 object ScalaServer {
 
-  def apply(repl: InterpreterAdapter, portsFilename: String, debug: Boolean = false, serializeOutput: Boolean = false): ScalaServer = new ScalaServer(repl, portsFilename, new Debugger(System.out,"Scala",false,debug), serializeOutput)
+  def apply(repl: InterpreterAdapter, portsFilename: String, debug: Boolean = false, serializeOutput: Boolean = false): ScalaServer = new ScalaServer(repl, portsFilename, new Debugger(System.out,"Scala",false,debug), new State(serializeOutput))
 
 }
 

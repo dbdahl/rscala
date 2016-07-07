@@ -12,6 +12,8 @@ scalaInterpreter <- function(classpath=character(0),scala.home=NULL,heap.maximum
   portsFilename <- tempfile("rscala-")
   bootstrap.filename <- tempfile("rscala-")
   bootstrap.file <- file(bootstrap.filename, "w")
+  debug <- ifelse(is.null(debug) || is.nan(debug) || is.na(debug) || !debug, FALSE, TRUE)
+  serialize <- ifelse(is.null(serialize) || is.nan(serialize) || is.na(serialize) || !serialize, FALSE, TRUE)
   bootstrap.lines <- c(
     ':silent',
     sprintf('org.ddahl.rscala.ScalaServer(org.ddahl.rscala.ScalaInterpreterAdapter($intp),raw"%s",%s,%s).run()',portsFilename,ifelse(debug,'true','false'),ifelse(serialize,'true','false')),
@@ -565,6 +567,7 @@ scalap <- function(interpreter,item.name) {
   wb(interpreter,SCALAP)
   wc(interpreter,item.name)
   flush(interpreter[['socketIn']])
+  status <- rb(interpreter,"integer")
   if ( get("serialize",envir=interpreter[['env']]) ) echoResponseScala(interpreter,FALSE)
 }
 

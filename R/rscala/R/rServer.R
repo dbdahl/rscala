@@ -8,10 +8,18 @@ rServe <- function(sockets,with.callbacks) {
     if ( ( cmd == EVAL ) || ( cmd == EVALNAKED ) ) {
       if ( debug ) msg("Got EVAL/EVALNAKED: ",cmd)
       snippet <- rc(sockets)
-      output <- if ( cmd == EVAL ) capture.output(result <- try(eval(parse(text=snippet),envir=workspace)))
-      else {
+      if ( cmd == EVAL ) {
+        output <- NULL
+        file <- textConnection("output","w",local=TRUE)
+        sink(file)
+        sink(file,type="message")
         result <- try(eval(parse(text=snippet),envir=workspace))
-        character()
+        sink(type="message")
+        sink()
+        close(file)
+      } else {
+        result <- try(eval(parse(text=snippet),envir=workspace))
+        output <- character()
       }
       if ( with.callbacks ) wb(sockets,EXIT)
       if ( inherits(result,"try-error") ) {
@@ -148,7 +156,14 @@ subassign <- function(sockets,x,i,value,single=TRUE) {
   workspace <- sockets[['workspace']]
   assign(".rscala.set.value",value,envir=workspace)
   brackets <- if ( single ) c("[","]") else c("[[","]]")
-  output <- capture.output(result <- try(eval(parse(text=paste0(x,brackets[1],i,brackets[2]," <- .rscala.set.value")),envir=workspace)))
+  output <- NULL
+  file <- textConnection("output","w",local=TRUE)
+  sink(file)
+  sink(file,type="message")
+  result <- try(eval(parse(text=paste0(x,brackets[1],i,brackets[2]," <- .rscala.set.value")),envir=workspace))
+  sink(type="message")
+  sink()
+  close(file)
   if ( inherits(result,"try-error") ) {
     wb(sockets,ERROR)
     output <- paste(paste(output,collapse="\n"),paste(attr(result,"condition")$message,collapse="\n"),sep="\n")

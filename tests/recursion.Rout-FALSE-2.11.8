@@ -19,8 +19,17 @@ Type 'q()' to quit R.
 
 > library(rscala)
 > 
-> s <- scalaInterpreter()
-Loading /tmp/RtmpP2gaCQ/rscala-367c69e0bbb5...
+> serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
+> serialize <- FALSE
+> cat(serialize,"\n")
+FALSE 
+> s <- scalaInterpreter(serialize=serialize)
+Loading /tmp/RtmppZ8M2f/rscala-244b65d91deb...
+> 
+> cat(s %~% "util.Properties.versionNumberString","\n")
+2.11.8 
+> 
+> 
 > 
 > # This is not recursion via callbacks.
 > f <- function(counter) {
@@ -153,29 +162,10 @@ Hello 10 from R.
 > 
 > 
 > library(microbenchmark)
+> set.seed(13124)
 > 
 > microbenchmark(f(0),g(0),h(0),i(0),times=5)
 Hello 0 from R.
-Hello 1 from Scala.
-Hello 1 from R.
-Hello 2 from Scala.
-Hello 2 from R.
-Hello 3 from Scala.
-Hello 3 from R.
-Hello 4 from Scala.
-Hello 4 from R.
-Hello 5 from Scala.
-Hello 5 from R.
-Hello 6 from Scala.
-Hello 6 from R.
-Hello 7 from Scala.
-Hello 7 from R.
-Hello 8 from Scala.
-Hello 8 from R.
-Hello 9 from Scala.
-Hello 9 from R.
-Hello 10 from Scala.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -195,86 +185,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 0 from R.
-Hello 1 from Scala.
-Hello 1 from R.
-Hello 2 from Scala.
-Hello 2 from R.
-Hello 3 from Scala.
-Hello 3 from R.
-Hello 4 from Scala.
-Hello 4 from R.
-Hello 5 from Scala.
-Hello 5 from R.
-Hello 6 from Scala.
-Hello 6 from R.
-Hello 7 from Scala.
-Hello 7 from R.
-Hello 8 from Scala.
-Hello 8 from R.
-Hello 9 from Scala.
-Hello 9 from R.
-Hello 10 from Scala.
-Hello 0 from Scala.
-Hello 1 from R.
-Hello 1 from Scala.
-Hello 2 from R.
-Hello 2 from Scala.
-Hello 3 from R.
-Hello 3 from Scala.
-Hello 4 from R.
-Hello 4 from Scala.
-Hello 5 from R.
-Hello 5 from Scala.
-Hello 6 from R.
-Hello 6 from Scala.
-Hello 7 from R.
-Hello 7 from Scala.
-Hello 8 from R.
-Hello 8 from Scala.
-Hello 9 from R.
-Hello 9 from Scala.
-Hello 10 from R.
-Hello 0 from R.
-Hello 0 from Scala.
-Hello 1 from R.
-Hello 1 from Scala.
-Hello 2 from R.
-Hello 2 from Scala.
-Hello 3 from R.
-Hello 3 from Scala.
-Hello 4 from R.
-Hello 4 from Scala.
-Hello 5 from R.
-Hello 5 from Scala.
-Hello 6 from R.
-Hello 6 from Scala.
-Hello 7 from R.
-Hello 7 from Scala.
-Hello 8 from R.
-Hello 8 from Scala.
-Hello 9 from R.
-Hello 9 from Scala.
-Hello 0 from Scala.
-Hello 1 from R.
-Hello 1 from Scala.
-Hello 2 from R.
-Hello 2 from Scala.
-Hello 3 from R.
-Hello 3 from Scala.
-Hello 4 from R.
-Hello 4 from Scala.
-Hello 5 from R.
-Hello 5 from Scala.
-Hello 6 from R.
-Hello 6 from Scala.
-Hello 7 from R.
-Hello 7 from Scala.
-Hello 8 from R.
-Hello 8 from Scala.
-Hello 9 from R.
-Hello 9 from Scala.
-Hello 10 from R.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -315,126 +225,6 @@ Hello 8 from R.
 Hello 9 from Scala.
 Hello 9 from R.
 Hello 10 from Scala.
-Hello 0 from R.
-Hello 0 from Scala.
-Hello 1 from R.
-Hello 1 from Scala.
-Hello 2 from R.
-Hello 2 from Scala.
-Hello 3 from R.
-Hello 3 from Scala.
-Hello 4 from R.
-Hello 4 from Scala.
-Hello 5 from R.
-Hello 5 from Scala.
-Hello 6 from R.
-Hello 6 from Scala.
-Hello 7 from R.
-Hello 7 from Scala.
-Hello 8 from R.
-Hello 8 from Scala.
-Hello 9 from R.
-Hello 9 from Scala.
-Hello 0 from Scala.
-Hello 1 from R.
-Hello 1 from Scala.
-Hello 2 from R.
-Hello 2 from Scala.
-Hello 3 from R.
-Hello 3 from Scala.
-Hello 4 from R.
-Hello 4 from Scala.
-Hello 5 from R.
-Hello 5 from Scala.
-Hello 6 from R.
-Hello 6 from Scala.
-Hello 7 from R.
-Hello 7 from Scala.
-Hello 8 from R.
-Hello 8 from Scala.
-Hello 9 from R.
-Hello 9 from Scala.
-Hello 10 from R.
-Hello 0 from R.
-Hello 0 from Scala.
-Hello 1 from R.
-Hello 1 from Scala.
-Hello 2 from R.
-Hello 2 from Scala.
-Hello 3 from R.
-Hello 3 from Scala.
-Hello 4 from R.
-Hello 4 from Scala.
-Hello 5 from R.
-Hello 5 from Scala.
-Hello 6 from R.
-Hello 6 from Scala.
-Hello 7 from R.
-Hello 7 from Scala.
-Hello 8 from R.
-Hello 8 from Scala.
-Hello 9 from R.
-Hello 9 from Scala.
-Hello 0 from R.
-Hello 0 from Scala.
-Hello 1 from R.
-Hello 1 from Scala.
-Hello 2 from R.
-Hello 2 from Scala.
-Hello 3 from R.
-Hello 3 from Scala.
-Hello 4 from R.
-Hello 4 from Scala.
-Hello 5 from R.
-Hello 5 from Scala.
-Hello 6 from R.
-Hello 6 from Scala.
-Hello 7 from R.
-Hello 7 from Scala.
-Hello 8 from R.
-Hello 8 from Scala.
-Hello 9 from R.
-Hello 9 from Scala.
-Hello 0 from Scala.
-Hello 1 from R.
-Hello 1 from Scala.
-Hello 2 from R.
-Hello 2 from Scala.
-Hello 3 from R.
-Hello 3 from Scala.
-Hello 4 from R.
-Hello 4 from Scala.
-Hello 5 from R.
-Hello 5 from Scala.
-Hello 6 from R.
-Hello 6 from Scala.
-Hello 7 from R.
-Hello 7 from Scala.
-Hello 8 from R.
-Hello 8 from Scala.
-Hello 9 from R.
-Hello 9 from Scala.
-Hello 10 from R.
-Hello 0 from R.
-Hello 0 from Scala.
-Hello 1 from R.
-Hello 1 from Scala.
-Hello 2 from R.
-Hello 2 from Scala.
-Hello 3 from R.
-Hello 3 from Scala.
-Hello 4 from R.
-Hello 4 from Scala.
-Hello 5 from R.
-Hello 5 from Scala.
-Hello 6 from R.
-Hello 6 from Scala.
-Hello 7 from R.
-Hello 7 from Scala.
-Hello 8 from R.
-Hello 8 from Scala.
-Hello 9 from R.
-Hello 9 from Scala.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -516,6 +306,86 @@ Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
 Hello 0 from R.
+Hello 0 from Scala.
+Hello 1 from R.
+Hello 1 from Scala.
+Hello 2 from R.
+Hello 2 from Scala.
+Hello 3 from R.
+Hello 3 from Scala.
+Hello 4 from R.
+Hello 4 from Scala.
+Hello 5 from R.
+Hello 5 from Scala.
+Hello 6 from R.
+Hello 6 from Scala.
+Hello 7 from R.
+Hello 7 from Scala.
+Hello 8 from R.
+Hello 8 from Scala.
+Hello 9 from R.
+Hello 9 from Scala.
+Hello 0 from R.
+Hello 1 from Scala.
+Hello 1 from R.
+Hello 2 from Scala.
+Hello 2 from R.
+Hello 3 from Scala.
+Hello 3 from R.
+Hello 4 from Scala.
+Hello 4 from R.
+Hello 5 from Scala.
+Hello 5 from R.
+Hello 6 from Scala.
+Hello 6 from R.
+Hello 7 from Scala.
+Hello 7 from R.
+Hello 8 from Scala.
+Hello 8 from R.
+Hello 9 from Scala.
+Hello 9 from R.
+Hello 10 from Scala.
+Hello 0 from Scala.
+Hello 1 from R.
+Hello 1 from Scala.
+Hello 2 from R.
+Hello 2 from Scala.
+Hello 3 from R.
+Hello 3 from Scala.
+Hello 4 from R.
+Hello 4 from Scala.
+Hello 5 from R.
+Hello 5 from Scala.
+Hello 6 from R.
+Hello 6 from Scala.
+Hello 7 from R.
+Hello 7 from Scala.
+Hello 8 from R.
+Hello 8 from Scala.
+Hello 9 from R.
+Hello 9 from Scala.
+Hello 10 from R.
+Hello 0 from Scala.
+Hello 1 from R.
+Hello 1 from Scala.
+Hello 2 from R.
+Hello 2 from Scala.
+Hello 3 from R.
+Hello 3 from Scala.
+Hello 4 from R.
+Hello 4 from Scala.
+Hello 5 from R.
+Hello 5 from Scala.
+Hello 6 from R.
+Hello 6 from Scala.
+Hello 7 from R.
+Hello 7 from Scala.
+Hello 8 from R.
+Hello 8 from Scala.
+Hello 9 from R.
+Hello 9 from Scala.
+Hello 10 from R.
+Hello 0 from R.
 Hello 1 from Scala.
 Hello 1 from R.
 Hello 2 from Scala.
@@ -555,12 +425,152 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 0 from R.
+Hello 0 from Scala.
+Hello 1 from R.
+Hello 1 from Scala.
+Hello 2 from R.
+Hello 2 from Scala.
+Hello 3 from R.
+Hello 3 from Scala.
+Hello 4 from R.
+Hello 4 from Scala.
+Hello 5 from R.
+Hello 5 from Scala.
+Hello 6 from R.
+Hello 6 from Scala.
+Hello 7 from R.
+Hello 7 from Scala.
+Hello 8 from R.
+Hello 8 from Scala.
+Hello 9 from R.
+Hello 9 from Scala.
+Hello 0 from Scala.
+Hello 1 from R.
+Hello 1 from Scala.
+Hello 2 from R.
+Hello 2 from Scala.
+Hello 3 from R.
+Hello 3 from Scala.
+Hello 4 from R.
+Hello 4 from Scala.
+Hello 5 from R.
+Hello 5 from Scala.
+Hello 6 from R.
+Hello 6 from Scala.
+Hello 7 from R.
+Hello 7 from Scala.
+Hello 8 from R.
+Hello 8 from Scala.
+Hello 9 from R.
+Hello 9 from Scala.
+Hello 10 from R.
+Hello 0 from R.
+Hello 0 from Scala.
+Hello 1 from R.
+Hello 1 from Scala.
+Hello 2 from R.
+Hello 2 from Scala.
+Hello 3 from R.
+Hello 3 from Scala.
+Hello 4 from R.
+Hello 4 from Scala.
+Hello 5 from R.
+Hello 5 from Scala.
+Hello 6 from R.
+Hello 6 from Scala.
+Hello 7 from R.
+Hello 7 from Scala.
+Hello 8 from R.
+Hello 8 from Scala.
+Hello 9 from R.
+Hello 9 from Scala.
+Hello 0 from R.
+Hello 0 from Scala.
+Hello 1 from R.
+Hello 1 from Scala.
+Hello 2 from R.
+Hello 2 from Scala.
+Hello 3 from R.
+Hello 3 from Scala.
+Hello 4 from R.
+Hello 4 from Scala.
+Hello 5 from R.
+Hello 5 from Scala.
+Hello 6 from R.
+Hello 6 from Scala.
+Hello 7 from R.
+Hello 7 from Scala.
+Hello 8 from R.
+Hello 8 from Scala.
+Hello 9 from R.
+Hello 9 from Scala.
+Hello 0 from Scala.
+Hello 1 from R.
+Hello 1 from Scala.
+Hello 2 from R.
+Hello 2 from Scala.
+Hello 3 from R.
+Hello 3 from Scala.
+Hello 4 from R.
+Hello 4 from Scala.
+Hello 5 from R.
+Hello 5 from Scala.
+Hello 6 from R.
+Hello 6 from Scala.
+Hello 7 from R.
+Hello 7 from Scala.
+Hello 8 from R.
+Hello 8 from Scala.
+Hello 9 from R.
+Hello 9 from Scala.
+Hello 10 from R.
+Hello 0 from R.
+Hello 0 from Scala.
+Hello 1 from R.
+Hello 1 from Scala.
+Hello 2 from R.
+Hello 2 from Scala.
+Hello 3 from R.
+Hello 3 from Scala.
+Hello 4 from R.
+Hello 4 from Scala.
+Hello 5 from R.
+Hello 5 from Scala.
+Hello 6 from R.
+Hello 6 from Scala.
+Hello 7 from R.
+Hello 7 from Scala.
+Hello 8 from R.
+Hello 8 from Scala.
+Hello 9 from R.
+Hello 9 from Scala.
+Hello 0 from R.
+Hello 1 from Scala.
+Hello 1 from R.
+Hello 2 from Scala.
+Hello 2 from R.
+Hello 3 from Scala.
+Hello 3 from R.
+Hello 4 from Scala.
+Hello 4 from R.
+Hello 5 from Scala.
+Hello 5 from R.
+Hello 6 from Scala.
+Hello 6 from R.
+Hello 7 from Scala.
+Hello 7 from R.
+Hello 8 from Scala.
+Hello 8 from R.
+Hello 9 from Scala.
+Hello 9 from R.
+Hello 10 from Scala.
 Unit: milliseconds
- expr        min         lq       mean     median         uq         max neval
- f(0) 749.756786 803.285764 914.387271 851.022966 955.248946 1212.621895     5
- g(0) 388.185429 412.539982 434.554282 448.879051 458.796143  464.370803     5
- h(0)   7.122932   8.306267   8.306044   8.512612   8.650344    8.938063     5
- i(0)   6.689088   8.447592   9.001543   8.827907   9.905837   11.137289     5
+ expr        min         lq       mean     median         uq        max neval
+ f(0) 710.467857 753.157595 832.655185 856.100404 909.880158 933.669909     5
+ g(0) 386.819994 391.949844 482.065612 437.392917 461.729271 732.436032     5
+ h(0)   6.424017   6.609291   7.369569   6.711470   7.682843   9.420225     5
+ i(0)   7.086490   7.126418   8.896912   8.630554  10.568659  11.072437     5
 > 
 > cat("####\n")
 ####
@@ -586,7 +596,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -606,7 +615,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 0 from R.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -626,7 +635,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 0 from R.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -646,6 +655,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -666,7 +676,6 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -686,6 +695,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -706,6 +716,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -725,8 +736,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -746,6 +755,8 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -765,7 +776,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -786,7 +796,6 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -806,6 +815,8 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -825,8 +836,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -846,6 +855,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -946,6 +956,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -965,7 +976,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -985,7 +996,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -1006,6 +1016,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1025,7 +1036,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1045,8 +1056,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1066,6 +1075,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -1106,7 +1116,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1126,6 +1135,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -1186,7 +1196,6 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1206,7 +1215,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 0 from R.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1226,6 +1235,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1246,6 +1256,7 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1265,7 +1276,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1306,7 +1316,6 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1326,6 +1335,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -1366,6 +1376,7 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1385,8 +1396,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1406,6 +1415,8 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1425,7 +1436,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1445,8 +1456,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1466,6 +1475,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1486,7 +1496,6 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1506,6 +1515,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -1546,6 +1556,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1565,7 +1576,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1585,8 +1596,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1606,7 +1615,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 0 from R.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1626,6 +1635,8 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1645,7 +1656,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1665,7 +1676,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1685,8 +1696,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1706,6 +1715,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1726,7 +1736,6 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -1746,6 +1755,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -1986,6 +1996,7 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2005,7 +2016,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2025,7 +2036,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -2046,6 +2056,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2065,8 +2076,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2086,6 +2095,8 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2105,7 +2116,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2125,7 +2136,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -2246,7 +2256,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2266,6 +2275,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -2346,6 +2356,7 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2365,7 +2376,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2385,7 +2396,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2405,8 +2416,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2426,7 +2435,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 0 from R.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2446,6 +2455,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2466,7 +2476,6 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2486,6 +2495,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -2526,7 +2536,6 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2546,7 +2555,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 0 from R.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2566,6 +2575,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -2586,6 +2596,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2605,7 +2616,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2666,6 +2676,7 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2685,7 +2696,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -2746,7 +2756,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2766,6 +2775,8 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2785,7 +2796,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -2806,6 +2816,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2825,7 +2836,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2866,6 +2876,7 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2885,8 +2896,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2906,6 +2915,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2926,7 +2936,6 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2946,6 +2955,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2966,7 +2976,6 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -2986,7 +2995,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 0 from R.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3006,7 +3015,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 0 from R.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3026,7 +3035,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 0 from R.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3046,6 +3055,8 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3065,7 +3076,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3086,7 +3096,6 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3106,7 +3115,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 0 from R.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3126,6 +3135,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3186,7 +3196,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3206,7 +3215,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 0 from R.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3226,6 +3235,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3246,6 +3256,7 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3265,7 +3276,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3286,6 +3296,7 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3305,7 +3316,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3325,8 +3336,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3346,7 +3355,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 0 from R.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3366,6 +3375,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -3406,6 +3416,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3425,8 +3436,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3446,6 +3455,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3486,7 +3496,6 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3506,6 +3515,8 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3525,7 +3536,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -3566,7 +3576,6 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3586,7 +3595,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 0 from R.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3606,6 +3615,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3626,6 +3636,7 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3645,7 +3656,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -3666,7 +3676,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3686,6 +3695,8 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3705,7 +3716,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -3806,7 +3816,6 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3826,6 +3835,8 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3845,7 +3856,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3886,7 +3896,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3906,6 +3915,8 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3925,7 +3936,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3966,7 +3976,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -3986,6 +3995,8 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -4005,7 +4016,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -4026,6 +4036,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -4045,8 +4056,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -4066,6 +4075,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -4106,6 +4116,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -4125,7 +4136,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -4166,7 +4176,6 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -4186,6 +4195,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -4206,6 +4216,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -4225,7 +4236,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -4245,7 +4256,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -4265,7 +4276,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -4326,6 +4336,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -4345,7 +4356,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -4386,6 +4396,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -4405,7 +4416,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -4425,7 +4436,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -4446,6 +4456,7 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -4465,7 +4476,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -4485,7 +4496,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
+Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -4505,7 +4516,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 10 from R.
 Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
@@ -4526,7 +4536,6 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 0 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -4546,7 +4555,7 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
-Hello 0 from R.
+Hello 10 from R.
 Hello 0 from Scala.
 Hello 1 from R.
 Hello 1 from Scala.
@@ -4566,12 +4575,202 @@ Hello 8 from R.
 Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
+Hello 10 from R.
 Unit: milliseconds
  expr      min       lq     mean   median       uq      max neval
- h(0) 5.626583 5.928415 6.908093 6.886361 7.656270 10.03524   100
- i(0) 5.905423 6.246635 7.312849 7.267257 8.077659 10.57841   100
+ h(0) 5.470757 5.695693 6.094862 5.951398 6.308549  9.06434   100
+ i(0) 5.650730 6.058497 6.542392 6.335579 6.728259 10.47007   100
+> 
+> 
+> 
+> 
+> # When serialize=TRUE however, we are limited by R's sink stack.
+> serializeOriginal <- intpSettings(s)$serialize
+> intpSettings(s,serialize=FALSE)
+> i(-15)                                # This is okay because we are not serializing.
+Hello -15 from Scala.
+Hello -14 from R.
+Hello -14 from Scala.
+Hello -13 from R.
+Hello -13 from Scala.
+Hello -12 from R.
+Hello -12 from Scala.
+Hello -11 from R.
+Hello -11 from Scala.
+Hello -10 from R.
+Hello -10 from Scala.
+Hello -9 from R.
+Hello -9 from Scala.
+Hello -8 from R.
+Hello -8 from Scala.
+Hello -7 from R.
+Hello -7 from Scala.
+Hello -6 from R.
+Hello -6 from Scala.
+Hello -5 from R.
+Hello -5 from Scala.
+Hello -4 from R.
+Hello -4 from Scala.
+Hello -3 from R.
+Hello -3 from Scala.
+Hello -2 from R.
+Hello -2 from Scala.
+Hello -1 from R.
+Hello -1 from Scala.
+Hello 0 from R.
+Hello 0 from Scala.
+Hello 1 from R.
+Hello 1 from Scala.
+Hello 2 from R.
+Hello 2 from Scala.
+Hello 3 from R.
+Hello 3 from Scala.
+Hello 4 from R.
+Hello 4 from Scala.
+Hello 5 from R.
+Hello 5 from Scala.
+Hello 6 from R.
+Hello 6 from Scala.
+Hello 7 from R.
+Hello 7 from Scala.
+Hello 8 from R.
+Hello 8 from Scala.
+Hello 9 from R.
+Hello 9 from Scala.
+Hello 10 from R.
+> 
+> intpSettings(s,serialize=TRUE)
+> tryCatch(i(-15),error=function(e) e)  # But this causes an error because of R's limited sink stack.
+Error in i(3) : Invocation error.
+Error in i(2) : Invocation error.
+Error in i(1) : Invocation error.
+Error in i(0) : Invocation error.
+Error in i(-1) : Invocation error.
+Error in i(-2) : Invocation error.
+Error in i(-3) : Invocation error.
+Error in i(-4) : Invocation error.
+Error in i(-5) : Invocation error.
+Error in i(-6) : Invocation error.
+Error in i(-7) : Invocation error.
+Error in i(-8) : Invocation error.
+Error in i(-9) : Invocation error.
+Error in i(-10) : Invocation error.
+Error in i(-11) : Invocation error.
+Error in i(-12) : Invocation error.
+Error in i(-13) : Invocation error.
+Error in i(-14) : Invocation error.
+Hello -14 from Scala.
+Hello -14 from R.
+Hello -13 from Scala.
+Hello -13 from R.
+Hello -12 from Scala.
+Hello -12 from R.
+Hello -11 from Scala.
+Hello -11 from R.
+Hello -10 from Scala.
+Hello -10 from R.
+Hello -9 from Scala.
+Hello -9 from R.
+Hello -8 from Scala.
+Hello -8 from R.
+Hello -7 from Scala.
+Hello -7 from R.
+Hello -6 from Scala.
+Hello -6 from R.
+Hello -5 from Scala.
+Hello -5 from R.
+Hello -4 from Scala.
+Hello -4 from R.
+Hello -3 from Scala.
+Hello -3 from R.
+Hello -2 from Scala.
+Hello -2 from R.
+Hello -1 from Scala.
+Hello -1 from R.
+Hello 0 from Scala.
+Hello 0 from R.
+Hello 1 from Scala.
+Hello 1 from R.
+Hello 2 from Scala.
+Hello 2 from R.
+Hello 3 from Scala.
+Hello 3 from R.
+Hello 4 from Scala.
+Hello 4 from R.
+Error in sink(file) : sink stack is full
+sink stack is full
+Exception message: Error in R evaluation.
+
+Invocation error.
+Exception message: Error in R evaluation.
+
+Invocation error.
+Exception message: Error in R evaluation.
+
+Invocation error.
+Exception message: Error in R evaluation.
+
+Invocation error.
+Exception message: Error in R evaluation.
+
+Invocation error.
+Exception message: Error in R evaluation.
+
+Invocation error.
+Exception message: Error in R evaluation.
+
+Invocation error.
+Exception message: Error in R evaluation.
+
+Invocation error.
+Exception message: Error in R evaluation.
+
+Invocation error.
+Exception message: Error in R evaluation.
+
+Invocation error.
+Exception message: Error in R evaluation.
+
+Invocation error.
+Exception message: Error in R evaluation.
+
+Invocation error.
+Exception message: Error in R evaluation.
+
+Invocation error.
+Exception message: Error in R evaluation.
+
+Invocation error.
+Exception message: Error in R evaluation.
+
+Invocation error.
+Exception message: Error in R evaluation.
+
+Invocation error.
+Exception message: Error in R evaluation.
+
+Invocation error.
+Exception message: Error in R evaluation.
+
+Invocation error.
+Exception message: Error in R evaluation.
+
+<simpleError in i(-15): Invocation error.>
+> 
+> intpSettings(s,serialize=serializeOriginal)
+> 
+> # And we never fully recover, as evidenced by the exception below.
+> close(s)
 > 
 > 
 > proc.time()
    user  system elapsed 
-  1.652   0.392  15.225 
+  1.584   0.360  14.645 
+java.net.SocketException: Socket closed
+  at java.net.SocketOutputStream.socketWrite(SocketOutputStream.java:116)
+  at java.net.SocketOutputStream.write(SocketOutputStream.java:153)
+  at java.io.BufferedOutputStream.flushBuffer(BufferedOutputStream.java:82)
+  at java.io.BufferedOutputStream.flush(BufferedOutputStream.java:140)
+  at java.io.DataOutputStream.flush(DataOutputStream.java:123)
+  at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:601)
+  ... 54 elided

@@ -1,16 +1,23 @@
 #!/bin/bash
 
+if [[ "$1" == "--install" ]]
+then
+  DOINSTALL=TRUE
+  shift
+fi
+
 if [[ $# -eq 0 ]]
 then
   DOALL=TRUE
-  RSCRIPTS="basics.R callbacks.R defs.R identifiers.R interpolate.R io.R lengthOneAsVector.R mistakes.R quiet.R unit-testing.R functions.R memory.R"
+  SCRIPTS="basics.R callbacks.R defs.R functions.R identifiers.R interpolate.R io.R lengthOneAsVector.R memory.R mistakes.R quiet.R recursion.R rinscala.scala unit-testing.R"
 else
   DOALL=FALSE
-  RSCRIPTS="$*"
+  SCRIPTS="$*"
 fi
 
-if [[ "$DOALL" == TRUE ]]
+if [[ "$DOINSTALL" == TRUE ]]
 then
+  echo "Testing installation."
   ./scala-info >| scala-info.out 2>&1
 fi
 
@@ -23,20 +30,19 @@ do
   killall java > /dev/null 2>&1
   export SCALA_HOME=~/local/scala/scala-$SCALA_VERSION
   export SCALA_VERSION
-  if [[ "$DOALL" == TRUE ]]
-  then
-    echo "  Running rinscala.scala"
-    for SERIALIZE in TRUE FALSE
-    do
-      RSCALA_SERIALIZE=$SERIALIZE ./rinscala.scala >| rinscala.scala.out-$SERIALIZE-$SCALA_VERSION 2>&1
-    done
-  fi
-  for script in $RSCRIPTS
+  for script in $SCRIPTS
   do
     echo "  Running $script"
     for SERIALIZE in TRUE FALSE
     do
-      RSCALA_SERIALIZE=$SERIALIZE R CMD BATCH --no-restore --no-save $script ${script}out-$SERIALIZE-$SCALA_VERSION
+      EXT=$([[ "$script" = *.* ]] && echo ".${script##*.}" || echo '')
+      if [[ "$EXT" == .R ]]
+      then
+        RSCALA_SERIALIZE=$SERIALIZE R CMD BATCH --no-restore --no-save $script ${script}out-$SERIALIZE-$SCALA_VERSION
+      elif [[ "$EXT" == .scala || "$EXT" == "" ]]
+      then
+        RSCALA_SERIALIZE=$SERIALIZE ./$script >| $script.out-$SERIALIZE-$SCALA_VERSION 2>&1
+      fi
     done
   done
 done

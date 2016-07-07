@@ -37,10 +37,10 @@ import Protocol._
 *
 * @author David B. Dahl
 */
-class RClient private (private val scalaServer: ScalaServer, private val in: DataInputStream, private val out: DataOutputStream, private val debugger: Debugger, private[rscala] var _serializeOutput: Boolean) extends Dynamic {
+class RClient private (private val scalaServer: ScalaServer, private val in: DataInputStream, private val out: DataOutputStream, private val debugger: Debugger, private val serializeOutputState: State) extends Dynamic {
 
   /** __For rscala developers only__: Returns `TRUE` if debugging output is enabled. */
-  def debug = debugger.debug
+  def debug = debugger.value
 
   /** __For rscala developers only__: Sets whether debugging output should be displayed. */
   def debug_=(v: Boolean) = {
@@ -49,16 +49,15 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
       out.writeInt(DEBUG)
       out.writeInt(if ( v ) 1 else 0)
       out.flush()
-      debugger.debug = v
+      debugger.value = v
     }
   }
 
-  def serializeOutput = _serializeOutput
-
+  def serializeOutput = serializeOutputState.value
 
   def serializeOutput_=(v: Boolean) = {
     if ( scalaServer == null ) {
-      _serializeOutput = v
+      serializeOutputState.value = v
     } else throw new IllegalStateException(s"Change this value in R via intpSettings(interpreter,serialize=${if (v) "TRUE" else "FALSE"})")
   }
 
@@ -67,7 +66,6 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   * Subsequent calls to the other methods will fail.
   */
   def exit() = {
-    if ( debug ) debugger.msg("Sending SHUTDOWN request.")
     out.writeInt(SHUTDOWN)
     out.flush()
   }
@@ -82,7 +80,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   */
   def eval(snippet: String, evalOnly: Boolean = true): Any = {
     if ( debug ) debugger.msg("Sending EVAL request.")
-    out.writeInt(if(_serializeOutput) EVAL else EVALNAKED)
+    out.writeInt(if(serializeOutput) EVAL else EVALNAKED)
     Helper.writeString(out,snippet)
     out.flush()
     if ( scalaServer != null ) {
@@ -677,7 +675,7 @@ object RClient {
     val in = new BufferedReader(new InputStreamReader(input))
     var line = in.readLine()
     while ( line != null ) {
-      if ( debugger.debug ) println(label+line)
+      if ( debugger.value ) println(label+line)
       line = in.readLine()
     }
     in.close()
@@ -695,11 +693,12 @@ object RClient {
     var cmd: PrintWriter = null
     val command = rCmd +: ( defaultArguments ++ interactiveArguments )
     val processCmd = Process(command)
+    val serializeOutputState = new State(serializeOutput)
     val debugger = new Debugger(System.out,"Scala",false,debug)
     val processIO = new ProcessIO(
       o => { cmd = new PrintWriter(o) },
-      reader(debugger,"R STDOUT: "),
-      reader(debugger,"R STDERR: "),
+      reader(debugger,""),
+      reader(debugger,""),
       true
     )
     val processInstance = processCmd.run(processIO)
@@ -730,11 +729,11 @@ object RClient {
     val sockets = new ScalaSockets(portsFile.getAbsolutePath,debugger)
     sockets.out.writeInt(OK)
     sockets.out.flush()
-    apply(null,sockets.in,sockets.out,debugger,serializeOutput)
+    apply(null,sockets.in,sockets.out,debugger,serializeOutputState)
   }
 
   /** __For rscala developers only__: Returns an instance of the [[RClient]] class.  */
-  def apply(scalaServer: ScalaServer, in: DataInputStream, out: DataOutputStream, debugger: Debugger, serializeOutput: Boolean): RClient = new RClient(scalaServer,in,out,debugger,serializeOutput)
+  def apply(scalaServer: ScalaServer, in: DataInputStream, out: DataOutputStream, debugger: Debugger, serializeOutputState: State): RClient = new RClient(scalaServer,in,out,debugger,serializeOutputState)
 
 }
 

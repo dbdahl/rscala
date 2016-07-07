@@ -1,6 +1,13 @@
 library(rscala)
 
-s <- scalaInterpreter()
+serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
+serialize <- FALSE
+cat(serialize,"\n")
+s <- scalaInterpreter(serialize=serialize)
+
+cat(s %~% "util.Properties.versionNumberString","\n")
+
+
 
 # This is not recursion via callbacks.
 f <- function(counter) {
@@ -52,10 +59,27 @@ i(0)
 
 
 library(microbenchmark)
+set.seed(13124)
 
 microbenchmark(f(0),g(0),h(0),i(0),times=5)
 
 cat("####\n")
 
 microbenchmark(h(0),i(0),times=100)
+
+
+
+
+# When serialize=TRUE however, we are limited by R's sink stack.
+serializeOriginal <- intpSettings(s)$serialize
+intpSettings(s,serialize=FALSE)
+i(-15)                                # This is okay because we are not serializing.
+
+intpSettings(s,serialize=TRUE)
+tryCatch(i(-15),error=function(e) e)  # But this causes an error because of R's limited sink stack.
+
+intpSettings(s,serialize=serializeOriginal)
+
+# And we never fully recover, as evidenced by the exception below.
+close(s)
 

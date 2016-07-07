@@ -1,0 +1,75 @@
+
+Searching for a suitable Scala installation.
+  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala-2.11.8/bin/scala)
+  * SUCCESS: 'scala.home' (~/local/scala/current) argument
+
+[1] "/home/dahl/local/scala/scala-2.11.8/bin/scala"
+
+Searching for a suitable Scala installation.
+  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala-2.11.8/bin/scala)
+  * SUCCESS: 'scala.home' (~/local/scala/scala-2.11.8) argument
+
+[1] "/home/dahl/local/scala/scala-2.11.8/bin/scala"
+
+Searching for a suitable Scala installation.
+  * FAILURE: 'scala.home' argument is NULL
+  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala-2.11.8/bin/scala)
+  * SUCCESS: SCALA_HOME (/home/dahl/local/scala/current) environment variable
+
+[1] "/home/dahl/local/scala/scala-2.11.8/bin/scala"
+
+Searching for a suitable Scala installation.
+  * FAILURE: 'scala.home' argument is NULL
+  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala-2.11.8/bin/scala)
+  * SUCCESS: SCALA_HOME (/home/dahl/local/scala/scala-2.11.8) environment variable
+
+[1] "/home/dahl/local/scala/scala-2.11.8/bin/scala"
+
+Searching for a suitable Scala installation.
+  * FAILURE: 'scala.home' argument is NULL
+  * FAILURE: SCALA_HOME () environment variable
+  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala-2.11.8/bin/scala)
+  * SUCCESS: 'scala' in the shell's search path
+
+[1] "/home/dahl/local/scala/scala-2.11.8/bin/scala"
+
+Searching for a suitable Scala installation.
+  * FAILURE: 'scala.home' argument is NULL
+  * FAILURE: SCALA_HOME () environment variable
+  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala-2.11.8/bin/scala)
+  * SUCCESS: 'scala' in the shell's search path
+
+[1] "/home/dahl/local/scala/scala-2.11.8/bin/scala"
+
+Searching for a suitable Scala installation.
+  * FAILURE: 'scala.home' argument is NULL
+  * FAILURE: SCALA_HOME () environment variable
+  * FAILURE: 'scala' in the shell's search path
+  * FAILURE: special installation directory (/home/dahl/.rscala/scala-2.11.8)
+Cannot find a suitable Scala installation.
+
+Scala (>= 2.10) is not distributed with the rscala package.  Individuals can
+install Scala using "rscala::scalaInstall()" which places Scala in "~/.rscala"
+in the user's home directory.  System administrators should install Scala
+globally as described here: http://www.scala-lang.org/download/install.html.
+In short, simply download the archive, unpack it, and add the "scala" script to
+the path.  Note that Scala itself requires Java.  The rscala package tries
+various techniques to find a suitable Scala installation, including searching
+the path.  Details on the search is available using
+"rscala::scalaInfo(verbose=TRUE)".
+
+trying URL 'http://downloads.typesafe.com/scala/2.11.8/scala-2.11.8.tgz'
+Content type 'application/octet-stream' length 28678231 bytes (27.3 MB)
+==================================================
+downloaded 27.3 MB
+
+Successfully installed Scala in /home/dahl/.rscala/scala-2.11.8
+
+Searching for a suitable Scala installation.
+  * FAILURE: 'scala.home' argument is NULL
+  * FAILURE: SCALA_HOME () environment variable
+  * FAILURE: 'scala' in the shell's search path
+  * ATTEMPT: Found a candidate (/home/dahl/.rscala/scala-2.11.8/bin/scala)
+  * SUCCESS: special installation directory (/home/dahl/.rscala/scala-2.11.8)
+
+[1] "/home/dahl/.rscala/scala-2.11.8/bin/scala"

@@ -23,7 +23,7 @@ Type 'q()' to quit R.
 > cat(serialize,"\n")
 FALSE 
 > s <- scalaInterpreter(serialize=serialize)
-Loading /tmp/RtmpIxDR6R/rscala-25d87cc90a91...
+Loading /tmp/RtmpX70TRF/rscala-c2811b44822...
 > 
 > s %~% "util.Properties.versionNumberString"
 [1] "2.11.8"
@@ -62,8 +62,8 @@ javax.script.ScriptException: compile-time error
 	at javax.script.AbstractScriptEngine.eval(AbstractScriptEngine.java:264)
 	at org.ddahl.rscala.ScalaInterpreterAdapter.eval(ScalaInterpreterAdapter.scala:6)
 	at org.ddahl.rscala.ScalaServer.doEval(ScalaServer.scala:107)
-	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:560)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:600)
+	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:559)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:599)
 	at $line3.$read$$iw$$iw$.<init>(<console>:13)
 	at $line3.$read$$iw$$iw$.<clinit>(<console>)
 	at $line3.$eval$.$print$lzycompute(<console>:7)
@@ -174,4 +174,4 @@ ScalaInterpreterReference... xaa: Double
 > 
 > proc.time()
    user  system elapsed 
-  0.208   0.028   8.812 
+  0.184   0.008   7.059 

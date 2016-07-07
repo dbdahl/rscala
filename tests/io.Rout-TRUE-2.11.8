@@ -23,7 +23,7 @@ Type 'q()' to quit R.
 > cat(serialize,"\n")
 TRUE 
 > s <- scalaInterpreter(serialize=serialize)
-Loading /tmp/RtmpzHez7h/rscala-2020739e96ff...
+Loading /tmp/RtmpnxDkTp/rscala-ae23762c7a8...
 > 
 > s %~% "util.Properties.versionNumberString"
 [1] "2.11.8"
@@ -38,18 +38,18 @@ Loading /tmp/RtmpzHez7h/rscala-2020739e96ff...
  [4] "\tat javax.script.AbstractScriptEngine.eval(AbstractScriptEngine.java:264)"                                                 
  [5] "\tat org.ddahl.rscala.ScalaInterpreterAdapter.eval(ScalaInterpreterAdapter.scala:6)"                                        
  [6] "\tat org.ddahl.rscala.ScalaServer.doEval(ScalaServer.scala:107)"                                                            
- [7] "\tat org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:560)"                               
- [8] "\tat org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:595)"               
- [9] "\tat org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:595)"                      
-[10] "\tat org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:595)"                      
+ [7] "\tat org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:559)"                               
+ [8] "\tat org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:594)"               
+ [9] "\tat org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:594)"                      
+[10] "\tat org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:594)"                      
 [11] "\tat scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)"                                                        
 [12] "\tat scala.Console$.withErr(Console.scala:80)"                                                                              
-[13] "\tat org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:594)"                                       
-[14] "\tat org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:594)"                                              
-[15] "\tat org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:594)"                                              
+[13] "\tat org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:593)"                                       
+[14] "\tat org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:593)"                                              
+[15] "\tat org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:593)"                                              
 [16] "\tat scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)"                                                        
 [17] "\tat scala.Console$.withOut(Console.scala:53)"                                                                              
-[18] "\tat org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:593)"                                                               
+[18] "\tat org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:592)"                                                               
 [19] "\tat $line3.$read$$iw$$iw$.<init>(<console>:13)"                                                                            
 [20] "\tat $line3.$read$$iw$$iw$.<clinit>(<console>)"                                                                             
 [21] "\tat $line3.$eval$.$print$lzycompute(<console>:7)"                                                                          
@@ -107,7 +107,7 @@ Loading /tmp/RtmpzHez7h/rscala-2020739e96ff...
 [73] "Exception message: compile-time error"                                                                                      
 [74] ""                                                                                                                           
 > capture.output(s %~% "new java.util.Random().nextDouble")
-[1] "[1] 0.3631941"
+[1] "[1] 0.1769659"
 > capture.output(s %~% "3+2")
 [1] "[1] 5"
 > capture.output(s %~% "println(3+2)")
@@ -118,4 +118,4 @@ Loading /tmp/RtmpzHez7h/rscala-2020739e96ff...
 > 
 > proc.time()
    user  system elapsed 
-  0.156   0.020   5.900 
+  0.156   0.020   4.613 

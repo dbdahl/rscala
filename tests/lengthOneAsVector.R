@@ -4,7 +4,6 @@ serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 cat(serialize,"\n")
 s <- scalaInterpreter(serialize=serialize)
 
-
 s %~% "util.Properties.versionNumberString"
 
 intpSettings(s,length.one.as.vector=FALSE)

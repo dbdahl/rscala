@@ -20,11 +20,10 @@ Type 'q()' to quit R.
 > library(rscala)
 > 
 > serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
-> serialize <- TRUE
 > cat(serialize,"\n")
 TRUE 
 > s <- scalaInterpreter(serialize=serialize)
-Loading /tmp/RtmpqnTQkt/rscala-58a348705a90...
+Loading /tmp/Rtmpfuic2q/rscala-71d3b2e34a8...
 > 
 > s %~% "util.Properties.versionNumberString"
 [1] "2.11.8"
@@ -71,18 +70,18 @@ javax.script.ScriptException: compile-time error
 	at javax.script.AbstractScriptEngine.eval(AbstractScriptEngine.java:264)
 	at org.ddahl.rscala.ScalaInterpreterAdapter.eval(ScalaInterpreterAdapter.scala:6)
 	at org.ddahl.rscala.ScalaServer.doEval(ScalaServer.scala:107)
-	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:560)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:595)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:595)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:595)
+	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:559)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:594)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:594)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:594)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withErr(Console.scala:80)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:594)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:594)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:594)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:593)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:593)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:593)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withOut(Console.scala:53)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:593)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:592)
 	at $line3.$read$$iw$$iw$.<init>(<console>:13)
 	at $line3.$read$$iw$$iw$.<clinit>(<console>)
 	at $line3.$eval$.$print$lzycompute(<console>:7)
@@ -206,4 +205,4 @@ Exception message: Error in R evaluation.
 > 
 > proc.time()
    user  system elapsed 
-  0.392   0.044  16.936 
+  0.352   0.044  17.459 

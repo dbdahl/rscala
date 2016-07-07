@@ -1,7 +1,6 @@
 library(rscala)
 
 serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
-serialize <- TRUE
 cat(serialize,"\n")
 s <- scalaInterpreter(serialize=serialize)
 

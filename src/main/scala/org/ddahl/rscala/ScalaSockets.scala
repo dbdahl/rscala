@@ -10,14 +10,14 @@ private[rscala] class ScalaSockets(portsFilename: String, debugger: Debugger) {
   val serverIn  = new ServerSocket(0,0,InetAddress.getByName(null))
   val serverOut = new ServerSocket(0,0,InetAddress.getByName(null))
 
-  if ( debugger.debug ) debugger.msg("Trying to open ports filename: "+portsFilename)
+  if ( debugger.value ) debugger.msg("Trying to open ports filename: "+portsFilename)
   locally {
     val portNumberFile = new File(portsFilename)
     val p = new PrintWriter(portNumberFile)
     p.println(serverIn.getLocalPort+" "+serverOut.getLocalPort)
     p.close()
   }
-  if ( debugger.debug ) debugger.msg("Servers are running on port "+serverIn.getLocalPort+" "+serverOut.getLocalPort)
+  if ( debugger.value ) debugger.msg("Servers are running on port "+serverIn.getLocalPort+" "+serverOut.getLocalPort)
 
   val socketIn = serverIn.accept
   socketIn.setTcpNoDelay(true)

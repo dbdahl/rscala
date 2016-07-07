@@ -1,0 +1,339 @@
+
+R version 3.3.0 (2016-05-03) -- "Supposedly Educational"
+Copyright (C) 2016 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(rscala)
+> 
+> serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
+> cat(serialize,"\n")
+FALSE 
+> s <- scalaInterpreter(c("commons-math3-3.2.jar","shallot.jar"),serialize=serialize)
+Loading /tmp/Rtmp8KvA90/rscala-df329f94a97...
+> 
+> s %~% "util.Properties.versionNumberString"
+[1] "2.11.8"
+> 
+> scalap(s,"org.apache.commons.math3.random.RandomDataGenerator")
+package org.apache.commons.math3.random;
+class RandomDataGenerator extends scala.AnyRef with java.io.Serializable with org.apache.commons.math3.random.RandomData {
+  final var secRand: java.security.SecureRandom;
+  final var rand: org.apache.commons.math3.random.RandomGenerator;
+  def getNatural(scala.Int): scala.Array[scala.Int];
+  def shuffle(scala.Array[scala.Int], scala.Int): scala.Unit;
+  def getSecRan(): java.security.SecureRandom;
+  def initRan(): scala.Unit;
+  def getRandomGenerator(): org.apache.commons.math3.random.RandomGenerator;
+  def setSecureAlgorithm(java.lang.String, java.lang.String): scala.Unit;
+    throws java.security.NoSuchAlgorithmException, java.security.NoSuchProviderException
+  def reSeed(): scala.Unit;
+  def reSeedSecure(scala.Long): scala.Unit;
+  def reSeedSecure(): scala.Unit;
+  def reSeed(scala.Long): scala.Unit;
+  def nextSample(java.util.Collection, scala.Int): scala.Array[scala.Any];
+    throws org.apache.commons.math3.exception.NumberIsTooLargeException, org.apache.commons.math3.exception.NotStrictlyPositiveException
+  def nextPermutation(scala.Int, scala.Int): scala.Array[scala.Int];
+    throws org.apache.commons.math3.exception.NumberIsTooLargeException, org.apache.commons.math3.exception.NotStrictlyPositiveException
+  def nextUniform(scala.Double, scala.Double, scala.Boolean): scala.Double;
+    throws org.apache.commons.math3.exception.NumberIsTooLargeException, org.apache.commons.math3.exception.NotFiniteNumberException, org.apache.commons.math3.exception.NotANumberException
+  def nextUniform(scala.Double, scala.Double): scala.Double;
+    throws org.apache.commons.math3.exception.NumberIsTooLargeException, org.apache.commons.math3.exception.NotFiniteNumberException, org.apache.commons.math3.exception.NotANumberException
+  def nextF(scala.Double, scala.Double): scala.Double;
+    throws org.apache.commons.math3.exception.NotStrictlyPositiveException
+  def nextChiSquare(scala.Double): scala.Double;
+  def nextCauchy(scala.Double, scala.Double): scala.Double;
+  def nextBinomial(scala.Int, scala.Double): scala.Int;
+  def nextBeta(scala.Double, scala.Double): scala.Double;
+  def nextZipf(scala.Int, scala.Double): scala.Int;
+    throws org.apache.commons.math3.exception.NotStrictlyPositiveException
+  def nextWeibull(scala.Double, scala.Double): scala.Double;
+    throws org.apache.commons.math3.exception.NotStrictlyPositiveException
+  def nextT(scala.Double): scala.Double;
+    throws org.apache.commons.math3.exception.NotStrictlyPositiveException
+  def nextPascal(scala.Int, scala.Double): scala.Int;
+    throws org.apache.commons.math3.exception.NotStrictlyPositiveException, org.apache.commons.math3.exception.OutOfRangeException
+  def nextHypergeometric(scala.Int, scala.Int, scala.Int): scala.Int;
+    throws org.apache.commons.math3.exception.NotPositiveException, org.apache.commons.math3.exception.NotStrictlyPositiveException, org.apache.commons.math3.exception.NumberIsTooLargeException
+  def nextGamma(scala.Double, scala.Double): scala.Double;
+    throws org.apache.commons.math3.exception.NotStrictlyPositiveException
+  def nextExponential(scala.Double): scala.Double;
+    throws org.apache.commons.math3.exception.NotStrictlyPositiveException
+  def nextGaussian(scala.Double, scala.Double): scala.Double;
+    throws org.apache.commons.math3.exception.NotStrictlyPositiveException
+  def nextPoisson(scala.Double): scala.Long;
+    throws org.apache.commons.math3.exception.NotStrictlyPositiveException
+  def nextSecureLong(scala.Long, scala.Long): scala.Long;
+    throws org.apache.commons.math3.exception.NumberIsTooLargeException
+  def nextSecureInt(scala.Int, scala.Int): scala.Int;
+    throws org.apache.commons.math3.exception.NumberIsTooLargeException
+  def nextSecureHexString(scala.Int): java.lang.String;
+    throws org.apache.commons.math3.exception.NotStrictlyPositiveException
+  def nextLong(scala.Long, scala.Long): scala.Long;
+    throws org.apache.commons.math3.exception.NumberIsTooLargeException
+  def nextInt(scala.Int, scala.Int): scala.Int;
+    throws org.apache.commons.math3.exception.NumberIsTooLargeException
+  def nextHexString(scala.Int): java.lang.String;
+    throws org.apache.commons.math3.exception.NotStrictlyPositiveException
+  def this(org.apache.commons.math3.random.RandomGenerator): scala.Unit;
+  def this(): scala.Unit;
+}
+object RandomDataGenerator {
+  def nextLong(org.apache.commons.math3.random.RandomGenerator, scala.Long): scala.Long;
+    throws java.lang.IllegalArgumentException
+  def nextLong(java.security.SecureRandom, scala.Long): scala.Long;
+    throws java.lang.IllegalArgumentException
+  final val serialVersionUID: scala.Long;
+}
+> rdg <- tryCatch(s$do("org.apache.commons.math3.random.RandomDataGenerator")$new(),error=function(e) e)  # There is some incompatability between Scala REPL classloader and the Apache Commons Math jar.
+java.lang.AssertionError: assertion failed: class EmpiricalDistribution: <none>
+	at scala.tools.nsc.symtab.classfile.ClassfileParser.parseMethod(ClassfileParser.scala:582)
+	at scala.tools.nsc.symtab.classfile.ClassfileParser.scala$tools$nsc$symtab$classfile$ClassfileParser$$queueLoad$1(ClassfileParser.scala:483)
+	at scala.tools.nsc.symtab.classfile.ClassfileParser$$anonfun$parseClass$1.apply$mcV$sp(ClassfileParser.scala:493)
+	at scala.tools.nsc.symtab.classfile.ClassfileParser.parseClass(ClassfileParser.scala:498)
+	at scala.tools.nsc.symtab.classfile.ClassfileParser.parse(ClassfileParser.scala:139)
+	at scala.tools.nsc.symtab.SymbolLoaders$ClassfileLoader$$anonfun$doComplete$2.apply$mcV$sp(SymbolLoaders.scala:347)
+	at scala.tools.nsc.symtab.SymbolLoaders$ClassfileLoader$$anonfun$doComplete$2.apply(SymbolLoaders.scala:347)
+	at scala.tools.nsc.symtab.SymbolLoaders$ClassfileLoader$$anonfun$doComplete$2.apply(SymbolLoaders.scala:347)
+	at scala.reflect.internal.SymbolTable.enteringPhase(SymbolTable.scala:235)
+	at scala.tools.nsc.symtab.SymbolLoaders$ClassfileLoader.doComplete(SymbolLoaders.scala:347)
+	at scala.tools.nsc.symtab.SymbolLoaders$SymbolLoader.complete(SymbolLoaders.scala:211)
+	at scala.reflect.internal.Symbols$Symbol.info(Symbols.scala:1514)
+	at scala.reflect.internal.Symbols$Symbol.initialize(Symbols.scala:1659)
+	at scala.tools.nsc.symtab.SymbolLoaders$moduleClassLoader$.doComplete(SymbolLoaders.scala:373)
+	at scala.tools.nsc.symtab.SymbolLoaders$SymbolLoader.complete(SymbolLoaders.scala:211)
+	at scala.tools.nsc.symtab.SymbolLoaders$SymbolLoader.load(SymbolLoaders.scala:227)
+	at scala.reflect.internal.Symbols$Symbol.typeParams(Symbols.scala:1733)
+	at scala.reflect.internal.Importers$StandardImporter.recreatedSymbolCompleter(Importers.scala:72)
+	at scala.reflect.internal.Importers$StandardImporter.recreateSymbol(Importers.scala:138)
+	at scala.reflect.internal.Importers$StandardImporter.scala$reflect$internal$Importers$StandardImporter$$cachedRecreateSymbol$1(Importers.scala:145)
+	at scala.reflect.internal.Importers$StandardImporter.recreateOrRelink$1(Importers.scala:193)
+	at scala.reflect.internal.Importers$StandardImporter.importSymbol(Importers.scala:210)
+	at scala.reflect.internal.Importers$StandardImporter$$anonfun$7.apply(Importers.scala:103)
+	at scala.reflect.internal.Importers$StandardImporter$$anonfun$7.apply(Importers.scala:103)
+	at scala.reflect.internal.Importers$StandardImporter.linkReferenced$1(Importers.scala:96)
+	at scala.reflect.internal.Importers$StandardImporter.recreateSymbol(Importers.scala:103)
+	at scala.reflect.internal.Importers$StandardImporter.scala$reflect$internal$Importers$StandardImporter$$cachedRecreateSymbol$1(Importers.scala:145)
+	at scala.reflect.internal.Importers$StandardImporter.recreateOrRelink$1(Importers.scala:193)
+	at scala.reflect.internal.Importers$StandardImporter.importSymbol(Importers.scala:210)
+	at scala.reflect.internal.Importers$StandardImporter$$anonfun$recreateType$4.apply(Importers.scala:248)
+	at scala.reflect.internal.Importers$StandardImporter$$anonfun$recreateType$4.apply(Importers.scala:248)
+	at scala.reflect.internal.Scopes$Scope.foreach(Scopes.scala:373)
+	at scala.reflect.internal.Importers$StandardImporter.recreateType(Importers.scala:248)
+	at scala.reflect.internal.Importers$StandardImporter.importType(Importers.scala:284)
+	at scala.reflect.internal.Importers$StandardImporter$$anon$1.complete(Importers.scala:75)
+	at scala.reflect.internal.Symbols$Symbol.info(Symbols.scala:1514)
+	at scala.reflect.runtime.SynchronizedSymbols$SynchronizedSymbol$$anon$1.scala$reflect$runtime$SynchronizedSymbols$SynchronizedSymbol$$super$info(SynchronizedSymbols.scala:174)
+	at scala.reflect.runtime.SynchronizedSymbols$SynchronizedSymbol$$anonfun$info$1.apply(SynchronizedSymbols.scala:127)
+	at scala.reflect.runtime.SynchronizedSymbols$SynchronizedSymbol$$anonfun$info$1.apply(SynchronizedSymbols.scala:127)
+	at scala.reflect.runtime.Gil$class.gilSynchronized(Gil.scala:19)
+	at scala.reflect.runtime.JavaUniverse.gilSynchronized(JavaUniverse.scala:16)
+	at scala.reflect.runtime.SynchronizedSymbols$SynchronizedSymbol$class.gilSynchronizedIfNotThreadsafe(SynchronizedSymbols.scala:123)
+	at scala.reflect.runtime.SynchronizedSymbols$SynchronizedSymbol$$anon$1.gilSynchronizedIfNotThreadsafe(SynchronizedSymbols.scala:174)
+	at scala.reflect.runtime.SynchronizedSymbols$SynchronizedSymbol$class.info(SynchronizedSymbols.scala:127)
+	at scala.reflect.runtime.SynchronizedSymbols$SynchronizedSymbol$$anon$1.info(SynchronizedSymbols.scala:174)
+	at scala.reflect.internal.Importers$StandardImporter.recreateOrRelink$1(Importers.scala:167)
+	at scala.reflect.internal.Importers$StandardImporter.importSymbol(Importers.scala:210)
+	at scala.reflect.internal.Importers$StandardImporter.recreateType(Importers.scala:224)
+	at scala.reflect.internal.Importers$StandardImporter.importType(Importers.scala:284)
+	at scala.reflect.internal.Importers$StandardImporter$$anonfun$recreateType$1.apply(Importers.scala:224)
+	at scala.reflect.internal.Importers$StandardImporter$$anonfun$recreateType$1.apply(Importers.scala:224)
+	at scala.collection.immutable.List.map(List.scala:273)
+	at scala.reflect.internal.Importers$StandardImporter.recreateType(Importers.scala:224)
+	at scala.reflect.internal.Importers$StandardImporter.importType(Importers.scala:284)
+	at scala.reflect.internal.Importers$StandardImporter$$anon$1.complete(Importers.scala:75)
+	at scala.reflect.internal.Symbols$Symbol.info(Symbols.scala:1514)
+	at scala.reflect.runtime.SynchronizedSymbols$SynchronizedSymbol$$anon$15.scala$reflect$runtime$SynchronizedSymbols$SynchronizedSymbol$$super$info(SynchronizedSymbols.scala:198)
+	at scala.reflect.runtime.SynchronizedSymbols$SynchronizedSymbol$$anonfun$info$1.apply(SynchronizedSymbols.scala:127)
+	at scala.reflect.runtime.SynchronizedSymbols$SynchronizedSymbol$$anonfun$info$1.apply(SynchronizedSymbols.scala:127)
+	at scala.reflect.runtime.Gil$class.gilSynchronized(Gil.scala:19)
+	at scala.reflect.runtime.JavaUniverse.gilSynchronized(JavaUniverse.scala:16)
+	at scala.reflect.runtime.SynchronizedSymbols$SynchronizedSymbol$class.gilSynchronizedIfNotThreadsafe(SynchronizedSymbols.scala:123)
+	at scala.reflect.runtime.SynchronizedSymbols$SynchronizedSymbol$$anon$15.gilSynchronizedIfNotThreadsafe(SynchronizedSymbols.scala:198)
+	at scala.reflect.runtime.SynchronizedSymbols$SynchronizedSymbol$class.info(SynchronizedSymbols.scala:127)
+	at scala.reflect.runtime.SynchronizedSymbols$SynchronizedSymbol$$anon$15.info(SynchronizedSymbols.scala:198)
+	at scala.reflect.runtime.JavaMirrors$JavaMirror$JavaFieldMirror.<init>(JavaMirrors.scala:277)
+	at scala.reflect.runtime.JavaMirrors$JavaMirror$JavaInstanceMirror.reflectField(JavaMirrors.scala:244)
+	at scala.reflect.runtime.JavaMirrors$JavaMirror$JavaInstanceMirror.reflectField(JavaMirrors.scala:233)
+	at scala.tools.nsc.interpreter.IMain$$anonfun$valueOfTerm$1.value$2(IMain.scala:1119)
+	at scala.tools.nsc.interpreter.IMain$$anonfun$valueOfTerm$1.apply(IMain.scala:1124)
+	at scala.tools.nsc.interpreter.IMain$$anonfun$valueOfTerm$1.apply(IMain.scala:1113)
+	at scala.reflect.internal.SymbolTable.enteringPhase(SymbolTable.scala:235)
+	at scala.reflect.internal.SymbolTable.exitingPhase(SymbolTable.scala:256)
+	at scala.tools.nsc.interpreter.IMain.valueOfTerm(IMain.scala:1113)
+	at org.ddahl.rscala.ScalaInterpreterAdapter.valueOfTerm(ScalaInterpreterAdapter.scala:9)
+	at org.ddahl.rscala.ScalaServer.storeFunction(ScalaServer.scala:57)
+	at org.ddahl.rscala.ScalaServer.doDef(ScalaServer.scala:154)
+	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:567)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:599)
+	at $line3.$read$$iw$$iw$.<init>(<console>:13)
+	at $line3.$read$$iw$$iw$.<clinit>(<console>)
+	at $line3.$eval$.$print$lzycompute(<console>:7)
+	at $line3.$eval$.$print(<console>:6)
+	at $line3.$eval.$print(<console>)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at scala.tools.nsc.interpreter.IMain$ReadEvalPrint.call(IMain.scala:786)
+	at scala.tools.nsc.interpreter.IMain$Request.loadAndRun(IMain.scala:1047)
+	at scala.tools.nsc.interpreter.IMain$WrappedRequest$$anonfun$loadAndRunReq$1.apply(IMain.scala:638)
+	at scala.tools.nsc.interpreter.IMain$WrappedRequest$$anonfun$loadAndRunReq$1.apply(IMain.scala:637)
+	at scala.reflect.internal.util.ScalaClassLoader$class.asContext(ScalaClassLoader.scala:31)
+	at scala.reflect.internal.util.AbstractFileClassLoader.asContext(AbstractFileClassLoader.scala:19)
+	at scala.tools.nsc.interpreter.IMain$WrappedRequest.loadAndRunReq(IMain.scala:637)
+	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:569)
+	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:565)
+	at scala.tools.nsc.interpreter.ILoop.interpretStartingWith(ILoop.scala:807)
+	at scala.tools.nsc.interpreter.ILoop.command(ILoop.scala:681)
+	at scala.tools.nsc.interpreter.ILoop.processLine(ILoop.scala:395)
+	at scala.tools.nsc.interpreter.ILoop.loop(ILoop.scala:415)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$interpretAllFrom$1$$anonfun$apply$5$$anonfun$apply$6.apply(ILoop.scala:427)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$interpretAllFrom$1$$anonfun$apply$5$$anonfun$apply$6.apply(ILoop.scala:423)
+	at scala.reflect.io.Streamable$Chars$class.applyReader(Streamable.scala:111)
+	at scala.reflect.io.File.applyReader(File.scala:50)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$interpretAllFrom$1$$anonfun$apply$5.apply(ILoop.scala:423)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$interpretAllFrom$1$$anonfun$apply$5.apply(ILoop.scala:423)
+	at scala.tools.nsc.interpreter.ILoop.savingReplayStack(ILoop.scala:91)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$interpretAllFrom$1.apply(ILoop.scala:422)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$interpretAllFrom$1.apply(ILoop.scala:422)
+	at scala.tools.nsc.interpreter.ILoop.savingReader(ILoop.scala:96)
+	at scala.tools.nsc.interpreter.ILoop.interpretAllFrom(ILoop.scala:421)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$run$3$1.apply(ILoop.scala:577)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$run$3$1.apply(ILoop.scala:576)
+	at scala.tools.nsc.interpreter.ILoop.withFile(ILoop.scala:570)
+	at scala.tools.nsc.interpreter.ILoop.run$3(ILoop.scala:576)
+	at scala.tools.nsc.interpreter.ILoop.loadCommand(ILoop.scala:583)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$standardCommands$8.apply(ILoop.scala:207)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$standardCommands$8.apply(ILoop.scala:207)
+	at scala.tools.nsc.interpreter.LoopCommands$LineCmd.apply(LoopCommands.scala:62)
+	at scala.tools.nsc.interpreter.ILoop.colonCommand(ILoop.scala:688)
+	at scala.tools.nsc.interpreter.ILoop.command(ILoop.scala:679)
+	at scala.tools.nsc.interpreter.ILoop.loadFiles(ILoop.scala:835)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$process$1.apply$mcZ$sp(ILoop.scala:920)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$process$1.apply(ILoop.scala:909)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$process$1.apply(ILoop.scala:909)
+	at scala.reflect.internal.util.ScalaClassLoader$.savingContextLoader(ScalaClassLoader.scala:97)
+	at scala.tools.nsc.interpreter.ILoop.process(ILoop.scala:909)
+	at scala.tools.nsc.MainGenericRunner.runTarget$1(MainGenericRunner.scala:74)
+	at scala.tools.nsc.MainGenericRunner.run$1(MainGenericRunner.scala:87)
+	at scala.tools.nsc.MainGenericRunner.process(MainGenericRunner.scala:98)
+	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:103)
+	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
+Exception message: assertion failed: class EmpiricalDistribution: <none>
+
+> rdg <- s$do("org.apache.commons.math3.random.RandomDataGenerator")$new()                                # Rerun and it works fine.
+> rexp <- rdg$nextExponential(2,evaluate=FALSE)
+> 
+> library(microbenchmark)
+> options(width=120)
+> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
+Unit: microseconds
+                   expr     min      lq     mean   median       uq      max neval
+ rdg$nextExponential(4) 567.840 613.131 696.9115 639.1425 684.9145 19998.85  1000
+                rexp(4) 500.164 539.800 602.4964 565.0725 613.0315  1534.43  1000
+> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
+Unit: microseconds
+                   expr     min      lq     mean   median       uq      max neval
+ rdg$nextExponential(4) 565.953 587.385 622.0878 603.9475 624.7200 3578.750  1000
+                rexp(4) 495.933 514.399 544.2114 530.1730 548.8275 2188.164  1000
+> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
+Unit: microseconds
+                   expr     min       lq     mean   median       uq      max neval
+ rdg$nextExponential(4) 557.055 578.5445 621.0177 595.3615 623.9645 1379.511  1000
+                rexp(4) 487.096 507.3950 549.7635 521.3565 544.1920 3761.026  1000
+> 
+> massFactory3 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(1.0,3.0,s$do("org.apache.commons.math3.random.RandomDataGenerator")$new())
+> s %~% "3+4"
+[1] 7
+> 
+> scalap(s,"org.ddahl.shallot.parameter.Mass")
+package org.ddahl.shallot.parameter
+class Mass extends org.ddahl.shallot.parameter.PositiveRealNumber {
+  def this(value: scala.Double) = { /* compiled code */ }
+  val logValue: scala.Double = { /* compiled code */ }
+  val logGammaValue: scala.Double = { /* compiled code */ }
+}
+object Mass extends scala.AnyRef {
+  def this() = { /* compiled code */ }
+  def apply(value: scala.Double): org.ddahl.shallot.parameter.Mass = { /* compiled code */ }
+  def factory(mass: org.ddahl.shallot.parameter.Mass): scala.Function0[org.ddahl.shallot.parameter.Mass] = { /* compiled code */ }
+  def factory(value: scala.Double): scala.Function0[org.ddahl.shallot.parameter.Mass] = { /* compiled code */ }
+  def factory(shape: scala.Double, rate: scala.Double, rdg: org.apache.commons.math3.random.RandomDataGenerator): scala.Function0[org.ddahl.shallot.parameter.Mass] = { /* compiled code */ }
+}
+
+> mass <- s$do("org.ddahl.shallot.parameter.Mass")$apply(3.4)
+> massFactory1 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(mass)
+> massFactory2 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(3.0)
+> massFactory3 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(1.0,3.0,rdg)
+> massFactory3$apply()$logValue()
+[1] -2.715615
+> massFactory3$apply()$logValue()
+[1] -3.732463
+> massFactory3$apply()$logValue()
+[1] 0.8184583
+> 
+> 
+> 
+> s %~% '
++ class Bob {
++ 
++   val a = 3.0
++   var b = 4.0
++ 
++   def sum(c: Int) = { a + b + c }
++ 
++ }
++ '
+ScalaInterpreterReference... res12: org.ddahl.shallot.parameter.Mass => Double
+> 
+> d <- s$do("Bob")$new()
+> d[['type']]                           # Note the weird 'iw$' prepended to 'Bob'
+[1] "iw$Bob"
+> tryCatch(d$b(),error=function(e) e)   # Doesn't work
+<console>:13: error: not found: type iw$Bob
+       (rscalaReference: iw$Bob) => { rscalaReference.b }
+                         ^
+Exception message: compile-time error
+
+<simpleError in intpDef.ScalaInterpreter(reference[["interpreter"]], "", paste0("rscalaReference.",     methodName), reference = reference): Evaluation error.>
+> 
+> d[['type']] <- "Bob"     # Cast it to be 'Bob'
+> d$b()                    # Now it does
+[1] 4
+> 
+> d$sum(as.integer(4))
+[1] 11
+> m <- d$sum(as.integer(5),evaluate=FALSE)
+> 
+> m(3)                                    # Casting is not necessary here
+[1] 10
+> d$sum(as.integer(3))                    # But it is here
+[1] 10
+> tryCatch(d$sum(3),error=function(e) e)  # and here
+<console>:14: error: type mismatch;
+ found   : Double
+ required: Int
+       (rscalaReference: Bob,x1: Double) => { rscalaReference.sum(x1) }
+                                                                  ^
+Exception message: compile-time error
+
+<simpleError in intpDef.ScalaInterpreter(reference[["interpreter"]], argsStr,     paste0("rscalaReference.", methodName, "(", namesStr, ")"),     reference = reference): Evaluation error.>
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  3.156   0.896  11.401 

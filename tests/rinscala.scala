@@ -10,7 +10,11 @@ println(util.Properties.versionNumberString)
 val R = org.ddahl.rscala.RClient() // ("R",true)
 R.debug = true
 R.debug = false
-R.serializeOuput = sys.env("RSCALA_SERIALIZE").toUpperCase == "TRUE"
+R.serializeOutput = try {
+  sys.env("RSCALA_SERIALIZE").toUpperCase == "TRUE"
+} catch {
+  case _: Throwable => false
+}
 
 try {
   R.eval("library(dfasdf)")  // Tests for UTF-8 strings because of curly single quotes.
@@ -60,8 +64,26 @@ def timer(a: => Unit) = {
   println("%d microseconds".format(micros))
 }
 
-timer( for ( i <- 0 until 100 ) R.evalD1("a") )
-timer( for ( i <- 0 until 100 ) R.getD1("a") )
+println("Burnin the hotspot compiler.")
+timer{ for ( i <- 0 until 100 ) R.evalD1("a") }
+timer{ for ( i <- 0 until 100 ) R.getD1("a") }
+
+println("Get then eval.")
+timer{ for ( i <- 0 until 100 ) R.getD1("a") }
+timer{ for ( i <- 0 until 100 ) R.evalD1("a") }
+
+println("Eval then get.")
+timer{ for ( i <- 0 until 100 ) R.evalD1("a") }
+timer{ for ( i <- 0 until 100 ) R.getD1("a") }
+
+println("Eval then get.")
+timer{ for ( i <- 0 until 100 ) R.evalD1("a") }
+timer{ for ( i <- 0 until 100 ) R.getD1("a") }
+
+println("Get then eval.")
+timer{ for ( i <- 0 until 100 ) R.getD1("a") }
+timer{ for ( i <- 0 until 100 ) R.evalD1("a") }
+
 
 R.a._1
 R.getD1("a")
