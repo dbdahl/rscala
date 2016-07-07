@@ -20,10 +20,10 @@ f2()
 serializeOriginal <- intpSettings(s)$serialize
 intpSettings(s,serialize=TRUE)
 capture.output(f2())
-f2(quiet=TRUE)
+f2()
 intpSettings(s,serialize=FALSE)
 capture.output(f2())
-f2(quiet=TRUE)
+f2()
 intpSettings(s,serialize=serializeOriginal)
 
 f1 <- s$def('x: Tuple2[Int,Int], y: Array[Double]','x._1 + x._2 + y.sum')

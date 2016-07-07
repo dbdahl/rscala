@@ -8,13 +8,13 @@ s %~% "util.Properties.versionNumberString"
 set.seed(943510)
 
 
-intpSettings(s,quiet=TRUE)
+intpSettings(s,serialize=TRUE)
 s$a <- rnorm(100)
 
 s %@% 'println("Yes")'
 
 
-intpSettings(s,quiet=FALSE)
+intpSettings(s,serialize=FALSE)
 s$a <- rnorm(100)
 
 s %@% 'println("Yes")'

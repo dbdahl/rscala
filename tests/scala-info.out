@@ -48,7 +48,7 @@ Searching for a suitable Scala installation.
   * FAILURE: special installation directory (/home/dahl/.rscala/scala-2.11.8)
 Cannot find a suitable Scala installation.
 
-Scala (>= 2.10) is not distributed with the rscala package.  Individuals can
+Scala (>= 2.11) is not distributed with the rscala package.  Individuals can
 install Scala using "rscala::scalaInstall()" which places Scala in "~/.rscala"
 in the user's home directory.  System administrators should install Scala
 globally as described here: http://www.scala-lang.org/download/install.html.

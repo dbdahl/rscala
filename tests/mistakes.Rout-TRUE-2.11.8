@@ -1,5 +1,5 @@
 
-R version 3.3.0 (2016-05-03) -- "Supposedly Educational"
+R Under development (unstable) (2016-07-05 r70861) -- "Unsuffered Consequences"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -23,7 +23,7 @@ Type 'q()' to quit R.
 > cat(serialize,"\n")
 TRUE 
 > s <- scalaInterpreter(serialize=serialize)
-Loading /tmp/RtmpCHU3CV/rscala-be334ab5563...
+Loading /tmp/RtmpYMVWc2/rscala-1a2b3a490f82...
 > 
 > s %~% "util.Properties.versionNumberString"
 [1] "2.11.8"
@@ -136,14 +136,14 @@ Exception message: compile-time error
 +   val b = 5
 +   (a,b)
 + "
-ScalaInterpreterReference... res7: (Int, Int)
+ScalaInterpreterReference... res6: (Int, Int)
 > 
 > s %.~% "
 +   val a = 3
 +   val b = 5
 +   (a,b)
 + "
-ScalaInterpreterReference... res8: (Int, Int)
+ScalaInterpreterReference... res7: (Int, Int)
 > 
 > tryCatch(s$xaa,error = function(e) {'Caught'})
 <console>:13: error: not found: value xaa
@@ -184,4 +184,4 @@ ScalaInterpreterReference... xaa: Double
 > 
 > proc.time()
    user  system elapsed 
-  0.164   0.020   7.366 
+  0.196   0.016   7.160 

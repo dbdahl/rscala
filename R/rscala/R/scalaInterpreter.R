@@ -441,41 +441,41 @@ intpSet.ScalaInterpreter <- function(interpreter,identifier,value,length.one.as.
   interpreter
 }
 
-intpCallback.ScalaInterpreter <- function(interpreter,argsType,returnType,func,interpolate="",captureOutput=FALSE) {
-  cc(interpreter)
-  if ( length(argsType) != length(formals(func)) ) stop("The length of 'argsType' must match the number of arguments of 'func'.")
-  if ( length(returnType) != 1 ) stop("The length of 'returnType' must be exactly one.")
-  X <- c("I","D","B","S")
-  Y <- c("0","1","2")
-  validReturnTypes <- c(paste(rep(X,each=length(Y)),rep(Y,times=length(X)),sep=""),"R")
-  if ( ! ( returnType %in% validReturnTypes ) ) stop(paste("Unrecognized 'returnType'.  Valid values are: ",paste(validReturnTypes,collapse=", "),sep=""))
-  if ( ( ( interpolate == "" ) && ( get("interpolate",envir=interpreter[['env']]) ) ) || ( interpolate == TRUE ) ) {
-    argsType <- sapply(argsType,function(x) strintrplt(x,parent.frame()))
-    returnType <- strintrplt(returnType,parent.frame())
-  }
-  functionNumber <- get("callbackNameCounter",envir=interpreter[['env']])
-  functionName <- paste(".f",functionNumber,sep="")
-  assign("callbackNameCounter",functionNumber+1L,envir=interpreter[['env']])
-  assign(functionName,func,envir=interpreter[['workspace']])
-  xs <- paste("x",1:length(argsType),sep="")
-  argsScala <- paste(paste(xs,argsType,sep=": "),collapse=", ")
-  sets <- paste(paste('R.set(".',xs,'",',xs,')',sep=""),collapse="\n")
-  argsR <- paste(".",xs,sep="",collapse=",")
-  snippet <- sprintf('(%s) => {
-    locally {
-      %s
-      val captureOutput = R.captureOutput
-      R.captureOutput = @{ifelse(captureOutput,"true","false")}
-      val result = R.eval%s("%s(%s)")
-      R.captureOutput = captureOutput
-      result
-    }
-  }',argsScala,sets,returnType,functionName,argsR)
-  snippet <- strintrplt(snippet,parent.frame())
-  result <- evalAndGet(interpreter,snippet,TRUE)
-  if ( is.null(result) ) invisible(result)
-  else result
-}
+# intpCallback.ScalaInterpreter <- function(interpreter,argsType,returnType,func,interpolate="",captureOutput=FALSE) {
+#   cc(interpreter)
+#   if ( length(argsType) != length(formals(func)) ) stop("The length of 'argsType' must match the number of arguments of 'func'.")
+#   if ( length(returnType) != 1 ) stop("The length of 'returnType' must be exactly one.")
+#   X <- c("I","D","B","S")
+#   Y <- c("0","1","2")
+#   validReturnTypes <- c(paste(rep(X,each=length(Y)),rep(Y,times=length(X)),sep=""),"R")
+#   if ( ! ( returnType %in% validReturnTypes ) ) stop(paste("Unrecognized 'returnType'.  Valid values are: ",paste(validReturnTypes,collapse=", "),sep=""))
+#   if ( ( ( interpolate == "" ) && ( get("interpolate",envir=interpreter[['env']]) ) ) || ( interpolate == TRUE ) ) {
+#     argsType <- sapply(argsType,function(x) strintrplt(x,parent.frame()))
+#     returnType <- strintrplt(returnType,parent.frame())
+#   }
+#   functionNumber <- get("callbackNameCounter",envir=interpreter[['env']])
+#   functionName <- paste(".f",functionNumber,sep="")
+#   assign("callbackNameCounter",functionNumber+1L,envir=interpreter[['env']])
+#   assign(functionName,func,envir=interpreter[['workspace']])
+#   xs <- paste("x",1:length(argsType),sep="")
+#   argsScala <- paste(paste(xs,argsType,sep=": "),collapse=", ")
+#   sets <- paste(paste('R.set(".',xs,'",',xs,')',sep=""),collapse="\n")
+#   argsR <- paste(".",xs,sep="",collapse=",")
+#   snippet <- sprintf('(%s) => {
+#     locally {
+#       %s
+#       val captureOutput = R.captureOutput
+#       R.captureOutput = @{ifelse(captureOutput,"true","false")}
+#       val result = R.eval%s("%s(%s)")
+#       R.captureOutput = captureOutput
+#       result
+#     }
+#   }',argsScala,sets,returnType,functionName,argsR)
+#   snippet <- strintrplt(snippet,parent.frame())
+#   result <- evalAndGet(interpreter,snippet,TRUE)
+#   if ( is.null(result) ) invisible(result)
+#   else result
+# }
 
 intpDef.ScalaInterpreter <- function(interpreter,args,body,interpolate="",reference=NULL) {
   cc(interpreter)

@@ -1,5 +1,5 @@
 
-R version 3.3.0 (2016-05-03) -- "Supposedly Educational"
+R Under development (unstable) (2016-07-05 r70861) -- "Unsuffered Consequences"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -23,7 +23,7 @@ Type 'q()' to quit R.
 > cat(serialize,"\n")
 FALSE 
 > s <- scalaInterpreter(serialize=serialize)
-Loading /tmp/RtmpCIsxGf/rscala-b16aa67944...
+Loading /tmp/Rtmpc6HED0/rscala-188444e0c12d...
 > 
 > s %~% "util.Properties.versionNumberString"
 [1] "2.11.8"
@@ -98,16 +98,16 @@ Exception message: compile-time error
 
 character(0)
 > capture.output(s %~% "new java.util.Random().nextDouble")
-[1] "[1] 0.5967829"
+[1] "[1] 0.4997466"
 > capture.output(s %~% "3+2")
 [1] "[1] 5"
 > capture.output(s %~% "println(3+2)")
 5
 character(0)
 > capture.output(s %~% 'R.eval("""cat(R.version.string)""")')
-[1] "R version 3.3.0 (2016-05-03)"
+[1] "R Under development (unstable) (2016-07-05 r70861)"
 > 
 > 
 > proc.time()
    user  system elapsed 
-  0.148   0.016   4.799 
+  0.160   0.016   5.054 

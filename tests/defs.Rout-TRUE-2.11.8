@@ -1,5 +1,5 @@
 
-R version 3.3.0 (2016-05-03) -- "Supposedly Educational"
+R Under development (unstable) (2016-07-05 r70861) -- "Unsuffered Consequences"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -23,14 +23,14 @@ Type 'q()' to quit R.
 > cat(serialize,"\n")
 TRUE 
 > s <- scalaInterpreter(serialize=serialize)
-Loading /tmp/Rtmp29g1Sk/rscala-7c04f3e2602...
+Loading /tmp/RtmpohOLeo/rscala-16051f0e153e...
 > 
 > s %~% "util.Properties.versionNumberString"
 [1] "2.11.8"
 > 
 > f <- s$def('x: (Int,Int)','x._1 + x._2')
 > s %~% "(300,400)"
-ScalaInterpreterReference... res4: (Int, Int)
+ScalaInterpreterReference... res3: (Int, Int)
 > intpEval(s,"val a = (300,400)")
 > a <- intpGet(s,"a",as.reference=TRUE)
 > f(a)
@@ -47,12 +47,13 @@ Yes
 > intpSettings(s,serialize=TRUE)
 > capture.output(f2())
 [1] "Yes"
-> f2(quiet=TRUE)
+> f2()
+Yes
 > intpSettings(s,serialize=FALSE)
 > capture.output(f2())
 Yes
 character(0)
-> f2(quiet=TRUE)
+> f2()
 Yes
 > intpSettings(s,serialize=serializeOriginal)
 > 
@@ -153,35 +154,32 @@ Exception message: compile-time error
 +   math.sqrt(x)+w-r
 + ")
 > f
-function (x, w, r, as.reference = NA, quiet = "", gc = FALSE) 
+function (x, w, r, as.reference = NA, gc = FALSE) 
 {
     if (!inherits(x, "ScalaInterpreterReference")) {
         x <- as.vector(x)[1]
         storage.mode(x) <- "double"
     }
-    intpSet(interpreter, ".", x, length.one.as.vector = FALSE, 
-        quiet = TRUE)
+    intpSet(interpreter, ".", x, length.one.as.vector = FALSE)
     if (!inherits(w, "ScalaInterpreterReference")) {
         w <- as.vector(w)[1]
         storage.mode(w) <- "integer"
     }
-    intpSet(interpreter, ".", w, length.one.as.vector = FALSE, 
-        quiet = TRUE)
+    intpSet(interpreter, ".", w, length.one.as.vector = FALSE)
     if (!inherits(r, "ScalaInterpreterReference")) {
         r <- as.vector(r)[1]
         storage.mode(r) <- "double"
     }
-    intpSet(interpreter, ".", r, length.one.as.vector = FALSE, 
-        quiet = TRUE)
+    intpSet(interpreter, ".", r, length.one.as.vector = FALSE)
     if (gc) 
         intpGC(interpreter)
     rscala:::wb(interpreter, rscala:::INVOKE)
-    rscala:::wc(interpreter, "res36")
+    rscala:::wc(interpreter, "res35")
     flush(interpreter[["socketIn"]])
     rscala:::rServe(interpreter, TRUE)
     status <- rscala:::rb(interpreter, "integer")
     if (get("serialize", envir = interpreter[["env"]])) 
-        rscala:::echoResponseScala(interpreter, quiet)
+        rscala:::echoResponseScala(interpreter)
     if (status == rscala:::ERROR) {
         stop("Invocation error.")
     }
@@ -192,7 +190,7 @@ function (x, w, r, as.reference = NA, quiet = "", gc = FALSE)
         else result
     }
 }
-<environment: 0x34301f0>
+<environment: 0x29edfc0>
 attr(,"args")
 [1] "x: Double, w: Int, r: Double"
 attr(,"body")
@@ -218,9 +216,9 @@ attr(,"type")
 > 
 > system.time(sapply(1:100,function(i) f1(i,4,54)))
    user  system elapsed 
-  0.108   0.016   0.132 
+  0.076   0.032   0.119 
 > 
 > 
 > proc.time()
    user  system elapsed 
-  0.360   0.036  11.084 
+  0.312   0.068  11.494 

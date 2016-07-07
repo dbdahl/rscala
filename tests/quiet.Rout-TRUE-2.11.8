@@ -1,5 +1,5 @@
 
-R version 3.3.0 (2016-05-03) -- "Supposedly Educational"
+R Under development (unstable) (2016-07-05 r70861) -- "Unsuffered Consequences"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -23,20 +23,21 @@ Type 'q()' to quit R.
 > cat(serialize,"\n")
 TRUE 
 > s <- scalaInterpreter(serialize=serialize)
-Loading /tmp/RtmptT4uT9/rscala-c7c75ec5b26...
+Loading /tmp/RtmpAXsVZU/rscala-1b5c5e44b4ce...
 > 
 > s %~% "util.Properties.versionNumberString"
 [1] "2.11.8"
 > set.seed(943510)
 > 
 > 
-> intpSettings(s,quiet=TRUE)
+> intpSettings(s,serialize=TRUE)
 > s$a <- rnorm(100)
 > 
 > s %@% 'println("Yes")'
+Yes
 > 
 > 
-> intpSettings(s,quiet=FALSE)
+> intpSettings(s,serialize=FALSE)
 > s$a <- rnorm(100)
 > 
 > s %@% 'println("Yes")'
@@ -45,4 +46,4 @@ Yes
 > 
 > proc.time()
    user  system elapsed 
-  0.160   0.016   5.281 
+  0.176   0.016   4.550 

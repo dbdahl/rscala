@@ -1,5 +1,5 @@
 
-R version 3.3.0 (2016-05-03) -- "Supposedly Educational"
+R Under development (unstable) (2016-07-05 r70861) -- "Unsuffered Consequences"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -24,7 +24,7 @@ Type 'q()' to quit R.
 > cat(serialize,"\n")
 FALSE 
 > s <- scalaInterpreter(serialize=serialize)
-Loading /tmp/RtmpTxlcqr/rscala-2404ff2bfa4...
+Loading /tmp/Rtmpc5OM6s/rscala-2ad22a0129c1...
 > 
 > cat(s %~% "util.Properties.versionNumberString","\n")
 2.11.8 
@@ -566,11 +566,11 @@ Hello 9 from Scala.
 Hello 9 from R.
 Hello 10 from Scala.
 Unit: milliseconds
- expr        min         lq       mean     median        uq        max neval
- f(0) 704.125841 734.836231 826.187425 766.940867 864.70723 1060.32695     5
- g(0) 347.512720 386.503236 476.774465 418.837562 466.92293  764.09588     5
- h(0)   6.896329   7.147477   8.136255   7.704605   8.48908   10.44378     5
- i(0)   6.878921   7.836370   8.932363   8.051347  10.87819   11.01699     5
+ expr        min         lq       mean     median         uq        max neval
+ f(0) 742.363717 770.320408 825.931418 800.072979 835.319494 981.580491     5
+ g(0) 381.382461 404.920689 501.475928 480.584946 488.297467 752.194075     5
+ h(0)   6.439234   6.954336   7.169061   7.139733   7.593855   7.718147     5
+ i(0)   7.466049   7.469520   8.888282   9.266429   9.344786  10.894625     5
 > 
 > cat("####\n")
 ####
@@ -4577,9 +4577,9 @@ Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
 Unit: milliseconds
- expr      min       lq     mean   median       uq      max neval
- h(0) 5.534318 6.020596 7.055352 6.785562 7.794318 10.89884   100
- i(0) 5.765019 6.343889 7.459022 6.918247 8.551320 10.13127   100
+ expr      min       lq     mean   median       uq       max neval
+ h(0) 5.656374 6.045169 6.861641 6.599687 7.737783  9.294874   100
+ i(0) 6.106247 6.420939 7.352325 6.932320 8.044485 11.071611   100
 > 
 > 
 > 
@@ -4765,12 +4765,25 @@ Exception message: Error in R evaluation.
 > 
 > proc.time()
    user  system elapsed 
-  1.768   0.456  14.925 
+  1.656   0.428  15.271 
 java.net.SocketException: Socket closed
   at java.net.SocketOutputStream.socketWrite(SocketOutputStream.java:116)
   at java.net.SocketOutputStream.write(SocketOutputStream.java:153)
   at java.io.BufferedOutputStream.flushBuffer(BufferedOutputStream.java:82)
   at java.io.BufferedOutputStream.flush(BufferedOutputStream.java:140)
   at java.io.DataOutputStream.flush(DataOutputStream.java:123)
-  at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:601)
+  at org.ddahl.rscala.RClient.exit(RClient.scala:70)
+  at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:197)
+  at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:569)
+  at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:594)
+  at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:594)
+  at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:594)
+  at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
+  at scala.Console$.withErr(Console.scala:80)
+  at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:593)
+  at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:593)
+  at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:593)
+  at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
+  at scala.Console$.withOut(Console.scala:53)
+  at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:592)
   ... 54 elided

@@ -1,5 +1,5 @@
 
-R version 3.3.0 (2016-05-03) -- "Supposedly Educational"
+R Under development (unstable) (2016-07-05 r70861) -- "Unsuffered Consequences"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -23,7 +23,7 @@ Type 'q()' to quit R.
 > cat(serialize,"\n")
 TRUE 
 > j <- scalaInterpreter(serialize=serialize)
-Loading /tmp/RtmpPBb4SW/rscala-63e230a8cfe...
+Loading /tmp/RtmpKoqSBS/rscala-149d518c2930...
 > 
 > j %~% "util.Properties.versionNumberString"
 [1] "2.11.8"
@@ -44,11 +44,6 @@ Loading /tmp/RtmpPBb4SW/rscala-63e230a8cfe...
 > for ( method in c("$","") ) {
 + 
 +   setget(integer(0),method=method)
-+   intpSettings(j,quiet=FALSE)
-+   setget(integer(0),method=method)
-+   setget(integer(0),quiet=TRUE,method=method)
-+   setget(integer(0),quiet=FALSE,method=method)
-+   intpSettings(j,quiet=TRUE)
 + 
 +   setget(double(0),method=method)
 +   setget(logical(0),method=method)
@@ -96,4 +91,4 @@ Loading /tmp/RtmpPBb4SW/rscala-63e230a8cfe...
 > 
 > proc.time()
    user  system elapsed 
-  0.188   0.036  11.820 
+  0.220   0.032  12.083 

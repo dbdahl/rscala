@@ -22,11 +22,6 @@ setget <- function(value,method="$",...) {
 for ( method in c("$","") ) {
 
   setget(integer(0),method=method)
-  intpSettings(j,quiet=FALSE)
-  setget(integer(0),method=method)
-  setget(integer(0),quiet=TRUE,method=method)
-  setget(integer(0),quiet=FALSE,method=method)
-  intpSettings(j,quiet=TRUE)
 
   setget(double(0),method=method)
   setget(logical(0),method=method)

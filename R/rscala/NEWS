@@ -1,4 +1,4 @@
-1.0.13 (2016-XX-XX)
+1.0.13 (2016-07-07)
   * Added %@% operator for shorthand notation (e.g, "interpreter %@% snippet")
     to conveniently evaluate an expression without the overhead involved in
     returning a result.

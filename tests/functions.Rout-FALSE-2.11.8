@@ -1,5 +1,5 @@
 
-R version 3.3.0 (2016-05-03) -- "Supposedly Educational"
+R Under development (unstable) (2016-07-05 r70861) -- "Unsuffered Consequences"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -23,7 +23,7 @@ Type 'q()' to quit R.
 > cat(serialize,"\n")
 FALSE 
 > s <- scalaInterpreter(c("commons-math3-3.2.jar","shallot.jar"),serialize=serialize)
-Loading /tmp/Rtmp8KvA90/rscala-df329f94a97...
+Loading /tmp/RtmpN2qlpV/rscala-2bc08019ff...
 > 
 > s %~% "util.Properties.versionNumberString"
 [1] "2.11.8"
@@ -242,19 +242,19 @@ Exception message: assertion failed: class EmpiricalDistribution: <none>
 > options(width=120)
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: microseconds
-                   expr     min      lq     mean   median       uq      max neval
- rdg$nextExponential(4) 567.840 613.131 696.9115 639.1425 684.9145 19998.85  1000
-                rexp(4) 500.164 539.800 602.4964 565.0725 613.0315  1534.43  1000
+                   expr     min      lq     mean   median      uq       max neval
+ rdg$nextExponential(4) 600.881 669.078 834.0847 856.7865 900.535 16601.658  1000
+                rexp(4) 526.517 578.484 730.2833 776.0920 818.181  7926.709  1000
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: microseconds
                    expr     min      lq     mean   median       uq      max neval
- rdg$nextExponential(4) 565.953 587.385 622.0878 603.9475 624.7200 3578.750  1000
-                rexp(4) 495.933 514.399 544.2114 530.1730 548.8275 2188.164  1000
+ rdg$nextExponential(4) 583.783 790.107 811.6667 835.1285 862.6265 4216.827  1000
+                rexp(4) 512.662 717.650 728.2902 757.2110 781.1510 1512.721  1000
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: microseconds
                    expr     min       lq     mean   median       uq      max neval
- rdg$nextExponential(4) 557.055 578.5445 621.0177 595.3615 623.9645 1379.511  1000
-                rexp(4) 487.096 507.3950 549.7635 521.3565 544.1920 3761.026  1000
+ rdg$nextExponential(4) 562.814 609.4805 732.7444 777.4545 826.9720 1564.142  1000
+                rexp(4) 502.401 533.2215 645.9948 601.2195 748.9655 1621.918  1000
 > 
 > massFactory3 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(1.0,3.0,s$do("org.apache.commons.math3.random.RandomDataGenerator")$new())
 > s %~% "3+4"
@@ -280,11 +280,11 @@ object Mass extends scala.AnyRef {
 > massFactory2 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(3.0)
 > massFactory3 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(1.0,3.0,rdg)
 > massFactory3$apply()$logValue()
-[1] -2.715615
+[1] -4.873456
 > massFactory3$apply()$logValue()
-[1] -3.732463
+[1] -0.4470821
 > massFactory3$apply()$logValue()
-[1] 0.8184583
+[1] -0.7521093
 > 
 > 
 > 
@@ -298,7 +298,7 @@ object Mass extends scala.AnyRef {
 + 
 + }
 + '
-ScalaInterpreterReference... res12: org.ddahl.shallot.parameter.Mass => Double
+ScalaInterpreterReference... res11: org.ddahl.shallot.parameter.Mass => Double
 > 
 > d <- s$do("Bob")$new()
 > d[['type']]                           # Note the weird 'iw$' prepended to 'Bob'
@@ -336,4 +336,4 @@ Exception message: compile-time error
 > 
 > proc.time()
    user  system elapsed 
-  3.156   0.896  11.401 
+  3.760   1.144  12.114 
