@@ -1,0 +1,50 @@
+
+R version 3.3.0 (2016-05-03) -- "Supposedly Educational"
+Copyright (C) 2016 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(rscala)
+> 
+> serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
+> cat(serialize,"\n")
+FALSE 
+> s <- scalaInterpreter(serialize=serialize)
+Loading /tmp/RtmppE09zK/rscala-18e985b8da9...
+> 
+> s <- scalaInterpreter(heap.max="64M")
+Loading /tmp/RtmppE09zK/rscala-18e92ce8975b...
+> s %~% "util.Properties.versionNumberString"
+[1] "2.11.8"
+> a <- tryCatch(s$do("Array[Double]")$new(10000000L),error=function(e) e)
+Exception message: Java heap space
+
+> close(s)
+> 
+> s <- scalaInterpreter(heap.max="256M")
+Loading /tmp/RtmppE09zK/rscala-18e97deecbf...
+> s %~% "util.Properties.versionNumberString"
+[1] "2.11.8"
+> a <- s$do("Array[Double]")$new(10000000L)
+> close(s)
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  0.328   0.092  18.847 
+Warning messages:
+1: closing unused connection 4 (->localhost:41539) 
+2: closing unused connection 3 (->localhost:39781) 
