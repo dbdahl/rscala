@@ -25,7 +25,11 @@ do
   export SCALA_VERSION
   if [[ "$DOALL" == TRUE ]]
   then
-    ./rinscala.scala >| rinscala.scala.out-$SCALA_VERSION 2>&1
+    echo "  Running rinscala.scala"
+    for SERIALIZE in TRUE FALSE
+    do
+      RSCALA_SERIALIZE=$SERIALIZE ./rinscala.scala >| rinscala.scala.out-$SERIALIZE-$SCALA_VERSION 2>&1
+    done
   fi
   for script in $RSCRIPTS
   do
