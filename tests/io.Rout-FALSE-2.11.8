@@ -1,0 +1,113 @@
+
+R version 3.3.0 (2016-05-03) -- "Supposedly Educational"
+Copyright (C) 2016 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(rscala)
+> 
+> serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
+> cat(serialize,"\n")
+FALSE 
+> s <- scalaInterpreter(serialize=serialize)
+Loading /tmp/RtmpeqTHYr/rscala-204c7e964e63...
+> 
+> s %~% "util.Properties.versionNumberString"
+[1] "2.11.8"
+> 
+> capture.output(s %~% "new java.util.Random().nextDoubllllllllle")
+<console>:13: error: value nextDoubllllllllle is not a member of java.util.Random
+       new java.util.Random().nextDoubllllllllle
+                              ^
+javax.script.ScriptException: compile-time error
+	at scala.tools.nsc.interpreter.IMain.compiled(IMain.scala:602)
+	at scala.tools.nsc.interpreter.IMain.eval(IMain.scala:1074)
+	at javax.script.AbstractScriptEngine.eval(AbstractScriptEngine.java:264)
+	at org.ddahl.rscala.ScalaInterpreterAdapter.eval(ScalaInterpreterAdapter.scala:6)
+	at org.ddahl.rscala.ScalaServer.doEval(ScalaServer.scala:107)
+	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:560)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:600)
+	at $line3.$read$$iw$$iw$.<init>(<console>:13)
+	at $line3.$read$$iw$$iw$.<clinit>(<console>)
+	at $line3.$eval$.$print$lzycompute(<console>:7)
+	at $line3.$eval$.$print(<console>:6)
+	at $line3.$eval.$print(<console>)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at scala.tools.nsc.interpreter.IMain$ReadEvalPrint.call(IMain.scala:786)
+	at scala.tools.nsc.interpreter.IMain$Request.loadAndRun(IMain.scala:1047)
+	at scala.tools.nsc.interpreter.IMain$WrappedRequest$$anonfun$loadAndRunReq$1.apply(IMain.scala:638)
+	at scala.tools.nsc.interpreter.IMain$WrappedRequest$$anonfun$loadAndRunReq$1.apply(IMain.scala:637)
+	at scala.reflect.internal.util.ScalaClassLoader$class.asContext(ScalaClassLoader.scala:31)
+	at scala.reflect.internal.util.AbstractFileClassLoader.asContext(AbstractFileClassLoader.scala:19)
+	at scala.tools.nsc.interpreter.IMain$WrappedRequest.loadAndRunReq(IMain.scala:637)
+	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:569)
+	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:565)
+	at scala.tools.nsc.interpreter.ILoop.interpretStartingWith(ILoop.scala:807)
+	at scala.tools.nsc.interpreter.ILoop.command(ILoop.scala:681)
+	at scala.tools.nsc.interpreter.ILoop.processLine(ILoop.scala:395)
+	at scala.tools.nsc.interpreter.ILoop.loop(ILoop.scala:415)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$interpretAllFrom$1$$anonfun$apply$5$$anonfun$apply$6.apply(ILoop.scala:427)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$interpretAllFrom$1$$anonfun$apply$5$$anonfun$apply$6.apply(ILoop.scala:423)
+	at scala.reflect.io.Streamable$Chars$class.applyReader(Streamable.scala:111)
+	at scala.reflect.io.File.applyReader(File.scala:50)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$interpretAllFrom$1$$anonfun$apply$5.apply(ILoop.scala:423)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$interpretAllFrom$1$$anonfun$apply$5.apply(ILoop.scala:423)
+	at scala.tools.nsc.interpreter.ILoop.savingReplayStack(ILoop.scala:91)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$interpretAllFrom$1.apply(ILoop.scala:422)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$interpretAllFrom$1.apply(ILoop.scala:422)
+	at scala.tools.nsc.interpreter.ILoop.savingReader(ILoop.scala:96)
+	at scala.tools.nsc.interpreter.ILoop.interpretAllFrom(ILoop.scala:421)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$run$3$1.apply(ILoop.scala:577)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$run$3$1.apply(ILoop.scala:576)
+	at scala.tools.nsc.interpreter.ILoop.withFile(ILoop.scala:570)
+	at scala.tools.nsc.interpreter.ILoop.run$3(ILoop.scala:576)
+	at scala.tools.nsc.interpreter.ILoop.loadCommand(ILoop.scala:583)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$standardCommands$8.apply(ILoop.scala:207)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$standardCommands$8.apply(ILoop.scala:207)
+	at scala.tools.nsc.interpreter.LoopCommands$LineCmd.apply(LoopCommands.scala:62)
+	at scala.tools.nsc.interpreter.ILoop.colonCommand(ILoop.scala:688)
+	at scala.tools.nsc.interpreter.ILoop.command(ILoop.scala:679)
+	at scala.tools.nsc.interpreter.ILoop.loadFiles(ILoop.scala:835)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$process$1.apply$mcZ$sp(ILoop.scala:920)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$process$1.apply(ILoop.scala:909)
+	at scala.tools.nsc.interpreter.ILoop$$anonfun$process$1.apply(ILoop.scala:909)
+	at scala.reflect.internal.util.ScalaClassLoader$.savingContextLoader(ScalaClassLoader.scala:97)
+	at scala.tools.nsc.interpreter.ILoop.process(ILoop.scala:909)
+	at scala.tools.nsc.MainGenericRunner.runTarget$1(MainGenericRunner.scala:74)
+	at scala.tools.nsc.MainGenericRunner.run$1(MainGenericRunner.scala:87)
+	at scala.tools.nsc.MainGenericRunner.process(MainGenericRunner.scala:98)
+	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:103)
+	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
+Exception message: compile-time error
+
+character(0)
+> capture.output(s %~% "new java.util.Random().nextDouble")
+[1] "[1] 0.02167474"
+> capture.output(s %~% "3+2")
+[1] "[1] 5"
+> capture.output(s %~% "println(3+2)")
+5
+character(0)
+> capture.output(s %~% 'R.eval("""cat(R.version.string)""")')
+[1] "R version 3.3.0 (2016-05-03)"
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  0.220   0.008   5.854 
