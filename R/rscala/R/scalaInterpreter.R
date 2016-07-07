@@ -26,8 +26,8 @@ scalaInterpreter <- function(classpath=character(0),scala.home=NULL,heap.maximum
   if ( debug ) msg("\n",paste0("<",args,">",collapse="\n"))
   stdin <- ""
   if ( debug && ( .Platform$OS.type == "windows" ) ) {
-    stdout <- "STDOUT.txt"
-    stderr <- "STDERR.txt"
+    stdout <- "RSCALA-STDOUT.txt"
+    stderr <- "RSCALA-STDERR.txt"
   } else {
     stdout <- ""
     stderr <- ""
