@@ -9,7 +9,7 @@ fi
 if [[ $# -eq 0 ]]
 then
   DOALL=TRUE
-  SCRIPTS="basics.R callbacks.R callbacks-benchmarked.R defs.R functions.R identifiers.R interpolate.R io.R lengthOneAsVector.R memory.R mistakes.R quiet.R recursion.R rinscala.scala unit-testing.R"
+  SCRIPTS="basics.R callbacks.R callbacks-benchmarked.R defs.R functions.R identifiers.R interpolate.R io.R lengthOneAsVector.R memory.R mistakes.R protocol-speed.scala quiet.R recursion.R rinscala.scala unit-testing.R"
 else
   DOALL=FALSE
   SCRIPTS="$*"
