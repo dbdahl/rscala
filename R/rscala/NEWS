@@ -1,17 +1,24 @@
 1.0.13 (2016-XX-XX)
-  * Dropped support for Scala 2.10.
   * Added %@% operator for shorthand notation (e.g, "interpreter %@% snippet")
     to conveniently evaluate an expression without the overhead involved in
     returning a result.
-  * Added intpCallback function to facilitate writing callbacks.
-  * Added captureOutput field to the RClient class.  Setting captureOutput=FALSE
-    can be helpful for interactive debugging on a non-Windows console.
+  * Added serialize option to scalaInterpreter and intpSettings functions in R
+    to control the capturing of console output.  Likewise, added
+    serializeOutput field to the RClient class.  Avoiding serialization is
+    faster and leads to a better experience.  Dropped the now-redundant quiet
+    option.
+  * Added support for 'unlimited' nested callbacks when Scala is embedded in R,
+    where in practice the amount of nesting is only about a dozen if
+    serialize=TRUE (because R runs of out sink resources) but is hundreds of
+    levels if serialize=FALSE.
   * Restructured the package hierarchy, most notably moving RClient to
     'org.ddahl.rscala' instead of 'org.ddahl.rscala.callback'.
-  * Dropped the need to modify the original source of scala.Console object and
+  * Dropped support for Scala 2.10.
+  * Avoid the need to modify the original source of scala.Console object and
     the need to hijack the boot classpath.  The package now uses the standard
     'scala' executable from the Scala binary distribution, without any modified
     code and ugly hacks.
+  * Added intpCallback function to facilitate writing callbacks.
 
 1.0.12 (2016-06-03)
   * Fast instantiation of RClient class (which was slow in 1.0.11).
@@ -44,7 +51,8 @@
   * Removed unnecessary 'Suggests' and 'VignetteBuilder'
 
 1.0.5 (2015-05-15)
-  * Added README.html to point to paper submitted to Journal of Statistical Software.
+  * Added README.html to point to paper submitted to Journal of Statistical
+    Software.
   * 'scalaInfo' function is much improved and 'scalaInstall' function is new.
   * Support of arbitrary R objects to be passed as an 'RObject' in Scala.
   * Improved exception handling.

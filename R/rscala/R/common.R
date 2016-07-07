@@ -1,7 +1,7 @@
-intpEval     <- function(interpreter, snippet, interpolate="", quiet="") UseMethod("intpEval")
+intpEval     <- function(interpreter, snippet, interpolate="") UseMethod("intpEval")
 intpGet      <- function(interpreter, identifier, as.reference=NA) UseMethod("intpGet")
-intpSet      <- function(interpreter, identifier, value, length.one.as.vector="", quiet="") UseMethod("intpSet")
-intpDef      <- function(interpreter, args, body, interpolate="", quiet="", reference=NULL) UseMethod("intpDef")
+intpSet      <- function(interpreter, identifier, value, length.one.as.vector="") UseMethod("intpSet")
+intpDef      <- function(interpreter, args, body, interpolate="", reference=NULL) UseMethod("intpDef")
 intpCallback <- function(interpreter, argsType, returnType, func, interpolate="", captureOutput=FALSE) UseMethod("intpCallback")
 intpWrap     <- function(interpreter, value) UseMethod("intpWrap")
 intpUnwrap   <- function(interpreter, value) UseMethod("intpUnwrap")
@@ -23,13 +23,12 @@ strintrplt <- function(snippet,envir=parent.frame()) {
   } else snippet
 }
 
-intpSettings <- function(interpreter,debug=NULL,serialize=NULL,interpolate=NULL,length.one.as.vector=NULL,quiet=NULL) {
-  if ( is.null(debug) && is.null(serialize) && is.null(interpolate) && is.null(length.one.as.vector) && is.null(quiet) ) {
+intpSettings <- function(interpreter,debug=NULL,serialize=NULL,interpolate=NULL,length.one.as.vector=NULL) {
+  if ( is.null(debug) && is.null(serialize) && is.null(interpolate) && is.null(length.one.as.vector) ) {
     list(debug=get("debug",envir=interpreter[['env']]),
          serialize=get("serialize",envir=interpreter[['env']]),
          interpolate=get("interpolate",envir=interpreter[['env']]),
-         length.one.as.vector=get("length.one.as.vector",envir=interpreter[['env']]),
-         quiet=get("quiet",envir=interpreter[['env']]))
+         length.one.as.vector=get("length.one.as.vector",envir=interpreter[['env']]))
   } else {
     if ( ! is.null(debug) ) {
       debug <- as.logical(debug)[1]
@@ -39,7 +38,7 @@ intpSettings <- function(interpreter,debug=NULL,serialize=NULL,interpolate=NULL,
           cc(interpreter)
           wb(interpreter,DEBUG)
           wb(interpreter,as.integer(debug))
-          if ( get("serialize",envir=interpreter[['env']]) ) echoResponseScala(interpreter,"")
+          if ( get("serialize",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
         }
       }
       assign("debug",debug,envir=interpreter[['env']])
@@ -53,14 +52,13 @@ intpSettings <- function(interpreter,debug=NULL,serialize=NULL,interpolate=NULL,
           cc(interpreter)
           wb(interpreter,SERIALIZE)
           wb(interpreter,as.integer(serialize))
-          if ( serializeOld ) echoResponseScala(interpreter,"")
+          if ( serializeOld ) echoResponseScala(interpreter)
         }
       }
       assign("serialize",serialize,envir=interpreter[['env']])
     }
     if ( !is.null(interpolate) ) assign("interpolate",as.logical(interpolate)[1],envir=interpreter[['env']])
     if ( !is.null(length.one.as.vector) ) assign("length.one.as.vector",as.logical(length.one.as.vector)[1],envir=interpreter[['env']])
-    if ( !is.null(quiet) ) assign("quiet",as.logical(quiet)[1],envir=interpreter[['env']])
   }
 }
 

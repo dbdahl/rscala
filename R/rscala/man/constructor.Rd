@@ -46,7 +46,7 @@ depend on this package.
 \usage{
 scalaInterpreter(classpath=character(0),
     scala.home=NULL, heap.maximum="256M", command.line.options=NULL,
-    timeout=60, debug.filename=NULL)
+    timeout=60, debug=FALSE, serialize=.Platform$OS.type == "windows")
 scalaInfo(scala.home=NULL, verbose=FALSE)
 scalaInstall()
 rscalaJar(version="")
@@ -59,7 +59,8 @@ rscalaLoad(classpath=NULL, ...)
     \item{heap.maximum}{A character vector of length one used to specify the maximum heap size in the JVM.  The default is \sQuote{256M} which is equivalent to invoking Scala with command line argument \sQuote{-J-Xmx256M}.  This option is ignored if \var{command.line.options} is not null.}
     \item{command.line.options}{A character vector whose elements are passed as command line arguments when invoking Scala.  The default value is \code{NULL}, meaning no extra arguments are provided.  If you simply want to add to the classpath and/or set the maximum heap size, use the \var{classpath} and \var{heap.maximum} arguments.}
     \item{timeout}{A numeric vector of length one giving the number of seconds to wait for Scala to start before aborting.  The default value is \code{60} seconds.}
-    \item{debug.filename}{An option meant only for developers of the package itself and not intended for users of the package.}
+    \item{debug}{An option meant only for developers of the package itself and not intended for users of the package.}
+    \item{serialize}{An logical vector of length one indicating whether standard output (stdout) and standard error (stderr) should be captured and serialized back to R.  For performance and a better experience, \code{FALSE} is the default on non-Windows operating systems and the operating system will take care of displaying this output.  Due to limitations of Windows, \code{TRUE} is the default value on Windows operating systems as the output may not be displayed otherwise.  If this output is not needed, \code{FALSE} is recommended.}
     \item{verbose}{A logical vector of length one indicating whether information regarding the search for the Scala installation should be displayed.}
     \item{version}{If \code{""}, the package JAR files for all Scala versions are returned. Or, if \code{"2.11.*"} where \code{*} is a placeholder, the JAR file for that specific major version of Scala is returned.}
     \item{pkgname}{A character string giving the name of the package (as provided the second argument of the \code{.onLoad} function) that wishes to depend on this package.}
@@ -90,24 +91,24 @@ scalaInfo(verbose=TRUE)
 # Uncomment the next line to download and install Scala
 # scalaInstall()
 
-# Make an instance of the Scala interpreter and see how it can print to the R console
-s <- scalaInterpreter()
+# Make an instance of the Scala interpreter and see how its output is captured.
+s <- scalaInterpreter(serialize=TRUE)
 s \%~\% 'println("This is Scala "+scala.util.Properties.versionString)'
 
 # Function defined in R
 myMean <- function(x) {
-  cat("Here I am.\n")
+  cat("Here I am in R.\n")
+  s \%@\% 'println("Here I am in Scala.")'
   mean(x)
 }
 
 # Function defined in Scala that calls an R function
 callRFunction <- s$def('functionName: String, x: Array[Double]','
   R.xx = x
-  R.eval("y <- "+functionName+"(xx)")
-  R.y._1
+  R.evalD0("y <- "+functionName+"(xx)")
 ')
 
-# Have Scala call the R function myMean with input 1:100
+# Have Scala call the R's myMean function with input 1:100.
 callRFunction('myMean',1:100)
 }
 }
