@@ -7,3 +7,6 @@ https://oss.sonatype.org/
   -> "Close" repository
   -> "Release" repository
 Submit to CRAN
+Update webpage using bin/deploy-html
+Update the temperature webapp
+Bump (development) version number

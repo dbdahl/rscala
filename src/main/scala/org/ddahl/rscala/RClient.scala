@@ -13,7 +13,7 @@ import Protocol._
 * callbacks to the original [[http://www.r-project.org R]] interpreter are possible.
 * 
 * In a JVM-based application, an instance of this class is created using its companion object.  See below.  The paths of the
-* rscala's JARs, for both Scala 2.10 and 2.11, are available from [[http://www.r-project.org R]] using `rscala::rscalaJar()`.
+* rscala's JARs (for all supported versions of Scala) are available from [[http://www.r-project.org R]] using `rscala::rscalaJar()`.
 * To get just the JAR for Scala 2.11, for example, use `rscala::rscalaJar("2.11")`.
 * 
 * {{{
@@ -53,8 +53,10 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
     }
   }
 
+  /** Return `true` if output from R is serialized back to Scala. */
   def serializeOutput = serializeOutputState.value
 
+  /** Sets whether output from R is serialized back to Scala. */
   def serializeOutput_=(v: Boolean) = {
     if ( scalaServer == null ) {
       serializeOutputState.value = v

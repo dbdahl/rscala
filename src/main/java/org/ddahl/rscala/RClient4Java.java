@@ -10,7 +10,7 @@ import scala.Tuple2;
 * callbacks to the original <a href="http://www.r-project.org">R</a> interpreter are possible.
 * 
 * In a JVM-based application, an instance of this class is created using its companion object.  See below.  The paths of the
-* rscala's JARs, for both Scala 2.10 and 2.11, are available from <a href="http://www.r-project.org">R</a> using <tt>rscala::rscalaJar()</tt>.
+* rscala's JARs (for all supported versions of Scala) are available from <a href="http://www.r-project.org">R</a> using <tt>rscala::rscalaJar()</tt>.
 * To get just the JAR for Scala 2.11, for example, use <tt>rscala::rscalaJar("2.11")</tt>.
 * 
 * <pre><span class="inner-pre" style="font-size:-2px">
@@ -73,6 +73,16 @@ public class RClient4Java {
   public RClient4Java(String rCmd) { c = org.ddahl.rscala.RClient.apply(rCmd,false,false,60); }
 
   public RClient4Java(String rCmd, boolean debug, boolean serializeOutput, int timeout) { c = org.ddahl.rscala.RClient.apply(rCmd,debug,serializeOutput,timeout); }
+
+  /** Return <b><tt>true</tt></b> if output from R is serialized back to Java.
+  *   @return         An indicator of whether output is serialized.
+  */
+  public boolean getSerializeOutput() { return c.serializeOutput(); }
+
+  /** Sets whether output from R is serialized back to Java.
+  *   @param v        The snippet to be evaluated.
+  */
+  public void setSerializeOutput(boolean v) { c.serializeOutput_$eq(v); }
 
   /** Closes the interface to the R interpreter.
   * 
