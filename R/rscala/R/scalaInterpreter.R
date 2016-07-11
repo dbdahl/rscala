@@ -159,7 +159,7 @@ toString.ScalaInterpreterItem <- function(x,...) {
   "ScalaInterpreterItem"
 }
 
-"$.ScalaInterpreterReference" <- function(reference,methodName) {
+'$.ScalaInterpreterReference' <- function(reference,methodName) {
   type <- reference[['type']]
   functionCache <- reference[['interpreter']][['functionCache']]
   env <- reference[['interpreter']][['env']]
@@ -188,7 +188,7 @@ toString.ScalaInterpreterItem <- function(x,...) {
   }
 }
 
-"$.ScalaInterpreterItem" <- function(item,methodName) {
+'$.ScalaInterpreterItem' <- function(item,methodName) {
   interpreter <- item[['interpreter']]
   type <- item[['item.name']]
   functionCache <- interpreter[['functionCache']]
@@ -350,6 +350,10 @@ intpGet.ScalaInterpreter <- function(interpreter,identifier,as.reference=NA) {
     if ( identifier == "" ) intpGet(interpreter,".")
     else if ( identifier == "." ) intpGet(interpreter,".",as.reference=TRUE)
     else intpGet(interpreter,identifier,as.reference=TRUE)
+  } else if ( identifier == "scalaInfo" ) {
+    interpreter[['scalaInfo']]
+  } else if ( identifier %in% names(interpreter) ) {
+    "This items is not user accessible."
   } else {
     intpGet(interpreter,identifier)
   }
