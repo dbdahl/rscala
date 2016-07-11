@@ -34,7 +34,6 @@ scalaInterpreter <- function(classpath=character(0),scala.home=NULL,heap.maximum
   }
   system2(sInfo$cmd,args,wait=FALSE,stdin=stdin,stdout=stdout,stderr=stderr)
   sockets <- newSockets(portsFilename,debug,serialize,timeout)
-  sockets[['scalaInfo']] <- sInfo
   assign("callbackNameCounter",0L,envir=sockets[['env']])
   assign("markedForGC",integer(0),envir=sockets[['env']])
   intpSettings(sockets,interpolate=TRUE,length.one.as.vector=FALSE)
@@ -350,10 +349,8 @@ intpGet.ScalaInterpreter <- function(interpreter,identifier,as.reference=NA) {
     if ( identifier == "" ) intpGet(interpreter,".")
     else if ( identifier == "." ) intpGet(interpreter,".",as.reference=TRUE)
     else intpGet(interpreter,identifier,as.reference=TRUE)
-  } else if ( identifier == "scalaInfo" ) {
-    interpreter[['scalaInfo']]
   } else if ( identifier %in% names(interpreter) ) {
-    "This items is not user accessible."
+    "This item is not user accessible."
   } else {
     intpGet(interpreter,identifier)
   }
@@ -707,7 +704,7 @@ scalaInfoEngine <- function(scala.command,verbose) {
     if ( verbose ) cat(sprintf("Unsupported major version (%s) from Scala executable (%s)\n",major.version,scala.command))
     return(NULL)
   }
-  list(cmd=scala.command,home=scala.home,version=version,major.version=major.version,jars=jars)
+  list(cmd=scala.command,home=scala.home,version=version,major.version=major.version)
 }
 
 scalaInfo <- function(scala.home=NULL,verbose=FALSE) {
