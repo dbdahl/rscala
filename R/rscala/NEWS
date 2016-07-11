@@ -1,10 +1,10 @@
 1.0.14 (2016-XX-XX)
+  * Interupts in R now close the connection rather than leaving it in an
+    out-of-sync state.
   * Added fields setSerializeOutput and getSerializeOutput to RClient4Java
     class.
   * Guard elements of the scalaInterpreter from access by the user through the
     '$' operator. 
-  * Interupts in R now close the connection rather than leaving it in an
-    out-of-sync state.
 
 1.0.13 (2016-07-07)
   * Added %@% operator for shorthand notation (e.g, "interpreter %@% snippet")
