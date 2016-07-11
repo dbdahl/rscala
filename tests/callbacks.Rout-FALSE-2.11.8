@@ -23,7 +23,7 @@ Type 'q()' to quit R.
 > cat(serialize,"\n")
 FALSE 
 > s <- scalaInterpreter(serialize=serialize)
-Loading /tmp/RtmptuULEg/rscala-1545326e95c1...
+Loading /tmp/Rtmp9w1xqA/rscala-7d5b4affaf5f...
 > 
 > s %~% "util.Properties.versionNumberString"
 [1] "2.11.8"
@@ -152,7 +152,7 @@ Error in parse(text = snippet) : <text>:4:16: unexpected symbol
 4:     a <- "3+9" asfd
                   ^
 java.lang.RuntimeException: Error in R evaluation.
-	at org.ddahl.rscala.RClient.eval(RClient.scala:97)
+	at org.ddahl.rscala.RClient.eval(RClient.scala:99)
 	at $line240.$read$$iw$$iw$.<init>(<console>:17)
 	at $line240.$read$$iw$$iw$.<clinit>(<console>)
 	at $line240.$eval$.$result$lzycompute(<console>:5)
@@ -254,7 +254,7 @@ Here is am.
 Error in library(asdf) : there is no package called ‘asdf’
 there is no package called ‘asdf’
 java.lang.RuntimeException: Error in R evaluation.
-	at org.ddahl.rscala.RClient.eval(RClient.scala:97)
+	at org.ddahl.rscala.RClient.eval(RClient.scala:99)
 	at $line247.$read$$iw$$iw$.<init>(<console>:14)
 	at $line247.$read$$iw$$iw$.<clinit>(<console>)
 	at $line247.$eval$.$result$lzycompute(<console>:5)
@@ -345,4 +345,4 @@ Exception message: Error in R evaluation.
 > 
 > proc.time()
    user  system elapsed 
-  0.328   0.028  17.303 
+  0.316   0.024  17.329 

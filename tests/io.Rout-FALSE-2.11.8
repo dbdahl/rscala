@@ -23,7 +23,7 @@ Type 'q()' to quit R.
 > cat(serialize,"\n")
 FALSE 
 > s <- scalaInterpreter(serialize=serialize)
-Loading /tmp/Rtmpc6HED0/rscala-188444e0c12d...
+Loading /tmp/Rtmpw13wNQ/rscala-1e869f4bbf7...
 > 
 > s %~% "util.Properties.versionNumberString"
 [1] "2.11.8"
@@ -98,7 +98,7 @@ Exception message: compile-time error
 
 character(0)
 > capture.output(s %~% "new java.util.Random().nextDouble")
-[1] "[1] 0.4997466"
+[1] "[1] 0.2118101"
 > capture.output(s %~% "3+2")
 [1] "[1] 5"
 > capture.output(s %~% "println(3+2)")
@@ -110,4 +110,4 @@ character(0)
 > 
 > proc.time()
    user  system elapsed 
-  0.160   0.016   5.054 
+  0.160   0.020   4.969 

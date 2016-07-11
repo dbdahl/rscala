@@ -24,7 +24,7 @@ Type 'q()' to quit R.
 > cat(serialize,"\n")
 FALSE 
 > s <- scalaInterpreter(serialize=serialize)
-Loading /tmp/RtmpVsOwvy/rscala-2b2627badace...
+Loading /tmp/RtmpDwQQf3/rscala-6236a13fe53...
 > 
 > cat(s %~% "util.Properties.versionNumberString","\n")
 2.11.8 
@@ -566,11 +566,11 @@ Hello 9 from Scala.
 Hello 9 from R.
 Hello 10 from Scala.
 Unit: milliseconds
- expr        min         lq       mean    median         uq        max neval
- f(0) 731.477915 740.352493 832.404820 775.75628 803.482436 1110.95497     5
- g(0) 396.831771 401.988566 494.931876 436.57791 463.426847  775.83428     5
- h(0)   6.324477   8.126922   8.554763   8.57826   9.661860   10.08230     5
- i(0)   6.789945   7.286371   8.775856   9.16747   9.680463   10.95503     5
+ expr        min         lq       mean     median         uq       max neval
+ f(0) 713.655430 765.069512 797.445516 788.889826 827.673709 891.93911     5
+ g(0) 362.265491 414.156040 489.075372 444.623621 505.705988 718.62572     5
+ h(0)   7.485019   7.642564   8.674555   8.355828   8.966917  10.92245     5
+ i(0)   6.909256   7.683231   8.209331   7.778361   8.027940  10.64787     5
 > 
 > cat("####\n")
 ####
@@ -4578,8 +4578,8 @@ Hello 9 from Scala.
 Hello 10 from R.
 Unit: milliseconds
  expr      min       lq     mean   median       uq      max neval
- h(0) 5.611742 6.156349 6.965620 6.767297 7.858182 8.583477   100
- i(0) 6.025126 6.514226 7.431905 7.405235 8.359825 9.319357   100
+ h(0) 5.599968 6.078202 6.817779 6.515431 7.700665 8.710216   100
+ i(0) 6.063560 6.663823 7.586024 7.678403 8.387626 9.461808   100
 > 
 > 
 > 
@@ -4765,14 +4765,14 @@ Exception message: Error in R evaluation.
 > 
 > proc.time()
    user  system elapsed 
-  1.720   0.384  15.285 
+  1.768   0.368  14.846 
 java.net.SocketException: Socket closed
   at java.net.SocketOutputStream.socketWrite(SocketOutputStream.java:116)
   at java.net.SocketOutputStream.write(SocketOutputStream.java:153)
   at java.io.BufferedOutputStream.flushBuffer(BufferedOutputStream.java:82)
   at java.io.BufferedOutputStream.flush(BufferedOutputStream.java:140)
   at java.io.DataOutputStream.flush(DataOutputStream.java:123)
-  at org.ddahl.rscala.RClient.exit(RClient.scala:70)
+  at org.ddahl.rscala.RClient.exit(RClient.scala:72)
   at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:197)
   at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:569)
   at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:594)
