@@ -1,6 +1,8 @@
 ## Scala scripting over TCP/IP
 
-scalaInterpreter <- function(classpath=character(0),scala.home=NULL,heap.maximum="256M",command.line.options=NULL,timeout=60,debug=FALSE,serialize=.Platform$OS.type == "windows",stdout="",stderr="") {
+scala <- scalaInterpreter <- function(classpath=character(0),scala.home=NULL,heap.maximum="256M",command.line.options=NULL,timeout=60,debug=FALSE,serialize=.Platform$OS.type == "windows",stdout="",stderr="") {
+  if ( identical(stdout,TRUE) ) stop("stdout must not be TRUE.")
+  if ( identical(stderr,TRUE) ) stop("stderr must not be TRUE.")
   userJars <- unlist(strsplit(classpath,.Platform$path.sep))
   if ( is.null(command.line.options) ) {
     command.line.options <- paste("-J",c(paste("-Xmx",heap.maximum,sep=""),"-Xms32M"),sep="")
@@ -25,10 +27,6 @@ scalaInterpreter <- function(classpath=character(0),scala.home=NULL,heap.maximum
   if ( debug ) msg("\n",sInfo$cmd)
   if ( debug ) msg("\n",paste0("<",args,">",collapse="\n"))
   stdin <- ""
-  if ( debug && ( .Platform$OS.type == "windows" ) ) {
-    if ( stdout == "" ) stdout <- "RSCALA-STDOUT.txt"
-    if ( stderr == "" ) stderr <- "RSCALA-STDERR.txt"
-  }
   system2(sInfo$cmd,args,wait=FALSE,stdin=stdin,stdout=stdout,stderr=stderr)
   sockets <- newSockets(portsFilename,debug,serialize,timeout)
   assign("callbackNameCounter",0L,envir=sockets[['env']])
@@ -360,6 +358,8 @@ intpGet.ScalaInterpreter <- function(interpreter,identifier,as.reference=NA) {
     if ( identifier == "" ) intpGet(interpreter,".")
     else if ( identifier == "." ) intpGet(interpreter,".",as.reference=TRUE)
     else intpGet(interpreter,identifier,as.reference=TRUE)
+  } else if ( identifier == "class" ) function(item) {
+    scalap(interpreter,item)
   } else if ( identifier %in% names(interpreter) ) {
     "This item is not user accessible."
   } else {

@@ -11,7 +11,7 @@ This function closes (i.e., frees) the resources associated with an interpreter.
 \method{close}{ScalaInterpreter}(con, ...)
 }
 \arguments{
-    \item{con}{An interpreter from an interpreter constructor (i.e. \code{\link{scalaInterpreter}}).}
+    \item{con}{An interpreter from an interpreter constructor (i.e. \code{\link{scala}}).}
     \item{...}{Currently ignored.}
 }
 \author{

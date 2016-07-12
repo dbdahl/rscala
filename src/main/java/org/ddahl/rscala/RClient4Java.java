@@ -1,12 +1,11 @@
 package org.ddahl.rscala;
 
 import org.ddahl.rscala.RObject;
-import scala.Tuple2;
 
 /** An interface to an R interpreter.
 *
 * An object <tt>R</tt> is the instance of this class available in a Scala interpreter created by calling the function
-* <tt>scalaInterpreter</tt> from the package <a href="http://cran.r-project.org/package=rscala">rscala</a>.  It is through this instance <tt>R</tt> that
+* <tt>scala</tt> from the package <a href="http://cran.r-project.org/package=rscala">rscala</a>.  It is through this instance <tt>R</tt> that
 * callbacks to the original <a href="http://www.r-project.org">R</a> interpreter are possible.
 * 
 * In a JVM-based application, an instance of this class is created using its companion object.  See below.  The paths of the
@@ -210,8 +209,8 @@ public class RClient4Java {
 
   public Object[] get(String identifier) { return get(identifier,false); }
 
-  /** Returns the value of <tt>identifier</tt> in the R interpreter.  The static type of the result is <tt>(Any,String)</tt>, where
-  * the first element is the value and the second is the runtime type.
+  /** Returns the value of <tt>identifier</tt> in the R interpreter.  The runtime type is an array whose first element is the value for
+  * the identifier and whose second element is <tt>String</tt> indicates the runtime type.
   *
   * If <tt>asReference=false</tt>, conversion to integers, doubles, booleans, and strings are supported, as are vectors (i.e.
   * arrays) and matrices (i.e. retangular arrays of arrays) of these types.    Using the method <tt>getXY</tt> (where <tt>X</tt> is

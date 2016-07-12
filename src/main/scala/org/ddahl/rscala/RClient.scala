@@ -9,7 +9,7 @@ import Protocol._
 /** An interface to an R interpreter.
 *
 * An object `R` is the instance of this class available in a Scala interpreter created by calling the function
-* `scalaInterpreter` from the package [[http://cran.r-project.org/package=rscala rscala]].  It is through this instance `R` that
+* `scala` from the package [[http://cran.r-project.org/package=rscala rscala]].  It is through this instance `R` that
 * callbacks to the original [[http://www.r-project.org R]] interpreter are possible.
 * 
 * In a JVM-based application, an instance of this class is created using its companion object.  See below.  The paths of the
@@ -620,7 +620,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
  * application.
 *
 * An object `R` is an [[RClient]] instance available in a Scala interpreter created by calling the function
-* `scalaInterpreter` from the package [[http://cran.r-project.org/package=rscala rscala]].  It is through this instance
+* `scala` from the package [[http://cran.r-project.org/package=rscala rscala]].  It is through this instance
 * `R` that callbacks to the original [[http://www.r-project.org R]] interpreter are possible.
 * 
 * The paths of the rscala's JARs, for both Scala 2.10 and 2.11, are available from [[http://www.r-project.org R]] using
@@ -704,7 +704,7 @@ object RClient {
       true
     )
     val processInstance = processCmd.run(processIO)
-    val codeInR = Seq("common.R","globals.R","protocol.R","rServer.R","scalaInterpreter.R","zzz.R").map(resource => {
+    val codeInR = Seq("common.R","globals.R","protocol.R","rServer.R","scala.R","zzz.R").map(resource => {
       scala.io.Source.fromInputStream(getClass.getResourceAsStream("/R/"+resource)).getLines.mkString("\n")
     }).mkString("\n\n")
     val allCodeInR = s"""

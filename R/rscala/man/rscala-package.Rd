@@ -11,7 +11,7 @@ This package embeds: i. the \R interpreter in Scala, and ii. the Scala compiler/
 \author{David B. Dahl \email{dahl@stat.byu.edu}}
 %\references{}
 \seealso{
-  \code{\link{scalaInterpreter}},
+  \code{\link{scala}},
   \code{\link{intpEval}},
   \code{\link{intpSet}},
   \code{\link{intpGet}},
@@ -22,7 +22,7 @@ This package embeds: i. the \R interpreter in Scala, and ii. the Scala compiler/
 \keyword{package}
 \examples{
 \dontrun{
-s <- scalaInterpreter()
+s <- scala()
 s %~% 'sys.props("java.verson")'
 s$a <- pi
 cat("The value of pi is ",s$a,"\n",sep="")

@@ -2,6 +2,7 @@ import(utils)
 
 export("strintrplt")
 
+export("scala")
 export("scalaInterpreter")
 export("intpSettings")
 
@@ -10,7 +11,6 @@ export("rscalaPackage")
 export("rscalaLoad")
 export("scalaInfo")
 export("scalaInstall")
-export("scalap")
 
 S3method("print","ScalaInterpreter")
 S3method("toString","ScalaInterpreter")

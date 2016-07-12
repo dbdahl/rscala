@@ -1,4 +1,5 @@
 \name{constructor}
+\alias{scala}
 \alias{scalaInterpreter}
 \alias{scalaInfo}
 \alias{scalaInstall}
@@ -12,12 +13,14 @@ Provides file path for Scala and this package's JAR file.
 Provides functions to enable other packages to depend on this package.
 }
 \description{
-The function \code{\link{scalaInterpreter}} creates an instance of an embedded
-Scala compiler/interpreter and binds a Scala object named \code{R} to permit
-callbacks to \R.  Options are available to customize where Scala is
-found and how it is invoked (e.g., setting the classpath and maximum heap
-size). Multiple interpreters can be created and each runs independently with
-its own memory.  Each interpreter can use multiple threads/cores, but the
+The function \code{\link{scala}} and \code{\link{scalaInterpreter}} are
+equivalent, each creating an instance of an embedded Scala compiler/interpreter
+and binds a Scala object named \code{R} to permit callbacks to \R.
+(\code{\link{scala}} is preferred over \code{\link{scalaInterpreter}} and the
+latter may be removed in the future.)  Options are available to customize where
+Scala is found and how it is invoked (e.g., setting the classpath and maximum
+heap size). Multiple interpreters can be created and each runs independently
+with its own memory.  Each interpreter can use multiple threads/cores, but the
 bridge between \R and Scala is not thread-safe.  As such, multiple \R
 threads/cores should not simultaneously access the same interpreter. 
 
@@ -44,6 +47,10 @@ Scala compiler/interpreter.  Like \code{\link{rscalaPackage}},
 depend on this package.
 }
 \usage{
+scala(classpath=character(0),
+    scala.home=NULL, heap.maximum="256M", command.line.options=NULL,
+    timeout=60, debug=FALSE, serialize=.Platform$OS.type == "windows",
+    stdout="", stderr="")
 scalaInterpreter(classpath=character(0),
     scala.home=NULL, heap.maximum="256M", command.line.options=NULL,
     timeout=60, debug=FALSE, serialize=.Platform$OS.type == "windows",
@@ -62,15 +69,14 @@ rscalaLoad(classpath=NULL, ...)
     \item{timeout}{A numeric vector of length one giving the number of seconds to wait for Scala to start before aborting.  The default value is \code{60} seconds.}
     \item{debug}{An option meant only for developers of the package itself and not intended for users of the package.}
     \item{serialize}{An logical vector of length one indicating whether standard output (stdout) and standard error (stderr) should be captured and serialized back to R.  For performance and a better experience, \code{FALSE} is the default on non-Windows operating systems and the operating system will take care of displaying this output.  Due to limitations of Windows, \code{TRUE} is the default value on Windows operating systems as the output may not be displayed otherwise.  If this output is not needed, \code{FALSE} is recommended.}
-    \item{stdout}{A character vector of length one giving the name of the file to which all standard output (stdout) that is not serialized is sent.}
-    \item{stderr}{A character vector of length one giving the name of the file to which all standard error (stderr) that is not serialized is sent.}
+    \item{stdout, stderr}{Where output to \code{stdout} and \code{stderr} should be sent.  \code{""} (the default) means the R console (although that may not work on Windows).  \code{NULL} or \code{FALSE} means to discard the output.  Otherwise, this is the name of file.}
     \item{verbose}{A logical vector of length one indicating whether information regarding the search for the Scala installation should be displayed.}
     \item{version}{If \code{""}, the package JAR files for all Scala versions are returned. Or, if \code{"2.11.*"} where \code{*} is a placeholder, the JAR file for that specific major version of Scala is returned.}
     \item{pkgname}{A character string giving the name of the package (as provided the second argument of the \code{.onLoad} function) that wishes to depend on this package.}
-    \item{...}{These arguments are passed to the \code{\link{scalaInterpreter}} function.}
+    \item{...}{These arguments are passed to the \code{\link{scala}} function.}
 }
 \value{
-    \code{\link{scalaInterpreter}} returns an \R object representing an embedded Scala interpreter.
+    \code{\link{scala}} and \code{\link{scalaInterpreter}} return an \R object representing an embedded Scala interpreter.
 
     \code{\link{scalaInfo}} returns a list detailing the Scala executable, version, jars, etc.
 }
@@ -95,7 +101,7 @@ scalaInfo(verbose=TRUE)
 # scalaInstall()
 
 # Make an instance of the Scala interpreter and see how its output is captured.
-s <- scalaInterpreter(serialize=TRUE)
+s <- scala(serialize=TRUE)
 s \%~\% 'println("This is Scala "+scala.util.Properties.versionString)'
 
 # Function defined in R

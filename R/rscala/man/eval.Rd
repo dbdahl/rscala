@@ -12,7 +12,6 @@
 \alias{\%@\%}
 \alias{$.ScalaInterpreter}
 \alias{$<-.ScalaInterpreter}
-\alias{scalap}
 \docType{methods}
 \title{
 Execute code, set values, and get values in an embedded interpreter.
@@ -36,7 +35,6 @@ intpWrap(interpreter, value)
 intpUnwrap(interpreter, value)
 intpGC(interpreter)
 intpReset(interpreter)
-scalap(interpreter, item.name)
 
 interpreter \%~\% snippet
 interpreter \%.~\% snippet
@@ -46,7 +44,7 @@ interpreter \%@\% snippet
 \method{$}{ScalaInterpreter}(interpreter, identifier) <- value
 }
 \arguments{
-    \item{interpreter}{An interpreter from an interpreter constructor (i.e. \code{\link{scalaInterpreter}}).}
+    \item{interpreter}{An interpreter from an interpreter constructor (i.e. \code{\link{scala}}).}
     \item{snippet}{A character vector of arbitrary length to be evaluated by the interpreter.}
     \item{args}{A character vector of length one giving the argument list for a function to be defined in the interpreter.  Use \code{""} for a function which takes no arguments.}
     \item{body}{A character vector of any length giving the body for a function to be defined in the interpreter.  The function body can be a multiline character vector of length one.}
@@ -56,7 +54,6 @@ interpreter \%@\% snippet
     \item{interpolate}{When equal to \code{""} (the default), the default behavior from \code{\link{intpSettings}} is used.  If equal to \code{TRUE}, the interpreter will call \code{\link{strintrplt}} on the supplied code before running it.  If equal to \code{FALSE}, the character vector is passed unaltered.}
     \item{length.one.as.vector}{When equal to \code{""} (the default), the default behavior from \code{\link{intpSettings}} is used.  If equal to \code{TRUE}, setting a vector of length one in the interpreter will result in an array of length one.  If equal to \code{FALSE}, setting a vector of length one results in an atomic value.  For example, \code{pi} is a vector of length one in \R and, when set in an interpreter, would result in an array of doubles of length one if \var{length.one.as.vector} is \code{TRUE} or a double if \var{length.one.as.vector} is \code{FALSE}.}
     \item{reference}{This option is meant only for developers of the package itself and not intended for users of the package.}
-    \item{item.name}{A character vector of length one containing the name of an object/class for which the \sQuote{scalap} command should be run.}
 }
 \details{
 The convenient shorthand notation \code{interpreter \%@\% snippet} evaulates
@@ -100,7 +97,7 @@ below.
 David B. Dahl \email{dahl@stat.byu.edu}
 }
 \seealso{
-  \code{\link{scalaInterpreter}},
+  \code{\link{scala}},
   \code{\link{intpSettings}},
   \code{\link{strintrplt}}
 }
@@ -108,7 +105,7 @@ David B. Dahl \email{dahl@stat.byu.edu}
 \examples{
 \dontrun{
 # Get an instance of a Scala interpreter and see the default settings
-s <- scalaInterpreter()
+s <- scala()
 intpSettings(s)
 
 # Demonstrate convenient notation and string interpolation
@@ -156,7 +153,7 @@ identical(myList,s$myList)
 
 # Instantiate an object
 seed <- 2349234L
-scalap(s,'scala.util.Random')
+s$class('scala.util.Random')                # Run 'scalap' on this class
 rng <- s$do('scala.util.Random')$new(seed)  # Scala equivalent: new scala.util.Random(seed)
 
 # Call method of a reference
