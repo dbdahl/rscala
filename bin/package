@@ -131,10 +131,10 @@ then
   }
   copy $JARBIN "$PKG_HOME"/R/$PKG_NAME/inst/java ""
   copy $JARSRC "$PKG_HOME"/R/$PKG_NAME/java -sources
+
   CATPASTE="cat(paste(rscala::scalaInfo()\$jars,collapse=\"$SEP\"))"
   javadoc -classpath "$(R --slave -e "$CATPASTE"):$PKG_HOME"/R/$PKG_NAME/inst/java/'*' -d "$PKG_HOME"/target/java/api/ "$PKG_HOME"/src/main/java/org/ddahl/rscala/RClient4Java.java
-  # rm -rf ~/.ivy2/*/org.ddahl.rscala/rscala_*/$MAJOR/
-  # $SBT publish-local
+
 fi
 
 # Build R package
