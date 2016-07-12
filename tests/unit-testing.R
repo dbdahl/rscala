@@ -45,7 +45,7 @@ library(rscala)
 # General tests
 serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 cat(serialize,"\n")
-a <- scalaInterpreter(serialize=serialize)
+a <- scala(serialize=serialize)
 
 cat(a %~% "util.Properties.versionNumberString","\n")
 assertAll(a)

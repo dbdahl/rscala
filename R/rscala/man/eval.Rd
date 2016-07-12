@@ -59,7 +59,7 @@ interpreter \%@\% snippet
     \item{item.name}{A character vector of length one containing the name of an object/class for which the \sQuote{scalap} command should be run.}
 }
 \details{
-The convenient shorthand notation \code{interpreter \%@\% snippet} evaulates
+The convenient shorthand notation \code{interpreter \%@\% snippet} evaluates
 the expression \var{snippet}, whereas \code{interpreter \%~\% snippet} both
 evaluates the expression \var{snippet} and attempts to return a vector or
 matrix of integers, doubles, logicals, or characters or --- if this is not
@@ -80,7 +80,7 @@ intensive applications.  (Use \code{\link{scalaGC}} to invoke the interpreter's
 garbage collector.) Further, functions defined by \code{\link{scalaDef}} have
 less invocation latency than the equivalent code using \code{\link{\%~\%}} and
 \code{\link{\%.~\%}}.  The speed difference in invocation is especially
-noticable for quick functions.
+noticeable for quick functions.
 
 The convenient shorthand notations \code{interpreter$identifier} and
 \code{interpreter$identifier <- value} make it easy to get and set variables in

@@ -2,7 +2,7 @@ library(rscala)
 
 serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 cat(serialize,"\n")
-s <- scalaInterpreter(c("commons-math3-3.2.jar","shallot.jar"),serialize=serialize)
+s <- scala(c("commons-math3-3.2.jar","shallot.jar"),serialize=serialize)
 
 s %~% "util.Properties.versionNumberString"
 

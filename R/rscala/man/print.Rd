@@ -21,7 +21,7 @@ These functions print or return a character representation of an interpreter or 
 \method{toString}{ScalaInterpreterItem}(x, ...)
 }
 \arguments{
-    \item{x}{An interpreter from an interpreter constructor (i.e. \code{\link{scalaInterpreter}}) or a reference from an interpreter.}
+    \item{x}{An interpreter from the \code{\link{scala}} function or a Scala reference.}
     \item{...}{Currently ignored.}
 }
 \author{

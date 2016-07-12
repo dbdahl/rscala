@@ -22,8 +22,8 @@ Type 'q()' to quit R.
 > serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 > cat(serialize,"\n")
 TRUE 
-> s <- scalaInterpreter(serialize=serialize)
-Loading /tmp/RtmpX7poBj/rscala-72f355cbdc06...
+> s <- scala(serialize=serialize)
+Loading /tmp/RtmpKvTKBr/rscala-3c5f219135c0...
 > 
 > s %~% "util.Properties.versionNumberString"
 [1] "2.11.8"
@@ -205,4 +205,4 @@ Exception message: Error in R evaluation.
 > 
 > proc.time()
    user  system elapsed 
-  0.328   0.060  16.636 
+  0.368   0.048  20.849 

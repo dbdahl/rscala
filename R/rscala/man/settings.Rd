@@ -8,7 +8,7 @@ Changes the runtime behavior of an embedded interpreter.
 This function either: i. modifies the runtime behavior of an interpreter for
 arguments that are not null or ii. when the only supplied argument is an
 interpreter instance, the current values of the settings are given.  The values
-set here can be superceeded by optional arguments in particular function calls.
+set here can be superseded by optional arguments in particular function calls.
 }
 \usage{
 scalaSettings(interpreter, debug=NULL, serialize = NULL, interpolate=NULL,

@@ -1,15 +1,23 @@
 ## Scala scripting over TCP/IP
 
-scala <- scalaInterpreter <- function(classpath=character(0),scala.home=NULL,heap.maximum="256M",command.line.options=NULL,timeout=60,debug=FALSE,serialize=.Platform$OS.type == "windows",stdout="",stderr="") {
+scala <- function(classpath=character(0),scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,timeout=60,debug=FALSE,serialize=.Platform$OS.type == "windows",stdout="",stderr="") {
   if ( identical(stdout,TRUE) ) stop("stdout must not be TRUE.")
   if ( identical(stderr,TRUE) ) stop("stderr must not be TRUE.")
   userJars <- unlist(strsplit(classpath,.Platform$path.sep))
   if ( is.null(command.line.options) ) {
-    command.line.options <- paste("-J",c(paste("-Xmx",heap.maximum,sep=""),"-Xms32M"),sep="")
+    command.line.options <- getOption("rscala.command.line.options",default=NULL)
+    if ( is.null(command.line.options) ) {
+      if ( is.null(heap.maximum) ) {
+        heap.maximum <- getOption("rscala.heap.maximum",default=NULL)
+      }
+      if ( !is.null(heap.maximum) ) {
+        command.line.options <- paste("-J",c(paste("-Xmx",heap.maximum,sep=""),"-Xms32M"),sep="")
+      }
+    }
   }
   sInfo <- scalaInfo(scala.home)
   if ( is.null(sInfo) ) stop("Cannot find a suitable Scala installation.  Please manually install Scala or run 'scalaInstall()'.")
-  rsJar <- rscalaJar(sInfo$version)
+  rsJar <- .rscalaJar(sInfo$version)
   rsClasspath <- shQuote(paste(c(rsJar,userJars),collapse=.Platform$path.sep))
   portsFilename <- tempfile("rscala-")
   bootstrap.filename <- tempfile("rscala-")
@@ -662,27 +670,14 @@ close.ScalaInterpreter <- function(con,...) {
   close(con[['socketIn']])
 }
 
-rscalaPackage <- function(pkgname) {
-  environmentOfDependingPackage <- parent.env(parent.frame())
-  E <- new.env(parent=environmentOfDependingPackage)
-  E$initialized <- FALSE
-  E$pkgname <- pkgname
-  E$jars <- list.files(system.file("java",package=pkgname),pattern=".*.jar$",full.names=TRUE,recursive=TRUE)
-  assign("E",E,envir=environmentOfDependingPackage)
+.rscalaPackage <- function(pkgname, classpath.appendix=character(0), ...) {
+  classpath <- c(list.files(system.file("java",package=pkgname),pattern=".*.jar$",full.names=TRUE,recursive=TRUE),classpath.appendix)
+  s <- scala(classpath=classpath,...)
+  assign("s",s,envir=parent.env(parent.frame()))    # Assign to environment of depending package
   invisible()
 }
 
-rscalaLoad <- function(classpath=NULL,...) {
-  E <- get("E",envir=parent.env(parent.frame()))
-  if ( E$initialized ) return(invisible(FALSE))
-  if ( is.null(classpath) ) classpath <- E$jars
-  else E$jars <- classpath
-  E$s <- scalaInterpreter(classpath=classpath,...)
-  E$initialized <- TRUE
-  invisible(TRUE)
-}
-
-rscalaJar <- function(version="") {
+.rscalaJar <- function(version="") {
   if ( version == "" ) major.version <- ".*"
   else major.version <- substr(version,1,4)
   list.files(system.file("java",package="rscala"),pattern=paste("rscala_",major.version,'-.*[0-9]\\.jar$',sep=""),full.names=TRUE)

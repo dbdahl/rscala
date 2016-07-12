@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export CMD="cat(rscala::rscalaJar(\"$SCALA_VERSION\"))"
+export CMD="cat(rscala::.rscalaJar(\"$SCALA_VERSION\"))"
 exec "$SCALA_HOME"/bin/scala -cp $(R --slave -e "$CMD") "$0" "$@"
 
 !#
@@ -214,4 +214,4 @@ R.exit()
 
 println("Done")
 
-// LF scala -cp $(R --slave -e 'cat(rscala::rscalaJar("2.11"))')
+// LF scala -cp $(R --slave -e 'cat(rscala::.rscalaJar("2.11"))')

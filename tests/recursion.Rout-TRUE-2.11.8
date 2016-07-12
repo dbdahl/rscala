@@ -23,8 +23,8 @@ Type 'q()' to quit R.
 > serialize <- FALSE
 > cat(serialize,"\n")
 FALSE 
-> s <- scalaInterpreter(serialize=serialize)
-Loading /tmp/RtmpL39nL6/rscala-79895b157e41...
+> s <- scala(serialize=serialize)
+Loading /tmp/RtmprIr656/rscala-43a7c443676...
 > 
 > cat(s %~% "util.Properties.versionNumberString","\n")
 2.11.8 
@@ -567,10 +567,10 @@ Hello 9 from R.
 Hello 10 from Scala.
 Unit: milliseconds
  expr        min         lq       mean     median         uq        max neval
- f(0) 728.966027 766.046099 872.355363 878.679409 987.720729 1000.36455     5
- g(0) 361.879393 388.049498 518.727521 490.504240 592.969718  760.23475     5
- h(0)   6.888889   6.977962   7.903163   7.585680   7.591008   10.47228     5
- i(0)   7.415499   7.806828   9.796633   9.230625  11.981547   12.54867     5
+ f(0) 729.660132 734.798830 799.764807 756.212718 860.176328 917.976029     5
+ g(0) 370.273970 398.505732 478.169110 436.143178 476.354960 709.567711     5
+ h(0)   6.552818   6.700308   7.695696   7.290449   8.474556   9.460349     5
+ i(0)   6.396443   6.761553   7.168416   6.824016   7.773803   8.086265     5
 > 
 > cat("####\n")
 ####
@@ -4577,9 +4577,9 @@ Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
 Unit: milliseconds
- expr      min       lq     mean   median       uq       max neval
- h(0) 5.640757 5.983440 6.713128 6.229631 7.558071 10.891706   100
- i(0) 6.056558 6.308432 7.046860 6.711739 7.861873  9.610322   100
+ expr      min       lq     mean   median       uq      max neval
+ h(0) 5.797367 6.056566 6.810802 6.285038 6.976615 11.71844   100
+ i(0) 6.081694 6.348537 7.050835 6.625122 7.302773 11.29370   100
 > 
 > 
 > 
@@ -4765,7 +4765,7 @@ Exception message: Error in R evaluation.
 > 
 > proc.time()
    user  system elapsed 
-  1.680   0.340  15.229 
+  1.632   0.408  14.661 
 java.net.SocketException: Socket closed
   at java.net.SocketOutputStream.socketWrite(SocketOutputStream.java:116)
   at java.net.SocketOutputStream.write(SocketOutputStream.java:153)

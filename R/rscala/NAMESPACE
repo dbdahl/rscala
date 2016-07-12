@@ -3,12 +3,11 @@ import(utils)
 export("strintrplt")
 
 export("scala")
-export("scalaInterpreter")
 export("scalaSettings")
 
-export("rscalaJar")
-export("rscalaPackage")
-export("rscalaLoad")
+export(".rscalaJar")
+export(".rscalaPackage")
+
 export("scalaInfo")
 export("scalaInstall")
 export("scalap")

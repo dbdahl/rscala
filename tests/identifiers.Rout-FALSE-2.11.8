@@ -22,8 +22,8 @@ Type 'q()' to quit R.
 > serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 > cat(serialize,"\n")
 FALSE 
-> s <- scalaInterpreter(serialize=serialize)
-Loading /tmp/RtmpByX6Zf/rscala-75407dc3a14a...
+> s <- scala(serialize=serialize)
+Loading /tmp/RtmpGvwV6G/rscala-3f361a5bb591...
 > 
 > s %~% "util.Properties.versionNumberString"
 [1] "2.11.8"

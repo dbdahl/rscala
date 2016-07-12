@@ -23,8 +23,8 @@ Type 'q()' to quit R.
 > serialize <- FALSE
 > cat(serialize,"\n")
 FALSE 
-> s <- scalaInterpreter(serialize=serialize)
-Loading /tmp/RtmpTPc5xg/rscala-79be516e49bf...
+> s <- scala(serialize=serialize)
+Loading /tmp/RtmpQwhmvz/rscala-43db48cad242...
 > 
 > cat(s %~% "util.Properties.versionNumberString","\n")
 2.11.8 
@@ -566,11 +566,11 @@ Hello 9 from Scala.
 Hello 9 from R.
 Hello 10 from Scala.
 Unit: milliseconds
- expr        min         lq       mean     median         uq         max neval
- f(0) 756.639769 764.986456 875.519432 845.457982 887.733315 1122.779636     5
- g(0) 376.866092 405.213472 528.483519 491.893211 498.898891  869.545930     5
- h(0)   8.796138   8.836797   9.175025   8.982413   9.288205    9.971573     5
- i(0)   7.048521   8.586578   8.679752   8.715726   9.281774    9.766159     5
+ expr        min         lq       mean     median         uq       max neval
+ f(0) 721.979503 723.546487 795.033020 755.024706 858.522794 916.09161     5
+ g(0) 359.307777 389.084892 500.938680 432.735049 484.208424 839.35726     5
+ h(0)   8.218121   8.602555   9.264455   8.900940   9.428228  11.17243     5
+ i(0)   6.687624   7.406171   8.573392   8.852296   9.038601  10.88227     5
 > 
 > cat("####\n")
 ####
@@ -4577,9 +4577,9 @@ Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
 Unit: milliseconds
- expr      min       lq     mean   median       uq       max neval
- h(0) 5.748725 6.015034 6.708633 6.165309 7.011311  9.464755   100
- i(0) 5.956441 6.407910 7.245027 6.723396 8.240818 10.872115   100
+ expr      min       lq     mean   median       uq      max neval
+ h(0) 5.477143 5.906474 6.651368 6.276326 7.570735 9.739449   100
+ i(0) 5.821504 6.375195 7.324111 7.053202 8.339574 9.782115   100
 > 
 > 
 > 
@@ -4765,7 +4765,7 @@ Exception message: Error in R evaluation.
 > 
 > proc.time()
    user  system elapsed 
-  1.756   0.356  15.437 
+  1.708   0.364  14.955 
 java.net.SocketException: Socket closed
   at java.net.SocketOutputStream.socketWrite(SocketOutputStream.java:116)
   at java.net.SocketOutputStream.write(SocketOutputStream.java:153)

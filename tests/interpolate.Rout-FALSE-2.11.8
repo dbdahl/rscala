@@ -22,8 +22,8 @@ Type 'q()' to quit R.
 > serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 > cat(serialize,"\n")
 FALSE 
-> s <- scalaInterpreter(serialize=serialize)
-Loading /tmp/RtmpTCXyIy/rscala-75bb7f60c19e...
+> s <- scala(serialize=serialize)
+Loading /tmp/RtmpVQMl1K/rscala-3fad2167eabf...
 > 
 > s %~% "util.Properties.versionNumberString"
 [1] "2.11.8"
@@ -44,4 +44,4 @@ ScalaInterpreterReference... a: Int
 > 
 > proc.time()
    user  system elapsed 
-  0.156   0.012   4.537 
+  0.160   0.020   4.745 

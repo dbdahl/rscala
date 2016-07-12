@@ -3,7 +3,7 @@ library(rscala)
 serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 serialize <- FALSE
 cat(serialize,"\n")
-s <- scalaInterpreter(serialize=serialize)
+s <- scala(serialize=serialize)
 
 cat(s %~% "util.Properties.versionNumberString","\n")
 
