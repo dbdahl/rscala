@@ -6,11 +6,11 @@ s <- scalaInterpreter(serialize=serialize)
 
 s %~% "util.Properties.versionNumberString"
 
-intpSettings(s,length.one.as.vector=FALSE)
+scalaSettings(s,length.one.as.vector=FALSE)
 s$a <- 4
 s %~% 'R.pi._2'
 
-intpSettings(s,length.one.as.vector=TRUE)
+scalaSettings(s,length.one.as.vector=TRUE)
 s$a <- 4
 s %~% 'R.pi._2'
 

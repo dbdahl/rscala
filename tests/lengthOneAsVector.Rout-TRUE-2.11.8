@@ -23,17 +23,17 @@ Type 'q()' to quit R.
 > cat(serialize,"\n")
 TRUE 
 > s <- scalaInterpreter(serialize=serialize)
-Loading /tmp/Rtmp19sr64/rscala-22138ac01f7...
+Loading /tmp/RtmpgBOKbo/rscala-765f7c710e73...
 > 
 > s %~% "util.Properties.versionNumberString"
 [1] "2.11.8"
 > 
-> intpSettings(s,length.one.as.vector=FALSE)
+> scalaSettings(s,length.one.as.vector=FALSE)
 > s$a <- 4
 > s %~% 'R.pi._2'
 [1] "Double"
 > 
-> intpSettings(s,length.one.as.vector=TRUE)
+> scalaSettings(s,length.one.as.vector=TRUE)
 > s$a <- 4
 > s %~% 'R.pi._2'
 [1] "Array[Double]"
@@ -41,4 +41,4 @@ Loading /tmp/Rtmp19sr64/rscala-22138ac01f7...
 > 
 > proc.time()
    user  system elapsed 
-  0.152   0.036   5.036 
+  0.168   0.012   4.902 

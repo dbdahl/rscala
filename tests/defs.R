@@ -8,8 +8,8 @@ s %~% "util.Properties.versionNumberString"
 
 f <- s$def('x: (Int,Int)','x._1 + x._2')
 s %~% "(300,400)"
-intpEval(s,"val a = (300,400)")
-a <- intpGet(s,"a",as.reference=TRUE)
+scalaEval(s,"val a = (300,400)")
+a <- scalaGet(s,"a",as.reference=TRUE)
 f(a)
 f(s %.~% "(300,400)")
 
@@ -17,14 +17,14 @@ f(s %.~% "(300,400)")
 f2 <- s$def('','println("Yes")')
 f2()
 
-serializeOriginal <- intpSettings(s)$serialize
-intpSettings(s,serialize=TRUE)
+serializeOriginal <- scalaSettings(s)$serialize
+scalaSettings(s,serialize=TRUE)
 capture.output(f2())
 f2()
-intpSettings(s,serialize=FALSE)
+scalaSettings(s,serialize=FALSE)
 capture.output(f2())
 f2()
-intpSettings(s,serialize=serializeOriginal)
+scalaSettings(s,serialize=serializeOriginal)
 
 f1 <- s$def('x: Tuple2[Int,Int], y: Array[Double]','x._1 + x._2 + y.sum')
 a <- s %.~% "(300,234)"

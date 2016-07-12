@@ -23,7 +23,7 @@ Type 'q()' to quit R.
 > cat(serialize,"\n")
 TRUE 
 > s <- scalaInterpreter(serialize=serialize)
-Loading /tmp/RtmpTLbgZs/rscala-41c59a11eb0...
+Loading /tmp/RtmpJQmtpU/rscala-77dc47b9d71c...
 > 
 > s %~% "util.Properties.versionNumberString"
 [1] "2.11.8"
@@ -32,7 +32,7 @@ Loading /tmp/RtmpTLbgZs/rscala-41c59a11eb0...
 > tryCatch(s$j <- a,error=function(e) {'Caught'})
 [1] "Caught"
 > s$.j <- a
-> identical(a,intpUnwrap(s,s$.j))
+> identical(a,scalaUnwrap(s,s$.j))
 [1] TRUE
 > s$j
 $a
@@ -184,4 +184,4 @@ ScalaInterpreterReference... xaa: Double
 > 
 > proc.time()
    user  system elapsed 
-  0.180   0.012   7.035 
+  0.200   0.020   7.293 

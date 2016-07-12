@@ -11,8 +11,8 @@ setget <- function(value,method="$",...) {
     j$tt <- value
     value2 <- j$tt
   } else {
-    intpSet(j,"tt",value,...)
-    value2 <- intpGet(j,"tt")
+    scalaSet(j,"tt",value,...)
+    value2 <- scalaGet(j,"tt")
   }
   if ( any(value != value2) ) stop(paste("Value not equal:",paste(value,collapse=","),"\n",paste(value2,collapse=",")))
   if ( class(value) != class(value2) ) stop(paste("Class not equal:",class(value),"\n",class(value2)))

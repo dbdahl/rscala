@@ -23,10 +23,10 @@ Type 'q()' to quit R.
 > cat(serialize,"\n")
 TRUE 
 > s <- scalaInterpreter(serialize=serialize)
-Loading /tmp/RtmpmpSjRB/rscala-291127253f7...
+Loading /tmp/RtmpQ0LAO8/rscala-76cf6e5fb9fb...
 > 
 > s <- scalaInterpreter(heap.max="64M")
-Loading /tmp/RtmpmpSjRB/rscala-2917374bc93...
+Loading /tmp/RtmpQ0LAO8/rscala-76cf3c76c077...
 > s %~% "util.Properties.versionNumberString"
 [1] "2.11.8"
 > a <- tryCatch(s$do("Array[Double]")$new(10000000L),error=function(e) e)
@@ -35,7 +35,7 @@ Exception message: Java heap space
 > close(s)
 > 
 > s <- scalaInterpreter(heap.max="256M")
-Loading /tmp/RtmpmpSjRB/rscala-291d6643d1...
+Loading /tmp/RtmpQ0LAO8/rscala-76cffb1bf74...
 > s %~% "util.Properties.versionNumberString"
 [1] "2.11.8"
 > a <- s$do("Array[Double]")$new(10000000L)
@@ -44,7 +44,7 @@ Loading /tmp/RtmpmpSjRB/rscala-291d6643d1...
 > 
 > proc.time()
    user  system elapsed 
-  0.260   0.080  15.647 
+  0.276   0.048  15.325 
 Warning messages:
-1: closing unused connection 4 (->localhost:44298) 
-2: closing unused connection 3 (->localhost:32990) 
+1: closing unused connection 4 (->localhost:40133) 
+2: closing unused connection 3 (->localhost:39836) 

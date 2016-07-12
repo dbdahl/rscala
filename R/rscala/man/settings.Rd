@@ -1,5 +1,5 @@
-\name{intpSettings}
-\alias{intpSettings}
+\name{scalaSettings}
+\alias{scalaSettings}
 \docType{methods}
 \title{
 Changes the runtime behavior of an embedded interpreter.
@@ -11,7 +11,7 @@ interpreter instance, the current values of the settings are given.  The values
 set here can be superceeded by optional arguments in particular function calls.
 }
 \usage{
-intpSettings(interpreter, debug=NULL, serialize = NULL, interpolate=NULL,
+scalaSettings(interpreter, debug=NULL, serialize = NULL, interpolate=NULL,
              length.one.as.vector=NULL)
 }
 \arguments{
@@ -27,10 +27,10 @@ David B. Dahl \email{dahl@stat.byu.edu}
 }
 \seealso{
   \code{\link{scala}},
-  \code{\link{intpEval}},
-  \code{\link{intpSet}},
-  \code{\link{intpGet}},
-  \code{\link{intpDef}},
+  \code{\link{scalaEval}},
+  \code{\link{scalaSet}},
+  \code{\link{scalaGet}},
+  \code{\link{scalaDef}},
   \code{\link{strintrplt}}
 }
 \keyword{interface}

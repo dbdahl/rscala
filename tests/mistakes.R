@@ -9,7 +9,7 @@ s %~% "util.Properties.versionNumberString"
 a <- list(a=3,b=4)
 tryCatch(s$j <- a,error=function(e) {'Caught'})
 s$.j <- a
-identical(a,intpUnwrap(s,s$.j))
+identical(a,scalaUnwrap(s,s$.j))
 s$j
 s$jj <- unlist(a)
 

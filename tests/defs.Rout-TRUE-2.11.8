@@ -23,7 +23,7 @@ Type 'q()' to quit R.
 > cat(serialize,"\n")
 TRUE 
 > s <- scalaInterpreter(serialize=serialize)
-Loading /tmp/RtmpTG4HQk/rscala-7e1b5c71342...
+Loading /tmp/Rtmp7pEdGy/rscala-741f4f84f91d...
 > 
 > s %~% "util.Properties.versionNumberString"
 [1] "2.11.8"
@@ -31,8 +31,8 @@ Loading /tmp/RtmpTG4HQk/rscala-7e1b5c71342...
 > f <- s$def('x: (Int,Int)','x._1 + x._2')
 > s %~% "(300,400)"
 ScalaInterpreterReference... res3: (Int, Int)
-> intpEval(s,"val a = (300,400)")
-> a <- intpGet(s,"a",as.reference=TRUE)
+> scalaEval(s,"val a = (300,400)")
+> a <- scalaGet(s,"a",as.reference=TRUE)
 > f(a)
 [1] 700
 > f(s %.~% "(300,400)")
@@ -43,19 +43,19 @@ ScalaInterpreterReference... res3: (Int, Int)
 > f2()
 Yes
 > 
-> serializeOriginal <- intpSettings(s)$serialize
-> intpSettings(s,serialize=TRUE)
+> serializeOriginal <- scalaSettings(s)$serialize
+> scalaSettings(s,serialize=TRUE)
 > capture.output(f2())
 [1] "Yes"
 > f2()
 Yes
-> intpSettings(s,serialize=FALSE)
+> scalaSettings(s,serialize=FALSE)
 > capture.output(f2())
 Yes
 character(0)
 > f2()
 Yes
-> intpSettings(s,serialize=serializeOriginal)
+> scalaSettings(s,serialize=serializeOriginal)
 > 
 > f1 <- s$def('x: Tuple2[Int,Int], y: Array[Double]','x._1 + x._2 + y.sum')
 > a <- s %.~% "(300,234)"
@@ -160,19 +160,19 @@ function (x, w, r, as.reference = NA, gc = FALSE)
         x <- as.vector(x)[1]
         storage.mode(x) <- "double"
     }
-    intpSet(interpreter, ".", x, length.one.as.vector = FALSE)
+    scalaSet(interpreter, ".", x, length.one.as.vector = FALSE)
     if (!inherits(w, "ScalaInterpreterReference")) {
         w <- as.vector(w)[1]
         storage.mode(w) <- "integer"
     }
-    intpSet(interpreter, ".", w, length.one.as.vector = FALSE)
+    scalaSet(interpreter, ".", w, length.one.as.vector = FALSE)
     if (!inherits(r, "ScalaInterpreterReference")) {
         r <- as.vector(r)[1]
         storage.mode(r) <- "double"
     }
-    intpSet(interpreter, ".", r, length.one.as.vector = FALSE)
+    scalaSet(interpreter, ".", r, length.one.as.vector = FALSE)
     if (gc) 
-        intpGC(interpreter)
+        scalaGC(interpreter)
     rscala:::wb(interpreter, rscala:::INVOKE)
     rscala:::wc(interpreter, "res35")
     flush(interpreter[["socketIn"]])
@@ -184,13 +184,13 @@ function (x, w, r, as.reference = NA, gc = FALSE)
         stop("Invocation error.")
     }
     else {
-        result <- intpGet(interpreter, "?", as.reference = as.reference)
+        result <- scalaGet(interpreter, "?", as.reference = as.reference)
         if (is.null(result)) 
             invisible(result)
         else result
     }
 }
-<environment: 0x1df8f98>
+<environment: 0x31178e0>
 attr(,"args")
 [1] "x: Double, w: Int, r: Double"
 attr(,"body")
@@ -216,9 +216,9 @@ attr(,"type")
 > 
 > system.time(sapply(1:100,function(i) f1(i,4,54)))
    user  system elapsed 
-  0.092   0.040   0.148 
+  0.108   0.028   0.141 
 > 
 > 
 > proc.time()
    user  system elapsed 
-  0.372   0.076  10.964 
+  0.352   0.060  10.943 

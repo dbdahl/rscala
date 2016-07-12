@@ -4,13 +4,14 @@ export("strintrplt")
 
 export("scala")
 export("scalaInterpreter")
-export("intpSettings")
+export("scalaSettings")
 
 export("rscalaJar")
 export("rscalaPackage")
 export("rscalaLoad")
 export("scalaInfo")
 export("scalaInstall")
+export("scalap")
 
 S3method("print","ScalaInterpreter")
 S3method("toString","ScalaInterpreter")
@@ -22,17 +23,13 @@ S3method("print","ScalaInterpreterItem")
 S3method("toString","ScalaInterpreterItem")
 S3method("$","ScalaInterpreterItem")
 
-export("intpWrap")
-S3method("intpWrap","ScalaInterpreter")
+export("scalaWrap")
 
-export("intpUnwrap")
-S3method("intpUnwrap","ScalaInterpreter")
+export("scalaUnwrap")
 
-# export("intpCallback")
-# S3method("intpCallback","ScalaInterpreter")
+# export("scalaCallback")
 
-export("intpEval")
-S3method("intpEval","ScalaInterpreter")
+export("scalaEval")
 export("%~%")
 export("%.~%")
 export("%@%")
@@ -40,22 +37,17 @@ S3method("%~%","ScalaInterpreter")
 S3method("%.~%","ScalaInterpreter")
 S3method("%@%","ScalaInterpreter")
 
-export("intpGet")
-S3method("intpGet","ScalaInterpreter")
+export("scalaGet")
 S3method("$","ScalaInterpreter")
 
-export("intpSet")
-S3method("intpSet","ScalaInterpreter")
+export("scalaSet")
 S3method("$<-","ScalaInterpreter")
 
-export("intpDef")
-S3method("intpDef","ScalaInterpreter")
+export("scalaDef")
 
-export("intpGC")
-S3method("intpGC","ScalaInterpreter")
+export("scalaGC")
 
-export("intpReset")
-S3method("intpReset","ScalaInterpreter")
+export("scalaReset")
 
 S3method("close","ScalaInterpreter")
 

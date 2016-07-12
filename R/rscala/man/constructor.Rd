@@ -84,11 +84,11 @@ rscalaLoad(classpath=NULL, ...)
 David B. Dahl \email{dahl@stat.byu.edu}
 }
 \seealso{
-  \code{\link{intpEval}},
-  \code{\link{intpSet}},
-  \code{\link{intpGet}},
-  \code{\link{intpDef}},
-  \code{\link{intpSettings}},
+  \code{\link{scalaEval}},
+  \code{\link{scalaSet}},
+  \code{\link{scalaGet}},
+  \code{\link{scalaDef}},
+  \code{\link{scalaSettings}},
   \code{\link{strintrplt}}
 }
 \keyword{interface}

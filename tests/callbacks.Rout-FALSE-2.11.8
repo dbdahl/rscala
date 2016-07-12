@@ -23,7 +23,7 @@ Type 'q()' to quit R.
 > cat(serialize,"\n")
 FALSE 
 > s <- scalaInterpreter(serialize=serialize)
-Loading /tmp/Rtmp9w1xqA/rscala-7d5b4affaf5f...
+Loading /tmp/RtmplOwPlT/rscala-733a50db066a...
 > 
 > s %~% "util.Properties.versionNumberString"
 [1] "2.11.8"
@@ -250,7 +250,7 @@ Here is am.
 [1] 50.5
 > 
 > # Should be an R evaluation error because 'asfd' is not a package.
-> tryCatch(intpEval(s,'R.eval("library(asdf)")'),error=function(e) e)
+> tryCatch(scalaEval(s,'R.eval("library(asdf)")'),error=function(e) e)
 Error in library(asdf) : there is no package called ‘asdf’
 there is no package called ‘asdf’
 java.lang.RuntimeException: Error in R evaluation.
@@ -330,7 +330,7 @@ java.lang.RuntimeException: Error in R evaluation.
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Exception message: Error in R evaluation.
 
-<simpleError in intpEval.ScalaInterpreter(s, "R.eval(\"library(asdf)\")"): Error in evaluation.>
+<simpleError in scalaEval(s, "R.eval(\"library(asdf)\")"): Error in evaluation.>
 > s %~% 'R.evalD0("3+4")'
 [1] 7
 > 
@@ -345,4 +345,4 @@ Exception message: Error in R evaluation.
 > 
 > proc.time()
    user  system elapsed 
-  0.316   0.024  17.329 
+  0.304   0.048  16.964 

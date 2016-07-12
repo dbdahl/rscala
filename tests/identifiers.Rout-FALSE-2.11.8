@@ -23,7 +23,7 @@ Type 'q()' to quit R.
 > cat(serialize,"\n")
 FALSE 
 > s <- scalaInterpreter(serialize=serialize)
-Loading /tmp/Rtmpjrdazl/rscala-7f485e80997b...
+Loading /tmp/RtmpByX6Zf/rscala-75407dc3a14a...
 > 
 > s %~% "util.Properties.versionNumberString"
 [1] "2.11.8"
@@ -38,7 +38,7 @@ Loading /tmp/Rtmpjrdazl/rscala-7f485e80997b...
        ^
 [1] "Caught"
 > 
-> tryCatch(intpGet(s,"def"),error = function(e) {'Caught'})
+> tryCatch(scalaGet(s,"def"),error = function(e) {'Caught'})
 [1] "Caught"
 > s$def <- 4
 > s %~% "3+4"
@@ -63,7 +63,7 @@ val def = value
 > 
 > s %~% "val $bob = 4"
 [1] 4
-> intpGet(s,"$bob")
+> scalaGet(s,"$bob")
 [1] 4
 > s$$bob
 Error: unexpected '$' in "s$$"

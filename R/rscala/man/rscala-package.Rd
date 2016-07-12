@@ -12,11 +12,11 @@ This package embeds: i. the \R interpreter in Scala, and ii. the Scala compiler/
 %\references{}
 \seealso{
   \code{\link{scala}},
-  \code{\link{intpEval}},
-  \code{\link{intpSet}},
-  \code{\link{intpGet}},
-  \code{\link{intpDef}},
-  \code{\link{intpSettings}},
+  \code{\link{scalaEval}},
+  \code{\link{scalaSet}},
+  \code{\link{scalaGet}},
+  \code{\link{scalaDef}},
+  \code{\link{scalaSettings}},
   \code{\link{strintrplt}}
 }
 \keyword{package}

@@ -23,7 +23,7 @@ Type 'q()' to quit R.
 > cat(serialize,"\n")
 TRUE 
 > j <- scalaInterpreter(serialize=serialize)
-Loading /tmp/RtmpO5XTbB/rscala-7cad69a4175d...
+Loading /tmp/RtmpJPcG1Y/rscala-727b16ca97ca...
 > 
 > j %~% "util.Properties.versionNumberString"
 [1] "2.11.8"
@@ -33,8 +33,8 @@ Loading /tmp/RtmpO5XTbB/rscala-7cad69a4175d...
 +     j$tt <- value
 +     value2 <- j$tt
 +   } else {
-+     intpSet(j,"tt",value,...)
-+     value2 <- intpGet(j,"tt")
++     scalaSet(j,"tt",value,...)
++     value2 <- scalaGet(j,"tt")
 +   }
 +   if ( any(value != value2) ) stop(paste("Value not equal:",paste(value,collapse=","),"\n",paste(value2,collapse=",")))
 +   if ( class(value) != class(value2) ) stop(paste("Class not equal:",class(value),"\n",class(value2)))
@@ -91,4 +91,4 @@ Loading /tmp/RtmpO5XTbB/rscala-7cad69a4175d...
 > 
 > proc.time()
    user  system elapsed 
-  0.236   0.024  11.807 
+  0.220   0.032  11.215 

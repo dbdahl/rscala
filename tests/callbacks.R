@@ -68,7 +68,7 @@ tryCatch(callRFunction(1:100),error = function(e) {})
 callRFunction('myMean',1:100)
 
 # Should be an R evaluation error because 'asfd' is not a package.
-tryCatch(intpEval(s,'R.eval("library(asdf)")'),error=function(e) e)
+tryCatch(scalaEval(s,'R.eval("library(asdf)")'),error=function(e) e)
 s %~% 'R.evalD0("3+4")'
 
 # Note that callbacks can only be one-level deep.

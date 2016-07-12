@@ -1,7 +1,7 @@
 test <- function(a,value,func=list(),method=c("name","$")[1]) {
   if ( method == "name" ) {
-    intpSet(a,"tmp",value)
-    tmp <- intpGet(a,"tmp")
+    scalaSet(a,"tmp",value)
+    tmp <- scalaGet(a,"tmp")
   } else if ( method == "$" ) {
     a$tmp <- value
     tmp <- a$tmp

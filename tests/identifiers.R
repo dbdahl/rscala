@@ -11,7 +11,7 @@ s %~% "3+4"
 
 tryCatch(s$adf,error = function(e) {'Caught'})
 
-tryCatch(intpGet(s,"def"),error = function(e) {'Caught'})
+tryCatch(scalaGet(s,"def"),error = function(e) {'Caught'})
 s$def <- 4
 s %~% "3+4"
 
@@ -27,6 +27,6 @@ tryCatch(s$val(x),error = function(e) {'Caught'})
 identical(s$x,s$.val("x"))
 
 s %~% "val $bob = 4"
-intpGet(s,"$bob")
+scalaGet(s,"$bob")
 s$$bob
 

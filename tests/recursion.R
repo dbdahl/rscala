@@ -71,14 +71,14 @@ microbenchmark(h(0),i(0),times=100)
 
 
 # When serialize=TRUE however, we are limited by R's sink stack.
-serializeOriginal <- intpSettings(s)$serialize
-intpSettings(s,serialize=FALSE)
+serializeOriginal <- scalaSettings(s)$serialize
+scalaSettings(s,serialize=FALSE)
 i(-15)                                # This is okay because we are not serializing.
 
-intpSettings(s,serialize=TRUE)
+scalaSettings(s,serialize=TRUE)
 tryCatch(i(-15),error=function(e) e)  # But this causes an error because of R's limited sink stack.
 
-intpSettings(s,serialize=serializeOriginal)
+scalaSettings(s,serialize=serializeOriginal)
 
 # And we never fully recover, as evidenced by the exception below.
 close(s)

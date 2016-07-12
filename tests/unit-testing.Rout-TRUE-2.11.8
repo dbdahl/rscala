@@ -19,8 +19,8 @@ Type 'q()' to quit R.
 
 > test <- function(a,value,func=list(),method=c("name","$")[1]) {
 +   if ( method == "name" ) {
-+     intpSet(a,"tmp",value)
-+     tmp <- intpGet(a,"tmp")
++     scalaSet(a,"tmp",value)
++     tmp <- scalaGet(a,"tmp")
 +   } else if ( method == "$" ) {
 +     a$tmp <- value
 +     tmp <- a$tmp
@@ -66,7 +66,7 @@ Type 'q()' to quit R.
 > cat(serialize,"\n")
 TRUE 
 > a <- scalaInterpreter(serialize=serialize)
-Loading /tmp/RtmpRIN3JK/rscala-726235b990a...
+Loading /tmp/RtmpZMpbbr/rscala-7a8162135efc...
 > 
 > cat(a %~% "util.Properties.versionNumberString","\n")
 2.11.8 
@@ -94,4 +94,4 @@ true
 > 
 > proc.time()
    user  system elapsed 
-  0.188   0.020   8.820 
+  0.176   0.012   8.011 

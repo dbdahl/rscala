@@ -1,12 +1,3 @@
-intpEval     <- function(interpreter, snippet, interpolate="") UseMethod("intpEval")
-intpGet      <- function(interpreter, identifier, as.reference=NA) UseMethod("intpGet")
-intpSet      <- function(interpreter, identifier, value, length.one.as.vector="") UseMethod("intpSet")
-intpDef      <- function(interpreter, args, body, interpolate="", reference=NULL) UseMethod("intpDef")
-intpCallback <- function(interpreter, argsType, returnType, func, interpolate="", captureOutput=FALSE) UseMethod("intpCallback")
-intpWrap     <- function(interpreter, value) UseMethod("intpWrap")
-intpUnwrap   <- function(interpreter, value) UseMethod("intpUnwrap")
-intpGC       <- function(interpreter) UseMethod("intpGC")
-intpReset    <- function(interpreter) UseMethod("reset")
 '%~%'  <- function(interpreter,snippet) UseMethod("%~%")
 '%.~%' <- function(interpreter,snippet) UseMethod("%.~%")
 '%@%'  <- function(interpreter,snippet) UseMethod("%@%")
@@ -23,7 +14,7 @@ strintrplt <- function(snippet,envir=parent.frame()) {
   } else snippet
 }
 
-intpSettings <- function(interpreter,debug=NULL,serialize=NULL,interpolate=NULL,length.one.as.vector=NULL) {
+scalaSettings <- function(interpreter,debug=NULL,serialize=NULL,interpolate=NULL,length.one.as.vector=NULL) {
   if ( is.null(debug) && is.null(serialize) && is.null(interpolate) && is.null(length.one.as.vector) ) {
     list(debug=get("debug",envir=interpreter[['env']]),
          serialize=get("serialize",envir=interpreter[['env']]),
