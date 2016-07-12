@@ -1,6 +1,6 @@
 ## Scala scripting over TCP/IP
 
-scalaInterpreter <- function(classpath=character(0),scala.home=NULL,heap.maximum="256M",command.line.options=NULL,timeout=60,debug=FALSE,serialize=.Platform$OS.type == "windows") {
+scalaInterpreter <- function(classpath=character(0),scala.home=NULL,heap.maximum="256M",command.line.options=NULL,timeout=60,debug=FALSE,serialize=.Platform$OS.type == "windows",stdout="",stderr="") {
   userJars <- unlist(strsplit(classpath,.Platform$path.sep))
   if ( is.null(command.line.options) ) {
     command.line.options <- paste("-J",c(paste("-Xmx",heap.maximum,sep=""),"-Xms32M"),sep="")
@@ -26,11 +26,8 @@ scalaInterpreter <- function(classpath=character(0),scala.home=NULL,heap.maximum
   if ( debug ) msg("\n",paste0("<",args,">",collapse="\n"))
   stdin <- ""
   if ( debug && ( .Platform$OS.type == "windows" ) ) {
-    stdout <- "RSCALA-STDOUT.txt"
-    stderr <- "RSCALA-STDERR.txt"
-  } else {
-    stdout <- ""
-    stderr <- ""
+    if ( stdout == "" ) stdout <- "RSCALA-STDOUT.txt"
+    if ( stderr == "" ) stderr <- "RSCALA-STDERR.txt"
   }
   system2(sInfo$cmd,args,wait=FALSE,stdin=stdin,stdout=stdout,stderr=stderr)
   sockets <- newSockets(portsFilename,debug,serialize,timeout)

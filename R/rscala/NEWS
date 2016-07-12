@@ -1,4 +1,5 @@
 1.0.14 (2016-XX-XX)
+  * Added stdout and stderr options to scalaInterpreter.
   * Interupts in R now close the connection rather than leaving it in an
     out-of-sync state.
   * Added fields setSerializeOutput and getSerializeOutput to RClient4Java
