@@ -46,7 +46,8 @@ depend on this package.
 \usage{
 scalaInterpreter(classpath=character(0),
     scala.home=NULL, heap.maximum="256M", command.line.options=NULL,
-    timeout=60, debug=FALSE, serialize=.Platform$OS.type == "windows")
+    timeout=60, debug=FALSE, serialize=.Platform$OS.type == "windows",
+    stdout="", stderr="")
 scalaInfo(scala.home=NULL, verbose=FALSE)
 scalaInstall()
 rscalaJar(version="")
@@ -61,6 +62,8 @@ rscalaLoad(classpath=NULL, ...)
     \item{timeout}{A numeric vector of length one giving the number of seconds to wait for Scala to start before aborting.  The default value is \code{60} seconds.}
     \item{debug}{An option meant only for developers of the package itself and not intended for users of the package.}
     \item{serialize}{An logical vector of length one indicating whether standard output (stdout) and standard error (stderr) should be captured and serialized back to R.  For performance and a better experience, \code{FALSE} is the default on non-Windows operating systems and the operating system will take care of displaying this output.  Due to limitations of Windows, \code{TRUE} is the default value on Windows operating systems as the output may not be displayed otherwise.  If this output is not needed, \code{FALSE} is recommended.}
+    \item{stdout}{A character vector of length one giving the name of the file to which all standard output (stdout) that is not serialized is sent.}
+    \item{stderr}{A character vector of length one giving the name of the file to which all standard error (stderr) that is not serialized is sent.}
     \item{verbose}{A logical vector of length one indicating whether information regarding the search for the Scala installation should be displayed.}
     \item{version}{If \code{""}, the package JAR files for all Scala versions are returned. Or, if \code{"2.11.*"} where \code{*} is a placeholder, the JAR file for that specific major version of Scala is returned.}
     \item{pkgname}{A character string giving the name of the package (as provided the second argument of the \code{.onLoad} function) that wishes to depend on this package.}
