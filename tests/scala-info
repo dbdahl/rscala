@@ -1,43 +1,31 @@
 #!/bin/bash
 
-# V210=2.10.5
-V211=2.11.8
+if [[ -z "$VERSIONS" ]]
+then
+  >&2 echo "Oops, this script should be run via the ./run script."
+  exit 1
+fi
 
-killall java > /dev/null 2>&1
-R --slave -e 'library(rscala); print(scalaInfo("~/local/scala/current",verbose=TRUE)$cmd)'
+export SCALA_HOME=
+PATH_WITHOUT_SCALA=/home/dahl/bin:/home/dahl/bin:/home/dahl/local/texlive/current/bin/x86_64-linux:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin
 
-killall java > /dev/null 2>&1
-R --slave -e 'library(rscala); print(scalaInfo("~/local/scala/scala-'$V211'",verbose=TRUE)$cmd)'
+for SCALA_VERSION in $VERSIONS
+do
+  echo "Running battery for $SCALA_VERSION"
 
-# killall java > /dev/null 2>&1
-# R --slave -e 'library(rscala); print(scalaInfo("~/local/scala/scala-'$V210'",verbose=TRUE)$cmd)'
+  # By setting the scala.home argument
+  scala_home=~/local/scala/scala-$SCALA_VERSION
+  R --slave -e 'library(rscala); print(scalaInfo("'$scala_home'",verbose=TRUE)$cmd)'
 
+  # By setting the SCALA_HOME environment variable
+  SCALA_HOME=$scala_home R --slave -e 'library(rscala); print(scalaInfo(verbose=TRUE)$cmd)'
 
-killall java > /dev/null 2>&1
-SCALA_HOME=~/local/scala/current R --slave -e 'library(rscala); print(scalaInfo(verbose=TRUE)$cmd)'
+  # By setting the PATH environment variable
+  PATH=$PATH_WITHOUT_SCALA:/home/dahl/local/scala/scala-$SCALA_VERSION/bin /home/dahl/local/bin/R --slave -e 'library(rscala); print(scalaInfo(verbose=TRUE)$cmd)'
 
-killall java > /dev/null 2>&1
-SCALA_HOME=~/local/scala/scala-$V211 R --slave -e 'library(rscala); print(scalaInfo(verbose=TRUE)$cmd)'
+  echo "--------"
+done
 
-# killall java > /dev/null 2>&1
-# SCALA_HOME=~/local/scala/scala-$V210 R --slave -e 'library(rscala); print(scalaInfo(verbose=TRUE)$cmd)'
-
-
-killall java > /dev/null 2>&1
-SCALA_HOME= PATH=~/local/scala/current/bin:$PATH R --slave -e 'library(rscala); print(scalaInfo(verbose=TRUE)$cmd)'
-
-killall java > /dev/null 2>&1
-SCALA_HOME= PATH=~/local/scala/scala-$V211/bin:$PATH R --slave -e 'library(rscala); print(scalaInfo(verbose=TRUE)$cmd)'
-
-# killall java > /dev/null 2>&1
-# SCALA_HOME= PATH=~/local/scala/scala-$V210/bin:$PATH R --slave -e 'library(rscala); print(scalaInfo(verbose=TRUE)$cmd)'
-
-mv ~/.rscala ~/.rscala-off
-killall java > /dev/null 2>&1
-SCALA_HOME= PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games ~/local/R/current/bin/R --slave -e 'library(rscala)'
-
-killall java > /dev/null 2>&1
-mv ~/.rscala-off ~/.rscala
-SCALA_HOME= PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games ~/local/R/current/bin/R --slave -e 'library(rscala); scalaInstall()'
-SCALA_HOME= PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games ~/local/R/current/bin/R --slave -e 'library(rscala); print(scalaInfo(verbose=TRUE)$cmd)'
+rm -rf ~/.rscala
+PATH=$PATH_WITHOUT_SCALA /home/dahl/local/bin/R --slave -e 'library(rscala); scalaInstall(); print(scalaInfo(verbose=TRUE)$cmd)'
 

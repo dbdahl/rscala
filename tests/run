@@ -15,16 +15,15 @@ else
   SCRIPTS="$*"
 fi
 
+export VERSIONS="2.10.6 2.11.8 2.12.0-M5"
+
 if [[ "$DOINSTALL" == TRUE ]]
 then
   echo "Testing installation."
   ./scala-info >| scala-info.out 2>&1
 fi
 
-# V210=2.10.5
-V211=2.11.8
-
-for SCALA_VERSION in $V210 $V211
+for SCALA_VERSION in $VERSIONS
 do
   echo "Running battery for $SCALA_VERSION"
   killall java > /dev/null 2>&1

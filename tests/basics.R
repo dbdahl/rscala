@@ -4,7 +4,7 @@ serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 cat(serialize,"\n")
 j <- scala(serialize=serialize)
 
-j %~% "util.Properties.versionNumberString"
+j %~% "scala.util.Properties.versionNumberString"
 
 setget <- function(value,method="$",...) {
   if ( method == "$" ) {

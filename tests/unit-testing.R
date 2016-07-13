@@ -47,7 +47,7 @@ serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 cat(serialize,"\n")
 a <- scala(serialize=serialize)
 
-cat(a %~% "util.Properties.versionNumberString","\n")
+a %~% "scala.util.Properties.versionNumberString"
 assertAll(a)
 
 

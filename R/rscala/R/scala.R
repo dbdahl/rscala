@@ -1,6 +1,6 @@
 ## Scala scripting over TCP/IP
 
-scala <- function(classpath=character(0),scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,timeout=60,debug=FALSE,serialize=.Platform$OS.type == "windows",stdout="",stderr="") {
+scala <- function(classpath=character(0),serialize=FALSE,scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,timeout=60,debug=FALSE,stdout=FALSE,stderr=FALSE) {
   if ( identical(stdout,TRUE) ) stop("stdout must not be TRUE.")
   if ( identical(stderr,TRUE) ) stop("stderr must not be TRUE.")
   userJars <- unlist(strsplit(classpath,.Platform$path.sep))
@@ -22,16 +22,17 @@ scala <- function(classpath=character(0),scala.home=NULL,heap.maximum=NULL,comma
   portsFilename <- tempfile("rscala-")
   bootstrap.filename <- tempfile("rscala-")
   bootstrap.file <- file(bootstrap.filename, "w")
-  debug <- ifelse(is.null(debug) || is.nan(debug) || is.na(debug) || !debug, FALSE, TRUE)
-  serialize <- ifelse(is.null(serialize) || is.nan(serialize) || is.na(serialize) || !serialize, FALSE, TRUE)
+  debug <- identical(debug,TRUE)
+  serialize <- identical(serialize,TRUE)
   bootstrap.lines <- c(
     ':silent',
-    sprintf('org.ddahl.rscala.ScalaServer(org.ddahl.rscala.ScalaInterpreterAdapter($intp),raw"%s",%s,%s).run()',portsFilename,ifelse(debug,'true','false'),ifelse(serialize,'true','false')),
+    if (sInfo$major.version=="2.10") ":power" else NULL,
+    sprintf('org.ddahl.rscala.ScalaServer(org.ddahl.rscala.ScalaInterpreterAdapter(%s),raw"%s",%s,%s).run()',ifelse(sInfo$major.version=="2.10","intp","$intp"),portsFilename,ifelse(debug,'true','false'),ifelse(serialize,'true','false')),
     'sys.exit(0)'
   )
   writeLines(bootstrap.lines,bootstrap.file)
   close(bootstrap.file)
-  args <- c(command.line.options,"-Xnojline","-howtorun:script","-classpath",rsClasspath,paste("-Drscala.classpath=",rsClasspath,sep=""),"-i",bootstrap.filename)
+  args <- c(command.line.options,"-Xnojline","-howtorun:script","-classpath",rsClasspath,paste("-Drscala.classpath=",rsClasspath,sep=""),ifelse(sInfo$major.version=="2.12","-I","-i"),bootstrap.filename)
   if ( debug ) msg("\n",sInfo$cmd)
   if ( debug ) msg("\n",paste0("<",args,">",collapse="\n"))
   stdin <- ""
@@ -678,7 +679,8 @@ close.ScalaInterpreter <- function(con,...) {
 }
 
 .rscalaJar <- function(version="") {
-  if ( version == "" ) major.version <- ".*"
+  if ( version == "2.12.0-M5" ) major.version <- version
+  else if ( version == "" ) major.version <- ".*"
   else major.version <- substr(version,1,4)
   list.files(system.file("java",package="rscala"),pattern=paste("rscala_",major.version,'-.*[0-9]\\.jar$',sep=""),full.names=TRUE)
 }
@@ -739,7 +741,7 @@ scalaInfoEngine <- function(scala.command,verbose) {
     if ( verbose ) cat(sprintf("Cannot get Scala version from library jar (%s)\n",libraryJar))
     return(NULL)
   }
-  if ( ! ( major.version %in% c("2.11") ) ) {
+  if ( ! ( major.version %in% c("2.10","2.11","2.12") ) ) {
     if ( verbose ) cat(sprintf("Unsupported major version (%s) from Scala executable (%s)\n",major.version,scala.command))
     return(NULL)
   }

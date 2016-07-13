@@ -4,7 +4,7 @@ serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 cat(serialize,"\n")
 s <- scala(serialize=serialize)
 
-s %~% "util.Properties.versionNumberString"
+s %~% "scala.util.Properties.versionNumberString"
 
 s %~% "val a = @{1+3}"
 s$a

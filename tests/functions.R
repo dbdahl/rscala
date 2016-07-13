@@ -4,7 +4,7 @@ serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 cat(serialize,"\n")
 s <- scala(c("commons-math3-3.2.jar","shallot.jar"),serialize=serialize)
 
-s %~% "util.Properties.versionNumberString"
+s %~% "scala.util.Properties.versionNumberString"
 
 scalap(s,"org.apache.commons.math3.random.RandomDataGenerator")
 rdg <- tryCatch(s$do("org.apache.commons.math3.random.RandomDataGenerator")$new(),error=function(e) e)  # There is some incompatability between Scala REPL classloader and the Apache Commons Math jar.

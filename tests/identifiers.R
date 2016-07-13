@@ -4,7 +4,7 @@ serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 cat(serialize,"\n")
 s <- scala(serialize=serialize)
 
-s %~% "util.Properties.versionNumberString"
+s %~% "scala.util.Properties.versionNumberString"
 
 s$.asdf <- 3
 s %~% "3+4"

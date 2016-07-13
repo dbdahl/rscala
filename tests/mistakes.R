@@ -4,7 +4,7 @@ serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 cat(serialize,"\n")
 s <- scala(serialize=serialize)
 
-s %~% "util.Properties.versionNumberString"
+s %~% "scala.util.Properties.versionNumberString"
 
 a <- list(a=3,b=4)
 tryCatch(s$j <- a,error=function(e) {'Caught'})

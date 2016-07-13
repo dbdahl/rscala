@@ -4,7 +4,7 @@ serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 cat(serialize,"\n")
 s <- scala(serialize=serialize)
 
-cat(s %~% "util.Properties.versionNumberString","\n")
+s %~% "scala.util.Properties.versionNumberString"
 
 
 sleep.time <- 0

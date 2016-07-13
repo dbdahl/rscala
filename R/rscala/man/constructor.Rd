@@ -44,9 +44,9 @@ the namespace.
 }
 \usage{
 scala(classpath=character(0),
-    scala.home=NULL, heap.maximum=NULL, command.line.options=NULL,
-    timeout=60, debug=FALSE, serialize=.Platform$OS.type == "windows",
-    stdout="", stderr="")
+      serialize=FALSE, scala.home=NULL,
+      heap.maximum=NULL, command.line.options=NULL, timeout=60,
+      debug=FALSE, stdout=FALSE, stderr=FALSE)
 scalaInfo(scala.home=NULL, verbose=FALSE)
 scalaInstall()
 .rscalaJar(version="")
@@ -54,15 +54,15 @@ scalaInstall()
 }
 \arguments{
     \item{classpath}{A character vector whose elements are paths to JAR files or directories which specify the classpath for the Scala compiler/interpreter.}
-    \item{scala.home}{A character vector of length one giving the path where Scala is installed.  When set to \code{NULL} (the default), the function sequentially tries to find the Scala home by:  i. using the environment variable \code{SCALA_HOME}, ii. querying the operating system search path, and iii. looking in \code{~/.rscala/scala-X} where \code{X} is the recommended Scala version number (e.g. 2.11.5) for the package.  If all these fail, the function offers to download and install Scala in the above mentioned path (if the current \R session is interactive) or it downloads and installs Scala in a temporary directory (if the current \R session is noninteractive).}
+    \item{serialize}{Should standard output (stdout) and standard error (stderr) should be captured and serialized back to R?  For performance and a better experience, \code{FALSE} is the default.  In that case, the operating system will take care of displaying this output on non-Windows.  Due to limitations of Windows, \code{FALSE} will likely result in nothing being displayed.  If this output is not needed, \code{FALSE} is recommended.}
+    \item{scala.home}{A character vector of length one giving the path where Scala is installed.  When set to \code{NULL} (the default), the function sequentially tries to find the Scala home by:  i. using the environment variable \code{SCALA_HOME}, ii. querying the operating system search path, and iii. looking in \code{~/.rscala/scala-X} where \code{X} is the recommended Scala version number (e.g. 2.11.8) for the package.  If all these fail, the function offers to download and install Scala in the above mentioned path (if the current \R session is interactive) or it downloads and installs Scala in a temporary directory (if the current \R session is noninteractive).}
     \item{heap.maximum}{A character vector of length one used to specify the maximum heap size in the JVM.  If \code{NULL}, the global option \code{rscala.heap.maximum} is queried and, if that is also \code{NULL}, Scala's default value is used.  This option is ignored if \var{command.line.options} is not null.}
     \item{command.line.options}{A character vector whose elements are passed as command line arguments when invoking Scala.  If \code{NULL}, the global option \code{rscala.command.line.options} is queried and, if that is also \code{NULL}, the value is set to \code{NULL}.  A value of \code{NULL} means no extra arguments are provided.  If you simply want to add to the classpath and/or set the maximum heap size, use the \var{classpath} and \var{heap.maximum} arguments.}
     \item{timeout}{A numeric vector of length one giving the number of seconds to wait for Scala to start before aborting.  The default value is \code{60} seconds.}
     \item{debug}{An option meant only for developers of the package itself and not intended for users of the package.}
-    \item{serialize}{An logical vector of length one indicating whether standard output (stdout) and standard error (stderr) should be captured and serialized back to R.  For performance and a better experience, \code{FALSE} is the default on non-Windows operating systems and the operating system will take care of displaying this output.  Due to limitations of Windows, \code{TRUE} is the default value on Windows operating systems as the output may not be displayed otherwise.  If this output is not needed, \code{FALSE} is recommended.}
-    \item{stdout, stderr}{Where output to \code{stdout} and \code{stderr} should be sent.  \code{""} (the default) means the R console (although that may not work on Windows).  \code{NULL} or \code{FALSE} means to discard the output.  Otherwise, this is the name of the file that receives the output.}
+    \item{stdout, stderr}{Where output to \code{stdout} and \code{stderr} should be sent.  \code{""} means the R console (although that may not work on Windows).  \code{NULL} or \code{FALSE} (the default) means the output is discarded.  Otherwise, this is the name of the file that receives the output.}
     \item{verbose}{A logical vector of length one indicating whether information regarding the search for the Scala installation should be displayed.}
-    \item{version}{If \code{""}, the package JAR files for all Scala versions are returned. Or, if \code{"2.11.*"} where \code{*} is a placeholder, the JAR file for that specific major version of Scala is returned.}
+    \item{version}{If \code{""}, the package JAR files for all Scala versions are returned. Or, if \code{"2.*.*"} where \code{*} is a placeholder, the JAR file for that specific major version of Scala is returned.}
     \item{pkgname}{A character string giving the name of the package (as provided the second argument of the \code{.onLoad} function) that wishes to depend on this package.}
     \item{classpath.appendix}{A character vector giving additional JAR files or directories for the Scala compiler/interpreter embedded within a package via the \code{\link{.rscalaPackage}} function.  The JAR files in the \sQuote{java} directory of the package are already included and do not need to be added here.}
     \item{...}{These arguments are passed by the \code{\link{.rscalaPackage}} function to the \code{\link{scala}} function.}

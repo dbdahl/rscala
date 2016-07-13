@@ -22,7 +22,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
     repl.bind("R","org.ddahl.rscala.RClient",R)
     if ( repl.interpreter.isInstanceOf[scala.tools.nsc.interpreter.IMain] ) {
       repl.bind("$intp","scala.tools.nsc.interpreter.IMain",repl.interpreter)
-      repl.eval("import org.ddahl.rscala.RObject")
+      repl.interpret("import org.ddahl.rscala.RObject")
     }
   }
 
@@ -104,7 +104,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
   private def doEval(): Unit = {
     val snippet = readString()
     try {
-      repl.eval(snippet)
+      repl.interpret(snippet)
       R.exit()
       if ( debugger.value ) debugger.msg("Eval is okay")
       out.writeInt(OK)
@@ -146,7 +146,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
         val paramTypes = params._2
         out.writeInt(OK)
         try {
-          repl.eval(s"($args) => { $body }")
+          repl.interpret(s"($args) => { $body }")
           out.writeInt(OK)
           val functionName = repl.mostRecentVar
           if ( debugger.value ) debugger.msg("Name of function is: <"+functionName+">")
@@ -260,7 +260,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
                 repl.bind(r._1,originalType,originalValue)
               case _ =>
                 val vt = if ( r._2 == "" ) r._1 else r._1 + ": " + r._2
-                repl.eval(s"val ${vt} = ${originalIdentifier}")
+                repl.interpret(s"val ${vt} = ${originalIdentifier}")
             }
           }
           out.writeInt(OK)
