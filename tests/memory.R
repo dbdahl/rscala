@@ -22,3 +22,15 @@ a <- s$do("Array[Double]")$new(10000000L)
 close(s)
 cat("----\n")
 
+
+
+options(rscala.heap.maximum="96M")
+s <- scala()
+s %~% "util.Properties.versionNumberString"
+for ( i in 1:2000 ) {
+  a <- s$do("Array[Double]")$new(100000L)  # No memory problems
+  # s %~% "new Array[Double](100000)"      # Memory problems
+}
+
+
+
