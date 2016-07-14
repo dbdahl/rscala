@@ -34,14 +34,17 @@ do
     echo "  Running $script"
     for SERIALIZE in TRUE FALSE
     do
-      EXT=$([[ "$script" = *.* ]] && echo ".${script##*.}" || echo '')
-      if [[ "$EXT" == .R ]]
-      then
-        RSCALA_SERIALIZE=$SERIALIZE R CMD BATCH --no-restore --no-save $script ${script}out-$SERIALIZE-$SCALA_VERSION
-      elif [[ "$EXT" == .scala || "$EXT" == "" ]]
-      then
-        RSCALA_SERIALIZE=$SERIALIZE ./$script >| $script.out-$SERIALIZE-$SCALA_VERSION 2>&1
-      fi
+      for OUTPUT in TRUE FALSE
+      do
+        EXT=$([[ "$script" = *.* ]] && echo ".${script##*.}" || echo '')
+        if [[ "$EXT" == .R ]]
+        then
+          RSCALA_OUTPUT=$OUTPUT RSCALA_SERIALIZE=$SERIALIZE R CMD BATCH --no-restore --no-save $script ${script}out-$SERIALIZE-$OUTPUT-$SCALA_VERSION
+        elif [[ "$EXT" == .scala || "$EXT" == "" ]]
+        then
+          RSCALA_OUTPUT=$OUTPUT RSCALA_SERIALIZE=$SERIALIZE ./$script >| $script.out-$SERIALIZE-$OUTPUT-$SCALA_VERSION 2>&1
+        fi
+      done
     done
   done
 done

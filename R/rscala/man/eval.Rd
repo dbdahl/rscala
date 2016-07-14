@@ -112,19 +112,8 @@ s <- scala()
 scalaSettings(s)
 
 # Demonstrate convenient notation and string interpolation
-s \%~\% '"Hello @{Sys.getenv("USER")} from @{R.Version()$nickname}" + "!"*10'
-
-# Demonstrate output serialization behavior
-scalaSettings(s,serialize=TRUE)
-# Since serialize=TRUE, output is captured to 'a' and is not displayed.
-a <- capture.output(s \%@\% 'println("Hello again")')
-a # Note that 'a' contains the output.
-
-scalaSettings(s,serialize=FALSE)
-# Since serialization=FALSE, output is NOT captured to 'a'.
-# The output may or may not be displayed, depending on your operating system.
-a <- capture.output(s \%@\% 'println("Hello again")')
-a # Note that 'a' is empty.
+stringFromScala <- s \%~\% '"Hello @{Sys.getenv("USER")} from @{R.Version()$nickname}" + "!"*10'
+stringFromScala
 
 # Set and get variables
 s$rPi <- pi

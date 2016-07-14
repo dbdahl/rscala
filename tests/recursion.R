@@ -1,11 +1,12 @@
 library(rscala)
 
+
 serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
+output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
 cat(serialize,"\n")
-s <- scala(serialize=serialize)
-
+cat(output,"\n")
+s <- scala(serialize=serialize,stdout=output,stderr=output)
 s %~% "scala.util.Properties.versionNumberString"
-
 
 
 # This is not recursion via callbacks.
@@ -72,13 +73,5 @@ microbenchmark(h(0),i(0),times=100)
 # When serialize=TRUE however, we are limited by R's sink stack.
 serializeOriginal <- scalaSettings(s)$serialize
 scalaSettings(s,serialize=FALSE)
-i(-15)                                # This is okay because we are not serializing.
-
-scalaSettings(s,serialize=TRUE)
-tryCatch(i(-15),error=function(e) e)  # But this causes an error because of R's limited sink stack.
-
-scalaSettings(s,serialize=serializeOriginal)
-
-# And we never fully recover, as evidenced by the exception below.
-close(s)
+i(-15)                                # This is okay if we are not serializing.
 

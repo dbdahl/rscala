@@ -103,22 +103,22 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
     val snippet = readString()
     try {
       val result = repl.interpret(snippet)
-      R.exit()
       if ( result == Success ) {
         if ( debugger.value ) debugger.msg("Eval is okay.")
+        R.exit()
         out.writeInt(OK)
       } else {
         if ( debugger.value ) debugger.msg("Eval had a parse error.")
+        R.exit()
         out.writeInt(ERROR)
       }
     } catch {
       case e: Throwable =>
         if ( debugger.value ) debugger.msg("Caught throwable: "+e.toString)
-        repl.bind("$rscalaexception","Throwable",e) // So that repl.mostRecentVar is this throwable
         R.exit()
         out.writeInt(ERROR)
-        e.printStackTrace()
-        scala.Console.err.println("Exception message: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
+        e.printStackTrace(pw)
+        pw.println(e + ( if ( e.getCause != null ) System.lineSeparator + e.getCause else "" ) )
     }
   }
 
@@ -149,7 +149,8 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
         val paramTypes = params._2
         out.writeInt(OK)
         try {
-          repl.interpret(s"($args) => { $body }")
+          val result = repl.interpret(s"($args) => { $body }")
+          if ( result != Success ) throw new RuntimeException("Parse error in 'def'.")
           out.writeInt(OK)
           val functionName = repl.mostRecentVar
           if ( debugger.value ) debugger.msg("Name of function is: <"+functionName+">")
@@ -168,14 +169,14 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
           } catch {
             case e: Throwable =>
               out.writeInt(ERROR)
-              e.printStackTrace()
-              scala.Console.err.println("Exception message: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
+              e.printStackTrace(pw)
+              pw.println(e + ( if ( e.getCause != null ) System.lineSeparator + e.getCause else "" ) )
           }
         } catch {
           case e: Throwable =>
             out.writeInt(ERROR)
-            // e.printStackTrace()
-            scala.Console.err.println("Exception message: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
+            e.printStackTrace(pw)
+            pw.println(e + ( if ( e.getCause != null ) System.lineSeparator + e.getCause else "" ) )
         }
       } catch {
         case e: Throwable =>
@@ -199,8 +200,8 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
       case e: Throwable =>
         R.exit()
         out.writeInt(ERROR)
-        // e.printStackTrace()
-        scala.Console.err.println("Exception message: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
+        e.printStackTrace(pw)
+        pw.println(e + ( if ( e.getCause != null ) System.lineSeparator + e.getCause else "" ) )
     }
   }
 
@@ -263,7 +264,8 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
                 repl.bind(r._1,originalType,originalValue)
               case _ =>
                 val vt = if ( r._2 == "" ) r._1 else r._1 + ": " + r._2
-                repl.interpret(s"val ${vt} = ${originalIdentifier}")
+                val result = repl.interpret(s"val ${vt} = ${originalIdentifier}")
+                if ( result != Success ) throw new RuntimeException("Parse error in setting reference.")
             }
           }
           out.writeInt(OK)
@@ -271,8 +273,8 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
           case e: Throwable =>
             if ( debugger.value ) debugger.msg("Caught exception: "+e)
             out.writeInt(ERROR)
-            e.printStackTrace()
-            scala.Console.err.println("Exception message: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
+            e.printStackTrace(pw)
+            pw.println(e + ( if ( e.getCause != null ) System.lineSeparator + e.getCause else "" ) )
         }
       case ATOMIC =>
         if ( debugger.value ) debugger.msg("Setting atomic.")
@@ -335,8 +337,8 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
       case e: Throwable =>
         if ( debugger.value ) debugger.msg("Caught exception: "+e)
         out.writeInt(ERROR)
-        e.printStackTrace()
-        scala.Console.err.println("Exception message: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
+        e.printStackTrace(pw)
+        pw.println(e + ( if ( e.getCause != null ) System.lineSeparator + e.getCause else "" ) )
         return
     }
     if ( debugger.value ) debugger.msg("Getting: "+identifier)
@@ -518,8 +520,8 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
           case e: Throwable =>
             if ( debugger.value ) debugger.msg("Caught exception: "+e)
             out.writeInt(ERROR)
-            e.printStackTrace()
-            scala.Console.err.println("Exception message: "+(if (e.getCause != null) e.getCause.getMessage else e.getMessage)+System.lineSeparator)
+            e.printStackTrace(pw)
+            pw.println(e + ( if ( e.getCause != null ) System.lineSeparator +  e.getCause else "" ) )
             return
         }
         if ( option.isEmpty ) out.writeInt(UNDEFINED_IDENTIFIER)
@@ -583,8 +585,8 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
           }
         }
         writeString(baosOut.toString+baosErr.toString)
-        baosOut.reset
-        baosErr.reset
+        baosOut.reset()
+        baosErr.reset()
       } else {
         if ( ! heart(request) ) return
       }

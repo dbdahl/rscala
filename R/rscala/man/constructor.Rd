@@ -94,7 +94,7 @@ scalaInfo(verbose=TRUE)
 
 # Make an instance of the Scala interpreter and see how its output is captured.
 s <- scala(serialize=TRUE)
-s \%~\% 'println("This is Scala "+scala.util.Properties.versionString)'
+capture.output(s \%~\% 'println("This is Scala "+scala.util.Properties.versionString)')
 
 # Function defined in R
 myMean <- function(x) {

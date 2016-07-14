@@ -531,6 +531,7 @@ scalaDef <- function(interpreter,args,body,interpolate="",reference=NULL) {
               convertedCode[[i]] <- convert(functionParamNames[i],functionParamTypes[i])
             }
             convertedCodeStr <- paste("    ",unlist(convertedCode),sep="",collapse="\n")
+            serializeCodeStr <- ifelse(get("serialize",envir=interpreter[["env"]]),"rscala:::echoResponseScala(interpreter)","")
             argsStr <- if ( ! is.null(reference) ) paste(functionParamNames[-1],collapse=",")
             else paste(functionParamNames,collapse=",")
             if ( nchar(argsStr) > 0 ) argsStr <- paste(argsStr,", ",sep="")
@@ -543,7 +544,7 @@ scalaDef <- function(interpreter,args,body,interpolate="",reference=NULL) {
       flush(interpreter[["socketIn"]])
       rscala:::rServe(interpreter,TRUE)
       status <- rscala:::rb(interpreter,"integer")
-      if ( get("serialize",envir=interpreter[["env"]]) ) rscala:::echoResponseScala(interpreter)
+      @{serializeCodeStr}
       if ( status == rscala:::ERROR ) {
         stop("Invocation error.")
       } else {

@@ -141,12 +141,6 @@ rServe <- function(sockets,with.callbacks) {
     } else if ( cmd == EXIT ) {
       if ( debug ) msg("Got EXIT")
       return()
-    } else if ( cmd == DEBUG ) {
-      if ( debug ) msg("Got DEBUG")
-      newDebug <- ( rb(sockets,"integer") != 0 )
-      if ( debug != newDebug ) msg("Debugging is now ",newDebug,"\n",sep="")
-      debug <- newDebug
-      assign("debug",debug,envir=sockets[['env']])
     } else stop(paste("Unknown command:",cmd))
     flush(sockets[['socketIn']])
   }
