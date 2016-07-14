@@ -1,7 +1,7 @@
 package org.ddahl.rscala
 
 import scala.annotation.tailrec
-import scala.tools.nsc.interpreter.IMain
+import scala.tools.nsc.interpreter.{IMain,ILoop}
 import scala.tools.nsc.interpreter.IR.Success
 import scala.tools.nsc.Settings
 import java.net._
@@ -619,6 +619,9 @@ object ScalaServer {
     if ( debugger.value ) debugger.msg("Classpath is:\n"+classpath.mkString("\n"))
     settings.classpath.value = classpath.distinct.mkString(java.io.File.pathSeparator)
     val repl = new IMain(settings,pw)
+    val iloop = new ILoop()
+    iloop.intp = repl
+    iloop.verbosity()         // Equivalent to :silent in REPL
     new ScalaServer(repl, pw, baosOut, baosErr, portsFilename, debugger, serializeState)
   }
 
