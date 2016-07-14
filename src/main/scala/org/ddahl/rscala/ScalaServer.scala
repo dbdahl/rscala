@@ -1,37 +1,33 @@
 package org.ddahl.rscala
 
+import scala.annotation.tailrec
+import scala.tools.nsc.interpreter.IMain
+import scala.tools.nsc.interpreter.IR.Success
+import scala.tools.nsc.Settings
 import java.net._
 import java.io._
-import scala.annotation.tailrec
 
 import Protocol._
 
-class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debugger: Debugger, serializeOutputState: State) {
+class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutputStream, baosErr: ByteArrayOutputStream, portsFilename: String, debugger: Debugger, serializeOutputState: State) {
 
   private val sockets = new ScalaSockets(portsFilename,debugger)
   import sockets.{in, out, socketIn, socketOut}
-  private val R = org.ddahl.rscala.RClient(this,in,out,debugger,serializeOutputState)
 
-  if ( repl == null ) {
-    out.writeInt(ERROR)
-    out.flush
-    sys.error("REPL is null.")
-  } else {
-    out.writeInt(OK)
-    out.flush
-    repl.bind("R","org.ddahl.rscala.RClient",R)
-    if ( repl.interpreter.isInstanceOf[scala.tools.nsc.interpreter.IMain] ) {
-      repl.bind("$intp","scala.tools.nsc.interpreter.IMain",repl.interpreter)
-      repl.interpret("import org.ddahl.rscala.RObject")
-    }
-  }
+  out.writeInt(OK)
+  out.flush
+  private val R = RClient(this,in,out,debugger,serializeOutputState)
+  if ( repl.bind("R","org.ddahl.rscala.RClient",R) != Success ) sys.error("Problem binding R.")
+  baosOut.reset
+  baosErr.reset
 
   private var functionResult: (Any, String) = null
-  private var wrapResult: Array[Array[String]] = null
-  private var cacheMap = new scala.collection.mutable.ArrayBuffer[(Any,String)]()
+  private val cacheMap = new scala.collection.mutable.ArrayBuffer[(Any,String)]()
   private val cacheMapExtractor = """\.(\d+)""".r
   private val functionParametersStack = new scala.collection.mutable.ArrayBuffer[Any]()
   private val functionMap = new scala.collection.mutable.HashMap[String,(Any,java.lang.reflect.Method,Int,String)]()
+
+  private def typeOfTerm(id: String) = repl.symbolOfLine(id).info.toString
 
   private def extractReturnType(signature: String) = {
     var squareCount = 0
@@ -55,7 +51,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
 
   private def storeFunction(functionName: String, nArgs: Int): Unit = {
     val f = repl.valueOfTerm(functionName).get
-    val functionType = repl.typeOfTerm(functionName)
+    val functionType = typeOfTerm(functionName)
     val returnType = extractReturnType(functionType)
     val m = f.getClass.getMethods.filter(_.getName == "apply") match {
       case Array() => null
@@ -93,7 +89,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
   private val sep = sys.props("line.separator")
 
   private def doGC(): Unit = {
-    if ( debugger.value ) debugger.msg("Garbage collection")
+    if ( debugger.value ) debugger.msg("Garbage collection.")
     val length = in.readInt()
     if ( debugger.value ) debugger.msg("... of length: "+length)
     for ( i <- 0 until length ) {
@@ -104,14 +100,19 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
   private def doEval(): Unit = {
     val snippet = readString()
     try {
-      repl.interpret(snippet)
+      val result = repl.interpret(snippet)
       R.exit()
-      if ( debugger.value ) debugger.msg("Eval is okay")
-      out.writeInt(OK)
+      if ( result == Success ) {
+        if ( debugger.value ) debugger.msg("Eval is okay.")
+        out.writeInt(OK)
+      } else {
+        if ( debugger.value ) debugger.msg("Eval had a parse error.")
+        out.writeInt(ERROR)
+      }
     } catch {
       case e: Throwable =>
         if ( debugger.value ) debugger.msg("Caught throwable: "+e.toString)
-        repl.bind("$rscalamxception","Throwable",e) // So that repl.mostRecentVar is this throwable
+        repl.bind("$rscalaexception","Throwable",e) // So that repl.mostRecentVar is this throwable
         R.exit()
         out.writeInt(ERROR)
         e.printStackTrace()
@@ -317,7 +318,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
       identifier match {
         case "." => 
           val mrv = repl.mostRecentVar
-          (repl.valueOfTerm(mrv),repl.typeOfTerm(mrv))
+          (repl.valueOfTerm(mrv),typeOfTerm(mrv))
         case "?" => 
           (Some(functionResult._1),functionResult._2)
         case cacheMapExtractor(i) =>
@@ -326,7 +327,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
         case "null" =>
           (Some(null),"Null")
         case _ =>
-          (repl.valueOfTerm(identifier),repl.typeOfTerm(identifier))
+          (repl.valueOfTerm(identifier),typeOfTerm(identifier))
       }
     } catch {
       case e: Throwable =>
@@ -523,7 +524,7 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
         else {
           out.writeInt(OK)
           writeString(id)
-          writeString(repl.typeOfTerm(id))
+          writeString(typeOfTerm(id))
         }
     }
   }
@@ -583,18 +584,14 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
           return
       }
       if ( serializeOutputState.value ) {
-        val baosOut = new java.io.ByteArrayOutputStream()
-        val baosErr = new java.io.ByteArrayOutputStream()
-        val psOut = new java.io.PrintStream(baosOut,true)
-        val psErr = new java.io.PrintStream(baosErr,true)
-        System.setOut(psOut)
-        System.setErr(psErr)
-        scala.Console.withOut(psOut) {
-          scala.Console.withErr(psErr) {
+        scala.Console.withOut(baosOut) {
+          scala.Console.withErr(baosErr) {
             if ( ! heart(request) ) return
           }
         }
         writeString(baosOut.toString+baosErr.toString)
+        baosOut.reset
+        baosErr.reset
       } else {
         if ( ! heart(request) ) return
       }
@@ -606,7 +603,24 @@ class ScalaServer private (repl: InterpreterAdapter, portsFilename: String, debu
 
 object ScalaServer {
 
-  def apply(repl: InterpreterAdapter, portsFilename: String, debug: Boolean = false, serializeOutput: Boolean = false): ScalaServer = new ScalaServer(repl, portsFilename, new Debugger(System.out,"Scala",false,debug), new State(serializeOutput))
+  def apply(portsFilename: String, debug: Boolean = false, serializeOutput: Boolean = false): ScalaServer = {
+    val debugger = new Debugger(System.out,"Scala",false,debug)
+    val serializeState = new State(serializeOutput)
+    val baosOut = new ByteArrayOutputStream()
+    val baosErr = new ByteArrayOutputStream()
+    val pw = new PrintWriter(baosOut)
+    val settings = new Settings()
+    settings.embeddedDefaults[RClient]
+    val urls = java.lang.Thread.currentThread.getContextClassLoader match {
+      case cl: java.net.URLClassLoader => cl.getURLs.toList
+      case _ => sys.error("Classloader is not a URLClassLoader")
+    }
+    val classpath = urls.map(_.getPath)
+    if ( debugger.value ) debugger.msg("Classpath is:\n"+classpath.mkString("\n"))
+    settings.classpath.value = classpath.distinct.mkString(java.io.File.pathSeparator)
+    val repl = new IMain(settings,pw)
+    new ScalaServer(repl, pw, baosOut, baosErr, portsFilename, debugger, serializeState)
+  }
 
 }
 

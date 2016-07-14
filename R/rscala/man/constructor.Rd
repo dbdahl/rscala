@@ -44,7 +44,7 @@ the namespace.
 }
 \usage{
 scala(classpath=character(0),
-      serialize=FALSE, scala.home=NULL,
+      serialize=TRUE, scala.home=NULL,
       heap.maximum=NULL, command.line.options=NULL, timeout=60,
       debug=FALSE, stdout=FALSE, stderr=FALSE)
 scalaInfo(scala.home=NULL, verbose=FALSE)
@@ -54,7 +54,7 @@ scalaInstall()
 }
 \arguments{
     \item{classpath}{A character vector whose elements are paths to JAR files or directories which specify the classpath for the Scala compiler/interpreter.}
-    \item{serialize}{Should standard output (stdout) and standard error (stderr) should be captured and serialized back to R?  For performance and a better experience, \code{FALSE} is the default.  In that case, the operating system will take care of displaying this output on non-Windows.  Due to limitations of Windows, \code{FALSE} will likely result in nothing being displayed.  If this output is not needed, \code{FALSE} is recommended.}
+    \item{serialize}{Should standard output (stdout) and standard error (stderr) be captured and serialized back to R?  \code{TRUE} is strongly recommended so as to get \code{println} results and error reports (unless using a non-Windows system and \code{\var{stdout}==""} and \code{\var{stderr}==""}).}
     \item{scala.home}{A character vector of length one giving the path where Scala is installed.  When set to \code{NULL} (the default), the function sequentially tries to find the Scala home by:  i. using the environment variable \code{SCALA_HOME}, ii. querying the operating system search path, and iii. looking in \code{~/.rscala/scala-X} where \code{X} is the recommended Scala version number (e.g. 2.11.8) for the package.  If all these fail, the function offers to download and install Scala in the above mentioned path (if the current \R session is interactive) or it downloads and installs Scala in a temporary directory (if the current \R session is noninteractive).}
     \item{heap.maximum}{A character vector of length one used to specify the maximum heap size in the JVM.  If \code{NULL}, the global option \code{rscala.heap.maximum} is queried and, if that is also \code{NULL}, Scala's default value is used.  This option is ignored if \var{command.line.options} is not null.}
     \item{command.line.options}{A character vector whose elements are passed as command line arguments when invoking Scala.  If \code{NULL}, the global option \code{rscala.command.line.options} is queried and, if that is also \code{NULL}, the value is set to \code{NULL}.  A value of \code{NULL} means no extra arguments are provided.  If you simply want to add to the classpath and/or set the maximum heap size, use the \var{classpath} and \var{heap.maximum} arguments.}

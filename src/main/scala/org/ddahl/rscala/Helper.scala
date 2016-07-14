@@ -28,9 +28,5 @@ object Helper {
     true
   }
 
-  def main(args: Array[String]): Unit = {
-    print(util.Properties.versionNumberString)
-  }
-
 }
 

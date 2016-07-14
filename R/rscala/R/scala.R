@@ -1,6 +1,6 @@
 ## Scala scripting over TCP/IP
 
-scala <- function(classpath=character(0),serialize=FALSE,scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,timeout=60,debug=FALSE,stdout=FALSE,stderr=FALSE) {
+scala <- function(classpath=character(0),serialize=TRUE,scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,timeout=60,debug=FALSE,stdout=FALSE,stderr=FALSE) {
   if ( identical(stdout,TRUE) ) stop("stdout must not be TRUE.")
   if ( identical(stderr,TRUE) ) stop("stderr must not be TRUE.")
   userJars <- unlist(strsplit(classpath,.Platform$path.sep))
@@ -20,28 +20,17 @@ scala <- function(classpath=character(0),serialize=FALSE,scala.home=NULL,heap.ma
   rsJar <- .rscalaJar(sInfo$version)
   rsClasspath <- shQuote(paste(c(rsJar,userJars),collapse=.Platform$path.sep))
   portsFilename <- tempfile("rscala-")
-  bootstrap.filename <- tempfile("rscala-")
-  bootstrap.file <- file(bootstrap.filename, "w")
   debug <- identical(debug,TRUE)
+  if ( debug && ( identical(stdout,FALSE) || identical(stdout,NULL) || identical(stderr,FALSE) || identical(stderr,NULL) ) ) stop("If debug==TRUE, then stdout and stderr must not be discarded.")
   serialize <- identical(serialize,TRUE)
-  bootstrap.lines <- c(
-    ':silent',
-    if (sInfo$major.version=="2.10") ":power" else NULL,
-    sprintf('org.ddahl.rscala.ScalaServer(org.ddahl.rscala.ScalaInterpreterAdapter(%s),raw"%s",%s,%s).run()',ifelse(sInfo$major.version=="2.10","intp","$intp"),portsFilename,ifelse(debug,'true','false'),ifelse(serialize,'true','false')),
-    'sys.exit(0)'
-  )
-  writeLines(bootstrap.lines,bootstrap.file)
-  close(bootstrap.file)
-  args <- c(command.line.options,"-Xnojline","-howtorun:script","-classpath",rsClasspath,paste("-Drscala.classpath=",rsClasspath,sep=""),ifelse(sInfo$major.version=="2.12","-I","-i"),bootstrap.filename)
+  args <- c(command.line.options,"-classpath",rsClasspath,"org.ddahl.rscala.Main",portsFilename,debug,serialize)
   if ( debug ) msg("\n",sInfo$cmd)
   if ( debug ) msg("\n",paste0("<",args,">",collapse="\n"))
-  stdin <- ""
-  system2(sInfo$cmd,args,wait=FALSE,stdin=stdin,stdout=stdout,stderr=stderr)
+  system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
   sockets <- newSockets(portsFilename,debug,serialize,timeout)
   assign("callbackNameCounter",0L,envir=sockets[['env']])
   assign("markedForGC",integer(0),envir=sockets[['env']])
   scalaSettings(sockets,interpolate=TRUE,length.one.as.vector=FALSE)
-  if ( .Platform$OS.type != "windows" ) file.remove(bootstrap.filename)   # Would fail on Windows because the file is still open by Scala.
   sockets
 }
 
@@ -800,10 +789,8 @@ scalaInfo <- function(scala.home=NULL,verbose=FALSE) {
 # Private
 
 evalAndGet <- function(interpreter,snippet,as.reference) {
-  tryCatch({
-    scalaEval(interpreter,snippet,interpolate=FALSE)
-    scalaGet(interpreter,".",as.reference=as.reference)
-  },error=function(e) return(invisible()))
+  scalaEval(interpreter,snippet,interpolate=FALSE)
+  scalaGet(interpreter,".",as.reference=as.reference)
 }
 
 checkType <- function(x) {
