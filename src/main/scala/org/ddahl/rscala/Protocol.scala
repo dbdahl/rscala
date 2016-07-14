@@ -33,7 +33,6 @@ object Protocol {
   val SCALAP        = 112
   val EVALNAKED     = 113
   val SHUTDOWN      = 114
-  val SERIALIZE     = 115
 
   // Result
   val OK = 1000

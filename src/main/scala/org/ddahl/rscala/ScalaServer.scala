@@ -9,17 +9,19 @@ import java.io._
 
 import Protocol._
 
-class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutputStream, baosErr: ByteArrayOutputStream, portsFilename: String, debugger: Debugger, serializeOutputState: State) {
+class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutputStream, baosErr: ByteArrayOutputStream, portsFilename: String, debugger: Debugger, serializeOutput: Boolean) {
 
   private val sockets = new ScalaSockets(portsFilename,debugger)
   import sockets.{in, out, socketIn, socketOut}
 
   out.writeInt(OK)
   out.flush
-  private val R = RClient(this,in,out,debugger,serializeOutputState)
+  private val R = RClient(this,in,out,debugger,serializeOutput)
   if ( repl.bind("R","org.ddahl.rscala.RClient",R) != Success ) sys.error("Problem binding R.")
-  baosOut.reset
-  baosErr.reset
+  if ( serializeOutput ) {
+    baosOut.reset
+    baosErr.reset
+  }
 
   private var functionResult: (Any, String) = null
   private val cacheMap = new scala.collection.mutable.ArrayBuffer[(Any,String)]()
@@ -553,9 +555,6 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
       case DEBUG =>
         debugger.value = ( in.readInt() != 0 )
         if ( debugger.value ) debugger.msg("Debugging is now "+debugger.value)
-      case SERIALIZE =>
-        serializeOutputState.value = ( in.readInt() != 0 )
-        if ( debugger.value ) debugger.msg("Serialize output is now "+serializeOutputState.value)
       case EVAL =>
         doEval()
       case SET =>
@@ -583,7 +582,7 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
         case _: Throwable =>
           return
       }
-      if ( serializeOutputState.value ) {
+      if ( serializeOutput ) {
         scala.Console.withOut(baosOut) {
           scala.Console.withErr(baosErr) {
             if ( ! heart(request) ) return
@@ -604,11 +603,7 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
 object ScalaServer {
 
   def apply(portsFilename: String, debug: Boolean = false, serializeOutput: Boolean = false): ScalaServer = {
-    val debugger = new Debugger(System.out,"Scala",false,debug)
-    val serializeState = new State(serializeOutput)
-    val baosOut = new ByteArrayOutputStream()
-    val baosErr = new ByteArrayOutputStream()
-    val pw = new PrintWriter(baosOut)
+    // Set classpath
     val settings = new Settings()
     settings.embeddedDefaults[RClient]
     val urls = java.lang.Thread.currentThread.getContextClassLoader match {
@@ -616,13 +611,29 @@ object ScalaServer {
       case _ => sys.error("Classloader is not a URLClassLoader")
     }
     val classpath = urls.map(_.getPath)
-    if ( debugger.value ) debugger.msg("Classpath is:\n"+classpath.mkString("\n"))
     settings.classpath.value = classpath.distinct.mkString(java.io.File.pathSeparator)
-    val repl = new IMain(settings,pw)
+    // Set up sinks
+    val (debugger,prntWrtr,baosOut,baosErr) = serializeOutput match {
+      case true =>
+        val out = new ByteArrayOutputStream()
+        val err = new ByteArrayOutputStream()
+        val pw = new PrintWriter(out)
+        val d = new Debugger(pw,"Scala",false,debug)
+        (d,pw,out,err)
+      case false =>
+        val pw = new PrintWriter(System.out)
+        val d = new Debugger(pw,"Scala",false,debug)
+        (d,pw,null,null)
+    }
+    if ( debugger.value ) debugger.msg("Classpath is:\n"+classpath.mkString("\n"))
+    // Instantiate an interpreter
+    val intp = new IMain(settings,prntWrtr)
+    // Suppress output, equivalent to :silent in REPL
     val iloop = new ILoop()
-    iloop.intp = repl
-    iloop.verbosity()         // Equivalent to :silent in REPL
-    new ScalaServer(repl, pw, baosOut, baosErr, portsFilename, debugger, serializeState)
+    iloop.intp = intp
+    iloop.verbosity()
+    // Return the server
+    new ScalaServer(intp, prntWrtr, baosOut, baosErr, portsFilename, debugger, serializeOutput)
   }
 
 }

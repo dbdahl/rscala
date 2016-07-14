@@ -73,16 +73,6 @@ public class RClient4Java {
 
   public RClient4Java(String rCmd, boolean debug, boolean serializeOutput, int timeout) { c = org.ddahl.rscala.RClient.apply(rCmd,debug,serializeOutput,timeout); }
 
-  /** Return <b><tt>true</tt></b> if output from R is serialized back to Java.
-  *   @return         An indicator of whether output is serialized.
-  */
-  public boolean getSerializeOutput() { return c.serializeOutput(); }
-
-  /** Sets whether output from R is serialized back to Java.
-  *   @param v        The snippet to be evaluated.
-  */
-  public void setSerializeOutput(boolean v) { c.serializeOutput_$eq(v); }
-
   /** Closes the interface to the R interpreter.
   * 
   * Subsequent calls to the other methods will fail.

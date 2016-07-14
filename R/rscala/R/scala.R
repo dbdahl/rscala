@@ -1,8 +1,12 @@
 ## Scala scripting over TCP/IP
 
-scala <- function(classpath=character(0),serialize=TRUE,scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,timeout=60,debug=FALSE,stdout=FALSE,stderr=FALSE) {
-  if ( identical(stdout,TRUE) ) stop("stdout must not be TRUE.")
-  if ( identical(stderr,TRUE) ) stop("stderr must not be TRUE.")
+scala <- function(classpath=character(0),serialize=FALSE,scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,timeout=60,debug=FALSE,stdout=TRUE,stderr=TRUE) {
+  if ( identical(stdout,TRUE) ) stdout <- ""
+  if ( identical(stderr,TRUE) ) stderr <- ""
+  debug <- identical(debug,TRUE)
+  serialize <- identical(serialize,TRUE)
+  if ( debug && serialize ) stop("When debug==TRUE, serialize must be FALSE.")
+  if ( debug && ( identical(stdout,FALSE) || identical(stdout,NULL) || identical(stderr,FALSE) || identical(stderr,NULL) ) ) stop("When debug==TRUE, stdout and stderr must not be discarded.")
   userJars <- unlist(strsplit(classpath,.Platform$path.sep))
   if ( is.null(command.line.options) ) {
     command.line.options <- getOption("rscala.command.line.options",default=NULL)
@@ -20,9 +24,6 @@ scala <- function(classpath=character(0),serialize=TRUE,scala.home=NULL,heap.max
   rsJar <- .rscalaJar(sInfo$version)
   rsClasspath <- shQuote(paste(c(rsJar,userJars),collapse=.Platform$path.sep))
   portsFilename <- tempfile("rscala-")
-  debug <- identical(debug,TRUE)
-  if ( debug && ( identical(stdout,FALSE) || identical(stdout,NULL) || identical(stderr,FALSE) || identical(stderr,NULL) ) ) stop("If debug==TRUE, then stdout and stderr must not be discarded.")
-  serialize <- identical(serialize,TRUE)
   args <- c(command.line.options,"-classpath",rsClasspath,"org.ddahl.rscala.Main",portsFilename,debug,serialize)
   if ( debug ) msg("\n",sInfo$cmd)
   if ( debug ) msg("\n",paste0("<",args,">",collapse="\n"))

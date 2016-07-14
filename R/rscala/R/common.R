@@ -14,8 +14,8 @@ strintrplt <- function(snippet,envir=parent.frame()) {
   } else snippet
 }
 
-scalaSettings <- function(interpreter,debug=NULL,serialize=NULL,interpolate=NULL,length.one.as.vector=NULL) {
-  if ( is.null(debug) && is.null(serialize) && is.null(interpolate) && is.null(length.one.as.vector) ) {
+scalaSettings <- function(interpreter,debug=NULL,interpolate=NULL,length.one.as.vector=NULL) {
+  if ( is.null(debug) && is.null(interpolate) && is.null(length.one.as.vector) ) {
     list(debug=get("debug",envir=interpreter[['env']]),
          serialize=get("serialize",envir=interpreter[['env']]),
          interpolate=get("interpolate",envir=interpreter[['env']]),
@@ -33,20 +33,6 @@ scalaSettings <- function(interpreter,debug=NULL,serialize=NULL,interpolate=NULL
         }
       }
       assign("debug",debug,envir=interpreter[['env']])
-    }
-    if ( ! is.null(serialize) ) {
-      serialize <- as.logical(serialize)[1]
-      if ( class(interpreter) == "ScalaInterpreter" ) {
-        cc(interpreter)
-        serializeOld <- get("serialize",envir=interpreter[['env']])
-        if ( serialize != serializeOld ) {
-          cc(interpreter)
-          wb(interpreter,SERIALIZE)
-          wb(interpreter,as.integer(serialize))
-          if ( serializeOld ) echoResponseScala(interpreter)
-        }
-      }
-      assign("serialize",serialize,envir=interpreter[['env']])
     }
     if ( !is.null(interpolate) ) assign("interpolate",as.logical(interpolate)[1],envir=interpreter[['env']])
     if ( !is.null(length.one.as.vector) ) assign("length.one.as.vector",as.logical(length.one.as.vector)[1],envir=interpreter[['env']])

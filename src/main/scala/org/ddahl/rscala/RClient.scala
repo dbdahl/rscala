@@ -37,7 +37,7 @@ import Protocol._
 *
 * @author David B. Dahl
 */
-class RClient private (private val scalaServer: ScalaServer, private val in: DataInputStream, private val out: DataOutputStream, private val debugger: Debugger, private val serializeOutputState: State) extends Dynamic {
+class RClient private (private val scalaServer: ScalaServer, private val in: DataInputStream, private val out: DataOutputStream, private val debugger: Debugger, private val serializeOutput: Boolean) extends Dynamic {
 
   /** __For rscala developers only__: Returns `TRUE` if debugging output is enabled. */
   def debug = debugger.value
@@ -51,16 +51,6 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
       out.flush()
       debugger.value = v
     }
-  }
-
-  /** Return `true` if output from R is serialized back to Scala. */
-  def serializeOutput = serializeOutputState.value
-
-  /** Sets whether output from R is serialized back to Scala. */
-  def serializeOutput_=(v: Boolean) = {
-    if ( scalaServer == null ) {
-      serializeOutputState.value = v
-    } else throw new IllegalStateException(s"Change this value in R via intpSettings(interpreter,serialize=${if (v) "TRUE" else "FALSE"})")
   }
 
   /** Closes the interface to the R interpreter.
@@ -695,8 +685,7 @@ object RClient {
     var cmd: PrintWriter = null
     val command = rCmd +: ( defaultArguments ++ interactiveArguments )
     val processCmd = Process(command)
-    val serializeOutputState = new State(serializeOutput)
-    val debugger = new Debugger(System.out,"Scala",false,debug)
+    val debugger = new Debugger(new PrintWriter(System.out),"Scala",false,debug)
     val processIO = new ProcessIO(
       o => { cmd = new PrintWriter(o) },
       reader(debugger,""),
@@ -731,11 +720,11 @@ object RClient {
     val sockets = new ScalaSockets(portsFile.getAbsolutePath,debugger)
     sockets.out.writeInt(OK)
     sockets.out.flush()
-    apply(null,sockets.in,sockets.out,debugger,serializeOutputState)
+    apply(null,sockets.in,sockets.out,debugger,serializeOutput)
   }
 
   /** __For rscala developers only__: Returns an instance of the [[RClient]] class.  */
-  def apply(scalaServer: ScalaServer, in: DataInputStream, out: DataOutputStream, debugger: Debugger, serializeOutputState: State): RClient = new RClient(scalaServer,in,out,debugger,serializeOutputState)
+  def apply(scalaServer: ScalaServer, in: DataInputStream, out: DataOutputStream, debugger: Debugger, serializeOutput: Boolean): RClient = new RClient(scalaServer,in,out,debugger,serializeOutput)
 
 }
 
