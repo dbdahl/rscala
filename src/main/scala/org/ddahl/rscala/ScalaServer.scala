@@ -531,9 +531,6 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
     }
   }
 
-  private val originalOut = java.lang.System.out
-  private val originalErr = java.lang.System.err
-
   private def heart(request: Int): Boolean = {
     if ( debugger.value ) debugger.msg("Received request: "+request)
     request match {
@@ -552,9 +549,6 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
         cacheMap.clear()
       case GC =>
         doGC()
-      case DEBUG =>
-        debugger.value = ( in.readInt() != 0 )
-        if ( debugger.value ) debugger.msg("Debugging is now "+debugger.value)
       case EVAL =>
         doEval()
       case SET =>
@@ -618,11 +612,11 @@ object ScalaServer {
         val out = new ByteArrayOutputStream()
         val err = new ByteArrayOutputStream()
         val pw = new PrintWriter(out)
-        val d = new Debugger(pw,"Scala",false,debug)
+        val d = new Debugger(debug,pw,"Scala",false)
         (d,pw,out,err)
       case false =>
         val pw = new PrintWriter(System.out)
-        val d = new Debugger(pw,"Scala",false,debug)
+        val d = new Debugger(debug,pw,"Scala",false)
         (d,pw,null,null)
     }
     if ( debugger.value ) debugger.msg("Classpath is:\n"+classpath.mkString("\n"))

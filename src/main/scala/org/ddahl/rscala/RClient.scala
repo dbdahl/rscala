@@ -42,17 +42,6 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   /** __For rscala developers only__: Returns `TRUE` if debugging output is enabled. */
   def debug = debugger.value
 
-  /** __For rscala developers only__: Sets whether debugging output should be displayed. */
-  def debug_=(v: Boolean) = {
-    if ( v != debug ) {
-      if ( debug ) debugger.msg("Sending DEBUG request.")
-      out.writeInt(DEBUG)
-      out.writeInt(if ( v ) 1 else 0)
-      out.flush()
-      debugger.value = v
-    }
-  }
-
   /** Closes the interface to the R interpreter.
   * 
   * Subsequent calls to the other methods will fail.
@@ -685,7 +674,7 @@ object RClient {
     var cmd: PrintWriter = null
     val command = rCmd +: ( defaultArguments ++ interactiveArguments )
     val processCmd = Process(command)
-    val debugger = new Debugger(new PrintWriter(System.out),"Scala",false,debug)
+    val debugger = new Debugger(debug,new PrintWriter(System.out),"Scala",false)
     val processIO = new ProcessIO(
       o => { cmd = new PrintWriter(o) },
       reader(debugger,""),

@@ -1,6 +1,6 @@
 package org.ddahl.rscala
 
-class Debugger(out: java.io.PrintWriter, label: String, var withTime: Boolean = false, value: Boolean) extends State(value) {
+class Debugger(val value: Boolean, out: java.io.PrintWriter, label: String, withTime: Boolean) {
 
   private val maxOutputLength = 2000
 

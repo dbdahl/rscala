@@ -21,7 +21,7 @@ object Protocol {
   val EXIT          = 100
   val RESET         = 101
   val GC            = 102
-  val DEBUG         = 103
+  val VACANT_103    = 103
   val EVAL          = 104
   val SET           = 105
   val SET_SINGLE    = 106
