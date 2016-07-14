@@ -71,7 +71,5 @@ microbenchmark(h(0),i(0),times=100)
 
 
 # When serialize=TRUE however, we are limited by R's sink stack.
-serializeOriginal <- scalaSettings(s)$serialize
-scalaSettings(s,serialize=FALSE)
-i(-15)                                # This is okay if we are not serializing.
+i(-15)
 

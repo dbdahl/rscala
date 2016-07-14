@@ -17,15 +17,7 @@ f(s %.~% "(300,400)")
 
 f2 <- s$def('','println("Yes")')
 f2()
-
-serializeOriginal <- scalaSettings(s)$serialize
-scalaSettings(s,serialize=TRUE)
 capture.output(f2())
-f2()
-scalaSettings(s,serialize=FALSE)
-capture.output(f2())
-f2()
-scalaSettings(s,serialize=serializeOriginal)
 
 f1 <- s$def('x: Tuple2[Int,Int], y: Array[Double]','x._1 + x._2 + y.sum')
 a <- s %.~% "(300,234)"
