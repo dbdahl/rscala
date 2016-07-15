@@ -1,0 +1,66 @@
+
+R Under development (unstable) (2016-07-05 r70861) -- "Unsuffered Consequences"
+Copyright (C) 2016 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(rscala)
+> 
+> serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
+> output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
+> cat(serialize,"\n")
+FALSE 
+> cat(output,"\n")
+FALSE 
+> s <- scala(serialize=serialize,stdout=output,stderr=output)
+> s %~% "scala.util.Properties.versionNumberString"
+[1] "2.11.8"
+> 
+> 
+> s$.asdf <- 3
+> s %~% "3+4"
+[1] 7
+> 
+> tryCatch(s$adf,error = function(e) {'Caught'})
+[1] "Caught"
+> 
+> tryCatch(scalaGet(s,"def"),error = function(e) {'Caught'})
+[1] "Caught"
+> s$def <- 4
+> s %~% "3+4"
+[1] 7
+> 
+> f <- s$ def("x: Int, y: Double",'
++   x+y
++ ')
+> f(3,4)
+[1] 7
+> 
+> x <- as.character(0:8)
+> set.seed(234235)
+> s$x <- rnorm(100)
+> tryCatch(s$val(x),error = function(e) {'Caught'})
+[1] "Caught"
+> identical(s$x,s$.val("x"))
+[1] FALSE
+> 
+> s %~% "val $bob = 4"
+[1] 4
+> scalaGet(s,"$bob")
+[1] 4
+> s$$bob
+Error: unexpected '$' in "s$$"
+Execution halted

@@ -1,0 +1,110 @@
+
+R Under development (unstable) (2016-07-05 r70861) -- "Unsuffered Consequences"
+Copyright (C) 2016 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(rscala)
+> 
+> serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
+> output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
+> cat(serialize,"\n")
+FALSE 
+> cat(output,"\n")
+FALSE 
+> s <- scala(c("commons-math3-3.2.jar","shallot.jar"),serialize=serialize,stdout=output,stderr=output)
+> s %~% "scala.util.Properties.versionNumberString"
+[1] "2.11.8"
+> 
+> 
+> scalap(s,"org.apache.commons.math3.random.RandomDataGenerator")
+> rdg <- tryCatch(s$do("org.apache.commons.math3.random.RandomDataGenerator")$new(),error=function(e) e)  # There is some incompatability between Scala REPL classloader and the Apache Commons Math jar.
+> rdg <- s$do("org.apache.commons.math3.random.RandomDataGenerator")$new()                                # Rerun and it works fine.
+> rexp <- rdg$nextExponential(2,evaluate=FALSE)
+> 
+> library(microbenchmark)
+> options(width=120)
+> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
+Unit: microseconds
+                   expr     min      lq     mean   median       uq       max neval
+ rdg$nextExponential(4) 573.049 604.580 636.1100 616.0230 643.3690  1432.785  1000
+                rexp(4) 507.993 533.098 584.9681 543.7805 572.2365 14367.999  1000
+> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
+Unit: microseconds
+                   expr     min       lq     mean   median      uq      max neval
+ rdg$nextExponential(4) 569.522 581.3925 598.7624 587.1260 597.017 1361.506  1000
+                rexp(4) 502.134 512.5965 527.6786 517.7365 526.294 3106.644  1000
+> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
+Unit: microseconds
+                   expr     min       lq     mean   median       uq     max neval
+ rdg$nextExponential(4) 559.907 573.1125 592.0635 576.9745 585.4430 3677.92  1000
+                rexp(4) 490.849 504.3255 519.9230 507.8925 515.4655 5557.06  1000
+> 
+> massFactory3 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(1.0,3.0,s$do("org.apache.commons.math3.random.RandomDataGenerator")$new())
+> s %~% "3+4"
+[1] 7
+> 
+> scalap(s,"org.ddahl.shallot.parameter.Mass")
+> mass <- s$do("org.ddahl.shallot.parameter.Mass")$apply(3.4)
+> massFactory1 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(mass)
+> massFactory2 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(3.0)
+> massFactory3 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(1.0,3.0,rdg)
+> massFactory3$apply()$logValue()
+[1] -0.5490881
+> massFactory3$apply()$logValue()
+[1] -1.567584
+> massFactory3$apply()$logValue()
+[1] -0.3170402
+> 
+> 
+> 
+> s %~% '
++ class Bob {
++ 
++   val a = 3.0
++   var b = 4.0
++ 
++   def sum(c: Int) = { a + b + c }
++ 
++ }
++ '
+ScalaInterpreterReference... res10: org.ddahl.shallot.parameter.Mass => Double
+> 
+> d <- s$do("Bob")$new()
+> d[['type']]                           # Note the weird 'iw$' prepended to 'Bob'
+[1] "iw$Bob"
+> tryCatch(d$b(),error=function(e) e)   # Doesn't work
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Evaluation error.>
+> 
+> d[['type']] <- "Bob"     # Cast it to be 'Bob'
+> d$b()                    # Now it does
+[1] 4
+> 
+> d$sum(as.integer(4))
+[1] 11
+> m <- d$sum(as.integer(5),evaluate=FALSE)
+> 
+> m(3)                                    # Casting is not necessary here
+[1] 10
+> d$sum(as.integer(3))                    # But it is here
+[1] 10
+> tryCatch(d$sum(3),error=function(e) e)  # and here
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Evaluation error.>
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  2.976   0.888   9.648 

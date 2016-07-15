@@ -1,0 +1,55 @@
+
+R Under development (unstable) (2016-07-05 r70861) -- "Unsuffered Consequences"
+Copyright (C) 2016 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(rscala)
+> 
+> serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
+> output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
+> cat(serialize,"\n")
+TRUE 
+> cat(output,"\n")
+FALSE 
+> s <- scala(serialize=serialize,stdout=output,stderr=output)
+> s %~% "scala.util.Properties.versionNumberString"
+[1] "2.10.6"
+> 
+> 
+> a <- list(a=3,b=4)
+> tryCatch(s$j <- a,error=function(e) {'Caught'})
+[1] "Caught"
+> s$.j <- a
+> identical(a,scalaUnwrap(s,s$.j))
+[1] TRUE
+> s$j
+$a
+[1] 3
+
+$b
+[1] 4
+
+> s$jj <- unlist(a)
+> 
+> tryCatch(s$j <- complex(3,4,5,32),error=function(e) {'Caught'})
+[1] "Caught"
+> 
+> s %~% "null"
+Error in doTryCatch(return(expr), name, parentenv, handler) : 
+  Undefined identifier: .
+Calls: %~% ... tryCatch -> tryCatchList -> tryCatchOne -> doTryCatch
+Execution halted

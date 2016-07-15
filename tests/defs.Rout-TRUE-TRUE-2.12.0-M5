@@ -1,0 +1,39 @@
+
+R Under development (unstable) (2016-07-05 r70861) -- "Unsuffered Consequences"
+Copyright (C) 2016 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(rscala)
+> 
+> serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
+> output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
+> cat(serialize,"\n")
+TRUE 
+> cat(output,"\n")
+TRUE 
+> s <- scala(serialize=serialize,stdout=output,stderr=output)
+> s %~% "scala.util.Properties.versionNumberString"
+[1] "2.12.0-M5"
+> 
+> f <- s$def('x: (Int,Int)','x._1 + x._2')
+> s %~% "(300,400)"
+ScalaInterpreterReference... res2: (Int, Int)
+> scalaEval(s,"val a = (300,400)")
+> a <- scalaGet(s,"a",as.reference=TRUE)
+> f(a)
+Error in f(a) : Invocation error.
+Execution halted

@@ -1,0 +1,185 @@
+
+R Under development (unstable) (2016-07-05 r70861) -- "Unsuffered Consequences"
+Copyright (C) 2016 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(rscala)
+> 
+> serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
+> output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
+> cat(serialize,"\n")
+FALSE 
+> cat(output,"\n")
+FALSE 
+> s <- scala(serialize=serialize,stdout=output,stderr=output)
+> s %~% "scala.util.Properties.versionNumberString"
+[1] "2.11.8"
+> 
+> f <- s$def('x: (Int,Int)','x._1 + x._2')
+> s %~% "(300,400)"
+ScalaInterpreterReference... res2: (Int, Int)
+> scalaEval(s,"val a = (300,400)")
+> a <- scalaGet(s,"a",as.reference=TRUE)
+> f(a)
+[1] 700
+> f(s %.~% "(300,400)")
+[1] 700
+> 
+> 
+> f2 <- s$def('','println("Yes")')
+> f2()
+> capture.output(f2())
+character(0)
+> 
+> f1 <- s$def('x: Tuple2[Int,Int], y: Array[Double]','x._1 + x._2 + y.sum')
+> a <- s %.~% "(300,234)"
+> b <- s %.~% "Array[Double](2,3,4,5)"
+> f1(a,b)
+[1] 548
+> f1(a,c(2,3,4,6))
+[1] 549
+> 
+> 
+> s$def('','println("Yes")')()
+> s$def('','0')()
+[1] 0
+> s$def('','null')()
+> tryCatch(s$def('','a+b')(),error = function(e) {'Caught'})
+[1] "Caught"
+> tryCatch(s$def('','a+')(),error = function(e) {'Caught'})
+[1] "Caught"
+> tryCatch(s$def('','import org.asdfad')(),error = function(e) {e})
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Evaluation error.>
+> tryCatch(s$def('','throw new RuntimeException()')(),error = function(e) {e})
+<simpleError in (s$def("", "throw new RuntimeException()"))(): Invocation error.>
+> s %~% "5+6"   # Everything's still okay!
+[1] 11
+> 
+> tryCatch(s$def('x,y','x+y')(),error = function(e) {'Caught'})
+[1] "Caught"
+> s$def('x :    Int,y:Double','x+y')(2,3)
+[1] 5
+> s$def('x:Int, y:Double','x+y')(4,2)
+[1] 6
+> 
+> s$def('x:Boolean, y:Double','if ( x ) y else 2*y')(TRUE,2)
+[1] 2
+> s$def('x:Boolean, y:Double','if ( x ) y else 2*y')(FALSE,2)
+[1] 4
+> 
+> s$def('x:String, y:Int','if ( x=="bob" ) y else 2*y')('bob',2)
+[1] 2
+> s$def('x:String, y:Int','if ( x=="bob" ) y else 2*y')('bobby',2)
+[1] 4
+> 
+> s$def('x:Array[String], y:Array[Int]','if ( x(0)=="bob" ) y(0) else 2*y(0)')('bob',2)
+[1] 2
+> s$def('x:Array[String], y:Array[Int]','if ( x(0)=="bob" ) y(0) else 2*y(0)')('bobby',2)
+[1] 4
+> s$def('x:Array[Boolean], y:Array[Double]','if ( x(0) ) y(0) else 2*y(0)')(TRUE,2)
+[1] 2
+> s$def('x:Array[Boolean], y:Array[Double]','if ( x(0) ) y(0) else 2*y(0)')(TRUE,2)
+[1] 2
+> 
+> s$def('x:Array[String], y:Array[Int]','if ( x(0)=="bob" ) y(0) else 2*y(0)')(c('bob','bill'),c(2,10))
+[1] 2
+> s$def('x:Array[String], y:Array[Int]','if ( x(0)=="bob" ) y(0) else 2*y(0)')(c('bobby','bill'),c(2,10))
+[1] 4
+> s$def('x:Array[Boolean], y:Array[Double]','if ( x(0) ) y(0) else 2*y(0)')(c(TRUE,FALSE),c(2,10))
+[1] 2
+> s$def('x:Array[Boolean], y:Array[Double]','if ( x(0) ) y(0) else 2*y(0)')(c(FALSE,TRUE),c(2,10))
+[1] 4
+> 
+> s$def('x:Array[Array[String]], y:Array[Array[Int]]','if ( x(0)(0)=="bob" ) y(0)(0) else 2*y(0)(0)')(matrix(c('bob','bill'),ncol=1),matrix(c(2,10),ncol=1))
+[1] 2
+> s$def('x:Array[Array[String]], y:Array[Array[Int]]','if ( x(0)(0)=="bob" ) y(0)(0) else 2*y(0)(0)')(matrix(c('bobby','bill'),ncol=1),matrix(c(2,10),ncol=1))
+[1] 4
+> s$def('x:Array[Array[Boolean]], y:Array[Array[Double]]','if ( x(0)(0) ) y(0)(0) else 2*y(0)(0)')(matrix(c(TRUE,FALSE),ncol=1),matrix(c(2,10),ncol=1))
+[1] 2
+> s$def('x:Array[Array[Boolean]], y:Array[Array[Double]]','if ( x(0)(0) ) y(0)(0) else 2*y(0)(0)')(matrix(c(FALSE,TRUE),ncol=1),matrix(c(2,10),ncol=1))
+[1] 4
+> 
+> f <- s$def("x: Double, w: Int, r: Double","
++   math.sqrt(x)+w-r
++ ")
+> f
+function (x, w, r, as.reference = NA, gc = FALSE) 
+{
+    if (!inherits(x, "ScalaInterpreterReference")) {
+        x <- as.vector(x)[1]
+        storage.mode(x) <- "double"
+    }
+    scalaSet(interpreter, ".", x, length.one.as.vector = FALSE)
+    if (!inherits(w, "ScalaInterpreterReference")) {
+        w <- as.vector(w)[1]
+        storage.mode(w) <- "integer"
+    }
+    scalaSet(interpreter, ".", w, length.one.as.vector = FALSE)
+    if (!inherits(r, "ScalaInterpreterReference")) {
+        r <- as.vector(r)[1]
+        storage.mode(r) <- "double"
+    }
+    scalaSet(interpreter, ".", r, length.one.as.vector = FALSE)
+    if (gc) 
+        scalaGC(interpreter)
+    rscala:::wb(interpreter, rscala:::INVOKE)
+    rscala:::wc(interpreter, "res34")
+    flush(interpreter[["socketIn"]])
+    rscala:::rServe(interpreter, TRUE)
+    status <- rscala:::rb(interpreter, "integer")
+    if (status == rscala:::ERROR) {
+        stop("Invocation error.")
+    }
+    else {
+        result <- scalaGet(interpreter, "?", as.reference = as.reference)
+        if (is.null(result)) 
+            invisible(result)
+        else result
+    }
+}
+<environment: 0x3adcf90>
+attr(,"args")
+[1] "x: Double, w: Int, r: Double"
+attr(,"body")
+[1] "\n  math.sqrt(x)+w-r\n"
+attr(,"type")
+[1] "Double"
+> f(3,4,54)
+[1] -48.26795
+> 
+> g <- s$def('x:Array[String], y:Array[Int]','if ( x(0)=="bob" ) y(0) else 2*y(0)')
+> g("David",3)
+[1] 6
+> 
+> f1 <- s$def("x: Double, w: Int, r: Double","
++   math.sqrt(x)+w-r
++ ")
+> f1(3,4,54)
+[1] -48.26795
+> 
+> f2 <- s$def("x: Double","2*x")
+> f2(f1(3,4,54))
+[1] -96.5359
+> 
+> system.time(sapply(1:100,function(i) f1(i,4,54)))
+   user  system elapsed 
+  0.060   0.012   0.077 
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  0.292   0.036  10.034 

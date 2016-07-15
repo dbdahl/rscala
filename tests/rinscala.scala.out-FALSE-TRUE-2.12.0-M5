@@ -1,0 +1,11 @@
+/home/dahl/docs/devel/rscala/tests/./rinscala.scala:11: error: value applyDynamic is not a member of org.ddahl.rscala.RClient
+error after rewriting to $anon.this.R.<applyDynamic: error>("debug_=")
+possible cause: maybe a wrong Dynamic method signature?
+R.debug = true
+^
+/home/dahl/docs/devel/rscala/tests/./rinscala.scala:12: error: value applyDynamic is not a member of org.ddahl.rscala.RClient
+error after rewriting to $anon.this.R.<applyDynamic: error>("debug_=")
+possible cause: maybe a wrong Dynamic method signature?
+R.debug = false
+^
+two errors found

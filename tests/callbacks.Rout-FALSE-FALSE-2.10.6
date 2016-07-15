@@ -1,0 +1,70 @@
+
+R Under development (unstable) (2016-07-05 r70861) -- "Unsuffered Consequences"
+Copyright (C) 2016 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(rscala)
+> 
+> serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
+> output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
+> cat(serialize,"\n")
+FALSE 
+> cat(output,"\n")
+FALSE 
+> s <- scala(serialize=serialize,stdout=output,stderr=output)
+> 
+> 
+> s %~% "scala.util.Properties.versionNumberString"
+[1] "2.10.6"
+> 
+> assert <- function(x) {
++   a <<- x
++   if ( ! identical(( s %~% 'R.a._1' ), get("a")) ) stop("Not identical (test 2)")
++   if ( ! identical(( s %~% 'R.get("a")._1' ), get("a")) ) stop("Not identical (test 1)")
++   s$a <- x
++   s %~% 'R.b = a'
++   if ( ! identical(x, s$.R$get("b")$"_1"()) ) stop("Not identical (test 3)")
++ }
+> 
+> y <- c(0,1,2,3,4,5,6,8)
+> for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y)) ) {
++   assert(x[1])
++   assert(x[2])
++   assert(x)
++   assert(matrix(x,nrow=1))
++   assert(matrix(x,nrow=2))
++   assert(matrix(x,nrow=4))
++ }
+> 
+> counter <- 0
+> increment <- s$def('','R.eval("counter <<- counter +1")')
+> for ( i in 1:10 ) increment()
+> if ( counter != 10 ) stop("Counter is off.")
+> 
+> 
+> # Should be a compile-time error because 'ewf' is not defined.
+> s %~% '
++   3+4+ewf
++   R.eval("""
++     cat("I love Lisa!\n")
++     a <- "3+9"
++   """)
++ '
+Error in scalaEval(interpreter, snippet, interpolate = FALSE) : 
+  Error in evaluation.
+Calls: %~% -> %~%.ScalaInterpreter -> evalAndGet -> scalaEval
+Execution halted
