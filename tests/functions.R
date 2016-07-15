@@ -2,15 +2,14 @@ library(rscala)
 
 serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-cat(serialize,"\n")
-cat(output,"\n")
+version <- Sys.getenv("RSCALA_SCALA_VERSION")
 s <- scala(c("commons-math3-3.2.jar","shallot.jar"),serialize=serialize,stdout=output,stderr=output)
-s %~% "scala.util.Properties.versionNumberString"
-
+if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
 
 scalap(s,"org.apache.commons.math3.random.RandomDataGenerator")
 rdg <- tryCatch(s$do("org.apache.commons.math3.random.RandomDataGenerator")$new(),error=function(e) e)  # There is some incompatability between Scala REPL classloader and the Apache Commons Math jar.
 rdg <- s$do("org.apache.commons.math3.random.RandomDataGenerator")$new()                                # Rerun and it works fine.
+rdg$reSeed(39234L)
 rexp <- rdg$nextExponential(2,evaluate=FALSE)
 
 library(microbenchmark)
@@ -19,7 +18,7 @@ microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 
-massFactory3 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(1.0,3.0,s$do("org.apache.commons.math3.random.RandomDataGenerator")$new())
+massFactory3 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(1.0,3.0,rdg)
 s %~% "3+4"
 
 scalap(s,"org.ddahl.shallot.parameter.Mass")

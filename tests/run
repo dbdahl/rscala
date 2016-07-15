@@ -16,6 +16,12 @@ else
 fi
 
 export VERSIONS="2.10.6 2.11.8 2.12.0-M5"
+export SERIALIZES="TRUE FALSE"
+export OUTPUTS="TRUE FALSE"
+
+#export VERSIONS="2.11.8"
+#export SERIALIZES="FALSE"
+#export OUTPUTS="TRUE"
 
 if [[ "$DOINSTALL" == TRUE ]]
 then
@@ -32,17 +38,17 @@ do
   for script in $SCRIPTS
   do
     echo "  Running $script"
-    for SERIALIZE in TRUE FALSE
+    for SERIALIZE in $SERIALIZES
     do
-      for OUTPUT in TRUE FALSE
+      for OUTPUT in $OUTPUTS
       do
         EXT=$([[ "$script" = *.* ]] && echo ".${script##*.}" || echo '')
         if [[ "$EXT" == .R ]]
         then
-          RSCALA_OUTPUT=$OUTPUT RSCALA_SERIALIZE=$SERIALIZE R CMD BATCH --no-restore --no-save $script ${script}out-$SERIALIZE-$OUTPUT-$SCALA_VERSION
+          RSCALA_SCALA_VERSION=$SCALA_VERSION RSCALA_OUTPUT=$OUTPUT RSCALA_SERIALIZE=$SERIALIZE R CMD BATCH --no-restore --no-save $script ${script}out-$SERIALIZE-$OUTPUT-$SCALA_VERSION
         elif [[ "$EXT" == .scala || "$EXT" == "" ]]
         then
-          RSCALA_OUTPUT=$OUTPUT RSCALA_SERIALIZE=$SERIALIZE ./$script >| $script.out-$SERIALIZE-$OUTPUT-$SCALA_VERSION 2>&1
+          RSCALA_SCALA_VERSION=$SCALA_VERSION RSCALA_OUTPUT=$OUTPUT RSCALA_SERIALIZE=$SERIALIZE ./$script >| $script.out-$SERIALIZE-$OUTPUT-$SCALA_VERSION 2>&1
         fi
       done
     done

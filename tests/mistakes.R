@@ -2,20 +2,18 @@ library(rscala)
 
 serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-cat(serialize,"\n")
-cat(output,"\n")
+version <- Sys.getenv("RSCALA_SCALA_VERSION")
 s <- scala(serialize=serialize,stdout=output,stderr=output)
-s %~% "scala.util.Properties.versionNumberString"
-
+if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
 
 a <- list(a=3,b=4)
-tryCatch(s$j <- a,error=function(e) {'Caught'})
+tryCatch(s$j <- a,error=function(e) e)
 s$.j <- a
 identical(a,scalaUnwrap(s,s$.j))
 s$j
 s$jj <- unlist(a)
 
-tryCatch(s$j <- complex(3,4,5,32),error=function(e) {'Caught'})
+tryCatch(s$j <- complex(3,4,5,32),error=function(e) e)
 
 s %~% "null"
 
@@ -37,9 +35,9 @@ s %.~% "
   (a,b)
 "
 
-tryCatch(s$xaa,error = function(e) {'Caught'})
+tryCatch(s$xaa,error = function(e) e)
 s$xaa <- NULL
-tryCatch(s$xaa,error = function(e) {'Caught'})
+tryCatch(s$xaa,error = function(e) e)
 
 s$xaa <- 3
 s$xaa

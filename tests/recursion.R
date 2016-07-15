@@ -1,12 +1,10 @@
 library(rscala)
 
-
 serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-cat(serialize,"\n")
-cat(output,"\n")
+version <- Sys.getenv("RSCALA_SCALA_VERSION")
 s <- scala(serialize=serialize,stdout=output,stderr=output)
-s %~% "scala.util.Properties.versionNumberString"
+if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
 
 
 # This is not recursion via callbacks.

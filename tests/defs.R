@@ -2,10 +2,9 @@ library(rscala)
 
 serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-cat(serialize,"\n")
-cat(output,"\n")
+version <- Sys.getenv("RSCALA_SCALA_VERSION")
 s <- scala(serialize=serialize,stdout=output,stderr=output)
-s %~% "scala.util.Properties.versionNumberString"
+if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
 
 f <- s$def('x: (Int,Int)','x._1 + x._2')
 s %~% "(300,400)"
@@ -29,13 +28,13 @@ f1(a,c(2,3,4,6))
 s$def('','println("Yes")')()
 s$def('','0')()
 s$def('','null')()
-tryCatch(s$def('','a+b')(),error = function(e) {'Caught'})
-tryCatch(s$def('','a+')(),error = function(e) {'Caught'})
+tryCatch(s$def('','a+b')(),error = function(e) e)
+tryCatch(s$def('','a+')(),error = function(e) e)
 tryCatch(s$def('','import org.asdfad')(),error = function(e) {e})
 tryCatch(s$def('','throw new RuntimeException()')(),error = function(e) {e})
 s %~% "5+6"   # Everything's still okay!
 
-tryCatch(s$def('x,y','x+y')(),error = function(e) {'Caught'})
+tryCatch(s$def('x,y','x+y')(),error = function(e) e)
 s$def('x :    Int,y:Double','x+y')(2,3)
 s$def('x:Int, y:Double','x+y')(4,2)
 
