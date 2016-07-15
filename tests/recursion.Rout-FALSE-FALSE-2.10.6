@@ -19,16 +19,11 @@ Type 'q()' to quit R.
 
 > library(rscala)
 > 
-> 
 > serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 > output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-> cat(serialize,"\n")
-FALSE 
-> cat(output,"\n")
-FALSE 
+> version <- Sys.getenv("RSCALA_SCALA_VERSION")
 > s <- scala(serialize=serialize,stdout=output,stderr=output)
-> s %~% "scala.util.Properties.versionNumberString"
-[1] "2.10.6"
+> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
 > 
 > 
 > # This is not recursion via callbacks.
@@ -327,10 +322,10 @@ Hello 8 from R.
 Hello 9 from R.
 Unit: milliseconds
  expr        min         lq       mean     median         uq        max neval
- f(0) 395.107916 395.456118 453.716533 441.623983 476.063205 560.331445     5
- g(0) 214.826254 243.621319 267.607332 259.662495 278.164664 341.761926     5
- h(0)   5.898848   6.144566   6.809563   6.888869   7.047034   8.068497     5
- i(0)   6.100250   6.204456   6.942321   6.232584   7.423015   8.751301     5
+ f(0) 384.636517 424.275016 469.528573 447.997488 492.961012 597.772830     5
+ g(0) 226.094701 254.295978 284.268218 276.292639 293.334239 371.323531     5
+ h(0)   7.978504   8.445212   8.947177   8.614597   9.187422  10.510151     5
+ i(0)   7.979166   8.906063   8.839627   8.964796   9.078156   9.269955     5
 > 
 > cat("####\n")
 ####
@@ -2338,8 +2333,8 @@ Hello 9 from R.
 Hello 10 from R.
 Unit: milliseconds
  expr      min       lq     mean   median       uq      max neval
- h(0) 5.169119 5.256788 5.444397 5.366628 5.436695 7.090992   100
- i(0) 5.365969 5.540192 5.704238 5.638152 5.747815 6.919156   100
+ h(0) 5.329615 5.746211 6.949690 7.321279 7.533859 8.308554   100
+ i(0) 5.665186 7.587810 7.589259 7.773038 8.043764 9.034799   100
 > 
 > 
 > 
@@ -2375,4 +2370,4 @@ Hello 10 from R.
 > 
 > proc.time()
    user  system elapsed 
-  1.496   0.360   9.136 
+  1.824   0.344   9.904 

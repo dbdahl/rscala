@@ -19,17 +19,12 @@ Type 'q()' to quit R.
 
 > library(rscala)
 > 
-> 
 > serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 > output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-> cat(serialize,"\n")
-FALSE 
-> cat(output,"\n")
-TRUE 
+> version <- Sys.getenv("RSCALA_SCALA_VERSION")
 > s <- scala(serialize=serialize,stdout=output,stderr=output)
 Switched off result printing.
-> s %~% "scala.util.Properties.versionNumberString"
-[1] "2.10.6"
+> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
 > 
 > 
 > # This is not recursion via callbacks.
@@ -568,10 +563,10 @@ Hello 9 from R.
 Hello 10 from Scala.
 Unit: milliseconds
  expr        min         lq       mean     median         uq        max neval
- f(0) 356.516408 400.571680 446.919290 440.308545 477.993073 559.206743     5
- g(0) 204.562673 243.524723 267.304954 264.244153 275.092652 349.100568     5
- h(0)   6.324019   6.336007   9.048843   9.079415  10.615771  12.889005     5
- i(0)   6.942227   7.252299   8.189612   8.274353   9.119364   9.359817     5
+ f(0) 374.406957 386.989031 467.552088 482.639777 508.400830 585.323846     5
+ g(0) 203.968560 235.235560 287.398538 277.036891 345.163016 375.588661     5
+ h(0)   6.012465   7.608892   8.278070   8.225740   9.574216   9.969039     5
+ i(0)   6.436230   7.180574   8.084998   7.227314   8.836334  10.744538     5
 > 
 > cat("####\n")
 ####
@@ -4578,9 +4573,9 @@ Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
 Unit: milliseconds
- expr      min       lq     mean   median       uq       max neval
- h(0) 5.172535 5.276407 5.483344 5.312439 5.442984  9.005198   100
- i(0) 5.429513 5.546864 5.907785 5.594850 5.791187 10.168898   100
+ expr      min       lq     mean   median       uq      max neval
+ h(0) 5.523101 6.027134 7.171307 7.413747 7.717896 9.055744   100
+ i(0) 5.726573 6.058719 7.310978 7.754382 8.076509 9.728019   100
 > 
 > 
 > 
@@ -4641,4 +4636,4 @@ Hello 10 from R.
 > 
 > proc.time()
    user  system elapsed 
-  1.476   0.384   9.063 
+  1.732   0.416   9.924 

@@ -19,16 +19,11 @@ Type 'q()' to quit R.
 
 > library(rscala)
 > 
-> 
 > serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 > output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-> cat(serialize,"\n")
-FALSE 
-> cat(output,"\n")
-TRUE 
+> version <- Sys.getenv("RSCALA_SCALA_VERSION")
 > s <- scala(serialize=serialize,stdout=output,stderr=output)
-> s %~% "scala.util.Properties.versionNumberString"
-[1] "2.11.8"
+> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
 > 
 > 
 > # This is not recursion via callbacks.
@@ -566,11 +561,11 @@ Hello 9 from Scala.
 Hello 9 from R.
 Hello 10 from Scala.
 Unit: milliseconds
- expr        min         lq       mean     median         uq        max neval
- f(0) 696.378556 699.202261 825.498128 854.622911 906.667473 970.619439     5
- g(0) 350.965570 435.697594 490.966278 509.611377 541.736709 616.820138     5
- h(0)   6.089001   6.193243   7.241714   7.007855   7.180521   9.737950     5
- i(0)   6.186136   6.386669   7.341742   6.645765   8.704048   8.786094     5
+ expr        min         lq       mean     median         uq         max neval
+ f(0) 698.326810 699.802956 833.945744 726.513010 844.361141 1200.724804     5
+ g(0) 363.376358 437.357660 470.526499 463.897647 468.158163  619.842668     5
+ h(0)   6.911800   6.969321   7.499166   7.678087   7.927103    8.009519     5
+ i(0)   6.828912   6.975870   8.957453   7.223029   9.232905   14.526547     5
 > 
 > cat("####\n")
 ####
@@ -4577,9 +4572,9 @@ Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
 Unit: milliseconds
- expr      min      lq    mean   median       uq      max neval
- h(0) 5.271439 5.42932 5.72832 5.632249 5.824467 8.038165   100
- i(0) 5.557497 5.80501 6.08678 5.947857 6.275411 8.080729   100
+ expr      min       lq     mean   median       uq      max neval
+ h(0) 5.739730 6.316726 7.271540 7.488414 7.863944 11.12871   100
+ i(0) 6.060343 6.380064 7.469897 7.340997 8.295435 11.78630   100
 > 
 > 
 > 
@@ -4640,4 +4635,4 @@ Hello 10 from R.
 > 
 > proc.time()
    user  system elapsed 
-  1.468   0.388  14.071 
+  1.796   0.372  14.648 
