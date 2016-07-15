@@ -343,9 +343,15 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
     }
     if ( debugger.value ) debugger.msg("Getting: "+identifier)
     if ( optionWithType._1.isEmpty ) {
-      if ( debugger.value ) debugger.msg("... which does not exist.")
-      out.writeInt(UNDEFINED_IDENTIFIER)
-      return
+      if ( optionWithType._2 == "<notype>" ) {
+        if ( debugger.value ) debugger.msg("... which does not exist.")
+        out.writeInt(UNDEFINED_IDENTIFIER)
+        return
+      } else {
+        if ( debugger.value ) debugger.msg("... which is emtpy [due to quirk in 2.10 series].")
+        out.writeInt(NULLTYPE)
+        return
+      }
     }
     val v = optionWithType._1.get
     if ( v == null || v.isInstanceOf[Unit] ) {
@@ -617,7 +623,7 @@ object ScalaServer {
         val d = new Debugger(debug,pw,"Scala",false)
         (d,pw,out,err)
       case false =>
-        val pw = new PrintWriter(System.out)
+        val pw = new PrintWriter(System.out,true)
         val d = new Debugger(debug,pw,"Scala",false)
         (d,pw,null,null)
     }

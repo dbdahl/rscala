@@ -21,24 +21,18 @@ Type 'q()' to quit R.
 > 
 > serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 > output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-> cat(serialize,"\n")
-FALSE 
-> cat(output,"\n")
-TRUE 
-> j <- scala(serialize=serialize,stdout=output,stderr=output)
+> version <- Sys.getenv("RSCALA_SCALA_VERSION")
+> s <- scala(serialize=serialize,stdout=output,stderr=output)
 Switched off result printing.
-> 
-> 
-> j %~% "scala.util.Properties.versionNumberString"
-[1] "2.10.6"
+> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
 > 
 > setget <- function(value,method="$",...) {
 +   if ( method == "$" ) {
-+     j$tt <- value
-+     value2 <- j$tt
++     s$tt <- value
++     value2 <- s$tt
 +   } else {
-+     scalaSet(j,"tt",value,...)
-+     value2 <- scalaGet(j,"tt")
++     scalaSet(s,"tt",value,...)
++     value2 <- scalaGet(s,"tt")
 +   }
 +   if ( any(value != value2) ) stop(paste("Value not equal:",paste(value,collapse=","),"\n",paste(value2,collapse=",")))
 +   if ( class(value) != class(value2) ) stop(paste("Class not equal:",class(value),"\n",class(value2)))
@@ -95,4 +89,4 @@ Switched off result printing.
 > 
 > proc.time()
    user  system elapsed 
-  0.200   0.040   6.613 
+  0.220   0.004   6.305 

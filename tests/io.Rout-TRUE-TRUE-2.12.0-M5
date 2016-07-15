@@ -21,17 +21,22 @@ Type 'q()' to quit R.
 > 
 > serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 > output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-> cat(serialize,"\n")
-TRUE 
-> cat(output,"\n")
-TRUE 
+> version <- Sys.getenv("RSCALA_SCALA_VERSION")
 > s <- scala(serialize=serialize,stdout=output,stderr=output)
-> s %~% "scala.util.Properties.versionNumberString"
-[1] "2.12.0-M5"
+> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
+> 
+> tryCatch(capture.output(s %~% "new java.util.Random(23455).nextDoubllllllllle"),error=function(e) e)
+<simpleError in scalaEval(interpreter, snippet, interpolate = FALSE): Error in evaluation.>
+> capture.output(s %~% "new java.util.Random(234523).nextDouble")
+[1] "[1] 0.6839737"
+> capture.output(s %~% "3+2")
+[1] "[1] 5"
+> capture.output(s %~% "println(3+2)")
+[1] "5"
+> capture.output(s %~% 'R.eval("""cat(R.version.string)""")')
+[1] "R Under development (unstable) (2016-07-05 r70861)"
 > 
 > 
-> capture.output(s %~% "new java.util.Random().nextDoubllllllllle")
-Error in scalaEval(interpreter, snippet, interpolate = FALSE) : 
-  Error in evaluation.
-Calls: capture.output ... %~% -> %~%.ScalaInterpreter -> evalAndGet -> scalaEval
-Execution halted
+> proc.time()
+   user  system elapsed 
+  0.168   0.008   5.208 
