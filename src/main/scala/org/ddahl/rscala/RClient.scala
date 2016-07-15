@@ -667,10 +667,17 @@ object RClient {
   */
   def apply(): RClient = apply(defaultRCmd)
 
-  /** Returns an instance of the [[RClient]] class using the path specified by `rCmd` and specifying whether debugging
-  * output should be display and the `timeout` to establish a connection with the R interpreter.
+  /**
+  * Returns an instance of the [[RClient]] class by running the `R` executable in the path, specifying whether output
+  * should be serialized.
   */
-  def apply(rCmd: String, debug: Boolean = false, serializeOutput: Boolean = false, timeout: Int = 60): RClient = {
+  def apply(serializeOutput: Boolean): RClient = apply(defaultRCmd,serializeOutput)
+
+  /** Returns an instance of the [[RClient]] class, using the path specified by `rCmd` and specifying whether output
+  * should be serialized, whether debugging output should be displayed, and the `timeout` to establish a connection
+  * with the R interpreter.
+  */
+  def apply(rCmd: String, serializeOutput: Boolean = false, debug: Boolean = false, timeout: Int = 60): RClient = {
     var cmd: PrintWriter = null
     val command = rCmd +: ( defaultArguments ++ interactiveArguments )
     val processCmd = Process(command)

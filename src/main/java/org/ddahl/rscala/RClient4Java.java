@@ -71,7 +71,9 @@ public class RClient4Java {
 
   public RClient4Java(String rCmd) { c = org.ddahl.rscala.RClient.apply(rCmd,false,false,60); }
 
-  public RClient4Java(String rCmd, boolean debug, boolean serializeOutput, int timeout) { c = org.ddahl.rscala.RClient.apply(rCmd,debug,serializeOutput,timeout); }
+  public RClient4Java(boolean serializeOutput) { c = org.ddahl.rscala.RClient.apply(serializeOutput); }
+
+  public RClient4Java(String rCmd, boolean serializeOutput, boolean debug, int timeout) { c = org.ddahl.rscala.RClient.apply(rCmd,serializeOutput,debug,timeout); }
 
   /** Closes the interface to the R interpreter.
   * 

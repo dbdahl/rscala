@@ -1,11 +1,18 @@
-/home/dahl/docs/devel/rscala/tests/./rinscala.scala:11: error: value applyDynamic is not a member of org.ddahl.rscala.RClient
-error after rewriting to $anon.this.R.<applyDynamic: error>("debug_=")
-possible cause: maybe a wrong Dynamic method signature?
-R.debug = true
-^
-/home/dahl/docs/devel/rscala/tests/./rinscala.scala:12: error: value applyDynamic is not a member of org.ddahl.rscala.RClient
-error after rewriting to $anon.this.R.<applyDynamic: error>("debug_=")
-possible cause: maybe a wrong Dynamic method signature?
-R.debug = false
-^
-two errors found
+2.12.0-M5
+there is no package called ‘dfasdf’
+Burnin the hotspot compiler.
+2941151 microseconds
+35380 microseconds
+Get then eval.
+25505 microseconds
+51154 microseconds
+Eval then get.
+50862 microseconds
+20748 microseconds
+Eval then get.
+215257 microseconds
+27186 microseconds
+Get then eval.
+21535 microseconds
+87726 microseconds
+Done

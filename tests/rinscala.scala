@@ -7,14 +7,7 @@ exec "$SCALA_HOME"/bin/scala -cp $(R --slave -e "$CMD") "$0" "$@"
 
 println(util.Properties.versionNumberString)
 
-val R = org.ddahl.rscala.RClient() // ("R",true)
-R.debug = true
-R.debug = false
-R.serializeOutput = try {
-  sys.env("RSCALA_SERIALIZE").toUpperCase == "TRUE"
-} catch {
-  case _: Throwable => false
-}
+val R = org.ddahl.rscala.RClient(sys.env("RSCALA_SERIALIZE").toUpperCase == "TRUE")
 
 try {
   R.eval("library(dfasdf)")  // Tests for UTF-8 strings because of curly single quotes.
@@ -214,4 +207,4 @@ R.exit()
 
 println("Done")
 
-// LF scala -cp $(R --slave -e 'cat(rscala::.rscalaJar("2.11"))')
+// LF RSCALA_SERIALIZE=TRUE scala -cp $(R --slave -e 'cat(rscala::.rscalaJar("2.11"))')
