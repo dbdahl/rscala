@@ -21,13 +21,9 @@ Type 'q()' to quit R.
 > 
 > serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 > output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-> cat(serialize,"\n")
-FALSE 
-> cat(output,"\n")
-FALSE 
+> version <- Sys.getenv("RSCALA_SCALA_VERSION")
 > s <- scala(serialize=serialize,stdout=output,stderr=output)
-> s %~% "scala.util.Properties.versionNumberString"
-[1] "2.10.6"
+> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
 > 
 > f <- s$def('x: (Int,Int)','x._1 + x._2')
 > s %~% "(300,400)"
@@ -58,10 +54,10 @@ character(0)
 > s$def('','0')()
 [1] 0
 > s$def('','null')()
-> tryCatch(s$def('','a+b')(),error = function(e) {'Caught'})
-[1] "Caught"
-> tryCatch(s$def('','a+')(),error = function(e) {'Caught'})
-[1] "Caught"
+> tryCatch(s$def('','a+b')(),error = function(e) e)
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Evaluation error.>
+> tryCatch(s$def('','a+')(),error = function(e) e)
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Evaluation error.>
 > tryCatch(s$def('','import org.asdfad')(),error = function(e) {e})
 <simpleError in doTryCatch(return(expr), name, parentenv, handler): Evaluation error.>
 > tryCatch(s$def('','throw new RuntimeException()')(),error = function(e) {e})
@@ -69,8 +65,8 @@ character(0)
 > s %~% "5+6"   # Everything's still okay!
 [1] 11
 > 
-> tryCatch(s$def('x,y','x+y')(),error = function(e) {'Caught'})
-[1] "Caught"
+> tryCatch(s$def('x,y','x+y')(),error = function(e) e)
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Evaluation error.>
 > s$def('x :    Int,y:Double','x+y')(2,3)
 [1] 5
 > s$def('x:Int, y:Double','x+y')(4,2)
@@ -151,7 +147,7 @@ function (x, w, r, as.reference = NA, gc = FALSE)
         else result
     }
 }
-<environment: 0x3909118>
+<environment: 0x28c3070>
 attr(,"args")
 [1] "x: Double, w: Int, r: Double"
 attr(,"body")
@@ -177,9 +173,9 @@ attr(,"type")
 > 
 > system.time(sapply(1:100,function(i) f1(i,4,54)))
    user  system elapsed 
-  0.060   0.012   0.074 
+  0.072   0.036   0.110 
 > 
 > 
 > proc.time()
    user  system elapsed 
-  0.296   0.072   5.941 
+  0.308   0.072   6.021 

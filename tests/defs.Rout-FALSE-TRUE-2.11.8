@@ -21,13 +21,9 @@ Type 'q()' to quit R.
 > 
 > serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 > output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-> cat(serialize,"\n")
-FALSE 
-> cat(output,"\n")
-TRUE 
+> version <- Sys.getenv("RSCALA_SCALA_VERSION")
 > s <- scala(serialize=serialize,stdout=output,stderr=output)
-> s %~% "scala.util.Properties.versionNumberString"
-[1] "2.11.8"
+> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
 > 
 > f <- s$def('x: (Int,Int)','x._1 + x._2')
 > s %~% "(300,400)"
@@ -61,12 +57,12 @@ Yes
 > s$def('','0')()
 [1] 0
 > s$def('','null')()
-> tryCatch(s$def('','a+b')(),error = function(e) {'Caught'})
+> tryCatch(s$def('','a+b')(),error = function(e) e)
 <console>:13: error: not found: value b
        () => { a+b }
                  ^
-[1] "Caught"
-> tryCatch(s$def('','a+')(),error = function(e) {'Caught'})
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Evaluation error.>
+> tryCatch(s$def('','a+')(),error = function(e) e)
 java.lang.RuntimeException: Parse error in 'def'.
 	at org.ddahl.rscala.ScalaServer.doDef(ScalaServer.scala:153)
 	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:563)
@@ -106,7 +102,7 @@ Unapplied methods are only converted to functions when a function type is expect
 You can make this conversion explicit by writing `$plus _` or `$plus(_)` instead of `$plus`.
        () => { a+ }
                 ^
-[1] "Caught"
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Evaluation error.>
 > tryCatch(s$def('','import org.asdfad')(),error = function(e) {e})
 java.lang.RuntimeException: Parse error in 'def'.
 	at org.ddahl.rscala.ScalaServer.doDef(ScalaServer.scala:153)
@@ -151,7 +147,7 @@ java.lang.RuntimeException: Parse error in 'def'.
 > s %~% "5+6"   # Everything's still okay!
 [1] 11
 > 
-> tryCatch(s$def('x,y','x+y')(),error = function(e) {'Caught'})
+> tryCatch(s$def('x,y','x+y')(),error = function(e) e)
 java.lang.RuntimeException: Parse error in 'def'.
 	at org.ddahl.rscala.ScalaServer.doDef(ScalaServer.scala:153)
 	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:563)
@@ -233,7 +229,7 @@ java.lang.RuntimeException
 <console>:1: error: ';' expected but '=>' found.
 (x,y) => { x+y }
       ^
-[1] "Caught"
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Evaluation error.>
 > s$def('x :    Int,y:Double','x+y')(2,3)
 [1] 5
 > s$def('x:Int, y:Double','x+y')(4,2)
@@ -314,7 +310,7 @@ function (x, w, r, as.reference = NA, gc = FALSE)
         else result
     }
 }
-<environment: 0x2a170e0>
+<environment: 0x316f000>
 attr(,"args")
 [1] "x: Double, w: Int, r: Double"
 attr(,"body")
@@ -340,9 +336,9 @@ attr(,"type")
 > 
 > system.time(sapply(1:100,function(i) f1(i,4,54)))
    user  system elapsed 
-  0.060   0.008   0.078 
+  0.060   0.028   0.095 
 > 
 > 
 > proc.time()
    user  system elapsed 
-  0.352   0.028  10.000 
+  0.316   0.056  10.387 
