@@ -64,36 +64,33 @@ Type 'q()' to quit R.
 > # General tests
 > serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 > output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-> cat(serialize,"\n")
-TRUE 
-> cat(output,"\n")
-FALSE 
-> a <- scala(serialize=serialize,stdout=output,stderr=output)
-> a %~% "scala.util.Properties.versionNumberString"
-[1] "2.12.0-M5"
+> version <- Sys.getenv("RSCALA_SCALA_VERSION")
+> s <- scala(serialize=serialize,stdout=output,stderr=output)
+> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
 > 
-> assertAll(a)
+> assertAll(s)
 Testing method: name 
 Testing method: $ 
 > 
 > 
 > # Tests of static typing in Scala
-> a$b <- matrix(1L:12L,ncol=3)
-> a %~% "println(b(1)(2))"
+> s$b <- matrix(1L:12L,ncol=3)
+> s %~% "println(b(1)(2))"
 10
-> a$b <- matrix(c(FALSE,TRUE),ncol=2)
-> a %~% "println(b(0)(1))"
+> s$b <- matrix(c(FALSE,TRUE),ncol=2)
+> s %~% "println(b(0)(1))"
 true
-> a$b <- seq(0,1,length=5)
-> a %~% "println(b(3))"
+> s$b <- seq(0,1,length=5)
+> s %~% "println(b(3))"
 0.75
-> a$b <- FALSE
-> a %~% "println(!b)"
+> s$b <- FALSE
+> s %~% "println(!b)"
 true
 > 
-> close(a)
-> rm(a)
+> close(s)
+> rm(s)
+> 
 > 
 > proc.time()
    user  system elapsed 
-  0.228   0.024   8.485 
+  0.192   0.028   8.353 
