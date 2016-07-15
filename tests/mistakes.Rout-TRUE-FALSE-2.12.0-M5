@@ -21,18 +21,13 @@ Type 'q()' to quit R.
 > 
 > serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 > output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-> cat(serialize,"\n")
-TRUE 
-> cat(output,"\n")
-FALSE 
+> version <- Sys.getenv("RSCALA_SCALA_VERSION")
 > s <- scala(serialize=serialize,stdout=output,stderr=output)
-> s %~% "scala.util.Properties.versionNumberString"
-[1] "2.12.0-M5"
-> 
+> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
 > 
 > a <- list(a=3,b=4)
-> tryCatch(s$j <- a,error=function(e) {'Caught'})
-[1] "Caught"
+> tryCatch(s$j <- a,error=function(e) e)
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Data structure is not supported.>
 > s$.j <- a
 Error in f(..., as.reference = as.reference, gc = gc) : Invocation error.
 Calls: $<- ... doTryCatch -> inherits -> scalaWrap -> <Anonymous> -> f

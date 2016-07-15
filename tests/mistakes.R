@@ -17,11 +17,11 @@ tryCatch(s$j <- complex(3,4,5,32),error=function(e) e)
 
 s %~% "null"
 
-s %~% "
+tryCatch(s %~% "
   val a = 3
   val b = 5
   a ++ b
-"
+",error=function(e) e)
 
 s %~% "
   val a = 3
