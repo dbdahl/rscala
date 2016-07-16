@@ -191,7 +191,7 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
   private def doInvoke(): Unit = {
     val functionName = readString()
     try {
-      val f = repl.valueOfTerm(functionName).get
+//      val f = repl.valueOfTerm(functionName).get    // DBD:  Do I need this?
       callFunction(functionName)
       R.exit()
       if ( debugger.value ) debugger.msg("Invoke is okay")
@@ -590,6 +590,7 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
             if ( ! heart(request) ) return
           }
         }
+        pw.flush()
         writeString(baosOut.toString+baosErr.toString)
         baosOut.reset()
         baosErr.reset()

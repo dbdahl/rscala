@@ -6,20 +6,20 @@ version <- Sys.getenv("RSCALA_SCALA_VERSION")
 
 s <- scala(heap.max="64M",serialize=serialize,stdout=output,stderr=output)
 if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
-a <- tryCatch(s$do("Array[Double]")$new(10000000L),error=function(e) e)
+tryCatch(a <- tryCatch(s$do("Array[Double]")$new(20000000L),error=function(e) e),error=function(e) e)
 close(s)
 cat("----\n")
 
 s <- scala(heap.max="256M",serialize=serialize,stdout=output,stderr=output)
 if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
-a <- s$do("Array[Double]")$new(10000000L)
+tryCatch(a <- s$do("Array[Double]")$new(20000000L),error=function(e) e)
 close(s)
 cat("----\n")
 
 options(rscala.heap.maximum="64M")
 s <- scala(serialize=serialize,stdout=output,stderr=output)
 if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
-a <- s$do("Array[Double]")$new(10000000L)
+tryCatch(a <- s$do("Array[Double]")$new(20000000L),error=function(e) e)
 close(s)
 cat("----\n")
 
