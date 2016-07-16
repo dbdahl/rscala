@@ -65,7 +65,7 @@ Yes
 java.lang.RuntimeException: Parse error in 'def'.
 	at org.ddahl.rscala.ScalaServer.doDef(ScalaServer.scala:153)
 	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:569)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:597)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:598)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:5)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
@@ -103,7 +103,7 @@ follow this method with `_' if you want to treat it as a partially applied funct
 java.lang.RuntimeException: Parse error in 'def'.
 	at org.ddahl.rscala.ScalaServer.doDef(ScalaServer.scala:153)
 	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:569)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:597)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:598)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:5)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
@@ -140,7 +140,7 @@ java.lang.RuntimeException: Parse error in 'def'.
 java.lang.RuntimeException: Parse error in 'def'.
 	at org.ddahl.rscala.ScalaServer.doDef(ScalaServer.scala:153)
 	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:569)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:597)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:598)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:5)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
@@ -179,7 +179,7 @@ java.lang.reflect.InvocationTargetException
 	at org.ddahl.rscala.ScalaServer.callFunction(ScalaServer.scala:76)
 	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:195)
 	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:571)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:597)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:598)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:5)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
@@ -224,7 +224,7 @@ java.lang.RuntimeException
 java.lang.RuntimeException: Parse error in 'def'.
 	at org.ddahl.rscala.ScalaServer.doDef(ScalaServer.scala:153)
 	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:569)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:597)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:598)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:5)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
@@ -334,7 +334,7 @@ function (x, w, r, as.reference = NA, gc = FALSE)
         else result
     }
 }
-<environment: 0x2fc0290>
+<environment: 0x35a60c8>
 attr(,"args")
 [1] "x: Double, w: Int, r: Double"
 attr(,"body")
@@ -360,9 +360,9 @@ attr(,"type")
 > 
 > system.time(sapply(1:100,function(i) f1(i,4,54)))
    user  system elapsed 
-  0.052   0.020   0.076 
+  0.048   0.020   0.073 
 > 
 > 
 > proc.time()
    user  system elapsed 
-  0.304   0.048   5.966 
+  0.316   0.028   5.870 

@@ -21,15 +21,10 @@ Type 'q()' to quit R.
 > 
 > serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 > output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-> cat(serialize,"\n")
-FALSE 
-> cat(output,"\n")
-FALSE 
+> version <- Sys.getenv("RSCALA_SCALA_VERSION")
 > s <- scala(serialize=serialize,stdout=output,stderr=output)
-> 
-> 
-> s %~% "scala.util.Properties.versionNumberString"
-[1] "2.12.0-M5"
+> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
+> set.seed(924234)
 > 
 > 
 > sleep.time <- 0
@@ -44,7 +39,7 @@ FALSE
 + }
 > 
 > doit0(rnorm(10))
-[1] -0.01197984  0.46766082
+[1] 0.05067312 0.74823148
 > 
 > 
 > 
@@ -57,7 +52,7 @@ FALSE
 + }
 > 
 > doit1(rnorm(10))
-[1] -0.05035703  1.69944992
+[1] 0.6360252 2.5355099
 > 
 > 
 > 
@@ -72,7 +67,7 @@ FALSE
 + }
 > 
 > doit2(rnorm(10))
-[1] 0.9303111 2.0134096
+[1] -0.163821  1.921544
 > 
 > 
 > 

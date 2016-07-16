@@ -21,15 +21,9 @@ Type 'q()' to quit R.
 > 
 > serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 > output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-> cat(serialize,"\n")
-TRUE 
-> cat(output,"\n")
-TRUE 
+> version <- Sys.getenv("RSCALA_SCALA_VERSION")
 > s <- scala(serialize=serialize,stdout=output,stderr=output)
-> 
-> 
-> s %~% "scala.util.Properties.versionNumberString"
-[1] "2.11.8"
+> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
 > 
 > assert <- function(x) {
 +   a <<- x
@@ -57,17 +51,85 @@ TRUE
 > 
 > 
 > # Should be a compile-time error because 'ewf' is not defined.
-> s %~% '
+> tryCatch(s %~% '
 +   3+4+ewf
 +   R.eval("""
 +     cat("I love Lisa!\n")
 +     a <- "3+9"
 +   """)
-+ '
++ ',error=function(e) e)
 <console>:13: error: not found: value ewf
   3+4+ewf
       ^
-Error in scalaEval(interpreter, snippet, interpolate = FALSE) : 
-  Error in evaluation.
-Calls: %~% -> %~%.ScalaInterpreter -> evalAndGet -> scalaEval
-Execution halted
+<simpleError in scalaEval(interpreter, snippet, interpolate = FALSE): Error in evaluation.>
+> s %~% '3+2'
+[1] 5
+> 
+> 
+> # Should be an R evaluation error because 'asfd' is not defined and out of place.
+> tryCatch(s %~% '
++   3+4
++   R.eval("""
++     cat("I love Lisa!\n")
++     a <- "3+9" asfd
++   """)
++ ',error=function(e) e)
+<console>:13: warning: a pure expression does nothing in statement position; you may be omitting necessary parentheses
+  3+4
+   ^
+Error in parse(text = snippet) : <text>:4:16: unexpected symbol
+3: ")
+4:     a <- "3+9" asfd
+                  ^
+<text>:4:16: unexpected symbol
+3: ")
+4:     a <- "3+9" asfd
+                  ^
+java.lang.RuntimeException: Error in R evaluation.
+  at org.ddahl.rscala.RClient.eval(RClient.scala:78)
+  ... 60 elided
+<simpleError in scalaEval(interpreter, snippet, interpolate = FALSE): Error in evaluation.>
+> s %~% '3+6'
+[1] 9
+> 
+> 
+> myMean <- function(x) {
++   cat("Here is am.\n")
++   mean(x)
++ }
+> 
+> callRFunction <- s$def('functionName: String, x: Array[Double]','
++   R.xx = x
++   R.eval("y <- "+functionName+"(xx)")
++   R.y._1
++ ')
+> 
+> tryCatch(callRFunction(1:100),error = function(e) {})
+NULL
+> callRFunction('myMean',1:100)
+Here is am.
+[1] 50.5
+> 
+> # Should be an R evaluation error because 'asfd' is not a package.
+> tryCatch(scalaEval(s,'R.eval("library(asdf)")'),error=function(e) e)
+Error in library(asdf) : there is no package called ‘asdf’
+there is no package called ‘asdf’
+java.lang.RuntimeException: Error in R evaluation.
+  at org.ddahl.rscala.RClient.eval(RClient.scala:78)
+  ... 60 elided
+<simpleError in scalaEval(s, "R.eval(\"library(asdf)\")"): Error in evaluation.>
+> s %~% 'R.evalD0("3+4")'
+[1] 7
+> 
+> # Note that callbacks can only be one-level deep.
+> s %~% "3+4"
+[1] 7
+> s %~% 'R.eval("""s %~% "2+3"""")'
+> s %~% "3+4"
+[1] 7
+> 
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  0.332   0.056  15.433 

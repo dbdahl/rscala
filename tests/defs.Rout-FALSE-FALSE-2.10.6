@@ -147,7 +147,7 @@ function (x, w, r, as.reference = NA, gc = FALSE)
         else result
     }
 }
-<environment: 0x28c3070>
+<environment: 0x2808630>
 attr(,"args")
 [1] "x: Double, w: Int, r: Double"
 attr(,"body")
@@ -173,9 +173,9 @@ attr(,"type")
 > 
 > system.time(sapply(1:100,function(i) f1(i,4,54)))
    user  system elapsed 
-  0.072   0.036   0.110 
+  0.044   0.024   0.070 
 > 
 > 
 > proc.time()
    user  system elapsed 
-  0.308   0.072   6.021 
+  0.272   0.072   5.890 

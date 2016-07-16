@@ -25,7 +25,7 @@ Type 'q()' to quit R.
 > s <- scala(serialize=serialize,stdout=output,stderr=output)
 > if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
 > 
-> tryCatch(capture.output(s %~% "new java.util.Random(23455).nextDoubllllllllle"),error=function(e) e)
+> tryCatch(s %~% "new java.util.Random(23455).nextDoubllllllllle",error=function(e) e)
 <console>:12: error: value nextDoubllllllllle is not a member of java.util.Random
        new java.util.Random(23455).nextDoubllllllllle
                                    ^
@@ -43,4 +43,4 @@ character(0)
 > 
 > proc.time()
    user  system elapsed 
-  0.172   0.008   5.170 
+  0.172   0.016   4.969 

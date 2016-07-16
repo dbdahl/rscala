@@ -25,7 +25,7 @@ Type 'q()' to quit R.
 > s <- scala(serialize=serialize,stdout=output,stderr=output)
 > if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
 > 
-> tryCatch(capture.output(s %~% "new java.util.Random(23455).nextDoubllllllllle"),error=function(e) e)
+> tryCatch(s %~% "new java.util.Random(23455).nextDoubllllllllle",error=function(e) e)
 <simpleError in scalaEval(interpreter, snippet, interpolate = FALSE): Error in evaluation.>
 > capture.output(s %~% "new java.util.Random(234523).nextDouble")
 [1] "[1] 0.6839737"
@@ -39,4 +39,4 @@ character(0)
 > 
 > proc.time()
    user  system elapsed 
-  0.160   0.012   2.546 
+  0.192   0.012   2.731 

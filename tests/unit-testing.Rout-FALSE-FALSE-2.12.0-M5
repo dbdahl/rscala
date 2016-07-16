@@ -89,4 +89,4 @@ Testing method: $
 > 
 > proc.time()
    user  system elapsed 
-  0.184   0.020   8.492 
+  0.188   0.016   8.343 

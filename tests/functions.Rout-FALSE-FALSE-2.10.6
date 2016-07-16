@@ -21,39 +21,35 @@ Type 'q()' to quit R.
 > 
 > serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 > output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-> cat(serialize,"\n")
-FALSE 
-> cat(output,"\n")
-FALSE 
+> version <- Sys.getenv("RSCALA_SCALA_VERSION")
 > s <- scala(c("commons-math3-3.2.jar","shallot.jar"),serialize=serialize,stdout=output,stderr=output)
-> s %~% "scala.util.Properties.versionNumberString"
-[1] "2.10.6"
-> 
+> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
 > 
 > scalap(s,"org.apache.commons.math3.random.RandomDataGenerator")
 > rdg <- tryCatch(s$do("org.apache.commons.math3.random.RandomDataGenerator")$new(),error=function(e) e)  # There is some incompatability between Scala REPL classloader and the Apache Commons Math jar.
 > rdg <- s$do("org.apache.commons.math3.random.RandomDataGenerator")$new()                                # Rerun and it works fine.
+> rdg$reSeed(39234L)
 > rexp <- rdg$nextExponential(2,evaluate=FALSE)
 > 
 > library(microbenchmark)
 > options(width=120)
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: microseconds
-                   expr     min       lq     mean   median       uq       max neval
- rdg$nextExponential(4) 560.892 578.5595 645.2813 587.9035 604.9640 21249.777  1000
-                rexp(4) 495.112 510.2275 553.8095 518.3645 534.1885  3595.621  1000
+                   expr     min      lq     mean   median       uq       max neval
+ rdg$nextExponential(4) 552.300 567.988 612.7708 576.4565 593.6200 13565.506  1000
+                rexp(4) 485.076 499.299 526.5419 506.3625 520.4775  1215.059  1000
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: microseconds
-                   expr     min      lq     mean   median       uq      max neval
- rdg$nextExponential(4) 561.284 572.870 590.5130 578.3585 584.8305 1358.037  1000
-                rexp(4) 492.753 505.281 517.6259 510.0545 515.8170 2910.616  1000
+                   expr     min      lq     mean   median      uq      max neval
+ rdg$nextExponential(4) 552.934 563.985 578.2546 569.7545 577.251 1289.075  1000
+                rexp(4) 485.177 495.890 514.0533 500.2405 507.327 2902.447  1000
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: microseconds
-                   expr     min       lq     mean   median       uq      max neval
- rdg$nextExponential(4) 559.418 568.5535 587.0962 579.3675 585.5385 3575.260  1000
-                rexp(4) 493.907 502.2450 518.2301 510.9440 516.4690 1315.786  1000
+                   expr     min       lq     mean  median       uq       max neval
+ rdg$nextExponential(4) 547.312 556.2260 588.1976 559.226 565.9720 16839.410  1000
+                rexp(4) 481.627 488.4125 501.3949 491.037 496.6345  3536.563  1000
 > 
-> massFactory3 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(1.0,3.0,s$do("org.apache.commons.math3.random.RandomDataGenerator")$new())
+> massFactory3 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(1.0,3.0,rdg)
 > s %~% "3+4"
 [1] 7
 > 
@@ -63,11 +59,11 @@ Unit: microseconds
 > massFactory2 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(3.0)
 > massFactory3 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(1.0,3.0,rdg)
 > massFactory3$apply()$logValue()
-[1] -1.20173
+[1] -2.27295
 > massFactory3$apply()$logValue()
-[1] -0.9257136
+[1] -3.893189
 > massFactory3$apply()$logValue()
-[1] -0.4142038
+[1] -2.183371
 > 
 > 
 > 
@@ -81,7 +77,7 @@ Unit: microseconds
 + 
 + }
 + '
-ScalaInterpreterReference... res9: org.ddahl.shallot.parameter.Mass => Double
+ScalaInterpreterReference... res10: org.ddahl.shallot.parameter.Mass => Double
 > 
 > d <- s$do("Bob")$new()
 > d[['type']]                           # Note the weird 'iw$' prepended to 'Bob'
@@ -107,4 +103,4 @@ ScalaInterpreterReference... res9: org.ddahl.shallot.parameter.Mass => Double
 > 
 > proc.time()
    user  system elapsed 
-  3.020   0.856   7.610 
+  3.132   0.744   7.623 

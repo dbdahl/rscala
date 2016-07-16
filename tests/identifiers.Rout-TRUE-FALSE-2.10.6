@@ -21,27 +21,23 @@ Type 'q()' to quit R.
 > 
 > serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 > output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-> cat(serialize,"\n")
-TRUE 
-> cat(output,"\n")
-FALSE 
+> version <- Sys.getenv("RSCALA_SCALA_VERSION")
 > s <- scala(serialize=serialize,stdout=output,stderr=output)
-> s %~% "scala.util.Properties.versionNumberString"
-[1] "2.10.6"
-> 
+> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
+> set.seed(3432585)
 > 
 > s$.asdf <- 3
 > s %~% "3+4"
 [1] 7
 > 
-> tryCatch(s$adf,error = function(e) {'Caught'})
+> tryCatch(s$adf,error = function(e) e)
 <console>:8: error: not found: value adf
               adf
               ^
-[1] "Caught"
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Undefined identifier: adf>
 > 
-> tryCatch(scalaGet(s,"def"),error = function(e) {'Caught'})
-[1] "Caught"
+> tryCatch(scalaGet(s,"def"),error = function(e) e)
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Undefined identifier: def>
 > s$def <- 4
 <console>:1: error: illegal start of simple pattern
        val def = value
@@ -58,8 +54,8 @@ FALSE
 > x <- as.character(0:8)
 > set.seed(234235)
 > s$x <- rnorm(100)
-> tryCatch(s$val(x),error = function(e) {'Caught'})
-[1] "Caught"
+> tryCatch(s$val(x),error = function(e) e)
+NULL
 > identical(s$x,s$.val("x"))
 [1] FALSE
 > 

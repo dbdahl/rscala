@@ -37,7 +37,7 @@ java.lang.IllegalAccessException: Class org.ddahl.rscala.ScalaServer can not acc
 	at org.ddahl.rscala.ScalaServer.callFunction(ScalaServer.scala:76)
 	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:195)
 	at org.ddahl.rscala.ScalaServer.heart(ScalaServer.scala:571)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:597)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:598)
 	at org.ddahl.rscala.Main$.delayedEndpoint$org$ddahl$rscala$Main$1(Main.scala:5)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0.apply$mcV$sp$(Function0.scala:34)

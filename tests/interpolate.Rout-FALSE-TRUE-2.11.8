@@ -21,14 +21,9 @@ Type 'q()' to quit R.
 > 
 > serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 > output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-> cat(serialize,"\n")
-FALSE 
-> cat(output,"\n")
-TRUE 
+> version <- Sys.getenv("RSCALA_SCALA_VERSION")
 > s <- scala(serialize=serialize,stdout=output,stderr=output)
-> s %~% "scala.util.Properties.versionNumberString"
-[1] "2.11.8"
-> 
+> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
 > 
 > s %~% "val a = @{1+3}"
 [1] 4
@@ -46,4 +41,4 @@ ScalaInterpreterReference... a: Int
 > 
 > proc.time()
    user  system elapsed 
-  0.152   0.008   3.652 
+  0.168   0.016   3.689 

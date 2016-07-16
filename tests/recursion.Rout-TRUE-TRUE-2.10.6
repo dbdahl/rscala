@@ -562,11 +562,11 @@ Hello 9 from Scala.
 Hello 9 from R.
 Hello 10 from Scala.
 Unit: milliseconds
- expr       min        lq      mean    median        uq       max neval
- f(0) 381.54660 421.35898 474.79133 480.76484 487.44697 602.83924     5
- g(0) 224.93576 244.81172 285.32235 283.51723 292.83627 380.51079     5
- h(0)  11.15368  11.16058  12.04971  11.37198  11.45505  15.10725     5
- i(0)  11.67141  12.46309  12.50043  12.52728  12.69230  13.14809     5
+ expr        min         lq      mean     median         uq       max neval
+ f(0) 423.173557 480.402964 503.65199 506.107062 531.886229 576.69013     5
+ g(0) 225.287206 268.934195 289.35573 284.056361 307.431467 361.06942     5
+ h(0)   7.930598   8.040010  10.43779   8.584386   9.970028  17.66395     5
+ i(0)   9.029303   9.669732  11.28082  11.156105  11.452521  15.09646     5
 > 
 > cat("####\n")
 ####
@@ -4574,8 +4574,8 @@ Hello 10 from R.
 Hello 9 from Scala.
 Unit: milliseconds
  expr      min       lq     mean   median       uq      max neval
- h(0) 7.530150 8.104738 9.135755 8.368011 9.129847 22.79687   100
- i(0) 8.095521 8.644690 9.643951 8.981500 9.933150 18.52592   100
+ h(0) 7.385209 7.647581 8.387782 7.759330 8.539828 17.74006   100
+ i(0) 7.836642 8.074948 8.807935 8.199889 8.736109 16.18259   100
 > 
 > 
 > 
@@ -4869,9 +4869,7 @@ java.lang.reflect.InvocationTargetException
 	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:195)
 	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:571)
 	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:590)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$ap
-Invocation error.
-ply$mcV$sp$1.apply(ScalaServer.scala:590)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
 	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:57)
 	at scala.Console$.withErr(Console.scala:167)
@@ -5075,6 +5073,7 @@ Caused by: java.lang.RuntimeException: Error in R evaluation.
 	... 424 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Error in R evaluation.
+Invocation error.
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -5332,9 +5331,7 @@ java.lang.reflect.InvocationTargetException
 	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:57)
 	at scala.Console$.withOut(Console.scala:126)
-	at org.ddahl.rscala.Sc
-Invocation error.
-alaServer.run(ScalaServer.scala:588)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:588)
 	at org.ddahl.rscala.RClient.eval(RClient.scala:69)
 	at $line37.$read$$iw$$iw$$anonfun$1.apply(<console>:12)
 	at $line37.$read$$iw$$iw$$anonfun$1.apply(<console>:9)
@@ -5489,6 +5486,7 @@ Caused by: java.lang.RuntimeException: Error in R evaluation.
 	... 404 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Error in R evaluation.
+Invocation error.
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -5680,9 +5678,7 @@ java.lang.reflect.InvocationTargetException
 	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
 	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:57)
-	at scala.Con
-Invocation error.
-sole$.withErr(Console.scala:167)
+	at scala.Console$.withErr(Console.scala:167)
 	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:589)
 	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
 	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
@@ -5883,6 +5879,7 @@ Caused by: java.lang.RuntimeException: Error in R evaluation.
 	... 384 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Error in R evaluation.
+Invocation error.
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -6029,9 +6026,7 @@ java.lang.reflect.InvocationTargetException
 	at java.lang.reflect.Method.invoke(Method.java:498)
 	at org.ddahl.rscala.ScalaServer.callFunction(ScalaServer.scala:76)
 	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:195)
-	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaS
-Invocation error.
-erver.scala:571)
+	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:571)
 	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:590)
 	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
 	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
@@ -6257,6 +6252,7 @@ Caused by: java.lang.RuntimeException: Error in R evaluation.
 	... 364 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Error in R evaluation.
+Invocation error.
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -6378,9 +6374,7 @@ java.lang.reflect.InvocationTargetException
 	at org.ddahl.rscala.RClient.eval(RClient.scala:69)
 	at $line37.$read$$iw$$iw$$anonfun$1.apply(<console>:12)
 	at $line37.$read$$iw$$iw$$anonfun$1.apply(<console>:9)
-	at sun.
-Invocation error.
-reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
+	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
 	at org.ddahl.rscala.ScalaServer.callFunction(ScalaServer.scala:76)
@@ -6611,6 +6605,7 @@ Caused by: java.lang.RuntimeException: Error in R evaluation.
 	... 344 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Error in R evaluation.
+Invocation error.
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -6725,9 +6720,7 @@ java.lang.reflect.InvocationTargetException
 	at scala.Console$.withErr(Console.scala:167)
 	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:589)
 	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
-	at org.ddahl.rs
-Invocation error.
-cala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:57)
 	at scala.Console$.withOut(Console.scala:126)
 	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:588)
@@ -6945,6 +6938,7 @@ Caused by: java.lang.RuntimeException: Error in R evaluation.
 	... 324 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Error in R evaluation.
+Invocation error.
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -7073,9 +7067,7 @@ java.lang.reflect.InvocationTargetException
 	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:195)
 	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:571)
 	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:590)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaSe
-Invocation error.
-rver.scala:590)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
 	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:57)
 	at scala.Console$.withErr(Console.scala:167)
@@ -7259,6 +7251,7 @@ Caused by: java.lang.RuntimeException: Error in R evaluation.
 	... 304 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Error in R evaluation.
+Invocation error.
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -7423,9 +7416,7 @@ java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.dda
-Invocation error.
-hl.rscala.ScalaServer.callFunction(ScalaServer.scala:76)
+	at org.ddahl.rscala.ScalaServer.callFunction(ScalaServer.scala:76)
 	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:195)
 	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:571)
 	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:590)
@@ -7553,6 +7544,7 @@ Caused by: java.lang.RuntimeException: Error in R evaluation.
 	... 284 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Error in R evaluation.
+Invocation error.
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -7656,9 +7648,7 @@ java.lang.reflect.InvocationTargetException
 	at $line37.$read$$iw$$iw$$anonfun$1.apply(<console>:9)
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.lang.reflect.Method.invoke(Method.java:498
-Invocation error.
-)
+	at java.lang.reflect.Method.invoke(Method.java:498)
 	at org.ddahl.rscala.ScalaServer.callFunction(ScalaServer.scala:76)
 	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:195)
 	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:571)
@@ -7827,6 +7817,7 @@ Caused by: java.lang.RuntimeException: Error in R evaluation.
 	... 264 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Error in R evaluation.
+Invocation error.
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -7890,9 +7881,7 @@ java.lang.reflect.InvocationTargetException
 	at $line37.$read$$iw$$iw$$anonfun$1.apply(<console>:9)
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.lang.reflect.Method.invoke(Me
-Invocation error.
-thod.java:498)
+	at java.lang.reflect.Method.invoke(Method.java:498)
 	at org.ddahl.rscala.ScalaServer.callFunction(ScalaServer.scala:76)
 	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:195)
 	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:571)
@@ -8081,6 +8070,7 @@ Caused by: java.lang.RuntimeException: Error in R evaluation.
 	... 244 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Error in R evaluation.
+Invocation error.
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -8124,9 +8114,7 @@ java.lang.reflect.InvocationTargetException
 	at $line37.$read$$iw$$iw$$anonfun$1.apply(<console>:9)
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.lang.reflect.Met
-Invocation error.
-hod.invoke(Method.java:498)
+	at java.lang.reflect.Method.invoke(Method.java:498)
 	at org.ddahl.rscala.ScalaServer.callFunction(ScalaServer.scala:76)
 	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:195)
 	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:571)
@@ -8315,6 +8303,7 @@ Caused by: java.lang.RuntimeException: Error in R evaluation.
 	... 224 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Error in R evaluation.
+Invocation error.
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -8358,9 +8347,7 @@ java.lang.reflect.InvocationTargetException
 	at $line37.$read$$iw$$iw$$anonfun$1.apply(<console>:9)
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.lan
-Invocation error.
-g.reflect.Method.invoke(Method.java:498)
+	at java.lang.reflect.Method.invoke(Method.java:498)
 	at org.ddahl.rscala.ScalaServer.callFunction(ScalaServer.scala:76)
 	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:195)
 	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:571)
@@ -8529,6 +8516,7 @@ Caused by: java.lang.RuntimeException: Error in R evaluation.
 	... 204 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Error in R evaluation.
+Invocation error.
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -8592,8 +8580,6 @@ java.lang.reflect.InvocationTargetException
 	at $line37.$read$$iw$$iw$$anonfun$1.apply(<console>:9)
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-Invocation error.
-
 	at java.lang.reflect.Method.invoke(Method.java:498)
 	at org.ddahl.rscala.ScalaServer.callFunction(ScalaServer.scala:76)
 	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:195)
@@ -8708,9 +8694,7 @@ Invocation error.
 	at scala.tools.nsc.util.ScalaClassLoader$URLClassLoader.asContext(ScalaClassLoader.scala:139)
 	at scala.tools.nsc.util.ScalaClassLoader$class.run(ScalaClassLoader.scala:71)
 	at scala.tools.nsc.util.ScalaClassLoader$URLClassLoader.run(ScalaClassLoader.scala:139)
-	at scala.tools.nsc.CommonRunner$class.run(Obj
-Invocation error.
-ectRunner.scala:28)
+	at scala.tools.nsc.CommonRunner$class.run(ObjectRunner.scala:28)
 	at scala.tools.nsc.ObjectRunner$.run(ObjectRunner.scala:45)
 	at scala.tools.nsc.CommonRunner$class.runAndCatch(ObjectRunner.scala:35)
 	at scala.tools.nsc.ObjectRunner$.runAndCatch(ObjectRunner.scala:45)
@@ -8725,6 +8709,7 @@ Caused by: java.lang.RuntimeException: Error in R evaluation.
 	... 184 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Error in R evaluation.
+Invocation error.
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -8827,9 +8812,7 @@ java.lang.reflect.InvocationTargetException
 	at $line37.$read$$iw$$iw$$anonfun$1.apply(<console>:12)
 	at $line37.$read$$iw$$iw$$anonfun$1.apply(<console>:9)
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
-	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessor
-Invocation error.
-Impl.java:43)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
 	at org.ddahl.rscala.ScalaServer.callFunction(ScalaServer.scala:76)
 	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:195)
@@ -8899,6 +8882,7 @@ Caused by: java.lang.RuntimeException: Error in R evaluation.
 	... 164 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Error in R evaluation.
+Invocation error.
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -9051,6 +9035,7 @@ Caused by: java.lang.RuntimeException: Error in R evaluation.
 	... 144 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Error in R evaluation.
+Invocation error.
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -9063,10 +9048,7 @@ java.lang.reflect.InvocationTargetException
 	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:57)
 	at scala.Console$.withErr(Console.scala:167)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1
-Invocation error.
-Invocation error.
-.apply$mcV$sp(ScalaServer.scala:589)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:589)
 	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
 	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:57)
@@ -9183,11 +9165,10 @@ Caused by: java.lang.RuntimeException: Error in R evaluation.
 	at org.ddahl.rscala.RClient.eval(RClient.scala:78)
 	at $line37.$read$$iw$$iw$$anonfun$1.apply(<console>:12)
 	at $line37.$read$$iw$$iw$$anonfun$1.apply(<console>:9)
-	... 
-Invocation error.
-124 more
+	... 124 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Error in R evaluation.
+Invocation error.
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -9300,11 +9281,173 @@ Caused by: java.lang.RuntimeException: Error in R evaluation.
 	... 104 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Error in R evaluation.
+Invocation error.
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.ScalaError in i(-15) : Invocation error.
+	at org.ddahl.rscala.ScalaServer.callFunction(ScalaServer.scala:76)
+	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:195)
+	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:571)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:590)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:57)
+	at scala.Console$.withErr(Console.scala:167)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:589)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:57)
+	at scala.Console$.withOut(Console.scala:126)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:588)
+	at org.ddahl.rscala.RClient.eval(RClient.scala:69)
+	at $line37.$read$$iw$$iw$$anonfun$1.apply(<console>:12)
+	at $line37.$read$$iw$$iw$$anonfun$1.apply(<console>:9)
+	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.ddahl.rscala.ScalaServer.callFunction(ScalaServer.scala:76)
+	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:195)
+	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:571)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:590)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:57)
+	at scala.Console$.withErr(Console.scala:167)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:589)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:57)
+	at scala.Console$.withOut(Console.scala:126)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:588)
+	at org.ddahl.rscala.RClient.eval(RClient.scala:69)
+	at $line37.$read$$iw$$iw$$anonfun$1.apply(<console>:12)
+	at $line37.$read$$iw$$iw$$anonfun$1.apply(<console>:9)
+	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.ddahl.rscala.ScalaServer.callFunction(ScalaServer.scala:76)
+	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:195)
+	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:571)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:590)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:57)
+	at scala.Console$.withErr(Console.scala:167)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:589)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:57)
+	at scala.Console$.withOut(Console.scala:126)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:588)
+	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:5)
+	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
+	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
+	at scala.App$$anonfun$main$1.apply(App.scala:71)
+	at scala.App$$anonfun$main$1.apply(App.scala:71)
+	at scala.collection.immutable.List.foreach(List.scala:318)
+	at scala.collection.generic.TraversableForwarder$class.foreach(TraversableForwarder.scala:32)
+	at scala.App$class.main(App.scala:71)
+	at org.ddahl.rscala.Main$.main(Main.scala:3)
+	at org.ddahl.rscala.Main.main(Main.scala)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at scala.tools.nsc.util.ScalaClassLoader$$anonfun$run$1.apply(ScalaClassLoader.scala:71)
+	at scala.tools.nsc.util.ScalaClassLoader$class.asContext(ScalaClassLoader.scala:31)
+	at scala.tools.nsc.util.ScalaClassLoader$URLClassLoader.asContext(ScalaClassLoader.scala:139)
+	at scala.tools.nsc.util.ScalaClassLoader$class.run(ScalaClassLoader.scala:71)
+	at scala.tools.nsc.util.ScalaClassLoader$URLClassLoader.run(ScalaClassLoader.scala:139)
+	at scala.tools.nsc.CommonRunner$class.run(ObjectRunner.scala:28)
+	at scala.tools.nsc.ObjectRunner$.run(ObjectRunner.scala:45)
+	at scala.tools.nsc.CommonRunner$class.runAndCatch(ObjectRunner.scala:35)
+	at scala.tools.nsc.ObjectRunner$.runAndCatch(ObjectRunner.scala:45)
+	at scala.tools.nsc.MainGenericRunner.runTarget$1(MainGenericRunner.scala:74)
+	at scala.tools.nsc.MainGenericRunner.process(MainGenericRunner.scala:96)
+	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:105)
+	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
+Caused by: java.lang.RuntimeException: Error in R evaluation.
+	at org.ddahl.rscala.RClient.eval(RClient.scala:78)
+	at $line37.$read$$iw$$iw$$anonfun$1.apply(<console>:12)
+	at $line37.$read$$iw$$iw$$anonfun$1.apply(<console>:9)
+	... 84 more
+java.lang.reflect.InvocationTargetException
+java.lang.RuntimeException: Error in R evaluation.
+Invocation error.
+java.lang.reflect.InvocationTargetException
+	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.ddahl.rscala.ScalaServer.callFunction(ScalaServer.scala:76)
+	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:195)
+	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:571)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:590)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:57)
+	at scala.Console$.withErr(Console.scala:167)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:589)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:57)
+	at scala.Console$.withOut(Console.scala:126)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:588)
+	at org.ddahl.rscala.RClient.eval(RClient.scala:69)
+	at $line37.$read$$iw$$iw$$anonfun$1.apply(<console>:12)
+	at $line37.$read$$iw$$iw$$anonfun$1.apply(<console>:9)
+	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.ddahl.rscala.ScalaServer.callFunction(ScalaServer.scala:76)
+	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:195)
+	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:571)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:590)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:57)
+	at scala.Console$.withErr(Console.scala:167)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:589)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:57)
+	at scala.Console$.withOut(Console.scala:126)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:588)
+	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:5)
+	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
+	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
+	at scala.App$$anonfun$main$1.apply(App.scala:71)
+	at scala.App$$anonfun$main$1.apply(App.scala:71)
+	at scala.collection.immutable.List.foreach(List.scala:318)
+	at scala.collection.generic.TraversableForwarder$class.foreach(TraversableForwarder.scala:32)
+	at scala.App$class.main(App.scala:71)
+	at org.ddahl.rscala.Main$.main(Main.scala:3)
+	at org.ddahl.rscala.Main.main(Main.scala)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at scala.tools.nsc.util.ScalaClassLoader$$anonfun$run$1.apply(ScalaClassLoader.scala:71)
+	at scala.tools.nsc.util.ScalaClassLoader$class.asContext(ScalaClassLoader.scala:31)
+	at scala.tools.nsc.util.ScalaClassLoader$URLClassLoader.asContext(ScalaClassLoader.scala:139)
+	at scala.tools.nsc.util.ScalaClassLoader$class.run(ScalaClassLoader.scala:71)
+	at scala.tools.nsc.util.ScalaClassLoader$URLClassLoader.run(ScalaClassLoader.scala:139)
+	at scala.tools.nsc.CommonRunner$class.run(ObjectRunner.scala:28)
+	at scala.tools.nsc.ObjectRunner$.run(ObjectRunner.scala:45)
+	at scala.tools.nsc.CommonRunner$class.runAndCatch(ObjectRunner.scala:35)
+	at scala.tools.nsc.ObjectRunner$.runAndCatch(ObjectRunner.scala:45)
+	at scala.tools.nsc.MainGenericRunner.runTarget$1(MainGenericRunner.scala:74)
+	at scala.tools.nsc.MainGenericRunner.process(MainGenericRunner.scala:96)
+	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:105)
+	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
+Caused by: java.lang.RuntimeException: Error in R evaluation.
+	at org.ddahl.rscala.RClient.eval(RClient.scala:78)
+	at $line37.$read$$iw$$iw$$anonfun$1.apply(<console>:12)
+	at $line37.$read$$iw$$iw$$anonfun$1.apply(<console>:9)
+	... 64 more
+java.lang.reflect.InvocationTargetException
+java.lang.RuntimeException: Error in R evaluation.
+Error in i(-15) : Invocation error.
 Execution halted
 java.net.SocketException: Broken pipe
 	at java.net.SocketOutputStream.socketWrite0(Native Method)
@@ -9313,7 +9456,7 @@ java.net.SocketException: Broken pipe
 	at java.io.BufferedOutputStream.flushBuffer(BufferedOutputStream.java:82)
 	at java.io.BufferedOutputStream.flush(BufferedOutputStream.java:140)
 	at java.io.DataOutputStream.flush(DataOutputStream.java:123)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:599)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:600)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:5)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)

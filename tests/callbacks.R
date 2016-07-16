@@ -32,24 +32,24 @@ if ( counter != 10 ) stop("Counter is off.")
 
 
 # Should be a compile-time error because 'ewf' is not defined.
-s %~% '
+tryCatch(s %~% '
   3+4+ewf
   R.eval("""
     cat("I love Lisa!\n")
     a <- "3+9"
   """)
-'
+',error=function(e) e)
 s %~% '3+2'
 
 
 # Should be an R evaluation error because 'asfd' is not defined and out of place.
-s %~% '
+tryCatch(s %~% '
   3+4
   R.eval("""
     cat("I love Lisa!\n")
     a <- "3+9" asfd
   """)
-'
+',error=function(e) e)
 s %~% '3+6'
 
 

@@ -26,7 +26,7 @@ Type 'q()' to quit R.
 Switched off result printing.
 > if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
 > 
-> tryCatch(capture.output(s %~% "new java.util.Random(23455).nextDoubllllllllle"),error=function(e) e)
+> tryCatch(s %~% "new java.util.Random(23455).nextDoubllllllllle",error=function(e) e)
 <console>:8: error: value nextDoubllllllllle is not a member of java.util.Random
               new java.util.Random(23455).nextDoubllllllllle
                                           ^
@@ -44,4 +44,4 @@ character(0)
 > 
 > proc.time()
    user  system elapsed 
-  0.152   0.016   2.774 
+  0.192   0.028   2.695 

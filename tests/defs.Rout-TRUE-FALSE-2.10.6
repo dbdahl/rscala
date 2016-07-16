@@ -60,8 +60,6 @@ Yes
 <console>:9: error: not found: value b
               () => { a+b }
                         ^
-<simpleError in doTryCatch(return(expr), name, parentenv, handler): Evaluation error.>
-> tryCatch(s$def('','a+')(),error = function(e) e)
 java.lang.RuntimeException: Parse error in 'def'.
 	at org.ddahl.rscala.ScalaServer.doDef(ScalaServer.scala:153)
 	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:569)
@@ -104,12 +102,12 @@ java.lang.RuntimeException: Parse error in 'def'.
 	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:105)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 java.lang.RuntimeException: Parse error in 'def'.
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Evaluation error.>
+> tryCatch(s$def('','a+')(),error = function(e) e)
 <console>:9: error: missing arguments for method + in class StringAdd;
 follow this method with `_' if you want to treat it as a partially applied function
               () => { a+ }
                        ^
-<simpleError in doTryCatch(return(expr), name, parentenv, handler): Evaluation error.>
-> tryCatch(s$def('','import org.asdfad')(),error = function(e) {e})
 java.lang.RuntimeException: Parse error in 'def'.
 	at org.ddahl.rscala.ScalaServer.doDef(ScalaServer.scala:153)
 	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:569)
@@ -152,16 +150,11 @@ java.lang.RuntimeException: Parse error in 'def'.
 	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:105)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 java.lang.RuntimeException: Parse error in 'def'.
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Evaluation error.>
+> tryCatch(s$def('','import org.asdfad')(),error = function(e) {e})
 <console>:8: error: object asdfad is not a member of package org
               () => { import org.asdfad }
                              ^
-<simpleError in doTryCatch(return(expr), name, parentenv, handler): Evaluation error.>
-> tryCatch(s$def('','throw new RuntimeException()')(),error = function(e) {e})
-<simpleError in (s$def("", "throw new RuntimeException()"))(): Invocation error.>
-> s %~% "5+6"   # Everything's still okay!
-[1] 11
-> 
-> tryCatch(s$def('x,y','x+y')(),error = function(e) e)
 java.lang.RuntimeException: Parse error in 'def'.
 	at org.ddahl.rscala.ScalaServer.doDef(ScalaServer.scala:153)
 	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:569)
@@ -204,6 +197,8 @@ java.lang.RuntimeException: Parse error in 'def'.
 	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:105)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 java.lang.RuntimeException: Parse error in 'def'.
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Evaluation error.>
+> tryCatch(s$def('','throw new RuntimeException()')(),error = function(e) {e})
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
@@ -256,9 +251,56 @@ Caused by: java.lang.RuntimeException
 	... 45 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException
+<simpleError in (s$def("", "throw new RuntimeException()"))(): Invocation error.>
+> s %~% "5+6"   # Everything's still okay!
+[1] 11
+> 
+> tryCatch(s$def('x,y','x+y')(),error = function(e) e)
 <console>:1: error: not a legal formal parameter
        (x,y) => { x+y }
        ^
+java.lang.RuntimeException: Parse error in 'def'.
+	at org.ddahl.rscala.ScalaServer.doDef(ScalaServer.scala:153)
+	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:569)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:590)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:57)
+	at scala.Console$.withErr(Console.scala:167)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:589)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:57)
+	at scala.Console$.withOut(Console.scala:126)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:588)
+	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:5)
+	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
+	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
+	at scala.App$$anonfun$main$1.apply(App.scala:71)
+	at scala.App$$anonfun$main$1.apply(App.scala:71)
+	at scala.collection.immutable.List.foreach(List.scala:318)
+	at scala.collection.generic.TraversableForwarder$class.foreach(TraversableForwarder.scala:32)
+	at scala.App$class.main(App.scala:71)
+	at org.ddahl.rscala.Main$.main(Main.scala:3)
+	at org.ddahl.rscala.Main.main(Main.scala)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at scala.tools.nsc.util.ScalaClassLoader$$anonfun$run$1.apply(ScalaClassLoader.scala:71)
+	at scala.tools.nsc.util.ScalaClassLoader$class.asContext(ScalaClassLoader.scala:31)
+	at scala.tools.nsc.util.ScalaClassLoader$URLClassLoader.asContext(ScalaClassLoader.scala:139)
+	at scala.tools.nsc.util.ScalaClassLoader$class.run(ScalaClassLoader.scala:71)
+	at scala.tools.nsc.util.ScalaClassLoader$URLClassLoader.run(ScalaClassLoader.scala:139)
+	at scala.tools.nsc.CommonRunner$class.run(ObjectRunner.scala:28)
+	at scala.tools.nsc.ObjectRunner$.run(ObjectRunner.scala:45)
+	at scala.tools.nsc.CommonRunner$class.runAndCatch(ObjectRunner.scala:35)
+	at scala.tools.nsc.ObjectRunner$.runAndCatch(ObjectRunner.scala:45)
+	at scala.tools.nsc.MainGenericRunner.runTarget$1(MainGenericRunner.scala:74)
+	at scala.tools.nsc.MainGenericRunner.process(MainGenericRunner.scala:96)
+	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:105)
+	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
+java.lang.RuntimeException: Parse error in 'def'.
 <simpleError in doTryCatch(return(expr), name, parentenv, handler): Evaluation error.>
 > s$def('x :    Int,y:Double','x+y')(2,3)
 [1] 5
@@ -341,7 +383,7 @@ function (x, w, r, as.reference = NA, gc = FALSE)
         else result
     }
 }
-<environment: 0x14fbb18>
+<environment: 0x16511d0>
 attr(,"args")
 [1] "x: Double, w: Int, r: Double"
 attr(,"body")
@@ -367,9 +409,9 @@ attr(,"type")
 > 
 > system.time(sapply(1:100,function(i) f1(i,4,54)))
    user  system elapsed 
-  0.080   0.020   0.102 
+  0.060   0.028   0.093 
 > 
 > 
 > proc.time()
    user  system elapsed 
-  0.328   0.044   6.005 
+  0.312   0.056   6.008 

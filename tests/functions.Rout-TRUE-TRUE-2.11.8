@@ -21,74 +21,13 @@ Type 'q()' to quit R.
 > 
 > serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 > output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-> cat(serialize,"\n")
-TRUE 
-> cat(output,"\n")
-TRUE 
+> version <- Sys.getenv("RSCALA_SCALA_VERSION")
 > s <- scala(c("commons-math3-3.2.jar","shallot.jar"),serialize=serialize,stdout=output,stderr=output)
-> s %~% "scala.util.Properties.versionNumberString"
-[1] "2.11.8"
-> 
+> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
 > 
 > scalap(s,"org.apache.commons.math3.random.RandomDataGenerator")
 class/object org.apache.commons.math3.random.RandomDataGenerator not found.
 > rdg <- tryCatch(s$do("org.apache.commons.math3.random.RandomDataGenerator")$new(),error=function(e) e)  # There is some incompatability between Scala REPL classloader and the Apache Commons Math jar.
-> rdg <- s$do("org.apache.commons.math3.random.RandomDataGenerator")$new()                                # Rerun and it works fine.
-> rexp <- rdg$nextExponential(2,evaluate=FALSE)
-> 
-> library(microbenchmark)
-> options(width=120)
-> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
-Unit: microseconds
-                   expr     min       lq     mean   median       uq       max neval
- rdg$nextExponential(4) 712.131 734.2495 847.7803 751.5165 836.7080  6202.592  1000
-                rexp(4) 647.254 667.4140 829.0214 683.1930 946.8195 14824.683  1000
-> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
-Unit: microseconds
-                   expr     min       lq     mean   median       uq      max neval
- rdg$nextExponential(4) 699.314 715.2305 750.5051 720.4145 730.4980 5786.813  1000
-                rexp(4) 630.226 647.2680 673.8407 651.9395 661.3445 5569.756  1000
-> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
-Unit: microseconds
-                   expr     min       lq     mean   median       uq      max neval
- rdg$nextExponential(4) 695.172 709.4995 736.6493 716.1585 725.4465 3769.050  1000
-                rexp(4) 629.253 641.6770 661.8871 647.6530 655.3135 1988.229  1000
-> 
-> massFactory3 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(1.0,3.0,s$do("org.apache.commons.math3.random.RandomDataGenerator")$new())
-> s %~% "3+4"
-[1] 7
-> 
-> scalap(s,"org.ddahl.shallot.parameter.Mass")
-class/object org.ddahl.shallot.parameter.Mass not found.
-> mass <- s$do("org.ddahl.shallot.parameter.Mass")$apply(3.4)
-> massFactory1 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(mass)
-> massFactory2 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(3.0)
-> massFactory3 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(1.0,3.0,rdg)
-> massFactory3$apply()$logValue()
-[1] -2.460045
-> massFactory3$apply()$logValue()
-[1] -1.662711
-> massFactory3$apply()$logValue()
-[1] -0.7086198
-> 
-> 
-> 
-> s %~% '
-+ class Bob {
-+ 
-+   val a = 3.0
-+   var b = 4.0
-+ 
-+   def sum(c: Int) = { a + b + c }
-+ 
-+ }
-+ '
-ScalaInterpreterReference... res10: org.ddahl.shallot.parameter.Mass => Double
-> 
-> d <- s$do("Bob")$new()
-> d[['type']]                           # Note the weird 'iw$' prepended to 'Bob'
-[1] "iw$Bob"
-> tryCatch(d$b(),error=function(e) e)   # Doesn't work
 java.lang.AssertionError: assertion failed: class EmpiricalDistribution: <none>
 	at scala.tools.nsc.symtab.classfile.ClassfileParser.parseMethod(ClassfileParser.scala:582)
 	at scala.tools.nsc.symtab.classfile.ClassfileParser.scala$tools$nsc$symtab$classfile$ClassfileParser$$queueLoad$1(ClassfileParser.scala:483)
@@ -166,18 +105,18 @@ java.lang.AssertionError: assertion failed: class EmpiricalDistribution: <none>
 	at scala.tools.nsc.interpreter.IMain.valueOfTerm(IMain.scala:1113)
 	at org.ddahl.rscala.ScalaServer.storeFunction(ScalaServer.scala:55)
 	at org.ddahl.rscala.ScalaServer.doDef(ScalaServer.scala:158)
-	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:563)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:584)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:584)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:584)
+	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:569)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:590)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withErr(Console.scala:92)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:583)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:583)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:583)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:589)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withOut(Console.scala:65)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:582)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:588)
 	at org.ddahl.rscala.Main$.delayedEndpoint$org$ddahl$rscala$Main$1(Main.scala:5)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:34)
@@ -208,38 +147,80 @@ java.lang.AssertionError: assertion failed: class EmpiricalDistribution: <none>
 	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:103)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 java.lang.AssertionError: assertion failed: class EmpiricalDistribution: <none>
+> rdg <- s$do("org.apache.commons.math3.random.RandomDataGenerator")$new()                                # Rerun and it works fine.
+> rdg$reSeed(39234L)
+> rexp <- rdg$nextExponential(2,evaluate=FALSE)
+> 
+> library(microbenchmark)
+> options(width=120)
+> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
+Unit: microseconds
+                   expr     min       lq     mean   median       uq       max neval
+ rdg$nextExponential(4) 667.105 686.0235 742.2158 696.0400 718.3010  7848.163  1000
+                rexp(4) 605.418 618.8135 699.0798 628.1545 649.5635 19534.373  1000
+> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
+Unit: microseconds
+                   expr     min       lq     mean   median       uq       max neval
+ rdg$nextExponential(4) 665.887 680.3035 700.4113 686.0085 694.4005  3470.713  1000
+                rexp(4) 596.916 611.8695 654.9049 617.5800 624.4515 12069.487  1000
+> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
+Unit: microseconds
+                   expr     min       lq     mean  median      uq      max neval
+ rdg$nextExponential(4) 661.906 673.9485 700.9566 679.607 684.660 6234.402  1000
+                rexp(4) 595.924 606.1945 625.7355 612.130 617.147 2834.839  1000
+> 
+> massFactory3 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(1.0,3.0,rdg)
+> s %~% "3+4"
+[1] 7
+> 
+> scalap(s,"org.ddahl.shallot.parameter.Mass")
+class/object org.ddahl.shallot.parameter.Mass not found.
+> mass <- s$do("org.ddahl.shallot.parameter.Mass")$apply(3.4)
+> massFactory1 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(mass)
+> massFactory2 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(3.0)
+> massFactory3 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(1.0,3.0,rdg)
+> massFactory3$apply()$logValue()
+[1] -2.27295
+> massFactory3$apply()$logValue()
+[1] -3.893189
+> massFactory3$apply()$logValue()
+[1] -2.183371
+> 
+> 
+> 
+> s %~% '
++ class Bob {
++ 
++   val a = 3.0
++   var b = 4.0
++ 
++   def sum(c: Int) = { a + b + c }
++ 
++ }
++ '
+ScalaInterpreterReference... res11: org.ddahl.shallot.parameter.Mass => Double
+> 
+> d <- s$do("Bob")$new()
+> d[['type']]                           # Note the weird 'iw$' prepended to 'Bob'
+[1] "iw$Bob"
+> tryCatch(d$b(),error=function(e) e)   # Doesn't work
 <console>:12: error: not found: type iw$Bob
        (rscalaReference: iw$Bob) => { rscalaReference.b }
                          ^
-<simpleError in doTryCatch(return(expr), name, parentenv, handler): Evaluation error.>
-> 
-> d[['type']] <- "Bob"     # Cast it to be 'Bob'
-> d$b()                    # Now it does
-[1] 4
-> 
-> d$sum(as.integer(4))
-[1] 11
-> m <- d$sum(as.integer(5),evaluate=FALSE)
-> 
-> m(3)                                    # Casting is not necessary here
-[1] 10
-> d$sum(as.integer(3))                    # But it is here
-[1] 10
-> tryCatch(d$sum(3),error=function(e) e)  # and here
 java.lang.RuntimeException: Parse error in 'def'.
 	at org.ddahl.rscala.ScalaServer.doDef(ScalaServer.scala:153)
-	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:563)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:584)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:584)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:584)
+	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:569)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:590)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withErr(Console.scala:92)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:583)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:583)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:583)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:589)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withOut(Console.scala:65)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:582)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:588)
 	at org.ddahl.rscala.Main$.delayedEndpoint$org$ddahl$rscala$Main$1(Main.scala:5)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:34)
@@ -270,14 +251,73 @@ java.lang.RuntimeException: Parse error in 'def'.
 	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:103)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 java.lang.RuntimeException: Parse error in 'def'.
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Evaluation error.>
+> 
+> d[['type']] <- "Bob"     # Cast it to be 'Bob'
+> d$b()                    # Now it does
+[1] 4
+> 
+> d$sum(as.integer(4))
+[1] 11
+> m <- d$sum(as.integer(5),evaluate=FALSE)
+> 
+> m(3)                                    # Casting is not necessary here
+[1] 10
+> d$sum(as.integer(3))                    # But it is here
+[1] 10
+> tryCatch(d$sum(3),error=function(e) e)  # and here
 <console>:13: error: type mismatch;
  found   : Double
  required: Int
        (rscalaReference: Bob,x1: Double) => { rscalaReference.sum(x1) }
                                                                   ^
+java.lang.RuntimeException: Parse error in 'def'.
+	at org.ddahl.rscala.ScalaServer.doDef(ScalaServer.scala:153)
+	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:569)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:590)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:590)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
+	at scala.Console$.withErr(Console.scala:92)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:589)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:589)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
+	at scala.Console$.withOut(Console.scala:65)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:588)
+	at org.ddahl.rscala.Main$.delayedEndpoint$org$ddahl$rscala$Main$1(Main.scala:5)
+	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:3)
+	at scala.Function0$class.apply$mcV$sp(Function0.scala:34)
+	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
+	at scala.App$$anonfun$main$1.apply(App.scala:76)
+	at scala.App$$anonfun$main$1.apply(App.scala:76)
+	at scala.collection.immutable.List.foreach(List.scala:381)
+	at scala.collection.generic.TraversableForwarder$class.foreach(TraversableForwarder.scala:35)
+	at scala.App$class.main(App.scala:76)
+	at org.ddahl.rscala.Main$.main(Main.scala:3)
+	at org.ddahl.rscala.Main.main(Main.scala)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at scala.reflect.internal.util.ScalaClassLoader$$anonfun$run$1.apply(ScalaClassLoader.scala:70)
+	at scala.reflect.internal.util.ScalaClassLoader$class.asContext(ScalaClassLoader.scala:31)
+	at scala.reflect.internal.util.ScalaClassLoader$URLClassLoader.asContext(ScalaClassLoader.scala:101)
+	at scala.reflect.internal.util.ScalaClassLoader$class.run(ScalaClassLoader.scala:70)
+	at scala.reflect.internal.util.ScalaClassLoader$URLClassLoader.run(ScalaClassLoader.scala:101)
+	at scala.tools.nsc.CommonRunner$class.run(ObjectRunner.scala:22)
+	at scala.tools.nsc.ObjectRunner$.run(ObjectRunner.scala:39)
+	at scala.tools.nsc.CommonRunner$class.runAndCatch(ObjectRunner.scala:29)
+	at scala.tools.nsc.ObjectRunner$.runAndCatch(ObjectRunner.scala:39)
+	at scala.tools.nsc.MainGenericRunner.runTarget$1(MainGenericRunner.scala:65)
+	at scala.tools.nsc.MainGenericRunner.run$1(MainGenericRunner.scala:87)
+	at scala.tools.nsc.MainGenericRunner.process(MainGenericRunner.scala:98)
+	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:103)
+	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
+java.lang.RuntimeException: Parse error in 'def'.
 <simpleError in doTryCatch(return(expr), name, parentenv, handler): Evaluation error.>
 > 
 > 
 > proc.time()
    user  system elapsed 
-  3.752   1.092  10.518 
+  3.616   0.900  10.709 

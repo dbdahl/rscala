@@ -21,14 +21,9 @@ Type 'q()' to quit R.
 > 
 > serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 > output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-> cat(serialize,"\n")
-TRUE 
-> cat(output,"\n")
-TRUE 
+> version <- Sys.getenv("RSCALA_SCALA_VERSION")
 > s <- scala(serialize=serialize,stdout=output,stderr=output)
-> s %~% "scala.util.Properties.versionNumberString"
-[1] "2.12.0-M5"
-> 
+> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
 > 
 > scalaSettings(s,length.one.as.vector=FALSE)
 > s$a <- 4
@@ -43,4 +38,4 @@ TRUE
 > 
 > proc.time()
    user  system elapsed 
-  0.168   0.016   5.108 
+  0.144   0.020   5.317 

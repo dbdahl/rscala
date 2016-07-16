@@ -21,15 +21,10 @@ Type 'q()' to quit R.
 > 
 > serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 > output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-> cat(serialize,"\n")
-TRUE 
-> cat(output,"\n")
-TRUE 
+> version <- Sys.getenv("RSCALA_SCALA_VERSION")
 > s <- scala(serialize=serialize,stdout=output,stderr=output)
-> 
-> 
-> s %~% "scala.util.Properties.versionNumberString"
-[1] "2.11.8"
+> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
+> set.seed(924234)
 > 
 > 
 > sleep.time <- 0
@@ -44,7 +39,7 @@ TRUE
 + }
 > 
 > doit0(rnorm(10))
-[1] -0.1567436  1.2025396
+[1] 0.05067312 0.74823148
 > 
 > 
 > 
@@ -57,7 +52,7 @@ TRUE
 + }
 > 
 > doit1(rnorm(10))
-[1] 0.3582792 2.3143395
+[1] 0.6360252 2.5355099
 > 
 > 
 > 
@@ -72,7 +67,7 @@ TRUE
 + }
 > 
 > doit2(rnorm(10))
-[1] 0.707793 1.981628
+[1] -0.163821  1.921544
 > 
 > 
 > 
@@ -85,7 +80,7 @@ TRUE
 + ')
 > 
 > doit3(rnorm(10))
-[1] -1.198158  1.458078
+[1] 0.1105979 2.3994832
 > 
 > 
 > 
@@ -102,16 +97,16 @@ TRUE
 +   times=10
 + )
 Unit: microseconds
-             expr        min         lq        mean      median         uq
- doit0(rnorm(10))     35.910     46.831     79.3166     89.3815     96.224
- doit1(rnorm(10)) 309195.843 329206.102 392382.9147 361345.2305 392806.227
- doit2(rnorm(10)) 190019.587 210624.845 229863.6830 220655.7310 232903.565
- doit3(rnorm(10))   1887.433   2143.038   2394.1019   2321.9015   2646.499
+             expr        min         lq        mean     median         uq
+ doit0(rnorm(10))     30.452     47.111     86.2655     84.249    125.593
+ doit1(rnorm(10)) 293949.211 311084.983 412319.3840 327159.438 397914.029
+ doit2(rnorm(10)) 180611.770 205154.013 243479.0694 220798.874 249059.165
+ doit3(rnorm(10))   1823.267   2343.979   2650.8404   2589.285   2888.296
         max neval
-    123.217    10
- 611616.221    10
- 344556.171    10
-   2944.324    10
+    134.147    10
+ 899747.542    10
+ 425044.863    10
+   3717.172    10
 > microbenchmark(
 +   doit0(rnorm(10)),
 +   #doit1(rnorm(10)),
@@ -120,9 +115,12 @@ Unit: microseconds
 +   times=1000
 + )
 Unit: microseconds
-             expr      min       lq       mean   median       uq      max neval
- doit0(rnorm(10))   27.349   32.186   37.91333   37.362   40.000  813.096  1000
- doit3(rnorm(10)) 1242.833 1300.033 1386.87470 1332.538 1385.086 6562.843  1000
+             expr      min       lq       mean    median       uq      max
+ doit0(rnorm(10))   27.646   32.349   39.02073   37.9975   40.712  952.041
+ doit3(rnorm(10)) 1208.856 1267.389 1361.68108 1290.5700 1326.562 7571.197
+ neval
+  1000
+  1000
 > 
 > 
 > sleep.time <- 0.1
@@ -135,12 +133,12 @@ Unit: microseconds
 + )
 Unit: milliseconds
              expr      min       lq     mean   median       uq      max neval
- doit0(rnorm(10)) 200.4836 200.5142 200.5207 200.5310 200.5360 200.5387     5
- doit1(rnorm(10)) 532.8208 556.4659 565.2874 568.7145 573.1622 595.2733     5
- doit2(rnorm(10)) 401.2014 412.5496 434.5953 422.4281 463.1744 473.6231     5
- doit3(rnorm(10)) 203.4950 205.5731 205.2325 205.6075 205.6488 205.8379     5
+ doit0(rnorm(10)) 200.4889 200.5265 200.5311 200.5287 200.5505 200.5611     5
+ doit1(rnorm(10)) 498.9165 523.6817 546.8433 544.3103 563.0379 604.2700     5
+ doit2(rnorm(10)) 428.5344 431.2264 450.6139 452.3832 460.8988 480.0265     5
+ doit3(rnorm(10)) 202.8935 205.2822 204.8870 205.3176 205.3377 205.6041     5
 > 
 > 
 > proc.time()
    user  system elapsed 
-  1.744   0.260  19.688 
+  1.784   0.276  19.966 

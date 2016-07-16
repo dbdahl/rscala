@@ -21,33 +21,43 @@ Type 'q()' to quit R.
 > 
 > serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 > output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-> cat(serialize,"\n")
-FALSE 
-> cat(output,"\n")
-FALSE 
-> 
+> version <- Sys.getenv("RSCALA_SCALA_VERSION")
 > 
 > s <- scala(heap.max="64M",serialize=serialize,stdout=output,stderr=output)
-> s %~% "scala.util.Properties.versionNumberString"
-[1] "2.10.6"
-> a <- tryCatch(s$do("Array[Double]")$new(10000000L),error=function(e) e)
+> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
+> tryCatch(a <- tryCatch(s$do("Array[Double]")$new(20000000L),error=function(e) e),error=function(e) e)
 > close(s)
 > cat("----\n")
 ----
 > 
 > s <- scala(heap.max="256M",serialize=serialize,stdout=output,stderr=output)
-> s %~% "scala.util.Properties.versionNumberString"
-[1] "2.10.6"
-> a <- s$do("Array[Double]")$new(10000000L)
+> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
+> tryCatch(a <- s$do("Array[Double]")$new(20000000L),error=function(e) e)
+<simpleError in f(..., as.reference = as.reference, gc = gc): Invocation error.>
 > close(s)
 > cat("----\n")
 ----
 > 
 > options(rscala.heap.maximum="64M")
 > s <- scala(serialize=serialize,stdout=output,stderr=output)
-> s %~% "scala.util.Properties.versionNumberString"
-[1] "2.10.6"
-> a <- s$do("Array[Double]")$new(10000000L)
-Error in f(..., as.reference = as.reference, gc = gc) : Invocation error.
-Calls: <Anonymous> -> f
-Execution halted
+> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
+> tryCatch(a <- s$do("Array[Double]")$new(20000000L),error=function(e) e)
+<simpleError in f(..., as.reference = as.reference, gc = gc): Invocation error.>
+> close(s)
+> cat("----\n")
+----
+> 
+> options(rscala.heap.maximum="96M")
+> s <- scala(serialize=serialize,stdout=output,stderr=output)
+> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
+> for ( i in 1:2000 ) {
++   a <- s$do("Array[Double]")$new(100000L)  # No memory problems
++   # s %~% "new Array[Double](100000)"      # Memory problems
++ }
+> 
+> 
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  3.780   0.824  18.944 
