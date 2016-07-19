@@ -61,6 +61,7 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
       case Array(method1,method2) => method1
       case _ => null
     }
+    m.setAccessible(true)
     functionMap(functionName) = (f,m,nArgs,returnType)
   }
 
