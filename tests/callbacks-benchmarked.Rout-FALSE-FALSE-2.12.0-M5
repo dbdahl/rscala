@@ -80,5 +80,62 @@ Type 'q()' to quit R.
 + ')
 > 
 > doit3(rnorm(10))
-Error in doit3(rnorm(10)) : Invocation error.
-Execution halted
+[1] 0.1105979 2.3994832
+> 
+> 
+> 
+> # Benchmarks
+> 
+> library(microbenchmark)
+> 
+> sleep.time <- 0
+> microbenchmark(
++   doit0(rnorm(10)),
++   doit1(rnorm(10)),
++   doit2(rnorm(10)),
++   doit3(rnorm(10)),
++   times=10
++ )
+Unit: microseconds
+             expr        min         lq        mean     median         uq
+ doit0(rnorm(10))     29.143     40.757     78.8053     77.189     99.661
+ doit1(rnorm(10)) 320645.561 346885.069 375013.7304 363688.720 401977.264
+ doit2(rnorm(10)) 192234.267 206308.346 247802.8785 229792.355 244832.538
+ doit3(rnorm(10))   1158.699   1404.648   1606.4982   1699.057   1815.478
+        max neval
+    191.335    10
+ 454097.434    10
+ 454866.421    10
+   2016.165    10
+> microbenchmark(
++   doit0(rnorm(10)),
++   #doit1(rnorm(10)),
++   #doit2(rnorm(10)),
++   doit3(rnorm(10)),
++   times=1000
++ )
+Unit: microseconds
+             expr     min       lq       mean   median       uq      max neval
+ doit0(rnorm(10))  27.566  31.6135   35.46144   35.464   38.558   98.293  1000
+ doit3(rnorm(10)) 952.963 987.9935 1040.48532 1008.241 1063.772 1848.972  1000
+> 
+> 
+> sleep.time <- 0.1
+> microbenchmark(
++   doit0(rnorm(10)),
++   doit1(rnorm(10)),
++   doit2(rnorm(10)),
++   doit3(rnorm(10)),
++   times=5
++ )
+Unit: milliseconds
+             expr      min       lq     mean   median       uq      max neval
+ doit0(rnorm(10)) 200.3606 200.4177 200.4746 200.5191 200.5354 200.5400     5
+ doit1(rnorm(10)) 561.9016 563.5002 628.3487 569.9394 579.1710 867.2315     5
+ doit2(rnorm(10)) 432.9333 435.6632 459.7610 447.4760 468.9591 513.7734     5
+ doit3(rnorm(10)) 201.9770 202.9190 203.3511 203.7323 204.0007 204.1266     5
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  1.460   0.232  21.696 

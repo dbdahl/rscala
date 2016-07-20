@@ -16,6 +16,7 @@ else
 fi
 
 export VERSIONS="2.10.6 2.11.8 2.12.0-M5"
+export VERSIONS="2.12.0-M5"
 export SERIALIZES="TRUE FALSE"
 export OUTPUTS="TRUE FALSE"
 

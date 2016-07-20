@@ -27,6 +27,36 @@ Type 'q()' to quit R.
 > set.seed(3432585)
 > 
 > s$.asdf <- 3
-Error in f(..., as.reference = as.reference, gc = gc) : Invocation error.
-Calls: $<- ... doTryCatch -> inherits -> scalaWrap -> <Anonymous> -> f
+> s %~% "3+4"
+[1] 7
+> 
+> tryCatch(s$adf,error = function(e) e)
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Undefined identifier: adf>
+> 
+> tryCatch(scalaGet(s,"def"),error = function(e) e)
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Undefined identifier: def>
+> s$def <- 4
+> s %~% "3+4"
+[1] 7
+> 
+> f <- s$ def("x: Int, y: Double",'
++   x+y
++ ')
+> f(3,4)
+[1] 7
+> 
+> x <- as.character(0:8)
+> set.seed(234235)
+> s$x <- rnorm(100)
+> tryCatch(s$val(x),error = function(e) e)
+NULL
+> identical(s$x,s$.val("x"))
+[1] FALSE
+> 
+> s %~% "val $bob = 4"
+[1] 4
+> scalaGet(s,"$bob")
+[1] 4
+> s$$bob
+Error: unexpected '$' in "s$$"
 Execution halted

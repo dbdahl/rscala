@@ -80,50 +80,62 @@ Type 'q()' to quit R.
 + ')
 > 
 > doit3(rnorm(10))
-java.lang.IllegalAccessException: Class org.ddahl.rscala.ScalaServer can not access a member of class $line16.$read$$iw$$iw$$$Lambda$1263/682025329 with modifiers "public"
-	at sun.reflect.Reflection.ensureMemberAccess(Reflection.java:102)
-	at java.lang.reflect.AccessibleObject.slowCheckMemberAccess(AccessibleObject.java:296)
-	at java.lang.reflect.AccessibleObject.checkAccess(AccessibleObject.java:288)
-	at java.lang.reflect.Method.invoke(Method.java:491)
-	at org.ddahl.rscala.ScalaServer.callFunction(ScalaServer.scala:76)
-	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:195)
-	at org.ddahl.rscala.ScalaServer.heart(ScalaServer.scala:571)
-	at org.ddahl.rscala.ScalaServer.$anonfun$run$2(ScalaServer.scala:590)
-	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
-	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
-	at scala.Console$.withErr(Console.scala:192)
-	at org.ddahl.rscala.ScalaServer.$anonfun$run$1(ScalaServer.scala:590)
-	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
-	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
-	at scala.Console$.withOut(Console.scala:163)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:589)
-	at org.ddahl.rscala.Main$.delayedEndpoint$org$ddahl$rscala$Main$1(Main.scala:5)
-	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:3)
-	at scala.Function0.apply$mcV$sp$(Function0.scala:34)
-	at scala.Function0.apply$mcV$sp(Function0.scala:34)
-	at scala.App.$anonfun$main$1$adapted(App.scala:76)
-	at scala.collection.immutable.List.foreach(List.scala:376)
-	at scala.App.main$(App.scala:76)
-	at scala.App.main(App.scala:74)
-	at org.ddahl.rscala.Main.main(Main.scala)
-	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.lang.reflect.Method.invoke(Method.java:498)
-	at scala.reflect.internal.util.ScalaClassLoader.$anonfun$run$2(ScalaClassLoader.scala:98)
-	at scala.reflect.internal.util.ScalaClassLoader.asContext$(ScalaClassLoader.scala:32)
-	at scala.reflect.internal.util.ScalaClassLoader.asContext(ScalaClassLoader.scala:30)
-	at scala.reflect.internal.util.ScalaClassLoader.run$(ScalaClassLoader.scala:98)
-	at scala.reflect.internal.util.ScalaClassLoader.run(ScalaClassLoader.scala:90)
-	at scala.tools.nsc.CommonRunner.run$(ObjectRunner.scala:22)
-	at scala.tools.nsc.CommonRunner.run(ObjectRunner.scala:21)
-	at scala.tools.nsc.CommonRunner.runAndCatch$(ObjectRunner.scala:29)
-	at scala.tools.nsc.CommonRunner.runAndCatch(ObjectRunner.scala:28)
-	at scala.tools.nsc.MainGenericRunner.runTarget$1(MainGenericRunner.scala:65)
-	at scala.tools.nsc.MainGenericRunner.run$1(MainGenericRunner.scala:87)
-	at scala.tools.nsc.MainGenericRunner.process(MainGenericRunner.scala:98)
-	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:103)
-	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
-java.lang.IllegalAccessException: Class org.ddahl.rscala.ScalaServer can not access a member of class $line16.$read$$iw$$iw$$$Lambda$1263/682025329 with modifiers "public"
-Error in doit3(rnorm(10)) : Invocation error.
-Execution halted
+[1] 0.1105979 2.3994832
+> 
+> 
+> 
+> # Benchmarks
+> 
+> library(microbenchmark)
+> 
+> sleep.time <- 0
+> microbenchmark(
++   doit0(rnorm(10)),
++   doit1(rnorm(10)),
++   doit2(rnorm(10)),
++   doit3(rnorm(10)),
++   times=10
++ )
+Unit: microseconds
+             expr        min         lq       mean      median         uq
+ doit0(rnorm(10))     29.559     40.823     79.030     68.1935     96.222
+ doit1(rnorm(10)) 324109.935 349099.420 373765.947 357881.7730 401205.266
+ doit2(rnorm(10)) 190268.896 205791.750 233103.158 224272.5495 245165.556
+ doit3(rnorm(10))   1636.616   1887.125   2353.864   2377.4910   2881.371
+        max neval
+    199.657    10
+ 452583.414    10
+ 351943.976    10
+   3040.362    10
+> microbenchmark(
++   doit0(rnorm(10)),
++   #doit1(rnorm(10)),
++   #doit2(rnorm(10)),
++   doit3(rnorm(10)),
++   times=1000
++ )
+Unit: microseconds
+             expr      min       lq      mean   median        uq      max neval
+ doit0(rnorm(10))   27.928   32.622   40.5442   38.160   41.0155  973.648  1000
+ doit3(rnorm(10)) 1251.417 1299.822 1435.2211 1322.328 1383.8475 8561.747  1000
+> 
+> 
+> sleep.time <- 0.1
+> microbenchmark(
++   doit0(rnorm(10)),
++   doit1(rnorm(10)),
++   doit2(rnorm(10)),
++   doit3(rnorm(10)),
++   times=5
++ )
+Unit: milliseconds
+             expr      min       lq     mean   median       uq      max neval
+ doit0(rnorm(10)) 200.4585 200.4874 200.5104 200.5235 200.5385 200.5442     5
+ doit1(rnorm(10)) 560.5300 571.1090 650.5708 592.8200 621.2631 907.1317     5
+ doit2(rnorm(10)) 443.9306 452.1909 470.7503 456.7276 498.2146 502.6876     5
+ doit3(rnorm(10)) 202.1571 204.8381 204.5218 205.0368 205.1408 205.4364     5
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  1.872   0.288  22.645 

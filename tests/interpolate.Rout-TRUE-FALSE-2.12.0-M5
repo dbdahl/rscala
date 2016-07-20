@@ -41,4 +41,4 @@ ScalaInterpreterReference... a: Int
 > 
 > proc.time()
    user  system elapsed 
-  0.168   0.016   5.479 
+  0.160   0.020   4.956 

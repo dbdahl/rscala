@@ -54,6 +54,10 @@ Type 'q()' to quit R.
 +   a <- s$do("Array[Double]")$new(100000L)  # No memory problems
 +   # s %~% "new Array[Double](100000)"      # Memory problems
 + }
-Error in f(..., as.reference = as.reference, gc = gc) : Invocation error.
-Calls: <Anonymous> -> f
-Execution halted
+> 
+> 
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  3.636   0.912  28.245 

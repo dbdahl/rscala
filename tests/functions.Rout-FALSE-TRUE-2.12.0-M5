@@ -94,9 +94,9 @@ java.lang.AssertionError: assertion failed: class EmpiricalDistribution: <none>
 	at scala.tools.nsc.interpreter.IMain.$anonfun$valueOfTerm$1(IMain.scala:1045)
 	at scala.tools.nsc.interpreter.IMain.valueOfTerm(IMain.scala:1034)
 	at org.ddahl.rscala.ScalaServer.storeFunction(ScalaServer.scala:55)
-	at org.ddahl.rscala.ScalaServer.doDef(ScalaServer.scala:158)
-	at org.ddahl.rscala.ScalaServer.heart(ScalaServer.scala:569)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:598)
+	at org.ddahl.rscala.ScalaServer.doDef(ScalaServer.scala:159)
+	at org.ddahl.rscala.ScalaServer.heart(ScalaServer.scala:570)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:599)
 	at org.ddahl.rscala.Main$.delayedEndpoint$org$ddahl$rscala$Main$1(Main.scala:5)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0.apply$mcV$sp$(Function0.scala:34)
@@ -126,15 +126,69 @@ java.lang.AssertionError: assertion failed: class EmpiricalDistribution: <none>
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 java.lang.AssertionError: assertion failed: class EmpiricalDistribution: <none>
 > rdg <- s$do("org.apache.commons.math3.random.RandomDataGenerator")$new()                                # Rerun and it works fine.
-java.lang.IllegalAccessException: Class org.ddahl.rscala.ScalaServer can not access a member of class $line6.$read$$iw$$iw$$$Lambda$1074/1599556802 with modifiers "public"
-	at sun.reflect.Reflection.ensureMemberAccess(Reflection.java:102)
-	at java.lang.reflect.AccessibleObject.slowCheckMemberAccess(AccessibleObject.java:296)
-	at java.lang.reflect.AccessibleObject.checkAccess(AccessibleObject.java:288)
-	at java.lang.reflect.Method.invoke(Method.java:491)
-	at org.ddahl.rscala.ScalaServer.callFunction(ScalaServer.scala:76)
-	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:195)
-	at org.ddahl.rscala.ScalaServer.heart(ScalaServer.scala:571)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:598)
+> rdg$reSeed(39234L)
+> rexp <- rdg$nextExponential(2,evaluate=FALSE)
+> 
+> library(microbenchmark)
+> options(width=120)
+> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
+Unit: microseconds
+                   expr     min      lq     mean   median       uq       max neval
+ rdg$nextExponential(4) 558.744 578.774 691.8474 596.7550 810.5840  1798.121  1000
+                rexp(4) 489.593 509.736 629.6646 524.6285 737.7845 14334.457  1000
+> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
+Unit: microseconds
+                   expr     min       lq     mean   median      uq      max neval
+ rdg$nextExponential(4) 563.297 578.6615 592.5870 584.1055 593.787 1327.283  1000
+                rexp(4) 495.511 508.1565 523.6734 513.2675 521.609 2878.101  1000
+> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
+Unit: microseconds
+                   expr     min       lq     mean   median       uq       max neval
+ rdg$nextExponential(4) 551.592 561.7775 579.9717 569.7675 575.1115  3561.265  1000
+                rexp(4) 470.025 495.4745 522.3827 501.1675 505.8020 10733.824  1000
+> 
+> massFactory3 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(1.0,3.0,rdg)
+> s %~% "3+4"
+[1] 7
+> 
+> scalap(s,"org.ddahl.shallot.parameter.Mass")
+class/object org.ddahl.shallot.parameter.Mass not found.
+> mass <- s$do("org.ddahl.shallot.parameter.Mass")$apply(3.4)
+> massFactory1 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(mass)
+> massFactory2 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(3.0)
+> massFactory3 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(1.0,3.0,rdg)
+> massFactory3$apply()$logValue()
+[1] -2.27295
+> massFactory3$apply()$logValue()
+[1] -3.893189
+> massFactory3$apply()$logValue()
+[1] -2.183371
+> 
+> 
+> 
+> s %~% '
++ class Bob {
++ 
++   val a = 3.0
++   var b = 4.0
++ 
++   def sum(c: Int) = { a + b + c }
++ 
++ }
++ '
+ScalaInterpreterReference... res11: org.ddahl.shallot.parameter.Mass => Double
+> 
+> d <- s$do("Bob")$new()
+> d[['type']]                           # Note the weird 'iw$' prepended to 'Bob'
+[1] "iw$Bob"
+> tryCatch(d$b(),error=function(e) e)   # Doesn't work
+<console>:12: error: not found: type iw$Bob
+       (rscalaReference: iw$Bob) => { rscalaReference.b }
+                         ^
+java.lang.RuntimeException: Parse error in 'def'.
+	at org.ddahl.rscala.ScalaServer.doDef(ScalaServer.scala:154)
+	at org.ddahl.rscala.ScalaServer.heart(ScalaServer.scala:570)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:599)
 	at org.ddahl.rscala.Main$.delayedEndpoint$org$ddahl$rscala$Main$1(Main.scala:5)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0.apply$mcV$sp$(Function0.scala:34)
@@ -162,7 +216,62 @@ java.lang.IllegalAccessException: Class org.ddahl.rscala.ScalaServer can not acc
 	at scala.tools.nsc.MainGenericRunner.process(MainGenericRunner.scala:98)
 	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:103)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
-java.lang.IllegalAccessException: Class org.ddahl.rscala.ScalaServer can not access a member of class $line6.$read$$iw$$iw$$$Lambda$1074/1599556802 with modifiers "public"
-Error in f(..., as.reference = as.reference, gc = gc) : Invocation error.
-Calls: <Anonymous> -> f
-Execution halted
+java.lang.RuntimeException: Parse error in 'def'.
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Evaluation error.>
+> 
+> d[['type']] <- "Bob"     # Cast it to be 'Bob'
+> d$b()                    # Now it does
+[1] 4
+> 
+> d$sum(as.integer(4))
+[1] 11
+> m <- d$sum(as.integer(5),evaluate=FALSE)
+> 
+> m(3)                                    # Casting is not necessary here
+[1] 10
+> d$sum(as.integer(3))                    # But it is here
+[1] 10
+> tryCatch(d$sum(3),error=function(e) e)  # and here
+<console>:13: error: type mismatch;
+ found   : Double
+ required: Int
+       (rscalaReference: Bob,x1: Double) => { rscalaReference.sum(x1) }
+                                                                  ^
+java.lang.RuntimeException: Parse error in 'def'.
+	at org.ddahl.rscala.ScalaServer.doDef(ScalaServer.scala:154)
+	at org.ddahl.rscala.ScalaServer.heart(ScalaServer.scala:570)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:599)
+	at org.ddahl.rscala.Main$.delayedEndpoint$org$ddahl$rscala$Main$1(Main.scala:5)
+	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:3)
+	at scala.Function0.apply$mcV$sp$(Function0.scala:34)
+	at scala.Function0.apply$mcV$sp(Function0.scala:34)
+	at scala.App.$anonfun$main$1$adapted(App.scala:76)
+	at scala.collection.immutable.List.foreach(List.scala:376)
+	at scala.App.main$(App.scala:76)
+	at scala.App.main(App.scala:74)
+	at org.ddahl.rscala.Main.main(Main.scala)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at scala.reflect.internal.util.ScalaClassLoader.$anonfun$run$2(ScalaClassLoader.scala:98)
+	at scala.reflect.internal.util.ScalaClassLoader.asContext$(ScalaClassLoader.scala:32)
+	at scala.reflect.internal.util.ScalaClassLoader.asContext(ScalaClassLoader.scala:30)
+	at scala.reflect.internal.util.ScalaClassLoader.run$(ScalaClassLoader.scala:98)
+	at scala.reflect.internal.util.ScalaClassLoader.run(ScalaClassLoader.scala:90)
+	at scala.tools.nsc.CommonRunner.run$(ObjectRunner.scala:22)
+	at scala.tools.nsc.CommonRunner.run(ObjectRunner.scala:21)
+	at scala.tools.nsc.CommonRunner.runAndCatch$(ObjectRunner.scala:29)
+	at scala.tools.nsc.CommonRunner.runAndCatch(ObjectRunner.scala:28)
+	at scala.tools.nsc.MainGenericRunner.runTarget$1(MainGenericRunner.scala:65)
+	at scala.tools.nsc.MainGenericRunner.run$1(MainGenericRunner.scala:87)
+	at scala.tools.nsc.MainGenericRunner.process(MainGenericRunner.scala:98)
+	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:103)
+	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
+java.lang.RuntimeException: Parse error in 'def'.
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Evaluation error.>
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  3.180   0.856  11.206 
