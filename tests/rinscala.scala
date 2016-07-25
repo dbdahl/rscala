@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export CMD="cat(rscala::.rscalaJar(\"$SCALA_VERSION\"))"
+CMD="cat(rscala::.rscalaJar(\"$RSCALA_SCALA_VERSION\"))"
 exec "$SCALA_HOME"/bin/scala -cp $(R --slave -e "$CMD") "$0" "$@"
 
 !#

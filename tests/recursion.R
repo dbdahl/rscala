@@ -69,5 +69,5 @@ microbenchmark(h(0),i(0),times=100)
 
 
 # When serialize=TRUE however, we are limited by R's sink stack.
-i(-15)
+tryCatch(i(-15),error=function(e) e)
 

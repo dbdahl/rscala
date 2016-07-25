@@ -632,10 +632,14 @@ object ScalaServer {
     if ( debugger.value ) debugger.msg("Classpath is:\n"+classpath.mkString("\n"))
     // Instantiate an interpreter
     val intp = new IMain(settings,prntWrtr)
-    // Suppress output, equivalent to :silent in REPL
-    val iloop = new ILoop()
-    iloop.intp = intp
-    iloop.verbosity()
+    // Suppress output; equivalent to :silent in REPL, but it's private, so use reflection.
+    val m = intp.getClass.getMethod("printResults_$eq",java.lang.Boolean.TYPE)
+    m.setAccessible(true)
+    m.invoke(intp,java.lang.Boolean.FALSE)
+    // Another way to do it, but Scala 2.10.x is chatty and prints "Switched off result printing."
+    // val iloop = new ILoop()
+    // iloop.intp = intp
+    // iloop.verbosity()
     // Return the server
     new ScalaServer(intp, prntWrtr, baosOut, baosErr, portsFilename, debugger, serializeOutput)
   }

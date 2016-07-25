@@ -29,5 +29,5 @@ identical(s$x,s$.val("x"))
 
 s %~% "val $bob = 4"
 scalaGet(s,"$bob")
-s$$bob
+s$'$bob'
 
