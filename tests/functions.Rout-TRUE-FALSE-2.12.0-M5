@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2016-07-05 r70861) -- "Unsuffered Consequences"
+R version 3.2.4 (2016-03-10) -- "Very Secure Dishes"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -140,20 +140,20 @@ java.lang.AssertionError: assertion failed: class EmpiricalDistribution: <none>
 > library(microbenchmark)
 > options(width=120)
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
-Unit: microseconds
-                   expr     min       lq     mean   median       uq       max neval
- rdg$nextExponential(4) 679.711 700.0055 773.1916 711.3785 736.2435 15110.764  1000
-                rexp(4) 614.359 630.6445 681.7165 642.7585 666.0800  5032.645  1000
+Unit: milliseconds
+                   expr      min       lq     mean   median       uq      max neval
+ rdg$nextExponential(4) 1.418706 5.833865 18.41425 12.54291 20.87633 448.6850  1000
+                rexp(4) 1.253350 4.965957 15.77954 10.58876 17.70747 252.0329  1000
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
-Unit: microseconds
-                   expr     min       lq     mean  median       uq      max neval
- rdg$nextExponential(4) 675.744 691.7775 720.0643 697.453 706.1375 4778.364  1000
-                rexp(4) 599.903 623.0100 651.4349 628.009 636.3460 9932.846  1000
+Unit: milliseconds
+                   expr      min       lq     mean   median       uq      max neval
+ rdg$nextExponential(4) 1.270340 6.502201 9.469075 7.985556 9.886996 221.4893  1000
+                rexp(4) 1.060215 5.695515 8.781593 7.073246 8.795974 250.8310  1000
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
-Unit: microseconds
-                   expr     min       lq     mean  median       uq     max neval
- rdg$nextExponential(4) 671.344 683.8060 707.3762 692.079 703.2935 3551.60  1000
-                rexp(4) 604.021 616.3025 639.6561 623.293 632.2420 3579.93  1000
+Unit: milliseconds
+                   expr      min       lq     mean    median       uq      max neval
+ rdg$nextExponential(4) 1.225290 6.456161 13.79755 10.207575 17.65552 161.8726  1000
+                rexp(4) 1.055323 5.888183 12.29841  8.969963 15.35309 126.2134  1000
 > 
 > massFactory3 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(1.0,3.0,rdg)
 > s %~% "3+4"
@@ -296,6 +296,3 @@ java.lang.RuntimeException: Parse error in 'def'.
 <simpleError in doTryCatch(return(expr), name, parentenv, handler): Evaluation error.>
 > 
 > 
-> proc.time()
-   user  system elapsed 
-  3.628   0.960  11.934 

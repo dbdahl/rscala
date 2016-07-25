@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2016-07-05 r70861) -- "Unsuffered Consequences"
+R version 3.2.4 (2016-03-10) -- "Very Secure Dishes"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -65,7 +65,7 @@ java.lang.reflect.InvocationTargetException
 Caused by: java.lang.OutOfMemoryError: Java heap space
 	at $line5.$read$$iw$$iw$.$anonfun$res1$1(<console>:12)
 	at $line5.$read$$iw$$iw$.$anonfun$res1$1$adapted(<console>:12)
-	at $line5.$read$$iw$$iw$$$Lambda$1077/1468343491.apply(Unknown Source)
+	at $line5.$read$$iw$$iw$$$Lambda$1076/1609086753.apply(Unknown Source)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -143,7 +143,7 @@ java.lang.reflect.InvocationTargetException
 Caused by: java.lang.OutOfMemoryError: Java heap space
 	at $line5.$read$$iw$$iw$.$anonfun$res1$1(<console>:12)
 	at $line5.$read$$iw$$iw$.$anonfun$res1$1$adapted(<console>:12)
-	at $line5.$read$$iw$$iw$$$Lambda$1077/1468343491.apply(Unknown Source)
+	at $line5.$read$$iw$$iw$$$Lambda$1076/1609086753.apply(Unknown Source)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -223,7 +223,7 @@ java.lang.reflect.InvocationTargetException
 Caused by: java.lang.OutOfMemoryError: Java heap space
 	at $line5.$read$$iw$$iw$.$anonfun$res1$1(<console>:12)
 	at $line5.$read$$iw$$iw$.$anonfun$res1$1$adapted(<console>:12)
-	at $line5.$read$$iw$$iw$$$Lambda$1077/1468343491.apply(Unknown Source)
+	at $line5.$read$$iw$$iw$$$Lambda$1076/1609086753.apply(Unknown Source)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -271,6 +271,3 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > 
 > 
-> proc.time()
-   user  system elapsed 
-  3.748   0.768  28.350 

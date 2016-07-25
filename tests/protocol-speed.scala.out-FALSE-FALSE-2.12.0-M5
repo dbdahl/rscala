@@ -1,1 +1,2 @@
-Did you start the server?  Do so using: R CMD Rserve
+10000 invocations in 2.4607 seconds
+10000 invocations in 66.0863 seconds

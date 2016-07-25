@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2016-07-05 r70861) -- "Unsuffered Consequences"
+R version 3.2.4 (2016-03-10) -- "Very Secure Dishes"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -561,11 +561,16 @@ Hello 9 from Scala.
 Hello 9 from R.
 Hello 10 from Scala.
 Unit: milliseconds
- expr        min         lq       mean     median         uq         max neval
- f(0) 685.735312 687.556610 833.753529 743.408052 844.913659 1207.154013     5
- g(0) 342.626779 393.203636 442.253918 432.442337 450.987882  592.008954     5
- h(0)   5.673353   5.812664   6.646015   6.887563   7.122200    7.734293     5
- i(0)   5.708999   5.891191   6.647054   6.328268   7.147566    8.159248     5
+ expr         min          lq        mean      median         uq        max
+ f(0) 11828.58114 12617.52734 15838.30414 13961.43347 14021.7946 26762.1841
+ g(0)  6106.36585  6262.40344 11236.68168  9968.03351 10588.4609 23258.1447
+ h(0)    24.49584    54.58643   129.30449    83.99733   101.5814   381.8615
+ i(0)    13.55248    27.64452    62.09722    54.97254    89.3087   125.0079
+ neval
+     5
+     5
+     5
+     5
 > 
 > cat("####\n")
 ####
@@ -4572,15 +4577,15 @@ Hello 9 from R.
 Hello 9 from Scala.
 Hello 10 from R.
 Unit: milliseconds
- expr      min       lq     mean   median       uq      max neval
- h(0) 5.090875 5.205399 5.363850 5.271681 5.385003 6.685675   100
- i(0) 5.322527 5.448563 5.631006 5.526336 5.665284 6.842268   100
+ expr      min       lq     mean    median       uq      max neval
+ h(0) 11.57498 67.75628 119.0685  94.52925 158.8495 496.6195   100
+ i(0) 12.75001 72.38888 134.1985 119.10131 183.9323 527.0168   100
 > 
 > 
 > 
 > 
 > # When serialize=TRUE however, we are limited by R's sink stack.
-> i(-15)
+> tryCatch(i(-15),error=function(e) e)
 Hello -15 from Scala.
 Hello -14 from R.
 Hello -14 from Scala.
@@ -4633,6 +4638,3 @@ Hello 9 from Scala.
 Hello 10 from R.
 > 
 > 
-> proc.time()
-   user  system elapsed 
-  1.464   0.392  13.655 

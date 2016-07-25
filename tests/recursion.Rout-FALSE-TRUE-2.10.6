@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2016-07-05 r70861) -- "Unsuffered Consequences"
+R version 3.2.4 (2016-03-10) -- "Very Secure Dishes"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -23,7 +23,6 @@ Type 'q()' to quit R.
 > output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
 > version <- Sys.getenv("RSCALA_SCALA_VERSION")
 > s <- scala(serialize=serialize,stdout=output,stderr=output)
-Switched off result printing.
 > if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
 > 
 > 
@@ -562,11 +561,11 @@ Hello 9 from Scala.
 Hello 9 from R.
 Hello 10 from Scala.
 Unit: milliseconds
- expr        min         lq       mean     median         uq       max neval
- f(0) 373.363501 414.443463 449.738372 425.033626 462.032672 573.81860     5
- g(0) 212.175264 227.990029 263.720102 260.953770 265.177413 352.30404     5
- h(0)   5.689648   5.823621   7.423689   6.588667   6.895561  12.12095     5
- i(0)   5.902227   6.207319   6.746972   6.266531   6.447174   8.91161     5
+ expr        min         lq       mean     median         uq        max neval
+ f(0) 4818.86425 8288.03675 9425.61363 9626.55440 9790.14967 14604.4631     5
+ g(0) 4120.98174 4170.46931 5335.14672 5851.34944 5884.39846  6648.5346     5
+ h(0)   30.81515   44.67769   89.32837   48.82901   65.15989   257.1601     5
+ i(0)   45.12448   59.63744  135.90533   93.89832  200.35148   280.5149     5
 > 
 > cat("####\n")
 ####
@@ -4574,14 +4573,14 @@ Hello 9 from Scala.
 Hello 10 from R.
 Unit: milliseconds
  expr      min       lq     mean   median       uq      max neval
- h(0) 5.026056 5.154144 5.317899 5.230037 5.345712 7.023752   100
- i(0) 5.247146 5.412018 5.603015 5.523510 5.710840 6.554741   100
+ h(0) 29.14472 85.05909 137.8585 114.0603 174.4145 489.5236   100
+ i(0) 34.43346 90.51580 141.8770 119.5945 172.7942 459.1401   100
 > 
 > 
 > 
 > 
 > # When serialize=TRUE however, we are limited by R's sink stack.
-> i(-15)
+> tryCatch(i(-15),error=function(e) e)
 Hello -15 from Scala.
 Hello -14 from R.
 Hello -14 from Scala.
@@ -4634,6 +4633,3 @@ Hello 9 from Scala.
 Hello 10 from R.
 > 
 > 
-> proc.time()
-   user  system elapsed 
-  1.424   0.356   9.096 

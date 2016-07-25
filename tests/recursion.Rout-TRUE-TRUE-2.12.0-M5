@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2016-07-05 r70861) -- "Unsuffered Consequences"
+R version 3.2.4 (2016-03-10) -- "Very Secure Dishes"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -562,10 +562,10 @@ Hello 9 from R.
 Hello 10 from Scala.
 Unit: milliseconds
  expr        min         lq       mean     median         uq        max neval
- f(0) 709.146623 727.794123 835.296949 822.137814 873.041843 1044.36434     5
- g(0) 365.807216 432.209505 509.719062 518.334456 575.333285  656.91085     5
- h(0)   8.310786   8.353987   9.455171   8.412087   9.977963   12.22103     5
- i(0)   8.714633   9.183380  11.387517   9.280090   9.835650   19.92383     5
+ f(0) 2626.44569 2748.23490 3703.08095 3074.99566 3395.89604 6669.83248     5
+ g(0) 1783.40273 1936.21805 2612.82972 2118.01955 3042.46078 4184.04752     5
+ h(0)   15.56779   19.67546   26.04515   23.65370   27.86952   43.45927     5
+ i(0)   19.30675   22.11697   36.99670   23.17503   51.91560   68.46913     5
 > 
 > cat("####\n")
 ####
@@ -4572,15 +4572,15 @@ Hello 8 from Scala.
 Hello 10 from R.
 Hello 9 from Scala.
 Unit: milliseconds
- expr      min       lq     mean   median       uq      max neval
- h(0) 7.444573 7.596329 8.069933 7.704838 7.905486 18.70012   100
- i(0) 7.823012 8.055088 8.434594 8.173741 8.459530 13.13908   100
+ expr       min       lq     mean   median       uq      max neval
+ h(0)  9.654346 15.09988 27.68238 19.28767 28.42863 174.2326   100
+ i(0) 11.478966 15.02533 28.92995 19.42700 26.40005 259.6449   100
 > 
 > 
 > 
 > 
 > # When serialize=TRUE however, we are limited by R's sink stack.
-> i(-15)
+> tryCatch(i(-15),error=function(e) e)
 Error in i(3) : Invocation error.
 Error in i(2) : Invocation error.
 Error in i(1) : Invocation error.
@@ -9237,8 +9237,9 @@ Caused by: java.lang.RuntimeException: Error in R evaluation.
 	... 62 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Error in R evaluation.
-Error in i(-15) : Invocation error.
-Execution halted
+<simpleError in i(-15): Invocation error.>
+> 
+> 
 java.net.SocketException: Broken pipe
 	at java.net.SocketOutputStream.socketWrite0(Native Method)
 	at java.net.SocketOutputStream.socketWrite(SocketOutputStream.java:109)

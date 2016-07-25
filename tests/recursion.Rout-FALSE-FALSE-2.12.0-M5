@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2016-07-05 r70861) -- "Unsuffered Consequences"
+R version 3.2.4 (2016-03-10) -- "Very Secure Dishes"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -322,10 +322,10 @@ Hello 8 from R.
 Hello 9 from R.
 Unit: milliseconds
  expr        min         lq       mean     median         uq        max neval
- f(0) 687.208313 706.526268 799.197518 761.465653 841.241939 999.545417     5
- g(0) 376.193195 427.831347 477.279740 465.852631 466.189632 650.331897     5
- h(0)   5.544636   5.836943   6.401389   6.649973   6.967979   7.007413     5
- i(0)   5.886128   5.960901   6.955534   6.649319   8.087126   8.194197     5
+ f(0) 1680.07256 1817.88471 3052.51407 1832.99812 2470.40825 7461.20670     5
+ g(0)  939.26426 1344.05111 2336.46010 2662.88661 3198.47624 3537.62227     5
+ h(0)   15.73508   23.24295   40.45752   31.81660   36.08026   95.41270     5
+ i(0)   13.19990   14.58428   22.62837   15.27696   27.84837   42.23234     5
 > 
 > cat("####\n")
 ####
@@ -2332,15 +2332,15 @@ Hello 8 from R.
 Hello 9 from R.
 Hello 10 from R.
 Unit: milliseconds
- expr      min       lq     mean   median       uq      max neval
- h(0) 5.054630 5.158198 5.360629 5.226940 5.411363 6.925445   100
- i(0) 5.331873 5.453981 5.704059 5.564882 5.724446 7.565703   100
+ expr      min       lq     mean   median       uq       max neval
+ h(0) 8.438213 12.97320 20.26243 18.57415 21.64574  82.32915   100
+ i(0) 8.528833 13.89269 24.37759 17.88530 29.82943 133.48716   100
 > 
 > 
 > 
 > 
 > # When serialize=TRUE however, we are limited by R's sink stack.
-> i(-15)
+> tryCatch(i(-15),error=function(e) e)
 Hello -14 from R.
 Hello -13 from R.
 Hello -12 from R.
@@ -2368,6 +2368,3 @@ Hello 9 from R.
 Hello 10 from R.
 > 
 > 
-> proc.time()
-   user  system elapsed 
-  1.436   0.384  15.196 

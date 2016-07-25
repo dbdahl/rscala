@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2016-07-05 r70861) -- "Unsuffered Consequences"
+R version 3.2.4 (2016-03-10) -- "Very Secure Dishes"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -23,7 +23,6 @@ Type 'q()' to quit R.
 > output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
 > version <- Sys.getenv("RSCALA_SCALA_VERSION")
 > s <- scala(serialize=serialize,stdout=output,stderr=output)
-Switched off result printing.
 > if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
 > set.seed(3432585)
 > 
@@ -64,6 +63,7 @@ NULL
 [1] 4
 > scalaGet(s,"$bob")
 [1] 4
-> s$$bob
-Error: unexpected '$' in "s$$"
-Execution halted
+> s$'$bob'
+[1] 4
+> 
+> 

@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2016-07-05 r70861) -- "Unsuffered Consequences"
+R version 3.2.4 (2016-03-10) -- "Very Secure Dishes"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -35,19 +35,19 @@ Type 'q()' to quit R.
 > options(width=120)
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: microseconds
-                   expr     min       lq     mean   median       uq       max neval
- rdg$nextExponential(4) 549.638 571.6425 600.8836 579.7880 598.0805  1970.596  1000
-                rexp(4) 488.644 502.9280 550.5810 509.8565 527.3095 14472.402  1000
+                   expr      min       lq     mean   median       uq      max neval
+ rdg$nextExponential(4) 1035.875 1312.459 7157.603 1488.773 8623.444 153272.7  1000
+                rexp(4)  877.580 1134.448 6401.714 1286.457 7052.752 204117.5  1000
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: microseconds
-                   expr     min       lq     mean  median       uq      max neval
- rdg$nextExponential(4) 555.158 567.1420 579.9961 573.108 578.8030 1308.942  1000
-                rexp(4) 488.383 498.3815 514.2948 504.074 508.7745 2912.411  1000
+                   expr      min       lq      mean   median       uq      max neval
+ rdg$nextExponential(4) 1004.119 1325.191 11130.675 3281.642 10289.56 239162.4  1000
+                rexp(4)  872.659 1147.341  7825.533 2537.488  8019.69 228913.2  1000
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: microseconds
-                   expr     min       lq     mean   median      uq      max neval
- rdg$nextExponential(4) 553.588 561.8895 575.4283 565.1230 574.749 1272.811  1000
-                rexp(4) 488.228 494.3225 507.7688 497.2425 505.803 3575.554  1000
+                   expr     min       lq      mean   median        uq      max neval
+ rdg$nextExponential(4) 992.012 1357.090 11186.249 4549.873 11546.417 175443.4  1000
+                rexp(4) 875.132 1176.676  9601.958 2917.731  9231.585 196680.2  1000
 > 
 > massFactory3 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(1.0,3.0,rdg)
 > s %~% "3+4"
@@ -101,6 +101,3 @@ ScalaInterpreterReference... res11: org.ddahl.shallot.parameter.Mass => Double
 <simpleError in doTryCatch(return(expr), name, parentenv, handler): Evaluation error.>
 > 
 > 
-> proc.time()
-   user  system elapsed 
-  3.008   0.820   9.980 

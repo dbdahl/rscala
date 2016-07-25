@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2016-07-05 r70861) -- "Unsuffered Consequences"
+R version 3.2.4 (2016-03-10) -- "Very Secure Dishes"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -561,11 +561,11 @@ Hello 9 from Scala.
 Hello 9 from R.
 Hello 10 from Scala.
 Unit: milliseconds
- expr        min         lq       mean    median         uq       max neval
- f(0) 702.742448 786.554880 824.518658 802.22318 868.073462 962.99932     5
- g(0) 391.511816 436.686651 469.534788 470.08914 470.264898 579.12143     5
- h(0)   8.171459   8.898125   9.320093   8.90478   9.822353  10.80375     5
- i(0)   9.436650   9.453930  11.436986  10.13910  13.862001  14.29325     5
+ expr        min         lq       mean     median         uq        max neval
+ f(0) 1355.15075 2394.63022 3034.26801 2732.48786 3233.41823 5455.65296     5
+ g(0) 1097.86841 1327.64223 2275.33468 2426.09712 3214.09824 3310.96739     5
+ h(0)   12.79023   15.04524   30.80063   17.66704   20.24938   88.25127     5
+ i(0)   12.82377   17.61134   20.36148   21.05071   24.03317   26.28843     5
 > 
 > cat("####\n")
 ####
@@ -4572,15 +4572,15 @@ Hello 8 from Scala.
 Hello 10 from R.
 Hello 9 from Scala.
 Unit: milliseconds
- expr      min       lq     mean  median       uq      max neval
- h(0) 7.406768 7.561219 8.240091 7.75471 8.463300 18.26684   100
- i(0) 7.788716 8.010137 8.701053 8.22439 8.567733 18.73794   100
+ expr      min       lq     mean   median       uq       max neval
+ h(0) 10.17456 16.84588 24.43662 19.75236 24.14928 116.03688   100
+ i(0) 10.60672 18.22701 24.62338 20.91894 30.39222  77.27977   100
 > 
 > 
 > 
 > 
 > # When serialize=TRUE however, we are limited by R's sink stack.
-> i(-15)
+> tryCatch(i(-15),error=function(e) e)
 Error in i(3) : Invocation error.
 Error in i(2) : Invocation error.
 Error in i(1) : Invocation error.
@@ -9237,5 +9237,6 @@ Caused by: java.lang.RuntimeException: Error in R evaluation.
 	... 62 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Error in R evaluation.
-Error in i(-15) : Invocation error.
-Execution halted
+<simpleError in i(-15): Invocation error.>
+> 
+> 

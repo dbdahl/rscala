@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2016-07-05 r70861) -- "Unsuffered Consequences"
+R version 3.2.4 (2016-03-10) -- "Very Secure Dishes"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -561,11 +561,11 @@ Hello 9 from Scala.
 Hello 9 from R.
 Hello 10 from Scala.
 Unit: milliseconds
- expr        min         lq       mean     median         uq        max neval
- f(0) 685.154923 761.065317 819.122874 799.188630 894.126532 956.078969     5
- g(0) 403.682937 441.229656 480.911447 476.444509 487.074439 596.125696     5
- h(0)   5.739618   5.902084   6.561086   6.721466   7.206951   7.235310     5
- i(0)   6.095600   6.227858   6.941976   6.660326   7.358531   8.367565     5
+ expr         min         lq       mean     median         uq        max neval
+ f(0) 1653.062773 2152.96069 3425.45610 3053.67029 4533.11217 5734.47459     5
+ g(0)  847.343500 1972.28757 2139.17271 2386.88090 2583.39266 2905.95893     5
+ h(0)    7.626666    7.71352   21.87054   19.73004   24.89391   49.38855     5
+ i(0)    7.699075   11.77112   13.13667   12.31033   13.34939   20.55347     5
 > 
 > cat("####\n")
 ####
@@ -4573,14 +4573,14 @@ Hello 9 from Scala.
 Hello 10 from R.
 Unit: milliseconds
  expr      min       lq     mean   median       uq      max neval
- h(0) 5.150076 5.248684 5.401205 5.289314 5.413523 6.735081   100
- i(0) 5.390244 5.513428 5.671691 5.564931 5.703067 6.828551   100
+ h(0) 6.228804 6.396642 8.110487 6.877381 10.08309 14.73791   100
+ i(0) 6.495116 6.806051 9.710941 7.236967 10.68559 40.31914   100
 > 
 > 
 > 
 > 
 > # When serialize=TRUE however, we are limited by R's sink stack.
-> i(-15)
+> tryCatch(i(-15),error=function(e) e)
 Hello -15 from Scala.
 Hello -14 from R.
 Hello -14 from Scala.
@@ -4633,6 +4633,3 @@ Hello 9 from Scala.
 Hello 10 from R.
 > 
 > 
-> proc.time()
-   user  system elapsed 
-  1.464   0.376  15.423 
