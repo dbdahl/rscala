@@ -105,6 +105,13 @@ function setversion {
   cd "$OLDWD"
 }
 MAJOR=$(cat build.sbt | grep "version := " | cut -d '"' -f 2)
+PUBLISH_LOCALLY=FALSE
+echo $MAJOR | grep -q SNAPSHOT
+if [[ $? == 0 ]]
+then
+  PUBLISH_LOCALLY=TRUE
+  MAJOR=$(echo $MAJOR | sed s/SNAPSHOT/0/g)
+fi
 setversion $MAJOR $(date +'%Y-%m-%d')
 
 # Scala stuff
@@ -118,6 +125,10 @@ then
   }
   JARBIN=$(package +package)
   JARSRC=$(package +package-src)
+  if [[ "$PUBLISH_LOCALLY" == TRUE ]]
+  then
+    $SBT publish-local
+  fi
 
   # Copy jar file to R package
   function copy {
