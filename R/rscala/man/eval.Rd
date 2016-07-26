@@ -3,6 +3,7 @@
 \alias{scalaGet}
 \alias{scalaSet}
 \alias{scalaDef}
+\alias{scalaCallback}
 \alias{scalaWrap}
 \alias{scalaUnwrap}
 \alias{scalaGC}
@@ -32,6 +33,7 @@ scalaEval(interpreter, snippet, interpolate="")
 scalaGet(interpreter, identifier, as.reference=NA)
 scalaSet(interpreter, identifier, value, length.one.as.vector="")
 scalaDef(interpreter, args, body, interpolate = "", reference=NULL)
+scalaCallback(interpreter, argsType, returnType, func, interpolate="")
 scalaWrap(interpreter, value)
 scalaUnwrap(interpreter, value)
 scalaGC(interpreter)
@@ -48,9 +50,12 @@ interpreter \%@\% snippet
 \arguments{
     \item{interpreter}{An interpreter from an interpreter constructor (i.e. \code{\link{scala}}).}
     \item{snippet}{A character vector of arbitrary length to be evaluated by the interpreter.}
-    \item{args}{A character vector of length one giving the argument list for a function to be defined in the interpreter.  Use \code{""} for a function which takes no arguments.}
+    \item{args}{A character vector of length one giving the comma-separated Scala arguments for the function to be defined in the interpreter.  Use \code{""} for a function which takes no arguments.}
     \item{body}{A character vector of any length giving the body for a function to be defined in the interpreter.  The function body can be a multiline character vector of length one.}
+    \item{argsType}{A character vector of length one giving the comma-separated Scala types of the function arguments.  Use \code{""} for a function which takes no arguments.}
+    \item{returnType}{A character vector of length one indicating the return type of the function.  This should be equal to \sQuote{XY}, where X is I, D, B, or S and Y is 0, 1, or 2.  See the documentation for the RClient class for more details.)}
     \item{identifier}{A character vector of length one containing a valid variable name in the embedded language.}
+    \item{func}{An R function to be wrapped by a Scala function.  This function is copied and subsequent changes to the function will not be visible to rscala.}
     \item{value}{For \code{\link{scalaWrap}}, an arbitrary R object.  For \code{\link{scalaUnwrap}}, a result of a call to \code{\link{scalaWrap}}.  For \code{\link{$<-}} either: i. a vector or matrix of integers, doubles, logicals, or characters, or ii. a reference.}
     \item{as.reference}{A logical vector of length one indicating whether the result of \code{\link{scalaGet}} should return a reference to the function result or whether these functions should try to interpret the result as a vector or matrix of integer, doubles, logicals, or characters.  The default is \code{NA} which first tries \code{\var{as.reference}=FALSE} and, if no conversion is possible, \code{\var{as.reference}=TRUE} is done.}
     \item{interpolate}{When equal to \code{""} (the default), the default behavior from \code{\link{scalaSettings}} is used.  If equal to \code{TRUE}, the interpreter will call \code{\link{strintrplt}} on the supplied code before running it.  If equal to \code{FALSE}, the character vector is passed unaltered.}
@@ -150,11 +155,16 @@ rng <- s$do('scala.util.Random')$new(seed)  # Scala equivalent: new scala.util.R
 
 # Call method of a reference
 system.time(rng$nextInt(100L))   # Scala equivalent: rng.nextInt(100)
-system.time(rng$nextInt(100L))   # Notice it runs much faster after the first time.
+system.time(rng$nextInt(100L))   # Notice it runs much faster after the first time
 
 # Call method of companion object and call methods of a reference
 # Scala equivalent: (scala.math.BigInt('777',8) - 500).intValue
 s$do('scala.math.BigInt')$apply('777',8L)$'-'(500L)$intValue()
+
+# Example showing 'scalaCallback' functionality
+f1 <- function(x) 2*x
+f2 <- s$callback('Double','D0',f1)
+s %~% "@{f2}(2.3)"
 
 # Longer example showing that 'scalaDef' is more flexible and faster than '\%~\%'
 scalaSet(s,"rng",rng)
