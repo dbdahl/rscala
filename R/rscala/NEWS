@@ -5,6 +5,8 @@
       rscalaPackage     -->  .rscalaPackage
   * Renamed 'intp*' functions to 'scala*' functions, e.g., 'intpSettings'
     became 'scalaSettings'.
+  * Added 'scalaCallback' function to wrap an R function for evaluation by
+    Scala.
   * Improved input/output handling, adding the options serialize, stdout, and
     stderr options to the 'scala' function.
   * Removed 'intpLoad' function as '.rscalaPackage' provides this functionality.
