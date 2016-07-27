@@ -620,8 +620,8 @@ object RClient {
   }
 
   private val defaultArguments = OS match {
-    case "windows" =>  Array[String]("--vanilla","--silent","--slave") 
-    case _ =>          Array[String]("--vanilla","--silent","--slave")
+    case "windows" =>  Array[String]("--no-save","--no-restore","--silent","--slave") 
+    case _ =>          Array[String]("--no-save","--no-restore","--silent","--slave")
   }
 
   private val interactiveArguments = OS match {
