@@ -40,8 +40,8 @@ pomExtra := (
     </license>
   </licenses>
   <scm>
-    <url>https://dbdahl@bitbucket.org/dbdahl/rscala.git</url>
-    <connection>scm:git:https://dbdahl@bitbucket.org/dbdahl/rscala.git</connection>
+    <url>https://dahl-git.byu.edu/dahl/rscala/</url>
+    <connection>scm:git:https://dahl-git.byu.edu/dahl/rscala.git</connection>
   </scm>
   <developers>
     <developer>
