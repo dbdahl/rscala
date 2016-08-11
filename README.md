@@ -18,15 +18,15 @@ or configurations of R or Scala.
 Install the package in R by executing:
 
 ```R
-      install.packages("rscala") 
+install.packages("rscala") 
 ```
 
 Note that if only want to embed R in a Scala application, you don't need to
 install the package. Simply add the following line to the your SBT build.sbt
 file:
 
-```Scala
-      libraryDependencies += "org.ddahl" % "rscala_2.11" % "1.0.13" 
+```scala
+libraryDependencies += "org.ddahl" % "rscala_2.11" % "1.0.13" 
 ```
 
 Paper:
