@@ -912,7 +912,7 @@ rc <- function(c) {
 
 scalaInstall <- function() {
   installPath <- normalizePath(file.path("~",".rscala"),mustWork=FALSE)
-  url <- sprintf("http://downloads.typesafe.com/scala/%s/scala-%s.tgz",CURRENT_SUPPORTED_SCALA_VERSION,CURRENT_SUPPORTED_SCALA_VERSION)
+  url <- sprintf("http://downloads.lightbend.com/scala/%s/scala-%s.tgz",CURRENT_SUPPORTED_SCALA_VERSION,CURRENT_SUPPORTED_SCALA_VERSION)
   dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
   destfile <- file.path(installPath,basename(url))
   result <- download.file(url,destfile)
