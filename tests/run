@@ -15,7 +15,8 @@ else
   SCRIPTS="$*"
 fi
 
-export VERSIONS="2.10.6 2.11.8 2.12.0-M5"
+VERSIONS=$(cat ../build.sbt | grep crossScalaVersions | sed 's/crossScalaVersions\s*:=\s*Seq(//' | sed 's/)//g' | sed 's/,//g' | sed 's/"//g')
+
 export SERIALIZES="TRUE FALSE"
 export OUTPUTS="TRUE FALSE"
 

@@ -53,7 +53,7 @@ pomExtra := (
 
 scalacOptions ++= List("-feature", "-deprecation", "-unchecked")
 
-scalacOptions in (Compile,doc) ++= Seq("-skip-packages", "scala:org.ddahl.rscala.java:org.ddahl.rscala.server")
+scalacOptions in (Compile,doc) ++= Seq("-no-link-warnings", "-skip-packages", "scala:org.ddahl.rscala.java:org.ddahl.rscala.server")
 
 javacOptions ++= List("-deprecation")
 

@@ -14,9 +14,10 @@ setget <- function(value,method="$",...) {
     scalaSet(s,"tt",value,...)
     value2 <- scalaGet(s,"tt")
   }
-  if ( any(value != value2) ) stop(paste("Value not equal:",paste(value,collapse=","),"\n",paste(value2,collapse=",")))
-  if ( class(value) != class(value2) ) stop(paste("Class not equal:",class(value),"\n",class(value2)))
-  if ( mode(value) != mode(value2) ) stop(paste("Mode not equal:",mode(value),"\n",mode(value2)))
+  if ( length(value) != length(value2) ) stop(paste("Value not equal:\n",paste(value,collapse=","),"\n",paste(value2,collapse=",")))
+  if ( any(value != value2) ) stop(paste("Value not equal:\n",paste(value,collapse=","),"\n",paste(value2,collapse=",")))
+  if ( class(value) != class(value2) ) stop(paste("Class not equal:\n",class(value),"\n",class(value2)))
+  if ( mode(value) != mode(value2) ) stop(paste("Mode not equal:\n",mode(value),"\n",mode(value2)))
 }
 
 for ( method in c("$","") ) {
@@ -56,13 +57,13 @@ for ( method in c("$","") ) {
 
   a <- matrix(1:6,nrow=2)
   setget(a[,-c(1,2,3)],method=method)
-  setget(a[-c(1,2),],method=method)
-  setget(a[-c(1,2),-c(1,2,3)],method=method)
+  setget(a[-1,],method=method)
+  setget(a[-2,-c(1,2,3)],method=method)
 
   mode(a) <- "character"
   setget(a[,-c(1,2,3)],method=method)
-  setget(a[-c(1,2),],method=method)
-  setget(a[-c(1,2),-c(1,2,3)],method=method)
+  setget(a[-1,],method=method)
+  setget(a[-2,-c(1,2,3)],method=method)
 
 }
 

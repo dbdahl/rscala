@@ -26,7 +26,7 @@ install the package. Simply add the following line to the your SBT build.sbt
 file:
 
 ```scala
-libraryDependencies += "org.ddahl" % "rscala_2.11" % "1.0.13" 
+libraryDependencies += "org.ddahl" %% "rscala" % "1.0.14" 
 ```
 
 Paper:

@@ -1,6 +1,7 @@
 install-R --devel
+./bin/package -s -f
 test on Linux, Mac OS, and Windows!
-sbt publishSigned
+sbt +publishSigned
 https://oss.sonatype.org/
   -> Staging Repositories
   -> orgddahl-????

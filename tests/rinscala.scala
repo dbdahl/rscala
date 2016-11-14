@@ -1,7 +1,8 @@
 #!/bin/bash
 
 CMD="cat(rscala::.rscalaJar(\"$RSCALA_SCALA_VERSION\"))"
-exec "$SCALA_HOME"/bin/scala -cp $(R --slave -e "$CMD") "$0" "$@"
+CP=$(R --slave -e "$CMD")
+exec "$SCALA_HOME"/bin/scala -nc -cp "$CP" "$0" "$@"
 
 !#
 
@@ -31,7 +32,7 @@ R.get("a")
 R.eval("a <- 0")
 R.eval("cat(a+8,'\n')")
 
-R.eval("plot(rnorm(100))")
+// R.eval("plot(rnorm(100))")
 
 R.eval("rnorm(10)")
 R.eval("rnorm(10)",false)

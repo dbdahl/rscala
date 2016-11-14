@@ -127,7 +127,7 @@ then
   JARSRC=$(package +package-src)
   if [[ "$PUBLISH_LOCALLY" == TRUE ]]
   then
-    $SBT publish-local
+    $SBT +publish-local
   fi
 
   # Copy jar file to R package
