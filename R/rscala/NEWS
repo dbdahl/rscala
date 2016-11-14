@@ -1,4 +1,6 @@
-1.0.14 (2016-XX-XX)
+1.0.14 (2016-11-14)
+  * Reinstated support for Scala 2.10 & 2.12.  Supported versions are now
+    2.10.x, 2.11.x, and 2.12.x.
   * Renamed functions:
       scalaInterpreter  -->  scala
       rscalaJar         -->  .rscalaJar
@@ -9,13 +11,12 @@
     Scala.
   * Improved input/output handling, adding the options serialize, stdout, and
     stderr options to the 'scala' function.
-  * Removed 'intpLoad' function as '.rscalaPackage' provides this functionality.
+  * Removed 'intpLoad' function since '.rscalaPackage' provides this
+    functionality.
   * Interrupts in R now close the connection rather than leaving it in an
     out-of-sync state.
   * Guard elements of the scala interpreter from access by the user through the
     '$' operator. 
-  * Reinstated support for Scala 2.10 and prepared for Scala 2.12 by supporting
-    2.12.0-M5.  Supported versions are now 2.10.x, 2.11.x, and 2.12.0-M5.
 
 1.0.13 (2016-07-07)
   * Added %@% operator for shorthand notation (e.g, "interpreter %@% snippet")
