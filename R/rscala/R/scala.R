@@ -875,7 +875,7 @@ convert <- function(x,t) {
 echoResponseScala <- function(interpreter) {
   if ( get("debug",envir=interpreter[['env']]) ) msg('Reading serialized response.')
   response <- rc(interpreter)
-  if ( response == "" ) return
+  if ( response == "" ) return()
   if ( get("debug",envir=interpreter[['env']]) ) msg('Serialized output: <')
   cat(response)
   if ( get("debug",envir=interpreter[['env']]) ) msg('>')
