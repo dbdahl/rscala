@@ -1,5 +1,5 @@
 
-R version 3.2.4 (2016-03-10) -- "Very Secure Dishes"
+R Under development (unstable) (2016-11-13 r71655) -- "Unsuffered Consequences"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -74,7 +74,7 @@ Type 'q()' to quit R.
 +     a <- "3+9" asfd
 +   """)
 + ',error=function(e) e)
-<console>:13: warning: a pure expression does nothing in statement position; you may be omitting necessary parentheses
+<console>:13: warning: a pure expression does nothing in statement position; multiline expressions may require enclosing parentheses
   3+4
    ^
 Error in parse(text = snippet) : <text>:4:16: unexpected symbol
@@ -87,7 +87,7 @@ Error in parse(text = snippet) : <text>:4:16: unexpected symbol
                   ^
 java.lang.RuntimeException: Error in R evaluation.
   at org.ddahl.rscala.RClient.eval(RClient.scala:78)
-  ... 47 elided
+  ... 48 elided
 <simpleError in scalaEval(interpreter, snippet, interpolate = FALSE): Error in evaluation.>
 > s %~% '3+6'
 [1] 9
@@ -116,7 +116,7 @@ Error in library(asdf) : there is no package called ‘asdf’
 there is no package called ‘asdf’
 java.lang.RuntimeException: Error in R evaluation.
   at org.ddahl.rscala.RClient.eval(RClient.scala:78)
-  ... 47 elided
+  ... 48 elided
 <simpleError in scalaEval(s, "R.eval(\"library(asdf)\")"): Error in evaluation.>
 > s %~% 'R.evalD0("3+4")'
 [1] 7

@@ -1,5 +1,5 @@
 
-R version 3.2.4 (2016-03-10) -- "Very Secure Dishes"
+R Under development (unstable) (2016-11-13 r71655) -- "Unsuffered Consequences"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -97,16 +97,16 @@ Type 'q()' to quit R.
 +   times=10
 + )
 Unit: microseconds
-             expr         min          lq        mean      median          uq
- doit0(rnorm(10))      50.934      85.999     137.078     135.568     171.456
- doit1(rnorm(10)) 1370811.860 1638525.385 2501310.741 2175289.087 3104563.142
- doit2(rnorm(10))  598775.103 1310470.432 1690026.574 1611523.079 2047414.264
- doit3(rnorm(10))    2382.025    2906.787   35033.446   32001.149   46539.618
+             expr        min          lq         mean      median          uq
+ doit0(rnorm(10))     58.484     111.223     129.6615     153.274     157.574
+ doit1(rnorm(10)) 770074.381 1037145.628 1510722.7113 1564821.832 1863066.647
+ doit2(rnorm(10)) 548417.391  792404.606  945057.2039  914739.931 1226083.802
+ doit3(rnorm(10))   2660.688    3126.247    8865.7961    4480.231   14053.755
          max neval
-     240.524    10
- 4538958.965    10
- 3773506.667    10
-  100921.875    10
+     164.075    10
+ 2205392.247    10
+ 1293398.519    10
+   25003.957    10
 > microbenchmark(
 +   doit0(rnorm(10)),
 +   #doit1(rnorm(10)),
@@ -115,12 +115,9 @@ Unit: microseconds
 +   times=1000
 + )
 Unit: microseconds
-             expr      min       lq        mean   median         uq       max
- doit0(rnorm(10))   40.618   49.682    89.43627   64.160    76.9945  16093.73
- doit3(rnorm(10)) 1599.207 1919.331 13548.86923 2367.887 14599.1915 286642.59
- neval
-  1000
-  1000
+             expr      min        lq      mean   median      uq       max neval
+ doit0(rnorm(10))   36.271   68.1495  110.2672   86.135  119.97  5069.485  1000
+ doit3(rnorm(10)) 1987.518 2596.0290 5741.6932 2807.716 6569.28 87893.510  1000
 > 
 > 
 > sleep.time <- 0.1
@@ -132,11 +129,11 @@ Unit: microseconds
 +   times=5
 + )
 Unit: milliseconds
-             expr      min       lq      mean    median        uq       max
- doit0(rnorm(10)) 200.3970 200.4250  200.4435  200.4466  200.4533  200.4958
- doit1(rnorm(10)) 606.4546 712.0440 1939.6131 1303.8483 2715.2885 4360.4298
- doit2(rnorm(10)) 535.4737 645.7396  729.9333  746.2827  848.9977  873.1727
- doit3(rnorm(10)) 202.5437 202.8857  228.4875  204.0471  218.4903  314.4706
+             expr       min        lq      mean    median        uq       max
+ doit0(rnorm(10))  200.4240  200.4285  200.8876  200.4388  201.2013  201.9452
+ doit1(rnorm(10)) 1143.0145 1191.1800 1350.4671 1330.6230 1410.0322 1677.4860
+ doit2(rnorm(10))  680.2294  718.4910  815.8526  768.2570  949.3084  962.9771
+ doit3(rnorm(10))  202.7725  202.9480  204.7551  202.9554  206.8806  208.2194
  neval
      5
      5

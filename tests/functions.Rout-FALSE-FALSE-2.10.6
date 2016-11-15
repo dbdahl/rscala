@@ -1,5 +1,5 @@
 
-R version 3.2.4 (2016-03-10) -- "Very Secure Dishes"
+R Under development (unstable) (2016-11-13 r71655) -- "Unsuffered Consequences"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -35,19 +35,19 @@ Type 'q()' to quit R.
 > options(width=120)
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: microseconds
-                   expr     min       lq     mean   median        uq      max neval
- rdg$nextExponential(4) 1022.21 1436.760 16843.64 2155.729 16782.558 164323.6  1000
-                rexp(4)  900.32 1210.021 12524.45 1425.550  8550.455 209545.9  1000
+                   expr     min       lq     mean   median       uq      max neval
+ rdg$nextExponential(4) 896.649 1567.455 2826.908 1674.001 2097.265 63402.52  1000
+                rexp(4) 801.642 1386.700 2504.738 1474.733 1784.915 63179.46  1000
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: microseconds
                    expr     min       lq     mean   median       uq      max neval
- rdg$nextExponential(4) 999.111 1551.373 18952.82 6479.197 19912.52 299460.7  1000
-                rexp(4) 869.283 1230.990 16073.78 2874.489 17152.29 196465.7  1000
+ rdg$nextExponential(4) 825.105 1531.687 3239.700 1638.985 2457.976 81583.42  1000
+                rexp(4) 737.247 1341.692 2987.975 1440.831 1865.041 81871.92  1000
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: microseconds
                    expr     min       lq     mean   median       uq      max neval
- rdg$nextExponential(4) 964.463 1357.589 19706.63 2043.851 21712.08 258164.0  1000
-                rexp(4) 846.613 1157.636 15181.23 1534.396 12345.53 228062.6  1000
+ rdg$nextExponential(4) 815.980 1431.534 2914.651 1547.617 3133.041 35163.67  1000
+                rexp(4) 768.228 1252.902 2668.079 1349.455 2583.441 42772.61  1000
 > 
 > massFactory3 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(1.0,3.0,rdg)
 > s %~% "3+4"

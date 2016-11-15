@@ -1,5 +1,5 @@
 
-R version 3.2.4 (2016-03-10) -- "Very Secure Dishes"
+R Under development (unstable) (2016-11-13 r71655) -- "Unsuffered Consequences"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -154,20 +154,20 @@ java.lang.AssertionError: assertion failed: class EmpiricalDistribution: <none>
 > library(microbenchmark)
 > options(width=120)
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
-Unit: microseconds
-                   expr     min       lq     mean   median       uq      max neval
- rdg$nextExponential(4) 931.050 5288.163 20644.72 17403.50 29102.33 446855.1  1000
-                rexp(4) 834.093 5050.918 17472.40 12834.22 25537.51 427342.0  1000
+Unit: milliseconds
+                   expr      min       lq     mean   median       uq       max neval
+ rdg$nextExponential(4) 1.397906 1.867396 5.526772 2.058129 6.186971  88.88501  1000
+                rexp(4) 1.291835 1.667794 5.044427 1.830225 5.563161 108.42196  1000
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: milliseconds
                    expr      min       lq     mean   median       uq      max neval
- rdg$nextExponential(4) 1.232550 1.718372 12.86927 5.871149 12.68229 276.6053  1000
-                rexp(4) 1.127631 1.442492 11.38407 4.382638 10.27453 382.3659  1000
+ rdg$nextExponential(4) 1.410652 1.966426 6.083504 4.347658 8.118954 51.15163  1000
+                rexp(4) 1.263252 1.745488 5.454194 3.734655 6.765376 75.52629  1000
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: milliseconds
                    expr      min       lq     mean   median       uq      max neval
- rdg$nextExponential(4) 1.261921 1.303500 3.578992 1.336591 1.406137 235.4400  1000
-                rexp(4) 1.138494 1.170541 2.804030 1.199498 1.260071 176.0746  1000
+ rdg$nextExponential(4) 1.406262 1.868924 4.476781 3.885320 4.721427 63.89985  1000
+                rexp(4) 1.255417 1.641598 4.047853 3.358597 4.109428 49.00877  1000
 > 
 > massFactory3 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(1.0,3.0,rdg)
 > s %~% "3+4"

@@ -1,5 +1,5 @@
 
-R version 3.2.4 (2016-03-10) -- "Very Secure Dishes"
+R Under development (unstable) (2016-11-13 r71655) -- "Unsuffered Consequences"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -154,20 +154,20 @@ java.lang.AssertionError: assertion failed: class EmpiricalDistribution: <none>
 > library(microbenchmark)
 > options(width=120)
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
+Unit: microseconds
+                   expr      min       lq     mean   median       uq       max neval
+ rdg$nextExponential(4) 1034.604 1818.263 4103.368 1916.238 2234.903 148612.90  1000
+                rexp(4)  919.130 1633.716 3225.638 1729.098 2092.081  89734.44  1000
+> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
+Unit: microseconds
+                   expr      min       lq     mean   median       uq      max neval
+ rdg$nextExponential(4) 1282.805 1856.291 5496.673 2380.056 7493.013 83607.54  1000
+                rexp(4)  915.134 1666.941 5116.998 2227.274 7166.548 78398.31  1000
+> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: milliseconds
                    expr      min       lq     mean   median       uq      max neval
- rdg$nextExponential(4) 1.279381 1.786920 18.58496 3.895924 19.88168 308.5249  1000
-                rexp(4) 1.159045 1.566248 17.21740 2.766090 16.62729 325.6927  1000
-> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
-Unit: microseconds
-                   expr      min       lq     mean   median       uq      max neval
- rdg$nextExponential(4) 1024.537 2639.057 9843.626 7817.543 13731.81 212198.9  1000
-                rexp(4)  952.587 3063.296 9242.533 7006.121 12245.61 150221.8  1000
-> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
-Unit: microseconds
-                   expr      min       lq      mean   median       uq       max neval
- rdg$nextExponential(4) 1101.746 7116.648 11129.522 9374.869 13577.36 178073.01  1000
-                rexp(4)  959.921 6234.645  9637.234 8233.447 11910.15  79583.66  1000
+ rdg$nextExponential(4) 1.457348 3.821269 5.481134 4.239458 4.924614 45.97542  1000
+                rexp(4) 1.306516 3.295993 4.868383 3.726225 4.350513 71.63571  1000
 > 
 > massFactory3 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(1.0,3.0,rdg)
 > s %~% "3+4"
