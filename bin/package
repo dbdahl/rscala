@@ -104,14 +104,16 @@ function setversion {
   rm -f R/$PKG_NAME/DESCRIPTION.trashme
   cd "$OLDWD"
 }
-MAJOR=$(cat build.sbt | grep "version := " | cut -d '"' -f 2)
+MAJOR=$(cat build.sbt | grep "^version := " | cut -d '"' -f 2)
 PUBLISH_LOCALLY=FALSE
+set +e
 echo $MAJOR | grep -q SNAPSHOT
 if [[ $? == 0 ]]
 then
   PUBLISH_LOCALLY=TRUE
   MAJOR=$(echo $MAJOR | sed s/SNAPSHOT/0/g)
 fi
+set -e
 setversion $MAJOR $(date +'%Y-%m-%d')
 
 # Scala stuff
