@@ -1,8 +1,9 @@
 #!/bin/bash
 
-CP="RserveEngine.jar:REngine.jar:$(R --slave -e 'cat(rscala::.rscalaJar("2.11"))')"
-exec scala -cp "$CP" "$0" "$@"
-scala -cp "$CP"
+CMD="cat(rscala::.rscalaJar(\"$RSCALA_SCALA_VERSION\"))"
+CP=RserveEngine.jar:REngine.jar:$(R --slave -e "$CMD")
+exec "$SCALA_HOME"/bin/scala -nc -cp "$CP" "$0" "$@"
+scala -nc -cp "$CP"
 
 !#
 
