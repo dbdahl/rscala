@@ -666,8 +666,7 @@ close.ScalaInterpreter <- function(con,...) {
 }
 
 .rscalaJar <- function(version="") {
-  if ( version == "2.12.0-M5" ) major.version <- version
-  else if ( version == "" ) major.version <- ".*"
+  if ( version == "" ) major.version <- ".*"
   else major.version <- substr(version,1,4)
   list.files(system.file("java",package="rscala"),pattern=paste("rscala_",major.version,'-.*\\.jar$',sep=""),full.names=TRUE)
 }
