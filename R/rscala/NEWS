@@ -1,4 +1,4 @@
-1.0.14 (2016-11-14)
+1.0.14 (2016-11-21)
   * Reinstated support for Scala 2.10 & 2.12.  Supported versions are now
     2.10.x, 2.11.x, and 2.12.x.
   * Renamed functions:
@@ -7,6 +7,7 @@
       rscalaPackage     -->  .rscalaPackage
   * Renamed 'intp*' functions to 'scala*' functions, e.g., 'intpSettings'
     became 'scalaSettings'.
+  * Improved ability to find R on Windows using registry keys.
   * Added 'scalaCallback' function to wrap an R function for evaluation by
     Scala.
   * Improved input/output handling, adding the options serialize, stdout, and
@@ -16,7 +17,8 @@
   * Interrupts in R now close the connection rather than leaving it in an
     out-of-sync state.
   * Guard elements of the scala interpreter from access by the user through the
-    '$' operator. 
+    '$' operator.
+  * Fixed bug in return as noted by Duncan Murdoch.
 
 1.0.13 (2016-07-07)
   * Added %@% operator for shorthand notation (e.g, "interpreter %@% snippet")

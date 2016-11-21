@@ -634,22 +634,53 @@ object RClient {
     case _ =>          """R"""
   }
 
-  private def findROnWindows: String = {
-    val NEWLINE = sys.props("line.separator")  
-    var result : String = null
-    for ( root <- List("HKEY_LOCAL_MACHINE","HKEY_CURRENT_USER") ) {
-      val out = new StringBuilder()
-      val logger = ProcessLogger((o: String) => { out.append(o); out.append(NEWLINE) },(e: String) => {})
+  def findROnWindows: String = {
+    def checkValidPath(path: String) = {
+      val file = new java.io.File(path + """\bin\R.exe""")
+      if ( file.exists && file.isFile ) file.getAbsolutePath
+      else ""
+    }
+    def versionCompare(a: String, b: String): Boolean = { 
+      val Seq(aa,bb) = Seq(a,b).map(_.takeWhile(_!='.'))
+      val Seq(al,bl) = Seq(a,b).map(_.length)
+      val Seq(aaa,bbb) = Seq(aa,bb).map(_.toInt)
+      val Seq(aal,bbl) = Seq(aa,bb).map(_.length)
+      if ( aaa == bbb ) { 
+        if ( ( al == aal ) && ( bl == bbl ) ) false
+        else if ( ( al == aal ) && ( bl != bbl ) ) true
+        else if ( ( al != aal ) && ( bl == bbl ) ) false
+        else versionCompare(a.substring(aal+1),b.substring(bbl+1))
+      }
+      else aaa < bbb 
+    }
+    def getPath(key: String): Option[String] = {
+      val cmd = "reg query " + key
       try {
-        ("reg query \"" + root + "\\Software\\R-core\\R\" /v \"InstallPath\"") ! logger
-        val a = out.toString.split(NEWLINE).filter(_.matches("""^\s*InstallPath\s*.*"""))(0)
-        result = a.split("REG_SZ")(1).trim() + """\bin\R.exe"""
+        val result1 = cmd.!!.trim.split("\\r\\n").map(_.trim)
+        val result2 = result1.filter(_.matches("^\\s*InstallPath.*"))
+        if ( result2.length == 1 ) {
+          val result3 = checkValidPath(result2(0).split("REG_SZ")(1).trim)
+          if ( result3 != "" ) Some(result3)
+          else None
+        } else {
+          val dir = result1.length match {
+            case 0 => ""
+            case 1 => result1.head
+            case _ => result1.zip(result1.map(x => new File(x).getName)).sortWith( (x,y) => {
+                versionCompare(x._2,y._2)
+              }).last._1
+          }
+          getPath(dir)
+        }
       } catch {
-        case _ : Throwable =>
+        case _: Throwable => None
       }
     }
-    if ( result == null ) throw new RuntimeException("Cannot locate R using Windows registry.")
-    else return result
+    for ( root <- List("HKEY_LOCAL_MACHINE","HKEY_CURRENT_USER") ) {
+      val result = getPath(root+"""\SOFTWARE\R-core\R""")
+      if ( result.isDefined ) return result.get
+    }
+    throw new RuntimeException("Cannot locate R using Windows registry.  Please explicitly specify its path.")
   }
 
   private def reader(debugger: Debugger, label: String)(input: InputStream) = {
