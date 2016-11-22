@@ -1,3 +1,6 @@
+1.0.15 (201x-xx-xx)
+  * 
+
 1.0.14 (2016-11-21)
   * Reinstated support for Scala 2.10 & 2.12.  Supported versions are now
     2.10.x, 2.11.x, and 2.12.x.
