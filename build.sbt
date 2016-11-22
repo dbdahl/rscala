@@ -1,7 +1,7 @@
 name := "rscala"
 
-version := "1.0.14"
-//version := "1.0.14-SNAPSHOT"
+//version := "1.0.15"
+version := "1.0.15-SNAPSHOT"
 
 organization := "org.ddahl"
 
