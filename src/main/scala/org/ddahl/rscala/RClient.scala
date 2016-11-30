@@ -62,7 +62,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   def eval(snippet: String, evalOnly: Boolean = true): Any = {
     if ( debug ) debugger.msg("Sending EVAL request.")
     out.writeInt(if(serializeOutput) EVAL else EVALNAKED)
-    Helper.writeString(out,snippet)
+    Helper.writeString(out,if ( RClient.isWindows ) snippet.replaceAll("\r\n","\n") else snippet)
     out.flush()
     if ( scalaServer != null ) {
       if ( debug ) debugger.msg("Spinning up Scala server.")
@@ -611,27 +611,27 @@ object RClient {
 
   import scala.sys.process._
 
-  private val OS = sys.props("os.name").toLowerCase match {
-    case s if s.startsWith("""windows""") => "windows"
-    case s if s.startsWith("""linux""") => "linux"
-    case s if s.startsWith("""unix""") => "linux"
-    case s if s.startsWith("""mac""") => "macintosh"
+  private val isWindows: Boolean = sys.props("os.name").toLowerCase match {
+    case s if s.startsWith("""windows""") => true
+    case s if s.startsWith("""linux""") => false
+    case s if s.startsWith("""unix""") => false
+    case s if s.startsWith("""mac""") => false
     case _ => throw new RuntimeException("Unrecognized OS")
   }
 
-  private val defaultArguments = OS match {
-    case "windows" =>  Array[String]("--no-save","--no-restore","--silent","--slave") 
-    case _ =>          Array[String]("--no-save","--no-restore","--silent","--slave")
+  private val defaultArguments = isWindows match {
+    case true  => Array[String]("--no-save","--no-restore","--silent","--slave") 
+    case false => Array[String]("--no-save","--no-restore","--silent","--slave")
   }
 
-  private val interactiveArguments = OS match {
-    case "windows" =>  Array[String]("--ess") 
-    case _ =>          Array[String]("--interactive")
+  private val interactiveArguments = isWindows match {
+    case true  => Array[String]("--ess") 
+    case false => Array[String]("--interactive")
   }
 
-  private lazy val defaultRCmd = OS match {
-    case "windows" =>  findROnWindows
-    case _ =>          """R"""
+  private lazy val defaultRCmd = isWindows match {
+    case true  => findROnWindows
+    case false => """R"""
   }
 
   def findROnWindows: String = {
