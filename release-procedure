@@ -3,6 +3,7 @@ install-R --devel
 test on Linux, Mac OS, and Windows!
 sbt +publishSigned
 https://oss.sonatype.org/
+  -> Log in
   -> Staging Repositories
   -> orgddahl-????
   -> "Close" repository
