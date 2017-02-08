@@ -1,5 +1,6 @@
-1.0.15 (201x-xx-xx)
+1.0.15 (2017-02-07)
   * Fixed line ending bug when embedding R in Java/Scala on Windows.
+  * Bumped default scala version to 2.12.1.
 
 1.0.14 (2016-11-21)
   * Reinstated support for Scala 2.10 & 2.12.  Supported versions are now
