@@ -1,3 +1,7 @@
+1.0.16 (2017-xx-xx)
+  * Fixed problem that the protocol.R may be inadvertantly excluded from the
+    JAR.
+
 1.0.15 (2017-02-07)
   * Fixed line ending bug when embedding R in Java/Scala on Windows.
   * Bumped default scala version to 2.12.1.
