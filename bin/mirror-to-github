@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -e
+
+cd $(dirname $(readlink -f "$0"))
+
+URL=$(git config --get remote.origin.url)
+CWD=$PWD
+
+DIR=$(mktemp -d)
+cd "$DIR"
+git clone --mirror "$URL" github
+cd github
+git push --mirror git@github.com:dbdahl/rscala-mirror.git
+
+cd "$CWD"
+rm -fr "$DIR"
+
