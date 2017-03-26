@@ -69,7 +69,7 @@ newSockets <- function(portsFilename,debug,serialize,timeout) {
   result
 }
 
-scalaEval <- function(interpreter,snippet,interpolate="") {
+scalaEval <- function(interpreter,snippet,workspace,interpolate="") {
   cc(interpreter)
   if ( get("debug",envir=interpreter[['env']]) ) msg('Sending EVAL request.')
   snippet <- paste(snippet,collapse="\n")
@@ -80,7 +80,7 @@ scalaEval <- function(interpreter,snippet,interpolate="") {
     wb(interpreter,EVAL)
     wc(interpreter,snippet)
     flush(interpreter[['socketIn']])
-    rServe(interpreter,TRUE)
+    rServe(interpreter,TRUE,workspace)
     status <- rb(interpreter,"integer")
     if ( get("serialize",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
   }, interrupt = function(x) {
@@ -99,7 +99,7 @@ scalaEval <- function(interpreter,snippet,interpolate="") {
   if ( get("interpolate",envir=interpreter[['env']]) ) {
     snippet <- strintrplt(snippet,parent.frame())
   }
-  result <- evalAndGet(interpreter,snippet,NA)
+  result <- evalAndGet(interpreter,snippet,NA,parent.frame())
   if ( is.null(result) ) invisible(result)
   else result
 }
@@ -110,7 +110,7 @@ scalaEval <- function(interpreter,snippet,interpolate="") {
   if ( get("interpolate",envir=interpreter[['env']]) ) {
     snippet <- strintrplt(snippet,parent.frame())
   }
-  result <- evalAndGet(interpreter,snippet,TRUE)
+  result <- evalAndGet(interpreter,snippet,TRUE,parent.frame())
   if ( is.null(result) ) invisible(result)
   else result
 }
@@ -121,7 +121,7 @@ scalaEval <- function(interpreter,snippet,interpolate="") {
   if ( get("interpolate",envir=interpreter[['env']]) ) {
     snippet <- strintrplt(snippet,parent.frame())
   }
-  scalaEval(interpreter,snippet)
+  scalaEval(interpreter,snippet,parent.frame())
 }
 
 print.ScalaInterpreter <- function(x,...) {
@@ -484,7 +484,7 @@ scalaCallback <- function(interpreter,argsType,returnType,func,interpolate="") {
     }
   }',argsScala,sets,returnType,functionName,argsR)
   snippet <- strintrplt(snippet,parent.frame())
-  result <- evalAndGet(interpreter,snippet,TRUE)
+  result <- evalAndGet(interpreter,snippet,TRUE,parent.frame())
   if ( is.null(result) ) invisible(result)
   else result
 }
@@ -538,7 +538,7 @@ scalaDef <- function(interpreter,args,body,interpolate="",reference=NULL) {
       rscala:::wb(interpreter,rscala:::INVOKE)
       rscala:::wc(interpreter,"@{functionName}")
       flush(interpreter[["socketIn"]])
-      rscala:::rServe(interpreter,TRUE)
+      rscala:::rServe(interpreter,TRUE,parent.frame())
       status <- rscala:::rb(interpreter,"integer")
       @{serializeCodeStr}
       if ( status == rscala:::ERROR ) {
@@ -785,8 +785,8 @@ scalaInfo <- function(scala.home=NULL,verbose=FALSE) {
 
 # Private
 
-evalAndGet <- function(interpreter,snippet,as.reference) {
-  scalaEval(interpreter,snippet,interpolate=FALSE)
+evalAndGet <- function(interpreter,snippet,as.reference,workspace) {
+  scalaEval(interpreter,snippet,workspace,interpolate=FALSE)
   scalaGet(interpreter,".",as.reference=as.reference)
 }
 
