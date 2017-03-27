@@ -42,6 +42,8 @@ newSockets <- function(portsFilename,debug,serialize,timeout) {
   assign("debug",debug,envir=env)
   assign("serialize",serialize,envir=env)
   assign("length.one.as.vector",FALSE,envir=env)
+  workspace <- new.env()
+  workspace$. <- new.env(parent=workspace)
   ports <- local({
     delay <- 0.1
     start <- proc.time()[3]
@@ -60,14 +62,14 @@ newSockets <- function(portsFilename,debug,serialize,timeout) {
   socketConnectionIn  <- socketConnection(port=ports[1],blocking=TRUE,open="ab",timeout=2678400)
   socketConnectionOut <- socketConnection(port=ports[2],blocking=TRUE,open="rb",timeout=2678400)
   if ( debug ) msg("Connected")
-  result <- list(socketIn=socketConnectionIn,socketOut=socketConnectionOut,env=env,functionCache=functionCache)
+  result <- list(socketIn=socketConnectionIn,socketOut=socketConnectionOut,env=env,workspace=workspace,functionCache=functionCache)
   class(result) <- "ScalaInterpreter"
   status <- rb(result,"integer")
   if ( ( length(status) == 0 ) || ( status != OK ) ) stop("Error instantiating interpreter.")
   result
 }
 
-scalaEval <- function(interpreter,snippet,workspace,interpolate="") {
+scalaEval <- function(interpreter,snippet,workspace,interpolate) {
   cc(interpreter)
   if ( get("debug",envir=interpreter[['env']]) ) msg('Sending EVAL request.')
   snippet <- paste(snippet,collapse="\n")
@@ -119,7 +121,7 @@ scalaEval <- function(interpreter,snippet,workspace,interpolate="") {
   if ( get("interpolate",envir=interpreter[['env']]) ) {
     snippet <- strintrplt(snippet,parent.frame())
   }
-  scalaEval(interpreter,snippet,parent.frame())
+  scalaEval(interpreter,snippet,parent.frame(),FALSE)
 }
 
 print.ScalaInterpreter <- function(x,...) {
@@ -787,7 +789,7 @@ scalaInfo <- function(scala.home=NULL,verbose=FALSE) {
 # Private
 
 evalAndGet <- function(interpreter,snippet,as.reference,workspace) {
-  scalaEval(interpreter,snippet,workspace,interpolate=FALSE)
+  scalaEval(interpreter,snippet,workspace,FALSE)
   scalaGet(interpreter,".",as.reference,workspace)
 }
 

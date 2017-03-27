@@ -145,7 +145,7 @@ rServe <- function(sockets,with.callbacks,workspace) {
   }
 }
 
-subassign <- function(sockets,x,i,value,single=TRUE,workspace) {
+subassign <- function(sockets,x,i,value,single,workspace) {
   assign(".rscala.set.value",value,envir=workspace)
   brackets <- if ( single ) c("[","]") else c("[[","]]")
   output <- NULL
