@@ -42,8 +42,6 @@ newSockets <- function(portsFilename,debug,serialize,timeout) {
   assign("debug",debug,envir=env)
   assign("serialize",serialize,envir=env)
   assign("length.one.as.vector",FALSE,envir=env)
-  workspace <- new.env()
-  workspace$. <- new.env(parent=workspace)
   ports <- local({
     delay <- 0.1
     start <- proc.time()[3]
@@ -62,7 +60,7 @@ newSockets <- function(portsFilename,debug,serialize,timeout) {
   socketConnectionIn  <- socketConnection(port=ports[1],blocking=TRUE,open="ab",timeout=2678400)
   socketConnectionOut <- socketConnection(port=ports[2],blocking=TRUE,open="rb",timeout=2678400)
   if ( debug ) msg("Connected")
-  result <- list(socketIn=socketConnectionIn,socketOut=socketConnectionOut,env=env,workspace=workspace,functionCache=functionCache)
+  result <- list(socketIn=socketConnectionIn,socketOut=socketConnectionOut,env=env,functionCache=functionCache)
   class(result) <- "ScalaInterpreter"
   status <- rb(result,"integer")
   if ( ( length(status) == 0 ) || ( status != OK ) ) stop("Error instantiating interpreter.")
@@ -225,7 +223,7 @@ toString.ScalaInterpreterItem <- function(x,...) {
   }
 }
 
-scalaGet <- function(interpreter,identifier,as.reference=NA) {
+scalaGet <- function(interpreter,identifier,as.reference,workspace) {
   cc(interpreter)
   tryCatch({
     if ( ( ! is.na(as.reference) ) && ( as.reference ) ) {
@@ -349,18 +347,18 @@ scalaGet <- function(interpreter,identifier,as.reference=NA) {
     class(result) <- "ScalaInterpreterItem"
     result
   } else if ( identifier == "val" ) function(x) {
-    scalaGet(interpreter,x)
+    scalaGet(interpreter,x,NA,parent.frame())
   } else if ( identifier == ".val" ) function(x) {
-    scalaGet(interpreter,x,as.reference=TRUE)
+    scalaGet(interpreter,x,TRUE,parent.frame())
   } else if ( substring(identifier,1,1) == "." ) {
     identifier = substring(identifier,2)
-    if ( identifier == "" ) scalaGet(interpreter,".")
-    else if ( identifier == "." ) scalaGet(interpreter,".",as.reference=TRUE)
-    else scalaGet(interpreter,identifier,as.reference=TRUE)
+    if ( identifier == "" ) scalaGet(interpreter,".",NA,parent.frame())
+    else if ( identifier == "." ) scalaGet(interpreter,".",TRUE,parent.frame())
+    else scalaGet(interpreter,identifier,TRUE,parent.frame())
   } else if ( identifier %in% names(interpreter) ) {
     "This item is not user accessible."
   } else {
-    scalaGet(interpreter,identifier)
+    scalaGet(interpreter,identifier,NA,parent.frame())
   }
 }
 
@@ -378,7 +376,7 @@ deduceType <- function(value,length.one.as.vector) {
   }
 }
 
-scalaSet <- function(interpreter,identifier,value,length.one.as.vector="") {
+scalaSet <- function(interpreter,identifier,value,length.one.as.vector,workspace) {
   cc(interpreter)
   tryCatch({
     if ( inherits(value,"ScalaInterpreterReference") ) {
@@ -450,14 +448,15 @@ scalaSet <- function(interpreter,identifier,value,length.one.as.vector="") {
   cc(interpreter)
   if ( substring(identifier,1,1) == "." ) {
     identifier = substring(identifier,2)
-    scalaSet(interpreter,identifier,scalaWrap(interpreter,value))
+    scalaSet(interpreter,identifier,scalaWrap(interpreter,value),"",parent.frame())
   } else {
-    scalaSet(interpreter,identifier,value)
+    scalaSet(interpreter,identifier,value,"",parent.frame())
   }
   interpreter
 }
 
 scalaCallback <- function(interpreter,argsType,returnType,func,interpolate="") {
+  stop('Disabled... Legacy code?')
   cc(interpreter)
   if ( length(argsType) != length(formals(func)) ) stop("The length of 'argsType' must match the number of arguments of 'func'.")
   if ( length(returnType) != 1 ) stop("The length of 'returnType' must be exactly one.")
@@ -544,7 +543,7 @@ scalaDef <- function(interpreter,args,body,interpolate="",reference=NULL) {
       if ( status == rscala:::ERROR ) {
         stop("Invocation error.")
       } else {
-        result <- scalaGet(interpreter,"?",as.reference=as.reference)
+        result <- rscala:::scalaGet(interpreter,"?",as.reference,parent.frame())
         if ( is.null(result) ) invisible(result)
         else result
       }
@@ -598,12 +597,14 @@ scalap <- function(interpreter,item.name) {
 }
 
 scalaWrap <- function(interpreter,value) {
+  stop('Disabled... Legacy code?')
   cc(interpreter)
   interpreter[['workspace']]$.rscala.wrap <- value
   interpreter$.R$getR(".rscala.wrap",as.reference=TRUE)
 }
 
 scalaUnwrap <- function(interpreter,value) {
+  stop('Disabled... Legacy code?')
   cc(interpreter)
   if ( is.null(value) ) NULL
   else get(value$name(),envir=interpreter[['workspace']]$.)
@@ -787,7 +788,7 @@ scalaInfo <- function(scala.home=NULL,verbose=FALSE) {
 
 evalAndGet <- function(interpreter,snippet,as.reference,workspace) {
   scalaEval(interpreter,snippet,workspace,interpolate=FALSE)
-  scalaGet(interpreter,".",as.reference=as.reference)
+  scalaGet(interpreter,".",as.reference,workspace)
 }
 
 checkType <- function(x) {
@@ -868,7 +869,7 @@ convert <- function(x,t) {
   if ( length(v) != 0 ) {
     v <- c(sprintf("if ( ! inherits(%s,'ScalaInterpreterReference') ) {",x),paste("  ",v,sep=""),"}")
   }
-  c(v,sprintf("scalaSet(interpreter,'.',%s,length.one.as.vector=%s)",x,loav))
+  c(v,sprintf("rscala:::scalaSet(interpreter,'.',%s,length.one.as.vector=%s,parent.frame())",x,loav))
 }
 
 echoResponseScala <- function(interpreter) {
