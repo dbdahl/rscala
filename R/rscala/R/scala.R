@@ -160,6 +160,7 @@ toString.ScalaInterpreterItem <- function(x,...) {
 }
 
 '$.ScalaInterpreterReference' <- function(reference,methodName) {
+  workspace <- parent.frame()
   type <- reference[['type']]
   functionCache <- reference[['interpreter']][['functionCache']]
   env <- reference[['interpreter']][['env']]
@@ -174,9 +175,9 @@ toString.ScalaInterpreterItem <- function(x,...) {
     key <- paste0(type,"$",methodName,"#",paste(types,collapse=","))
     if ( ! exists(key,envir=functionCache) ) {
       f <- if ( nArgs == 0 ) {
-        scalaDef(reference[['interpreter']],'',paste0('rscalaReference.',methodName),reference=reference)
+        scalaDef(reference[['interpreter']],'',paste0('rscalaReference.',methodName),"",reference,workspace)
       } else {
-        scalaDef(reference[['interpreter']],argsStr,paste0('rscalaReference.',methodName,"(",namesStr,")"),reference=reference)
+        scalaDef(reference[['interpreter']],argsStr,paste0('rscalaReference.',methodName,"(",namesStr,")"),"",reference,workspace)
       }
       assign(key,f,envir=functionCache)
     } else {
@@ -189,6 +190,7 @@ toString.ScalaInterpreterItem <- function(x,...) {
 }
 
 '$.ScalaInterpreterItem' <- function(item,methodName) {
+  workspace <- parent.frame()
   interpreter <- item[['interpreter']]
   type <- item[['item.name']]
   functionCache <- interpreter[['functionCache']]
@@ -205,15 +207,15 @@ toString.ScalaInterpreterItem <- function(x,...) {
     if ( ! exists(key,envir=functionCache) ) {
       f <- if ( nArgs == 0 ) {
         if ( methodName == "new" ) {
-          scalaDef(interpreter,'',paste0('new ',type))
+          scalaDef(interpreter,'',paste0('new ',type),"",NULL,workspace)
         } else {
-          scalaDef(interpreter,'',paste0(type,'.',methodName))
+          scalaDef(interpreter,'',paste0(type,'.',methodName),"",NULL,workspace)
         }
       } else {
         if ( methodName == "new" ) {
-          scalaDef(interpreter,argsStr,paste0('new ',type,"(",namesStr,")"))
+          scalaDef(interpreter,argsStr,paste0('new ',type,"(",namesStr,")"),"",NULL,workspace)
         } else {
-          scalaDef(interpreter,argsStr,paste0(type,'.',methodName,"(",namesStr,")"))
+          scalaDef(interpreter,argsStr,paste0(type,'.',methodName,"(",namesStr,")"),"",NULL,workspace)
         }
       }
       assign(key,f,envir=functionCache)
@@ -337,7 +339,7 @@ scalaGet <- function(interpreter,identifier,as.reference,workspace) {
       args <- strintrplt(args,parent.frame())
       body <- strintrplt(body,parent.frame())
     }
-    scalaDef(interpreter,args,body,interpolate=FALSE)
+    scalaDef(interpreter,args,body,FALSE,NULL,parent.frame())
   } else if ( identifier == "callback" ) function(argsType,returnType,func) {
     if ( get("interpolate",envir=interpreter[['env']]) ) {
       argsType <- sapply(argsType,function(x) strintrplt(x,parent.frame()))
@@ -490,7 +492,7 @@ scalaCallback <- function(interpreter,argsType,returnType,func,interpolate="") {
   else result
 }
 
-scalaDef <- function(interpreter,args,body,interpolate="",reference=NULL) {
+scalaDef <- function(interpreter,args,body,interpolate,reference,workspace) {
   cc(interpreter)
   tryCatch({
     tmpFunc <- NULL
@@ -527,25 +529,25 @@ scalaDef <- function(interpreter,args,body,interpolate="",reference=NULL) {
             if ( length > 0 ) for ( i in 1:length ) {
               convertedCode[[i]] <- convert(functionParamNames[i],functionParamTypes[i])
             }
-            convertedCodeStr <- paste("    ",unlist(convertedCode),sep="",collapse="\n")
+            convertedCodeStr <- paste("      ",unlist(convertedCode),sep="",collapse="\n")
             serializeCodeStr <- ifelse(get("serialize",envir=interpreter[["env"]]),"rscala:::echoResponseScala(interpreter)","")
             argsStr <- if ( ! is.null(reference) ) paste(functionParamNames[-1],collapse=",")
             else paste(functionParamNames,collapse=",")
             if ( nchar(argsStr) > 0 ) argsStr <- paste(argsStr,", ",sep="")
             functionSnippet <- strintrplt('
     tmpFunc <- function(@{argsStr}as.reference=NA, gc=FALSE) {
-  @{convertedCodeStr}
+@{convertedCodeStr}
       if ( gc ) scalaGC(interpreter)
       rscala:::wb(interpreter,rscala:::INVOKE)
       rscala:::wc(interpreter,"@{functionName}")
       flush(interpreter[["socketIn"]])
-      rscala:::rServe(interpreter,TRUE,parent.frame())
+      rscala:::rServe(interpreter,TRUE,workspace)
       status <- rscala:::rb(interpreter,"integer")
       @{serializeCodeStr}
       if ( status == rscala:::ERROR ) {
         stop("Invocation error.")
       } else {
-        result <- rscala:::scalaGet(interpreter,"?",as.reference,parent.frame())
+        result <- rscala:::scalaGet(interpreter,"?",as.reference,workspace)
         if ( is.null(result) ) invisible(result)
         else result
       }
