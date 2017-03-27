@@ -4,15 +4,21 @@ serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
 version <- Sys.getenv("RSCALA_SCALA_VERSION")
 s <- scala(serialize=serialize,stdout=output,stderr=output)
-if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
+actualVersion <- s %~% "scala.util.Properties.versionNumberString"
+if ( version != s %~% "scala.util.Properties.versionNumberString" ) {
+  cat("Requested version: ",version,"\n")
+  cat("Actual version:    ",actualVersion,"\n")
+  stop("Version mismatch.")
+}
 
 assert <- function(x) {
-  a <<- x
-  if ( ! identical(( s %~% 'R.a._1' ), get("a")) ) stop("Not identical (test 2)")
+  a <- x
   if ( ! identical(( s %~% 'R.get("a")._1' ), get("a")) ) stop("Not identical (test 1)")
+  if ( ! identical(( s %~% 'R.a._1' ), get("a")) ) stop("Not identical (test 2)")
   s$a <- x
   s %~% 'R.b = a'
   if ( ! identical(x, s$.R$get("b")$"_1"()) ) stop("Not identical (test 3)")
+  if ( ! identical(b,a) ) stop("Not identical (test 4)")
 }
 
 y <- c(0,1,2,3,4,5,6,8)
@@ -68,7 +74,7 @@ tryCatch(callRFunction(1:100),error = function(e) {})
 callRFunction('myMean',1:100)
 
 # Should be an R evaluation error because 'asfd' is not a package.
-tryCatch(scalaEval(s,'R.eval("library(asdf)")'),error=function(e) e)
+tryCatch(scalaEval(s,'R.eval("library(asdf)")',environment(),FALSE),error=function(e) e)
 s %~% 'R.evalD0("3+4")'
 
 # Note that callbacks can only be one-level deep.

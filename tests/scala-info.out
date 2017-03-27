@@ -1,78 +1,78 @@
 Running battery for 2.10.6
 
 Searching for a suitable Scala installation.
-  * ATTEMPT: Found a candidate (/UShare/dahl/local/scala/scala-2.10.6/bin/scala)
-  * SUCCESS: 'scala.home' (/home/dahl/local/scala/scala-2.10.6) argument
+  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala/scala-2.10.6/bin/scala)
+  * SUCCESS: 'scala.home' (/home/dahl/local/scala/scala/scala-2.10.6) argument
 
-[1] "/UShare/dahl/local/scala/scala-2.10.6/bin/scala"
+[1] "/home/dahl/local/scala/scala/scala-2.10.6/bin/scala"
 
 Searching for a suitable Scala installation.
   * FAILURE: 'scala.home' argument is NULL
-  * ATTEMPT: Found a candidate (/UShare/dahl/local/scala/scala-2.10.6/bin/scala)
-  * SUCCESS: SCALA_HOME (/home/dahl/local/scala/scala-2.10.6) environment variable
+  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala/scala-2.10.6/bin/scala)
+  * SUCCESS: SCALA_HOME (/home/dahl/local/scala/scala/scala-2.10.6) environment variable
 
-[1] "/UShare/dahl/local/scala/scala-2.10.6/bin/scala"
+[1] "/home/dahl/local/scala/scala/scala-2.10.6/bin/scala"
 
 Searching for a suitable Scala installation.
   * FAILURE: 'scala.home' argument is NULL
   * FAILURE: SCALA_HOME () environment variable
-  * ATTEMPT: Found a candidate (/UShare/dahl/local/scala/scala-2.10.6/bin/scala)
+  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala/scala-2.10.6/bin/scala)
   * SUCCESS: 'scala' in the shell's search path
 
-[1] "/UShare/dahl/local/scala/scala-2.10.6/bin/scala"
+[1] "/home/dahl/local/scala/scala/scala-2.10.6/bin/scala"
 --------
 Running battery for 2.11.8
 
 Searching for a suitable Scala installation.
-  * ATTEMPT: Found a candidate (/UShare/dahl/local/scala/scala-2.11.8/bin/scala)
-  * SUCCESS: 'scala.home' (/home/dahl/local/scala/scala-2.11.8) argument
+  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala/scala-2.11.8/bin/scala)
+  * SUCCESS: 'scala.home' (/home/dahl/local/scala/scala/scala-2.11.8) argument
 
-[1] "/UShare/dahl/local/scala/scala-2.11.8/bin/scala"
+[1] "/home/dahl/local/scala/scala/scala-2.11.8/bin/scala"
 
 Searching for a suitable Scala installation.
   * FAILURE: 'scala.home' argument is NULL
-  * ATTEMPT: Found a candidate (/UShare/dahl/local/scala/scala-2.11.8/bin/scala)
-  * SUCCESS: SCALA_HOME (/home/dahl/local/scala/scala-2.11.8) environment variable
+  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala/scala-2.11.8/bin/scala)
+  * SUCCESS: SCALA_HOME (/home/dahl/local/scala/scala/scala-2.11.8) environment variable
 
-[1] "/UShare/dahl/local/scala/scala-2.11.8/bin/scala"
+[1] "/home/dahl/local/scala/scala/scala-2.11.8/bin/scala"
 
 Searching for a suitable Scala installation.
   * FAILURE: 'scala.home' argument is NULL
   * FAILURE: SCALA_HOME () environment variable
-  * ATTEMPT: Found a candidate (/UShare/dahl/local/scala/scala-2.11.8/bin/scala)
+  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala/scala-2.11.8/bin/scala)
   * SUCCESS: 'scala' in the shell's search path
 
-[1] "/UShare/dahl/local/scala/scala-2.11.8/bin/scala"
+[1] "/home/dahl/local/scala/scala/scala-2.11.8/bin/scala"
 --------
-Running battery for 2.12.0-M5
+Running battery for 2.12.1
 
 Searching for a suitable Scala installation.
-  * ATTEMPT: Found a candidate (/UShare/dahl/local/scala/scala-2.12.0-M5/bin/scala)
-  * SUCCESS: 'scala.home' (/home/dahl/local/scala/scala-2.12.0-M5) argument
+  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala/scala-2.12.1/bin/scala)
+  * SUCCESS: 'scala.home' (/home/dahl/local/scala/scala/scala-2.12.1) argument
 
-[1] "/UShare/dahl/local/scala/scala-2.12.0-M5/bin/scala"
+[1] "/home/dahl/local/scala/scala/scala-2.12.1/bin/scala"
 
 Searching for a suitable Scala installation.
   * FAILURE: 'scala.home' argument is NULL
-  * ATTEMPT: Found a candidate (/UShare/dahl/local/scala/scala-2.12.0-M5/bin/scala)
-  * SUCCESS: SCALA_HOME (/home/dahl/local/scala/scala-2.12.0-M5) environment variable
+  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala/scala-2.12.1/bin/scala)
+  * SUCCESS: SCALA_HOME (/home/dahl/local/scala/scala/scala-2.12.1) environment variable
 
-[1] "/UShare/dahl/local/scala/scala-2.12.0-M5/bin/scala"
+[1] "/home/dahl/local/scala/scala/scala-2.12.1/bin/scala"
 
 Searching for a suitable Scala installation.
   * FAILURE: 'scala.home' argument is NULL
   * FAILURE: SCALA_HOME () environment variable
-  * ATTEMPT: Found a candidate (/UShare/dahl/local/scala/scala-2.12.0-M5/bin/scala)
+  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala/scala-2.12.1/bin/scala)
   * SUCCESS: 'scala' in the shell's search path
 
-[1] "/UShare/dahl/local/scala/scala-2.12.0-M5/bin/scala"
+[1] "/home/dahl/local/scala/scala/scala-2.12.1/bin/scala"
 --------
 
 Searching for a suitable Scala installation.
   * FAILURE: 'scala.home' argument is NULL
   * FAILURE: SCALA_HOME () environment variable
   * FAILURE: 'scala' in the shell's search path
-  * FAILURE: special installation directory (/home/dahl/.rscala/scala-2.11.8)
+  * FAILURE: special installation directory (/home/dahl/.rscala/scala-2.12.1)
 Cannot find a suitable Scala installation.
 
 Scala (>= 2.11) is not distributed with the rscala package.  Individuals can
@@ -85,18 +85,18 @@ various techniques to find a suitable Scala installation, including searching
 the path.  Details on the search is available using
 "rscala::scalaInfo(verbose=TRUE)".
 
-trying URL 'http://downloads.typesafe.com/scala/2.11.8/scala-2.11.8.tgz'
-Content type 'application/octet-stream' length 28678231 bytes (27.3 MB)
+trying URL 'http://downloads.lightbend.com/scala/2.12.1/scala-2.12.1.tgz'
+Content type 'application/octet-stream' length 19700349 bytes (18.8 MB)
 ==================================================
-downloaded 27.3 MB
+downloaded 18.8 MB
 
-Successfully installed Scala in /home/dahl/.rscala/scala-2.11.8
+Successfully installed Scala in /home/dahl/.rscala/scala-2.12.1
 
 Searching for a suitable Scala installation.
   * FAILURE: 'scala.home' argument is NULL
   * FAILURE: SCALA_HOME () environment variable
   * FAILURE: 'scala' in the shell's search path
-  * ATTEMPT: Found a candidate (/UShare/dahl/.rscala/scala-2.11.8/bin/scala)
-  * SUCCESS: special installation directory (/UShare/dahl/.rscala/scala-2.11.8)
+  * ATTEMPT: Found a candidate (/home/dahl/.rscala/scala-2.12.1/bin/scala)
+  * SUCCESS: special installation directory (/home/dahl/.rscala/scala-2.12.1)
 
-[1] "/UShare/dahl/.rscala/scala-2.11.8/bin/scala"
+[1] "/home/dahl/.rscala/scala-2.12.1/bin/scala"
