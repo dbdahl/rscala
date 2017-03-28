@@ -11,8 +11,8 @@ setget <- function(value,method="$",...) {
     s$tt <- value
     value2 <- s$tt
   } else {
-    scalaSet(s,"tt",value,...)
-    value2 <- scalaGet(s,"tt")
+    scalaSet(s,"tt",value,...,workspace=environment())
+    value2 <- scalaGet(s,"tt",FALSE,environment())
   }
   if ( length(value) != length(value2) ) stop(paste("Value not equal:\n",paste(value,collapse=","),"\n",paste(value2,collapse=",")))
   if ( any(value != value2) ) stop(paste("Value not equal:\n",paste(value,collapse=","),"\n",paste(value2,collapse=",")))
@@ -34,36 +34,36 @@ for ( method in c("$","") ) {
   setget(FALSE,length.one.as.vector=TRUE,method=method)
   setget("David",length.one.as.vector=TRUE,method=method)
 
-  setget(4L,method=method)
-  setget(5,method=method)
-  setget(TRUE,method=method)
-  setget(FALSE,method=method)
-  setget("David",method=method)
+  setget(4L,length.one.as.vector=FALSE,method=method)
+  setget(5,length.one.as.vector=FALSE,method=method)
+  setget(TRUE,length.one.as.vector=FALSE,method=method)
+  setget(FALSE,length.one.as.vector=FALSE,method=method)
+  setget("David",length.one.as.vector=FALSE,method=method)
 
-  setget(c(4L,3L),method=method)
-  setget(c(5,6),method=method)
-  setget(c(TRUE,FALSE),method=method)
-  setget(c("David","Dahl"),method=method)
+  setget(c(4L,3L),length.one.as.vector=FALSE,method=method)
+  setget(c(5,6),length.one.as.vector=FALSE,method=method)
+  setget(c(TRUE,FALSE),length.one.as.vector=FALSE,method=method)
+  setget(c("David","Dahl"),length.one.as.vector=FALSE,method=method)
 
-  setget(matrix(c(1L,2L,3L,4L,5L,6L),nrow=1),method=method)
-  setget(matrix(c(1,2,3,4,5,6,7,8),nrow=1),method=method)
-  setget(matrix(c(TRUE,FALSE,TRUE,TRUE,FALSE,FALSE),nrow=1),method=method)
-  setget(matrix(c("1","2","3","4","5","6","7","8"),nrow=1),method=method)
+  setget(matrix(c(1L,2L,3L,4L,5L,6L),nrow=1),length.one.as.vector=FALSE,method=method)
+  setget(matrix(c(1,2,3,4,5,6,7,8),nrow=1),length.one.as.vector=FALSE,method=method)
+  setget(matrix(c(TRUE,FALSE,TRUE,TRUE,FALSE,FALSE),nrow=1),length.one.as.vector=FALSE,method=method)
+  setget(matrix(c("1","2","3","4","5","6","7","8"),nrow=1),length.one.as.vector=FALSE,method=method)
 
-  setget(matrix(c(1L,2L,3L,4L,5L,6L),nrow=2),method=method)
-  setget(matrix(c(1,2,3,4,5,6,7,8),nrow=2),method=method)
-  setget(matrix(c(TRUE,FALSE,TRUE,TRUE,FALSE,FALSE),nrow=2),method=method)
-  setget(matrix(c("1","2","3","4","5","6","7","8"),nrow=2),method=method)
+  setget(matrix(c(1L,2L,3L,4L,5L,6L),nrow=2),length.one.as.vector=FALSE,method=method)
+  setget(matrix(c(1,2,3,4,5,6,7,8),nrow=2),length.one.as.vector=FALSE,method=method)
+  setget(matrix(c(TRUE,FALSE,TRUE,TRUE,FALSE,FALSE),nrow=2),length.one.as.vector=FALSE,method=method)
+  setget(matrix(c("1","2","3","4","5","6","7","8"),nrow=2),length.one.as.vector=FALSE,method=method)
 
   a <- matrix(1:6,nrow=2)
-  setget(a[,-c(1,2,3)],method=method)
-  setget(a[-1,],method=method)
-  setget(a[-2,-c(1,2,3)],method=method)
+  setget(a[,-c(1,2,3)],length.one.as.vector=FALSE,method=method)
+  setget(a[-1,],length.one.as.vector=FALSE,method=method)
+  setget(a[-2,-c(1,2,3)],length.one.as.vector=FALSE,method=method)
 
   mode(a) <- "character"
-  setget(a[,-c(1,2,3)],method=method)
-  setget(a[-1,],method=method)
-  setget(a[-2,-c(1,2,3)],method=method)
+  setget(a[,-c(1,2,3)],length.one.as.vector=FALSE,method=method)
+  setget(a[-1,],length.one.as.vector=FALSE,method=method)
+  setget(a[-2,-c(1,2,3)],length.one.as.vector=FALSE,method=method)
 
 }
 
