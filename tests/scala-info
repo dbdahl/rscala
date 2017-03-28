@@ -14,14 +14,14 @@ do
   echo "Running battery for $SCALA_VERSION"
 
   # By setting the scala.home argument
-  scala_home=~/local/scala/scala-$SCALA_VERSION
+  scala_home=~/local/scala/scala/scala-$SCALA_VERSION
   R --slave -e 'library(rscala); print(scalaInfo("'$scala_home'",verbose=TRUE)$cmd)'
 
   # By setting the SCALA_HOME environment variable
   SCALA_HOME=$scala_home R --slave -e 'library(rscala); print(scalaInfo(verbose=TRUE)$cmd)'
 
   # By setting the PATH environment variable
-  PATH=$PATH_WITHOUT_SCALA:/home/dahl/local/scala/scala-$SCALA_VERSION/bin /home/dahl/local/bin/R --slave -e 'library(rscala); print(scalaInfo(verbose=TRUE)$cmd)'
+  PATH=$PATH_WITHOUT_SCALA:/home/dahl/local/scala/scala/scala-$SCALA_VERSION/bin /home/dahl/local/bin/R --slave -e 'library(rscala); print(scalaInfo(verbose=TRUE)$cmd)'
 
   echo "--------"
 done

@@ -15,8 +15,7 @@ else
   SCRIPTS="$*"
 fi
 
-VERSIONS=$(cat ../build.sbt | grep crossScalaVersions | sed 's/crossScalaVersions\s*:=\s*Seq(//' | sed 's/)//g' | sed 's/,//g' | sed 's/"//g')
-
+export VERSIONS=$(cat ../build.sbt | grep crossScalaVersions | sed 's/crossScalaVersions\s*:=\s*Seq(//' | sed 's/)//g' | sed 's/,//g' | sed 's/"//g')
 export SERIALIZES="TRUE FALSE"
 export OUTPUTS="TRUE FALSE"
 
@@ -33,7 +32,7 @@ dq start
 for SCALA_VERSION in $VERSIONS
 do
   # echo "Running battery for $SCALA_VERSION"
-  SCALA_HOME=~/local/scala/scala-$SCALA_VERSION
+  SCALA_HOME=~/local/scala/scala/scala-$SCALA_VERSION
   for script in $SCRIPTS
   do
     # echo "  Running $script"
