@@ -160,7 +160,7 @@ toString.ScalaInterpreterItem <- function(x,...) {
   "ScalaInterpreterItem"
 }
 
-scalaInvoke <- function(reference,workspace,method.name,...) {
+scalaInvoke <- function(reference,as.reference,workspace,method.name,...) {
   interpreter <- reference[['interpreter']]
   args <- list(...)
   argsStringVector <- sapply(seq_along(args), function(i) {
@@ -173,15 +173,25 @@ scalaInvoke <- function(reference,workspace,method.name,...) {
     }
   })
   argsString <- if ( length(argsStringVector) == 0 ) ""
-  else paste0("(",argsStringVector,")",collapse=",")
-  snippet <- paste0(reference[['identifier']],'.',method.name,argsString)
-  evalAndGet(interpreter,snippet,NA,workspace)
+  else paste0("(",paste(argsStringVector,collapse=","),")")
+  if ( method.name != '' ) method.name <- paste0('.',method.name)
+  snippet <- paste0(reference[['identifier']],method.name,argsString)
+  if ( get("debug",envir=interpreter[['env']]) ) msg(paste0('Invoking snippet: ',snippet))
+  evalAndGet(interpreter,snippet,as.reference,workspace)
 }
 
 '$.ScalaInterpreterReference' <- function(reference,functionName) {
   workspace <- parent.frame()
   function(...) {
-    scalaInvoke(reference,workspace,functionName,...)
+    scalaInvoke(reference,NA,workspace,functionName,...)
+  }
+}
+
+'%new%.ScalaInterpreter' <- function(interpreter, class.name) {
+  constructor <- list(interpreter=interpreter,identifier=paste0('new ',class.name))
+  workspace <- parent.frame()
+  function(...) {
+    rscala:::scalaInvoke(constructor,TRUE,workspace,'',...)
   }
 }
 
