@@ -33,9 +33,15 @@ for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y)) ) {
 }
 
 counter <- 0
-increment <- s$def('','R.eval("counter <<- counter +1")')
-for ( i in 1:10 ) increment()
+for ( i in 1:10 ) {
+  s %~% 'R.eval("counter <- counter + 1")'
+}
 if ( counter != 10 ) stop("Counter is off.")
+R <- s$.R
+for ( i in 1:10 ) {
+  R$eval("counter <- counter - 1")
+}
+if ( counter != 0 ) stop("Counter is off.")
 
 
 # Should be a compile-time error because 'ewf' is not defined.
