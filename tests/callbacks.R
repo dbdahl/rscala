@@ -17,12 +17,20 @@ assert <- function(x) {
   if ( ! identical(( s %~% 'R.a._1' ), get("a")) ) stop("Not identical (test 2)")
   s$a <- x
   s %~% 'R.b = a'
+  R <- s %~% 'R'
+print(b)
+#print(s$.R$get("b"))
+print(environment())
+print(R$get("b"))
   if ( ! identical(x, s$.R$get("b")$"_1"()) ) stop("Not identical (test 3)")
+  # if ( ! identical(x, s$.R$evalD1("b")) ) stop("Not identical (test 3)")
+  # if ( ! identical(x, s$.R$evalI1("x")) ) stop(paste("Not identical (test 3): ",paste(x,sep=","),",",paste(s$.R$evalD1("x"),sep=",")))
   if ( ! identical(b,a) ) stop("Not identical (test 4)")
 }
 
 y <- c(0,1,2,3,4,5,6,8)
 for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y)) ) {
+  print(x)
   assert(x[1])
   assert(x[2])
   assert(x)

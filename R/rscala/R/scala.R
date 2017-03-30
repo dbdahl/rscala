@@ -159,37 +159,70 @@ toString.ScalaInterpreterItem <- function(x,...) {
   "ScalaInterpreterItem"
 }
 
-'$.ScalaInterpreterReference' <- function(reference,methodName) {
-  workspace <- parent.frame()
-  type <- reference[['type']]
-  functionCache <- reference[['interpreter']][['functionCache']]
-  env <- reference[['interpreter']][['env']]
-  function(...,evaluate=TRUE,length.one.as.vector="",as.reference=NA,gc=FALSE) {
-    loav <- ! ( ( ( length.one.as.vector == "" ) && ( ! get("length.one.as.vector",envir=env) ) ) || length.one.as.vector == FALSE )
-    args <- list(...)
-    nArgs <- length(args)
-    names <- paste0("x",1:nArgs)
-    types <- sapply(args,deduceType,length.one.as.vector=loav)
-    argsStr <- paste(names,types,sep=": ",collapse=", ")
-    namesStr <- paste(names,collapse=", ")
-    key <- paste0(type,"$",methodName,"#",paste(types,collapse=","))
-    if ( ! exists(key,envir=functionCache) ) {
-      f <- if ( nArgs == 0 ) {
-        scalaDef(reference[['interpreter']],'',paste0('rscalaReference.',methodName),"",reference,workspace)
-      } else {
-        scalaDef(reference[['interpreter']],argsStr,paste0('rscalaReference.',methodName,"(",namesStr,")"),"",reference,workspace)
-      }
-      assign(key,f,envir=functionCache)
-    } else {
-      f <- get(key,envir=functionCache)
-      assign("rscalaReference",reference,envir=environment(f),inherits=TRUE)
+scalaInvoke <- function(reference,workspace,method.name,...) {
+    cat("From scalaInvoke: ")
+    print(workspace)
+  interpreter <- reference[['interpreter']]
+  args <- list(...)
+  argsStringVector <- sapply(seq_along(args), function(i) {
+    x <- args[[i]]
+    if ( inherits(x,"ScalaInterpreterReference") ) x[['identifier']]
+    else {
+      identifier <- paste0('_x',i)
+      scalaSet(interpreter, identifier, x, FALSE, workspace)
+      identifier
     }
-    if ( evaluate ) f(...,as.reference=as.reference,gc=gc)
-    else f
+  })
+  argsString <- if ( length(argsStringVector) == 0 ) ""
+  else paste0("(",argsStringVector,")",collapse=",")
+  if ( is.na(method.name) ) method.name <- "apply"
+  snippet <- paste0('@{reference}.',method.name,argsString)
+  interpreter %~% snippet
+}
+
+'$.ScalaInterpreterReference' <- function(reference,functionName) {
+  workspace <- parent.frame()
+  cat("From $.ScalaInterpreterReference: ")
+  print(workspace)
+  function(...) {
+    cat("From $.ScalaInterpreterReference's embedded function: ")
+    print(workspace)
+    scalaInvoke(reference,workspace,functionName,...)
   }
 }
 
+# '$.ScalaInterpreterReference' <- function(reference,methodName) {
+#   workspace <- parent.frame()
+#   type <- reference[['type']]
+#   functionCache <- reference[['interpreter']][['functionCache']]
+#   env <- reference[['interpreter']][['env']]
+#   function(...,evaluate=TRUE,length.one.as.vector="",as.reference=NA,gc=FALSE) {
+#     loav <- ! ( ( ( length.one.as.vector == "" ) && ( ! get("length.one.as.vector",envir=env) ) ) || length.one.as.vector == FALSE )
+#     args <- list(...)
+#     nArgs <- length(args)
+#     names <- paste0("x",1:nArgs)
+#     types <- sapply(args,deduceType,length.one.as.vector=loav)
+#     argsStr <- paste(names,types,sep=": ",collapse=", ")
+#     namesStr <- paste(names,collapse=", ")
+#     key <- paste0(type,"$",methodName,"#",paste(types,collapse=","))
+#     if ( ! exists(key,envir=functionCache) ) {
+#       f <- if ( nArgs == 0 ) {
+#         scalaDef(reference[['interpreter']],'',paste0('rscalaReference.',methodName),"",reference,workspace)
+#       } else {
+#         scalaDef(reference[['interpreter']],argsStr,paste0('rscalaReference.',methodName,"(",namesStr,")"),"",reference,workspace)
+#       }
+#       assign(key,f,envir=functionCache)
+#     } else {
+#       f <- get(key,envir=functionCache)
+#       assign("rscalaReference",reference,envir=environment(f),inherits=TRUE)
+#     }
+#     if ( evaluate ) f(...,as.reference=as.reference,gc=gc)
+#     else f
+#   }
+# }
+
 '$.ScalaInterpreterItem' <- function(item,methodName) {
+  stop("Legacy code.")
   workspace <- parent.frame()
   interpreter <- item[['interpreter']]
   type <- item[['item.name']]
@@ -493,6 +526,7 @@ scalaCallback <- function(interpreter,argsType,returnType,func,interpolate="") {
 }
 
 scalaDef <- function(interpreter,args,body,interpolate,reference,workspace) {
+  stop("Legacy code")
   cc(interpreter)
   tryCatch({
     tmpFunc <- NULL
