@@ -71,7 +71,8 @@ newSockets <- function(portsFilename,debug,serialize,timeout) {
 
 scalaEval <- function(interpreter,snippet,workspace,interpolate) {
   cc(interpreter)
-  if ( get("debug",envir=interpreter[['env']]) ) msg('Sending EVAL request.')
+  debug <- get("debug",envir=interpreter[['env']])
+  if ( debug ) msg(paste0('Sending EVAL request using environment:',capture.output(print(workspace))))
   snippet <- paste(snippet,collapse="\n")
   if ( ( ( interpolate == "" ) && ( get("interpolate",envir=interpreter[['env']]) ) ) || ( interpolate == TRUE ) ) {
     snippet <- strintrplt(snippet,parent.frame())
@@ -160,8 +161,6 @@ toString.ScalaInterpreterItem <- function(x,...) {
 }
 
 scalaInvoke <- function(reference,workspace,method.name,...) {
-    cat("From scalaInvoke: ")
-    print(workspace)
   interpreter <- reference[['interpreter']]
   args <- list(...)
   argsStringVector <- sapply(seq_along(args), function(i) {
@@ -175,18 +174,13 @@ scalaInvoke <- function(reference,workspace,method.name,...) {
   })
   argsString <- if ( length(argsStringVector) == 0 ) ""
   else paste0("(",argsStringVector,")",collapse=",")
-  if ( is.na(method.name) ) method.name <- "apply"
-  snippet <- paste0('@{reference}.',method.name,argsString)
-  interpreter %~% snippet
+  snippet <- paste0(reference[['identifier']],'.',method.name,argsString)
+  evalAndGet(interpreter,snippet,NA,workspace)
 }
 
 '$.ScalaInterpreterReference' <- function(reference,functionName) {
   workspace <- parent.frame()
-  cat("From $.ScalaInterpreterReference: ")
-  print(workspace)
   function(...) {
-    cat("From $.ScalaInterpreterReference's embedded function: ")
-    print(workspace)
     scalaInvoke(reference,workspace,functionName,...)
   }
 }
@@ -415,6 +409,8 @@ deduceType <- function(value,length.one.as.vector) {
 
 scalaSet <- function(interpreter,identifier,value,length.one.as.vector,workspace) {
   cc(interpreter)
+  debug <- get("debug",envir=interpreter[['env']])
+  if ( debug ) msg(paste0("Starting scalaSet with environment:",capture.output(print(workspace))))
   tryCatch({
     if ( inherits(value,"ScalaInterpreterReference") ) {
       if ( get("debug",envir=interpreter[['env']]) ) msg("Sending SET request.")

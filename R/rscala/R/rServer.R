@@ -1,6 +1,7 @@
 rServe <- function(sockets,with.callbacks,workspace) {
   cc(sockets)
   debug <- get("debug",envir=sockets[['env']])
+  if ( debug ) msg(paste0("R server using environment:",capture.output(print(workspace))))
   while ( TRUE ) {
     if ( debug ) msg("R server at top of the loop waiting for a command.")
     cmd <- rb(sockets,"integer")
