@@ -26,6 +26,11 @@ s <- scala(debug=TRUE)
 
 
 
+
+
+
+
+
 bob <- function() {
   s$a <- 1L
   s$b <- 8L
@@ -45,7 +50,6 @@ ultimate <- function(a,b) {
   s$invoke(method)
 }
 
-
 microbenchmark(
   (s %~% 'Array')$apply(1L,8L),
   bob(),
@@ -58,4 +62,23 @@ microbenchmark(
 
 is.integer((s %~% 'Array')$apply(1L,8L))
 is.integer((s %~% 'Array')$'apply[Double]'(1L,8L))
+
+
+
+
+
+library(rscala)
+
+s <- scala()
+
+e <- s$def2(x=scalaPrimitive(0),y=scalaPrimitive(4L),z=logical(),name=scalaPrimitive(""))
+
+e <- s$def(x=scalaPrimitive(0),y=scalaPrimitive(4L),z=logical(),name=scalaPrimitive("")) %~% '
+  for ( i <- 0 until 10 ) {
+    println(i)
+  }
+'
+
+e
+
 

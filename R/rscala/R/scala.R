@@ -377,6 +377,8 @@ scalaGet <- function(interpreter,identifier,as.reference,workspace) {
       body <- strintrplt(body,parent.frame())
     }
     scalaDef(interpreter,args,body,FALSE,NULL,parent.frame())
+  } else if ( identifier == "def2" ) function(...) {
+    scalaDef2(...,.INTERPRETER=interpreter)
   } else if ( identifier == "callback" ) function(argsType,returnType,func) {
     if ( get("interpolate",envir=interpreter[['env']]) ) {
       argsType <- sapply(argsType,function(x) strintrplt(x,parent.frame()))
@@ -530,6 +532,91 @@ scalaCallback <- function(interpreter,argsType,returnType,func,interpolate="") {
   if ( is.null(result) ) invisible(result)
   else result
 }
+
+scalaPrimitive <- function(x) {
+  if ( ! is.vector(x) || length(x) != 1L ) stop("'x' must be vector of length 1.")
+  names(x) <- 'scalaPrimitive'
+  x
+}
+
+scalaDef2 <- function(...,.INTERPRETER) {
+  argValues <- list(...)
+  argIdentifiers <- names(argValues)
+  if ( any(argIdentifiers=='') ) stop('All arguments must be named arguments.')
+  if ( length(unique(argIdentifiers)) != length(argIdentifiers) ) stop('Argument names must be unique.')
+  header <- character(length(argValues))
+  for ( i in seq_along(argValues) ) {
+    value <- argValues[[i]]
+    name <- argIdentifiers[[i]]
+    if ( inherits(value,"ScalaInterpreterReference") ) {
+      stop("Not yet supported.")
+    } else if ( is.null(value) ) {
+
+    } else {
+      if ( ! is.atomic(value) ) stop("Data structure is not atomic.")
+      type <- checkType3(value)
+      if ( is.vector(value) ) {
+        len <- if ( isScalaPrimitive(value) ) 0 else 1
+      } else if ( is.matrix(value) ) {
+        len <- 2
+      } else stop("Data structure is not supported.")
+      header[i] <- paste0('val ',name,' = R.get',type,len,'("',name,'")')
+    }
+  }
+  result <- list(interpreter=.INTERPRETER,identifiers=argIdentifiers,header=header)
+  class(result) <- 'ScalaFunctionArgs'
+  result
+}
+
+'%~%.ScalaFunctionArgs' <- function(func,body) {
+  workspace <- parent.frame()
+  interpreter <- func$interpreter
+  if ( get("interpolate",envir=interpreter[['env']]) ) {
+    body <- strintrplt(body,workspace)
+  }
+  body <- strsplit(body,'\n')[[1]]
+  bodySubset <- body[body != '']
+  regexprResults <- regexpr("\\S+",bodySubset,perl=TRUE)
+  indentation <- if ( length(regexpr) > 0 ) max(0,min(regexprResults)-1) else 0
+  padding <- paste0(rep(' ',indentation),collapse='')
+  fullBody <- paste0(
+    paste0(padding,func$header,collapse='\n'),
+    paste0(padding,substring(body,indentation+1),collapse='\n'),'\n'
+  )
+  snippet <- paste0('() => {\n',fullBody,'}')
+  function0 <- evalAndGet(interpreter,snippet,TRUE,workspace)
+  functionSnippet <- strintrplt('
+    function(@{paste(func$identifiers,collapse=", ")},as.reference=NA) {
+      rscala:::wb(interpreter,rscala:::INVOKE2)
+      rscala:::wc(interpreter,"@{function0[["identifier"]]}")
+      flush(interpreter[["socketIn"]])
+      rscala:::rServe(interpreter,TRUE,workspace)
+      status <- rscala:::rb(interpreter,"integer")
+      @{ifelse(get("serialize",envir=interpreter[["env"]]),"rscala:::echoResponseScala(interpreter)","")}
+      if ( status == rscala:::ERROR ) {
+        stop("Invocation error.")
+      } else {
+        result <- rscala:::scalaGet(interpreter,"?",as.reference,workspace)
+        if ( is.null(result) ) invisible(result)
+        else result
+      }
+    }
+  ')
+  functionDefinition <- eval(parse(text=functionSnippet))
+  attr(functionDefinition,"identifiers") <- func$identifiers
+  attr(functionDefinition,"scala") <- fullBody
+  class(functionDefinition) <- "ScalaFunction"
+  functionDefinition
+}
+
+print.ScalaFunction <- function(x,...) {
+  y <- formals(e)
+  signature <- paste0('function(',paste0(names(y),ifelse(paste(y)=='','',paste0(' = ',y)),collapse=', '),')')
+  cat(signature,'\n','{ // Scala implimentation\n',attr(x,'scala'),'}\n',sep='')
+}
+
+
+
 
 scalaDef <- function(interpreter,args,body,interpolate,reference,workspace) {
   stop("Legacy code")
@@ -849,6 +936,18 @@ checkType2 <- function(x) {
   else if ( is.logical(x) ) "Boolean"
   else if ( is.character(x) ) "String"
   else stop("Unsupported data type.")
+}
+
+checkType3 <- function(x) {
+  if ( is.integer(x) ) "I"
+  else if ( is.double(x) ) "D"
+  else if ( is.logical(x) ) "B"
+  else if ( is.character(x) ) "S"
+  else stop("Unsupported data type.")
+}
+
+isScalaPrimitive <- function(x) {
+  identical(names(x),'scalaPrimitive')
 }
 
 convert <- function(x,t) {
