@@ -73,10 +73,12 @@ s <- scala()
 
 e <- s$def2(x=scalaPrimitive(0),y=scalaPrimitive(4L),z=logical(),name=scalaPrimitive(""))
 
-e <- s$def(x=scalaPrimitive(0),y=scalaPrimitive(4L),z=logical(),name=scalaPrimitive("")) %~% '
-  for ( i <- 0 until 10 ) {
-    println(i)
-  }
+f <- e %~% '
+  3+4
+'
+
+e <- s$def2(x=scalaPrimitive(0),y=scalaPrimitive(4L),name=scalaPrimitive("dog")) %~% '
+  name + " " + ( x + y )
 '
 
 e
