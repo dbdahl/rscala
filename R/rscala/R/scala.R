@@ -43,8 +43,6 @@ newSockets <- function(portsFilename,debug,serialize,timeout) {
   assign("serialize",serialize,envir=env)
   assign("length.one.as.vector",FALSE,envir=env)
   assign("garbage",character(0),envir=env)
-  workspace <- new.env()
-  workspace$. <- new.env(parent=workspace)
   ports <- local({
     delay <- 0.1
     start <- proc.time()[3]
@@ -63,7 +61,7 @@ newSockets <- function(portsFilename,debug,serialize,timeout) {
   socketConnectionIn  <- socketConnection(port=ports[1],blocking=TRUE,open="ab",timeout=2678400)
   socketConnectionOut <- socketConnection(port=ports[2],blocking=TRUE,open="rb",timeout=2678400)
   if ( debug ) msg("Connected")
-  result <- list(socketIn=socketConnectionIn,socketOut=socketConnectionOut,env=env,workspace=workspace,functionCache=functionCache,
+  result <- list(socketIn=socketConnectionIn,socketOut=socketConnectionOut,env=env,functionCache=functionCache,
                  garbageFunction = function(e) {
 cat("Running garbage function.\n")
                    assign(c(e[['identifier']],get("garbage",envir=env)),envir=env)
@@ -74,14 +72,11 @@ cat("Running garbage function.\n")
   result
 }
 
-scalaEval <- function(interpreter,snippet,workspace,interpolate) {
+scalaEval <- function(interpreter,snippet,workspace) {
   cc(interpreter)
   debug <- get("debug",envir=interpreter[['env']])
   if ( debug ) msg(paste0('Sending EVAL request using environment:',capture.output(print(workspace))))
   snippet <- paste(snippet,collapse="\n")
-  if ( ( ( interpolate == "" ) && ( get("interpolate",envir=interpreter[['env']]) ) ) || ( interpolate == TRUE ) ) {
-    snippet <- strintrplt(snippet,parent.frame())
-  }
   tryCatch({
     wb(interpreter,EVAL)
     wc(interpreter,snippet)
@@ -127,7 +122,7 @@ scalaEval <- function(interpreter,snippet,workspace,interpolate) {
   if ( get("interpolate",envir=interpreter[['env']]) ) {
     snippet <- strintrplt(snippet,parent.frame())
   }
-  scalaEval(interpreter,snippet,parent.frame(),FALSE)
+  scalaEval(interpreter,snippet,parent.frame())
 }
 
 print.ScalaInterpreter <- function(x,...) {
@@ -356,6 +351,7 @@ scalaGet <- function(interpreter,identifier,as.reference,workspace) {
       }
     } else if ( dataStructure == REFERENCE ) {
       itemName <- rc(interpreter)
+      stop("I don't think this is necessary.")
       get(itemName,envir=interpreter[['workspace']]$.)
     } else if ( dataStructure == ERROR ) {
       if ( get("serialize",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
@@ -583,18 +579,21 @@ scalaDef2 <- function(.INTERPRETER,...) {
 }
 
 '%~%.ScalaFunctionArgs' <- function(func,body) {
-  scalaFunctionArgs(func,body,as.reference=NA,parent.frame())
+  if ( get("interpolate",envir=func$interpreter[['env']]) ) {
+    body <- strintrplt(body,workspace)
+  }
+  scalaFunctionArgs(func,body,as.reference=NA,environment())
 }
 
 '%.~%.ScalaFunctionArgs' <- function(func,body) {
-  scalaFunctionArgs(func,body,as.reference=TRUE,parent.frame())
+  if ( get("interpolate",envir=func$interpreter[['env']]) ) {
+    body <- strintrplt(body,workspace)
+  }
+  scalaFunctionArgs(func,body,as.reference=TRUE,environment())
 }
 
 scalaFunctionArgs <- function(func,body,as.reference,workspace) {
   body <- paste(body,collapse="\n")
-  if ( get("interpolate",envir=func$interpreter[['env']]) ) {
-    body <- strintrplt(body,workspace)
-  }
   fullBody <- paste0(c(func$header,paste0("// User-supplied body; as.reference = ",as.reference),body),collapse='\n')
   if ( ! exists(fullBody,envir=func$interpreter[['functionCache']]) ) {
     interpreter <- func$interpreter
@@ -604,9 +603,11 @@ scalaFunctionArgs <- function(func,body,as.reference,workspace) {
     functionReturnType <- substring(function0[['type']],7)  # Drop off the leading '() => '.
     functionSnippet <- strintrplt('
       function(@{paste(func$identifiers,collapse=", ")}) {
+interpreter <- s
         workspace <- environment()
+        if ( get("debug",envir=interpreter[["env"]]) ) msg(paste0("Evalating Scala function from environment: ",capture.output(print(workspace)),"whose parent is",capture.output(print(parent.env(workspace)))))
         rscala:::wb(interpreter,rscala:::INVOKE2)
-        rscala:::wc(interpreter,functionIdentifier)
+        rscala:::wc(interpreter,"@{functionIdentifier}")
         flush(interpreter[["socketIn"]])
         rscala:::rServe(interpreter,TRUE,workspace)
         status <- rscala:::rb(interpreter,"integer")
@@ -614,13 +615,13 @@ scalaFunctionArgs <- function(func,body,as.reference,workspace) {
         if ( status == rscala:::ERROR ) {
           stop("Invocation error.")
         } else {
-          result <- rscala:::scalaGet(interpreter,"?",as.reference,workspace)
+          result <- rscala:::scalaGet(interpreter,"?",@{as.reference},workspace)
           if ( is.null(result) ) invisible(result)
           else result
         }
       }
     ')
-    functionDefinition <- eval(parse(text=functionSnippet))
+    functionDefinition <- eval(parse(text=functionSnippet),envir=parent.env(workspace))
     attr(functionDefinition,"identifiers") <- func$identifiers
     attr(functionDefinition,"scala") <- fullBody
     attr(functionDefinition,"returnType") <- functionReturnType
@@ -951,7 +952,7 @@ scalaInfo <- function(scala.home=NULL,verbose=FALSE) {
 # Private
 
 evalAndGet <- function(interpreter,snippet,as.reference,workspace) {
-  scalaEval(interpreter,snippet,workspace,FALSE)
+  scalaEval(interpreter,snippet,workspace)
   scalaGet(interpreter,".",as.reference,workspace)
 }
 

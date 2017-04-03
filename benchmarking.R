@@ -69,17 +69,34 @@ is.integer((s %~% 'Array')$'apply[Double]'(1L,8L))
 
 library(rscala)
 
-s <- scala()
+s <- scala(debug=TRUE)
 
 see <- "David"
 bob <- function() {
   see <- "Boyack"
-  s$def2(x=scalaPrimitive("Mack"),y=scalaPrimitive("Bob")) %~% '
+  x <- "Milly"
+  cat("Current environment: ")
+  print(environment())
+  r <- s$def2(x=scalaPrimitive("Mack"),y=scalaPrimitive("Bob")) %~% '
     x+" "+y+" "+R.getS0("see")
   '
+  r
 }
 y <- bob()
 y("Lisa","Dahl")
+
+bill <- function() {
+  see <- "Knudsen"
+  y("Lisa","Dahl")
+}
+bill()
+
+y("Lisa","Dahl")
+
+see <- "Mack"
+y("Lisa","Dahl")
+
+
 
 
 

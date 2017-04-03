@@ -1,7 +1,7 @@
 rServe <- function(sockets,with.callbacks,workspace) {
   cc(sockets)
   debug <- get("debug",envir=sockets[['env']])
-  if ( debug ) msg(paste0("R server using environment:",capture.output(print(workspace))))
+  if ( debug ) msg(paste0("R server using environment: ",capture.output(print(workspace))))
   while ( TRUE ) {
     if ( debug ) msg("R server at top of the loop waiting for a command.")
     cmd <- rb(sockets,"integer")
@@ -75,6 +75,7 @@ rServe <- function(sockets,with.callbacks,workspace) {
         otherIdentifier <- rc(sockets)
         if ( exists(otherIdentifier,envir=workspace$.) ) {
           wb(sockets,OK)
+stop("Legacy code.")
           value <- get(otherIdentifier,envir=workspace$.)
           if ( cmd == SET ) assign(identifier,value,envir=workspace)
           else subassign(sockets,identifier,index,value,cmd==SET_SINGLE,workspace)
