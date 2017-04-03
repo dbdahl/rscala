@@ -29,6 +29,9 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
   private val functionParametersStack = new scala.collection.mutable.ArrayBuffer[Any]()
   private val functionMap = new scala.collection.mutable.HashMap[String,(Any,java.lang.reflect.Method,Int,String)]()
 
+  private val nullary = Class.forName("scala.Function0").getMethod("apply")
+  nullary.setAccessible(true)
+
   private def typeOfTerm(id: String) = repl.symbolOfLine(id).info.toString
 
   private def extractReturnType(signature: String) = {
@@ -194,6 +197,29 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
     try {
 //      val f = repl.valueOfTerm(functionName).get    // DBD:  Do I need this?
       callFunction(functionName)
+      R.exit()
+      if ( debugger.value ) debugger.msg("Invoke is okay")
+      out.writeInt(OK)
+    } catch {
+      case e: Throwable =>
+        R.exit()
+        out.writeInt(ERROR)
+        e.printStackTrace(pw)
+        pw.println(e + ( if ( e.getCause != null ) System.lineSeparator + e.getCause else "" ) )
+    }
+  }
+
+  private def doInvoke2(): Unit = {
+    val functionName = readString()
+    try {
+      val f = repl.valueOfTerm(functionName).get
+      val functionType = typeOfTerm(functionName)
+      val returnType = extractReturnType(functionType)
+      if ( debugger.value ) {
+        debugger.msg("Function is: "+f)
+        debugger.msg("... with return type: "+returnType)
+      }
+      functionResult = (nullary.invoke(f), returnType)
       R.exit()
       if ( debugger.value ) debugger.msg("Invoke is okay")
       out.writeInt(OK)
@@ -570,6 +596,8 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
         doDef()
       case INVOKE =>
         doInvoke()
+      case INVOKE2 =>
+        doInvoke2()
       case SCALAP =>
         doScalap()
     }

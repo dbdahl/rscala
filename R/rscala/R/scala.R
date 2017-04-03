@@ -574,7 +574,7 @@ scalaDef2 <- function(.INTERPRETER,...) {
     body <- strintrplt(body,parent.frame())
   }
   fullBody <- paste0(c(func$header,"// User-supplied body",body),collapse='\n')
-  if ( TRUE ) { # Not yet cached as indexed by fullBody
+  if ( ! exists(fullBody,envir=func$interpreter[['functionCache']]) ) {
     interpreter <- func$interpreter
     workspace <- parent.frame()
     snippet <- paste0('() => {\n',fullBody,'}')
@@ -600,10 +600,11 @@ scalaDef2 <- function(.INTERPRETER,...) {
     attr(functionDefinition,"identifiers") <- func$identifiers
     attr(functionDefinition,"scala") <- fullBody
     class(functionDefinition) <- "ScalaFunction"
-    ## Add to cache.
+    assign(fullBody,functionDefinition,envir=func$interpreter[['functionCache']])
+    ## Get the return type...  Send the function name and return type to Scala to cache (together with the corresponding object). 
     functionDefinition
   } else {
-    ## Look-up from cache.
+    get(fullBody,envir=func$interpreter[['functionCache']])
   }
 }
 

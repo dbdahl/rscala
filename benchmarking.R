@@ -71,16 +71,169 @@ library(rscala)
 
 s <- scala()
 
-e <- s$def2(x=scalaPrimitive(0),y=scalaPrimitive(4L),z=logical(),name=scalaPrimitive(""))
+# Initial run to get hot-spot compiler going
+system.time(e <- s$def2(x=scalaPrimitive(0),yy=scalaPrimitive(4L),name=scalaPrimitive("dog")) %~% '
+  name + " " + ( x + yy )
+')
+system.time(e <- s$def2(x=scalaPrimitive(0),yyy=scalaPrimitive(4L),name=scalaPrimitive("dog")) %~% '
+  name + " " + ( x + yyy )
+')
+system.time(e <- s$def2(x=scalaPrimitive(0),yyyy=scalaPrimitive(4L),name=scalaPrimitive("dog")) %~% '
+  name + " " + ( x + yyyy )
+')
+system.time(e <- s$def2(x=scalaPrimitive(0),yyyyy=scalaPrimitive(4L),name=scalaPrimitive("dog")) %~% '
+  name + " " + ( x + yyyyy )
+')
+system.time(e <- s$def2(x=scalaPrimitive(0),yyyyyy=scalaPrimitive(4L),name=scalaPrimitive("dog")) %~% '
+  name + " " + ( x + yyyyyy )
+')
+system.time(e <- s$def2(x=scalaPrimitive(0),yyyyyyy=scalaPrimitive(4L),name=scalaPrimitive("dog")) %~% '
+  name + " " + ( x + yyyyyyy )
+')
 
-f <- e %~% '
-  3+4
-'
 
-e <- s$def2(x=scalaPrimitive(0),y=scalaPrimitive(4L),name=scalaPrimitive("dog")) %~% '
+
+
+
+
+# Realistic timing
+system.time(e <- s$def2(x=scalaPrimitive(0),y=scalaPrimitive(4L),name=scalaPrimitive("dog")) %~% '
   name + " " + ( x + y )
-'
+')
 
-e
+# Taking advantage of caching
+system.time(f <- s$def2(x=scalaPrimitive(0),y=scalaPrimitive(4L),name=scalaPrimitive("dog")) %~% '
+  name + " " + ( x + y )
+')
+
+identical(e,f)
+
+
+
+
+system.time(f <- s$def2(x=scalaPrimitive(0),y=scalaPrimitive(4L),name=scalaPrimitive("dog")) %~% '
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  name + " " + ( x + y )
+  2+3
+')
 
 

@@ -30,6 +30,7 @@ object Protocol {
   val GET_REFERENCE = 109
   val DEF           = 110
   val INVOKE        = 111
+  val INVOKE2       = 1111
   val SCALAP        = 112
   val EVALNAKED     = 113
   val SHUTDOWN      = 114
