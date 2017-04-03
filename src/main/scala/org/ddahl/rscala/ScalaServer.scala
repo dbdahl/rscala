@@ -8,8 +8,46 @@ import java.net._
 import java.io._
 
 import Protocol._
+ 
+class Cache {
 
-class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutputStream, baosErr: ByteArrayOutputStream, portsFilename: String, debugger: Debugger, serializeOutput: Boolean) {
+  private val map = new scala.collection.mutable.ArrayBuffer[(Any,String)]()
+  private val extractor = """\.(\d+)""".r
+
+  def store(x: (Any, String)): String = {
+    val result = """.""" + map.length
+    map.append(x)
+    result
+  }
+
+  def unapply(identifier: String): Option[(Any,String)] = identifier match {
+    case extractor(i) => Some(map(i.toInt))
+    case _ => None
+  }
+
+  def apply(identifier: String): (Any,String) = identifier match {
+    case extractor(i) => map(i.toInt)
+    case _ => map(identifier.toInt)
+  }
+
+  def apply(index: Int): (Any,String) = {
+    map(index)
+  }
+
+  def free(identifier: String): Unit = identifier match {
+    case extractor(i) => map(i.toInt) = null
+    case _ => map(identifier.toInt) = null
+  }
+
+  def free(index: Int): Unit = {
+    map(index) = null
+  }
+
+  def clear() = map.clear()
+
+}
+
+class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutputStream, baosErr: ByteArrayOutputStream, portsFilename: String, debugger: Debugger, serializeOutput: Boolean) {
 
   private val sockets = new ScalaSockets(portsFilename,debugger)
   import sockets.{in, out, socketIn, socketOut}
@@ -23,14 +61,15 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
     baosErr.reset
   }
 
-  private var functionResult: (Any, String) = null
-  private val cacheMap = new scala.collection.mutable.ArrayBuffer[(Any,String)]()
-  private val cacheMapExtractor = """\.(\d+)""".r
   private val functionParametersStack = new scala.collection.mutable.ArrayBuffer[Any]()
-  private val functionMap = new scala.collection.mutable.HashMap[String,(Any,java.lang.reflect.Method,Int,String)]()
+  private val functionMapOld = new scala.collection.mutable.HashMap[String,(Any,java.lang.reflect.Method,Int,String)]()
 
+  private[rscala] val cacheMap = new Cache()
+
+  private var functionResult: (Any, String) = null
   private val nullary = Class.forName("scala.Function0").getMethod("apply")
   nullary.setAccessible(true)
+  private val functionMap = new scala.collection.mutable.HashMap[String,(Any,String)]()
 
   private def typeOfTerm(id: String) = repl.symbolOfLine(id).info.toString
 
@@ -65,11 +104,11 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
       case _ => null
     }
     m.setAccessible(true)
-    functionMap(functionName) = (f,m,nArgs,returnType)
+    functionMapOld(functionName) = (f,m,nArgs,returnType)
   }
 
   private def callFunction(functionName: String): Any = {
-    val (f,m,nArgs,resultType) = functionMap(functionName)
+    val (f,m,nArgs,resultType) = functionMapOld(functionName)
     val functionParameters = functionParametersStack.takeRight(nArgs)
     functionParametersStack.trimEnd(nArgs)
     if ( debugger.value ) {
@@ -95,12 +134,18 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
   private val sep = sys.props("line.separator")
 
   private def doGC(): Unit = {
+    assert(false)   // Legacy code.
     if ( debugger.value ) debugger.msg("Garbage collection.")
     val length = in.readInt()
     if ( debugger.value ) debugger.msg("... of length: "+length)
     for ( i <- 0 until length ) {
-      cacheMap(in.readInt()) = null
+      //cacheMap(in.readInt()) = null
     }
+  }
+
+  private def doFree(): Unit = {
+    val nItems = in.readInt()
+    for ( i <- 0 until nItems ) cacheMap.free(readString())
   }
 
   private def doEval(): Unit = {
@@ -168,7 +213,7 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
             if ( debugger.value ) debugger.msg("There are "+paramNames.length+" parameters.")
             paramNames.foreach(writeString)
             paramTypes.foreach(writeString)
-            writeString(functionMap(functionName)._4)
+            writeString(functionMapOld(functionName)._4)
             if ( debugger.value ) debugger.msg("Done.")
           } catch {
             case e: Throwable =>
@@ -209,17 +254,29 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
     }
   }
 
-  private def doInvoke2(): Unit = {
-    val functionName = readString()
+  private def doDef2(): Unit = {
     try {
-      val f = repl.valueOfTerm(functionName).get
-      val functionType = typeOfTerm(functionName)
-      val returnType = extractReturnType(functionType)
+      val functionName = readString()
+      val functionReturnType = readString()
+      functionMap(functionName) = (repl.valueOfTerm(functionName).get, functionReturnType)
+      out.writeInt(OK)
+    } catch {
+      case e: Throwable =>
+        out.writeInt(ERROR)
+        e.printStackTrace(pw)
+        pw.println(e + ( if ( e.getCause != null ) System.lineSeparator + e.getCause else "" ) )
+    }
+  }
+
+  private def doInvoke2(): Unit = {
+    try {
+      val functionName = readString()
+      val (f, returnType) = functionMap(functionName)
+      functionResult = (nullary.invoke(f), returnType)
       if ( debugger.value ) {
-        debugger.msg("Function is: "+f)
+        debugger.msg("Function is: "+functionName)
         debugger.msg("... with return type: "+returnType)
       }
-      functionResult = (nullary.invoke(f), returnType)
       R.exit()
       if ( debugger.value ) debugger.msg("Invoke is okay")
       out.writeInt(OK)
@@ -270,14 +327,15 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
         if ( identifier == "." ) functionParametersStack.append(null)
         else repl.bind(identifier,"Any",null)
       case REFERENCE =>
+        assert(false)  // I need to study this code some more.
         if ( debugger.value ) debugger.msg("Setting reference.")
         val originalIdentifier = readString()
         try {
           if ( identifier == "." ) originalIdentifier match {
             case "null" =>
               functionParametersStack.append(null)
-            case cacheMapExtractor(i) =>
-              functionParametersStack.append(cacheMap(i.toInt)._1)
+            case cacheMap(value,typeOfTerm) =>
+              functionParametersStack.append(value)
             case _ =>
               functionParametersStack.append(repl.valueOfTerm(originalIdentifier).get)
           } else {
@@ -286,9 +344,8 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
               case Array(n,t) => (n.trim,t.trim)
             }
             originalIdentifier match {
-              case cacheMapExtractor(i) =>
-                val (originalValue,originalType) = cacheMap(i.toInt)
-                repl.bind(r._1,originalType,originalValue)
+              case cacheMap(value,typeOfTerm) =>
+                repl.bind(r._1,typeOfTerm,value)
               case _ =>
                 val vt = if ( r._2 == "" ) r._1 else r._1 + ": " + r._2
                 val result = repl.interpret(s"val ${vt} = ${originalIdentifier}")
@@ -352,9 +409,8 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
           (repl.valueOfTerm(mrv),typeOfTerm(mrv))
         case "?" => 
           (Some(functionResult._1),functionResult._2)
-        case cacheMapExtractor(i) =>
-          val tuple = cacheMap(i.toInt)
-          (Some(tuple._1),tuple._2)
+        case cacheMap(value,typeOfTerm) =>
+          (Some(value),typeOfTerm)
         case "null" =>
           (Some(null),"Null")
         case _ =>
@@ -530,15 +586,13 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
     if ( debugger.value ) debugger.msg("Trying to get reference for: "+identifier)
     identifier match {
       case "?" =>
-        cacheMap.append(functionResult)
         out.writeInt(OK)
-        writeString("." + (cacheMap.length-1))
+        writeString(cacheMap.store(functionResult))
         writeString(functionResult._2)
-      case cacheMapExtractor(i) =>
+      case cacheMap(value, typeOfTerm) =>
         out.writeInt(OK)
         writeString(identifier)
-        val r = cacheMap(i.toInt)
-        writeString(r.getClass.getName)
+        writeString(typeOfTerm)
       case _ =>
         if ( identifier == "null" ) {
           out.writeInt(OK)
@@ -584,6 +638,8 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
         cacheMap.clear()
       case GC =>
         doGC()
+      case FREE =>
+        doFree()
       case EVAL =>
         doEval()
       case SET =>
@@ -594,6 +650,8 @@ class ScalaServer private (repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutpu
         doGetReference()
       case DEF =>
         doDef()
+      case DEF2 =>
+        doDef2()
       case INVOKE =>
         doInvoke()
       case INVOKE2 =>

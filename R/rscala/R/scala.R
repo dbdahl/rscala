@@ -42,6 +42,7 @@ newSockets <- function(portsFilename,debug,serialize,timeout) {
   assign("debug",debug,envir=env)
   assign("serialize",serialize,envir=env)
   assign("length.one.as.vector",FALSE,envir=env)
+  assign("garbage",character(0),envir=env)
   workspace <- new.env()
   workspace$. <- new.env(parent=workspace)
   ports <- local({
@@ -62,7 +63,11 @@ newSockets <- function(portsFilename,debug,serialize,timeout) {
   socketConnectionIn  <- socketConnection(port=ports[1],blocking=TRUE,open="ab",timeout=2678400)
   socketConnectionOut <- socketConnection(port=ports[2],blocking=TRUE,open="rb",timeout=2678400)
   if ( debug ) msg("Connected")
-  result <- list(socketIn=socketConnectionIn,socketOut=socketConnectionOut,env=env,workspace=workspace,functionCache=functionCache)
+  result <- list(socketIn=socketConnectionIn,socketOut=socketConnectionOut,env=env,workspace=workspace,functionCache=functionCache,
+                 garbageFunction = function(e) {
+cat("Running garbage function.\n")
+                   assign(c(e[['identifier']],get("garbage",envir=env)),envir=env)
+                 })
   class(result) <- "ScalaInterpreter"
   status <- rb(result,"integer")
   if ( ( length(status) == 0 ) || ( status != OK ) ) stop("Error instantiating interpreter.")
@@ -135,20 +140,25 @@ toString.ScalaInterpreter <- function(x,...) {
 }
 
 print.ScalaInterpreterReference <- function(x,...) {
-  type <- if ( substring(x[['type']],1,2) == "()" ) substring(x[['type']],3)
-  else x[['type']]
+  type <- x[['type']]
   cat("ScalaInterpreterReference... ")
-  if ( is.null(x[['env']]) ) {
-    cat(x[['identifier']],": ",type,"\n",sep="")
-  } else {
-    cat("*: ",type,"\n",sep="")
-  }
+  cat(x[['identifier']],": ",type,"\n",sep="")
   invisible(x)
 }
 
 toString.ScalaInterpreterReference <- function(x,...) {
-  if ( is.null(x[['env']]) ) x[['identifier']]
-  else ""
+  x[['identifier']]
+}
+
+print.ScalaCachedReference <- function(x,...) {
+  type <- x[['type']]
+  cat("ScalaCachedReference... ")
+  cat("*: ",type,"\n",sep="")
+  invisible(x)
+}
+
+toString.ScalaCachedReference <- function(x,...) {
+  x[['identifier']]
 }
 
 print.ScalaInterpreterItem <- function(x,...) {
@@ -161,6 +171,7 @@ toString.ScalaInterpreterItem <- function(x,...) {
 }
 
 scalaInvoke <- function(reference,as.reference,workspace,method.name,...) {
+  stop("Legacy code.")
   interpreter <- reference[['interpreter']]
   args <- list(...)
   argsStringVector <- sapply(seq_along(args), function(i) {
@@ -268,7 +279,7 @@ scalaGet <- function(interpreter,identifier,as.reference,workspace) {
   cc(interpreter)
   tryCatch({
     if ( ( ! is.na(as.reference) ) && ( as.reference ) ) {
-      if ( inherits(identifier,"ScalaInterpreterReference") ) return(identifier)
+      if ( inherits(identifier,"ScalaInterpreterReference") || inherits(identifier,"ScalaCachedReference") ) return(identifier)
       if ( get("debug",envir=interpreter[['env']]) ) msg('Sending GET_REFERENCE request.')
       wb(interpreter,GET_REFERENCE)
       wc(interpreter,as.character(identifier[1]))
@@ -277,16 +288,15 @@ scalaGet <- function(interpreter,identifier,as.reference,workspace) {
       if ( response == OK ) {
         id <- rc(interpreter)
         type <- rc(interpreter)
-        env <- if ( substr(id,1,1) == "." ) {
-          env <- new.env()
-          reg.finalizer(env,function(e) {
-            assign("markedForGC",c(as.integer(substring(id,2)),get("markedForGC",interpreter[['env']])),interpreter[['env']])
-          })
-          env
-        } else NULL
         if ( get("serialize",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
-        result <- list(interpreter=interpreter,identifier=id,type=type,env=env)
-        class(result) <- "ScalaInterpreterReference"
+        if ( substr(id,1,1) == "." ) {
+          result <- list2env(list(interpreter=interpreter,identifier=id,type=type),parent=globalenv())
+          reg.finalizer(result,interpreter[['garbageFunction']])
+          class(result) <- "ScalaCachedReference"
+        } else {
+          result <- list(interpreter=interpreter,identifier=id,type=type)
+          class(result) <- "ScalaInterpreterReference"
+        }
         return(result)
       } else if ( response == ERROR ) {
         if ( get("serialize",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
@@ -296,7 +306,11 @@ scalaGet <- function(interpreter,identifier,as.reference,workspace) {
         stop(paste("Undefined identifier: ",identifier[1],sep=""))
       } else stop("Protocol error.")
     }
-    i <- if ( inherits(identifier,"ScalaInterpreterReference") ) identifier[['identifier']] else as.character(identifier[1])
+    i <- if ( inherits(identifier,"ScalaInterpreterReference") || inherits(identifier,"ScalaCachedReference") ) {
+      identifier[['identifier']]
+    } else {
+      as.character(identifier[1])
+    }
     if ( get("debug",envir=interpreter[['env']]) ) msg('Sending GET request.')
     wb(interpreter,GET)
     wc(interpreter,i)
@@ -406,7 +420,7 @@ scalaGet <- function(interpreter,identifier,as.reference,workspace) {
 }
 
 deduceType <- function(value,length.one.as.vector) {
-  if ( inherits(value,"ScalaInterpreterReference") ) value[['type']]
+  if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") ) value[['type']]
   else {
     if ( ! is.atomic(value) ) stop("Data structure is not supported.")
     if ( is.vector(value) ) {
@@ -424,7 +438,7 @@ scalaSet <- function(interpreter,identifier,value,length.one.as.vector,workspace
   debug <- get("debug",envir=interpreter[['env']])
   if ( debug ) msg(paste0("Starting scalaSet with environment:",capture.output(print(workspace))))
   tryCatch({
-    if ( inherits(value,"ScalaInterpreterReference") ) {
+    if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") ) {
       if ( get("debug",envir=interpreter[['env']]) ) msg("Sending SET request.")
       wb(interpreter,SET)
       wc(interpreter,identifier)
@@ -548,8 +562,8 @@ scalaDef2 <- function(.INTERPRETER,...) {
   for ( i in seq_along(argValues) ) {
     value <- argValues[[i]]
     name <- argIdentifiers[[i]]
-    if ( inherits(value,"ScalaInterpreterReference") ) {
-      stop("Not yet implemented.  Code: 324230923")
+    if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") ) {
+      header[i] <- paste0('val ',name,' = R.cached(R.evalS0("',name,'[[\'identifier\']]")).asInstanceOf[',value[['type']],']')
     } else if ( is.null(value) ) {
       stop("Not yet implemented.  Code: 823943923")
     } else {
@@ -569,20 +583,30 @@ scalaDef2 <- function(.INTERPRETER,...) {
 }
 
 '%~%.ScalaFunctionArgs' <- function(func,body) {
+  scalaFunctionArgs(func,body,as.reference=NA,parent.frame())
+}
+
+'%.~%.ScalaFunctionArgs' <- function(func,body) {
+  scalaFunctionArgs(func,body,as.reference=TRUE,parent.frame())
+}
+
+scalaFunctionArgs <- function(func,body,as.reference,workspace) {
   body <- paste(body,collapse="\n")
   if ( get("interpolate",envir=func$interpreter[['env']]) ) {
-    body <- strintrplt(body,parent.frame())
+    body <- strintrplt(body,workspace)
   }
-  fullBody <- paste0(c(func$header,"// User-supplied body",body),collapse='\n')
+  fullBody <- paste0(c(func$header,paste0("// User-supplied body; as.reference = ",as.reference),body),collapse='\n')
   if ( ! exists(fullBody,envir=func$interpreter[['functionCache']]) ) {
     interpreter <- func$interpreter
-    workspace <- parent.frame()
     snippet <- paste0('() => {\n',fullBody,'}')
     function0 <- evalAndGet(interpreter,snippet,TRUE,workspace)
+    functionIdentifier <- function0[["identifier"]] 
+    functionReturnType <- substring(function0[['type']],7)  # Drop off the leading '() => '.
     functionSnippet <- strintrplt('
-      function(@{paste(func$identifiers,collapse=", ")},as.reference=NA) {
+      function(@{paste(func$identifiers,collapse=", ")}) {
+        workspace <- environment()
         rscala:::wb(interpreter,rscala:::INVOKE2)
-        rscala:::wc(interpreter,"@{function0[["identifier"]]}")
+        rscala:::wc(interpreter,functionIdentifier)
         flush(interpreter[["socketIn"]])
         rscala:::rServe(interpreter,TRUE,workspace)
         status <- rscala:::rb(interpreter,"integer")
@@ -599,9 +623,19 @@ scalaDef2 <- function(.INTERPRETER,...) {
     functionDefinition <- eval(parse(text=functionSnippet))
     attr(functionDefinition,"identifiers") <- func$identifiers
     attr(functionDefinition,"scala") <- fullBody
+    attr(functionDefinition,"returnType") <- functionReturnType
+    attr(functionDefinition,"asReference") <- as.reference
     class(functionDefinition) <- "ScalaFunction"
     assign(fullBody,functionDefinition,envir=func$interpreter[['functionCache']])
-    ## Get the return type...  Send the function name and return type to Scala to cache (together with the corresponding object). 
+    wb(interpreter,DEF2)
+    wc(interpreter,functionIdentifier)
+    wc(interpreter,functionReturnType)
+    flush(interpreter[['socketIn']])
+    status <- rb(interpreter,"integer")
+    if ( status != OK ) {
+      if ( get("serialize",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
+      stop("Problem caching function.")
+    }
     functionDefinition
   } else {
     get(fullBody,envir=func$interpreter[['functionCache']])
@@ -610,8 +644,8 @@ scalaDef2 <- function(.INTERPRETER,...) {
 
 print.ScalaFunction <- function(x,...) {
   y <- formals(x)
-  signature <- paste0('function(',paste0(names(y),ifelse(paste(y)=='','',paste0(' = ',y)),collapse=', '),')')
-  cat(signature,'\n','{ // Scala implementation\n',attr(x,'scala'),'}\n',sep='')
+  signature <- paste0('function(',paste0(names(y),ifelse(paste(y)=='','',paste0(' = ',y)),collapse=', '),'): ',attr(x,'returnType'),' = { // Scala implementation')
+  cat(signature,'\n',attr(x,'scala'),'}\n',sep='')
 }
 
 
@@ -950,6 +984,7 @@ isScalaPrimitive <- function(x) {
 }
 
 convert <- function(x,t) {
+  stop("Legacy code.")
   if ( t == "Int" ) {
     tt <- "atomic"
     tm <- "integer"
@@ -1025,6 +1060,13 @@ echoResponseScala <- function(interpreter) {
 
 cc <- function(c) {
   if ( ! get("open",envir=c[['env']]) ) stop("The connection has already been closed.")
+  if ( length(get("garbage",envir=c[['env']])) > 0 ) {
+    if ( get("debug",envir=c[['env']]) ) msg('Sending FREE request.')
+    garbage <- get("garbage",envir=c[['env']])
+    wb(c,FREE)
+    wb(c,length(garbage))
+    for ( g in garbage ) wc(c,g)
+  }
 }
 
 wb <- function(c,v) {

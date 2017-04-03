@@ -71,6 +71,65 @@ library(rscala)
 
 s <- scala()
 
+see <- "David"
+bob <- function() {
+  see <- "Boyack"
+  s$def2(x=scalaPrimitive("Mack"),y=scalaPrimitive("Bob")) %~% '
+    x+" "+y+" "+R.getS0("see")
+  '
+}
+y <- bob()
+y("Lisa","Dahl")
+
+
+
+system.time(f <- s$def2(x=scalaPrimitive(0L),name=scalaPrimitive("dog")) %~% '
+  name + " " + x
+')
+
+t <- e(x=99L,name="bill")
+t
+
+t <- f(x=101L,name="bob")
+t
+
+# system.time(e <- s$def2(x=scalaPrimitive(0),name=scalaPrimitive("dog"),rng=scalaType("java.util.Random")) %~% '
+#   name + " " + rng.nextInteger(x)
+# ')
+
+system.time(e <- s$def2(x=scalaPrimitive(0L),name=scalaPrimitive("dog"),rng=s %.~% 'new scala.util.Random()') %~% '
+  name + " " + rng.nextInt(x)
+')
+
+f <- s %.~% 'new scala.util.Random()'
+e(x=5L,name="bill",rng=f)
+
+
+
+e(x=scalaPrimitive(0L),name=scalaPrimitive("dog"),rng=s %.~% 'new scala.util.Random()')
+
+system.time(f <- s$def2(x=scalaPrimitive(0L),name=scalaPrimitive("dog"),rng=s %.~% 'new scala.util.Random()') %~% '
+  name + " " + rng.nextInt(x)
+')
+
+identical(e,f)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Initial run to get hot-spot compiler going
 system.time(e <- s$def2(x=scalaPrimitive(0),yy=scalaPrimitive(4L),name=scalaPrimitive("dog")) %~% '
   name + " " + ( x + yy )
@@ -112,127 +171,6 @@ identical(e,f)
 
 
 system.time(f <- s$def2(x=scalaPrimitive(0),y=scalaPrimitive(4L),name=scalaPrimitive("dog")) %~% '
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
-  name + " " + ( x + y )
   2+3
 ')
 

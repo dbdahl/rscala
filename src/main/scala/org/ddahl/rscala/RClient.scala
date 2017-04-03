@@ -317,6 +317,15 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
     }
   }
 
+  /** __For rscala developers only__:  Returns a value previously cached for the R interpreter. */
+  def cached(identifier: String): Any = {
+    if ( identifier.startsWith(".") ) {
+      scalaServer.cacheMap(identifier)._1
+    } else {
+      scalaServer.repl.valueOfTerm(identifier).get
+    }
+  }
+
   /** Returns the value of `identifier` in the R interpreter.  The static type of the result is `(Any,String)`, where
   * the first element is the value and the second is the runtime type.
   *
@@ -333,6 +342,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
     Helper.writeString(out,identifier)
     out.flush()
     if ( asReference ) {
+      if ( debug ) debugger.msg("Getting reference.")
       val r = in.readInt() match {
         case REFERENCE => (RObject(Helper.readString(in)),"RObject")
         case UNDEFINED_IDENTIFIER =>
@@ -376,9 +386,9 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
           case STRING => (Array.fill(nrow) { Array.fill(ncol) { Helper.readString(in) } },"Array[Array[String]]")
           case _ => throw new RuntimeException("Protocol error")
         }
-      case UNDEFINED_IDENTIFIER => throw new RuntimeException("Undefined identifier")
-      case UNSUPPORTED_STRUCTURE => throw new RuntimeException("Unsupported data type")
-      case _ => throw new RuntimeException("Protocol error")
+      case UNDEFINED_IDENTIFIER => throw new RuntimeException("Undefined identifier: "+identifier)
+      case UNSUPPORTED_STRUCTURE => throw new RuntimeException("Unsupported data type: "+identifier)
+      case e => throw new RuntimeException("Protocol error: Unknown type: "+e)
     }
   }
 
