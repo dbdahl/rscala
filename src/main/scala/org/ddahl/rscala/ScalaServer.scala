@@ -145,6 +145,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
 
   private def doFree(): Unit = {
     val nItems = in.readInt()
+    if ( debugger.value ) debugger.msg("Freeing "+nItems+" cached items no longer needed by R interpreter.")
     for ( i <- 0 until nItems ) cacheMap.free(readString())
   }
 
