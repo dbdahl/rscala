@@ -557,16 +557,14 @@ scalaDef2 <- function(.INTERPRETER,...) {
     name <- argIdentifiers[[i]]
     if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") ) {
       header[i] <- paste0('val ',name,' = R.cached(R.evalS0("toString(',name,')")).asInstanceOf[',value[['type']],']')
-    } else if ( is.null(value) ) {
-      stop("Not yet implemented.  Code: 823943923")
     } else {
-      if ( ! is.atomic(value) ) stop("Data structure is not atomic.")
+      if ( !is.atomic(value) || is.null(value) ) stop(paste0('Type of "',name,'" is not supported.'))
       type <- checkType3(value)
       if ( is.vector(value) ) {
         len <- if ( isScalaPrimitive(value) ) 0 else 1
       } else if ( is.matrix(value) ) {
         len <- 2
-      } else stop("Data structure is not supported.")
+      } else stop(paste0('Type of "',name,'" is not supported.'))
       header[i] <- paste0('val ',name,' = R.get',type,len,'("',name,'")')
     }
   }

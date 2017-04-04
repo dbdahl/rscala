@@ -142,6 +142,8 @@ system.time(e <- s$def2(x=scalaPrimitive(0L),name=scalaPrimitive("dog"),rng=s %.
 
 f <- s %.~% 'new scala.util.Random()'
 g <- (s$def2() %.~% 'new scala.util.Random()')()
+g <- (s$def2(y=data.frame()) %.~% 'new scala.util.Random()')()
+g <- s$def2(y=NULL) %.~% 'new scala.util.Random()'
 
 e(x=100L,name="bill",rng=f)
 e(10,"bill",f)
