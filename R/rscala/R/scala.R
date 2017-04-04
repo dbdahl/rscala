@@ -594,18 +594,21 @@ scalaDef2 <- function(.INTERPRETER,...) {
 
 scalaFunctionArgs <- function(func,body,as.reference,workspace) {
   body <- paste(body,collapse="\n")
-  fullBody <- paste0(c(func$header,paste0("// User-supplied body; as.reference = ",as.reference),body),collapse='\n')
+  fullBody <- paste0(c(paste('// as.reference =',as.reference),func$header,'// User-supplied body',body),collapse='\n')
   if ( ! exists(fullBody,envir=func$interpreter[['functionCache']]) ) {
     interpreter <- func$interpreter
     snippet <- paste0('() => {\n',fullBody,'}')
     function0 <- evalAndGet(interpreter,snippet,TRUE,workspace)
     functionIdentifier <- function0[["identifier"]] 
     functionReturnType <- substring(function0[['type']],7)  # Drop off the leading '() => '.
+    interpreterName <- tempvar(interpreter, workspace)
     functionSnippet <- strintrplt('
       function(@{paste(func$identifiers,collapse=", ")}) {
-interpreter <- s
+        interpreter <- @{interpreterName}
         workspace <- environment()
-        if ( get("debug",envir=interpreter[["env"]]) ) rscala:::msg(paste0("Evalating Scala function from environment: ",capture.output(print(workspace)),"whose parent is",capture.output(print(parent.env(workspace)))))
+        if ( get("debug",envir=interpreter[["env"]]) ) {
+          rscala:::msg(paste("Evalating Scala function from environment",capture.output(print(workspace))))
+        }
         rscala:::wb(interpreter,rscala:::INVOKE2)
         rscala:::wc(interpreter,"@{functionIdentifier}")
         flush(interpreter[["socketIn"]])
@@ -1093,6 +1096,16 @@ rc <- function(c) {
   r <- raw(0)
   while ( length(r) != length ) r <- c(r,readBin(c[['socketOut']], "raw", length-length(r), endian="big"))
   rawToChar(r)
+}
+
+tempvar <- function(value, workspace) {
+  while (TRUE) {
+    name <- sprintf(".rscala.%d",sample.int(.Machine$integer.max,1L))
+    if ( ! exists(name,envir=workspace,inherits=TRUE) ) {
+      assign(name,value,envir=workspace)
+      return(name)
+    }
+  }
 }
 
 scalaInstall <- function() {
