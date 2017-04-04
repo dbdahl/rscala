@@ -189,4 +189,13 @@ system.time(f <- s$def2(x=scalaPrimitive(0),y=scalaPrimitive(4L),name=scalaPrimi
   2+3
 ')
 
+yy <- function(x,y) {
+  paste0(x," ",y)
+}
+
+microbenchmark(
+  y("Lisa","Dahl"),
+  yy("Lisa","Dahl"),
+  times=50
+)
 
