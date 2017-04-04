@@ -556,7 +556,7 @@ scalaDef2 <- function(.INTERPRETER,...) {
     value <- argValues[[i]]
     name <- argIdentifiers[[i]]
     if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") ) {
-      header[i] <- paste0('val ',name,' = R.cached(R.evalS0("',name,'[[\'identifier\']]")).asInstanceOf[',value[['type']],']')
+      header[i] <- paste0('val ',name,' = R.cached(R.evalS0("toString(',name,')")).asInstanceOf[',value[['type']],']')
     } else if ( is.null(value) ) {
       stop("Not yet implemented.  Code: 823943923")
     } else {
@@ -616,7 +616,7 @@ scalaFunctionArgs <- function(func,body,as.reference,workspace) {
       interpreter <- @{interpreterName}
       workspace <- environment()
       if ( get("debug",envir=interpreter[["env"]]) ) {
-        rscala:::msg(paste("Evalating Scala function from environment",capture.output(print(workspace))))
+        rscala:::msg(paste("Evaluating Scala function from environment",capture.output(print(workspace))))
       }
       rscala:::wb(interpreter,rscala:::INVOKE2)
       rscala:::wc(interpreter,"@{funcList$functionIdentifier}")

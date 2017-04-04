@@ -69,7 +69,7 @@ is.integer((s %~% 'Array')$'apply[Double]'(1L,8L))
 
 library(rscala)
 
-s <- scala(debug=TRUE)
+s <- scala(debug=FALSE)
 
 see <- "David"
 bob <- function() {
@@ -102,9 +102,16 @@ gc()
 
 bill <- function() {
   see <- "Knudsen"
-  y("Lisa","Dahl")
+  y1("Lisa","Dahl")
 }
 bill()
+
+
+
+
+
+
+
 
 y("Lisa","Dahl")
 
@@ -119,7 +126,7 @@ system.time(f <- s$def2(x=scalaPrimitive(0L),name=scalaPrimitive("dog")) %~% '
   name + " " + x
 ')
 
-t <- e(x=99L,name="bill")
+t <- f(340,34)
 t
 
 t <- f(x=101L,name="bob")
@@ -134,7 +141,11 @@ system.time(e <- s$def2(x=scalaPrimitive(0L),name=scalaPrimitive("dog"),rng=s %.
 ')
 
 f <- s %.~% 'new scala.util.Random()'
-e(x=5L,name="bill",rng=f)
+g <- (s$def2() %.~% 'new scala.util.Random()')()
+
+e(x=100L,name="bill",rng=f)
+e(10,"bill",f)
+e(10,"bill",g)
 
 
 
