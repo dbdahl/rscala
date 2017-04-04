@@ -582,14 +582,14 @@ scalaDef2 <- function(.INTERPRETER,...) {
   if ( get("interpolate",envir=func$interpreter[['env']]) ) {
     body <- strintrplt(body,workspace)
   }
-  scalaFunctionArgs(func,body,as.reference=NA,environment())
+  scalaFunctionArgs(func,body,as.reference=NA,parent.frame())
 }
 
 '%.~%.ScalaFunctionArgs' <- function(func,body) {
   if ( get("interpolate",envir=func$interpreter[['env']]) ) {
     body <- strintrplt(body,workspace)
   }
-  scalaFunctionArgs(func,body,as.reference=TRUE,environment())
+  scalaFunctionArgs(func,body,as.reference=TRUE,parent.frame())
 }
 
 scalaFunctionArgs <- function(func,body,as.reference,workspace) {
@@ -605,7 +605,7 @@ scalaFunctionArgs <- function(func,body,as.reference,workspace) {
       function(@{paste(func$identifiers,collapse=", ")}) {
 interpreter <- s
         workspace <- environment()
-        if ( get("debug",envir=interpreter[["env"]]) ) msg(paste0("Evalating Scala function from environment: ",capture.output(print(workspace)),"whose parent is",capture.output(print(parent.env(workspace)))))
+        if ( get("debug",envir=interpreter[["env"]]) ) rscala:::msg(paste0("Evalating Scala function from environment: ",capture.output(print(workspace)),"whose parent is",capture.output(print(parent.env(workspace)))))
         rscala:::wb(interpreter,rscala:::INVOKE2)
         rscala:::wc(interpreter,"@{functionIdentifier}")
         flush(interpreter[["socketIn"]])
@@ -621,7 +621,7 @@ interpreter <- s
         }
       }
     ')
-    functionDefinition <- eval(parse(text=functionSnippet),envir=parent.env(workspace))
+    functionDefinition <- eval(parse(text=functionSnippet),envir=workspace)
     attr(functionDefinition,"identifiers") <- func$identifiers
     attr(functionDefinition,"scala") <- fullBody
     attr(functionDefinition,"returnType") <- functionReturnType
