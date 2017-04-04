@@ -403,7 +403,7 @@ scalaGet <- function(interpreter,identifier,as.reference,workspace) {
     scalaGet(interpreter,x,NA,parent.frame())
   } else if ( identifier == ".val" ) function(x) {
     scalaGet(interpreter,x,TRUE,parent.frame())
-  } else if ( substring(identifier,1,1) == "." ) {
+  } else if ( substr(identifier,1,1) == "." ) {
     identifier = substring(identifier,2)
     if ( identifier == "" ) scalaGet(interpreter,".",NA,parent.frame())
     else if ( identifier == "." ) scalaGet(interpreter,".",TRUE,parent.frame())
@@ -501,7 +501,7 @@ scalaSet <- function(interpreter,identifier,value,length.one.as.vector,workspace
 
 '$<-.ScalaInterpreter' <- function(interpreter,identifier,value) {
   cc(interpreter)
-  if ( substring(identifier,1,1) == "." ) {
+  if ( substr(identifier,1,1) == "." ) {
     identifier = substring(identifier,2)
     scalaSet(interpreter,identifier,scalaWrap(interpreter,value),"",parent.frame())
   } else {
@@ -594,7 +594,7 @@ scalaDef2 <- function(.INTERPRETER,...) {
 
 scalaFunctionArgs <- function(func,body,as.reference,workspace) {
   body <- paste(body,collapse="\n")
-  fullBody <- paste0(c(paste('// as.reference =',as.reference),func$header,'// User-supplied body',body),collapse='\n')
+  fullBody <- paste0(c(paste('// ',as.reference),func$header,body),collapse='\n')
   if ( ! exists(fullBody,envir=func$interpreter[['functionCache']]) ) {
     interpreter <- func$interpreter
     snippet <- paste0('() => {\n',fullBody,'}')
@@ -626,7 +626,8 @@ scalaFunctionArgs <- function(func,body,as.reference,workspace) {
     ')
     functionDefinition <- eval(parse(text=functionSnippet),envir=workspace)
     attr(functionDefinition,"identifiers") <- func$identifiers
-    attr(functionDefinition,"scala") <- fullBody
+    attr(functionDefinition,"scalaHeader") <- func$header
+    attr(functionDefinition,"scalaBody") <- body
     attr(functionDefinition,"returnType") <- functionReturnType
     attr(functionDefinition,"asReference") <- as.reference
     class(functionDefinition) <- "ScalaFunction"
@@ -648,8 +649,10 @@ scalaFunctionArgs <- function(func,body,as.reference,workspace) {
 
 print.ScalaFunction <- function(x,...) {
   y <- formals(x)
-  signature <- paste0('function(',paste0(names(y),ifelse(paste(y)=='','',paste0(' = ',y)),collapse=', '),'): ',attr(x,'returnType'),' = { // Scala implementation')
-  cat(signature,'\n',attr(x,'scala'),'}\n',sep='')
+  signature <- paste0('function(',paste0(names(y),ifelse(paste(y)=='','',paste0(' = ',y)),collapse=', '),'): ',
+                      attr(x,'returnType'),' = { // Scala implementation; as.reference = ',attr(x,'asReference'))
+  p <- pretty(attr(x,'scalaHeader'),attr(x,'scalaBody'))
+  cat(signature,'\n',p,'}\n',sep='')
 }
 
 
@@ -889,7 +892,7 @@ scalaInfoEngine <- function(scala.command,verbose) {
     lines <- readLines(fn)
     close(fn)
     version <- sub("^version.number=","",lines[grepl("^version.number=",lines)])[1]
-    if ( substring(version,4,4) == "." ) substr(version,1,3)
+    if ( substr(version,4,4) == "." ) substr(version,1,3)
     else substr(version,1,4)
   },error=function(e) { NULL } )
   if ( is.null(major.version) ) {
@@ -1106,6 +1109,16 @@ tempvar <- function(value, workspace) {
       return(name)
     }
   }
+}
+
+pretty <- function(header,body) {
+  if ( substr(body,1,1) == '\n' ) body <- substring(body,1)
+  splitBody <- strsplit(body,'\n')[[1]]
+  bodyWithoutBlanks <- strsplit(splitBody[!grepl("^[[:space:]]*$",splitBody)],'\n')[[1]]
+  originalPadding <- min(attr(regexpr("^[[:space:]]*",bodyWithoutBlanks),"match.length"))
+  headerWithPadding <- paste0('  ',header)
+  bodyWithPadding <- paste0('  ',substring(splitBody,originalPadding+1))
+  paste0(paste(c(headerWithPadding,bodyWithPadding),collapse='\n'),'\n')
 }
 
 scalaInstall <- function() {

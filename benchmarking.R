@@ -75,7 +75,6 @@ see <- "David"
 bob <- function() {
   see <- "B."
   x <- "Milly"
-  print(environment())
   r <- s$def2(x=scalaPrimitive("Mack"),y=scalaPrimitive("Bob")) %~% '
     x+" "+y+" "+R.getS0("see")
   '
