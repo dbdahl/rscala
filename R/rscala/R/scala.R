@@ -540,9 +540,9 @@ scalaCallback <- function(interpreter,argsType,returnType,func,interpolate="") {
   else result
 }
 
-scalaPrimitive <- function(x) {
+scalaScalar <- function(x) {
   if ( ! is.vector(x) || length(x) != 1L ) stop("'x' must be vector of length 1.")
-  names(x) <- 'scalaPrimitive'
+  names(x) <- 'scalaScalar'
   x
 }
 
@@ -568,7 +568,7 @@ scalaDef2 <- function(.INTERPRETER,...) {
       if ( !is.atomic(value) || is.null(value) ) stop(paste0('Type of "',name,'" is not supported.'))
       type <- checkType3(value)
       len <- if ( is.vector(value) ) {
-        if ( isScalaPrimitive(value) ) 0 else 1
+        if ( isScalaScalar(value) ) 0 else 1
       } else if ( is.matrix(value) ) {
         2
       } else stop(paste0('Type of "',name,'" is not supported.'))
@@ -659,17 +659,20 @@ print.ScalaFunction <- function(x,...) {
 
 scalaReferenceCall <- function(reference,method) {
   interpreter <- reference[['interpreter']]
-  function(..., .EVALUATE = TRUE) {
+  function(..., .AS.REFERENCE = NA, .EVALUATE = TRUE) {
     args <- list(...)
     names <- names(args)
     if ( ! is.null(names) ) stop("Arguments should not have names.")
     names <- paste0(rep('x',length(args)),seq_along(args))
+    argsString <- paste0(names,collapse=',')
+    if ( nchar(argsString) > 0 ) argsString <- paste0("(",argsString,")")
     snippet <- if ( inherits(reference,"ScalaInterpreterReference") ) {
-      '@{reference}.@{method}(@{paste0(names,collapse=\',\')})'
+      '@{reference}.@{method}@{argsString}'
     } else if ( inherits(reference,"ScalaCachedReference") ) {
-      'R.cached("@{toString(reference)}").asInstanceOf[@{reference[[\'type\']]}].@{method}(@{paste0(names,collapse=\',\')})'
+      'R.cached("@{toString(reference)}").asInstanceOf[@{reference[[\'type\']]}].@{method}@{argsString}'
     } else stop('Unrecognized reference type.')
-    f <- interpreter$def2(...) %~% snippet
+    snippet <- strintrplt(snippet)
+    f <- scalaFunctionArgs(interpreter$def2(...),snippet,as.reference=.AS.REFERENCE,parent.frame())
     if ( .EVALUATE ) f(...)
     else f
   }
@@ -1010,8 +1013,8 @@ checkType3 <- function(x) {
   else stop("Unsupported data type.")
 }
 
-isScalaPrimitive <- function(x) {
-  identical(names(x),'scalaPrimitive')
+isScalaScalar <- function(x) {
+  identical(names(x),'scalaScalar')
 }
 
 convert <- function(x,t) {

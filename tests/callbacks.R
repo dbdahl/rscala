@@ -12,14 +12,14 @@ if ( version != s %~% "scala.util.Properties.versionNumberString" ) {
 }
 
 assert <- function(x) {
-  a <- x
-  if ( ! identical(( s %~% 'R.get("a")._1' ), get("a")) ) stop("Not identical (test 1)")
-  if ( ! identical(( s %~% 'R.a._1' ), get("a")) ) stop("Not identical (test 2)")
-  s$a <- x
-  s %~% 'R.b = a'
-  R <- s %~% 'R'
-  if ( ! identical(x, s$.R$get("b")$"_1"()) ) stop("Not identical (test 3)")
-  if ( ! identical(b,a) ) stop("Not identical (test 4)")
+  if ( ! identical(( s %~% 'R.get("x")._1' ), x) ) stop("Not identical (test 1)")
+  if ( ! identical(( s %~% 'R.x._1' ), x) ) stop("Not identical (test 2)")
+  s$x <- x
+  s %@% 'R.a = x'
+  if ( ! identical(a, x) ) stop("Not identical (test 3)")
+  if ( ! identical(s$.R$get(scalaPrimitive("x"))$"_1"(), x) ) stop("Not identical (test 4)")
+  m <- s$def2() %~% 'R.get("x")._1'
+  if ( ! identical(m(), x) ) stop("Not identical (test 5)")
 }
 
 y <- c(0,1,2,3,4,5,6,8)
@@ -37,9 +37,8 @@ for ( i in 1:10 ) {
   s %~% 'R.eval("counter <- counter + 1")'
 }
 if ( counter != 10 ) stop("Counter is off.")
-R <- s$.R
 for ( i in 1:10 ) {
-  R$eval("counter <- counter - 1")
+  s$.R$eval(scalaPrimitive("counter <<- counter - 1"))
 }
 if ( counter != 0 ) stop("Counter is off.")
 
@@ -71,11 +70,10 @@ myMean <- function(x) {
   mean(x)
 }
 
-callRFunction <- s$def('functionName: String, x: Array[Double]','
+callRFunction <- s$def2(functionName=scalaScalar(""), x=numeric()) %~% '
   R.xx = x
-  R.eval("y <- "+functionName+"(xx)")
-  R.y._1
-')
+  R.eval("y <- "+functionName+"(xx)",false)
+'
 
 tryCatch(callRFunction(1:100),error = function(e) {})
 callRFunction('myMean',1:100)
