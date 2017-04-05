@@ -186,12 +186,12 @@ scalaInvoke <- function(reference,as.reference,workspace,method.name,...) {
   evalAndGet(interpreter,snippet,as.reference,workspace)
 }
 
-'$.ScalaInterpreterReference' <- function(reference,functionName) {
-  workspace <- parent.frame()
-  function(...) {
-    scalaInvoke(reference,NA,workspace,functionName,...)
-  }
-}
+# '$.ScalaInterpreterReference' <- function(reference,functionName) {
+#   workspace <- parent.frame()
+#   function(...) {
+#     scalaInvoke(reference,NA,workspace,functionName,...)
+#   }
+# }
 
 '%new%.ScalaInterpreter' <- function(interpreter, class.name) {
   constructor <- list(interpreter=interpreter,identifier=paste0('new ',class.name))
@@ -551,16 +551,18 @@ scalaDef2 <- function(.INTERPRETER,...) {
   argIdentifiers <- names(argValues)
   if ( is.null(argIdentifiers) ) {
     argIdentifiers <- paste0(rep('x',length(argValues)),seq_along(argValues))
-  } else if ( any(argIdentifiers=='') ) {
+  } else if ( any(argIdentifiers=='' ) ) {
     w <- argIdentifiers==''
     argIdentifiers[w] <- paste0(rep('x',sum(w)),seq_along(argValues[argIdentifiers=='']))
   }
   if ( length(unique(argIdentifiers)) != length(argIdentifiers) ) stop('Argument names must be unique.')
   header <- character(length(argValues))
+  garbageProtection <- list()
   for ( i in seq_along(argValues) ) {
     value <- argValues[[i]]
     name <- argIdentifiers[[i]]
     if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") ) {
+      if ( inherits(value,"ScalaFunctionArgs") ) garbageProtection[[length(garbageProtection)+1]] <- value
       header[i] <- paste0('val ',name,' = R.cached(R.evalS0("toString(',name,')")).asInstanceOf[',value[['type']],']')
     } else {
       if ( !is.atomic(value) || is.null(value) ) stop(paste0('Type of "',name,'" is not supported.'))
@@ -573,7 +575,7 @@ scalaDef2 <- function(.INTERPRETER,...) {
       header[i] <- paste0('val ',name,' = R.get',type,len,'("',name,'")')
     }
   }
-  result <- list(interpreter=.INTERPRETER,identifiers=argIdentifiers,header=header)
+  result <- list(interpreter=.INTERPRETER,identifiers=argIdentifiers,header=header,garbageProtection=garbageProtection)
   class(result) <- 'ScalaFunctionArgs'
   result
 }
@@ -642,6 +644,7 @@ scalaFunctionArgs <- function(func,body,as.reference,workspace) {
   attr(functionDefinition,"scalaBody") <- body
   attr(functionDefinition,"returnType") <- funcList$functionReturnType
   attr(functionDefinition,"asReference") <- as.reference
+  attr(functionDefinition,"garbageProtection") <- func$garbageProtection
   class(functionDefinition) <- "ScalaFunction"
   functionDefinition
 }
@@ -654,19 +657,26 @@ print.ScalaFunction <- function(x,...) {
   cat(signature,'\n',p,'}\n',sep='')
 }
 
-'$.ScalaCachedReference' <- function(reference,method) {
+scalaReferenceCall <- function(reference,method) {
   interpreter <- reference[['interpreter']]
-  function(..., evaluate = TRUE) {
+  function(..., .EVALUATE = TRUE) {
     args <- list(...)
     names <- names(args)
-    if ( is.null(names) ) names <- paste0(rep('x',length(args)),seq_along(args))
-    f <- interpreter$def2(...) %~% '
-      R.cached("@{toString(reference)}").asInstanceOf[@{reference[[\'type\']]}].@{method}(@{paste0(names,collapse=\',\')})
-    '
-    if ( evaluate ) f(...)
+    if ( ! is.null(names) ) stop("Arguments should not have names.")
+    names <- paste0(rep('x',length(args)),seq_along(args))
+    snippet <- if ( inherits(reference,"ScalaInterpreterReference") ) {
+      '@{reference}.@{method}(@{paste0(names,collapse=\',\')})'
+    } else if ( inherits(reference,"ScalaCachedReference") ) {
+      'R.cached("@{toString(reference)}").asInstanceOf[@{reference[[\'type\']]}].@{method}(@{paste0(names,collapse=\',\')})'
+    } else stop('Unrecognized reference type.')
+    f <- interpreter$def2(...) %~% snippet
+    if ( .EVALUATE ) f(...)
     else f
   }
 }
+
+'$.ScalaCachedReference' <- scalaReferenceCall
+'$.ScalaInterpreterReference' <- scalaReferenceCall
 
 
 
