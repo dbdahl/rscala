@@ -1,4 +1,4 @@
-source("common.R")
+source("common.R",print.eval=TRUE)
 
 assert <- function(xx) {
   if ( ! identical(( s %~% 'R.get("xx")._1' ), xx) ) stop("Not identical (test 1)")

@@ -1,10 +1,4 @@
-library(rscala)
-
-serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
-output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-version <- Sys.getenv("RSCALA_SCALA_VERSION")
-s <- scala(serialize=serialize,stdout=output,stderr=output)
-if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
+source("common.R",print.eval=TRUE)
 set.seed(924234)
 
 
@@ -51,11 +45,11 @@ doit2(rnorm(10))
 
 
 # Multiple callbacks in compiled code.
-doit3 <- s$def('x: Array[Double]','
+doit3 <- s$def(x=numeric()) %~% '
   R.set("y",x.map(2*_))
   Array(R.evalD0("f(y)"),
         R.evalD0("g(y)"))
-')
+'
 
 doit3(rnorm(10))
 
