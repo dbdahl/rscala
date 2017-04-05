@@ -549,7 +549,12 @@ scalaPrimitive <- function(x) {
 scalaDef2 <- function(.INTERPRETER,...) {
   argValues <- list(...)
   argIdentifiers <- names(argValues)
-  if ( any(argIdentifiers=='') ) stop('All arguments must be named arguments.')
+  if ( is.null(argIdentifiers) ) {
+    argIdentifiers <- paste0(rep('x',length(argValues)),seq_along(argValues))
+  } else if ( any(argIdentifiers=='') ) {
+    w <- argIdentifiers==''
+    argIdentifiers[w] <- paste0(rep('x',sum(w)),seq_along(argValues[argIdentifiers=='']))
+  }
   if ( length(unique(argIdentifiers)) != length(argIdentifiers) ) stop('Argument names must be unique.')
   header <- character(length(argValues))
   for ( i in seq_along(argValues) ) {
@@ -560,10 +565,10 @@ scalaDef2 <- function(.INTERPRETER,...) {
     } else {
       if ( !is.atomic(value) || is.null(value) ) stop(paste0('Type of "',name,'" is not supported.'))
       type <- checkType3(value)
-      if ( is.vector(value) ) {
-        len <- if ( isScalaPrimitive(value) ) 0 else 1
+      len <- if ( is.vector(value) ) {
+        if ( isScalaPrimitive(value) ) 0 else 1
       } else if ( is.matrix(value) ) {
-        len <- 2
+        2
       } else stop(paste0('Type of "',name,'" is not supported.'))
       header[i] <- paste0('val ',name,' = R.get',type,len,'("',name,'")')
     }
@@ -575,14 +580,14 @@ scalaDef2 <- function(.INTERPRETER,...) {
 
 '%~%.ScalaFunctionArgs' <- function(func,body) {
   if ( get("interpolate",envir=func$interpreter[['env']]) ) {
-    body <- strintrplt(body,workspace)
+    body <- strintrplt(body,parent.frame())
   }
   scalaFunctionArgs(func,body,as.reference=NA,parent.frame())
 }
 
 '%.~%.ScalaFunctionArgs' <- function(func,body) {
   if ( get("interpolate",envir=func$interpreter[['env']]) ) {
-    body <- strintrplt(body,workspace)
+    body <- strintrplt(body,parent.frame())
   }
   scalaFunctionArgs(func,body,as.reference=TRUE,parent.frame())
 }
@@ -648,6 +653,22 @@ print.ScalaFunction <- function(x,...) {
   p <- pretty(attr(x,'scalaHeader'),attr(x,'scalaBody'))
   cat(signature,'\n',p,'}\n',sep='')
 }
+
+'$.ScalaCachedReference' <- function(reference,method) {
+  interpreter <- reference[['interpreter']]
+  function(..., evaluate = TRUE) {
+    args <- list(...)
+    names <- names(args)
+    if ( is.null(names) ) names <- paste0(rep('x',length(args)),seq_along(args))
+    f <- interpreter$def2(...) %~% '
+      R.cached("@{toString(reference)}").asInstanceOf[@{reference[[\'type\']]}].@{method}(@{paste0(names,collapse=\',\')})
+    '
+    if ( evaluate ) f(...)
+    else f
+  }
+}
+
+
 
 
 
@@ -1112,7 +1133,7 @@ pretty <- function(header,body) {
   if ( grepl('^[[:space:]]*$',splitBody[length(splitBody)]) ) splitBody <- splitBody[-length(splitBody)]
   bodyWithoutBlanks <- strsplit(splitBody[!grepl("^[[:space:]]*$",splitBody)],'\n')[[1]]
   originalPadding <- min(attr(regexpr("^[[:space:]]*",bodyWithoutBlanks),"match.length"))
-  headerWithPadding <- paste0('  ',header)
+  headerWithPadding <- if ( length(header) > 0 ) paste0('  ',header) else NULL
   bodyWithPadding <- paste0('  ',substring(splitBody,originalPadding+1))
   paste0(paste(c(headerWithPadding,bodyWithPadding),collapse='\n'),'\n')
 }

@@ -76,8 +76,8 @@ bob <- function() {
   see <- "B."
   x <- "Milly"
   print(environment())
-  r <- s$def2(x=scalaPrimitive("Mack"),y=scalaPrimitive("Bob")) %~% '
-    x+" "+y+" "+R.getS0("see")
+  r <- s$def2(scalaPrimitive("Mack"),scalaPrimitive("Bob")) %~% '
+    x1+" "+x2+" "+R.getS0("see")
   '
   r
 }
@@ -229,3 +229,31 @@ microbenchmark(
   times=50
 )
 
+
+
+library(rscala)
+
+s <- scala()
+
+mkRNG1 <- s$def2() %.~% 'new scala.util.Random()'
+mkRNG2 <- function() s %.~% 'new scala.util.Random()'
+
+rng1 <- mkRNG1()
+rng2 <- mkRNG2()
+
+rng1$nextInt(scalaPrimitive(10L))
+
+nd0 <- rng1$nextDouble(evaluate=FALSE)
+nd1 <- s$def2() %~% 'R.cached("@{toString(rng1)}").asInstanceOf[@{rng1[[\'type\']]}].nextDouble()'
+nd2 <- s$def2() %~% '@{rng2}.nextDouble()'
+
+library("microbenchmark")
+
+microbenchmark(
+  rng1$nextDouble(),
+  nd0(),
+  nd1(),
+  nd2(),
+  times=500
+)
+ 
