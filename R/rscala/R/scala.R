@@ -391,8 +391,8 @@ scalaGet <- function(interpreter,identifier,as.reference,workspace) {
       returnType <- strintrplt(returnType,parent.frame())
     }
     scalaCallback(interpreter,argsType,returnType,func,interpolate=FALSE)
-  } else if ( identifier == "do" ) function(item.name) {
-    result <- list(interpreter=interpreter,item.name=item.name)
+  } else if ( identifier == "do" ) function(snippet) {
+    result <- list(interpreter=interpreter,snippet=snippet)
     class(result) <- "ScalaInterpreterItem"
     result
   } else if ( identifier == "val" ) function(x) {
@@ -667,6 +667,12 @@ scalaReferenceCall <- function(reference,method) {
       '@{reference}.@{method}@{argsString}'
     } else if ( inherits(reference,"ScalaCachedReference") ) {
       'R.cached("@{toString(reference)}").asInstanceOf[@{reference[[\'type\']]}].@{method}@{argsString}'
+    } else if ( inherits(reference,"ScalaInterpreterItem") ) {
+      if ( method == 'new' ) {
+        "new @{reference[['snippet']]}@{argsString}"
+      } else {
+        "@{reference[['snippet']]}.@{method}@{argsString}"
+      }
     } else stop('Unrecognized reference type.')
     snippet <- strintrplt(snippet)
     f <- scalaFunctionArgs(scalaDef(.INTERPRETER=interpreter,...),snippet,as.reference=.AS.REFERENCE,parent.frame())
@@ -677,6 +683,8 @@ scalaReferenceCall <- function(reference,method) {
 
 '$.ScalaCachedReference' <- scalaReferenceCall
 '$.ScalaInterpreterReference' <- scalaReferenceCall
+'$.ScalaInterpreterItem' <- scalaReferenceCall
+
 
 
 

@@ -264,4 +264,55 @@ microbenchmark(
   nd2(),
   times=500
 )
+
+s %~% 'scala.util.Random'
+
+nextDouble <- s$def() %~% 'scala.util.Random.nextDouble()'
+
+
+mkStub <- function(interpreter, snippet) {
+  result <- list(interpreter=interpreter, snippet=snippet)
+  class(result) <- "ScalaInterpreterItem"
+  result
+}
+
+
+s$do("System.out")$println("Hi there.")
+
+a <- s$def("Hi there") %~% '
+  System.out.println(x1)
+'
+a("bob")
+
+
+
+
+
+
+library(rscala)
+s <- scala()
+
+s$do("scala.util.Random")$nextDouble()
+m <- s$do("scala.util.Random")$new(scalaScalar(342L),.EVALUATE=FALSE)
+
+
+s$do("scala.util.Random")$nextDouble()
+s$.scala.util.Random$nextDouble()
+
+s$_scala.util.Random$nextDouble()
+
+s %~% 'import scala.util.Random'
+s$_Random_nextDouble()
+
+a <- s$def() %~% 'Random.nextDouble'
+a()
+
+s$_scala.util.Random
+a <- ( s$def() %~% 'scala.util.Random' )()
+a$nextDouble(.EVALUATE=TRUE)
+
+a <- s$_scala.util.Random
+a <- ( s$def() %~% 'scala.util.Random' )()
+a$nextDouble()
+
  
