@@ -405,7 +405,7 @@ scalaGet <- function(interpreter,identifier,as.reference,workspace) {
     else if ( identifier == "." ) scalaGet(interpreter,".",TRUE,parent.frame())
     else scalaGet(interpreter,identifier,TRUE,parent.frame())
   } else if ( identifier %in% names(interpreter) ) {
-    "This item is not user accessible."
+    stop("This item is not user accessible.")
   } else {
     scalaGet(interpreter,identifier,NA,parent.frame())
   }
