@@ -654,7 +654,7 @@ print.ScalaFunction <- function(x,...) {
   cat(signature,'\n',p,'}\n',sep='')
 }
 
-scalaReferenceCall <- function(reference,method) {
+scalaAutoDef <- function(reference,method) {
   interpreter <- reference[['interpreter']]
   function(..., .AS.REFERENCE = NA, .EVALUATE = TRUE) {
     args <- list(...)
@@ -681,9 +681,9 @@ scalaReferenceCall <- function(reference,method) {
   }
 }
 
-'$.ScalaCachedReference' <- scalaReferenceCall
-'$.ScalaInterpreterReference' <- scalaReferenceCall
-'$.ScalaInterpreterItem' <- scalaReferenceCall
+'$.ScalaCachedReference' <- scalaAutoDef
+'$.ScalaInterpreterReference' <- scalaAutoDef
+'$.ScalaInterpreterItem' <- scalaAutoDef
 
 
 
