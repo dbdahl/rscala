@@ -5,8 +5,8 @@ scala <- function(classpath=character(0),serialize=FALSE,scala.home=NULL,heap.ma
   if ( identical(stderr,TRUE) ) stderr <- ""
   debug <- identical(debug,TRUE)
   serialize <- identical(serialize,TRUE)
-  if ( debug && serialize ) stop("When debug==TRUE, serialize must be FALSE.")
-  if ( debug && ( identical(stdout,FALSE) || identical(stdout,NULL) || identical(stderr,FALSE) || identical(stderr,NULL) ) ) stop("When debug==TRUE, stdout and stderr must not be discarded.")
+  if ( debug && serialize ) stop("When debug is TRUE, serialize must be FALSE.")
+  if ( debug && ( identical(stdout,FALSE) || identical(stdout,NULL) || identical(stderr,FALSE) || identical(stderr,NULL) ) ) stop("When debug is TRUE, stdout and stderr must not be discarded.")
   userJars <- unlist(strsplit(classpath,.Platform$path.sep))
   if ( is.null(command.line.options) ) {
     command.line.options <- getOption("rscala.command.line.options",default=NULL)
@@ -605,8 +605,8 @@ scalaFunctionArgs <- function(func,body,as.reference,workspace) {
     wc(interpreter,functionReturnType)
     flush(interpreter[['socketIn']])
     status <- rb(interpreter,"integer")
+    if ( get("serialize",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
     if ( status != OK ) {
-      if ( get("serialize",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
       stop("Problem caching function.")
     }
     assign(fullBody,list(functionIdentifier=functionIdentifier,functionReturnType=functionReturnType),envir=func$interpreter[['functionCache']])
@@ -649,7 +649,7 @@ scalaFunctionArgs <- function(func,body,as.reference,workspace) {
 print.ScalaFunction <- function(x,...) {
   y <- formals(x)
   signature <- paste0('function(',paste0(names(y),ifelse(paste(y)=='','',paste0(' = ',y)),collapse=', '),'): ',
-                      attr(x,'returnType'),' = { // Scala implementation; as.reference = ',attr(x,'asReference'))
+                      attr(x,'returnType'),' = { // Scala implementation; .AS.REFERENCE = ',attr(x,'asReference'))
   p <- pretty(attr(x,'scalaHeader'),attr(x,'scalaBody'))
   cat(signature,'\n',p,'}\n',sep='')
 }

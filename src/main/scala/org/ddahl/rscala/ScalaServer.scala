@@ -273,11 +273,11 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
     try {
       val functionName = readString()
       val (f, returnType) = functionMap(functionName)
-      functionResult = (nullary.invoke(f), returnType)
       if ( debugger.value ) {
         debugger.msg("Function is: "+functionName)
         debugger.msg("... with return type: "+returnType)
       }
+      functionResult = (nullary.invoke(f), returnType)
       R.exit()
       if ( debugger.value ) debugger.msg("Invoke is okay")
       out.writeInt(OK)

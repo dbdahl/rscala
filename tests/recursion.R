@@ -4,6 +4,7 @@ serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
 output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
 version <- Sys.getenv("RSCALA_SCALA_VERSION")
 s <- scala(serialize=serialize,stdout=output,stderr=output)
+s <- scala(serialize=TRUE,stdout=TRUE,stderr=TRUE)
 if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
 
 
@@ -12,7 +13,7 @@ f <- function(counter) {
   if ( counter >= 10 ) return(counter)
   cat("Hello",counter,"from R.\n")
   f(s %~% '
-    println("Hello @{counter+1} from Scala.")
+    println("Hello @{counter} from Scala.")
     R.evalI0("@{counter+1}")
   ')
 }
@@ -31,11 +32,11 @@ g <- function(counter) {
 g(0)
 
 
-# This is recursion via callbacks using predefined functions
-hh <- s$def('x: Int','
+# This is recursion via callbacks using a predefined function
+hh <- s$def(x=scalaScalar(0L)) %~% '
   println(s"Hello $x from Scala.")
   R.eval(s"h(${x+1})")
-')
+'
 
 h <- function(counter) {
   if ( counter >= 10 ) return()
@@ -45,13 +46,13 @@ h <- function(counter) {
 h(0)
 
 
-# This is very cool!
-i <- s$def('x: Int','
+# This is recursion via callbacks using a Scala function
+i <- s$def(x=scalaScalar(0L)) %~% '
   if ( x < 10 ) {
     println(s"Hello $x from Scala.")
-    R.eval(s"""cat("Hello ${x+1} from R.\n"); i(${x+1})""")
+    R.eval(s"""cat("Hello ${x} from R.\n"); i(${x+1})""")
   }
-')
+'
 i(0)
 
 
