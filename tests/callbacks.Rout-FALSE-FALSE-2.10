@@ -1,6 +1,6 @@
 
-R Under development (unstable) (2016-11-13 r71655) -- "Unsuffered Consequences"
-Copyright (C) 2016 The R Foundation for Statistical Computing
+R version 3.3.3 (2017-03-06) -- "Another Canoe"
+Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -17,21 +17,17 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
-> library(rscala)
+> source("common.R")
 > 
-> serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
-> output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-> version <- Sys.getenv("RSCALA_SCALA_VERSION")
-> s <- scala(serialize=serialize,stdout=output,stderr=output)
-> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
-> 
-> assert <- function(x) {
-+   a <<- x
-+   if ( ! identical(( s %~% 'R.a._1' ), get("a")) ) stop("Not identical (test 2)")
-+   if ( ! identical(( s %~% 'R.get("a")._1' ), get("a")) ) stop("Not identical (test 1)")
-+   s$a <- x
-+   s %~% 'R.b = a'
-+   if ( ! identical(x, s$.R$get("b")$"_1"()) ) stop("Not identical (test 3)")
+> assert <- function(xx) {
++   if ( ! identical(( s %~% 'R.get("xx")._1' ), xx) ) stop("Not identical (test 1)")
++   if ( ! identical(( s %~% 'R.xx._1' ), xx) ) stop("Not identical (test 2)")
++   s$xx <- xx
++   s %@% 'R.a = xx'
++   if ( ! identical(a, xx) ) stop("Not identical (test 3)")
++   if ( ! identical(s$.R$get(scalaScalar("xx"))$"_1"(), xx) ) stop("Not identical (test 4)")
++   m <- s$def() %~% 'R.get("xx")._1'
++   if ( ! identical(m(), xx) ) stop("Not identical (test 5)")
 + }
 > 
 > y <- c(0,1,2,3,4,5,6,8)
@@ -45,9 +41,14 @@ Type 'q()' to quit R.
 + }
 > 
 > counter <- 0
-> increment <- s$def('','R.eval("counter <<- counter +1")')
-> for ( i in 1:10 ) increment()
+> for ( i in 1:10 ) {
++   s %~% 'R.eval("counter <- counter + 1")'
++ }
 > if ( counter != 10 ) stop("Counter is off.")
+> for ( i in 1:10 ) {
++   s$.R$eval(scalaScalar("counter <<- counter - 1"))
++ }
+> if ( counter != 0 ) stop("Counter is off.")
 > 
 > 
 > # Should be a compile-time error because 'ewf' is not defined.
@@ -58,7 +59,7 @@ Type 'q()' to quit R.
 +     a <- "3+9"
 +   """)
 + ',error=function(e) e)
-<simpleError in scalaEval(interpreter, snippet, interpolate = FALSE): Error in evaluation.>
+<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
 > s %~% '3+2'
 [1] 5
 > 
@@ -75,7 +76,7 @@ Error in parse(text = snippet) : <text>:4:16: unexpected symbol
 3: ")
 4:     a <- "3+9" asfd
                   ^
-<simpleError in scalaEval(interpreter, snippet, interpolate = FALSE): Error in evaluation.>
+<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
 > s %~% '3+6'
 [1] 9
 > 
@@ -85,11 +86,11 @@ Error in parse(text = snippet) : <text>:4:16: unexpected symbol
 +   mean(x)
 + }
 > 
-> callRFunction <- s$def('functionName: String, x: Array[Double]','
+> callRFunction <- s$def(functionName=scalaScalar(""), x=numeric()) %~% '
 +   R.xx = x
 +   R.eval("y <- "+functionName+"(xx)")
 +   R.y._1
-+ ')
++ '
 > 
 > tryCatch(callRFunction(1:100),error = function(e) {})
 NULL
@@ -98,16 +99,16 @@ Here is am.
 [1] 50.5
 > 
 > # Should be an R evaluation error because 'asfd' is not a package.
-> tryCatch(scalaEval(s,'R.eval("library(asdf)")'),error=function(e) e)
-Error in library(asdf) : there is no package called ‘asdf’
-<simpleError in scalaEval(s, "R.eval(\"library(asdf)\")"): Error in evaluation.>
+> tryCatch(scalaEval(s,'R.eval("library(asdf)")',environment(),FALSE),error=function(e) e)
+<simpleError in scalaEval(s, "R.eval(\"library(asdf)\")", environment(), FALSE): unused argument (FALSE)>
 > s %~% 'R.evalD0("3+4")'
 [1] 7
 > 
-> # Note that callbacks can only be one-level deep.
+> # Note that callbacks can be infinitely deep.
 > s %~% "3+4"
 [1] 7
-> s %~% 'R.eval("""s %~% "2+3"""")'
+> s %~% 'R.evalD0("""s %~% "2+3"""")'
+[1] 5
 > s %~% "3+4"
 [1] 7
 > 

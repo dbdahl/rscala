@@ -1100,12 +1100,14 @@ echoResponseScala <- function(interpreter) {
 cc <- function(c) {
   if ( ! get("open",envir=c[['env']]) ) stop("The connection has already been closed.")
   if ( length(get("garbage",envir=c[['env']])) > 0 ) {
-    garbage <- get("garbage",envir=c[['env']])
-    if ( get("debug",envir=c[['env']]) ) msg(paste0('Sending FREE request for ',length(garbage),' items.'))
+    env <- c[['env']]
+    garbage <- get("garbage",envir=env)
+    if ( get("debug",envir=env) ) msg(paste0('Sending FREE request for ',length(garbage),' items.'))
     wb(c,FREE)
     wb(c,length(garbage))
     for ( g in garbage ) wc(c,g)
-    assign("garbage",character(),envir=c[['env']])
+    assign("garbage",character(),envir=env)
+    if ( get("serialize",envir=env) ) echoResponseScala(c)
   }
 }
 

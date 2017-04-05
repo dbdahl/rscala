@@ -1,6 +1,6 @@
 
-R Under development (unstable) (2016-11-13 r71655) -- "Unsuffered Consequences"
-Copyright (C) 2016 The R Foundation for Statistical Computing
+R version 3.3.3 (2017-03-06) -- "Another Canoe"
+Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -17,21 +17,17 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
-> library(rscala)
+> source("common.R")
 > 
-> serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
-> output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-> version <- Sys.getenv("RSCALA_SCALA_VERSION")
-> s <- scala(serialize=serialize,stdout=output,stderr=output)
-> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
-> 
-> assert <- function(x) {
-+   a <<- x
-+   if ( ! identical(( s %~% 'R.a._1' ), get("a")) ) stop("Not identical (test 2)")
-+   if ( ! identical(( s %~% 'R.get("a")._1' ), get("a")) ) stop("Not identical (test 1)")
-+   s$a <- x
-+   s %~% 'R.b = a'
-+   if ( ! identical(x, s$.R$get("b")$"_1"()) ) stop("Not identical (test 3)")
+> assert <- function(xx) {
++   if ( ! identical(( s %~% 'R.get("xx")._1' ), xx) ) stop("Not identical (test 1)")
++   if ( ! identical(( s %~% 'R.xx._1' ), xx) ) stop("Not identical (test 2)")
++   s$xx <- xx
++   s %@% 'R.a = xx'
++   if ( ! identical(a, xx) ) stop("Not identical (test 3)")
++   if ( ! identical(s$.R$get(scalaScalar("xx"))$"_1"(), xx) ) stop("Not identical (test 4)")
++   m <- s$def() %~% 'R.get("xx")._1'
++   if ( ! identical(m(), xx) ) stop("Not identical (test 5)")
 + }
 > 
 > y <- c(0,1,2,3,4,5,6,8)
@@ -45,9 +41,14 @@ Type 'q()' to quit R.
 + }
 > 
 > counter <- 0
-> increment <- s$def('','R.eval("counter <<- counter +1")')
-> for ( i in 1:10 ) increment()
+> for ( i in 1:10 ) {
++   s %~% 'R.eval("counter <- counter + 1")'
++ }
 > if ( counter != 10 ) stop("Counter is off.")
+> for ( i in 1:10 ) {
++   s$.R$eval(scalaScalar("counter <<- counter - 1"))
++ }
+> if ( counter != 0 ) stop("Counter is off.")
 > 
 > 
 > # Should be a compile-time error because 'ewf' is not defined.
@@ -61,7 +62,7 @@ Type 'q()' to quit R.
 <console>:9: error: not found: value ewf
   3+4+ewf
       ^
-<simpleError in scalaEval(interpreter, snippet, interpolate = FALSE): Error in evaluation.>
+<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
 > s %~% '3+2'
 [1] 5
 > 
@@ -101,9 +102,19 @@ java.lang.RuntimeException: Error in R evaluation.
 	at scala.tools.nsc.interpreter.IMain.loadAndRunReq$1(IMain.scala:573)
 	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:604)
 	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:568)
-	at org.ddahl.rscala.ScalaServer.doEval(ScalaServer.scala:106)
-	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:562)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:599)
+	at org.ddahl.rscala.ScalaServer.doEval(ScalaServer.scala:155)
+	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:645)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:678)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:678)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:678)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:57)
+	at scala.Console$.withErr(Console.scala:167)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:677)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:677)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:677)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:57)
+	at scala.Console$.withOut(Console.scala:126)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:676)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:5)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
@@ -132,7 +143,7 @@ java.lang.RuntimeException: Error in R evaluation.
 	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:105)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 
-<simpleError in scalaEval(interpreter, snippet, interpolate = FALSE): Error in evaluation.>
+<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
 > s %~% '3+6'
 [1] 9
 > 
@@ -142,41 +153,30 @@ java.lang.RuntimeException: Error in R evaluation.
 +   mean(x)
 + }
 > 
-> callRFunction <- s$def('functionName: String, x: Array[Double]','
+> callRFunction <- s$def(functionName=scalaScalar(""), x=numeric()) %~% '
 +   R.xx = x
 +   R.eval("y <- "+functionName+"(xx)")
 +   R.y._1
-+ ')
++ '
 > 
 > tryCatch(callRFunction(1:100),error = function(e) {})
-NULL
-> callRFunction('myMean',1:100)
-Here is am.
-[1] 50.5
-> 
-> # Should be an R evaluation error because 'asfd' is not a package.
-> tryCatch(scalaEval(s,'R.eval("library(asdf)")'),error=function(e) e)
-Error in library(asdf) : there is no package called ‘asdf’
-there is no package called ‘asdf’
-java.lang.RuntimeException: Error in R evaluation.
-	at org.ddahl.rscala.RClient.eval(RClient.scala:78)
-	at .<init>(<console>:9)
-	at .<clinit>(<console>)
-	at .<init>(<console>:7)
-	at .<clinit>(<console>)
-	at $print(<console>)
-	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+java.lang.reflect.InvocationTargetException
+	at sun.reflect.GeneratedMethodAccessor1.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at scala.tools.nsc.interpreter.IMain$ReadEvalPrint.call(IMain.scala:734)
-	at scala.tools.nsc.interpreter.IMain$Request.loadAndRun(IMain.scala:983)
-	at scala.tools.nsc.interpreter.IMain.loadAndRunReq$1(IMain.scala:573)
-	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:604)
-	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:568)
-	at org.ddahl.rscala.ScalaServer.doEval(ScalaServer.scala:106)
-	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:562)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:599)
+	at org.ddahl.rscala.ScalaServer.doInvoke2(ScalaServer.scala:280)
+	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:659)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:678)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:678)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:678)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:57)
+	at scala.Console$.withErr(Console.scala:167)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:677)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:677)
+	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:677)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:57)
+	at scala.Console$.withOut(Console.scala:126)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:676)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:5)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
@@ -204,15 +204,29 @@ java.lang.RuntimeException: Error in R evaluation.
 	at scala.tools.nsc.MainGenericRunner.process(MainGenericRunner.scala:96)
 	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:105)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
-
-<simpleError in scalaEval(s, "R.eval(\"library(asdf)\")"): Error in evaluation.>
+Caused by: java.lang.RuntimeException: Undefined identifier: x
+	at org.ddahl.rscala.RClient.get(RClient.scala:389)
+	at org.ddahl.rscala.RClient.getD1(RClient.scala:485)
+	at $line291.$read$$iw$$iw$$anonfun$1.apply(<console>:11)
+	... 43 more
+java.lang.reflect.InvocationTargetException
+java.lang.RuntimeException: Undefined identifier: x
+NULL
+> callRFunction('myMean',1:100)
+Here is am.
+[1] 50.5
+> 
+> # Should be an R evaluation error because 'asfd' is not a package.
+> tryCatch(scalaEval(s,'R.eval("library(asdf)")',environment(),FALSE),error=function(e) e)
+<simpleError in scalaEval(s, "R.eval(\"library(asdf)\")", environment(), FALSE): unused argument (FALSE)>
 > s %~% 'R.evalD0("3+4")'
 [1] 7
 > 
-> # Note that callbacks can only be one-level deep.
+> # Note that callbacks can be infinitely deep.
 > s %~% "3+4"
 [1] 7
-> s %~% 'R.eval("""s %~% "2+3"""")'
+> s %~% 'R.evalD0("""s %~% "2+3"""")'
+[1] 5
 > s %~% "3+4"
 [1] 7
 > 

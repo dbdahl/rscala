@@ -31,6 +31,7 @@ dq start
 (
 for SCALA_VERSION in $VERSIONS
 do
+  SCALA_VERSION_MAJOR=$(echo $SCALA_VERSION | sed 's/\.[^.]*$//')
   # echo "Running battery for $SCALA_VERSION"
   SCALA_HOME=~/local/scala/scala/scala-$SCALA_VERSION
   for script in $SCRIPTS
@@ -43,10 +44,10 @@ do
         EXT=$([[ "$script" = *.* ]] && echo ".${script##*.}" || echo '')
         if [[ "$EXT" == .R ]]
         then
-          echo "SCALA_HOME=$SCALA_HOME RSCALA_SCALA_VERSION=$SCALA_VERSION RSCALA_OUTPUT=$OUTPUT RSCALA_SERIALIZE=$SERIALIZE R CMD BATCH --no-timing --no-restore --no-save $script ${script}out-$SERIALIZE-$OUTPUT-$SCALA_VERSION"
+          echo "SCALA_HOME=$SCALA_HOME RSCALA_SCALA_VERSION=$SCALA_VERSION RSCALA_OUTPUT=$OUTPUT RSCALA_SERIALIZE=$SERIALIZE R CMD BATCH --no-timing --no-restore --no-save $script ${script}out-$SERIALIZE-$OUTPUT-$SCALA_VERSION_MAJOR"
         elif [[ "$EXT" == .scala || "$EXT" == "" ]]
         then
-          echo "SCALA_HOME=$SCALA_HOME RSCALA_SCALA_VERSION=$SCALA_VERSION RSCALA_OUTPUT=$OUTPUT RSCALA_SERIALIZE=$SERIALIZE ./$script >| $script.out-$SERIALIZE-$OUTPUT-$SCALA_VERSION 2>&1"
+          echo "SCALA_HOME=$SCALA_HOME RSCALA_SCALA_VERSION=$SCALA_VERSION RSCALA_OUTPUT=$OUTPUT RSCALA_SERIALIZE=$SERIALIZE ./$script >| $script.out-$SERIALIZE-$OUTPUT-$SCALA_VERSION_MAJOR 2>&1"
         fi
       done
     done

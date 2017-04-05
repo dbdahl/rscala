@@ -1,25 +1,14 @@
-library(rscala)
+source("common.R")
 
-serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
-output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-version <- Sys.getenv("RSCALA_SCALA_VERSION")
-s <- scala(serialize=serialize,stdout=output,stderr=output)
-actualVersion <- s %~% "scala.util.Properties.versionNumberString"
-if ( version != s %~% "scala.util.Properties.versionNumberString" ) {
-  cat("Requested version: ",version,"\n")
-  cat("Actual version:    ",actualVersion,"\n")
-  stop("Version mismatch.")
-}
-
-assert <- function(x) {
-  if ( ! identical(( s %~% 'R.get("x")._1' ), x) ) stop("Not identical (test 1)")
-  if ( ! identical(( s %~% 'R.x._1' ), x) ) stop("Not identical (test 2)")
-  s$x <- x
-  s %@% 'R.a = x'
-  if ( ! identical(a, x) ) stop("Not identical (test 3)")
-  if ( ! identical(s$.R$get(scalaScalar("x"))$"_1"(), x) ) stop("Not identical (test 4)")
-  m <- s$def() %~% 'R.get("x")._1'
-  if ( ! identical(m(), x) ) stop("Not identical (test 5)")
+assert <- function(xx) {
+  if ( ! identical(( s %~% 'R.get("xx")._1' ), xx) ) stop("Not identical (test 1)")
+  if ( ! identical(( s %~% 'R.xx._1' ), xx) ) stop("Not identical (test 2)")
+  s$xx <- xx
+  s %@% 'R.a = xx'
+  if ( ! identical(a, xx) ) stop("Not identical (test 3)")
+  if ( ! identical(s$.R$get(scalaScalar("xx"))$"_1"(), xx) ) stop("Not identical (test 4)")
+  m <- s$def() %~% 'R.get("xx")._1'
+  if ( ! identical(m(), xx) ) stop("Not identical (test 5)")
 }
 
 y <- c(0,1,2,3,4,5,6,8)
@@ -72,11 +61,6 @@ myMean <- function(x) {
 
 callRFunction <- s$def(functionName=scalaScalar(""), x=numeric()) %~% '
   R.xx = x
-  R.eval("y <- "+functionName+"(xx)",false)
-'
-
-callRFunction <- s$def(functionName=scalaType("String"), x=scalaType("Array[Double]") %~% '
-  R.xx = x
   R.eval("y <- "+functionName+"(xx)")
   R.y._1
 '
@@ -90,7 +74,7 @@ s %~% 'R.evalD0("3+4")'
 
 # Note that callbacks can be infinitely deep.
 s %~% "3+4"
-s %~% 'R.eval("""s %~% "2+3"""")'
+s %~% 'R.evalD0("""s %~% "2+3"""")'
 s %~% "3+4"
 
 
