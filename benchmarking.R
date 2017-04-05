@@ -235,22 +235,24 @@ library(rscala)
 
 s <- scala()
 
-nextDouble <- s$def2(rng=s$null("scala.util.Random")) %~% "rng.nextDouble()"
+nextDouble <- s$def(rng=s$null("scala.util.Random")) %~% "rng.nextDouble()"
 
 
-mkRNG1 <- s$def2() %.~% 'new scala.util.Random()'
+mkRNG1 <- s$def() %.~% 'new scala.util.Random()'
 mkRNG2 <- function() s %.~% 'new scala.util.Random()'
 
 rng1 <- mkRNG1()
 rng2 <- mkRNG2()
 
-rng1$nextInt(scalaPrimitive(10L))
-rng2$nextInt(scalaPrimitive(10L))
+rng1$nextInt(scalaScalar(10L))
+rng2$nextInt(scalaScalar(10L))
 
 str <- rng1$toString(.EVALUATE=TRUE,.AS.REFERENCE=TRUE)
+str$length()
+
 nd0 <- rng1$nextDouble(.EVALUATE=FALSE)
-nd1 <- s$def2() %~% 'R.cached("@{toString(rng1)}").asInstanceOf[@{rng1[[\'type\']]}].nextDouble()'
-nd2 <- s$def2() %~% '@{rng2}.nextDouble()'
+nd1 <- s$def() %~% 'R.cached("@{toString(rng1)}").asInstanceOf[@{rng1[[\'type\']]}].nextDouble()'
+nd2 <- s$def() %~% '@{rng2}.nextDouble()'
 
 library("microbenchmark")
 

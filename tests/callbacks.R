@@ -17,8 +17,8 @@ assert <- function(x) {
   s$x <- x
   s %@% 'R.a = x'
   if ( ! identical(a, x) ) stop("Not identical (test 3)")
-  if ( ! identical(s$.R$get(scalaPrimitive("x"))$"_1"(), x) ) stop("Not identical (test 4)")
-  m <- s$def2() %~% 'R.get("x")._1'
+  if ( ! identical(s$.R$get(scalaScalar("x"))$"_1"(), x) ) stop("Not identical (test 4)")
+  m <- s$def() %~% 'R.get("x")._1'
   if ( ! identical(m(), x) ) stop("Not identical (test 5)")
 }
 
@@ -38,7 +38,7 @@ for ( i in 1:10 ) {
 }
 if ( counter != 10 ) stop("Counter is off.")
 for ( i in 1:10 ) {
-  s$.R$eval(scalaPrimitive("counter <<- counter - 1"))
+  s$.R$eval(scalaScalar("counter <<- counter - 1"))
 }
 if ( counter != 0 ) stop("Counter is off.")
 
@@ -70,14 +70,15 @@ myMean <- function(x) {
   mean(x)
 }
 
-callRFunction <- s$def2(functionName=scalaScalar(""), x=numeric()) %~% '
+callRFunction <- s$def(functionName=scalaScalar(""), x=numeric()) %~% '
   R.xx = x
   R.eval("y <- "+functionName+"(xx)",false)
 '
 
-callRFunction <- s$def2(functionName=scalaType("String"), x=scalaType("Array[Double]") %~% '
+callRFunction <- s$def(functionName=scalaType("String"), x=scalaType("Array[Double]") %~% '
   R.xx = x
-  R.eval("y <- "+functionName+"(xx)",false)
+  R.eval("y <- "+functionName+"(xx)")
+  R.y._1
 '
 
 tryCatch(callRFunction(1:100),error = function(e) {})
@@ -87,7 +88,7 @@ callRFunction('myMean',1:100)
 tryCatch(scalaEval(s,'R.eval("library(asdf)")',environment(),FALSE),error=function(e) e)
 s %~% 'R.evalD0("3+4")'
 
-# Note that callbacks can only be one-level deep.
+# Note that callbacks can be infinitely deep.
 s %~% "3+4"
 s %~% 'R.eval("""s %~% "2+3"""")'
 s %~% "3+4"
