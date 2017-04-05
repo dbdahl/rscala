@@ -291,9 +291,18 @@ a("bob")
 
 library(rscala)
 s <- scala()
+. <- scalaScalar
 
 s$do("scala.util.Random")$nextDouble()
 m <- s$do("scala.util.Random")$new(scalaScalar(342L),.EVALUATE=FALSE)
+m(.(5L))$nextDouble(.EVALUATE=FALSE)
+
+s$a <- 1:10
+a <- s$.a
+a$apply(scalaScalar(3L))
+a$apply(3L)
+
+a$apply(s(3L))
 
 
 s$do("scala.util.Random")$nextDouble()
