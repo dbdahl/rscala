@@ -1,0 +1,136 @@
+
+R version 3.3.3 (2017-03-06) -- "Another Canoe"
+Copyright (C) 2017 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> source("common.R",print.eval=TRUE)
+FALSE TRUE
+> set.seed(924234)
+> 
+> 
+> sleep.time <- 0
+> f <- function(x) { Sys.sleep(sleep.time); mean(x) }
+> g <- function(x) { Sys.sleep(sleep.time); sd(x) }
+> 
+> 
+> 
+> # Native R code implementation
+> doit0 <- function(x) {
++   c(f(x),g(x))
++ }
+> 
+> doit0(rnorm(10))
+[1] 0.05067312 0.74823148
+> 
+> 
+> 
+> # Single callback in interpreted code.
+> doit1 <- function(x) {
++   s$x <- x
++   s %@% 'R.set("y",x.map(2*_))'
++   c(s %~% 'R.evalD0("f(y)")',
++     s %~% 'R.evalD0("g(y)")')
++ }
+> 
+> doit1(rnorm(10))
+[1] 0.6360252 2.5355099
+> 
+> 
+> 
+> # Multiple callbacks in interpreted code.
+> doit2 <- function(x) {
++   s$x <- x
++   s %~% '
++     R.set("y",x.map(2*_))
++     Array(R.evalD0("f(y)"),
++           R.evalD0("g(y)"))
++   '
++ }
+> 
+> doit2(rnorm(10))
+[1] -0.163821  1.921544
+> 
+> 
+> 
+> 
+> # Multiple callbacks in compiled code.
+> doit3 <- s$def(x=numeric()) %~% '
++   R.set("y",x.map(2*_))
++   Array(R.evalD0("f(y)"),
++         R.evalD0("g(y)"))
++ '
+> 
+> doit3(rnorm(10))
+[1] -0.5309233  1.9064429
+> 
+> 
+> 
+> # Benchmarks
+> 
+> library(microbenchmark)
+> 
+> sleep.time <- 0
+> microbenchmark(
++   doit0(rnorm(10)),
++   doit1(rnorm(10)),
++   doit2(rnorm(10)),
++   doit3(rnorm(10)),
++   times=10
++ )
+Unit: microseconds
+             expr        min         lq         mean       median          uq
+ doit0(rnorm(10))     45.240     83.615      99.6162     107.3295     114.300
+ doit1(rnorm(10)) 677825.074 936715.455 1224404.2901 1202919.4350 1450413.691
+ doit2(rnorm(10)) 541215.937 620305.870  728215.1501  716739.5780  838632.875
+ doit3(rnorm(10))   2123.116   2500.455   10459.3626    2673.8955    6082.883
+         max neval
+     130.708    10
+ 2045101.313    10
+  972029.705    10
+   51954.948    10
+> microbenchmark(
++   doit0(rnorm(10)),
++   #doit1(rnorm(10)),
++   #doit2(rnorm(10)),
++   doit3(rnorm(10)),
++   times=1000
++ )
+Unit: microseconds
+             expr      min       lq       mean   median       uq       max
+ doit0(rnorm(10))   26.701   41.940   64.83492   54.558   82.977  1462.445
+ doit3(rnorm(10)) 1178.133 1846.415 5315.66021 4155.342 5363.266 77714.421
+ neval
+  1000
+  1000
+> 
+> 
+> sleep.time <- 0.1
+> microbenchmark(
++   doit0(rnorm(10)),
++   doit1(rnorm(10)),
++   doit2(rnorm(10)),
++   doit3(rnorm(10)),
++   times=5
++ )
+Unit: milliseconds
+             expr      min       lq     mean   median       uq      max neval
+ doit0(rnorm(10)) 200.3803 200.4002 201.7942 200.4873 203.0873 204.6158     5
+ doit1(rnorm(10)) 757.5492 789.5982 824.4004 802.5699 831.5051 940.7797     5
+ doit2(rnorm(10)) 458.3323 473.9490 650.1879 509.5149 810.6390 998.5044     5
+ doit3(rnorm(10)) 202.1879 202.8225 207.9040 205.1048 210.9473 218.4576     5
+> 
+> 

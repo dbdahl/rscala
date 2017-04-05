@@ -1,6 +1,6 @@
 
-R Under development (unstable) (2016-11-13 r71655) -- "Unsuffered Consequences"
-Copyright (C) 2016 The R Foundation for Statistical Computing
+R version 3.3.3 (2017-03-06) -- "Another Canoe"
+Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -17,13 +17,8 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
-> library(rscala)
-> 
-> serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
-> output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-> version <- Sys.getenv("RSCALA_SCALA_VERSION")
-> s <- scala(serialize=serialize,stdout=output,stderr=output)
-> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
+> source("common.R",print.eval=TRUE)
+FALSE FALSE
 > 
 > 
 > # This is not recursion via callbacks.
@@ -31,7 +26,7 @@ Type 'q()' to quit R.
 +   if ( counter >= 10 ) return(counter)
 +   cat("Hello",counter,"from R.\n")
 +   f(s %~% '
-+     println("Hello @{counter+1} from Scala.")
++     println("Hello @{counter} from Scala.")
 +     R.evalI0("@{counter+1}")
 +   ')
 + }
@@ -71,11 +66,11 @@ Hello 8 from R.
 Hello 9 from R.
 > 
 > 
-> # This is recursion via callbacks using predefined functions
-> hh <- s$def('x: Int','
+> # This is recursion via callbacks using a predefined function
+> hh <- s$def(x=scalaScalar(0L)) %~% '
 +   println(s"Hello $x from Scala.")
 +   R.eval(s"h(${x+1})")
-+ ')
++ '
 > 
 > h <- function(counter) {
 +   if ( counter >= 10 ) return()
@@ -95,14 +90,15 @@ Hello 8 from R.
 Hello 9 from R.
 > 
 > 
-> # This is very cool!
-> i <- s$def('x: Int','
+> # This is recursion via callbacks using a Scala function
+> i <- s$def(x=scalaScalar(0L)) %~% '
 +   if ( x < 10 ) {
 +     println(s"Hello $x from Scala.")
-+     R.eval(s"""cat("Hello ${x+1} from R.\n"); i(${x+1})""")
++     R.eval(s"""cat("Hello ${x} from R.\n"); i(${x+1})""")
 +   }
-+ ')
++ '
 > i(0)
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -112,7 +108,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 > 
 > 
 > 
@@ -180,56 +175,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 1 from R.
-Hello 2 from R.
-Hello 3 from R.
-Hello 4 from R.
-Hello 5 from R.
-Hello 6 from R.
-Hello 7 from R.
-Hello 8 from R.
-Hello 9 from R.
-Hello 10 from R.
-Hello 0 from R.
-Hello 1 from R.
-Hello 2 from R.
-Hello 3 from R.
-Hello 4 from R.
-Hello 5 from R.
-Hello 6 from R.
-Hello 7 from R.
-Hello 8 from R.
-Hello 9 from R.
-Hello 0 from R.
-Hello 1 from R.
-Hello 2 from R.
-Hello 3 from R.
-Hello 4 from R.
-Hello 5 from R.
-Hello 6 from R.
-Hello 7 from R.
-Hello 8 from R.
-Hello 9 from R.
-Hello 1 from R.
-Hello 2 from R.
-Hello 3 from R.
-Hello 4 from R.
-Hello 5 from R.
-Hello 6 from R.
-Hello 7 from R.
-Hello 8 from R.
-Hello 9 from R.
-Hello 10 from R.
-Hello 1 from R.
-Hello 2 from R.
-Hello 3 from R.
-Hello 4 from R.
-Hello 5 from R.
-Hello 6 from R.
-Hello 7 from R.
-Hello 8 from R.
-Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -260,16 +205,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 1 from R.
-Hello 2 from R.
-Hello 3 from R.
-Hello 4 from R.
-Hello 5 from R.
-Hello 6 from R.
-Hello 7 from R.
-Hello 8 from R.
-Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -290,6 +225,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -299,7 +235,66 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
+Hello 1 from R.
+Hello 2 from R.
+Hello 3 from R.
+Hello 4 from R.
+Hello 5 from R.
+Hello 6 from R.
+Hello 7 from R.
+Hello 8 from R.
+Hello 9 from R.
+Hello 0 from R.
+Hello 1 from R.
+Hello 2 from R.
+Hello 3 from R.
+Hello 4 from R.
+Hello 5 from R.
+Hello 6 from R.
+Hello 7 from R.
+Hello 8 from R.
+Hello 9 from R.
+Hello 0 from R.
+Hello 1 from R.
+Hello 2 from R.
+Hello 3 from R.
+Hello 4 from R.
+Hello 5 from R.
+Hello 6 from R.
+Hello 7 from R.
+Hello 8 from R.
+Hello 9 from R.
+Hello 0 from R.
+Hello 1 from R.
+Hello 2 from R.
+Hello 3 from R.
+Hello 4 from R.
+Hello 5 from R.
+Hello 6 from R.
+Hello 7 from R.
+Hello 8 from R.
+Hello 9 from R.
+Hello 0 from R.
+Hello 1 from R.
+Hello 2 from R.
+Hello 3 from R.
+Hello 4 from R.
+Hello 5 from R.
+Hello 6 from R.
+Hello 7 from R.
+Hello 8 from R.
+Hello 9 from R.
+Hello 0 from R.
+Hello 1 from R.
+Hello 2 from R.
+Hello 3 from R.
+Hello 4 from R.
+Hello 5 from R.
+Hello 6 from R.
+Hello 7 from R.
+Hello 8 from R.
+Hello 9 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -321,11 +316,11 @@ Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
 Unit: milliseconds
- expr        min         lq       mean     median         uq        max neval
- f(0) 2528.63840 3139.45200 4118.86080 3374.53578 4454.64153 7097.03628     5
- g(0) 1660.83471 2323.03920 2701.08667 2376.55507 3184.60240 3960.40196     5
- h(0)   11.81635   16.68891   27.30607   25.30595   26.45486   56.26431     5
- i(0)   12.52836   15.01408   24.27773   17.67814   21.63552   54.53257     5
+ expr         min         lq       mean     median         uq        max neval
+ f(0) 2013.289619 2257.03924 2723.30719 2318.46859 2460.82762 4566.91088     5
+ g(0) 1136.020367 1167.76314 1502.95477 1482.08580 1850.04926 1878.85528     5
+ h(0)   17.416658   17.59110   37.47533   38.46220   56.76134   57.14537     5
+ i(0)    8.684971   10.14771   21.91025   21.64382   25.29465   43.78010     5
 > 
 > cat("####\n")
 ####
@@ -341,6 +336,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -350,7 +346,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -360,7 +356,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -370,7 +366,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -380,7 +376,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -390,7 +386,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -411,6 +406,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -420,7 +416,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -431,6 +426,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -440,7 +436,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -450,7 +446,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -461,6 +456,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -470,7 +466,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -480,7 +476,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -501,6 +496,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -510,7 +506,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -571,6 +566,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -580,7 +576,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -601,6 +596,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -610,7 +606,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -621,6 +616,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -630,7 +626,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -640,7 +636,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -650,7 +646,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -660,7 +656,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -670,7 +666,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -681,6 +676,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -690,7 +686,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -700,7 +696,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -710,7 +706,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -721,6 +716,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -730,7 +726,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -741,6 +736,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -750,7 +746,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -771,6 +766,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -780,7 +776,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -790,7 +786,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -800,7 +796,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -841,6 +836,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -850,7 +846,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -860,7 +856,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -891,6 +886,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -900,7 +896,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -910,7 +906,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -920,7 +916,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -941,6 +936,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -950,7 +946,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -981,6 +976,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -990,7 +986,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1000,7 +996,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -1021,6 +1016,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1030,7 +1026,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1040,7 +1036,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -1081,6 +1076,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1090,7 +1086,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -1121,6 +1116,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1130,7 +1126,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1140,7 +1136,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -1151,6 +1146,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1160,7 +1156,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -1171,6 +1166,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1180,7 +1176,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -1191,6 +1186,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1200,7 +1196,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1210,7 +1206,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1220,7 +1216,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -1251,6 +1246,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1260,7 +1256,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1270,7 +1266,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1280,7 +1276,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1290,7 +1286,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -1301,6 +1296,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1310,7 +1306,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1320,7 +1316,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1330,7 +1326,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -1351,6 +1346,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1360,7 +1356,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1370,7 +1366,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1380,7 +1376,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -1401,6 +1396,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1410,7 +1406,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -1421,6 +1416,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1430,7 +1426,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -1461,6 +1456,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1470,7 +1466,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1480,7 +1476,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -1491,6 +1486,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1500,7 +1496,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1510,7 +1506,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1520,7 +1516,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1530,7 +1526,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1540,7 +1536,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1550,7 +1546,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1560,7 +1556,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1570,7 +1566,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -1581,6 +1576,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1590,7 +1586,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1600,7 +1596,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1610,7 +1606,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1620,7 +1616,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -1641,6 +1636,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1650,7 +1646,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1660,7 +1656,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1670,7 +1666,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -1681,6 +1676,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1690,7 +1686,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -1711,6 +1706,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1720,7 +1716,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1730,7 +1726,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -1761,6 +1756,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1770,7 +1766,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1780,7 +1776,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1790,7 +1786,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1800,7 +1796,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -1821,6 +1816,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1830,7 +1826,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1840,7 +1836,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1850,7 +1846,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1860,7 +1856,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -1881,6 +1876,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1890,7 +1886,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -1921,6 +1916,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1930,7 +1926,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1940,7 +1936,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1950,7 +1946,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1960,7 +1956,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -1971,6 +1966,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -1980,7 +1976,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -1991,6 +1986,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -2000,7 +1996,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -2011,6 +2006,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -2020,7 +2016,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -2031,6 +2026,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -2040,7 +2036,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -2071,6 +2066,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -2080,7 +2076,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -2090,7 +2086,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -2121,6 +2116,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -2130,7 +2126,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -2140,7 +2136,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -2261,6 +2256,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -2270,7 +2266,6 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
@@ -2311,6 +2306,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -2320,7 +2316,7 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
+Hello 0 from R.
 Hello 1 from R.
 Hello 2 from R.
 Hello 3 from R.
@@ -2330,17 +2326,17 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 Unit: milliseconds
- expr       min       lq     mean   median       uq       max neval
- h(0) 10.610056 13.98824 28.33737 20.64802 32.44467 193.80091   100
- i(0)  8.423551 14.85585 26.95741 22.23428 34.44803  73.48982   100
+ expr      min       lq     mean   median       uq       max neval
+ h(0) 8.303576 14.55156 24.76097 22.75290 31.83214  64.83797   100
+ i(0) 8.703523 11.62994 24.27407 21.14366 31.65630 117.45107   100
 > 
 > 
 > 
 > 
 > # When serialize=TRUE however, we are limited by R's sink stack.
 > tryCatch(i(-15),error=function(e) e)
+Hello -15 from R.
 Hello -14 from R.
 Hello -13 from R.
 Hello -12 from R.
@@ -2365,6 +2361,5 @@ Hello 6 from R.
 Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
-Hello 10 from R.
 > 
 > 
