@@ -1,6 +1,6 @@
 
-R Under development (unstable) (2016-11-13 r71655) -- "Unsuffered Consequences"
-Copyright (C) 2016 The R Foundation for Statistical Computing
+R version 3.3.3 (2017-03-06) -- "Another Canoe"
+Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -17,19 +17,14 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
-> library(rscala)
-> 
-> serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
-> output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-> version <- Sys.getenv("RSCALA_SCALA_VERSION")
-> s <- scala(serialize=serialize,stdout=output,stderr=output)
-> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
+> source("common.R",print.eval=TRUE)
+TRUE FALSE
 > 
 > tryCatch(s %~% "new java.util.Random(23455).nextDoubllllllllle",error=function(e) e)
-<console>:8: error: value nextDoubllllllllle is not a member of java.util.Random
-              new java.util.Random(23455).nextDoubllllllllle
-                                          ^
-<simpleError in scalaEval(interpreter, snippet, interpolate = FALSE): Error in evaluation.>
+<console>:12: error: value nextDoubllllllllle is not a member of java.util.Random
+       new java.util.Random(23455).nextDoubllllllllle
+                                   ^
+<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
 > capture.output(s %~% "new java.util.Random(234523).nextDouble")
 [1] "[1] 0.6839737"
 > capture.output(s %~% "3+2")
@@ -37,6 +32,6 @@ Type 'q()' to quit R.
 > capture.output(s %~% "println(3+2)")
 [1] "5"
 > capture.output(s %~% 'R.eval("""cat(R.version.string)""")')
-[1] "R Under development (unstable) (2016-11-13 r71655)"
+[1] "R version 3.3.3 (2017-03-06)"
 > 
 > 

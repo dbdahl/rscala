@@ -2,11 +2,11 @@ library(rscala)
 
 s <- local({
   getenv <- function(key,orElse="") {
-    value <- Sys.getenv("RSCALA_SERIALIZE")
+    value <- Sys.getenv(key)
     if ( value != "" ) value else orElse
   }
   serialize <- as.logical(getenv("RSCALA_SERIALIZE",FALSE))
-  output <- as.logical(getenv("RSCALA_OUTPUT"),TRUE)
+  output <- as.logical(getenv("RSCALA_OUTPUT",TRUE))
   version <- Sys.getenv("RSCALA_SCALA_VERSION",NA)
   s <- scala(serialize=serialize,stdout=output,stderr=output)
   actualVersion <- s %~% "scala.util.Properties.versionNumberString"
@@ -15,6 +15,7 @@ s <- local({
     cat("Actual version:    ",actualVersion,"\n")
     stop("Version mismatch.")
   }
+  cat(scalaSettings(s)$serialize,' ',output,'\n',sep='')
   s
 })
 
