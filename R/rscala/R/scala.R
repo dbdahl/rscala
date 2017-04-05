@@ -388,6 +388,10 @@ scalaGet <- function(interpreter,identifier,as.reference,workspace) {
     scalaDef(interpreter,args,body,FALSE,NULL,parent.frame())
   } else if ( identifier == "def2" ) function(...) {
     scalaDef2(.INTERPRETER=interpreter,...)
+  } else if ( identifier == "null" ) function(type) {
+    result <- list(interpreter=interpreter,identifier='null',type=type)
+    class(result) <- "ScalaInterpreterReference"
+    result
   } else if ( identifier == "callback" ) function(argsType,returnType,func) {
     if ( get("interpolate",envir=interpreter[['env']]) ) {
       argsType <- sapply(argsType,function(x) strintrplt(x,parent.frame()))
@@ -562,7 +566,7 @@ scalaDef2 <- function(.INTERPRETER,...) {
     value <- argValues[[i]]
     name <- argIdentifiers[[i]]
     if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") ) {
-      if ( inherits(value,"ScalaFunctionArgs") ) garbageProtection[[length(garbageProtection)+1]] <- value
+      if ( inherits(value,"ScalaCachedReference") ) garbageProtection[[length(garbageProtection)+1]] <- value
       header[i] <- paste0('val ',name,' = R.cached(R.evalS0("toString(',name,')")).asInstanceOf[',value[['type']],']')
     } else {
       if ( !is.atomic(value) || is.null(value) ) stop(paste0('Type of "',name,'" is not supported.'))

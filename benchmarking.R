@@ -235,6 +235,9 @@ library(rscala)
 
 s <- scala()
 
+nextDouble <- s$def2(rng=s$null("scala.util.Random")) %~% "rng.nextDouble()"
+
+
 mkRNG1 <- s$def2() %.~% 'new scala.util.Random()'
 mkRNG2 <- function() s %.~% 'new scala.util.Random()'
 

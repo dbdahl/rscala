@@ -75,6 +75,11 @@ callRFunction <- s$def2(functionName=scalaScalar(""), x=numeric()) %~% '
   R.eval("y <- "+functionName+"(xx)",false)
 '
 
+callRFunction <- s$def2(functionName=scalaType("String"), x=scalaType("Array[Double]") %~% '
+  R.xx = x
+  R.eval("y <- "+functionName+"(xx)",false)
+'
+
 tryCatch(callRFunction(1:100),error = function(e) {})
 callRFunction('myMean',1:100)
 
