@@ -392,6 +392,7 @@ scalaGet <- function(interpreter,identifier,as.reference,workspace) {
     }
     scalaCallback(interpreter,argsType,returnType,func,interpolate=FALSE)
   } else if ( identifier == "do" ) function(snippet) {
+    warning(paste0("Syntax \"s$do('",snippet,"')\" is deprecated.  Use \"s$.",snippet,"\" instead."))
     result <- list(interpreter=interpreter,snippet=snippet)
     class(result) <- "ScalaInterpreterItem"
     result
@@ -400,10 +401,13 @@ scalaGet <- function(interpreter,identifier,as.reference,workspace) {
   } else if ( identifier == ".val" ) function(x) {
     scalaGet(interpreter,x,TRUE,parent.frame())
   } else if ( substr(identifier,1,1) == "." ) {
-    identifier = substring(identifier,2)
-    if ( identifier == "" ) scalaGet(interpreter,".",NA,parent.frame())
-    else if ( identifier == "." ) scalaGet(interpreter,".",TRUE,parent.frame())
-    else scalaGet(interpreter,identifier,TRUE,parent.frame())
+    identifier <- substring(identifier,2)
+    result <- list(interpreter=interpreter,snippet=identifier)
+    class(result) <- "ScalaInterpreterItem"
+    result
+    # if ( identifier == "" ) scalaGet(interpreter,".",NA,parent.frame())
+    # else if ( identifier == "." ) scalaGet(interpreter,".",TRUE,parent.frame())
+    # else scalaGet(interpreter,identifier,TRUE,parent.frame())
   } else if ( identifier %in% names(interpreter) ) {
     stop("This item is not user accessible.")
   } else {

@@ -295,7 +295,16 @@ s <- scala()
 
 s$do("scala.util.Random")$nextDouble()
 m <- s$do("scala.util.Random")$new(scalaScalar(342L),.EVALUATE=FALSE)
+m(.(5L))$nextDouble()
+
+s$.scala.util.Random$nextDouble()
+m <- s$.scala.util.Random$new(scalaScalar(342L),.EVALUATE=FALSE)
 m(.(5L))$nextDouble(.EVALUATE=FALSE)
+m(.(5L))$nextDouble()
+
+s$'.Array[Int]'$new(scalaScalar(5L))
+
+
 
 s$a <- 1:10
 a <- s$.a
