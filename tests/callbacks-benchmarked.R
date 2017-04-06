@@ -10,7 +10,8 @@ g <- function(x) { Sys.sleep(sleep.time); sd(x) }
 
 # Native R code implementation
 doit0 <- function(x) {
-  c(f(x),g(x))
+  y <- 2*x
+  c(f(y),g(y))
 }
 
 doit0(rnorm(10))
