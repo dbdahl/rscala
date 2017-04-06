@@ -333,4 +333,27 @@ a <- s$_scala.util.Random
 a <- ( s$def() %~% 'scala.util.Random' )()
 a$nextDouble()
 
+
+
+
+
+library(rscala)
+s <- scala()
+. <- scalaScalar
+
+x <- function(y) {
+  cat("Hi.",y,"\n")
+}
+
+callback <- function(func,.NAME=deparse(substitute(func))) {
+  s %~% 'R.eval("@{.NAME}()")'
+}
+
+callback <- function(func,...,.NAME=deparse(substitute(func))) {
+  m <- s$def(x=scalaScalar(""),...) %~% 'R.eval(x+"(...)")'
+  m(.NAME)
+}
+
+callback(x,"D")
+
  
