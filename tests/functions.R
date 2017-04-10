@@ -1,38 +1,36 @@
-library(rscala)
+jars <- c("commons-math3-3.2.jar","shallot.jar")
+source("common.R",print.eval=TRUE)
+. <- scalaScalar
 
-serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
-output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-version <- Sys.getenv("RSCALA_SCALA_VERSION")
-s <- scala(c("commons-math3-3.2.jar","shallot.jar"),serialize=serialize,stdout=output,stderr=output)
-if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
 
 scalap(s,"org.apache.commons.math3.random.RandomDataGenerator")
-rdg <- tryCatch(s$do("org.apache.commons.math3.random.RandomDataGenerator")$new(),error=function(e) e)  # There is some incompatability between Scala REPL classloader and the Apache Commons Math jar.
-rdg <- s$do("org.apache.commons.math3.random.RandomDataGenerator")$new()                                # Rerun and it works fine.
-rdg$reSeed(39234L)
-rexp <- rdg$nextExponential(2,evaluate=FALSE)
+s$.org.apache.commons.math3.random.RandomDataGenerator
+rdg <- s$.org.apache.commons.math3.random.RandomDataGenerator$new()
+
+rdg$reSeed(.(39234L))
+rexp <- rdg$nextExponential(.(2),.EVALUATE=FALSE)
 
 library(microbenchmark)
 options(width=120)
-microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
-microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
-microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
+microbenchmark(rdg$nextExponential(.(4)),rexp(4),times=1000L)
+microbenchmark(rdg$nextExponential(.(4)),rexp(4),times=1000L)
+microbenchmark(rdg$nextExponential(.(4)),rexp(4),times=1000L)
 
-massFactory3 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(1.0,3.0,rdg)
+s$.org.ddahl.shallot.parameter.Mass
+massFactory3 <- s$.org.ddahl.shallot.parameter.Mass$factory(.(1.0),.(3.0),rdg)
 s %~% "3+4"
 
-scalap(s,"org.ddahl.shallot.parameter.Mass")
-mass <- s$do("org.ddahl.shallot.parameter.Mass")$apply(3.4)
-massFactory1 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(mass)
-massFactory2 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(3.0)
-massFactory3 <- s$do("org.ddahl.shallot.parameter.Mass")$factory(1.0,3.0,rdg)
+mass <- s$.org.ddahl.shallot.parameter.Mass$apply(.(3.4))
+massFactory1 <- s$.org.ddahl.shallot.parameter.Mass$factory(mass)
+massFactory2 <- s$.org.ddahl.shallot.parameter.Mass$factory(.(3.0))
+massFactory3 <- s$.org.ddahl.shallot.parameter.Mass$factory(.(1.0),.(3.0),rdg)
 massFactory3$apply()$logValue()
 massFactory3$apply()$logValue()
 massFactory3$apply()$logValue()
 
 
 
-s %~% '
+s %@% '
 class Bob {
 
   val a = 3.0
@@ -43,17 +41,16 @@ class Bob {
 }
 '
 
-d <- s$do("Bob")$new()
+d <- s$.Bob$new()
 d[['type']]                           # Note the weird 'iw$' prepended to 'Bob'
 tryCatch(d$b(),error=function(e) e)   # Doesn't work
 
 d[['type']] <- "Bob"     # Cast it to be 'Bob'
 d$b()                    # Now it does
 
-d$sum(as.integer(4))
-m <- d$sum(as.integer(5),evaluate=FALSE)
+d$sum(.(4L))
+m <- d$sum(.(5L),.EVALUATE=FALSE)
 
-m(3)                                    # Casting is not necessary here
-d$sum(as.integer(3))                    # But it is here
-tryCatch(d$sum(3),error=function(e) e)  # and here
+m(3)                                                   # Casting is not necessary here
+d$sum(.(as.integer(3)))                                # But it is here
 

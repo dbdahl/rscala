@@ -24,7 +24,7 @@ scala <- function(classpath=character(0),serialize=FALSE,scala.home=NULL,heap.ma
   rsJar <- .rscalaJar(sInfo$version)
   rsClasspath <- shQuote(paste(c(rsJar,userJars),collapse=.Platform$path.sep))
   portsFilename <- tempfile("rscala-")
-  args <- c(command.line.options,"-classpath",rsClasspath,"org.ddahl.rscala.Main",portsFilename,debug,serialize)
+  args <- c(command.line.options,paste0("-Drscala.classpath=",rsClasspath),"-classpath",rsClasspath,"org.ddahl.rscala.Main",portsFilename,debug,serialize)
   if ( debug ) msg("\n",sInfo$cmd)
   if ( debug ) msg("\n",paste0("<",args,">",collapse="\n"))
   system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
@@ -158,6 +158,7 @@ toString.ScalaCachedReference <- function(x,...) {
 
 print.ScalaInterpreterItem <- function(x,...) {
   cat("ScalaInterpreterItem\n")
+  scalap(x[['interpreter']],x[['snippet']])
   invisible(x)
 }
 
