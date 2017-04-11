@@ -133,16 +133,6 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
 
   private val sep = sys.props("line.separator")
 
-  private def doGC(): Unit = {
-    assert(false)   // Legacy code.
-    if ( debugger.value ) debugger.msg("Garbage collection.")
-    val length = in.readInt()
-    if ( debugger.value ) debugger.msg("... of length: "+length)
-    for ( i <- 0 until length ) {
-      //cacheMap(in.readInt()) = null
-    }
-  }
-
   private def doFree(): Unit = {
     val nItems = in.readInt()
     if ( debugger.value ) debugger.msg("Freeing "+nItems+" cached items no longer needed by R interpreter.")
@@ -173,89 +163,6 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
   }
 
   private def doDef(): Unit = {
-    val args = readString().trim
-    val body = readString()
-    if ( debugger.value ) debugger.msg("Got arguments and body.")
-    try {
-      val params = if ( args != "" ) {
-        val y = args.split(":").map(z => {
-          val l = z.lastIndexOf(",")
-          if ( l >= 0 ) Array(z.substring(0,l).trim,z.substring(l+1).trim)
-          else Array(z.trim)
-        }).flatten
-        val l = y.length/2
-        val r = new Array[String](l)
-        val s = new Array[String](l)
-        for ( i <- 0 until l ) {
-          r(i) = y(2*i)
-          s(i) = y(2*i+1)
-        }
-        (r,s)
-      } else (Array[String](),Array[String]())
-      if ( debugger.value ) debugger.msg("Parsed arguments.")
-      out.writeInt(OK)
-      try {
-        val paramNames = params._1
-        val paramTypes = params._2
-        out.writeInt(OK)
-        try {
-          val result = repl.interpret(s"($args) => { $body }")
-          if ( result != Success ) throw new RuntimeException("Parse error in 'def'.")
-          out.writeInt(OK)
-          val functionName = repl.mostRecentVar
-          if ( debugger.value ) debugger.msg("Name of function is: <"+functionName+">")
-          try {
-            storeFunction(functionName,paramNames.length)
-            if ( debugger.value ) debugger.msg("Stored function.")
-            out.writeInt(OK)
-            writeString(functionName)
-            if ( debugger.value ) debugger.msg("Everything is okay in 'def'.")
-            out.writeInt(paramNames.length)
-            if ( debugger.value ) debugger.msg("There are "+paramNames.length+" parameters.")
-            paramNames.foreach(writeString)
-            paramTypes.foreach(writeString)
-            writeString(functionMapOld(functionName)._4)
-            if ( debugger.value ) debugger.msg("Done.")
-          } catch {
-            case e: Throwable =>
-              out.writeInt(ERROR)
-              e.printStackTrace(pw)
-              pw.println(e + ( if ( e.getCause != null ) System.lineSeparator + e.getCause else "" ) )
-          }
-        } catch {
-          case e: Throwable =>
-            out.writeInt(ERROR)
-            e.printStackTrace(pw)
-            pw.println(e + ( if ( e.getCause != null ) System.lineSeparator + e.getCause else "" ) )
-        }
-      } catch {
-        case e: Throwable =>
-          out.writeInt(ERROR)
-      }
-    } catch {
-      case e: Throwable =>
-        out.writeInt(ERROR)
-    }
-  }
-
-  private def doInvoke(): Unit = {
-    val functionName = readString()
-    try {
-//      val f = repl.valueOfTerm(functionName).get    // DBD:  Do I need this?
-      callFunction(functionName)
-      R.exit()
-      if ( debugger.value ) debugger.msg("Invoke is okay")
-      out.writeInt(OK)
-    } catch {
-      case e: Throwable =>
-        R.exit()
-        out.writeInt(ERROR)
-        e.printStackTrace(pw)
-        pw.println(e + ( if ( e.getCause != null ) System.lineSeparator + e.getCause else "" ) )
-    }
-  }
-
-  private def doDef2(): Unit = {
     try {
       val functionName = readString()
       val functionReturnType = readString()
@@ -269,7 +176,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
     }
   }
 
-  private def doInvoke2(): Unit = {
+  private def doInvoke(): Unit = {
     try {
       val functionName = readString()
       val (f, returnType) = functionMap(functionName)
@@ -634,11 +541,6 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
       case EXIT =>
         if ( debugger.value ) debugger.msg("Exiting")
         return false
-      case RESET =>
-        if ( debugger.value ) debugger.msg("Resetting")
-        cacheMap.clear()
-      case GC =>
-        doGC()
       case FREE =>
         doFree()
       case EVAL =>
@@ -651,12 +553,8 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
         doGetReference()
       case DEF =>
         doDef()
-      case DEF2 =>
-        doDef2()
       case INVOKE =>
         doInvoke()
-      case INVOKE2 =>
-        doInvoke2()
       case SCALAP =>
         doScalap()
     }

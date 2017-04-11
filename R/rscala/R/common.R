@@ -1,7 +1,6 @@
 '%~%'   <- function(interpreter,snippet) UseMethod("%~%")
 '%.~%'  <- function(interpreter,snippet) UseMethod("%.~%")
 '%@%'   <- function(interpreter,snippet) UseMethod("%@%")
-'%new%' <- function(interpreter,snippet) UseMethod("%new%")
 
 strintrplt <- function(snippet,envir=parent.frame()) {
   if ( ! is.character(snippet) ) stop("Character vector expected.")
@@ -15,16 +14,8 @@ strintrplt <- function(snippet,envir=parent.frame()) {
   } else snippet
 }
 
-scalaSettings <- function(interpreter,interpolate=NULL,length.one.as.vector=NULL) {
-  if ( is.null(interpolate) && is.null(length.one.as.vector) ) {
-    list(debug=get("debug",envir=interpreter[['env']]),
-         serialize=get("serialize",envir=interpreter[['env']]),
-         interpolate=get("interpolate",envir=interpreter[['env']]),
-         length.one.as.vector=get("length.one.as.vector",envir=interpreter[['env']]))
-  } else {
-    if ( !is.null(interpolate) ) assign("interpolate",as.logical(interpolate)[1],envir=interpreter[['env']])
-    if ( !is.null(length.one.as.vector) ) assign("length.one.as.vector",as.logical(length.one.as.vector)[1],envir=interpreter[['env']])
-  }
+scalaSettings <- function(interpreter,interpolate=NULL) {
+  if ( !is.null(interpolate) ) assign("interpolate",as.logical(interpolate)[1],envir=interpreter[['env']])
 }
 
 msg <- function(...,withTime=FALSE) {

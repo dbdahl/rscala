@@ -30,34 +30,20 @@ S3method("toString","ScalaInterpreterItem")
 S3method("$","ScalaInterpreterItem")
 
 export("scalaWrap")
-
 export("scalaUnwrap")
-
 export("scalaCallback")
 
-export("scalaEval")
 export("%~%")
 export("%.~%")
 export("%@%")
-export("%new%")
 S3method("%~%","ScalaInterpreter")
 S3method("%~%","ScalaFunctionArgs")
 S3method("%.~%","ScalaInterpreter")
 S3method("%.~%","ScalaFunctionArgs")
 S3method("%@%","ScalaInterpreter")
-S3method("%new%","ScalaInterpreter")
 
-export("scalaGet")
 S3method("$","ScalaInterpreter")
-
-export("scalaSet")
 S3method("$<-","ScalaInterpreter")
-
-export("scalaDef")
-
-export("scalaGC")
-
-export("scalaReset")
 
 S3method("close","ScalaInterpreter")
 
