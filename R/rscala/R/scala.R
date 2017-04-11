@@ -136,6 +136,7 @@ toString.ScalaInterpreter <- function(x,...) {
 
 print.ScalaInterpreterReference <- function(x,...) {
   type <- x[['type']]
+  scalap(x[['interpreter']],type)
   cat("ScalaInterpreterReference... ")
   cat(x[['identifier']],": ",type,"\n",sep="")
   invisible(x)
@@ -147,6 +148,7 @@ toString.ScalaInterpreterReference <- function(x,...) {
 
 print.ScalaCachedReference <- function(x,...) {
   type <- x[['type']]
+  scalap(x[['interpreter']],type)
   cat("ScalaCachedReference... ")
   cat("*: ",type,"\n",sep="")
   invisible(x)
@@ -157,8 +159,8 @@ toString.ScalaCachedReference <- function(x,...) {
 }
 
 print.ScalaInterpreterItem <- function(x,...) {
-  cat("ScalaInterpreterItem\n")
   scalap(x[['interpreter']],x[['snippet']])
+  cat("ScalaInterpreterItem\n")
   invisible(x)
 }
 
@@ -393,7 +395,6 @@ scalaGet <- function(interpreter,identifier,as.reference,workspace) {
     }
     scalaCallback(interpreter,argsType,returnType,func,interpolate=FALSE)
   } else if ( identifier == "do" ) function(snippet) {
-    warning(paste0("Syntax \"s$do('",snippet,"')\" is deprecated.  Use \"s$.",snippet,"\" instead."))
     result <- list(interpreter=interpreter,snippet=snippet)
     class(result) <- "ScalaInterpreterItem"
     result
@@ -406,9 +407,6 @@ scalaGet <- function(interpreter,identifier,as.reference,workspace) {
     result <- list(interpreter=interpreter,snippet=identifier)
     class(result) <- "ScalaInterpreterItem"
     result
-    # if ( identifier == "" ) scalaGet(interpreter,".",NA,parent.frame())
-    # else if ( identifier == "." ) scalaGet(interpreter,".",TRUE,parent.frame())
-    # else scalaGet(interpreter,identifier,TRUE,parent.frame())
   } else if ( identifier %in% names(interpreter) ) {
     stop("This item is not user accessible.")
   } else {

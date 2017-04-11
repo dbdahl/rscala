@@ -1,6 +1,7 @@
 jars <- c("commons-math3-3.2.jar","shallot.jar")
 source("common.R",print.eval=TRUE)
-. <- scalaScalar
+
+tryCatch(s %~% 'new org.apache.commons.math3.random.EmpiricalDistribution()',error=function(e) e)   # Scala 2.11.x class loader is weird.  This line avoid subsequent problems.
 
 
 scalap(s,"org.apache.commons.math3.random.RandomDataGenerator")
