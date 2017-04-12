@@ -350,11 +350,6 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
       out.writeInt(NULLTYPE)
       return
     }
-    if ( optionWithType._2 == "org.ddahl.rscala.RObject" ) {
-      out.writeInt(REFERENCE)
-      writeString(v.asInstanceOf[org.ddahl.rscala.RObject].name)
-      return
-    }
     val t = if ( optionWithType._2 == "Any" ) {
       val c = v.getClass
       if ( debugger.value ) debugger.msg("Trying to infer type of "+c)

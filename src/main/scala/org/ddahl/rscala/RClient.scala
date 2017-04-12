@@ -115,9 +115,6 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getS2]].  */
   def evalS2(snippet: String) = { eval(snippet,true); getS2(".rscala.last.value") }
 
-  /** Calls '''`eval(snippet,true)`''' and returns the result using [[getR]].  */
-  def evalR( snippet: String) = { eval(snippet,true); getR( ".rscala.last.value") }
-
   /** A short-hand way to call [[get]].
   *
   * {{{
@@ -329,27 +326,15 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   /** Returns the value of `identifier` in the R interpreter.  The static type of the result is `(Any,String)`, where
   * the first element is the value and the second is the runtime type.
   *
-  * If `asReference=false`, conversion to integers, doubles, Booleans, and strings are supported, as are vectors (i.e.
+  * Conversion to integers, doubles, Booleans, and strings are supported, as are vectors (i.e.
   * arrays) and matrices (i.e. retangular arrays of arrays) of these types.    Using the method `getXY` (where `X` is
   * `I`, `D`, `B`, or `S` and `Y` is `0`, `1`, or `2`) may be more convenient (e.g.  [[getD0]]).
-  *
-  * If `asReference=true`, the value is merely wrapped using [[RObject]] and objects of any type are supported.  Using
-  * the method [[getR]] may be more convenient.
   */
-  def get(identifier: String, asReference: Boolean = false): (Any,String) = {
+  def get(identifier: String): (Any,String) = {
     if ( debug ) debugger.msg("Getting: "+identifier)
-    out.writeInt(if ( asReference ) GET_REFERENCE else GET)
+    out.writeInt(GET)
     Helper.writeString(out,identifier)
     out.flush()
-    if ( asReference ) {
-      if ( debug ) debugger.msg("Getting reference.")
-      val r = in.readInt() match {
-        case REFERENCE => (RObject(Helper.readString(in)),"RObject")
-        case UNDEFINED_IDENTIFIER =>
-          throw new RuntimeException("Undefined identifier")
-      }
-      return r
-    }
     in.readInt match {
       case NULLTYPE =>
         if ( debug ) debugger.msg("Getting null.")
@@ -582,25 +567,6 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
     case (a,"Array[Array[Boolean]]") => a.asInstanceOf[Array[Array[Boolean]]].map(_.map(_.toString))
     case (a,"Array[Array[String]]") => a.asInstanceOf[Array[Array[String]]]
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Array[Array[String]]")
-  }
-
-  /** Calls '''`get(identifier,true)`''' and converts the result to an `[[RObject]]`.
-  *
-  * The value is merely wrapped using [[RObject]] and objects of any type are supported.
-  */
-  def getR(identifier: String): RObject = get(identifier,true) match {
-    case (a,"RObject") => a.asInstanceOf[RObject]
-    case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to RObject")
-  }
-
-  /**
-  * Reclaims memory associated with __'''all'''__ R references, including any instances of [[RObject]] that are still in
-  * memory.
-  */
-  def gc(): Unit = {
-    if ( debug ) debugger.msg("Sending GC request.")
-    out.writeInt(GC)
-    out.flush()
   }
 
 }

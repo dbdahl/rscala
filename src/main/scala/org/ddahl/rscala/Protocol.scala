@@ -19,8 +19,6 @@ object Protocol {
 
   // Commands
   val EXIT          = 100
-  val RESET         = 101
-  val GC            = 102
   val FREE          = 103
   val EVAL          = 104
   val SET           = 105
@@ -29,9 +27,7 @@ object Protocol {
   val GET           = 108
   val GET_REFERENCE = 109
   val DEF           = 110
-  val DEF2          = 1101
   val INVOKE        = 111
-  val INVOKE2       = 1111
   val SCALAP        = 112
   val EVALNAKED     = 113
   val SHUTDOWN      = 114

@@ -1,7 +1,5 @@
 package org.ddahl.rscala;
 
-import org.ddahl.rscala.RObject;
-
 /** An interface to an R interpreter.
 *
 * An object <tt>R</tt> is the instance of this class available in a Scala interpreter created by calling the function
@@ -50,9 +48,6 @@ import org.ddahl.rscala.RObject;
 *     int[] dd = {5,4,5};
 *     R.set("myList",dd,"'counts'",false);
 *     R.eval("print(myList)");
-* 
-*     org.ddahl.rscala.RObject ref = R.evalR("as.list(a)");
-*     R.evalD0("sum(unlist("+ref+"))");
 * 
 *   }
 * 
@@ -172,12 +167,6 @@ public class RClient4Java {
   */
   public String[][] evalS2(String snippet) { return c.evalS2(snippet); }
 
-  /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getR(String) getR}.  
-  * @param snippet  The snippet to be evaluated.
-  * @return   The evaluated RObject.
-  */
-  public RObject evalR(String snippet) { return c.evalR(snippet); }
-
   /** Equivalent to calling <b><tt>set(identifier, value, "", true)</tt></b>. 
   * @param identifier The string of input to be set.
   * @param value  The value of the string.
@@ -199,24 +188,18 @@ public class RClient4Java {
   */
   public void set(String identifier, Object value, String index, boolean singleBrackets) { c.set(identifier,value,index,singleBrackets); }
 
-  public Object[] get(String identifier) { return get(identifier,false); }
-
   /** Returns the value of <tt>identifier</tt> in the R interpreter.  The runtime type is an array whose first element is the value for
   * the identifier and whose second element is <tt>String</tt> indicates the runtime type.
   *
-  * If <tt>asReference=false</tt>, conversion to integers, doubles, booleans, and strings are supported, as are vectors (i.e.
+  * Conversion to integers, doubles, booleans, and strings are supported, as are vectors (i.e.
   * arrays) and matrices (i.e. retangular arrays of arrays) of these types.    Using the method <tt>getXY</tt> (where <tt>X</tt> is
   * <tt>I</tt>, <tt>D</tt>, <tt>B</tt>, or <tt>S</tt> and <tt>Y</tt> is <tt>0</tt>, <tt>1</tt>, or <tt>2</tt>) may be more convenient (e.g.  {@link #getD0(String) getD0}).
   *
-  * If <tt>asReference=true</tt>, the value is merely wrapped using <b><tt>RObject</tt></b> and objects of any type are supported.  Using
-  * the method {@link #getR(String) getR} may be more convenient.
-  *
   * @param identifier The string of input to be set.
-  * @param asReference  A Boolean indicating whether to evaluate the identifier as a reference.
   * @return   The evaluated Object.
   */
-  public Object[] get(String identifier, boolean asReference) {
-    scala.Tuple2<Object, String> t = c.get(identifier,asReference);
+  public Object[] get(String identifier) {
+    scala.Tuple2<Object, String> t = c.get(identifier);
     Object[] r = { t._1, t._2 };
     return r;
   }
@@ -332,20 +315,6 @@ public class RClient4Java {
   * @return   The evaluated string.
   */
   public String[][] getS2(String identifier) { return c.getS2(identifier); }
-
-  /** Calls <b><tt>get(identifier,true)</tt></b> and converts the result to an <b><tt>RObject</tt></b>.
-  *
-  * The value is merely wrapped using <b><tt>RObject</tt></b> and objects of any type are supported.
-  * @param identifier The string to be evaluated.
-  * @return   The evaluated RObject.
-  */
-  public RObject getR(String identifier) { return c.getR(identifier); }
-
-  /**
-  * Reclaims memory associated with <b><u>all</u></b> R references, including any instances of <b><tt>RObject</tt></b> that are still in
-  * memory.
-  */
-  public void gc() { c.gc(); }
 
 }
 

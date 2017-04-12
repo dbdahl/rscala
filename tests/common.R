@@ -11,7 +11,8 @@ s <- local({
   version <- Sys.getenv("RSCALA_SCALA_VERSION",NA)
   if ( ! exists("jars") ) jars <- character()
   if ( ! exists("heap.maximum") ) heap.maximum <- NULL
-  s <- scala(classpath=jars,serialize=serialize,stdout=output,stderr=output,heap.maximum=heap.maximum)
+  if ( ! exists("debug") ) debug <- FALSE
+  s <- scala(classpath=jars,serialize=serialize,stdout=output,stderr=output,heap.maximum=heap.maximum,debug=debug)
   actualVersion <- s %~% "scala.util.Properties.versionNumberString"
   if ( !is.na(version) && ( version != s %~% "scala.util.Properties.versionNumberString" ) ) {
     cat("Requested version: ",version,"\n")

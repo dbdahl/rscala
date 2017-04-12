@@ -189,13 +189,15 @@ scalaGet <- function(interpreter,identifier,as.reference,workspace) {
           class(result) <- "ScalaInterpreterReference"
         }
         return(result)
+      } else if ( response == NULLTYPE ) {
+        return(NULL)
       } else if ( response == ERROR ) {
         if ( get("serialize",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
         stop(paste("Exception thrown.",sep=""))
       } else if ( response == UNDEFINED_IDENTIFIER ) {
         if ( get("serialize",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
         stop(paste("Undefined identifier: ",identifier[1],sep=""))
-      } else stop("Protocol error.")
+      } else stop(paste0("Protocol error.  Got: ",response))
     }
     i <- if ( inherits(identifier,"ScalaInterpreterReference") || inherits(identifier,"ScalaCachedReference") ) {
       identifier[['identifier']]
@@ -263,7 +265,7 @@ scalaGet <- function(interpreter,identifier,as.reference,workspace) {
         if ( get("serialize",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
         stop("Unsupported data structure.")
       }
-    } else stop("Protocol error.")
+    } else stop(paste0("Protocol error.  Got: ",dataStructure))
     if ( get("serialize",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
     value
   }, interrupt = function(x) {
@@ -282,12 +284,6 @@ scalaGet <- function(interpreter,identifier,as.reference,workspace) {
     result <- list(interpreter=interpreter,identifier='null',type=type)
     class(result) <- "ScalaInterpreterReference"
     result
-  } else if ( identifier == "callback" ) function(argsType,returnType,func) {
-    if ( get("interpolate",envir=interpreter[['env']]) ) {
-      argsType <- sapply(argsType,function(x) strintrplt(x,parent.frame()))
-      returnType <- strintrplt(returnType,parent.frame())
-    }
-    scalaCallback(interpreter,argsType,returnType,func,interpolate=FALSE)
   } else if ( identifier == "do" ) function(snippet) {
     result <- list(interpreter=interpreter,snippet=snippet)
     class(result) <- "ScalaInterpreterItem"
@@ -386,38 +382,6 @@ scalaSet <- function(interpreter,identifier,value,workspace) {
     scalaSet(interpreter,identifier,value,parent.frame())
   }
   interpreter
-}
-
-scalaCallback <- function(interpreter,argsType,returnType,func,interpolate="") {
-  stop('Disabled... Legacy code?')
-  if ( length(argsType) != length(formals(func)) ) stop("The length of 'argsType' must match the number of arguments of 'func'.")
-  if ( length(returnType) != 1 ) stop("The length of 'returnType' must be exactly one.")
-  X <- c("I","D","B","S")
-  Y <- c("0","1","2")
-  validReturnTypes <- c(paste(rep(X,each=length(Y)),rep(Y,times=length(X)),sep=""),"R")
-  if ( ! ( returnType %in% validReturnTypes ) ) stop(paste("Unrecognized 'returnType'.  Valid values are: ",paste(validReturnTypes,collapse=", "),sep=""))
-  if ( ( ( interpolate == "" ) && ( get("interpolate",envir=interpreter[['env']]) ) ) || ( interpolate == TRUE ) ) {
-    argsType <- sapply(argsType,function(x) strintrplt(x,parent.frame()))
-    returnType <- strintrplt(returnType,parent.frame())
-  }
-  functionNumber <- get("callbackNameCounter",envir=interpreter[['env']])
-  functionName <- paste(".f",functionNumber,sep="")
-  assign("callbackNameCounter",functionNumber+1L,envir=interpreter[['env']])
-  assign(functionName,func,envir=interpreter[['workspace']])
-  xs <- paste("x",1:length(argsType),sep="")
-  argsScala <- paste(paste(xs,argsType,sep=": "),collapse=", ")
-  sets <- paste(paste('R.set(".',xs,'",',xs,')',sep=""),collapse="\n")
-  argsR <- paste(".",xs,sep="",collapse=",")
-  snippet <- sprintf('(%s) => {
-    locally {
-      %s
-      R.eval%s("%s(%s)")
-    }
-  }',argsScala,sets,returnType,functionName,argsR)
-  snippet <- strintrplt(snippet,parent.frame())
-  result <- evalAndGet(interpreter,snippet,TRUE,parent.frame())
-  if ( is.null(result) ) invisible(result)
-  else result
 }
 
 scalaScalar <- function(x) {
@@ -583,18 +547,6 @@ scalap <- function(interpreter,item.name) {
     close(interpreter[['socketIn']])
     message("Interpreter closed by interrupt.")
   })
-}
-
-scalaWrap <- function(interpreter,value) {
-  stop('Disabled... Legacy code?')
-  interpreter[['workspace']]$.rscala.wrap <- value
-  interpreter$.R$getR(".rscala.wrap",as.reference=TRUE)
-}
-
-scalaUnwrap <- function(interpreter,value) {
-  stop('Disabled... Legacy code?')
-  if ( is.null(value) ) NULL
-  else get(value$name(),envir=interpreter[['workspace']]$.)
 }
 
 close.ScalaInterpreter <- function(con,...) {

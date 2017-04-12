@@ -132,9 +132,6 @@ stop("Legacy code.")
         wb(sockets,REFERENCE)
         wc(sockets,new.reference(value,workspace$.))
       }
-    } else if ( cmd == GC ) {
-      if ( debug ) msg("Got GC")
-      workspace$. <- new.env(parent=workspace)
     } else if ( cmd == SHUTDOWN ) {
       if ( debug ) msg("Got SHUTDOWN")
       return()

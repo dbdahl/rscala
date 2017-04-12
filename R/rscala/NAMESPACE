@@ -29,10 +29,6 @@ S3method("print","ScalaInterpreterItem")
 S3method("toString","ScalaInterpreterItem")
 S3method("$","ScalaInterpreterItem")
 
-export("scalaWrap")
-export("scalaUnwrap")
-export("scalaCallback")
-
 export("%~%")
 export("%.~%")
 export("%@%")
