@@ -378,12 +378,7 @@ scalaSet <- function(interpreter,identifier,value,workspace) {
 
 '$<-.ScalaInterpreter' <- function(interpreter,identifier,value) {
   cc(interpreter)
-  if ( substr(identifier,1,1) == "." ) {
-    identifier = substring(identifier,2)
-    scalaSet(interpreter,identifier,scalaWrap(interpreter,value),parent.frame())
-  } else {
-    scalaSet(interpreter,identifier,value,parent.frame())
-  }
+  scalaSet(interpreter,identifier,value,parent.frame())
   interpreter
 }
 

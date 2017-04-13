@@ -1,6 +1,6 @@
 
-R Under development (unstable) (2016-11-13 r71655) -- "Unsuffered Consequences"
-Copyright (C) 2016 The R Foundation for Statistical Computing
+R version 3.3.3 (2017-03-06) -- "Another Canoe"
+Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -17,20 +17,17 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
-> library(rscala)
+> source("common.R",print.eval=TRUE)
+TRUE TRUE
 > 
-> serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
-> output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-> version <- Sys.getenv("RSCALA_SCALA_VERSION")
-> s <- scala(serialize=serialize,stdout=output,stderr=output)
-> if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
 > 
 > s %~% "val a = @{1+3}"
 [1] 4
 > s$a
 [1] 4
 > s$.a
-ScalaInterpreterReference... a: Int
+class/object a not found.
+ScalaInterpreterItem
 > 
 > name <- "David Dahl"
 > s %~% 'val name = "@{name}".reverse'
