@@ -9,7 +9,7 @@ fi
 if [[ $# -eq 0 ]]
 then
   DOALL=TRUE
-  SCRIPTS="basics.R callbacks.R callbacks-benchmarked.R defs.R functions.R identifiers.R interpolate.R io.R lengthOneAsVector.R memory.R mistakes.R protocol-speed.scala recursion.R rinscala.scala unit-testing.R"
+  SCRIPTS="basics.R callbacks.R callbacks-benchmarked.R defs.R functions.R identifiers.R interpolate.R io.R memory.R mistakes.R protocol-speed.scala recursion.R rinscala.scala unit-testing.R"
 else
   DOALL=FALSE
   SCRIPTS="$*"
@@ -44,7 +44,7 @@ do
         EXT=$([[ "$script" = *.* ]] && echo ".${script##*.}" || echo '')
         if [[ "$EXT" == .R ]]
         then
-          echo "SCALA_HOME=$SCALA_HOME RSCALA_SCALA_VERSION=$SCALA_VERSION RSCALA_OUTPUT=$OUTPUT RSCALA_SERIALIZE=$SERIALIZE R CMD BATCH --no-timing --no-restore --no-save $script ${script}out-$SERIALIZE-$OUTPUT-$SCALA_VERSION_MAJOR"
+          echo "SCALA_HOME=$SCALA_HOME RSCALA_SCALA_VERSION=$SCALA_VERSION RSCALA_OUTPUT=$OUTPUT RSCALA_SERIALIZE=$SERIALIZE R CMD BATCH --quiet --no-timing --no-restore --no-save $script ${script}out-$SERIALIZE-$OUTPUT-$SCALA_VERSION_MAJOR"
         elif [[ "$EXT" == .scala || "$EXT" == "" ]]
         then
           echo "SCALA_HOME=$SCALA_HOME RSCALA_SCALA_VERSION=$SCALA_VERSION RSCALA_OUTPUT=$OUTPUT RSCALA_SERIALIZE=$SERIALIZE ./$script >| $script.out-$SERIALIZE-$OUTPUT-$SCALA_VERSION_MAJOR 2>&1"

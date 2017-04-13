@@ -18,7 +18,8 @@ s <- local({
     cat("Actual version:    ",actualVersion,"\n")
     stop("Version mismatch.")
   }
-  cat(paste(R.Version()$version.string),Sys.info()[["nodename"]],scalaSettings(s)$serialize,output,'\n',sep=' # ')
+  cat('# ',paste(R.Version()$version.string),Sys.info()[["nodename"]],scalaSettings(s)$serialize,output,sep=' # ')
+  cat('\n')
   s
 })
 
