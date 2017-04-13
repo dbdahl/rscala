@@ -1,33 +1,32 @@
-library(rscala)
-
-serialize <- as.logical(Sys.getenv("RSCALA_SERIALIZE"))
-output <- as.logical(Sys.getenv("RSCALA_OUTPUT"))
-version <- Sys.getenv("RSCALA_SCALA_VERSION")
-s <- scala(serialize=serialize,stdout=output,stderr=output)
-if ( version != s %~% "scala.util.Properties.versionNumberString" ) stop("Version mismatch.")
-
-f <- s$def('x: (Int,Int)','x._1 + x._2')
-s %~% "(300,400)"
-scalaEval(s,"val a = (300,400)")
-a <- scalaGet(s,"a",as.reference=TRUE)
-f(a)
-f(s %.~% "(300,400)")
+source("common.R",print.eval=TRUE)
 
 
-f2 <- s$def('','println("Yes")')
+f <- s$def(x=s$null("(Int,Int)")) %~% 'x._1 + x._2'
+g <- s %~% "(300,400)"
+f(g)
+f(s %~% "(30,40)")
+
+f2 <- s$def() %~% 'println("Yes")'
 f2()
 capture.output(f2())
 
-f1 <- s$def('x: Tuple2[Int,Int], y: Array[Double]','x._1 + x._2 + y.sum')
 a <- s %.~% "(300,234)"
-b <- s %.~% "Array[Double](2,3,4,5)"
-f1(a,b)
+f1 <- s$def(x=s$null("(Int,Int)"),y=numeric()) %~% 'x._1 + x._2 + y.sum'
 f1(a,c(2,3,4,6))
 
+f1 <- s$def(x=s$null("(Int,Int)"),y=s$null("Array[Double]")) %~% 'x._1 + x._2 + y.sum'
+b <- s %.~% "Array[Double](2,3,4,5)"
+f1(a,b)
 
-s$def('','println("Yes")')()
-s$def('','0')()
-s$def('','null')()
+
+
+(s$def() %~% 'println("Yes")')()
+(s$def() %~% '0')()
+(s$def() %~% 'null')()
+
+
+
+
 tryCatch(s$def('','a+b')(),error = function(e) e)
 tryCatch(s$def('','a+')(),error = function(e) e)
 tryCatch(s$def('','import org.asdfad')(),error = function(e) {e})
