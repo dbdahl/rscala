@@ -1,4 +1,4 @@
-rServe <- function(sockets,with.callbacks,workspace) {
+rServe <- function(sockets,with.callbacks,workspace=.GlobalEnv) {
   debug <- get("debug",envir=sockets[['env']])
   if ( debug ) msg(paste0("R server using environment: ",capture.output(print(workspace))))
   while ( TRUE ) {
@@ -70,17 +70,6 @@ rServe <- function(sockets,with.callbacks,workspace) {
         else stop(paste("Unknown data type:",dataType))
         if ( cmd == SET ) assign(identifier,value,envir=workspace)
         else subassign(sockets,identifier,index,value,cmd==SET_SINGLE,workspace)
-      } else if ( dataStructure == REFERENCE ) {
-        otherIdentifier <- rc(sockets)
-        if ( exists(otherIdentifier,envir=workspace$.) ) {
-          wb(sockets,OK)
-stop("Legacy code.")
-          value <- get(otherIdentifier,envir=workspace$.)
-          if ( cmd == SET ) assign(identifier,value,envir=workspace)
-          else subassign(sockets,identifier,index,value,cmd==SET_SINGLE,workspace)
-        } else {
-          wb(sockets,UNDEFINED_IDENTIFIER)
-        }
       } else stop(paste("Unknown data structure:",dataStructure))
     } else if ( cmd == GET ) {
       if ( debug ) msg("Got GET")
