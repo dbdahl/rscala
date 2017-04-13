@@ -11,7 +11,6 @@ export(".rscalaPackage")
 export("scalaInfo")
 export("scalaInstall")
 export("scalap")
-export("scalaScalar")
 
 S3method("print","ScalaInterpreter")
 S3method("toString","ScalaInterpreter")

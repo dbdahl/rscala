@@ -247,10 +247,6 @@ scalaGet <- function(interpreter,identifier,as.reference,workspace) {
         if ( dataType == BOOLEAN ) mode(v) <- "logical"
         v
       }
-    } else if ( dataStructure == REFERENCE ) {
-      itemName <- rc(interpreter)
-      stop("I don't think this is necessary.")
-      get(itemName,envir=interpreter[['workspace']]$.)
     } else if ( dataStructure == ERROR ) {
       if ( get("serialize",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
       stop(paste("Exception thrown.",sep=""))
@@ -322,12 +318,19 @@ scalaSet <- function(interpreter,identifier,value,workspace) {
       }
     } else {
       if ( ! is.atomic(value) ) stop("Data structure is not supported.")
+      asScalar <- if ( inherits(value,"AsIs") ) {
+        if ( length(value) != 1 ) stop("Values wrapped in I() must be of length one.")
+        value <- as.vector(value)
+        TRUE
+      } else {
+        FALSE
+      }
       if ( is.vector(value) ) {
         type <- checkType(value)
         if ( get("debug",envir=interpreter[['env']]) ) msg("Sending SET request.")
         wb(interpreter,SET)
         wc(interpreter,identifier)
-        if ( isScalaScalar(value) ) {
+        if ( asScalar ) {
           wb(interpreter,ATOMIC)
         } else {
           wb(interpreter,VECTOR)
@@ -384,12 +387,6 @@ scalaSet <- function(interpreter,identifier,value,workspace) {
   interpreter
 }
 
-scalaScalar <- function(x) {
-  if ( ! is.vector(x) || length(x) != 1L ) stop("'x' must be vector of length 1.")
-  names(x) <- 'scalaScalar'
-  x
-}
-
 scalaDef <- function(.INTERPRETER,...) {
   argValues <- list(...)
   argIdentifiers <- names(argValues)
@@ -409,13 +406,12 @@ scalaDef <- function(.INTERPRETER,...) {
       if ( inherits(value,"ScalaCachedReference") ) garbageProtection[[length(garbageProtection)+1]] <- value
       header[i] <- paste0('val ',name,' = R.cached(R.evalS0("toString(',name,')")).asInstanceOf[',value[['type']],']')
     } else {
-      if ( !is.atomic(value) || is.null(value) ) stop(paste0('Type of "',name,'" is not supported.'))
+      if ( ( ! is.atomic(value) ) || is.null(value) ) stop(paste0('Type of "',name,'" is not supported.'))
       type <- checkType3(value)
-      len <- if ( is.vector(value) ) {
-        if ( isScalaScalar(value) ) 0 else 1
-      } else if ( is.matrix(value) ) {
-        2
-      } else stop(paste0('Type of "',name,'" is not supported.'))
+      len <- if ( inherits(value,"AsIs") ) 0
+      else if ( is.vector(value) ) 1
+      else if ( is.matrix(value) ) 2
+      else stop(paste0('Type of "',name,'" is not supported.'))
       header[i] <- paste0('val ',name,' = R.get',type,len,'("',name,'")')
     }
   }
@@ -713,10 +709,6 @@ checkType3 <- function(x) {
   else if ( is.logical(x) ) "B"
   else if ( is.character(x) ) "S"
   else stop("Unsupported data type.")
-}
-
-isScalaScalar <- function(x) {
-  identical(names(x),'scalaScalar')
 }
 
 echoResponseScala <- function(interpreter) {

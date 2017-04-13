@@ -1,0 +1,61 @@
+
+R version 3.3.2 (2016-10-31) -- "Sincere Pumpkin Patch"
+Copyright (C) 2016 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> heap.maximum <- "64M"
+> source("common.R",print.eval=TRUE)
+FALSE FALSE
+> 
+> tryCatch(a <- s$do("Array[Double]")$new(I(20000000L)),error=function(e) e)
+<simpleError in f(...): Invocation error.>
+> close(s)
+> cat("----\n")
+----
+> 
+> heap.maximum <- "386M"
+> source("common.R",print.eval=TRUE)
+FALSE FALSE
+> tryCatch(a <- s$do("Array[Double]")$new(I(20000000L)),error=function(e) e)
+> close(s)
+> cat("----\n")
+----
+> 
+> options(rscala.heap.maximum="64M")
+> source("common.R",print.eval=TRUE)
+FALSE FALSE
+> tryCatch(a <- s$do("Array[Double]")$new(I(20000000L)),error=function(e) e)
+> close(s)
+> cat("----\n")
+----
+> 
+> options(rscala.heap.maximum="128M")
+> source("common.R",print.eval=TRUE)
+FALSE FALSE
+> for ( i in 1:2000 ) {
++   a <- s$do("Array[Double]")$new(I(100000L))  # No memory problems
++ }
+> 
+> tryCatch({
++ for ( i in 1:2000 ) {
++   s %~% "new Array[Double](100000)"           # Memory problems
++ }
++ },error=function(e) e)
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Exception thrown.>
+> 
+> 
+> 

@@ -1,0 +1,97 @@
+
+R version 3.3.2 (2016-10-31) -- "Sincere Pumpkin Patch"
+Copyright (C) 2016 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> source("common.R",print.eval=TRUE)
+FALSE FALSE
+> 
+> if ( substr(Sys.getenv("RSCALA_SCALA_VERSION"),1,4) != "2.10" ) {
++   a <- s %.~% "null"
++   print(a)
++ }
+ScalaInterpreterReference... res1: Null
+> 
+> a <- s %~% "null"
+> a
+NULL
+> 
+> a <- list(a=3,b=4)
+> tryCatch(s$j <- a,error=function(e) e)
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Data structure is not supported.>
+> s$jj <- unlist(a)
+> s$jj
+[1] 3 4
+> 
+> tryCatch(s$j <- complex(3,4,5,32),error=function(e) e)
+<simpleError in checkType(value): Unsupported data type.>
+> 
+> tryCatch(s %~% "
++   val a = 3
++   val b = 5
++   a ++ b
++ ",error=function(e) e)
+<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
+> 
+> s %~% "
++   val a = 3
++   val b = 5
++   (a,b)
++ "
+ScalaInterpreterReference... res4: (Int, Int)
+> 
+> s %.~% "
++   val a = 3
++   val b = 5
++   (a,b)
++ "
+ScalaInterpreterReference... res5: (Int, Int)
+> 
+> tryCatch(s$xaa,error = function(e) e)
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Undefined identifier: xaa>
+> s$xaa <- NULL
+> s$xaa
+NULL
+> 
+> s$xaa <- I(3)
+> s$xaa
+[1] 3
+> s$.val("xaa")
+ScalaInterpreterReference... xaa: Double
+> 
+> withNA <- c(1,2,3,NA,4)
+> s$withNA <- withNA
+> 
+> withNaN <- c(1,2,3,NaN,4)
+> s$withNaN <- withNaN
+> 
+> identical(  withNA,  withNaN)
+[1] FALSE
+> identical(s$withNA,s$withNaN)
+[1] TRUE
+> 
+> withMax <- c(1,.Machine$double.xmax,.Machine$double.xmin)
+> s$withMax <- withMax
+> identical(withMax,s$withMax)
+[1] TRUE
+> 
+> withMax <- c(1L,.Machine$integer.max)
+> s$withMax <- withMax
+> identical(withMax,s$withMax)
+[1] TRUE
+> 
+> 

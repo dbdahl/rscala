@@ -6,7 +6,7 @@ assert <- function(xx) {
   s$xx <- xx
   s %@% 'R.a = xx'
   if ( ! identical(a, xx) ) stop("Not identical (test 3)")
-  if ( ! identical(s$.R$get(scalaScalar("xx"))$"_1"(), xx) ) stop("Not identical (test 4)")
+  if ( ! identical(s$.R$get(I("xx"))$"_1"(), xx) ) stop("Not identical (test 4)")
   m <- s$def() %~% 'R.get("xx")._1'
   if ( ! identical(m(), xx) ) stop("Not identical (test 5)")
 }
@@ -27,7 +27,7 @@ for ( i in 1:10 ) {
 }
 if ( counter != 10 ) stop("Counter is off.")
 for ( i in 1:10 ) {
-  s$.R$eval(scalaScalar("counter <<- counter - 1"))
+  s$.R$eval(I("counter <<- counter - 1"))
 }
 if ( counter != 0 ) stop("Counter is off.")
 
@@ -59,7 +59,7 @@ myMean <- function(x) {
   mean(x)
 }
 
-callRFunction <- s$def(functionName=scalaScalar(""), x=numeric()) %~% '
+callRFunction <- s$def(functionName=I(""), x=numeric()) %~% '
   R.xx = x
   R.eval("y <- "+functionName+"(xx)")
   R.y._1

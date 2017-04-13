@@ -8,23 +8,23 @@ scalap(s,"org.apache.commons.math3.random.RandomDataGenerator")
 s$.org.apache.commons.math3.random.RandomDataGenerator
 rdg <- s$.org.apache.commons.math3.random.RandomDataGenerator$new()
 
-rdg$reSeed(.(39234L))
-rexp <- rdg$nextExponential(.(2),.EVALUATE=FALSE)
+rdg$reSeed(I(39234L))
+rexp <- rdg$nextExponential(I(2),.EVALUATE=FALSE)
 
 library(microbenchmark)
 options(width=120)
-microbenchmark(rdg$nextExponential(.(4)),rexp(4),times=1000L)
-microbenchmark(rdg$nextExponential(.(4)),rexp(4),times=1000L)
-microbenchmark(rdg$nextExponential(.(4)),rexp(4),times=1000L)
+microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
+microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
+microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
 
 s$.org.ddahl.shallot.parameter.Mass
-massFactory3 <- s$.org.ddahl.shallot.parameter.Mass$factory(.(1.0),.(3.0),rdg)
+massFactory3 <- s$.org.ddahl.shallot.parameter.Mass$factory(I(1.0),I(3.0),rdg)
 s %~% "3+4"
 
-mass <- s$.org.ddahl.shallot.parameter.Mass$apply(.(3.4))
+mass <- s$.org.ddahl.shallot.parameter.Mass$apply(I(3.4))
 massFactory1 <- s$.org.ddahl.shallot.parameter.Mass$factory(mass)
-massFactory2 <- s$.org.ddahl.shallot.parameter.Mass$factory(.(3.0))
-massFactory3 <- s$.org.ddahl.shallot.parameter.Mass$factory(.(1.0),.(3.0),rdg)
+massFactory2 <- s$.org.ddahl.shallot.parameter.Mass$factory(I(3.0))
+massFactory3 <- s$.org.ddahl.shallot.parameter.Mass$factory(I(1.0),I(3.0),rdg)
 massFactory3$apply()$logValue()
 massFactory3$apply()$logValue()
 massFactory3$apply()$logValue()
@@ -49,9 +49,9 @@ tryCatch(d$b(),error=function(e) e)   # Doesn't work
 d[['type']] <- "Bob"     # Cast it to be 'Bob'
 d$b()                    # Now it does
 
-d$sum(.(4L))
-m <- d$sum(.(5L),.EVALUATE=FALSE)
+d$sum(I(4L))
+m <- d$sum(I(5L),.EVALUATE=FALSE)
 
 m(3)                                                   # Casting is not necessary here
-d$sum(.(as.integer(3)))                                # But it is here
+d$sum(I(as.integer(3)))                                # But it is here
 

@@ -46,7 +46,7 @@ s$b <- matrix(c(FALSE,TRUE),ncol=2)
 s %~% "println(b(0)(1))"
 s$b <- seq(0,1,length=5)
 s %~% "println(b(3))"
-s$b <- .(FALSE)
+s$b <- I(FALSE)
 s %~% "println(!b)"
 
 close(s)

@@ -15,7 +15,13 @@ strintrplt <- function(snippet,envir=parent.frame()) {
 }
 
 scalaSettings <- function(interpreter,interpolate=NULL) {
-  if ( !is.null(interpolate) ) assign("interpolate",as.logical(interpolate)[1],envir=interpreter[['env']])
+  if ( is.null(interpolate) ) {
+    list(debug=get("debug",envir=interpreter[['env']]),
+         serialize=get("serialize",envir=interpreter[['env']]),
+         interpolate=get("interpolate",envir=interpreter[['env']]))
+  } else {
+    if ( ! is.null(interpolate) ) assign("interpolate",as.logical(interpolate)[1],envir=interpreter[['env']])
+  }
 }
 
 msg <- function(...,withTime=FALSE) {

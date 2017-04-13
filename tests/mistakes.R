@@ -1,7 +1,9 @@
 source("common.R",print.eval=TRUE)
 
-a <- s %.~% "null"
-a
+if ( substr(Sys.getenv("RSCALA_SCALA_VERSION"),1,4) != "2.10" ) {
+  a <- s %.~% "null"
+  print(a)
+}
 
 a <- s %~% "null"
 a
@@ -35,7 +37,7 @@ tryCatch(s$xaa,error = function(e) e)
 s$xaa <- NULL
 s$xaa
 
-s$xaa <- .(3)
+s$xaa <- I(3)
 s$xaa
 s$.val("xaa")
 

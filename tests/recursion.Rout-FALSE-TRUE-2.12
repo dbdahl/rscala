@@ -1,6 +1,6 @@
 
-R version 3.3.3 (2017-03-06) -- "Another Canoe"
-Copyright (C) 2017 The R Foundation for Statistical Computing
+R version 3.3.2 (2016-10-31) -- "Sincere Pumpkin Patch"
+Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -87,7 +87,7 @@ Hello 9 from Scala.
 > 
 > 
 > # This is recursion via callbacks using a predefined function
-> hh <- s$def(x=scalaScalar(0L)) %~% '
+> hh <- s$def(x=I(0L)) %~% '
 +   println(s"Hello $x from Scala.")
 +   R.eval(s"h(${x+1})")
 + '
@@ -121,7 +121,7 @@ Hello 9 from Scala.
 > 
 > 
 > # This is recursion via callbacks using a Scala function
-> i <- s$def(x=scalaScalar(0L)) %~% '
+> i <- s$def(x=I(0L)) %~% '
 +   if ( x < 10 ) {
 +     println(s"Hello $x from Scala.")
 +     R.eval(s"""cat("Hello ${x} from R.\n"); i(${x+1})""")
@@ -557,10 +557,10 @@ Hello 9 from R.
 Hello 9 from Scala.
 Unit: milliseconds
  expr        min         lq       mean     median         uq        max neval
- f(0) 943.448118 1332.07506 1792.78877 1774.40777 2313.09602 2600.91686     5
- g(0) 604.225653  934.42174 1245.14095 1276.71217 1450.18672 1960.15846     5
- h(0)  11.368918   11.98274   13.43809   12.55982   14.01310   17.26589     5
- i(0)   9.779846   11.21375   15.08617   13.98412   14.76204   25.69108     5
+ f(0) 3454.20118 4321.09631 4461.94067 4373.32367 4603.51100 5557.57122     5
+ g(0) 1952.61516 2279.03715 2683.35887 2866.43444 3034.50241 3284.20516     5
+ h(0)   13.62954   18.59728   30.92193   25.58276   45.97325   50.82682     5
+ i(0)   25.45335   31.21529   35.95687   34.90398   36.96912   51.24262     5
 > 
 > cat("####\n")
 ####
@@ -4567,9 +4567,9 @@ Hello 8 from R.
 Hello 9 from Scala.
 Hello 9 from R.
 Unit: milliseconds
- expr      min       lq     mean   median       uq      max neval
- h(0) 4.352927 5.148640 6.867709 6.696618 8.084433 14.52538   100
- i(0) 4.520158 5.136427 6.888720 6.521983 7.976439 13.40400   100
+ expr      min        lq     mean   median       uq      max neval
+ h(0) 4.576865  9.925676 11.78908 10.35576 12.41246 38.59500   100
+ i(0) 6.485496 10.704902 13.52830 10.99590 13.46295 32.51414   100
 > 
 > 
 > 

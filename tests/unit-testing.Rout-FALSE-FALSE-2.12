@@ -18,7 +18,7 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 Type 'q()' to quit R.
 
 > source("common.R",print.eval=TRUE)
- FALSE
+FALSE FALSE
 > 
 > 
 > test <- function(a,value,func=list()) {
@@ -66,7 +66,7 @@ Type 'q()' to quit R.
 > s %~% "println(b(0)(1))"
 > s$b <- seq(0,1,length=5)
 > s %~% "println(b(3))"
-> s$b <- .(FALSE)
+> s$b <- I(FALSE)
 > s %~% "println(!b)"
 > 
 > close(s)

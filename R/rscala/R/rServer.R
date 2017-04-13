@@ -92,35 +92,43 @@ stop("Legacy code.")
         wb(sockets,UNDEFINED_IDENTIFIER)
       } else if ( ! is.atomic(value) ) {
         wb(sockets,UNSUPPORTED_STRUCTURE)
-      } else if ( is.vector(value) ) {
-        type <- checkType(value)
-        if ( ( length(value) == 1 ) && ( ! get("length.one.as.vector",envir=sockets[['env']]) ) ) {
-          wb(sockets,ATOMIC)
-        } else {
-          wb(sockets,VECTOR)
-          wb(sockets,length(value))
-        }
-        wb(sockets,type)
-        if ( type == STRING ) {
-          if ( length(value) > 0 ) for ( i in 1:length(value) ) wc(sockets,value[i])
-        } else {
-          if ( type == BOOLEAN ) wb(sockets,as.integer(value))
-          else wb(sockets,value)
-        }
-      } else if ( is.matrix(value) ) {
-        type <- checkType(value)
-        wb(sockets,MATRIX)
-        wb(sockets,dim(value))
-        wb(sockets,type)
-        if ( nrow(value) > 0 ) for ( i in 1:nrow(value) ) {
-          if ( type == STRING ) {
-            if ( ncol(value) > 0 ) for ( j in 1:ncol(value) ) wc(sockets,value[i,j])
-          }
-          else if ( type == BOOLEAN ) wb(sockets,as.integer(value[i,]))
-          else wb(sockets,value[i,])
-        }
       } else {
-        wb(sockets,UNSUPPORTED_STRUCTURE)
+        asScalar <- if ( inherits(value,"AsIs") ) {
+          if ( length(value) == 1 ) value <- as.vector(value)
+          TRUE
+        } else {
+          FALSE
+        }
+        if ( is.vector(value) ) {
+          type <- checkType(value)
+          if ( asScalar ) {
+            wb(sockets,ATOMIC)
+          } else {
+            wb(sockets,VECTOR)
+            wb(sockets,length(value))
+          }
+          wb(sockets,type)
+          if ( type == STRING ) {
+            if ( length(value) > 0 ) for ( i in 1:length(value) ) wc(sockets,value[i])
+          } else {
+            if ( type == BOOLEAN ) wb(sockets,as.integer(value))
+            else wb(sockets,value)
+          }
+        } else if ( is.matrix(value) ) {
+          type <- checkType(value)
+          wb(sockets,MATRIX)
+          wb(sockets,dim(value))
+          wb(sockets,type)
+          if ( nrow(value) > 0 ) for ( i in 1:nrow(value) ) {
+            if ( type == STRING ) {
+              if ( ncol(value) > 0 ) for ( j in 1:ncol(value) ) wc(sockets,value[i,j])
+            }
+            else if ( type == BOOLEAN ) wb(sockets,as.integer(value[i,]))
+            else wb(sockets,value[i,])
+          }
+        } else {
+          wb(sockets,UNSUPPORTED_STRUCTURE)
+        }
       }
     } else if ( cmd == GET_REFERENCE ) {
       if ( debug ) msg("Got GET_REFERENCE")

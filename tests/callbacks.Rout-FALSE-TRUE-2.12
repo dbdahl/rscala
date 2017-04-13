@@ -1,6 +1,6 @@
 
-R version 3.3.3 (2017-03-06) -- "Another Canoe"
-Copyright (C) 2017 The R Foundation for Statistical Computing
+R version 3.3.2 (2016-10-31) -- "Sincere Pumpkin Patch"
+Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -26,7 +26,7 @@ FALSE TRUE
 +   s$xx <- xx
 +   s %@% 'R.a = xx'
 +   if ( ! identical(a, xx) ) stop("Not identical (test 3)")
-+   if ( ! identical(s$.R$get(scalaScalar("xx"))$"_1"(), xx) ) stop("Not identical (test 4)")
++   if ( ! identical(s$.R$get(I("xx"))$"_1"(), xx) ) stop("Not identical (test 4)")
 +   m <- s$def() %~% 'R.get("xx")._1'
 +   if ( ! identical(m(), xx) ) stop("Not identical (test 5)")
 + }
@@ -47,7 +47,7 @@ FALSE TRUE
 + }
 > if ( counter != 10 ) stop("Counter is off.")
 > for ( i in 1:10 ) {
-+   s$.R$eval(scalaScalar("counter <<- counter - 1"))
++   s$.R$eval(I("counter <<- counter - 1"))
 + }
 > if ( counter != 0 ) stop("Counter is off.")
 > 
@@ -100,7 +100,7 @@ java.lang.RuntimeException: Error in R evaluation.
 +   mean(x)
 + }
 > 
-> callRFunction <- s$def(functionName=scalaScalar(""), x=numeric()) %~% '
+> callRFunction <- s$def(functionName=I(""), x=numeric()) %~% '
 +   R.xx = x
 +   R.eval("y <- "+functionName+"(xx)")
 +   R.y._1
@@ -111,9 +111,9 @@ java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.ScalaServer.doInvoke2(ScalaServer.scala:280)
-	at org.ddahl.rscala.ScalaServer.heart(ScalaServer.scala:659)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:686)
+	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:187)
+	at org.ddahl.rscala.ScalaServer.heart(ScalaServer.scala:552)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:579)
 	at org.ddahl.rscala.Main$.delayedEndpoint$org$ddahl$rscala$Main$1(Main.scala:5)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0.apply$mcV$sp(Function0.scala:34)
@@ -148,9 +148,9 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:104)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.RuntimeException: Undefined identifier: x
-	at org.ddahl.rscala.RClient.get(RClient.scala:389)
-	at org.ddahl.rscala.RClient.getD1(RClient.scala:485)
-	at $line291.$read$$iw$$iw$.$anonfun$res91$1(<console>:15)
+	at org.ddahl.rscala.RClient.get(RClient.scala:374)
+	at org.ddahl.rscala.RClient.getD1(RClient.scala:470)
+	at $line255.$read$$iw$$iw$.$anonfun$res90$1(<console>:15)
 	... 39 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Undefined identifier: x
@@ -161,7 +161,7 @@ Here is am.
 > 
 > # Should be an R evaluation error because 'asfd' is not a package.
 > tryCatch(scalaEval(s,'R.eval("library(asdf)")',environment(),FALSE),error=function(e) e)
-<simpleError in scalaEval(s, "R.eval(\"library(asdf)\")", environment(), FALSE): unused argument (FALSE)>
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): could not find function "scalaEval">
 > s %~% 'R.evalD0("3+4")'
 [1] 7
 > 

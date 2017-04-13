@@ -18,7 +18,7 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 Type 'q()' to quit R.
 
 > source("common.R",print.eval=TRUE)
- TRUE
+FALSE TRUE
 > 
 > 
 > test <- function(a,value,func=list()) {
@@ -69,7 +69,7 @@ true
 > s$b <- seq(0,1,length=5)
 > s %~% "println(b(3))"
 0.75
-> s$b <- .(FALSE)
+> s$b <- I(FALSE)
 > s %~% "println(!b)"
 true
 > 

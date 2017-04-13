@@ -26,7 +26,7 @@ g(0)
 
 
 # This is recursion via callbacks using a predefined function
-hh <- s$def(x=scalaScalar(0L)) %~% '
+hh <- s$def(x=I(0L)) %~% '
   println(s"Hello $x from Scala.")
   R.eval(s"h(${x+1})")
 '
@@ -40,7 +40,7 @@ h(0)
 
 
 # This is recursion via callbacks using a Scala function
-i <- s$def(x=scalaScalar(0L)) %~% '
+i <- s$def(x=I(0L)) %~% '
   if ( x < 10 ) {
     println(s"Hello $x from Scala.")
     R.eval(s"""cat("Hello ${x} from R.\n"); i(${x+1})""")
