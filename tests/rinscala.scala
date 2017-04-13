@@ -40,15 +40,6 @@ R.eval("rnorm(10)",false).asInstanceOf[Array[Double]]
 R.evalD1("rnorm(10)")
 
 R.eval("d <- list(a=4,b=5)")
-val r = R.getR("d")
-R.evalD0(s"$r$$a")
-R.evalD0(s"$r[['a']]")
-R.gc()
-try {
-  R.evalD0(s"$r$$a")
-} catch {
-  case _: Throwable => "Okay"
-}
 
 R.eval("a <- rnorm(1000)")
 def timer(a: => Unit) = {
@@ -103,8 +94,8 @@ R.get("david")
 R.aa
 R.name = "David"
 val (v,t2) = R.name
-R.name._1.asInstanceOf[String]
 R.name._2
+R.name._1.asInstanceOf[Array[String]](0)
 
 R.a = 4
 
@@ -208,4 +199,4 @@ R.exit()
 
 println("Done")
 
-// LF RSCALA_SERIALIZE=TRUE scala -cp $(R --slave -e 'cat(rscala::.rscalaJar("2.11"))')
+// LF RSCALA_SERIALIZE=TRUE scala -cp $(R --slave -e 'cat(rscala::.rscalaJar("2.12"))')
