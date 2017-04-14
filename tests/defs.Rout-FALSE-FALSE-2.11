@@ -1,0 +1,210 @@
+> source("common.R",print.eval=TRUE)
+#  # R version 3.3.2 (2016-10-31) # sidon # FALSE # FALSE
+> 
+> 
+> see <- "David"
+> mkFunc1 <- function() {
++   see <- "B."
++   x <- "Milly"
++   print(environment())
++   r <- s$def(I("Mack"),I("Bob")) %~% '
++     x1+" "+x2+" "+R.getS0("see")
++   '
++   r
++ }
+> y1 <- mkFunc1()
+<environment: 0x1fe8b88>
+> identical(y1("Lisa","Dahl"),"Lisa Dahl B.")
+[1] TRUE
+> 
+> 
+> mkFunc2 <- function() {
++   see <- "MMMM."
++   x <- "Milly"
++   r <- s$def(x=I("Mack"),y=I("Bob")) %.~% '
++       x+" "+y+" "+R.getS0("see")
++   '
++   r
++ }
+> y2 <- mkFunc2()
+> identical(y2("Lisa","Dahl")$toString(),"Lisa Dahl MMMM.")
+[1] TRUE
+> gc()
+         used (Mb) gc trigger (Mb) max used (Mb)
+Ncells 230842 12.4     460000 24.6   350000 18.7
+Vcells 334313  2.6     786432  6.0   786350  6.0
+> 
+> 
+> 
+> func1 <- function() {
++   see <- "Knudsen"
++   y1("Lisa","Dahl")
++ }
+> identical(func1(),"Lisa Dahl B.")
+[1] TRUE
+> 
+> 
+> ####
+> 
+> 
+> # Realistic timing
+> system.time(e <- s$def(x=I(0),y=I(4L),name=I("dog")) %~% '
++   name + " " + ( x + y )
++ ')
+   user  system elapsed 
+  0.004   0.000   1.413 
+> 
+> # Taking advantage of caching
+> system.time(f <- s$def(x=I(0),y=I(4L),name=I("dog")) %~% '
++   name + " " + ( x + y )
++ ')
+   user  system elapsed 
+  0.000   0.000   0.002 
+> 
+> ####
+> 
+> nextDouble <- s$def(rng=s$null("scala.util.Random")) %~% "rng.nextDouble()"
+> 
+> mkRNG1 <- s$def() %.~% 'new scala.util.Random()'
+> mkRNG2 <- function() s %.~% 'new scala.util.Random()'
+> 
+> rng1 <- mkRNG1()
+> rng2 <- mkRNG2()
+> 
+> rng1$nextInt(I(10L))
+[1] 2
+> rng2$nextInt(I(10L))
+[1] 7
+> 
+> str <- rng1$toString(.EVALUATE=TRUE,.AS.REFERENCE=TRUE)
+> str$length()
+[1] 26
+> 
+> nd0 <- rng1$nextDouble(.EVALUATE=FALSE)
+> nd1 <- s$def() %~% 'R.cached("@{toString(rng1)}").asInstanceOf[@{rng1[[\'type\']]}].nextDouble()'
+> nd2 <- s$def() %~% '@{rng2}.nextDouble()'
+> 
+> library("microbenchmark")
+> 
+> microbenchmark(
++   runif(1),
++   rng1$nextDouble(),
++   rng2$nextDouble(),
++   nd0(),
++   nd1(),
++   nd2(),
++   times=500
++ )
+Unit: microseconds
+              expr      min        lq       mean    median        uq        max
+          runif(1)    1.178    8.1485   11.01683   11.7265   13.8780     88.849
+ rng1$nextDouble() 1050.835 1872.4515 2219.58952 1927.8565 2005.7410  42523.350
+ rng2$nextDouble()  981.310 1727.4670 2596.21188 1772.8325 1846.4150 315702.597
+             nd0()  171.843  350.0365  457.68964  365.1265  389.1760   8398.329
+             nd1()  178.934  351.4335  504.39363  368.5730  392.2765  10047.010
+             nd2()  168.945  332.9025  447.41173  347.7295  364.3170  11196.329
+ neval
+   500
+   500
+   500
+   500
+   500
+   500
+> 
+> ####
+> 
+> s$do("scala.util.Random")$nextDouble()
+[1] 0.9912427
+> m <- s$do("scala.util.Random")$new(I(342L),.EVALUATE=FALSE)
+> m(I(5L))$nextDouble()
+[1] 0.7305199
+> 
+> s$.scala.util.Random$nextDouble()
+[1] 0.1506856
+> m <- s$.scala.util.Random$new(I(342L),.EVALUATE=FALSE)
+> m(5L)$nextDouble(.EVALUATE=FALSE)   # Wrapping with I() is not needed.
+function(): Double = { // Scala implementation; .AS.REFERENCE = NA
+  R.cached(".4").asInstanceOf[scala.util.Random].nextDouble
+}
+> m(5L)$nextDouble()
+[1] 0.7305199
+> 
+> s$'.Array[Int]'$new(I(5L))
+[1] 0 0 0 0 0
+> s$do("Array[Int]")$new(I(5L))
+[1] 0 0 0 0 0
+> 
+> ####
+> 
+> s$a <- 1:10
+> a <- s$.a
+> a$apply(I(3L))
+[1] 4
+> tryCatch(a$apply(3L),error=function(e) e)
+<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
+> 
+> s$do("scala.util.Random")$nextDouble()
+[1] 0.7820406
+> s$.scala.util.Random$nextDouble()
+[1] 0.5002158
+> 
+> s %~% 'import scala.util.Random'
+ScalaInterpreterReference... res22: () => Int
+> s$.Random$nextDouble()
+[1] 0.07217751
+> 
+> a <- s$def() %~% 'Random.nextDouble'
+> a()
+[1] 0.8018253
+> 
+> s$.scala.util.Random
+ScalaInterpreterItem
+> a <- ( s$def() %~% 'scala.util.Random' )()
+> a$nextDouble(.EVALUATE=TRUE)
+[1] 0.7344869
+> 
+> ####
+> 
+> f <- s$def(x=s$null("(Int,Int)")) %~% 'x._1 + x._2'
+> g <- s %~% "(300,400)"
+> f(g)
+[1] 700
+> f(s %~% "(30,40)")
+[1] 70
+> 
+> f2 <- s$def() %~% 'println("Yes")'
+> f2()
+> capture.output(f2())
+character(0)
+> 
+> a <- s %.~% "(300,234)"
+> f1 <- s$def(x=s$null("(Int,Int)"),y=numeric()) %~% 'x._1 + x._2 + y.sum'
+> f1(a,c(2,3,4,6))
+[1] 549
+> 
+> f1 <- s$def(x=s$null("(Int,Int)"),y=s$null("Array[Double]")) %~% 'x._1 + x._2 + y.sum'
+> b <- s %.~% "Array[Double](2,3,4,5)"
+> f1(a,b)
+[1] 548
+> 
+> ####
+> 
+> (s$def() %~% 'println("Yes")')()
+> (s$def() %~% '0')()
+[1] 0
+> (s$def() %~% 'null')()
+> 
+> ####
+> 
+> tryCatch((s$def() %~% 'a+b')(),error = function(e) e)
+<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
+> tryCatch((s$def() %~% 'a+')(),error = function(e) e)
+<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
+> tryCatch((s$def() %~% 'import org.asdfad')(),error = function(e) {e})
+<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
+> tryCatch((s$def() %~% 'throw new RuntimeException()')(),error = function(e) {e})
+<simpleError in (s$def() %~% "throw new RuntimeException()")(): Invocation error.>
+> s %~% "5+6"   # Everything's still okay!
+[1] 11
+> 
+> 
