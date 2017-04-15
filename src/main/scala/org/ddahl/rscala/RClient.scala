@@ -37,7 +37,9 @@ import Protocol._
 *
 * @author David B. Dahl
 */
-class RClient private (private val scalaServer: ScalaServer, private val in: DataInputStream, private val out: DataOutputStream, private val debugger: Debugger, private val serializeOutput: Boolean) extends Dynamic {
+class RClient private (private val scalaServer: ScalaServer, private val in: DataInputStream, private val out: DataOutputStream, private val debugger: Debugger, val serializeOutput: Boolean, val rowMajor: Boolean) extends Dynamic {
+
+  import Helper.{readString, writeString, isMatrix, transposeIf}
 
   /** __For rscala developers only__: Returns `TRUE` if debugging output is enabled. */
   def debug = debugger.value
@@ -62,7 +64,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   def eval(snippet: String, evalOnly: Boolean = true): Any = {
     if ( debug ) debugger.msg("Sending EVAL request.")
     out.writeInt(if(serializeOutput) EVAL else EVALNAKED)
-    Helper.writeString(out,if ( RClient.isWindows ) snippet.replaceAll("\r\n","\n") else snippet)
+    writeString(out,if ( RClient.isWindows ) snippet.replaceAll("\r\n","\n") else snippet)
     out.flush()
     if ( scalaServer != null ) {
       if ( debug ) debugger.msg("Spinning up Scala server.")
@@ -71,7 +73,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
     }
     val status = in.readInt()
     if ( debug ) debugger.msg("Status is: "+status)
-    val output = Helper.readString(in)
+    val output = readString(in)
     if ( output != "" ) {
       println(output)
     } else if ( debug ) debugger.msg("No output.")
@@ -169,12 +171,12 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
     if ( index == "" ) out.writeInt(SET)
     else if ( singleBrackets ) {
       out.writeInt(SET_SINGLE)
-      Helper.writeString(out,index)
+      writeString(out,index)
     } else {
       out.writeInt(SET_DOUBLE)
-      Helper.writeString(out,index)
+      writeString(out,index)
     }
-    Helper.writeString(out,identifier)
+    writeString(out,identifier)
     if ( v == null || v.isInstanceOf[Unit] ) {
       if ( debug ) debugger.msg("... which is null")
       out.writeInt(NULLTYPE)
@@ -182,7 +184,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
       if ( index != "" ) {
         val status = in.readInt()
         if ( status != OK ) {
-          val output = Helper.readString(in)
+          val output = readString(in)
           if ( output != "" ) println(output)
           throw new RuntimeException("Error in R evaluation.")
         }
@@ -217,10 +219,11 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
           out.writeInt(VECTOR)
           out.writeInt(vv.length)
           out.writeInt(STRING)
-          for ( i <- 0 until vv.length ) Helper.writeString(out,vv(i))
+          for ( i <- 0 until vv.length ) writeString(out,vv(i))
         case "[[I" =>
-          val vv = v.asInstanceOf[Array[Array[Int]]]
-          if ( Helper.isMatrix(vv) ) {
+          val vv1 = v.asInstanceOf[Array[Array[Int]]]
+          if ( isMatrix(vv1) ) {
+            val vv = transposeIf(vv1, rowMajor)
             out.writeInt(MATRIX)
             out.writeInt(vv.length)
             if ( vv.length > 0 ) out.writeInt(vv(0).length)
@@ -232,10 +235,11 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
                 out.writeInt(vv(i)(j))
               }
             }
-          }
+          } else out.writeInt(UNSUPPORTED_STRUCTURE)
         case "[[D" =>
-          val vv = v.asInstanceOf[Array[Array[Double]]]
-          if ( Helper.isMatrix(vv) ) {
+          val vv1 = v.asInstanceOf[Array[Array[Double]]]
+          if ( isMatrix(vv1) ) {
+            val vv = transposeIf(vv1, rowMajor)
             out.writeInt(MATRIX)
             out.writeInt(vv.length)
             if ( vv.length > 0 ) out.writeInt(vv(0).length)
@@ -249,8 +253,9 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
             }
           } else out.writeInt(UNSUPPORTED_STRUCTURE)
         case "[[Z" =>
-          val vv = v.asInstanceOf[Array[Array[Boolean]]]
-          if ( Helper.isMatrix(vv) ) {
+          val vv1 = v.asInstanceOf[Array[Array[Boolean]]]
+          if ( isMatrix(vv1) ) {
+            val vv = transposeIf(vv1, rowMajor)
             out.writeInt(MATRIX)
             out.writeInt(vv.length)
             if ( vv.length > 0 ) out.writeInt(vv(0).length)
@@ -264,8 +269,9 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
             }
           } else out.writeInt(UNSUPPORTED_STRUCTURE)
         case "[[Ljava.lang.String;" =>
-          val vv = v.asInstanceOf[Array[Array[String]]]
-          if ( Helper.isMatrix(vv) ) {
+          val vv1 = v.asInstanceOf[Array[Array[String]]]
+          if ( isMatrix(vv1) ) {
+            val vv = transposeIf(vv1, rowMajor)
             out.writeInt(MATRIX)
             out.writeInt(vv.length)
             if ( vv.length > 0 ) out.writeInt(vv(0).length)
@@ -274,7 +280,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
             for ( i <- 0 until vv.length ) {
               val vvv = vv(i)
               for ( j <- 0 until vv(i).length ) {
-                Helper.writeString(out,vvv(j))
+                writeString(out,vvv(j))
               }
             }
           } else out.writeInt(UNSUPPORTED_STRUCTURE)
@@ -298,7 +304,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
         case "java.lang.String" =>
           out.writeInt(ATOMIC)
           out.writeInt(STRING)
-          Helper.writeString(out,v.asInstanceOf[String])
+          writeString(out,v.asInstanceOf[String])
         case _ =>
           throw new RuntimeException("Unsupported non-array type: "+c.getName)
       }
@@ -307,7 +313,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
     if ( index != "" ) {
       val status = in.readInt()
       if ( status != OK ) {
-        val output = Helper.readString(in)
+        val output = readString(in)
         if ( output != "" ) println(output)
         throw new RuntimeException("Error in R evaluation.")
       }
@@ -333,7 +339,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   def get(identifier: String): (Any,String) = {
     if ( debug ) debugger.msg("Getting: "+identifier)
     out.writeInt(GET)
-    Helper.writeString(out,identifier)
+    writeString(out,identifier)
     out.flush()
     in.readInt match {
       case NULLTYPE =>
@@ -345,7 +351,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
           case INTEGER => (in.readInt(),"Int")
           case DOUBLE => (in.readDouble(),"Double")
           case BOOLEAN => (( in.readInt() != 0 ),"Boolean")
-          case STRING => (Helper.readString(in),"String")
+          case STRING => (readString(in),"String")
           case _ => throw new RuntimeException("Protocol error")
         }
       case VECTOR =>
@@ -356,7 +362,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
           case INTEGER => (Array.fill(length) { in.readInt() },"Array[Int]")
           case DOUBLE => (Array.fill(length) { in.readDouble() },"Array[Double]")
           case BOOLEAN => (Array.fill(length) { ( in.readInt() != 0 ) },"Array[Boolean]")
-          case STRING => (Array.fill(length) { Helper.readString(in) },"Array[String]")
+          case STRING => (Array.fill(length) { readString(in) },"Array[String]")
           case _ => throw new RuntimeException("Protocol error")
         }
       case MATRIX =>
@@ -365,10 +371,10 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
         val ncol = in.readInt()
         if ( debug ) debugger.msg("... of dimensions: "+nrow+","+ncol)
         in.readInt() match {
-          case INTEGER => (Array.fill(nrow) { Array.fill(ncol) { in.readInt() } },"Array[Array[Int]]")
-          case DOUBLE => (Array.fill(nrow) { Array.fill(ncol) { in.readDouble() } },"Array[Array[Double]]")
-          case BOOLEAN => (Array.fill(nrow) { Array.fill(ncol) { ( in.readInt() != 0 ) } },"Array[Array[Boolean]]")
-          case STRING => (Array.fill(nrow) { Array.fill(ncol) { Helper.readString(in) } },"Array[Array[String]]")
+          case INTEGER => ( transposeIf(Array.fill(nrow) { Array.fill(ncol) { in.readInt() } }, rowMajor),"Array[Array[Int]]")
+          case DOUBLE => ( transposeIf(Array.fill(nrow) { Array.fill(ncol) { in.readDouble() } }, rowMajor),"Array[Array[Double]]")
+          case BOOLEAN => ( transposeIf(Array.fill(nrow) { Array.fill(ncol) { ( in.readInt() != 0 ) } }, rowMajor),"Array[Array[Boolean]]")
+          case STRING => ( transposeIf(Array.fill(nrow) { Array.fill(ncol) { readString(in) } }, rowMajor),"Array[Array[String]]")
           case _ => throw new RuntimeException("Protocol error")
         }
       case UNDEFINED_IDENTIFIER => throw new RuntimeException("Undefined identifier: "+identifier)
@@ -676,15 +682,21 @@ object RClient {
 
   /**
   * Returns an instance of the [[RClient]] class by running the `R` executable in the path, specifying whether output
-  * should be serialized.
+  * should be serialized and using row major matrices.
   */
-  def apply(serializeOutput: Boolean): RClient = apply(defaultRCmd,serializeOutput)
+  def apply(serializeOutput: Boolean): RClient = apply(defaultRCmd,serializeOutput,true)
+
+  /**
+  * Returns an instance of the [[RClient]] class by running the `R` executable in the path, specifying whether output
+  * should be serialized and whether matrices are row major.
+  */
+  def apply(serializeOutput: Boolean, rowMajor: Boolean): RClient = apply(defaultRCmd,serializeOutput,rowMajor)
 
   /** Returns an instance of the [[RClient]] class, using the path specified by `rCmd` and specifying whether output
-  * should be serialized, whether debugging output should be displayed, and the `timeout` to establish a connection
+  * should be serialized, whether matrices are row major, whether debugging output should be displayed, and the `timeout` to establish a connection
   * with the R interpreter.
   */
-  def apply(rCmd: String, serializeOutput: Boolean = false, debug: Boolean = false, timeout: Int = 60): RClient = {
+  def apply(rCmd: String, serializeOutput: Boolean = false, rowMajor: Boolean = true, debug: Boolean = false, timeout: Int = 60): RClient = {
     var cmd: PrintWriter = null
     val command = rCmd +: ( defaultArguments ++ interactiveArguments )
     val processCmd = Process(command)
@@ -714,7 +726,7 @@ object RClient {
     val snippet = s"""
       source("${sourceFileNameForR}")
       file.remove("${sourceFileNameForR}")
-      rscala[['rServe']](rscala[['newSockets']]('${portsFile.getAbsolutePath.replace(File.separator,"/")}',debug=${if ( debug ) "TRUE" else "FALSE"},serialize=${if ( serializeOutput ) "TRUE" else "FALSE"},timeout=${timeout}),with.callbacks=FALSE)
+      rscala[['rServe']](rscala[['newSockets']]('${portsFile.getAbsolutePath.replace(File.separator,"/")}',debug=${if ( debug ) "TRUE" else "FALSE"},serialize=${if ( serializeOutput ) "TRUE" else "FALSE"},row.major=${if ( rowMajor ) "TRUE" else "FALSE"},timeout=${timeout}),with.callbacks=FALSE)
       q(save='no')
     """.stripMargin
     while ( cmd == null ) Thread.sleep(100)
@@ -723,11 +735,11 @@ object RClient {
     val sockets = new ScalaSockets(portsFile.getAbsolutePath,debugger)
     sockets.out.writeInt(OK)
     sockets.out.flush()
-    apply(null,sockets.in,sockets.out,debugger,serializeOutput)
+    apply(null,sockets.in,sockets.out,debugger,serializeOutput,rowMajor)
   }
 
   /** __For rscala developers only__: Returns an instance of the [[RClient]] class.  */
-  def apply(scalaServer: ScalaServer, in: DataInputStream, out: DataOutputStream, debugger: Debugger, serializeOutput: Boolean): RClient = new RClient(scalaServer,in,out,debugger,serializeOutput)
+  def apply(scalaServer: ScalaServer, in: DataInputStream, out: DataOutputStream, debugger: Debugger, serializeOutput: Boolean, rowMajor: Boolean): RClient = new RClient(scalaServer,in,out,debugger,serializeOutput,rowMajor)
 
 }
 

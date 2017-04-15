@@ -83,17 +83,19 @@ microbenchmark(
 
 ####
 
-s$do("scala.util.Random")$nextDouble()
-m <- s$do("scala.util.Random")$new(I(342L),.EVALUATE=FALSE)
-m(I(5L))$nextDouble()
-
 s$.scala.util.Random$nextDouble()
 m <- s$.scala.util.Random$new(I(342L),.EVALUATE=FALSE)
-m(5L)$nextDouble(.EVALUATE=FALSE)   # Wrapping with I() is not needed.
-m(5L)$nextDouble()
+m(23436)$nextDouble()
+m(63202)$nextDouble()
+m(93222)$nextDouble()
+m(93332)$nextDouble()
+
+n <- m(5)$nextDouble(.EVALUATE=FALSE)   # Wrapping with I() is not needed.
+n()
+n()
+n()
 
 s$'.Array[Int]'$new(I(5L))
-s$do("Array[Int]")$new(I(5L))
 
 ####
 
@@ -102,7 +104,7 @@ a <- s$.a
 a$apply(I(3L))
 tryCatch(a$apply(3L),error=function(e) e)
 
-s$do("scala.util.Random")$nextDouble()
+s$.scala.util.Random$nextDouble()
 s$.scala.util.Random$nextDouble()
 
 s %~% 'import scala.util.Random'

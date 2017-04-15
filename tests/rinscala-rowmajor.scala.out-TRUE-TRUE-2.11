@@ -1,0 +1,49 @@
+2.11.8
+true
+Error in library(dfasdf) : there is no package called ‘dfasdf’
+there is no package called ‘dfasdf’
+8 
+Burnin the hotspot compiler.
+1347238 microseconds
+856732 microseconds
+Get then eval.
+4011377 microseconds
+240839 microseconds
+Eval then get.
+192710 microseconds
+33968 microseconds
+Eval then get.
+136910 microseconds
+100884 microseconds
+Get then eval.
+49595 microseconds
+150279 microseconds
+a
+b
+c
+d
+32 
+10 
+[1] 4
+     [,1] [,2] [,3] [,4]
+[1,]    0    3    6    9
+[2,]    1    4    7   10
+[3,]    2    5    8   11
+     [,1] [,2] [,3] [,4]
+[1,]    0    3    6    9
+[2,]    1    4    7   10
+[3,]    2    5    8   11
+      [,1] [,2] [,3] [,4]
+[1,] FALSE TRUE TRUE TRUE
+[2,]  TRUE TRUE TRUE TRUE
+[3,]  TRUE TRUE TRUE TRUE
+     [,1] [,2] [,3] [,4]
+[1,] "0"  "3"  "6"  "9" 
+[2,] "1"  "4"  "7"  "10"
+[3,] "2"  "5"  "8"  "11"
+[1] 0 1 2 3 4
+[1] 0 1 2 3 4
+[1] FALSE  TRUE  TRUE  TRUE  TRUE
+[1] "0" "1" "2" "3" "4"
+Done
+Done

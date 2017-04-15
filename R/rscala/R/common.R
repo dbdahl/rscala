@@ -14,13 +14,15 @@ strintrplt <- function(snippet,envir=parent.frame()) {
   } else snippet
 }
 
-scalaSettings <- function(interpreter,interpolate=NULL) {
+scalaSettings <- function(interpreter, interpolate=NULL) {
   if ( is.null(interpolate) ) {
     list(debug=get("debug",envir=interpreter[['env']]),
          serialize=get("serialize",envir=interpreter[['env']]),
+         row.major=get("rowMajor",envir=interpreter[['env']]),
          interpolate=get("interpolate",envir=interpreter[['env']]))
   } else {
     if ( ! is.null(interpolate) ) assign("interpolate",as.logical(interpolate)[1],envir=interpreter[['env']])
+    invisible(NULL)
   }
 }
 

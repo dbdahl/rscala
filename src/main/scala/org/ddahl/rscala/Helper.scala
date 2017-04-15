@@ -28,5 +28,16 @@ object Helper {
     true
   }
 
+  def transposeIf[D](x: Array[Array[D]], noChange: Boolean)(implicit tag: scala.reflect.ClassTag[D]): Array[Array[D]] = {
+    if ( noChange ) x
+    else {
+      val r = x.length
+      if ( r == 0 ) return(new Array[Array[D]](0))
+      val c = x(0).length
+      if ( c == 0 ) return(new Array[Array[D]](0))
+      Array.tabulate(c)( j => Array.tabulate(r) ( i => x(i)(j) ) )
+    }
+  }
+
 }
 

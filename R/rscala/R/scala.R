@@ -1,10 +1,11 @@
 ## Scala scripting over TCP/IP
 
-scala <- function(classpath=character(0),serialize=FALSE,scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,timeout=60,debug=FALSE,stdout=TRUE,stderr=TRUE) {
+scala <- function(classpath=character(0),serialize=FALSE,scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=60,debug=FALSE,stdout=TRUE,stderr=TRUE) {
   if ( identical(stdout,TRUE) ) stdout <- ""
   if ( identical(stderr,TRUE) ) stderr <- ""
   debug <- identical(debug,TRUE)
   serialize <- identical(serialize,TRUE)
+  row.major <- identical(row.major, TRUE)
   if ( debug && serialize ) stop("When debug is TRUE, serialize must be FALSE.")
   if ( debug && ( identical(stdout,FALSE) || identical(stdout,NULL) || identical(stderr,FALSE) || identical(stderr,NULL) ) ) stop("When debug is TRUE, stdout and stderr must not be discarded.")
   userJars <- unlist(strsplit(classpath,.Platform$path.sep))
@@ -24,22 +25,21 @@ scala <- function(classpath=character(0),serialize=FALSE,scala.home=NULL,heap.ma
   rsJar <- .rscalaJar(sInfo$version)
   rsClasspath <- shQuote(paste(c(rsJar,userJars),collapse=.Platform$path.sep))
   portsFilename <- tempfile("rscala-")
-  args <- c(command.line.options,paste0("-Drscala.classpath=",rsClasspath),"-classpath",rsClasspath,"org.ddahl.rscala.Main",portsFilename,debug,serialize)
+  args <- c(command.line.options,paste0("-Drscala.classpath=",rsClasspath),"-classpath",rsClasspath,"org.ddahl.rscala.Main",portsFilename,debug,serialize,row.major)
   if ( debug ) msg("\n",sInfo$cmd)
   if ( debug ) msg("\n",paste0("<",args,">",collapse="\n"))
   system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
-  sockets <- newSockets(portsFilename,debug,serialize,timeout)
-  assign("callbackNameCounter",0L,envir=sockets[['env']])
-  assign("markedForGC",integer(0),envir=sockets[['env']])
+  sockets <- newSockets(portsFilename,debug,serialize,row.major,timeout)
   scalaSettings(sockets,interpolate=TRUE)
   sockets
 }
 
-newSockets <- function(portsFilename,debug,serialize,timeout) {
+newSockets <- function(portsFilename,debug,serialize,row.major,timeout) {
   functionCache <- new.env()
   env <- new.env()
   assign("open",TRUE,envir=env)
   assign("debug",debug,envir=env)
+  assign("rowMajor",row.major,envir=env)
   assign("serialize",serialize,envir=env)
   assign("garbage",character(0),envir=env)
   ports <- local({

@@ -1,3 +1,4 @@
+row.major <- FALSE
 source("common.R",print.eval=TRUE)
 
 

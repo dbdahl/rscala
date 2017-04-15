@@ -47,14 +47,15 @@ class Cache {
 
 }
 
-class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutputStream, baosErr: ByteArrayOutputStream, portsFilename: String, debugger: Debugger, serializeOutput: Boolean) {
+class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutputStream, baosErr: ByteArrayOutputStream, portsFilename: String, debugger: Debugger, serializeOutput: Boolean, rowMajor: Boolean) {
 
   private val sockets = new ScalaSockets(portsFilename,debugger)
   import sockets.{in, out, socketIn, socketOut}
+  import Helper.{isMatrix, transposeIf}
 
   out.writeInt(OK)
   out.flush
-  private val R = RClient(this,in,out,debugger,serializeOutput)
+  private val R = RClient(this,in,out,debugger,serializeOutput,rowMajor)
   if ( repl.bind("R","org.ddahl.rscala.RClient",R) != Success ) sys.error("Problem binding R.")
   if ( serializeOutput ) {
     baosOut.reset
@@ -91,32 +92,6 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
     val r = s.substring(i).trim
     if ( r.length == 0 ) throw new IllegalArgumentException("Unexpected end of signature."+signature)
     r
-  }
-
-  private def storeFunction(functionName: String, nArgs: Int): Unit = {
-    val f = repl.valueOfTerm(functionName).get
-    val functionType = typeOfTerm(functionName)
-    val returnType = extractReturnType(functionType)
-    val m = f.getClass.getMethods.filter(_.getName == "apply") match {
-      case Array() => null
-      case Array(method) => method
-      case Array(method1,method2) => method1
-      case _ => null
-    }
-    m.setAccessible(true)
-    functionMapOld(functionName) = (f,m,nArgs,returnType)
-  }
-
-  private def callFunction(functionName: String): Any = {
-    val (f,m,nArgs,resultType) = functionMapOld(functionName)
-    val functionParameters = functionParametersStack.takeRight(nArgs)
-    functionParametersStack.trimEnd(nArgs)
-    if ( debugger.value ) {
-      debugger.msg("Function is: "+f)
-      debugger.msg("There are "+functionParameters.length+" parameters.")
-      debugger.msg("<<"+functionParameters.mkString(">>\n<<")+">>")
-    }
-    functionResult = (m.invoke(f, functionParameters.map(_.asInstanceOf[AnyRef]): _*), resultType)
   }
 
   private def readString() = Helper.readString(in)
@@ -296,10 +271,10 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
         val ncol = in.readInt()
         if ( debugger.value ) debugger.msg("... of dimensions: "+nrow+","+ncol)
         val (v, t): (Any,String) = in.readInt() match {
-          case INTEGER => (Array.fill(nrow) { Array.fill(ncol) { in.readInt() } },"Array[Array[Int]]")
-          case DOUBLE => (Array.fill(nrow) { Array.fill(ncol) { in.readDouble() } },"Array[Array[Double]]")
-          case BOOLEAN => (Array.fill(nrow) { Array.fill(ncol) { ( in.readInt() != 0 ) } },"Array[Array[Boolean]]")
-          case STRING => (Array.fill(nrow) { Array.fill(ncol) { readString() } },"Array[Array[String]]")
+          case INTEGER => ( transposeIf( Array.fill(nrow) { Array.fill(ncol) { in.readInt() } }, rowMajor),"Array[Array[Int]]")
+          case DOUBLE => ( transposeIf( Array.fill(nrow) { Array.fill(ncol) { in.readDouble() } }, rowMajor),"Array[Array[Double]]")
+          case BOOLEAN => ( transposeIf( Array.fill(nrow) { Array.fill(ncol) { ( in.readInt() != 0 ) } }, rowMajor),"Array[Array[Boolean]]")
+          case STRING => ( transposeIf( Array.fill(nrow) { Array.fill(ncol) { readString() } }, rowMajor),"Array[Array[String]]")
           case _ => throw new RuntimeException("Protocol error")
         }
         setAVM(identifier,t,v)
@@ -403,8 +378,9 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
         out.writeInt(STRING)
         for ( i <- 0 until vv.length ) writeString(vv(i))
       case "Array[Array[Int]]" =>
-        val vv = v.asInstanceOf[Array[Array[Int]]]
-        if ( Helper.isMatrix(vv) ) {
+        val vv1 = v.asInstanceOf[Array[Array[Int]]]
+        if ( isMatrix(vv1) ) {
+          val vv = transposeIf(vv1, rowMajor)
           out.writeInt(MATRIX)
           out.writeInt(vv.length)
           if ( vv.length > 0 ) out.writeInt(vv(0).length)
@@ -416,10 +392,11 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
               out.writeInt(vv(i)(j))
             }
           }
-        }
+        } else out.writeInt(UNSUPPORTED_STRUCTURE)
       case "Array[Array[Double]]" =>
-        val vv = v.asInstanceOf[Array[Array[Double]]]
-        if ( Helper.isMatrix(vv) ) {
+        val vv1 = v.asInstanceOf[Array[Array[Double]]]
+        if ( isMatrix(vv1) ) {
+          val vv = transposeIf(vv1, rowMajor)
           out.writeInt(MATRIX)
           out.writeInt(vv.length)
           if ( vv.length > 0 ) out.writeInt(vv(0).length)
@@ -433,8 +410,9 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
           }
         } else out.writeInt(UNSUPPORTED_STRUCTURE)
       case "Array[Array[Boolean]]" =>
-        val vv = v.asInstanceOf[Array[Array[Boolean]]]
-        if ( Helper.isMatrix(vv) ) {
+        val vv1 = v.asInstanceOf[Array[Array[Boolean]]]
+        if ( isMatrix(vv1) ) {
+          val vv = transposeIf(vv1, rowMajor)
           out.writeInt(MATRIX)
           out.writeInt(vv.length)
           if ( vv.length > 0 ) out.writeInt(vv(0).length)
@@ -448,8 +426,9 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
           }
         } else out.writeInt(UNSUPPORTED_STRUCTURE)
       case "Array[Array[String]]" =>
-        val vv = v.asInstanceOf[Array[Array[String]]]
-        if ( Helper.isMatrix(vv) ) {
+        val vv1 = v.asInstanceOf[Array[Array[String]]]
+        if ( isMatrix(vv1) ) {
+          val vv = transposeIf(vv1, rowMajor)
           out.writeInt(MATRIX)
           out.writeInt(vv.length)
           if ( vv.length > 0 ) out.writeInt(vv(0).length)
@@ -586,7 +565,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
 
 object ScalaServer {
 
-  def apply(portsFilename: String, debug: Boolean = false, serializeOutput: Boolean = false): ScalaServer = {
+  def apply(portsFilename: String, debug: Boolean = false, serializeOutput: Boolean = false, rowMajor: Boolean = true): ScalaServer = {
     // Set classpath
     val settings = new Settings()
     settings.embeddedDefaults[RClient]
@@ -621,7 +600,7 @@ object ScalaServer {
     // iloop.intp = intp
     // iloop.verbosity()
     // Return the server
-    new ScalaServer(intp, prntWrtr, baosOut, baosErr, portsFilename, debugger, serializeOutput)
+    new ScalaServer(intp, prntWrtr, baosOut, baosErr, portsFilename, debugger, serializeOutput, rowMajor)
   }
 
 }

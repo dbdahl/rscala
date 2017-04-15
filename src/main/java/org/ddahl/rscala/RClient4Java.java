@@ -64,11 +64,13 @@ public class RClient4Java {
 
   public RClient4Java() { c = org.ddahl.rscala.RClient.apply(); }
 
-  public RClient4Java(String rCmd) { c = org.ddahl.rscala.RClient.apply(rCmd,false,false,60); }
+  public RClient4Java(String rCmd) { c = org.ddahl.rscala.RClient.apply(rCmd,false,true,false,60); }
 
-  public RClient4Java(boolean serializeOutput) { c = org.ddahl.rscala.RClient.apply(serializeOutput); }
+  public RClient4Java(boolean serializeOutput) { c = org.ddahl.rscala.RClient.apply(serializeOutput,true); }
 
-  public RClient4Java(String rCmd, boolean serializeOutput, boolean debug, int timeout) { c = org.ddahl.rscala.RClient.apply(rCmd,serializeOutput,debug,timeout); }
+  public RClient4Java(boolean serializeOutput, boolean rowMajor) { c = org.ddahl.rscala.RClient.apply(serializeOutput,rowMajor); }
+
+  public RClient4Java(String rCmd, boolean serializeOutput, boolean rowMajor, boolean debug, int timeout) { c = org.ddahl.rscala.RClient.apply(rCmd,serializeOutput,rowMajor,debug,timeout); }
 
   /** Closes the interface to the R interpreter.
   * 

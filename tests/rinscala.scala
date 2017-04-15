@@ -2,13 +2,16 @@
 
 CMD="cat(rscala::.rscalaJar(\"$RSCALA_SCALA_VERSION\"))"
 CP=$(R --slave -e "$CMD")
+export ROWMAJOR_FLAG="$0"
 exec "$SCALA_HOME"/bin/scala -nc -cp "$CP" "$0" "$@"
 
 !#
 
 println(util.Properties.versionNumberString)
 
-val R = org.ddahl.rscala.RClient(sys.env("RSCALA_SERIALIZE").toUpperCase == "TRUE")
+val rowMajor = sys.env("ROWMAJOR_FLAG").endsWith("-rowmajor.scala")
+println(rowMajor)
+val R = org.ddahl.rscala.RClient(sys.env("RSCALA_SERIALIZE").toUpperCase == "TRUE", rowMajor)
 
 try {
   R.eval("library(dfasdf)")  // Tests for UTF-8 strings because of curly single quotes.
@@ -109,37 +112,37 @@ R.eval("""
   a <- matrix(as.integer(0:11),nrow=3)
   print(a)
 """)
-R.getI2("a")
-R.getD2("a")
-R.getB2("a")
-R.getS2("a")
+assert(R.getI2("a").length == ( if ( rowMajor ) 3 else 4 ) )
+assert(R.getD2("a").length == ( if ( rowMajor ) 3 else 4 ) )
+assert(R.getB2("a").length == ( if ( rowMajor ) 3 else 4 ) )
+assert(R.getS2("a").length == ( if ( rowMajor ) 3 else 4 ) )
 
 R.eval("""
   a <- matrix(as.double(0:11),nrow=3)
   print(a)
 """)
-R.getI2("a")
-R.getD2("a")
-R.getB2("a")
-R.getS2("a")
+assert(R.getI2("a").length == ( if ( rowMajor ) 3 else 4 ) )
+assert(R.getD2("a").length == ( if ( rowMajor ) 3 else 4 ) )
+assert(R.getB2("a").length == ( if ( rowMajor ) 3 else 4 ) )
+assert(R.getS2("a").length == ( if ( rowMajor ) 3 else 4 ) )
 
 R.eval("""
   a <- matrix(as.logical(0:11),nrow=3)
   print(a)
 """)
-R.getI2("a")
-R.getD2("a")
-R.getB2("a")
-R.getS2("a")
+assert(R.getI2("a").length == ( if ( rowMajor ) 3 else 4 ) )
+assert(R.getD2("a").length == ( if ( rowMajor ) 3 else 4 ) )
+assert(R.getB2("a").length == ( if ( rowMajor ) 3 else 4 ) )
+assert(R.getS2("a").length == ( if ( rowMajor ) 3 else 4 ) )
 
 R.eval("""
   a <- matrix(as.character(0:11),nrow=3)
   print(a)
 """)
-R.getI2("a")
-R.getD2("a")
-R.getB2("a")
-R.getS2("a")
+assert(R.getI2("a").length == ( if ( rowMajor ) 3 else 4 ) )
+assert(R.getD2("a").length == ( if ( rowMajor ) 3 else 4 ) )
+assert(R.getB2("a").length == ( if ( rowMajor ) 3 else 4 ) )
+assert(R.getS2("a").length == ( if ( rowMajor ) 3 else 4 ) )
 
 R.eval("""
   a <- as.integer(0:4)
