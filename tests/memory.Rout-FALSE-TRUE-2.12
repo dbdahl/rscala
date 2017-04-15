@@ -1,35 +1,16 @@
-
-R version 3.3.2 (2016-10-31) -- "Sincere Pumpkin Patch"
-Copyright (C) 2016 The R Foundation for Statistical Computing
-Platform: x86_64-pc-linux-gnu (64-bit)
-
-R is free software and comes with ABSOLUTELY NO WARRANTY.
-You are welcome to redistribute it under certain conditions.
-Type 'license()' or 'licence()' for distribution details.
-
-  Natural language support but running in an English locale
-
-R is a collaborative project with many contributors.
-Type 'contributors()' for more information and
-'citation()' on how to cite R or R packages in publications.
-
-Type 'demo()' for some demos, 'help()' for on-line help, or
-'help.start()' for an HTML browser interface to help.
-Type 'q()' to quit R.
-
 > heap.maximum <- "64M"
 > source("common.R",print.eval=TRUE)
-FALSE TRUE
+# R version 3.3.2 (2016-10-31) # sidon # FALSE # TRUE
 > 
-> tryCatch(a <- s$do("Array[Double]")$new(I(20000000L)),error=function(e) e)
+> tryCatch(a <- s$".Array[Double]"$new(I(20000000L)),error=function(e) e)
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:187)
-	at org.ddahl.rscala.ScalaServer.heart(ScalaServer.scala:552)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:579)
+	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:158)
+	at org.ddahl.rscala.ScalaServer.heart(ScalaServer.scala:492)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:519)
 	at org.ddahl.rscala.Main$.delayedEndpoint$org$ddahl$rscala$Main$1(Main.scala:5)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0.apply$mcV$sp(Function0.scala:34)
@@ -65,14 +46,14 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.OutOfMemoryError: Java heap space
 	at $line5.$read$$iw$$iw$.$anonfun$res1$1(<console>:15)
-	at $line5.$read$$iw$$iw$$$Lambda$985/841166421.apply(Unknown Source)
+	at $line5.$read$$iw$$iw$$$Lambda$985/938199512.apply(Unknown Source)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:187)
-	at org.ddahl.rscala.ScalaServer.heart(ScalaServer.scala:552)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:579)
+	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:158)
+	at org.ddahl.rscala.ScalaServer.heart(ScalaServer.scala:492)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:519)
 	at org.ddahl.rscala.Main$.delayedEndpoint$org$ddahl$rscala$Main$1(Main.scala:5)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0.apply$mcV$sp(Function0.scala:34)
@@ -105,25 +86,25 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-FALSE TRUE
-> tryCatch(a <- s$do("Array[Double]")$new(I(20000000L)),error=function(e) e)
+# R version 3.3.2 (2016-10-31) # sidon # FALSE # TRUE
+> tryCatch(a <- s$".Array[Double]"$new(I(20000000L)),error=function(e) e)
 > close(s)
 > cat("----\n")
 ----
 > 
 > options(rscala.heap.maximum="64M")
 > source("common.R",print.eval=TRUE)
-FALSE TRUE
-> tryCatch(a <- s$do("Array[Double]")$new(I(20000000L)),error=function(e) e)
+# R version 3.3.2 (2016-10-31) # sidon # FALSE # TRUE
+> tryCatch(a <- s$".Array[Double]"$new(I(20000000L)),error=function(e) e)
 > close(s)
 > cat("----\n")
 ----
 > 
 > options(rscala.heap.maximum="128M")
 > source("common.R",print.eval=TRUE)
-FALSE TRUE
+# R version 3.3.2 (2016-10-31) # sidon # FALSE # TRUE
 > for ( i in 1:2000 ) {
-+   a <- s$do("Array[Double]")$new(I(100000L))  # No memory problems
++   a <- s$".Array[Double]"$new(I(100000L))  # No memory problems
 + }
 > 
 > tryCatch({
@@ -132,40 +113,40 @@ FALSE TRUE
 + }
 + },error=function(e) e)
 java.lang.OutOfMemoryError: GC overhead limit exceeded
-	at scala.collection.TraversableOnce$$Lambda$123/1297685781.get$Lambda(Unknown Source)
-	at java.lang.invoke.LambdaForm$DMH/685325104.invokeStatic_LL_L(LambdaForm$DMH)
-	at java.lang.invoke.LambdaForm$MH/424058530.linkToTargetMethod(LambdaForm$MH)
-	at scala.collection.TraversableOnce.foldLeft(TraversableOnce.scala:157)
-	at scala.collection.TraversableOnce.foldLeft$(TraversableOnce.scala:155)
-	at scala.collection.AbstractTraversable.foldLeft(Traversable.scala:104)
-	at scala.collection.TraversableOnce.$div$colon(TraversableOnce.scala:151)
-	at scala.collection.TraversableOnce.$div$colon$(TraversableOnce.scala:151)
-	at scala.collection.AbstractTraversable.$div$colon(Traversable.scala:104)
-	at scala.collection.SetLike.$plus$plus(SetLike.scala:150)
-	at scala.collection.SetLike.$plus$plus$(SetLike.scala:150)
-	at scala.collection.AbstractSet.$plus$plus(Set.scala:47)
-	at scala.tools.nsc.transform.SpecializeTypes.loop$2(SpecializeTypes.scala:440)
-	at scala.tools.nsc.transform.SpecializeTypes.specializedTypeVars(SpecializeTypes.scala:442)
-	at scala.tools.nsc.transform.SpecializeTypes.specializedTypeVars(SpecializeTypes.scala:471)
-	at scala.tools.nsc.transform.SpecializeTypes.$anonfun$specialOverrides$4(SpecializeTypes.scala:1004)
-	at scala.tools.nsc.transform.SpecializeTypes.needsSpecialOverride$1(SpecializeTypes.scala:1003)
-	at scala.tools.nsc.transform.SpecializeTypes.$anonfun$specialOverrides$9(SpecializeTypes.scala:1025)
-	at scala.tools.nsc.transform.SpecializeTypes$$Lambda$432/1237598030.apply(Unknown Source)
-	at scala.collection.TraversableLike.$anonfun$flatMap$1(TraversableLike.scala:241)
-	at scala.collection.TraversableLike$$Lambda$86/1323468230.apply(Unknown Source)
-	at scala.reflect.internal.Scopes$Scope.foreach(Scopes.scala:373)
-	at scala.collection.TraversableLike.flatMap(TraversableLike.scala:241)
-	at scala.collection.TraversableLike.flatMap$(TraversableLike.scala:238)
-	at scala.reflect.internal.Scopes$Scope.flatMap(Scopes.scala:51)
-	at scala.tools.nsc.transform.SpecializeTypes.specialOverrides(SpecializeTypes.scala:1024)
-	at scala.tools.nsc.transform.SpecializeTypes.transformInfo(SpecializeTypes.scala:1215)
-	at scala.tools.nsc.transform.InfoTransform$Phase$$anon$1.transform(InfoTransform.scala:38)
-	at scala.reflect.internal.Symbols$Symbol.rawInfo(Symbols.scala:1605)
+	at scala.reflect.internal.Types$Type.findMemberInternal$1(Types.scala:1026)
+	at scala.reflect.internal.Types$Type.findMember(Types.scala:1028)
+	at scala.reflect.internal.tpe.TypeMaps$adaptToNewRunMap$.adaptToNewRun(TypeMaps.scala:1114)
+	at scala.reflect.internal.tpe.TypeMaps$adaptToNewRunMap$.apply(TypeMaps.scala:1170)
+	at scala.reflect.internal.tpe.TypeMaps$adaptToNewRunMap$.apply(TypeMaps.scala:1099)
+	at scala.reflect.internal.tpe.TypeMaps$adaptToNewRunMap$.apply(TypeMaps.scala:1205)
+	at scala.reflect.internal.Symbols$Symbol.adaptInfos(Symbols.scala:1643)
+	at scala.reflect.internal.Symbols$Symbol.rawInfo(Symbols.scala:1595)
 	at scala.reflect.internal.Symbols$Symbol.info(Symbols.scala:1522)
-	at scala.tools.nsc.transform.SpecializeTypes.$anonfun$transformInfo$2(SpecializeTypes.scala:1207)
-	at scala.tools.nsc.transform.SpecializeTypes.$anonfun$transformInfo$1(SpecializeTypes.scala:1207)
+	at scala.reflect.internal.Types$TypeRef.baseClasses(Types.scala:2277)
+	at scala.reflect.internal.Types.computeBaseClasses(Types.scala:1460)
+	at scala.reflect.internal.Types.computeBaseClasses$(Types.scala:1437)
+	at scala.reflect.internal.SymbolTable.computeBaseClasses(SymbolTable.scala:16)
+	at scala.reflect.internal.Types.$anonfun$defineBaseClassesOfCompoundType$2(Types.scala:1581)
+	at scala.reflect.internal.Types$$Lambda$136/1254526270.apply(Unknown Source)
+	at scala.reflect.internal.Types$CompoundType.memo(Types.scala:1408)
+	at scala.reflect.internal.Types.defineBaseClassesOfCompoundType(Types.scala:1581)
+	at scala.reflect.internal.Types.define$1(Types.scala:1548)
+	at scala.reflect.internal.Types.defineBaseClassesOfCompoundType(Types.scala:1549)
+	at scala.reflect.internal.Types.defineBaseClassesOfCompoundType$(Types.scala:1547)
+	at scala.reflect.internal.SymbolTable.defineBaseClassesOfCompoundType(SymbolTable.scala:16)
+	at scala.reflect.internal.Types$CompoundType.baseClasses(Types.scala:1391)
+	at scala.reflect.internal.tpe.FindMembers$FindMemberBase.<init>(FindMembers.scala:17)
+	at scala.reflect.internal.tpe.FindMembers$FindMember.<init>(FindMembers.scala:219)
+	at scala.reflect.internal.Types$Type.findMemberInternal$1(Types.scala:1026)
+	at scala.reflect.internal.Types$Type.findMember(Types.scala:1028)
+	at scala.reflect.internal.Types$Type.memberBasedOnName(Types.scala:645)
+	at scala.reflect.internal.Types$Type.nonPrivateMember(Types.scala:619)
+	at scala.reflect.internal.Definitions$DefinitionsClass.$anonfun$getMemberIfDefined$1(Definitions.scala:1305)
+	at scala.reflect.internal.Definitions$DefinitionsClass.getMemberIfDefined(Definitions.scala:1305)
+	at scala.reflect.internal.Definitions$DefinitionsClass.getMember(Definitions.scala:1256)
+	at scala.reflect.internal.Definitions$DefinitionsClass.getMemberMethod(Definitions.scala:1291)
 java.lang.OutOfMemoryError: GC overhead limit exceeded
-<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Exception thrown.>
 > 
 > 
 > 

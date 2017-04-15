@@ -62,9 +62,6 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
     baosErr.reset
   }
 
-  private val functionParametersStack = new scala.collection.mutable.ArrayBuffer[Any]()
-  private val functionMapOld = new scala.collection.mutable.HashMap[String,(Any,java.lang.reflect.Method,Int,String)]()
-
   private[rscala] val cacheMap = new Cache()
 
   private var functionResult: (Any, String) = null
@@ -102,8 +99,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
 
   private def setAVM(identifier: String, t: String, v: Any): Unit = {
     if ( debugger.value ) debugger.msg("Value is "+v)
-    if ( identifier == "." ) functionParametersStack.append(v)
-    else repl.bind(identifier,t,v)
+    repl.bind(identifier,t,v)
   }
 
   private val sep = sys.props("line.separator")
@@ -207,42 +203,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
     in.readInt() match {
       case NULLTYPE =>
         if ( debugger.value ) debugger.msg("Setting null.")
-        if ( identifier == "." ) functionParametersStack.append(null)
-        else repl.bind(identifier,"Any",null)
-      case REFERENCE =>
-        assert(false)  // I need to study this code some more.
-        if ( debugger.value ) debugger.msg("Setting reference.")
-        val originalIdentifier = readString()
-        try {
-          if ( identifier == "." ) originalIdentifier match {
-            case "null" =>
-              functionParametersStack.append(null)
-            case cacheMap(value,typeOfTerm) =>
-              functionParametersStack.append(value)
-            case _ =>
-              functionParametersStack.append(repl.valueOfTerm(originalIdentifier).get)
-          } else {
-            val r = identifier.split(":") match {
-              case Array(n)   => (n.trim,"")
-              case Array(n,t) => (n.trim,t.trim)
-            }
-            originalIdentifier match {
-              case cacheMap(value,typeOfTerm) =>
-                repl.bind(r._1,typeOfTerm,value)
-              case _ =>
-                val vt = if ( r._2 == "" ) r._1 else r._1 + ": " + r._2
-                val result = repl.interpret(s"val ${vt} = ${originalIdentifier}")
-                if ( result != Success ) throw new RuntimeException("Parse error in setting reference.")
-            }
-          }
-          out.writeInt(OK)
-        } catch {
-          case e: Throwable =>
-            if ( debugger.value ) debugger.msg("Caught exception: "+e)
-            out.writeInt(ERROR)
-            e.printStackTrace(pw)
-            pw.println(e + ( if ( e.getCause != null ) System.lineSeparator + e.getCause else "" ) )
-        }
+        repl.bind(identifier,"Any",null)
       case ATOMIC =>
         if ( debugger.value ) debugger.msg("Setting atomic.")
         val (v: Any, t: String) = in.readInt() match {
