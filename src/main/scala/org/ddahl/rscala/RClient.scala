@@ -726,7 +726,7 @@ object RClient {
     val snippet = s"""
       source("${sourceFileNameForR}")
       file.remove("${sourceFileNameForR}")
-      rscala[['rServe']](rscala[['newSockets']]('${portsFile.getAbsolutePath.replace(File.separator,"/")}',debug=${if ( debug ) "TRUE" else "FALSE"},serialize=${if ( serializeOutput ) "TRUE" else "FALSE"},row.major=${if ( rowMajor ) "TRUE" else "FALSE"},timeout=${timeout}),with.callbacks=FALSE)
+      rscala[['rServe']](rscala[['newSockets']]('${portsFile.getAbsolutePath.replace(File.separator,"/")}',debug=${if ( debug ) "TRUE" else "FALSE"},serialize.output=${if ( serializeOutput ) "TRUE" else "FALSE"},row.major=${if ( rowMajor ) "TRUE" else "FALSE"},timeout=${timeout}),with.callbacks=FALSE)
       q(save='no')
     """.stripMargin
     while ( cmd == null ) Thread.sleep(100)
