@@ -106,6 +106,7 @@ tryCatch(a$apply(3L),error=function(e) e)
 
 s$.scala.util.Random$nextDouble()
 s$.scala.util.Random$nextDouble()
+s$do("scala.util.Random")$nextDouble()
 
 s %~% 'import scala.util.Random'
 s$.Random$nextDouble()

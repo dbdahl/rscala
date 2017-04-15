@@ -281,6 +281,7 @@ scalaGet <- function(interpreter,identifier,as.reference,workspace) {
     class(result) <- "ScalaInterpreterReference"
     result
   } else if ( identifier == "do" ) function(snippet) {
+    warning(paste0("Syntax \"s$do('",snippet,"')\" is deprecated.  Use \"s$.",snippet,"\" instead."))
     result <- list(interpreter=interpreter,snippet=snippet)
     class(result) <- "ScalaInterpreterItem"
     result
