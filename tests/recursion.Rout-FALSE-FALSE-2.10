@@ -1,24 +1,5 @@
-
-R version 3.3.2 (2016-10-31) -- "Sincere Pumpkin Patch"
-Copyright (C) 2016 The R Foundation for Statistical Computing
-Platform: x86_64-pc-linux-gnu (64-bit)
-
-R is free software and comes with ABSOLUTELY NO WARRANTY.
-You are welcome to redistribute it under certain conditions.
-Type 'license()' or 'licence()' for distribution details.
-
-  Natural language support but running in an English locale
-
-R is a collaborative project with many contributors.
-Type 'contributors()' for more information and
-'citation()' on how to cite R or R packages in publications.
-
-Type 'demo()' for some demos, 'help()' for on-line help, or
-'help.start()' for an HTML browser interface to help.
-Type 'q()' to quit R.
-
 > source("common.R",print.eval=TRUE)
-FALSE FALSE
+# R version 3.3.3 (2017-03-06) # ramah # FALSE # FALSE
 > 
 > 
 > # This is not recursion via callbacks.
@@ -317,10 +298,10 @@ Hello 8 from R.
 Hello 9 from R.
 Unit: milliseconds
  expr        min         lq       mean     median         uq        max neval
- f(0) 1945.03362 1993.62219 2337.12214 2125.53705 2726.17968 2895.23817     5
- g(0)  930.95126 1224.83297 1449.50853 1390.47389 1538.18613 2163.09840     5
- h(0)   11.78101   19.45943   34.69260   22.84643   47.54405   71.83208     5
- i(0)   19.37977   26.62011   29.46741   30.39130   32.89714   38.04873     5
+ f(0) 503.157001 812.992282 1129.13266 1042.79745 1343.34541 1943.37115     5
+ g(0) 537.438456 805.969713  824.03260  810.48872  844.14409 1122.12199     5
+ h(0)   6.588405   7.537117   17.68201    8.81005   14.16497   51.30951     5
+ i(0)   7.777964   9.928063   20.63067   15.19705   19.90390   50.34640     5
 > 
 > cat("####\n")
 ####
@@ -2327,9 +2308,9 @@ Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
 Unit: milliseconds
- expr      min       lq     mean    median       uq      max neval
- h(0) 6.038892 7.822043 13.08734 10.632722 14.66473 39.48217   100
- i(0) 4.428841 8.019514 13.29670  9.446727 14.80982 43.32057   100
+ expr      min       lq     mean   median       uq      max neval
+ h(0) 3.764001 3.973577 5.076137 4.259258 5.926375 11.97691   100
+ i(0) 4.013141 4.261281 5.822307 4.945396 6.580476 16.59752   100
 > 
 > 
 > 

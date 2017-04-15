@@ -1,24 +1,5 @@
-
-R version 3.3.3 (2017-03-06) -- "Another Canoe"
-Copyright (C) 2017 The R Foundation for Statistical Computing
-Platform: x86_64-pc-linux-gnu (64-bit)
-
-R is free software and comes with ABSOLUTELY NO WARRANTY.
-You are welcome to redistribute it under certain conditions.
-Type 'license()' or 'licence()' for distribution details.
-
-  Natural language support but running in an English locale
-
-R is a collaborative project with many contributors.
-Type 'contributors()' for more information and
-'citation()' on how to cite R or R packages in publications.
-
-Type 'demo()' for some demos, 'help()' for on-line help, or
-'help.start()' for an HTML browser interface to help.
-Type 'q()' to quit R.
-
 > source("common.R",print.eval=TRUE)
-FALSE FALSE
+# R version 3.3.3 (2017-03-06) # ramah # FALSE # FALSE
 > set.seed(924234)
 > 
 > 
@@ -94,15 +75,15 @@ FALSE FALSE
 + )
 Unit: microseconds
              expr        min         lq        mean      median          uq
- doit0(rnorm(10))     42.166     56.571    103.7063    109.8975     131.754
- doit1(rnorm(10)) 414906.990 705011.060 990509.7215 935669.0790 1319826.870
- doit2(rnorm(10)) 356498.176 506606.742 569220.3509 552499.9470  657730.050
- doit3(rnorm(10))   1738.555   2104.703   2617.4767   2312.3940    2549.049
+ doit0(rnorm(10))     40.358     49.983     98.4782    103.6335     136.945
+ doit1(rnorm(10)) 390750.471 622517.264 852628.6800 869823.3720 1058132.590
+ doit2(rnorm(10)) 231823.779 401721.014 526599.0245 547375.5460  592803.373
+ doit3(rnorm(10))   1203.570   1384.108   2899.3795   2284.4735    4626.881
          max neval
-     171.006    10
- 1608365.180    10
-  778281.490    10
-    4355.223    10
+     164.492    10
+ 1329370.327    10
+  928046.864    10
+    6040.436    10
 > microbenchmark(
 +   doit0(rnorm(10)),
 +   #doit1(rnorm(10)),
@@ -112,8 +93,8 @@ Unit: microseconds
 + )
 Unit: microseconds
              expr     min       lq       mean   median       uq      max neval
- doit0(rnorm(10))  16.972  24.2625   37.29813  34.6365   43.512  123.802  1000
- doit3(rnorm(10)) 646.499 821.6040 1147.14793 976.1350 1354.664 5342.677  1000
+ doit0(rnorm(10))  17.051  22.7925   37.97777  32.4265   42.561 1414.461  1000
+ doit3(rnorm(10)) 653.781 842.3305 1113.96511 920.6665 1164.066 9519.635  1000
 > 
 > 
 > sleep.time <- 0.1
@@ -126,9 +107,9 @@ Unit: microseconds
 + )
 Unit: milliseconds
              expr      min       lq     mean   median       uq      max neval
- doit0(rnorm(10)) 200.3698 200.3756 200.4466 200.3849 200.5374 200.5652     5
- doit1(rnorm(10)) 522.5023 525.0157 616.6898 527.3673 721.6551 786.9088     5
- doit2(rnorm(10)) 370.5347 372.2187 407.5139 381.7795 453.5836 459.4530     5
- doit3(rnorm(10)) 202.1518 202.4015 202.4850 202.4715 202.5695 202.8308     5
+ doit0(rnorm(10)) 200.3563 200.3811 200.3805 200.3831 200.3844 200.3975     5
+ doit1(rnorm(10)) 465.2389 488.3965 520.0380 530.9680 549.1474 566.4392     5
+ doit2(rnorm(10)) 350.2414 382.0238 398.4273 385.6652 388.0195 486.1868     5
+ doit3(rnorm(10)) 201.8359 201.8843 201.9408 201.8878 201.9532 202.1430     5
 > 
 > 

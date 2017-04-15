@@ -1,24 +1,5 @@
-
-R version 3.3.2 (2016-10-31) -- "Sincere Pumpkin Patch"
-Copyright (C) 2016 The R Foundation for Statistical Computing
-Platform: x86_64-pc-linux-gnu (64-bit)
-
-R is free software and comes with ABSOLUTELY NO WARRANTY.
-You are welcome to redistribute it under certain conditions.
-Type 'license()' or 'licence()' for distribution details.
-
-  Natural language support but running in an English locale
-
-R is a collaborative project with many contributors.
-Type 'contributors()' for more information and
-'citation()' on how to cite R or R packages in publications.
-
-Type 'demo()' for some demos, 'help()' for on-line help, or
-'help.start()' for an HTML browser interface to help.
-Type 'q()' to quit R.
-
 > source("common.R",print.eval=TRUE)
-TRUE TRUE
+# R version 3.3.3 (2017-03-06) # ramah # TRUE # TRUE
 > 
 > assert <- function(xx) {
 +   if ( ! identical(( s %~% 'R.get("xx")._1' ), xx) ) stop("Not identical (test 1)")
@@ -88,7 +69,7 @@ Error in parse(text = snippet) : <text>:4:16: unexpected symbol
 4:     a <- "3+9" asfd
                   ^
 java.lang.RuntimeException: Error in R evaluation.
-  at org.ddahl.rscala.RClient.eval(RClient.scala:78)
+  at org.ddahl.rscala.RClient.eval(RClient.scala:80)
   ... 62 elided
 <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
 > s %~% '3+6'
@@ -111,17 +92,17 @@ java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:187)
-	at org.ddahl.rscala.ScalaServer.heart(ScalaServer.scala:552)
-	at org.ddahl.rscala.ScalaServer.$anonfun$run$2(ScalaServer.scala:571)
+	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:158)
+	at org.ddahl.rscala.ScalaServer.heart(ScalaServer.scala:492)
+	at org.ddahl.rscala.ScalaServer.$anonfun$run$2(ScalaServer.scala:511)
 	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withErr(Console.scala:192)
-	at org.ddahl.rscala.ScalaServer.$anonfun$run$1(ScalaServer.scala:571)
+	at org.ddahl.rscala.ScalaServer.$anonfun$run$1(ScalaServer.scala:511)
 	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withOut(Console.scala:163)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:570)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:510)
 	at org.ddahl.rscala.Main$.delayedEndpoint$org$ddahl$rscala$Main$1(Main.scala:5)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0.apply$mcV$sp(Function0.scala:34)
@@ -156,8 +137,8 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:104)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.RuntimeException: Undefined identifier: x
-	at org.ddahl.rscala.RClient.get(RClient.scala:374)
-	at org.ddahl.rscala.RClient.getD1(RClient.scala:470)
+	at org.ddahl.rscala.RClient.get(RClient.scala:380)
+	at org.ddahl.rscala.RClient.getD1(RClient.scala:476)
 	at $line255.$read$$iw$$iw$.$anonfun$res90$1(<console>:15)
 	... 47 more
 java.lang.reflect.InvocationTargetException

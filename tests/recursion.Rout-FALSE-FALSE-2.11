@@ -1,24 +1,5 @@
-
-R version 3.3.2 (2016-10-31) -- "Sincere Pumpkin Patch"
-Copyright (C) 2016 The R Foundation for Statistical Computing
-Platform: x86_64-pc-linux-gnu (64-bit)
-
-R is free software and comes with ABSOLUTELY NO WARRANTY.
-You are welcome to redistribute it under certain conditions.
-Type 'license()' or 'licence()' for distribution details.
-
-  Natural language support but running in an English locale
-
-R is a collaborative project with many contributors.
-Type 'contributors()' for more information and
-'citation()' on how to cite R or R packages in publications.
-
-Type 'demo()' for some demos, 'help()' for on-line help, or
-'help.start()' for an HTML browser interface to help.
-Type 'q()' to quit R.
-
 > source("common.R",print.eval=TRUE)
-FALSE FALSE
+# R version 3.3.3 (2017-03-06) # ramah # FALSE # FALSE
 > 
 > 
 > # This is not recursion via callbacks.
@@ -316,11 +297,16 @@ Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
 Unit: milliseconds
- expr         min         lq       mean     median         uq        max neval
- f(0) 2092.959664 3297.23746 3600.68137 3667.39651 3811.47825 5134.33500     5
- g(0) 1468.574907 2013.10776 2138.05339 2119.42563 2415.93772 2673.22093     5
- h(0)    6.219261   17.01642   18.47630   20.10739   23.48191   25.55651     5
- i(0)   18.429447   23.55344   28.01504   27.29321   29.25915   41.53997     5
+ expr        min          lq        mean      median         uq        max
+ f(0) 780.098217 1095.342050 1347.108643 1158.571167 1465.46701 2236.06477
+ g(0) 429.855080  612.318984  982.025736 1052.002228 1187.59022 1628.36217
+ h(0)   5.242757    5.507425    8.776666    5.847348    9.26116   18.02464
+ i(0)   5.362591    6.782457   10.134700   10.754978   11.22465   16.54883
+ neval
+     5
+     5
+     5
+     5
 > 
 > cat("####\n")
 ####
@@ -2328,8 +2314,8 @@ Hello 8 from R.
 Hello 9 from R.
 Unit: milliseconds
  expr      min       lq     mean   median       uq      max neval
- h(0) 7.585914 9.669842 12.68133 12.64344 14.81175 28.50841   100
- i(0) 9.064476 9.833640 12.48884 11.60473 13.34066 32.48096   100
+ h(0) 3.152413 4.522257 5.748794 5.397550 6.356090 14.39832   100
+ i(0) 3.271932 4.897306 6.146493 5.831633 6.708986 15.55764   100
 > 
 > 
 > 

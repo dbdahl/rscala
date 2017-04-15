@@ -1,6 +1,6 @@
 > heap.maximum <- "64M"
 > source("common.R",print.eval=TRUE)
-# R version 3.3.2 (2016-10-31) # sidon # FALSE # TRUE
+# R version 3.3.3 (2017-03-06) # ramah # FALSE # TRUE
 > 
 > tryCatch(a <- s$".Array[Double]"$new(I(20000000L)),error=function(e) e)
 java.lang.reflect.InvocationTargetException
@@ -86,7 +86,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R version 3.3.2 (2016-10-31) # sidon # FALSE # TRUE
+# R version 3.3.3 (2017-03-06) # ramah # FALSE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(I(20000000L)),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -94,7 +94,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="64M")
 > source("common.R",print.eval=TRUE)
-# R version 3.3.2 (2016-10-31) # sidon # FALSE # TRUE
+# R version 3.3.3 (2017-03-06) # ramah # FALSE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(I(20000000L)),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -102,7 +102,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="128M")
 > source("common.R",print.eval=TRUE)
-# R version 3.3.2 (2016-10-31) # sidon # FALSE # TRUE
+# R version 3.3.3 (2017-03-06) # ramah # FALSE # TRUE
 > for ( i in 1:2000 ) {
 +   a <- s$".Array[Double]"$new(I(100000L))  # No memory problems
 + }
@@ -113,38 +113,71 @@ java.lang.OutOfMemoryError: Java heap space
 + }
 + },error=function(e) e)
 java.lang.OutOfMemoryError: GC overhead limit exceeded
-	at scala.reflect.internal.Types$Type.findMemberInternal$1(Types.scala:1026)
-	at scala.reflect.internal.Types$Type.findMember(Types.scala:1028)
-	at scala.reflect.internal.tpe.TypeMaps$adaptToNewRunMap$.adaptToNewRun(TypeMaps.scala:1114)
-	at scala.reflect.internal.tpe.TypeMaps$adaptToNewRunMap$.apply(TypeMaps.scala:1170)
-	at scala.reflect.internal.tpe.TypeMaps$adaptToNewRunMap$.apply(TypeMaps.scala:1099)
-	at scala.reflect.internal.tpe.TypeMaps$adaptToNewRunMap$.apply(TypeMaps.scala:1205)
-	at scala.reflect.internal.Symbols$Symbol.adaptInfos(Symbols.scala:1643)
-	at scala.reflect.internal.Symbols$Symbol.rawInfo(Symbols.scala:1595)
+	at scala.collection.immutable.List$.newBuilder(List.scala:450)
+	at scala.collection.generic.GenericTraversableTemplate.newBuilder(GenericTraversableTemplate.scala:65)
+	at scala.collection.generic.GenericTraversableTemplate.newBuilder$(GenericTraversableTemplate.scala:65)
+	at scala.collection.AbstractTraversable.newBuilder(Traversable.scala:104)
+	at scala.collection.TraversableLike.filterImpl(TraversableLike.scala:246)
+	at scala.collection.TraversableLike.filterImpl$(TraversableLike.scala:245)
+	at scala.collection.AbstractTraversable.filterImpl(Traversable.scala:104)
+	at scala.collection.TraversableLike.filter(TraversableLike.scala:259)
+	at scala.collection.TraversableLike.filter$(TraversableLike.scala:259)
+	at scala.collection.AbstractTraversable.filter(Traversable.scala:104)
+	at scala.tools.nsc.backend.jvm.BTypesFromSymbols.setClassInfo(BTypesFromSymbols.scala:430)
+	at scala.tools.nsc.backend.jvm.BTypesFromSymbols.$anonfun$classBTypeFromSymbol$5(BTypesFromSymbols.scala:126)
+	at scala.tools.nsc.backend.jvm.BTypesFromSymbols$$Lambda$527/1213818572.apply(Unknown Source)
+	at scala.collection.MapLike.getOrElse(MapLike.scala:128)
+	at scala.collection.MapLike.getOrElse$(MapLike.scala:126)
+	at scala.collection.concurrent.TrieMap.getOrElse(TrieMap.scala:631)
+	at scala.tools.nsc.backend.jvm.BTypesFromSymbols.classBTypeFromSymbol(BTypesFromSymbols.scala:118)
+	at scala.tools.nsc.backend.jvm.BTypesFromSymbols.$anonfun$typeToBType$1(BTypesFromSymbols.scala:177)
+	at scala.tools.nsc.backend.jvm.BTypesFromSymbols$$Lambda$545/652433136.apply(Unknown Source)
+	at scala.collection.MapLike.getOrElse(MapLike.scala:128)
+	at scala.collection.MapLike.getOrElse$(MapLike.scala:126)
+	at scala.collection.AbstractMap.getOrElse(Map.scala:59)
+	at scala.tools.nsc.backend.jvm.BTypesFromSymbols.primitiveOrClassToBType$1(BTypesFromSymbols.scala:177)
+	at scala.tools.nsc.backend.jvm.BTypesFromSymbols.typeToBType(BTypesFromSymbols.scala:192)
+	at scala.tools.nsc.backend.jvm.BCodeSkelBuilder$PlainSkelBuilder.tpeTK(BCodeSkelBuilder.scala:79)
+	at scala.tools.nsc.backend.jvm.BCodeBodyBuilder$PlainBodyBuilder.genLoad(BCodeBodyBuilder.scala:251)
+	at scala.tools.nsc.backend.jvm.BCodeBodyBuilder$PlainBodyBuilder.genLoadQualifier(BCodeBodyBuilder.scala:900)
+	at scala.tools.nsc.backend.jvm.BCodeBodyBuilder$PlainBodyBuilder.genApply(BCodeBodyBuilder.scala:664)
+	at scala.tools.nsc.backend.jvm.BCodeBodyBuilder$PlainBodyBuilder.genLoad(BCodeBodyBuilder.scala:298)
+	at scala.tools.nsc.backend.jvm.BCodeBodyBuilder$PlainBodyBuilder.genLoad(BCodeBodyBuilder.scala:368)
+	at scala.tools.nsc.backend.jvm.BCodeBodyBuilder$PlainBodyBuilder.genStat(BCodeBodyBuilder.scala:68)
+	at scala.tools.nsc.backend.jvm.BCodeBodyBuilder$PlainBodyBuilder.$anonfun$genBlock$1(BCodeBodyBuilder.scala:812)
+java.lang.OutOfMemoryError: GC overhead limit exceeded
+	at scala.collection.immutable.List.$anonfun$flatMap$1(List.scala:331)
+	at scala.collection.immutable.List.$anonfun$flatMap$1$adapted(List.scala:324)
+	at scala.tools.nsc.transform.SpecializeTypes$$Lambda$429/225290371.apply(Unknown Source)
+	at scala.collection.immutable.List.foreach(List.scala:378)
+	at scala.tools.nsc.transform.SpecializeTypes.specializeClass(SpecializeTypes.scala:799)
+	at scala.tools.nsc.transform.SpecializeTypes.transformInfo(SpecializeTypes.scala:1215)
+	at scala.tools.nsc.transform.InfoTransform$Phase$$anon$1.transform(InfoTransform.scala:38)
+	at scala.reflect.internal.Symbols$Symbol.rawInfo(Symbols.scala:1605)
 	at scala.reflect.internal.Symbols$Symbol.info(Symbols.scala:1522)
-	at scala.reflect.internal.Types$TypeRef.baseClasses(Types.scala:2277)
-	at scala.reflect.internal.Types.computeBaseClasses(Types.scala:1460)
-	at scala.reflect.internal.Types.computeBaseClasses$(Types.scala:1437)
-	at scala.reflect.internal.SymbolTable.computeBaseClasses(SymbolTable.scala:16)
-	at scala.reflect.internal.Types.$anonfun$defineBaseClassesOfCompoundType$2(Types.scala:1581)
-	at scala.reflect.internal.Types$$Lambda$136/1254526270.apply(Unknown Source)
-	at scala.reflect.internal.Types$CompoundType.memo(Types.scala:1408)
-	at scala.reflect.internal.Types.defineBaseClassesOfCompoundType(Types.scala:1581)
-	at scala.reflect.internal.Types.define$1(Types.scala:1548)
-	at scala.reflect.internal.Types.defineBaseClassesOfCompoundType(Types.scala:1549)
-	at scala.reflect.internal.Types.defineBaseClassesOfCompoundType$(Types.scala:1547)
-	at scala.reflect.internal.SymbolTable.defineBaseClassesOfCompoundType(SymbolTable.scala:16)
-	at scala.reflect.internal.Types$CompoundType.baseClasses(Types.scala:1391)
-	at scala.reflect.internal.tpe.FindMembers$FindMemberBase.<init>(FindMembers.scala:17)
-	at scala.reflect.internal.tpe.FindMembers$FindMember.<init>(FindMembers.scala:219)
-	at scala.reflect.internal.Types$Type.findMemberInternal$1(Types.scala:1026)
-	at scala.reflect.internal.Types$Type.findMember(Types.scala:1028)
-	at scala.reflect.internal.Types$Type.memberBasedOnName(Types.scala:645)
-	at scala.reflect.internal.Types$Type.nonPrivateMember(Types.scala:619)
-	at scala.reflect.internal.Definitions$DefinitionsClass.$anonfun$getMemberIfDefined$1(Definitions.scala:1305)
-	at scala.reflect.internal.Definitions$DefinitionsClass.getMemberIfDefined(Definitions.scala:1305)
-	at scala.reflect.internal.Definitions$DefinitionsClass.getMember(Definitions.scala:1256)
-	at scala.reflect.internal.Definitions$DefinitionsClass.getMemberMethod(Definitions.scala:1291)
+	at scala.reflect.internal.Symbols$Symbol.isDerivedValueClass(Symbols.scala:812)
+	at scala.reflect.internal.transform.Erasure$ErasureMap.apply(Erasure.scala:131)
+	at scala.reflect.internal.transform.Erasure.specialErasure(Erasure.scala:214)
+	at scala.reflect.internal.transform.Erasure.specialErasure$(Erasure.scala:212)
+	at scala.tools.nsc.transform.Erasure.specialErasure(Erasure.scala:15)
+	at scala.reflect.internal.transform.Erasure.transformInfo(Erasure.scala:393)
+	at scala.reflect.internal.transform.Erasure.transformInfo$(Erasure.scala:355)
+	at scala.tools.nsc.transform.Erasure.transformInfo(Erasure.scala:15)
+	at scala.tools.nsc.transform.InfoTransform$Phase$$anon$1.transform(InfoTransform.scala:38)
+	at scala.reflect.internal.Symbols$Symbol.rawInfo(Symbols.scala:1605)
+	at scala.reflect.internal.Symbols$Symbol.info(Symbols.scala:1522)
+	at scala.reflect.internal.Symbols$Symbol.tpeHK(Symbols.scala:1447)
+	at scala.reflect.internal.Types$Type.memberType(Types.scala:701)
+	at scala.reflect.internal.TreeGen.mkAttributedSelect(TreeGen.scala:234)
+	at scala.reflect.internal.TreeGen.mkAttributedRef(TreeGen.scala:162)
+	at scala.reflect.internal.TreeGen.mkAttributedStableRef(TreeGen.scala:197)
+	at scala.tools.nsc.ast.TreeGen.mkImportFromSelector(TreeGen.scala:35)
+	at scala.tools.nsc.ast.TreeGen.mkWildcardImport(TreeGen.scala:25)
+	at scala.tools.nsc.typechecker.Contexts.$anonfun$rootContext$1(Contexts.scala:103)
+	at scala.tools.nsc.typechecker.Contexts$$Lambda$286/1307096070.apply(Unknown Source)
+	at scala.collection.LinearSeqOptimized.foldLeft(LinearSeqOptimized.scala:122)
+	at scala.collection.LinearSeqOptimized.foldLeft$(LinearSeqOptimized.scala:118)
+	at scala.collection.immutable.List.foldLeft(List.scala:86)
 java.lang.OutOfMemoryError: GC overhead limit exceeded
 <simpleError in doTryCatch(return(expr), name, parentenv, handler): Exception thrown.>
 > 

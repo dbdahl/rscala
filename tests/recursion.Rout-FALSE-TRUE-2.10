@@ -1,24 +1,5 @@
-
-R version 3.3.2 (2016-10-31) -- "Sincere Pumpkin Patch"
-Copyright (C) 2016 The R Foundation for Statistical Computing
-Platform: x86_64-pc-linux-gnu (64-bit)
-
-R is free software and comes with ABSOLUTELY NO WARRANTY.
-You are welcome to redistribute it under certain conditions.
-Type 'license()' or 'licence()' for distribution details.
-
-  Natural language support but running in an English locale
-
-R is a collaborative project with many contributors.
-Type 'contributors()' for more information and
-'citation()' on how to cite R or R packages in publications.
-
-Type 'demo()' for some demos, 'help()' for on-line help, or
-'help.start()' for an HTML browser interface to help.
-Type 'q()' to quit R.
-
 > source("common.R",print.eval=TRUE)
-FALSE TRUE
+# R version 3.3.3 (2017-03-06) # ramah # FALSE # TRUE
 > 
 > 
 > # This is not recursion via callbacks.
@@ -556,11 +537,11 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Unit: milliseconds
- expr         min         lq       mean     median         uq        max neval
- f(0) 1980.967379 2193.46607 2475.18012 2331.84431 2563.03913 3306.58373     5
- g(0) 1106.018595 1127.63329 1299.30713 1282.34668 1367.22710 1613.31000     5
- h(0)   15.315150   24.20433   29.62868   31.83253   36.70251   40.08889     5
- i(0)    9.132464   24.77529   33.95477   40.87606   42.05041   52.93966     5
+ expr        min          lq       mean     median         uq        max neval
+ f(0) 852.874675 1062.125091 1226.78236 1097.98233 1275.24054 1845.68918     5
+ g(0) 606.186584  645.010047  829.79383  788.35347  842.27535 1267.14370     5
+ h(0)   8.626489    9.377856   13.92086   12.26505   16.90150   22.43342     5
+ i(0)  10.234508   11.619411   19.13575   14.34152   17.04201   42.44129     5
 > 
 > cat("####\n")
 ####
@@ -4568,8 +4549,8 @@ Hello 9 from Scala.
 Hello 9 from R.
 Unit: milliseconds
  expr      min       lq     mean   median       uq      max neval
- h(0) 5.918598 7.763014 15.15058 9.710393 20.92695 60.68791   100
- i(0) 6.266447 8.194915 15.04783 9.847097 18.97705 67.27872   100
+ h(0) 3.941067 4.063877 5.117704 4.250645 5.244803 12.26829   100
+ i(0) 3.615421 4.246678 5.617351 4.352361 5.458807 34.94793   100
 > 
 > 
 > 

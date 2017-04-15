@@ -1,25 +1,6 @@
-
-R version 3.3.2 (2016-10-31) -- "Sincere Pumpkin Patch"
-Copyright (C) 2016 The R Foundation for Statistical Computing
-Platform: x86_64-pc-linux-gnu (64-bit)
-
-R is free software and comes with ABSOLUTELY NO WARRANTY.
-You are welcome to redistribute it under certain conditions.
-Type 'license()' or 'licence()' for distribution details.
-
-  Natural language support but running in an English locale
-
-R is a collaborative project with many contributors.
-Type 'contributors()' for more information and
-'citation()' on how to cite R or R packages in publications.
-
-Type 'demo()' for some demos, 'help()' for on-line help, or
-'help.start()' for an HTML browser interface to help.
-Type 'q()' to quit R.
-
 > jars <- c("commons-math3-3.2.jar","shallot.jar")
 > source("common.R",print.eval=TRUE)
-FALSE TRUE
+# R version 3.3.3 (2017-03-06) # ramah # FALSE # TRUE
 > 
 > tryCatch(s %~% 'new org.apache.commons.math3.random.EmpiricalDistribution()',error=function(e) e)   # Scala 2.11.x class loader is weird.  This line avoid subsequent problems.
 package org.apache.commons.math3.random;
@@ -241,19 +222,19 @@ ScalaInterpreterItem
 > options(width=120)
 > microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
 Unit: microseconds
-                      expr      min        lq     mean    median       uq      max neval
- rdg$nextExponential(I(4)) 1403.871 2450.0385 4253.763 2597.5080 4535.209 66502.48  1000
-                   rexp(4)  318.687  609.6565 1282.608  648.9295  920.456 29134.75  1000
-> microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
-Unit: microseconds
                       expr      min       lq      mean   median       uq      max neval
- rdg$nextExponential(I(4)) 1558.296 2377.843 3000.6613 2550.986 2907.095 48649.74  1000
-                   rexp(4)  302.058  475.211  757.1464  590.832  659.976 77530.08  1000
+ rdg$nextExponential(I(4)) 1027.274 1097.744 1294.0803 1139.736 1282.510 15634.69  1000
+                   rexp(4)  240.285  279.643  366.5383  292.416  332.928 24652.57  1000
 > microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
 Unit: microseconds
-                      expr      min        lq      mean   median       uq      max neval
- rdg$nextExponential(I(4)) 1662.307 2463.6695 3210.9680 2772.856 3002.925 55606.01  1000
-                   rexp(4)  304.144  540.1305  780.9257  608.280  722.955 11866.41  1000
+                      expr      min       lq      mean   median        uq      max neval
+ rdg$nextExponential(I(4)) 1029.572 1302.600 1925.6067 2096.101 2280.3610 40173.25  1000
+                   rexp(4)  261.614  305.735  533.4371  532.447  609.2365 42055.61  1000
+> microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
+Unit: microseconds
+                      expr     min        lq      mean   median        uq       max neval
+ rdg$nextExponential(I(4)) 996.564 1158.3710 1809.1272 1700.830 2165.3660 32374.692  1000
+                   rexp(4) 208.874  287.1035  444.3592  391.076  564.5665  5714.174  1000
 > 
 > s$.org.ddahl.shallot.parameter.Mass
 package org.ddahl.shallot.parameter
