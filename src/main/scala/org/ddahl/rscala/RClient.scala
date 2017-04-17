@@ -93,6 +93,9 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getS0]].  */
   def evalS0(snippet: String) = { eval(snippet,true); getS0(".rscala.last.value") }
 
+  /** Calls '''`eval(snippet,true)`''' and returns the result using [[getR0]].  */
+  def evalR0(snippet: String) = { eval(snippet,true); getR0(".rscala.last.value") }
+
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getI1]].  */
   def evalI1(snippet: String) = { eval(snippet,true); getI1(".rscala.last.value") }
 
@@ -105,6 +108,9 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getS1]].  */
   def evalS1(snippet: String) = { eval(snippet,true); getS1(".rscala.last.value") }
 
+  /** Calls '''`eval(snippet,true)`''' and returns the result using [[getR1]].  */
+  def evalR1(snippet: String) = { eval(snippet,true); getR1(".rscala.last.value") }
+
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getI2]].  */
   def evalI2(snippet: String) = { eval(snippet,true); getI2(".rscala.last.value") }
 
@@ -116,6 +122,9 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getS2]].  */
   def evalS2(snippet: String) = { eval(snippet,true); getS2(".rscala.last.value") }
+
+  /** Calls '''`eval(snippet,true)`''' and returns the result using [[getR2]].  */
+  def evalR2(snippet: String) = { eval(snippet,true); getR2(".rscala.last.value") }
 
   /** A short-hand way to call [[get]].
   *
@@ -220,6 +229,12 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
           out.writeInt(vv.length)
           out.writeInt(STRING)
           for ( i <- 0 until vv.length ) writeString(out,vv(i))
+        case "[B" =>
+          val vv = v.asInstanceOf[Array[Byte]]
+          out.writeInt(VECTOR)
+          out.writeInt(vv.length)
+          out.writeInt(BYTE)
+          for ( i <- 0 until vv.length ) out.writeByte(vv(i))
         case "[[I" =>
           val vv1 = v.asInstanceOf[Array[Array[Int]]]
           if ( isMatrix(vv1) ) {
@@ -232,7 +247,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
             for ( i <- 0 until vv.length ) {
               val vvv = vv(i)
               for ( j <- 0 until vvv.length ) {
-                out.writeInt(vv(i)(j))
+                out.writeInt(vvv(j))
               }
             }
           } else out.writeInt(UNSUPPORTED_STRUCTURE)
@@ -284,6 +299,22 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
               }
             }
           } else out.writeInt(UNSUPPORTED_STRUCTURE)
+        case "[[B" =>
+          val vv1 = v.asInstanceOf[Array[Array[Byte]]]
+          if ( isMatrix(vv1) ) {
+            val vv = transposeIf(vv1, rowMajor)
+            out.writeInt(MATRIX)
+            out.writeInt(vv.length)
+            if ( vv.length > 0 ) out.writeInt(vv(0).length)
+            else out.writeInt(0)
+            out.writeInt(BYTE)
+            for ( i <- 0 until vv.length ) {
+              val vvv = vv(i)
+              for ( j <- 0 until vvv.length ) {
+                out.writeByte(vvv(j))
+              }
+            }
+          } else out.writeInt(UNSUPPORTED_STRUCTURE)
         case _ =>
           throw new RuntimeException("Unsupported array type: "+c.getName)
       }
@@ -305,6 +336,10 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
           out.writeInt(ATOMIC)
           out.writeInt(STRING)
           writeString(out,v.asInstanceOf[String])
+        case "java.lang.Byte" =>
+          out.writeInt(ATOMIC)
+          out.writeInt(BYTE)
+          out.writeByte(v.asInstanceOf[Byte])
         case _ =>
           throw new RuntimeException("Unsupported non-array type: "+c.getName)
       }
@@ -352,6 +387,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
           case DOUBLE => (in.readDouble(),"Double")
           case BOOLEAN => (( in.readInt() != 0 ),"Boolean")
           case STRING => (readString(in),"String")
+          case BYTE => (in.readByte(),"Byte")
           case _ => throw new RuntimeException("Protocol error")
         }
       case VECTOR =>
@@ -363,6 +399,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
           case DOUBLE => (Array.fill(length) { in.readDouble() },"Array[Double]")
           case BOOLEAN => (Array.fill(length) { ( in.readInt() != 0 ) },"Array[Boolean]")
           case STRING => (Array.fill(length) { readString(in) },"Array[String]")
+          case BYTE => (Array.fill(length) { in.readByte() },"Array[Byte]")
           case _ => throw new RuntimeException("Protocol error")
         }
       case MATRIX =>
@@ -375,6 +412,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
           case DOUBLE => ( transposeIf(Array.fill(nrow) { Array.fill(ncol) { in.readDouble() } }, rowMajor),"Array[Array[Double]]")
           case BOOLEAN => ( transposeIf(Array.fill(nrow) { Array.fill(ncol) { ( in.readInt() != 0 ) } }, rowMajor),"Array[Array[Boolean]]")
           case STRING => ( transposeIf(Array.fill(nrow) { Array.fill(ncol) { readString(in) } }, rowMajor),"Array[Array[String]]")
+          case BYTE => ( transposeIf(Array.fill(nrow) { Array.fill(ncol) { in.readByte() } }, rowMajor),"Array[Array[Byte]]")
           case _ => throw new RuntimeException("Protocol error")
         }
       case UNDEFINED_IDENTIFIER => throw new RuntimeException("Undefined identifier: "+identifier)
@@ -393,10 +431,12 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
     case (a,"Double") => a.asInstanceOf[Double].toInt
     case (a,"Boolean") => if (a.asInstanceOf[Boolean]) 1 else 0
     case (a,"String") => a.asInstanceOf[String].toInt
+    case (a,"Byte") => a.asInstanceOf[Byte].toInt
     case (a,"Array[Int]") => a.asInstanceOf[Array[Int]](0)
     case (a,"Array[Double]") => a.asInstanceOf[Array[Double]](0).toInt
     case (a,"Array[Boolean]") => if ( a.asInstanceOf[Array[Boolean]](0) ) 1 else 0
     case (a,"Array[String]") => a.asInstanceOf[Array[String]](0).toInt
+    case (a,"Array[Byte]") => a.asInstanceOf[Array[Byte]](0).toInt
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Int")
   }
 
@@ -410,10 +450,12 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
     case (a,"Double") => a.asInstanceOf[Double]
     case (a,"Boolean") => if (a.asInstanceOf[Boolean]) 1.0 else 0.0
     case (a,"String") => a.asInstanceOf[String].toDouble
+    case (a,"Byte") => a.asInstanceOf[Byte].toDouble
     case (a,"Array[Int]") => a.asInstanceOf[Array[Int]](0).toDouble
     case (a,"Array[Double]") => a.asInstanceOf[Array[Double]](0)
     case (a,"Array[Boolean]") => if ( a.asInstanceOf[Array[Boolean]](0) ) 1.0 else 0.0
     case (a,"Array[String]") => a.asInstanceOf[Array[String]](0).toDouble
+    case (a,"Array[Byte]") => a.asInstanceOf[Array[Byte]](0).toDouble
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Double")
   }
 
@@ -427,10 +469,12 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
     case (a,"Double") => a.asInstanceOf[Double] != 0.0
     case (a,"Boolean") => a.asInstanceOf[Boolean]
     case (a,"String") => a.asInstanceOf[String].toLowerCase != "false"
+    case (a,"Byte") => a.asInstanceOf[Byte] != 0.toByte
     case (a,"Array[Int]") => a.asInstanceOf[Array[Int]](0) != 0
     case (a,"Array[Double]") => a.asInstanceOf[Array[Double]](0) != 0.0
     case (a,"Array[Boolean]") => a.asInstanceOf[Array[Boolean]](0)
     case (a,"Array[String]") => a.asInstanceOf[Array[String]](0).toLowerCase != "false"
+    case (a,"Array[Byte]") => a.asInstanceOf[Array[Byte]](0) != 0.toByte
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Boolean")
   }
 
@@ -444,11 +488,32 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
     case (a,"Double") => a.asInstanceOf[Double].toString
     case (a,"Boolean") => a.asInstanceOf[Boolean].toString
     case (a,"String") => a.asInstanceOf[String]
+    case (a,"Byte") => a.asInstanceOf[Byte].toString
     case (a,"Array[Int]") => a.asInstanceOf[Array[Int]](0).toString
     case (a,"Array[Double]") => a.asInstanceOf[Array[Double]](0).toString
     case (a,"Array[Boolean]") => a.asInstanceOf[Array[Boolean]](0).toString
     case (a,"Array[String]") => a.asInstanceOf[Array[String]](0)
+    case (a,"Array[Byte]") => a.asInstanceOf[Array[Byte]](0).toString
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to String")
+  }
+
+  /** Calls '''`get(identifier,false)`''' and converts the result to a `Byte`.
+  *
+  * Integers, doubles, Booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
+  * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
+  */
+  def getR0(identifier: String): Byte = get(identifier) match {
+    case (a,"Int") => a.asInstanceOf[Int].toByte
+    case (a,"Double") => a.asInstanceOf[Double].toByte
+    case (a,"Boolean") => if (a.asInstanceOf[Boolean]) 1.toByte else 0.toByte
+    case (a,"String") => a.asInstanceOf[String].toByte
+    case (a,"Byte") => a.asInstanceOf[Byte]
+    case (a,"Array[Int]") => a.asInstanceOf[Array[Int]](0).toByte
+    case (a,"Array[Double]") => a.asInstanceOf[Array[Double]](0).toByte
+    case (a,"Array[Boolean]") => if ( a.asInstanceOf[Array[Boolean]](0) ) 1.toByte else 0.toByte
+    case (a,"Array[String]") => a.asInstanceOf[Array[String]](0).toByte
+    case (a,"Array[Byte]") => a.asInstanceOf[Array[Byte]](0)
+    case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Byte")
   }
 
   /** Calls '''`get(identifier,false)`''' and converts the result to an `Array[Int]`.
@@ -461,10 +526,12 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
     case (a,"Double") => Array(a.asInstanceOf[Double].toInt)
     case (a,"Boolean") => Array(if (a.asInstanceOf[Boolean]) 1 else 0)
     case (a,"String") => Array(a.asInstanceOf[String].toInt)
+    case (a,"Byte") => Array(a.asInstanceOf[Byte].toInt)
     case (a,"Array[Int]") => a.asInstanceOf[Array[Int]]
     case (a,"Array[Double]") => a.asInstanceOf[Array[Double]].map(_.toInt)
     case (a,"Array[Boolean]") => a.asInstanceOf[Array[Boolean]].map(x => if (x) 1 else 0)
     case (a,"Array[String]") => a.asInstanceOf[Array[String]].map(_.toInt)
+    case (a,"Array[Byte]") => a.asInstanceOf[Array[Byte]].map(_.toInt)
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Array[Int]")
   }
 
@@ -478,10 +545,12 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
     case (a,"Double") => Array(a.asInstanceOf[Double])
     case (a,"Boolean") => Array(if (a.asInstanceOf[Boolean]) 1.0 else 0.0)
     case (a,"String") => Array(a.asInstanceOf[String].toDouble)
+    case (a,"Byte") => Array(a.asInstanceOf[Byte].toDouble)
     case (a,"Array[Int]") => a.asInstanceOf[Array[Int]].map(_.toDouble)
     case (a,"Array[Double]") => a.asInstanceOf[Array[Double]]
     case (a,"Array[Boolean]") => a.asInstanceOf[Array[Boolean]].map(x => if (x) 1.0 else 0.0)
     case (a,"Array[String]") => a.asInstanceOf[Array[String]].map(_.toDouble)
+    case (a,"Array[Byte]") => a.asInstanceOf[Array[Byte]].map(_.toDouble)
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Array[Double]")
   }
 
@@ -495,10 +564,12 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
     case (a,"Double") => Array(a.asInstanceOf[Double] != 0.0)
     case (a,"Boolean") => Array(a.asInstanceOf[Boolean])
     case (a,"String") => Array(a.asInstanceOf[String].toLowerCase != "false")
+    case (a,"Byte") => Array(a.asInstanceOf[Byte] != 0.toByte)
     case (a,"Array[Int]") => a.asInstanceOf[Array[Int]].map(_ != 0)
     case (a,"Array[Double]") => a.asInstanceOf[Array[Double]].map(_ != 0.0)
     case (a,"Array[Boolean]") => a.asInstanceOf[Array[Boolean]]
     case (a,"Array[String]") => a.asInstanceOf[Array[String]].map(_.toLowerCase != "false")
+    case (a,"Array[Byte]") => a.asInstanceOf[Array[Byte]].map(_ != 0.toByte)
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Array[Boolean]")
   }
 
@@ -512,11 +583,32 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
     case (a,"Double") => Array(a.asInstanceOf[Double].toString)
     case (a,"Boolean") => Array(a.asInstanceOf[Boolean].toString)
     case (a,"String") => Array(a.asInstanceOf[String])
+    case (a,"Byte") => Array(a.asInstanceOf[Byte].toString)
     case (a,"Array[Int]") => a.asInstanceOf[Array[Int]].map(_.toString)
     case (a,"Array[Double]") => a.asInstanceOf[Array[Double]].map(_.toString)
     case (a,"Array[Boolean]") => a.asInstanceOf[Array[Boolean]].map(_.toString)
     case (a,"Array[String]") => a.asInstanceOf[Array[String]]
+    case (a,"Array[Byte]") => a.asInstanceOf[Array[Byte]].map(_.toString)
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Array[String]")
+  }
+
+  /** Calls '''`get(identifier,false)`''' and converts the result to an `Array[Byte]`.
+  *
+  * Integers, doubles, Booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
+  * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
+  */
+  def getR1(identifier: String): Array[Byte] = get(identifier) match {
+    case (a,"Int") => Array(a.asInstanceOf[Int].toByte)
+    case (a,"Double") => Array(a.asInstanceOf[Double].toByte)
+    case (a,"Boolean") => Array(if (a.asInstanceOf[Boolean]) 1.toByte else 0.toByte)
+    case (a,"String") => Array(a.asInstanceOf[String].toByte)
+    case (a,"Byte") => Array(a.asInstanceOf[Byte])
+    case (a,"Array[Int]") => a.asInstanceOf[Array[Int]].map(_.toByte)
+    case (a,"Array[Double]") => a.asInstanceOf[Array[Double]].map(_.toByte)
+    case (a,"Array[Boolean]") => a.asInstanceOf[Array[Boolean]].map(x => if (x) 1.toByte else 0.toByte)
+    case (a,"Array[String]") => a.asInstanceOf[Array[String]].map(_.toByte)
+    case (a,"Array[Byte]") => a.asInstanceOf[Array[Byte]]
+    case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Array[Byte]")
   }
 
   /** Calls '''`get(identifier,false)`''' and converts the result to an `Array[Array[Int]]`.
@@ -530,6 +622,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
     case (a,"Array[Array[Double]]") => a.asInstanceOf[Array[Array[Double]]].map(_.map(_.toInt))
     case (a,"Array[Array[Boolean]]") => a.asInstanceOf[Array[Array[Boolean]]].map(_.map(x => if (x) 1 else 0))
     case (a,"Array[Array[String]]") => a.asInstanceOf[Array[Array[String]]].map(_.map(_.toInt))
+    case (a,"Array[Array[Byte]]") => a.asInstanceOf[Array[Array[Byte]]].map(_.map(_.toInt))
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Array[Array[Int]]")
   }
 
@@ -544,6 +637,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
     case (a,"Array[Array[Double]]") => a.asInstanceOf[Array[Array[Double]]]
     case (a,"Array[Array[Boolean]]") => a.asInstanceOf[Array[Array[Boolean]]].map(_.map(x => if (x) 1.0 else 0.0))
     case (a,"Array[Array[String]]") => a.asInstanceOf[Array[Array[String]]].map(_.map(_.toDouble))
+    case (a,"Array[Array[Byte]]") => a.asInstanceOf[Array[Array[Byte]]].map(_.map(_.toDouble))
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Array[Array[Double]]")
   }
 
@@ -558,6 +652,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
     case (a,"Array[Array[Double]]") => a.asInstanceOf[Array[Array[Double]]].map(_.map(_ != 0.0))
     case (a,"Array[Array[Boolean]]") => a.asInstanceOf[Array[Array[Boolean]]]
     case (a,"Array[Array[String]]") => a.asInstanceOf[Array[Array[String]]].map(_.map(_.toLowerCase != "false"))
+    case (a,"Array[Array[Byte]]") => a.asInstanceOf[Array[Array[Byte]]].map(_.map(_ != 0.toByte))
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Array[Array[Boolean]]")
   }
 
@@ -572,7 +667,23 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
     case (a,"Array[Array[Double]]") => a.asInstanceOf[Array[Array[Double]]].map(_.map(_.toString))
     case (a,"Array[Array[Boolean]]") => a.asInstanceOf[Array[Array[Boolean]]].map(_.map(_.toString))
     case (a,"Array[Array[String]]") => a.asInstanceOf[Array[Array[String]]]
+    case (a,"Array[Array[Byte]]") => a.asInstanceOf[Array[Array[Byte]]].map(_.map(_.toString))
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Array[Array[String]]")
+  }
+
+  /** Calls '''`get(identifier,false)`''' and converts the result to an `Array[Array[Byte]]`.
+  *
+  * Matrices (i.e. rectangular arrays of arrays) of integers, doubles, Booleans, and strings are supported.  Integers, doubles,
+  * Booleans, and strings themselves are not supported.  Vectors (i.e. arrays) of these
+  * types are also not supported.
+  */
+  def getR2(identifier: String): Array[Array[Byte]] = get(identifier) match {
+    case (a,"Array[Array[Int]]") => a.asInstanceOf[Array[Array[Int]]].map(_.map(_.toByte))
+    case (a,"Array[Array[Double]]") => a.asInstanceOf[Array[Array[Double]]].map(_.map(_.toByte))
+    case (a,"Array[Array[Boolean]]") => a.asInstanceOf[Array[Array[Boolean]]].map(_.map(x => if (x) 1.toByte else 0.toByte))
+    case (a,"Array[Array[String]]") => a.asInstanceOf[Array[Array[String]]].map(_.map(_.toByte))
+    case (a,"Array[Array[Byte]]") => a.asInstanceOf[Array[Array[String]]].map(_.map(_.toByte))
+    case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Array[Array[Byte]]")
   }
 
 }

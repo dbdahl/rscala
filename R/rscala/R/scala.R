@@ -688,14 +688,7 @@ checkType <- function(x) {
   else if ( is.double(x) ) DOUBLE
   else if ( is.logical(x) ) BOOLEAN
   else if ( is.character(x) ) STRING
-  else stop("Unsupported data type.")
-}
-
-checkType2 <- function(x) {
-  if ( is.integer(x) ) "Int"
-  else if ( is.double(x) ) "Double"
-  else if ( is.logical(x) ) "Boolean"
-  else if ( is.character(x) ) "String"
+  else if ( is.raw(x) ) BYTE
   else stop("Unsupported data type.")
 }
 
@@ -704,6 +697,7 @@ checkType3 <- function(x) {
   else if ( is.double(x) ) "D"
   else if ( is.logical(x) ) "B"
   else if ( is.character(x) ) "S"
+  else if ( is.raw(x) ) "R"
   else stop("Unsupported data type.")
 }
 

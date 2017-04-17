@@ -8,6 +8,7 @@ object Protocol {
   val DOUBLE =  2
   val BOOLEAN = 3
   val STRING =  4
+  val BYTE =    5
 
   // Data Structures
   val UNSUPPORTED_STRUCTURE = 10

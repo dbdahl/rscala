@@ -12,7 +12,7 @@ assert <- function(xx) {
 }
 
 y <- c(0,1,2,3,4,5,6,8)
-for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y)) ) {
+for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y),as.raw(y)) ) {
   assert(x[1])
   assert(x[2])
   assert(x)

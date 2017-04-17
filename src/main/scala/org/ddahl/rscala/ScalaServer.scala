@@ -211,6 +211,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
           case DOUBLE => (in.readDouble(),"Double")
           case BOOLEAN => (( in.readInt() != 0 ),"Boolean")
           case STRING => (readString(),"String")
+          case BYTE => (in.readByte(),"Byte")
           case _ => throw new RuntimeException("Protocol error")
         }
         setAVM(identifier,t,v)
@@ -223,6 +224,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
           case DOUBLE => (Array.fill(length) { in.readDouble() },"Array[Double]")
           case BOOLEAN => (Array.fill(length) { ( in.readInt() != 0 ) },"Array[Boolean]")
           case STRING => (Array.fill(length) { readString() },"Array[String]")
+          case BYTE => (Array.fill(length) { in.readByte() },"Array[Byte]")
           case _ => throw new RuntimeException("Protocol error")
         }
         setAVM(identifier,t,v)
@@ -236,6 +238,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
           case DOUBLE => ( transposeIf( Array.fill(nrow) { Array.fill(ncol) { in.readDouble() } }, rowMajor),"Array[Array[Double]]")
           case BOOLEAN => ( transposeIf( Array.fill(nrow) { Array.fill(ncol) { ( in.readInt() != 0 ) } }, rowMajor),"Array[Array[Boolean]]")
           case STRING => ( transposeIf( Array.fill(nrow) { Array.fill(ncol) { readString() } }, rowMajor),"Array[Array[String]]")
+          case BYTE => ( transposeIf( Array.fill(nrow) { Array.fill(ncol) { in.readByte() } }, rowMajor),"Array[Array[Byte]]")
           case _ => throw new RuntimeException("Protocol error")
         }
         setAVM(identifier,t,v)
@@ -295,10 +298,12 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
           case "[D" => "Array[Double]"
           case "[Z" => "Array[Boolean]"
           case "[Ljava.lang.String;" => "Array[String]"
+          case "[B" => "Array[Byte]"
           case "[[I" => "Array[Array[Int]]"
           case "[[D" => "Array[Array[Double]]"
           case "[[Z" => "Array[Array[Boolean]]"
           case "[[Ljava.lang.String;" => "Array[Array[String]]"
+          case "[[B" => "Array[Array[Byte]]"
           case _ => "Any"
         }
       } else {
@@ -307,6 +312,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
           case "java.lang.Double" => "Double"
           case "java.lang.Boolean" => "Boolean"
           case "java.lang.String" => "String"
+          case "java.lang.Byte" => "Byte"
           case _ => "Any"
         }
       }
@@ -338,6 +344,12 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
         out.writeInt(vv.length)
         out.writeInt(STRING)
         for ( i <- 0 until vv.length ) writeString(vv(i))
+      case "Array[Byte]" =>
+        val vv = v.asInstanceOf[Array[Byte]]
+        out.writeInt(VECTOR)
+        out.writeInt(vv.length)
+        out.writeInt(BYTE)
+        for ( i <- 0 until vv.length ) out.writeByte(vv(i))
       case "Array[Array[Int]]" =>
         val vv1 = v.asInstanceOf[Array[Array[Int]]]
         if ( isMatrix(vv1) ) {
@@ -350,7 +362,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
           for ( i <- 0 until vv.length ) {
             val vvv = vv(i)
             for ( j <- 0 until vvv.length ) {
-              out.writeInt(vv(i)(j))
+              out.writeInt(vvv(j))
             }
           }
         } else out.writeInt(UNSUPPORTED_STRUCTURE)
@@ -402,6 +414,22 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
             }
           }
         } else out.writeInt(UNSUPPORTED_STRUCTURE)
+      case "Array[Array[Byte]]" =>
+        val vv1 = v.asInstanceOf[Array[Array[Byte]]]
+        if ( isMatrix(vv1) ) {
+          val vv = transposeIf(vv1, rowMajor)
+          out.writeInt(MATRIX)
+          out.writeInt(vv.length)
+          if ( vv.length > 0 ) out.writeInt(vv(0).length)
+          else out.writeInt(0)
+          out.writeInt(BYTE)
+          for ( i <- 0 until vv.length ) {
+            val vvv = vv(i)
+            for ( j <- 0 until vvv.length ) {
+              out.writeByte(vvv(j))
+            }
+          }
+        } else out.writeInt(UNSUPPORTED_STRUCTURE)
       case "Int" =>
         out.writeInt(ATOMIC)
         out.writeInt(INTEGER)
@@ -418,6 +446,10 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
         out.writeInt(ATOMIC)
         out.writeInt(STRING)
         writeString(v.asInstanceOf[String])
+      case "Byte" =>
+        out.writeInt(ATOMIC)
+        out.writeInt(BYTE)
+        out.writeByte(v.asInstanceOf[Byte])
       case _ =>
         if ( debugger.value ) debugger.msg("Bowing out: "+identifier)
         out.writeInt(UNSUPPORTED_STRUCTURE)

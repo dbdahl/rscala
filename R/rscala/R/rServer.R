@@ -45,6 +45,7 @@ rServe <- function(sockets,with.callbacks,workspace=.GlobalEnv) {
         else if ( dataType == DOUBLE ) value <- rb(sockets,"double")
         else if ( dataType == BOOLEAN ) value <- rb(sockets,"integer") != 0
         else if ( dataType == STRING ) value <- rc(sockets)
+        else if ( dataType == BYTE ) value <- rb(sockets,"raw")
         else stop(paste("Unknown data type:",dataType))
         if ( cmd == SET ) assign(identifier,value,envir=workspace)
         else subassign(sockets,identifier,index,value,cmd==SET_SINGLE,workspace)
@@ -55,6 +56,7 @@ rServe <- function(sockets,with.callbacks,workspace=.GlobalEnv) {
         else if ( dataType == DOUBLE ) value <- rb(sockets,"double",n=dataLength)
         else if ( dataType == BOOLEAN ) value <- rb(sockets,"integer",n=dataLength) != 0
         else if ( dataType == STRING ) value <- sapply(1:dataLength,function(i) rc(sockets))
+        else if ( dataType == BYTE ) value <- rb(sockets,"raw",n=dataLength)
         else stop(paste("Unknown data type:",dataType))
         if ( cmd == SET ) assign(identifier,value,envir=workspace)
         else subassign(sockets,identifier,index,value,cmd==SET_SINGLE,workspace)
@@ -67,6 +69,7 @@ rServe <- function(sockets,with.callbacks,workspace=.GlobalEnv) {
         else if ( dataType == DOUBLE ) value <- matrix(rb(sockets,"double",n=dataLength),nrow=dataNRow,byrow=TRUE)
         else if ( dataType == BOOLEAN ) value <- matrix(rb(sockets,"integer",n=dataLength),nrow=dataNRow,byrow=TRUE) != 0
         else if ( dataType == STRING ) value <- matrix(sapply(1:dataLength,function(i) rc(sockets)),nrow=dataNRow,byrow=TRUE)
+        else if ( dataType == BYTE ) value <- matrix(rb(sockets,"raw",n=dataLength),nrow=dataNRow,byrow=TRUE)
         else stop(paste("Unknown data type:",dataType))
         if ( cmd == SET ) assign(identifier,value,envir=workspace)
         else subassign(sockets,identifier,index,value,cmd==SET_SINGLE,workspace)
