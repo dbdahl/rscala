@@ -204,7 +204,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
       case NULLTYPE =>
         if ( debugger.value ) debugger.msg("Setting null.")
         repl.bind(identifier,"Any",null)
-      case ATOMIC =>
+      case SCALAR =>
         if ( debugger.value ) debugger.msg("Setting atomic.")
         val (v: Any, t: String) = in.readInt() match {
           case INTEGER => (in.readInt(),"Int")
@@ -431,23 +431,23 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
           }
         } else out.writeInt(UNSUPPORTED_STRUCTURE)
       case "Int" =>
-        out.writeInt(ATOMIC)
+        out.writeInt(SCALAR)
         out.writeInt(INTEGER)
         out.writeInt(v.asInstanceOf[Int])
       case "Double" =>
-        out.writeInt(ATOMIC)
+        out.writeInt(SCALAR)
         out.writeInt(DOUBLE)
         out.writeDouble(v.asInstanceOf[Double])
       case "Boolean" =>
-        out.writeInt(ATOMIC)
+        out.writeInt(SCALAR)
         out.writeInt(BOOLEAN)
         out.writeInt(if (v.asInstanceOf[Boolean]) 1 else 0)
       case "String" =>
-        out.writeInt(ATOMIC)
+        out.writeInt(SCALAR)
         out.writeInt(STRING)
         writeString(v.asInstanceOf[String])
       case "Byte" =>
-        out.writeInt(ATOMIC)
+        out.writeInt(SCALAR)
         out.writeInt(BYTE)
         out.writeByte(v.asInstanceOf[Byte])
       case _ =>

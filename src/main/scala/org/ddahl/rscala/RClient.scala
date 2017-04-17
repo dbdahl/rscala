@@ -321,23 +321,23 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
     } else {
       c.getName match {
         case "java.lang.Integer" =>
-          out.writeInt(ATOMIC)
+          out.writeInt(SCALAR)
           out.writeInt(INTEGER)
           out.writeInt(v.asInstanceOf[Int])
         case "java.lang.Double" =>
-          out.writeInt(ATOMIC)
+          out.writeInt(SCALAR)
           out.writeInt(DOUBLE)
           out.writeDouble(v.asInstanceOf[Double])
         case "java.lang.Boolean" =>
-          out.writeInt(ATOMIC)
+          out.writeInt(SCALAR)
           out.writeInt(BOOLEAN)
           out.writeInt(if (v.asInstanceOf[Boolean]) 1 else 0)
         case "java.lang.String" =>
-          out.writeInt(ATOMIC)
+          out.writeInt(SCALAR)
           out.writeInt(STRING)
           writeString(out,v.asInstanceOf[String])
         case "java.lang.Byte" =>
-          out.writeInt(ATOMIC)
+          out.writeInt(SCALAR)
           out.writeInt(BYTE)
           out.writeByte(v.asInstanceOf[Byte])
         case _ =>
@@ -380,7 +380,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
       case NULLTYPE =>
         if ( debug ) debugger.msg("Getting null.")
         (null,"Null")
-      case ATOMIC =>
+      case SCALAR =>
         if ( debug ) debugger.msg("Getting atomic.")
         in.readInt() match {
           case INTEGER => (in.readInt(),"Int")

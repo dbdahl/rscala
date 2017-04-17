@@ -121,53 +121,71 @@ public class RClient4Java {
   */
   public String evalS0(String snippet) { return c.evalS0(snippet); }
 
+  /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getR0(String) getR0}.  
+  * @param snippet  The snippet to be evaluated.
+  * @return   The evaluated byte.
+  */
+  public byte evalR0(String snippet) { return c.evalR0(snippet); }
+
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getI1(String) getI1}.  
   * @param snippet  The snippet to be evaluated.
-  * @return   The evaluated int.
+  * @return   The evaluated int array.
   */
   public int[] evalI1(String snippet) { return c.evalI1(snippet); }
 
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getD1(String) getD1}. 
   * @param snippet  The snippet to be evaluated.
-  * @return   The evaluated double.
+  * @return   The evaluated double array.
   */
   public double[] evalD1(String snippet) { return c.evalD1(snippet); }
 
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getB1(String) getB1}.  
   * @param snippet  The snippet to be evaluated.
-  * @return   The evaluated boolean.
+  * @return   The evaluated boolean array.
   */
   public boolean[] evalB1(String snippet) { return c.evalB1(snippet); }
 
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getS1(String) getS1}. 
   * @param snippet  The snippet to be evaluated.
-  * @return   The evaluated string.
+  * @return   The evaluated string array.
   */
   public String[] evalS1(String snippet) { return c.evalS1(snippet); }
 
+  /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getR1(String) getR1}.  
+  * @param snippet  The snippet to be evaluated.
+  * @return   The evaluated byte array.
+  */
+  public byte[] evalR1(String snippet) { return c.evalR1(snippet); }
+
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getI2(String) getI2}.  
   * @param snippet  The snippet to be evaluated.
-  * @return   The evaluated int.
+  * @return   The evaluated int matrix.
   */
   public int[][] evalI2(String snippet) { return c.evalI2(snippet); }
 
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getD2(String) getD2}.  
   * @param snippet  The snippet to be evaluated.
-  * @return   The evaluated double.
+  * @return   The evaluated double matrix.
   */
   public double[][] evalD2(String snippet) { return c.evalD2(snippet); }
 
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getB2(String) getB2}.  
   * @param snippet  The snippet to be evaluated.
-  * @return   The evaluated boolean.
+  * @return   The evaluated boolean matrix.
   */
   public boolean[][] evalB2(String snippet) { return c.evalB2(snippet); }
 
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getS2(String) getS2}.  
   * @param snippet  The snippet to be evaluated.
-  * @return   The evaluated String.
+  * @return   The evaluated String matrix.
   */
   public String[][] evalS2(String snippet) { return c.evalS2(snippet); }
+
+  /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getR2(String) getR2}.  
+  * @param snippet  The snippet to be evaluated.
+  * @return   The evaluated byte matrix.
+  */
+  public byte[][] evalR2(String snippet) { return c.evalR2(snippet); }
 
   /** Equivalent to calling <b><tt>set(identifier, value, "", true)</tt></b>. 
   * @param identifier The string of input to be set.
@@ -233,21 +251,30 @@ public class RClient4Java {
   */
   public boolean getB0(String identifier) { return c.getB0(identifier); }
 
-  /** Calls <b><tt>get(identifier,false)</tt></b> and converts the result to a <tt>string</tt>.
+  /** Calls <b><tt>get(identifier,false)</tt></b> and converts the result to a <tt>String</tt>.
   *
   * Integers, doubles, booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
   * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
   * @param identifier The string to be evaluated.
-  * @return The evaluated string.
+  * @return The evaluated String.
   */
   public String getS0(String identifier) { return c.getS0(identifier); }
+
+  /** Calls <b><tt>get(identifier,false)</tt></b> and converts the result to a <tt>byte</tt>.
+  *
+  * Integers, doubles, booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
+  * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
+  * @param identifier The string to be evaluated.
+  * @return The evaluated byte.
+  */
+  public byte getR0(String identifier) { return c.getR0(identifier); }
 
   /** Calls <b><tt>get(identifier,false)</tt></b> and converts the result to an <tt>int[]</tt>.
   *
   * Integers, doubles, booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
   * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
   * @param identifier The string to be evaluated.
-  * @return   The evaluated int.
+  * @return   The evaluated int array.
   */
   public int[] getI1(String identifier) { return c.getI1(identifier); }
 
@@ -256,7 +283,7 @@ public class RClient4Java {
   * Integers, doubles, booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
   * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
   * @param identifier The string to be evaluated.
-  * @return   The evaluated double.
+  * @return   The evaluated double array.
   */
   public double[] getD1(String identifier) { return c.getD1(identifier); }
 
@@ -265,18 +292,27 @@ public class RClient4Java {
   * Integers, doubles, booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
   * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
   * @param identifier The string to be evaluated.
-  * @return   The evaluated boolean.
+  * @return   The evaluated boolean array.
   */
   public boolean[] getB1(String identifier) { return c.getB1(identifier); }
 
-  /** Calls <b><tt>get(identifier,false)</tt></b> and converts the result to a <tt>string[]</tt>.
+  /** Calls <b><tt>get(identifier,false)</tt></b> and converts the result to a <tt>String[]</tt>.
   *
   * Integers, doubles, booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
   * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
   * @param identifier The string to be evaluated.
-  * @return   The evaluated string.
+  * @return   The evaluated String array.
   */
   public String[] getS1(String identifier) { return c.getS1(identifier); }
+
+  /** Calls <b><tt>get(identifier,false)</tt></b> and converts the result to a <tt>byte[]</tt>.
+  *
+  * Integers, doubles, booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
+  * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
+  * @param identifier The string to be evaluated.
+  * @return   The evaluated byte array.
+  */
+  public byte[] getR1(String identifier) { return c.getR1(identifier); }
 
   /** Calls <b><tt>get(identifier,false)</tt></b> and converts the result to an <tt>int[][]</tt>.
   *
@@ -284,7 +320,7 @@ public class RClient4Java {
   * booleans, and strings themselves are not supported.  Vectors (i.e. arrays) of these
   * types are also not supported.
   * @param identifier The string to be evaluated.
-  * @return   The evaluated int.
+  * @return   The evaluated int matrix.
   */
   public int[][] getI2(String identifier) { return c.getI2(identifier); }
 
@@ -294,7 +330,7 @@ public class RClient4Java {
   * booleans, and strings themselves are not supported.  Vectors (i.e. arrays) of these
   * types are also not supported.
   * @param identifier The string to be evaluated.
-  * @return   The evaluated double.
+  * @return   The evaluated double matrix.
   */
   public double[][] getD2(String identifier) { return c.getD2(identifier); }
 
@@ -304,19 +340,29 @@ public class RClient4Java {
   * booleans, and strings themselves are not supported.  Vectors (i.e. arrays) of these
   * types are also not supported.
   * @param identifier The string to be evaluated.
-  * @return   The evaluated boolean.
+  * @return   The evaluated boolean matrix.
   */
   public boolean[][] getB2(String identifier) { return c.getB2(identifier); }
 
-  /** Calls <b><tt>get(identifier,false)</tt></b> and converts the result to a <tt>string[][]</tt>.
+  /** Calls <b><tt>get(identifier,false)</tt></b> and converts the result to a <tt>String[][]</tt>.
   *
   * Matrices (i.e. rectangular arrays of arrays) of integers, doubles, booleans, and strings are supported.  Integers, doubles,
   * booleans, and strings themselves are not supported.  Vectors (i.e. arrays) of these
   * types are also not supported.
   * @param identifier The string to be evaluated.
-  * @return   The evaluated string.
+  * @return   The evaluated string matrix.
   */
   public String[][] getS2(String identifier) { return c.getS2(identifier); }
+
+  /** Calls <b><tt>getR2(identifier,false)</tt></b> and converts the result to an <tt>byte[][]</tt>.
+  *
+  * Matrices (i.e. rectangular arrays of arrays) of integers, doubles, booleans, and strings are supported.  Integers, doubles,
+  * booleans, and strings themselves are not supported.  Vectors (i.e. arrays) of these
+  * types are also not supported.
+  * @param identifier The string to be evaluated.
+  * @return   The evaluated int matrix.
+  */
+  public byte[][] getR2(String identifier) { return c.getR2(identifier); }
 
 }
 

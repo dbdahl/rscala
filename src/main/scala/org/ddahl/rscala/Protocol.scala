@@ -14,7 +14,7 @@ object Protocol {
   val UNSUPPORTED_STRUCTURE = 10
   val NULLTYPE  = 11
   val REFERENCE = 12
-  val ATOMIC    = 13
+  val SCALAR    = 13
   val VECTOR    = 14
   val MATRIX    = 15
 
