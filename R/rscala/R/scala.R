@@ -1,11 +1,12 @@
 ## Scala scripting over TCP/IP
 
-scala <- function(classpath=character(0),serialize.output=FALSE,scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=60,debug=FALSE,stdout=TRUE,stderr=TRUE) {
+scala <- function(classpath=character(0),serialize.output=FALSE,scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=60,debug=FALSE,stdout=TRUE,stderr=TRUE,port=0) {
   if ( identical(stdout,TRUE) ) stdout <- ""
   if ( identical(stderr,TRUE) ) stderr <- ""
   debug <- identical(debug,TRUE)
   serialize.output <- identical(serialize.output,TRUE)
   row.major <- identical(row.major, TRUE)
+  port <- as.integer(port[1])
   if ( debug && serialize.output ) stop("When debug is TRUE, serialize.output must be FALSE.")
   if ( debug && ( identical(stdout,FALSE) || identical(stdout,NULL) || identical(stderr,FALSE) || identical(stderr,NULL) ) ) stop("When debug is TRUE, stdout and stderr must not be discarded.")
   userJars <- unlist(strsplit(classpath,.Platform$path.sep))
@@ -25,7 +26,7 @@ scala <- function(classpath=character(0),serialize.output=FALSE,scala.home=NULL,
   rsJar <- .rscalaJar(sInfo$version)
   rsClasspath <- shQuote(paste(c(rsJar,userJars),collapse=.Platform$path.sep))
   portsFilename <- tempfile("rscala-")
-  args <- c(command.line.options,paste0("-Drscala.classpath=",rsClasspath),"-classpath",rsClasspath,"org.ddahl.rscala.Main",portsFilename,debug,serialize.output,row.major)
+  args <- c(command.line.options,paste0("-Drscala.classpath=",rsClasspath),"-classpath",rsClasspath,"org.ddahl.rscala.Main",portsFilename,debug,serialize.output,row.major,port)
   if ( debug ) msg("\n",sInfo$cmd)
   if ( debug ) msg("\n",paste0("<",args,">",collapse="\n"))
   system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)

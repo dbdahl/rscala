@@ -5,10 +5,10 @@ import java.io._
 
 import Protocol._
 
-private[rscala] class ScalaSockets(portsFilename: String, debugger: Debugger) {
+private[rscala] class ScalaSockets(portsFilename: String, port: Int, debugger: Debugger) {
 
-  val serverIn  = new ServerSocket(0,0,InetAddress.getByName(null))
-  val serverOut = new ServerSocket(0,0,InetAddress.getByName(null))
+  val serverIn  = new ServerSocket(port,1,InetAddress.getByName(null))
+  val serverOut = new ServerSocket(if ( port == 0 ) 0 else port+1,1,InetAddress.getByName(null))
 
   if ( debugger.value ) debugger.msg("Trying to open ports filename: "+portsFilename)
   locally {

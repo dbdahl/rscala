@@ -9,9 +9,15 @@ exec "$SCALA_HOME"/bin/scala -nc -cp "$CP" "$0" "$@"
 
 println(util.Properties.versionNumberString)
 
+val port = sys.env.getOrElse("PORT","0") match {
+  case "" => 0
+  case e  => e.toInt
+}
+
 val rowMajor = sys.env("ROWMAJOR_FLAG").endsWith("-rowmajor.scala")
+
 println(rowMajor)
-val R = org.ddahl.rscala.RClient(sys.env("RSCALA_SERIALIZE").toUpperCase == "TRUE", rowMajor)
+val R = org.ddahl.rscala.RClient("R", serializeOutput=sys.env("RSCALA_SERIALIZE").toUpperCase == "TRUE", rowMajor=rowMajor, port=port)
 
 try {
   R.eval("library(dfasdf)")  // Tests for UTF-8 strings because of curly single quotes.

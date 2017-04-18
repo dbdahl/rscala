@@ -47,9 +47,9 @@ class Cache {
 
 }
 
-class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutputStream, baosErr: ByteArrayOutputStream, portsFilename: String, debugger: Debugger, serializeOutput: Boolean, rowMajor: Boolean) {
+class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutputStream, baosErr: ByteArrayOutputStream, portsFilename: String, debugger: Debugger, serializeOutput: Boolean, rowMajor: Boolean, port: Int) {
 
-  private val sockets = new ScalaSockets(portsFilename,debugger)
+  private val sockets = new ScalaSockets(portsFilename,port,debugger)
   import sockets.{in, out, socketIn, socketOut}
   import Helper.{isMatrix, transposeIf}
 
@@ -558,7 +558,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
 
 object ScalaServer {
 
-  def apply(portsFilename: String, debug: Boolean = false, serializeOutput: Boolean = false, rowMajor: Boolean = true): ScalaServer = {
+  def apply(portsFilename: String, debug: Boolean = false, serializeOutput: Boolean = false, rowMajor: Boolean = true, port: Int = 0): ScalaServer = {
     // Set classpath
     val settings = new Settings()
     settings.embeddedDefaults[RClient]
@@ -593,7 +593,7 @@ object ScalaServer {
     // iloop.intp = intp
     // iloop.verbosity()
     // Return the server
-    new ScalaServer(intp, prntWrtr, baosOut, baosErr, portsFilename, debugger, serializeOutput, rowMajor)
+    new ScalaServer(intp, prntWrtr, baosOut, baosErr, portsFilename, debugger, serializeOutput, rowMajor, port)
   }
 
 }

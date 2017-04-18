@@ -62,15 +62,19 @@ public class RClient4Java {
 
   private org.ddahl.rscala.RClient c;
 
-  public RClient4Java() { c = org.ddahl.rscala.RClient.apply(); }
+  public RClient4Java() { this(null); }
 
-  public RClient4Java(String rCmd) { c = org.ddahl.rscala.RClient.apply(rCmd,false,true,false,60); }
+  public RClient4Java(String rCmd) { this(rCmd,false); }
 
-  public RClient4Java(boolean serializeOutput) { c = org.ddahl.rscala.RClient.apply(serializeOutput,true); }
+  public RClient4Java(String rCmd, boolean serializeOutput) { this(rCmd,serializeOutput,true); }
 
-  public RClient4Java(boolean serializeOutput, boolean rowMajor) { c = org.ddahl.rscala.RClient.apply(serializeOutput,rowMajor); }
+  public RClient4Java(String rCmd, boolean serializeOutput, boolean rowMajor) { this(rCmd,serializeOutput,rowMajor,0); }
 
-  public RClient4Java(String rCmd, boolean serializeOutput, boolean rowMajor, boolean debug, int timeout) { c = org.ddahl.rscala.RClient.apply(rCmd,serializeOutput,rowMajor,debug,timeout); }
+  public RClient4Java(String rCmd, boolean serializeOutput, boolean rowMajor, int port) { this(rCmd,serializeOutput,rowMajor,port,false); }
+
+  public RClient4Java(String rCmd, boolean serializeOutput, boolean rowMajor, int port, boolean debug) { this(rCmd,serializeOutput,rowMajor,port,debug,60); }
+
+  public RClient4Java(String rCmd, boolean serializeOutput, boolean rowMajor, int port, boolean debug, int timeout) { c = org.ddahl.rscala.RClient.apply(rCmd,serializeOutput,rowMajor,port,debug,timeout); }
 
   /** Closes the interface to the R interpreter.
   * 

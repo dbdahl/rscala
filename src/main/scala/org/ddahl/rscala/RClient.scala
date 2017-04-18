@@ -786,28 +786,11 @@ object RClient {
     in.close()
   }
 
-  /**
-  * Returns an instance of the [[RClient]] class by running the `R` executable in the path.
-  */
-  def apply(): RClient = apply(defaultRCmd)
-
-  /**
-  * Returns an instance of the [[RClient]] class by running the `R` executable in the path, specifying whether output
-  * should be serialized and using row major matrices.
-  */
-  def apply(serializeOutput: Boolean): RClient = apply(defaultRCmd,serializeOutput,true)
-
-  /**
-  * Returns an instance of the [[RClient]] class by running the `R` executable in the path, specifying whether output
-  * should be serialized and whether matrices are row major.
-  */
-  def apply(serializeOutput: Boolean, rowMajor: Boolean): RClient = apply(defaultRCmd,serializeOutput,rowMajor)
-
   /** Returns an instance of the [[RClient]] class, using the path specified by `rCmd` and specifying whether output
-  * should be serialized, whether matrices are row major, whether debugging output should be displayed, and the `timeout` to establish a connection
-  * with the R interpreter.
+  * should be serialized, whether matrices are row major, whether debugging output should be displayed, the `timeout` to establish a connection
+  * with the R interpreter, and the port number.  Two sockets are establised using: 1. the specified port and 2. the specified port plus one.
   */
-  def apply(rCmd: String, serializeOutput: Boolean = false, rowMajor: Boolean = true, debug: Boolean = false, timeout: Int = 60): RClient = {
+  def apply(rCmd: String = defaultRCmd, serializeOutput: Boolean = false, rowMajor: Boolean = true, port: Int = 0, debug: Boolean = false, timeout: Int = 60): RClient = {
     var cmd: PrintWriter = null
     val command = rCmd +: ( defaultArguments ++ interactiveArguments )
     val processCmd = Process(command)
@@ -843,7 +826,7 @@ object RClient {
     while ( cmd == null ) Thread.sleep(100)
     cmd.println(snippet)
     cmd.flush()
-    val sockets = new ScalaSockets(portsFile.getAbsolutePath,debugger)
+    val sockets = new ScalaSockets(portsFile.getAbsolutePath,port,debugger)
     sockets.out.writeInt(OK)
     sockets.out.flush()
     apply(null,sockets.in,sockets.out,debugger,serializeOutput,rowMajor)
