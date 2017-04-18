@@ -211,7 +211,7 @@ scalaGet <- function(interpreter,identifier,as.reference,workspace) {
     dataStructure <- rb(interpreter,"integer")
     value <- if ( dataStructure == NULLTYPE ) {
       NULL
-    } else if ( dataStructure == ATOMIC ) {
+    } else if ( dataStructure == SCALAR ) {
       dataType <- rb(interpreter,"integer")
       if ( dataType == STRING ) {
         rc(interpreter)
@@ -332,7 +332,7 @@ scalaSet <- function(interpreter,identifier,value,workspace) {
         wb(interpreter,SET)
         wc(interpreter,identifier)
         if ( asScalar ) {
-          wb(interpreter,ATOMIC)
+          wb(interpreter,SCALAR)
         } else {
           wb(interpreter,VECTOR)
           wb(interpreter,length(value))
@@ -667,7 +667,7 @@ scalaInfo <- function(scala.home=NULL,verbose=FALSE) {
   # Attempt 5
   if ( ! verbose ) scalaInfo(scala.home=scala.home,verbose=TRUE)
   else {
-    cat("Cannot find a suitable Scala installation.\n\n")
+    cat("\nCannot find a suitable Scala installation.\n\n")
     f <- file(system.file("README",package="rscala"),open="r")
     readme <- readLines(f)
     close(f)

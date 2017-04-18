@@ -39,7 +39,7 @@ rServe <- function(sockets,with.callbacks,workspace=.GlobalEnv) {
       if ( dataStructure == NULLTYPE ) {
         if ( cmd == SET ) assign(identifier,NULL,envir=workspace)
         else subassign(sockets,identifier,index,NULL,cmd==SET_SINGLE,workspace)
-      } else if ( dataStructure == ATOMIC ) {
+      } else if ( dataStructure == SCALAR ) {
         dataType <- rb(sockets,"integer")
         if ( dataType == INTEGER ) value <- rb(sockets,"integer")
         else if ( dataType == DOUBLE ) value <- rb(sockets,"double")
@@ -94,7 +94,7 @@ rServe <- function(sockets,with.callbacks,workspace=.GlobalEnv) {
         if ( is.vector(value) ) {
           type <- checkType(value)
           if ( asScalar ) {
-            wb(sockets,ATOMIC)
+            wb(sockets,SCALAR)
           } else {
             wb(sockets,VECTOR)
             wb(sockets,length(value))
