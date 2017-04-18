@@ -1,0 +1,9 @@
+> port <- 42325
+> source("common.R",print.eval=TRUE)
+# R version 3.3.3 (2017-03-06) # ramah # TRUE # FALSE
+> 
+> port <- 42325
+> tryCatch(source("common.R",print.eval=TRUE), error=function(e) e)
+<simpleError in eval(expr, envir, enclos): Timed out waiting for Scala to start.>
+> 
+> 

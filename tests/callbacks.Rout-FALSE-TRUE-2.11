@@ -13,7 +13,7 @@
 + }
 > 
 > y <- c(0,1,2,3,4,5,6,8)
-> for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y)) ) {
+> for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y),as.raw(y)) ) {
 +   assert(x[1])
 +   assert(x[2])
 +   assert(x)
@@ -93,8 +93,8 @@ java.lang.reflect.InvocationTargetException
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
 	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:158)
-	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:492)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:519)
+	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:524)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:551)
 	at org.ddahl.rscala.Main$.delayedEndpoint$org$ddahl$rscala$Main$1(Main.scala:5)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:34)
@@ -125,9 +125,9 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:103)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.RuntimeException: Undefined identifier: x
-	at org.ddahl.rscala.RClient.get(RClient.scala:380)
-	at org.ddahl.rscala.RClient.getD1(RClient.scala:476)
-	at $line255.$read$$iw$$iw$$anonfun$1.apply(<console>:15)
+	at org.ddahl.rscala.RClient.get(RClient.scala:418)
+	at org.ddahl.rscala.RClient.getD1(RClient.scala:543)
+	at $line309.$read$$iw$$iw$$anonfun$1.apply(<console>:15)
 	... 35 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Undefined identifier: x
