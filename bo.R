@@ -11,7 +11,7 @@ f <- s$def() %.~% '
   null
 '
 
-g <- s$def() %.~% '1'
+g <- s$def() %~% '1'
 g2 <- s$def() %~% 'a'
 g3 <- s$def() %.~% 'a'
 
@@ -26,7 +26,8 @@ microbenchmark(
   s$a,
   g2(),
   g3(),
-  times=1000)
+  g(),
+  times=100)
 
 length(get("garbage",envir=s[['env']]))
 
