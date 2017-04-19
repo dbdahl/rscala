@@ -33,6 +33,20 @@ length(get("garbage",envir=s[['env']]))
 
 
 
+microbenchmark(
+  s$b <- x,
+  times=1000)
+
+microbenchmark(
+  s$a,
+  times=100)
+
+microbenchmark(
+  g2(),
+  times=1000)
+
+
+
 
 
 library(rscala)
