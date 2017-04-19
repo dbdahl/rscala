@@ -36,7 +36,7 @@
 +   s %~% "new Array[Double](100000)"           # Memory problems
 + }
 + },error=function(e) e)
-<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Exception thrown.>
 > 
 > 
 > 

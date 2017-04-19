@@ -2,18 +2,18 @@
 false
 there is no package called ‘dfasdf’
 Burnin the hotspot compiler.
-2356444 microseconds
-3892754 microseconds
+3803681 microseconds
+3996994 microseconds
 Get then eval.
-4003404 microseconds
-69167 microseconds
+4003692 microseconds
+92427 microseconds
 Eval then get.
-30623 microseconds
-11784 microseconds
+26596 microseconds
+10625 microseconds
 Eval then get.
-28836 microseconds
-12804 microseconds
+25704 microseconds
+10903 microseconds
 Get then eval.
-11893 microseconds
-39689 microseconds
+11087 microseconds
+25878 microseconds
 Done

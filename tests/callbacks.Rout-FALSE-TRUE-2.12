@@ -141,8 +141,13 @@ Here is am.
 [1] 50.5
 > 
 > # Should be an R evaluation error because 'asfd' is not a package.
-> tryCatch(scalaEval(s,'R.eval("library(asdf)")',environment(),FALSE),error=function(e) e)
-<simpleError in doTryCatch(return(expr), name, parentenv, handler): could not find function "scalaEval">
+> tryCatch(s %@% 'R.eval("library(asdf)")',error=function(e) e)
+Error in library(asdf) : there is no package called ‘asdf’
+there is no package called ‘asdf’
+java.lang.RuntimeException: Error in R evaluation.
+  at org.ddahl.rscala.RClient.eval(RClient.scala:80)
+  ... 54 elided
+<simpleError in scalaEval(interpreter, snippet, parent.frame()): Error in evaluation.>
 > s %~% 'R.evalD0("3+4")'
 [1] 7
 > 
