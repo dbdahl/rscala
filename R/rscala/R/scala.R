@@ -395,12 +395,10 @@ scalaDef <- function(.INTERPRETER,...) {
   }
   if ( length(unique(argIdentifiers)) != length(argIdentifiers) ) stop('Argument names must be unique.')
   header <- character(length(argValues))
-  garbageProtection <- list()
   for ( i in seq_along(argValues) ) {
     value <- argValues[[i]]
     name <- argIdentifiers[[i]]
     if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") ) {
-      if ( inherits(value,"ScalaCachedReference") ) garbageProtection[[length(garbageProtection)+1]] <- value
       header[i] <- paste0('val ',name,' = R.cached(R.evalS0("toString(',name,')")).asInstanceOf[',value[['type']],']')
     } else {
       if ( ( ! is.atomic(value) ) || is.null(value) ) stop(paste0('Type of "',name,'" is not supported.'))
@@ -412,7 +410,7 @@ scalaDef <- function(.INTERPRETER,...) {
       header[i] <- paste0('val ',name,' = R.get',type,len,'("',name,'")')
     }
   }
-  result <- list(interpreter=.INTERPRETER,identifiers=argIdentifiers,header=header,garbageProtection=garbageProtection)
+  result <- list(interpreter=.INTERPRETER,identifiers=argIdentifiers,header=header)
   class(result) <- 'ScalaFunctionArgs'
   result
 }
@@ -481,7 +479,6 @@ scalaFunctionArgs <- function(func,body,as.reference,workspace) {
   attr(functionDefinition,"scalaBody") <- body
   attr(functionDefinition,"returnType") <- funcList$functionReturnType
   attr(functionDefinition,"asReference") <- as.reference
-  attr(functionDefinition,"garbageProtection") <- func$garbageProtection
   class(functionDefinition) <- "ScalaFunction"
   functionDefinition
 }
