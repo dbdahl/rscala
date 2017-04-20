@@ -455,23 +455,21 @@ scalaFunctionArgs <- function(func,body,as.reference,workspace) {
   interpreterName <- tempvar(interpreter, workspace)
   functionSnippet <- strintrplt('
     function(@{paste(func$identifiers,collapse=", ")}) {
-      interpreter <- @{interpreterName}
-      workspace <- environment()
-      if ( get("debug",envir=interpreter[["env"]]) ) {
-        rscala:::msg(paste("Evaluating Scala function from environment",capture.output(print(workspace))))
-      }
-      rscala:::wb(interpreter,rscala:::INVOKE)
-      rscala:::wc(interpreter,"@{funcList$functionIdentifier}")
-      flush(interpreter[["socketIn"]])
-      rscala:::rServe(interpreter,TRUE,workspace)
-      status <- rscala:::rb(interpreter,"integer")
-      @{ifelse(get("serializeOutput",envir=interpreter[["env"]]),"rscala:::echoResponseScala(interpreter)","")}
-      if ( status == rscala:::ERROR ) {
+      .rsInterpreter <- @{interpreterName}
+      .rsWorkspace <- environment()
+      @{ifelse(get("debug",envir=interpreter[["env"]]),\'rscala:::msg(paste("Evaluating Scala function from environment",capture.output(print(.rsWorkspace))))\',"")}
+      rscala:::wb(.rsInterpreter,rscala:::INVOKE)
+      rscala:::wc(.rsInterpreter,"@{funcList$functionIdentifier}")
+      flush(.rsInterpreter[["socketIn"]])
+      rscala:::rServe(.rsInterpreter,TRUE,.rsWorkspace)
+      .rsStatus <- rscala:::rb(.rsInterpreter,"integer")
+      @{ifelse(get("serializeOutput",envir=interpreter[["env"]]),"rscala:::echoResponseScala(.rsInterpreter)","")}
+      if ( .rsStatus == rscala:::ERROR ) {
         stop("Invocation error.")
       } else {
-        result <- rscala:::scalaGet(interpreter,"?",@{as.reference},workspace)
-        if ( is.null(result) ) invisible(result)
-        else result
+        .rsResult <- rscala:::scalaGet(.rsInterpreter,"?",@{as.reference},.rsWorkspace)
+        if ( is.null(.rsResult) ) invisible(.rsResult)
+        else .rsResult
       }
     }
   ')
