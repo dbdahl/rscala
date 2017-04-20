@@ -3,14 +3,13 @@ import(utils)
 export("strintrplt")
 
 export("scala")
+export("scalaInstall")
 export("scalaSettings")
+export("scalaInfo")
+export("scalap")
 
 export(".rscalaJar")
 export(".rscalaPackage")
-
-export("scalaInfo")
-export("scalaInstall")
-export("scalap")
 
 S3method("print","ScalaInterpreter")
 S3method("toString","ScalaInterpreter")

@@ -398,7 +398,9 @@ scalaDef <- function(.INTERPRETER,...) {
   for ( i in seq_along(argValues) ) {
     value <- argValues[[i]]
     name <- argIdentifiers[[i]]
-    if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") ) {
+    if ( is.null(value) ) {
+      header[i] <- paste0('val ',name,' = "',name,'"')
+    } else if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") ) {
       header[i] <- paste0('val ',name,' = R.cached(R.evalS0("toString(',name,')")).asInstanceOf[',value[['type']],']')
     } else {
       if ( ( ! is.atomic(value) ) || is.null(value) ) stop(paste0('Type of "',name,'" is not supported.'))

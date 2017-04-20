@@ -1,4 +1,29 @@
 library(rscala)
+
+s <- scala(debug=FALSE)
+
+bob <- s$def(NULL) %~% 'R.evalD0(s"sum($x1)")'
+bob(1:55)
+
+bill <- s$def(f=NULL,x=NULL,y=numeric()) %~% '
+  R.y = y
+  R.evalD1(f,x,"y")
+'
+
+f <- function(x,y) {
+  2*x^3 + y
+}
+
+bill(f,1:33,0)
+
+
+
+
+
+
+
+
+
 library(microbenchmark)
 
 
