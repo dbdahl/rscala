@@ -11,24 +11,7 @@ This package embeds: i. the \R interpreter in Scala, and ii. the Scala interpret
 \author{David B. Dahl \email{dahl@stat.byu.edu}}
 %\references{}
 \seealso{
-  \code{\link{scala}},
-  \code{\link{scalaSettings}},
-  \code{\link{strintrplt}}
+  \code{\link{scala}}
 }
 \keyword{package}
-\examples{
-\dontrun{
-s <- scala()
-
-s \%~\% 'sys.props("java.verson")'
-
-s$a <- pi
-cat("The value of pi is ",s$a,"\n",sep="")
-
-myMean <- s$def(x=numeric()) \%~\% 'x.sum/x.length'
-myMean(1:5)
-
-s$.scala.util.Random$nextDouble()
-}
-}
 

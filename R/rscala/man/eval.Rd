@@ -1,4 +1,4 @@
-\name{eval}
+\name{\%~\%}
 \alias{scalap}
 \alias{\%@\%}
 \alias{\%~\%}
@@ -10,14 +10,11 @@
 Execute code, set values, and get values in an embedded interpreter.
 }
 \description{
-These functions define the package's interface to an embedded interpreter.
-Through these functions, code is executed in the embedded interpreter and data
-is passed between \R and the embedded interpreter.  Some of these functions
-return a function for invoking a function in the interpreter.  Others return a
-reference to the result or attempt to return an \R object representing the
-result.  Some functions also provide the ability to clear variables or reclaim
-memory previously allocated to references.  There are convenient shorthand
-equivalents for many of the functions.
+These functions define the package's interface to an embedded Scala
+interpreter/compiler.  Code is executed in Scala and data is passed between \R
+and Scala.  Callbacks to the original \R interpreter are supported.  \R functions
+can be implemented in Scala.  The result of a Scala execution can be a Scala
+reference or an \R object.
 }
 \usage{
 scalap(interpreter, class.name)
@@ -84,85 +81,4 @@ David B. Dahl \email{dahl@stat.byu.edu}
   \code{\link{strintrplt}}
 }
 \keyword{interface}
-\examples{
-\dontrun{
-# Get an instance of a Scala interpreter and see the default settings
-s <- scala()
-scalaSettings(s)
-
-# Demonstrate convenient notation and string interpolation
-stringFromScala <- s \%~\% '"Hello @{Sys.getenv("USER")} from @{R.Version()$nickname}" + "!"*10'
-stringFromScala
-
-# Set and get variables
-s$rPi <- pi
-s$rPi
-s$val("rPi")
-s$.val("rPi")
-
-s$rPi <- I(pi)     # Now rPi is a scalar, not an array of length one.
-s$rPi              # It doesn't matter to R...
-s$.val("rPi")      # ... but it does to Scala.
-
-# Convenient notation
-a1 <- s \%~\%  "rPi/2"   # As an R value
-a2 <- s \%.~\% "rPi/2"   # As a Scala reference
-
-# References can be set
-s$foo <- a2
-s$foo
-
-# Instantiate an object
-seed <- 2349234L
-scalap(s,'scala.util.Random')
-s$.scala.util.Random             # More convenient that using scalap.
-rng <- s$.scala.util.Random$new(I(seed))  # Scala equivalent: new scala.util.Random(seed)
-
-# Call method of a reference
-system.time(rng$nextInt(I(100L)))   # Scala equivalent: rng.nextInt(100)
-system.time(rng$nextInt(I(100L)))   # Notice it runs much faster the second time due to caching
-
-rInt <- rng$nextInt(I(100L),.EVALUATE=FALSE)  # Define function to call quickly later without ...
-rInt(100)                                     # ... needing to protect scalars and ensure type.
-
-# Call method of companion object and call methods of a reference
-# Scala equivalent: (scala.math.BigInt("777",8) - 500).intValue
-s$.scala.math.BigInt$apply(I("777"),I(8L))$'-'(I(500L))$intValue()
-
-# Example showing callback functionality
-f1 <- s$def(func=NULL,data=numeric()) \%~\% '
-  R.observations = data.map(2*_)
-  R.evalD1(func,"observations")
-'
-f2 <- function(x) x^3
-f1(f2,1:4)
-
-# Longer example showing that s$def(...) is more flexible and faster than '\%~\%'
-s$rng <- rng
-drawGaussian <- s$def(mean=I(0.0), sd=I(1.0)) \%~\% 'mean+sd*rng.nextDouble'
-drawGaussian(3,0.1)  # No scalar protection or casting is needed.
-n.draws <- 100
-system.time({
-  draws <- s \%~\% '
-    val result = new Array[Double](@{n.draws})
-    result(0) = rng.nextGaussian
-    for ( i <- 1 until @{n.draws} ) {
-      result(i) = 0.5*result(i-1) + rng.nextGaussian
-    }
-    result
-  '
-  acf(draws,plot=FALSE)
-})
-sampler <- s$def(nDraws=I(1L), rho=I(0.0)) \%~\% '
-  val result = new Array[Double](nDraws)
-  result(0) = rng.nextGaussian
-  for ( i <- 1 until nDraws ) {
-    result(i) = rho*result(i-1) + rng.nextGaussian
-  }
-  result
-'
-system.time(acf(sampler(n.draws,0.5),plot=FALSE))
-system.time(acf(sampler(n.draws,0.9),plot=FALSE))
-}
-}
 

@@ -1,4 +1,4 @@
-\name{constructor}
+\name{scala}
 \alias{scala}
 \alias{scalaInfo}
 \alias{scalaInstall}
@@ -79,38 +79,105 @@ scalaInstall()
 David B. Dahl \email{dahl@stat.byu.edu}
 }
 \seealso{
-  \code{\link{scalap}},
   \code{\link{scalaSettings}},
+  \code{\link{scalap}},
   \code{\link{strintrplt}}
+  \code{\link{rscala-package}},
 }
 \keyword{interface}
+
 \examples{
+# Uncomment the next line to download and install Scala
+# scalaInstall()
+
 .rscalaJar()
 scalaInfo(verbose=TRUE)
 
 \dontrun{
-# Uncomment the next line to download and install Scala
-# scalaInstall()
-
 # Make an instance of the Scala interpreter and see how its output is captured.
 s <- scala(serialize.output=TRUE)
 capture.output(s \%~\% 'println("This is Scala "+scala.util.Properties.versionString)')
+scalaSettings(s)
 
-# Function defined in R
-myMean <- function(x) {
-  cat("Here I am in R.\n")
-  mean(x)
-}
+# Demonstrate convenient notation and string interpolation
+stringFromScala <- s \%~\% '"Hello @{Sys.getenv("USER")} from @{R.Version()$nickname}" + "!"*10'
+stringFromScala
 
-# Function defined in Scala that calls an R function
-callRFunction <- s$def(func=NULL, x=numeric()) \%~\% '
-  R.xx = x
+# Set and get variables
+s$rPi <- pi
+s$rPi
+s$val("rPi")
+s$.val("rPi")
+
+s$rPi <- I(pi)     # Now rPi is a scalar, not an array of length one.
+s$rPi              # It doesn't matter to R...
+s$.val("rPi")      # ... but it does to Scala.
+
+# Convenient notation
+a1 <- s \%~\%  "rPi/2"   # As an R value
+a2 <- s \%.~\% "rPi/2"   # As a Scala reference
+
+# References can be set
+s$foo <- a2
+s$foo
+
+# Instantiate an object
+seed <- 2349234L
+scalap(s,'scala.util.Random')
+s$.scala.util.Random             # More convenient that using scalap.
+rng <- s$.scala.util.Random$new(I(seed))  # Scala equivalent: new scala.util.Random(seed)
+
+# Call method of a reference
+system.time(rng$nextInt(I(100L)))   # Scala equivalent: rng.nextInt(100)
+system.time(rng$nextInt(I(100L)))   # Notice it runs much faster the second time due to caching
+
+rInt <- rng$nextInt(I(100L),.EVALUATE=FALSE)  # Define function to call quickly later without ...
+rInt(100)                                     # ... needing to protect scalars and ensure type.
+
+# Call method of companion object and call methods of a reference
+# Scala equivalent: (scala.math.BigInt("777",8) - 500).intValue
+s$.scala.math.BigInt$apply(I("777"),I(8L))$'-'(I(500L))$intValue()
+
+# Example showing callback functionality
+f1 <- s$def(func=NULL,data=numeric()) \%~\% '
   println("Here I am in Scala.")
-  R.evalD0(func,"xx")
+  R.observations = data.map(2*_)
+  R.evalD1(func,"observations")
 '
 
-# Have Scala call the R's myMean function with input 1:100.
-callRFunction(myMean,1:100)
+f2 <- function(x) {
+  cat("Here I am in R.\n")
+  x^3
+}
+
+f1(f2,1:4)
+
+# Longer example showing that s$def(...) is more flexible and faster than '\%~\%'
+s$rng <- rng
+drawGaussian <- s$def(mean=I(0.0), sd=I(1.0)) \%~\% 'mean+sd*rng.nextDouble'
+drawGaussian(3,0.1)  # No scalar protection or casting is needed.
+n.draws <- 100
+system.time({
+  draws <- s \%~\% '
+    val result = new Array[Double](@{n.draws})
+    result(0) = rng.nextGaussian
+    for ( i <- 1 until @{n.draws} ) {
+      result(i) = 0.5*result(i-1) + rng.nextGaussian
+    }
+    result
+  '
+  acf(draws,plot=FALSE)
+})
+sampler <- s$def(nDraws=I(1L), rho=I(0.0)) \%~\% '
+  val result = new Array[Double](nDraws)
+  result(0) = rng.nextGaussian
+  for ( i <- 1 until nDraws ) {
+    result(i) = rho*result(i-1) + rng.nextGaussian
+  }
+  result
+'
+system.time(acf(sampler(n.draws,0.5),plot=FALSE))
+system.time(acf(sampler(n.draws,0.9),plot=FALSE))
 }
 }
 

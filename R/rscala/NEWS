@@ -1,18 +1,17 @@
-1.0.16 (2017-xx-xx)
+2.0.0 (2017-xx-xx)
   * Fixed problem that the protocol.R may be inadvertantly excluded from the
     JAR.
+  * Bumped default Scala version to 2.12.2.
 
 1.0.15 (2017-02-07)
   * Fixed line ending bug when embedding R in Java/Scala on Windows.
-  * Bumped default scala version to 2.12.1.
+  * Bumped default Scala version to 2.12.1.
 
 1.0.14 (2016-11-21)
   * Reinstated support for Scala 2.10 & 2.12.  Supported versions are now
     2.10.x, 2.11.x, and 2.12.x.
-  * Renamed functions:
-      scalaInterpreter  -->  scala
-      rscalaJar         -->  .rscalaJar
-      rscalaPackage     -->  .rscalaPackage
+  * Renamed functions: 1. scalaInterpreter --> scala, 2. rscalaJar -->
+   .rscalaJar, 3. rscalaPackage --> .rscalaPackage
   * Renamed 'intp*' functions to 'scala*' functions, e.g., 'intpSettings'
     became 'scalaSettings'.
   * Improved ability to find R on Windows using registry keys.
