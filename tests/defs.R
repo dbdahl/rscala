@@ -1,6 +1,27 @@
 source("common.R",print.eval=TRUE)
 
 
+####
+
+
+rng1 <- s %.~% "new scala.util.Random"
+rng1$nextDouble()
+
+s$r1 <- rng1
+rng2 <- s$r1
+rng2$nextDouble()
+
+rng3 <- s$.scala.util.Random$new()
+rng3$nextDouble()
+
+s$r3 <- rng3
+rng4 <- s$r3
+rng4$nextDouble()
+
+
+####
+
+
 see <- "David"
 mkFunc1 <- function() {
   see <- "B."

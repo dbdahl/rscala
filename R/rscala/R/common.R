@@ -14,14 +14,19 @@ strintrplt <- function(snippet,envir=parent.frame()) {
   } else snippet
 }
 
-scalaSettings <- function(interpreter, interpolate=NULL) {
-  if ( is.null(interpolate) ) {
+scalaSettings <- function(interpreter, interpolate=NULL, info=NULL) {
+  if ( is.null(interpolate) && is.null(info) ) {
     list(debug=get("debug",envir=interpreter[['env']]),
-         serialize.output=get("serializeOutput",envir=interpreter[['env']]),
+         info=get("info",envir=interpreter[['env']]),
+         interpolate=get("interpolate",envir=interpreter[['env']]),
          row.major=get("rowMajor",envir=interpreter[['env']]),
-         interpolate=get("interpolate",envir=interpreter[['env']]))
+         serialize.output=get("serializeOutput",envir=interpreter[['env']]))
   } else {
     if ( ! is.null(interpolate) ) assign("interpolate",as.logical(interpolate)[1],envir=interpreter[['env']])
+    if ( ! is.null(info) ) {
+      if ( exists("info",envir=interpreter[['env']]) ) stop("'info' cannot be set by the user.")
+      assign("info",info,envir=interpreter[['env']])
+    }
     invisible(NULL)
   }
 }

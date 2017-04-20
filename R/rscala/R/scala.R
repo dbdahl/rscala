@@ -31,7 +31,7 @@ scala <- function(classpath=character(0),serialize.output=FALSE,scala.home=NULL,
   if ( debug ) msg("\n",paste0("<",args,">",collapse="\n"))
   system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
   sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
-  scalaSettings(sockets,interpolate=TRUE)
+  scalaSettings(sockets,interpolate=TRUE,info=sInfo)
   sockets
 }
 
@@ -674,8 +674,6 @@ scalaInfo <- function(scala.home=NULL,verbose=FALSE) {
     invisible(NULL)
   }
 }
-
-# Private
 
 evalAndGet <- function(interpreter,snippet,as.reference,workspace) {
   scalaEval(interpreter,snippet,workspace)

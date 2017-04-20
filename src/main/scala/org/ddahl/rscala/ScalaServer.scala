@@ -204,6 +204,23 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
       case NULLTYPE =>
         if ( debugger.value ) debugger.msg("Setting null.")
         repl.bind(identifier,"Any",null)
+      case REFERENCE =>
+        if ( debugger.value ) debugger.msg("Setting reference.")
+        val originalIdentifier = readString()
+        try {
+          val (value,tipe) = originalIdentifier match {
+            case cacheMap(value,typeOfTerm) => (value,typeOfTerm)
+            case _ => (repl.valueOfTerm(originalIdentifier).get,typeOfTerm(originalIdentifier))
+          }
+          if ( repl.bind(identifier,tipe,value) != Success ) throw new RuntimeException("Cannot set reference.")
+          out.writeInt(OK)
+        } catch {
+          case e: Throwable =>
+            if ( debugger.value ) debugger.msg("Caught exception: "+e)
+            out.writeInt(ERROR)
+            e.printStackTrace(pw)
+            pw.println(e + ( if ( e.getCause != null ) System.lineSeparator + e.getCause else "" ) )
+        }
       case SCALAR =>
         if ( debugger.value ) debugger.msg("Setting atomic.")
         val (v: Any, t: String) = in.readInt() match {

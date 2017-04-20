@@ -2,6 +2,31 @@
 # R version 3.3.3 (2017-03-06) # ramah # TRUE # TRUE
 > 
 > 
+> ####
+> 
+> 
+> rng1 <- s %.~% "new scala.util.Random"
+> rng1$nextDouble()
+[1] 0.8599687
+> 
+> s$r1 <- rng1
+> rng2 <- s$r1
+> rng2$nextDouble()
+[1] 0.3403792
+> 
+> rng3 <- s$.scala.util.Random$new()
+> rng3$nextDouble()
+[1] 0.9638642
+> 
+> s$r3 <- rng3
+> rng4 <- s$r3
+> rng4$nextDouble()
+[1] 0.3439835
+> 
+> 
+> ####
+> 
+> 
 > see <- "David"
 > mkFunc1 <- function() {
 +   see <- "B."
@@ -13,7 +38,7 @@
 +   r
 + }
 > y1 <- mkFunc1()
-<environment: 0x362b4e0>
+<environment: 0x37d19b0>
 > identical(y1("Lisa","Dahl"),"Lisa Dahl B.")
 [1] TRUE
 > 
@@ -31,8 +56,8 @@
 [1] TRUE
 > gc()
          used (Mb) gc trigger (Mb) max used (Mb)
-Ncells 231030 12.4     460000 24.6   350000 18.7
-Vcells 334447  2.6     786432  6.0   786371  6.0
+Ncells 232111 12.4     460000 24.6   350000 18.7
+Vcells 334685  2.6     786432  6.0   786371  6.0
 > 
 > 
 > 
@@ -52,14 +77,14 @@ Vcells 334447  2.6     786432  6.0   786371  6.0
 +   name + " " + ( x + y )
 + ')
    user  system elapsed 
-  0.000   0.000   0.333 
+  0.000   0.000   0.392 
 > 
 > # Taking advantage of caching
 > system.time(f <- s$def(x=I(0),y=I(4L),name=I("dog")) %~% '
 +   name + " " + ( x + y )
 + ')
    user  system elapsed 
-  0.004   0.000   0.002 
+  0.000   0.000   0.001 
 > 
 > ####
 > 
@@ -72,9 +97,9 @@ Vcells 334447  2.6     786432  6.0   786371  6.0
 > rng2 <- mkRNG2()
 > 
 > rng1$nextInt(I(10L))
-[1] 8
+[1] 9
 > rng2$nextInt(I(10L))
-[1] 6
+[1] 9
 > 
 > str <- rng1$toString(.EVALUATE=TRUE,.AS.REFERENCE=TRUE)
 > str$length()
@@ -96,13 +121,13 @@ Vcells 334447  2.6     786432  6.0   786371  6.0
 +   times=500
 + )
 Unit: nanoseconds
-              expr    min        lq        mean    median        uq       max
-          runif(1)    848    4373.0    7996.394    8452.0   10861.0     70532
- rng1$nextDouble() 960081 1323225.0 2110648.602 1687089.0 1972215.5  42606606
- rng2$nextDouble() 904244 1257735.5 2323940.204 1618870.0 1904189.0 169555788
-             nd0() 180781  283689.5  508452.352  339174.0  411516.5  16652566
-             nd1() 175819  281431.5  445051.314  333770.0  418204.0  22347876
-             nd2() 169993  255727.5  475011.304  323197.5  397596.0  52095673
+              expr    min        lq       mean    median        uq       max
+          runif(1)    921    3928.5    6902.53    6411.0    8618.5     63471
+ rng1$nextDouble() 975123 1034021.5 1611569.64 1124461.5 1981387.5  26056333
+ rng2$nextDouble() 910024  971772.0 1805905.27 1049631.0 1905912.0 162198142
+             nd0() 178333  207878.0  336489.67  222132.5  383436.5   6625253
+             nd1() 189241  207758.0  382065.72  225887.5  417643.5  14170901
+             nd2() 168866  206337.0  378824.63  220786.5  356817.5  20903123
  neval
    500
    500
@@ -114,7 +139,7 @@ Unit: nanoseconds
 > ####
 > 
 > s$.scala.util.Random$nextDouble()
-[1] 0.1581688
+[1] 0.4337709
 > m <- s$.scala.util.Random$new(I(342L),.EVALUATE=FALSE)
 > m(23436)$nextDouble()
 [1] 0.8011135
@@ -151,24 +176,24 @@ Unit: nanoseconds
 <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
 > 
 > s$.scala.util.Random$nextDouble()
-[1] 0.1378294
+[1] 0.6445478
 > s$.scala.util.Random$nextDouble()
-[1] 0.2678458
+[1] 0.1101038
 > s$do("scala.util.Random")$nextDouble()
-[1] 0.963268
+[1] 0.9295468
 Warning message:
 In s$do("scala.util.Random") :
   Syntax "s$do('scala.util.Random')" is deprecated.  Use "s$.scala.util.Random" instead.
 > 
 > s %~% 'import scala.util.Random'
 class/object () => Int not found.
-ScalaInterpreterReference... res24: () => Int
+ScalaInterpreterReference... res30: () => Int
 > s$.Random$nextDouble()
-[1] 0.2290844
+[1] 0.6509344
 > 
 > a <- s$def() %~% 'Random.nextDouble'
 > a()
-[1] 0.6841559
+[1] 0.7286197
 > 
 > s$.scala.util.Random
 package scala.util
@@ -200,7 +225,7 @@ object Random extends scala.util.Random {
 ScalaInterpreterItem
 > a <- ( s$def() %~% 'scala.util.Random' )()
 > a$nextDouble(.EVALUATE=TRUE)
-[1] 0.6125652
+[1] 0.9591102
 > 
 > ####
 > 
@@ -260,16 +285,16 @@ java.lang.reflect.InvocationTargetException
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
 	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:158)
-	at org.ddahl.rscala.ScalaServer.heart(ScalaServer.scala:524)
-	at org.ddahl.rscala.ScalaServer.$anonfun$run$2(ScalaServer.scala:543)
+	at org.ddahl.rscala.ScalaServer.heart(ScalaServer.scala:541)
+	at org.ddahl.rscala.ScalaServer.$anonfun$run$2(ScalaServer.scala:560)
 	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withErr(Console.scala:192)
-	at org.ddahl.rscala.ScalaServer.$anonfun$run$1(ScalaServer.scala:543)
+	at org.ddahl.rscala.ScalaServer.$anonfun$run$1(ScalaServer.scala:560)
 	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withOut(Console.scala:163)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:542)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:559)
 	at org.ddahl.rscala.Main$.delayedEndpoint$org$ddahl$rscala$Main$1(Main.scala:5)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0.apply$mcV$sp(Function0.scala:34)
@@ -304,7 +329,7 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:104)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.RuntimeException
-	at $line90.$read$$iw$$iw$.$anonfun$res42$1(<console>:14)
+	at $line111.$read$$iw$$iw$.$anonfun$res48$1(<console>:14)
 	... 47 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException
