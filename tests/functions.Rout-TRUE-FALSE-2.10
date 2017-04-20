@@ -222,19 +222,19 @@ ScalaInterpreterItem
 > options(width=120)
 > microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
 Unit: microseconds
-                      expr      min       lq      mean    median        uq       max neval
- rdg$nextExponential(I(4)) 1033.181 1143.662 1646.7938 1189.8865 1910.8605  27806.53  1000
-                   rexp(4)  235.792  317.714  683.9177  335.3375  464.6295 129789.63  1000
+                      expr      min        lq      mean    median       uq      max neval
+ rdg$nextExponential(I(4)) 1073.140 1189.7250 1688.2948 1263.9215 1893.206 26693.02  1000
+                   rexp(4)  224.986  308.5985  525.4473  336.0045  457.113 14735.77  1000
 > microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
 Unit: microseconds
-                      expr      min       lq      mean    median       uq      max neval
- rdg$nextExponential(I(4)) 1072.291 1133.129 1283.9754 1157.5675 1236.993 28207.29  1000
-                   rexp(4)  254.849  310.659  380.1857  320.7675  338.855 26247.75  1000
+                      expr      min        lq      mean    median        uq      max neval
+ rdg$nextExponential(I(4)) 1104.452 1173.2255 1353.0843 1204.5920 1295.8580 25535.51  1000
+                   rexp(4)  245.211  303.4585  362.6665  313.8605  332.8765 25650.89  1000
 > microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
 Unit: microseconds
-                      expr      min        lq      mean   median        uq      max neval
- rdg$nextExponential(I(4)) 1033.752 1120.3625 1400.5366 1147.546 1297.6040 31719.82  1000
-                   rexp(4)  244.953  306.8955  387.2382  316.235  347.8545  8836.51  1000
+                      expr      min       lq      mean    median        uq      max neval
+ rdg$nextExponential(I(4)) 1113.372 1166.013 1406.0080 1197.0920 1368.4800 32595.19  1000
+                   rexp(4)  242.223  297.632  384.2555  309.4435  350.6575 10183.35  1000
 > 
 > s$.org.ddahl.shallot.parameter.Mass
 package org.ddahl.shallot.parameter

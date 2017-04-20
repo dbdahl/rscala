@@ -222,19 +222,19 @@ ScalaInterpreterItem
 > options(width=120)
 > microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
 Unit: microseconds
-                      expr      min       lq      mean   median        uq      max neval
- rdg$nextExponential(I(4)) 1017.113 1147.396 1617.8646 1301.965 1790.2975 26995.62  1000
-                   rexp(4)  218.943  283.874  433.0395  319.483  411.1395  5757.43  1000
-> microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
-Unit: microseconds
-                      expr      min        lq      mean    median        uq      max neval
- rdg$nextExponential(I(4)) 1010.588 1089.2275 1214.6352 1113.7180 1162.5665 24617.05  1000
-                   rexp(4)  221.027  277.7645  332.7818  285.7895  298.2225 26355.51  1000
-> microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
-Unit: microseconds
                       expr      min        lq      mean   median        uq       max neval
- rdg$nextExponential(I(4)) 1035.601 1080.2495 1309.1544 1113.646 1263.2330 29882.495  1000
-                   rexp(4)  254.764  272.2595  315.6292  282.001  323.3805  1818.334  1000
+ rdg$nextExponential(I(4)) 1039.151 1157.2450 1562.3219 1274.372 1771.8610 24225.469  1000
+                   rexp(4)  204.731  279.1975  376.1803  304.269  378.4585  5495.524  1000
+> microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
+Unit: microseconds
+                      expr      min        lq      mean   median       uq      max neval
+ rdg$nextExponential(I(4)) 1064.913 1121.6070 1242.1391 1143.307 1186.974 24751.55  1000
+                   rexp(4)  254.533  272.3015  328.9332  281.114  294.656 30212.72  1000
+> microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
+Unit: microseconds
+                      expr      min       lq      mean   median       uq       max neval
+ rdg$nextExponential(I(4)) 1076.118 1124.378 1359.9180 1153.075 1303.741 29278.035  1000
+                   rexp(4)  240.093  267.554  311.2232  276.937  300.352  3709.833  1000
 > 
 > s$.org.ddahl.shallot.parameter.Mass
 package org.ddahl.shallot.parameter

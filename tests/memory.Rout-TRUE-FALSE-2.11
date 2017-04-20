@@ -118,9 +118,41 @@ java.lang.OutOfMemoryError: Java heap space
 +   s %~% "new Array[Double](100000)"           # Memory problems
 + }
 + },error=function(e) e)
-java.lang.OutOfMemoryError: Java heap space
-  ... 32 elided
-<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
+java.lang.OutOfMemoryError: GC overhead limit exceeded
+	at scala.reflect.internal.Symbols$Symbol.info_$eq(Symbols.scala:1534)
+	at scala.reflect.internal.Symbols$Symbol.setInfo(Symbols.scala:1540)
+	at scala.reflect.internal.Symbols$Symbol.cloneSymbol(Symbols.scala:1966)
+	at scala.reflect.internal.Symbols$Symbol.cloneSymbol(Symbols.scala:1961)
+	at scala.reflect.internal.Symbols$Symbol.cloneSymbol(Symbols.scala:1959)
+	at scala.reflect.internal.Symbols$Symbol.cloneSymbol(Symbols.scala:1955)
+	at scala.reflect.internal.Symbols$$anonfun$cloneSymbols$1.apply(Symbols.scala:3642)
+	at scala.reflect.internal.Symbols$$anonfun$cloneSymbols$1.apply(Symbols.scala:3642)
+	at scala.reflect.internal.util.Collections$class.mapList(Collections.scala:52)
+	at scala.reflect.internal.SymbolTable.mapList(SymbolTable.scala:16)
+	at scala.reflect.internal.Symbols$class.deriveSymbols(Symbols.scala:3581)
+	at scala.reflect.internal.SymbolTable.deriveSymbols(SymbolTable.scala:16)
+	at scala.reflect.internal.Symbols$class.cloneSymbols(Symbols.scala:3642)
+	at scala.reflect.internal.SymbolTable.cloneSymbols(SymbolTable.scala:16)
+	at scala.reflect.internal.Symbols$class.cloneSymbolsAndModify(Symbols.scala:3653)
+	at scala.reflect.internal.SymbolTable.cloneSymbolsAndModify(SymbolTable.scala:16)
+	at scala.reflect.internal.transform.Erasure$ErasureMap.apply(Erasure.scala:140)
+	at scala.reflect.internal.transform.Erasure$class.specialErasure(Erasure.scala:209)
+	at scala.tools.nsc.transform.Erasure.specialErasure(Erasure.scala:15)
+	at scala.reflect.internal.transform.Erasure$class.transformInfo(Erasure.scala:366)
+	at scala.tools.nsc.transform.Erasure.transformInfo(Erasure.scala:377)
+	at scala.tools.nsc.transform.InfoTransform$Phase$$anon$1.transform(InfoTransform.scala:38)
+	at scala.reflect.internal.Symbols$Symbol.rawInfo(Symbols.scala:1604)
+	at scala.reflect.internal.Symbols$Symbol.info(Symbols.scala:1524)
+	at scala.tools.nsc.backend.ScalaPrimitives.addPrimitives(ScalaPrimitives.scala:448)
+	at scala.tools.nsc.backend.ScalaPrimitives.init(ScalaPrimitives.scala:372)
+	at scala.tools.nsc.backend.icode.GenICode$ICodePhase.run(GenICode.scala:52)
+	at scala.tools.nsc.Global$Run.compileUnitsInternal(Global.scala:1501)
+	at scala.tools.nsc.Global$Run.compileUnits(Global.scala:1486)
+	at scala.tools.nsc.Global$Run.compileSources(Global.scala:1481)
+	at scala.tools.nsc.interpreter.IMain.compileSourcesKeepingRun(IMain.scala:435)
+	at scala.tools.nsc.interpreter.IMain$ReadEvalPrint.compileAndSaveRun(IMain.scala:855)
+java.lang.OutOfMemoryError: GC overhead limit exceeded
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Exception thrown.>
 > 
 > 
 > 

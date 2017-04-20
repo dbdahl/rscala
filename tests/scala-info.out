@@ -44,59 +44,60 @@ Searching for a suitable Scala installation.
 
 [1] "/home/dahl/local/scala/scala/scala-2.11.8/bin/scala"
 --------
-Running battery for 2.12.1
+Running battery for 2.12.2
 
 Searching for a suitable Scala installation.
-  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala/scala-2.12.1/bin/scala)
-  * SUCCESS: 'scala.home' (/home/dahl/local/scala/scala/scala-2.12.1) argument
+  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala/scala-2.12.2/bin/scala)
+  * SUCCESS: 'scala.home' (/home/dahl/local/scala/scala/scala-2.12.2) argument
 
-[1] "/home/dahl/local/scala/scala/scala-2.12.1/bin/scala"
+[1] "/home/dahl/local/scala/scala/scala-2.12.2/bin/scala"
 
 Searching for a suitable Scala installation.
   * FAILURE: 'scala.home' argument is NULL
-  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala/scala-2.12.1/bin/scala)
-  * SUCCESS: SCALA_HOME (/home/dahl/local/scala/scala/scala-2.12.1) environment variable
+  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala/scala-2.12.2/bin/scala)
+  * SUCCESS: SCALA_HOME (/home/dahl/local/scala/scala/scala-2.12.2) environment variable
 
-[1] "/home/dahl/local/scala/scala/scala-2.12.1/bin/scala"
+[1] "/home/dahl/local/scala/scala/scala-2.12.2/bin/scala"
 
 Searching for a suitable Scala installation.
   * FAILURE: 'scala.home' argument is NULL
   * FAILURE: SCALA_HOME () environment variable
-  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala/scala-2.12.1/bin/scala)
+  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala/scala-2.12.2/bin/scala)
   * SUCCESS: 'scala' in the shell's search path
 
-[1] "/home/dahl/local/scala/scala/scala-2.12.1/bin/scala"
+[1] "/home/dahl/local/scala/scala/scala-2.12.2/bin/scala"
 --------
 
 Searching for a suitable Scala installation.
   * FAILURE: 'scala.home' argument is NULL
   * FAILURE: SCALA_HOME () environment variable
   * FAILURE: 'scala' in the shell's search path
-  * FAILURE: special installation directory (/home/dahl/.rscala/scala-2.12.1)
+  * FAILURE: special installation directory (/home/dahl/.rscala/scala-2.12.2)
+
 Cannot find a suitable Scala installation.
 
-Scala (>= 2.11) is not distributed with the rscala package.  Individuals can
+Scala (>= 2.10) is not distributed with the rscala package.  Individuals can
 install Scala using "rscala::scalaInstall()" which places Scala in "~/.rscala"
 in the user's home directory.  System administrators should install Scala
 globally as described here: http://www.scala-lang.org/download/install.html.
 In short, simply download the archive, unpack it, and add the "scala" script to
 the path.  Note that Scala itself requires Java.  The rscala package tries
 various techniques to find a suitable Scala installation, including searching
-the path.  Details on the search is available using
+the path.  Details on the search are available using
 "rscala::scalaInfo(verbose=TRUE)".
 
-trying URL 'http://downloads.lightbend.com/scala/2.12.1/scala-2.12.1.tgz'
-Content type 'application/octet-stream' length 19700349 bytes (18.8 MB)
+trying URL 'http://downloads.lightbend.com/scala/2.12.2/scala-2.12.2.tgz'
+Content type 'application/octet-stream' length 19596088 bytes (18.7 MB)
 ==================================================
-downloaded 18.8 MB
+downloaded 18.7 MB
 
-Successfully installed Scala in /home/dahl/.rscala/scala-2.12.1
+Successfully installed Scala in /home/dahl/.rscala/scala-2.12.2
 
 Searching for a suitable Scala installation.
   * FAILURE: 'scala.home' argument is NULL
   * FAILURE: SCALA_HOME () environment variable
   * FAILURE: 'scala' in the shell's search path
-  * ATTEMPT: Found a candidate (/home/dahl/.rscala/scala-2.12.1/bin/scala)
-  * SUCCESS: special installation directory (/home/dahl/.rscala/scala-2.12.1)
+  * ATTEMPT: Found a candidate (/home/dahl/.rscala/scala-2.12.2/bin/scala)
+  * SUCCESS: special installation directory (/home/dahl/.rscala/scala-2.12.2)
 
-[1] "/home/dahl/.rscala/scala-2.12.1/bin/scala"
+[1] "/home/dahl/.rscala/scala-2.12.2/bin/scala"

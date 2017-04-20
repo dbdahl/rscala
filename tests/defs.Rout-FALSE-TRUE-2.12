@@ -13,7 +13,7 @@
 +   r
 + }
 > y1 <- mkFunc1()
-<environment: 0x1f7cec8>
+<environment: 0x1ffbe30>
 > identical(y1("Lisa","Dahl"),"Lisa Dahl B.")
 [1] TRUE
 > 
@@ -31,8 +31,8 @@
 [1] TRUE
 > gc()
          used (Mb) gc trigger (Mb) max used (Mb)
-Ncells 231014 12.4     460000 24.6   350000 18.7
-Vcells 334432  2.6     786432  6.0   786371  6.0
+Ncells 230950 12.4     460000 24.6   350000 18.7
+Vcells 334429  2.6     786432  6.0   786371  6.0
 > 
 > 
 > 
@@ -52,7 +52,7 @@ Vcells 334432  2.6     786432  6.0   786371  6.0
 +   name + " " + ( x + y )
 + ')
    user  system elapsed 
-  0.000   0.000   0.424 
+  0.000   0.000   0.496 
 > 
 > # Taking advantage of caching
 > system.time(f <- s$def(x=I(0),y=I(4L),name=I("dog")) %~% '
@@ -72,13 +72,13 @@ Vcells 334432  2.6     786432  6.0   786371  6.0
 > rng2 <- mkRNG2()
 > 
 > rng1$nextInt(I(10L))
-[1] 6
-> rng2$nextInt(I(10L))
 [1] 5
+> rng2$nextInt(I(10L))
+[1] 6
 > 
 > str <- rng1$toString(.EVALUATE=TRUE,.AS.REFERENCE=TRUE)
 > str$length()
-[1] 25
+[1] 26
 > 
 > nd0 <- rng1$nextDouble(.EVALUATE=FALSE)
 > nd1 <- s$def() %~% 'R.cached("@{toString(rng1)}").asInstanceOf[@{rng1[[\'type\']]}].nextDouble()'
@@ -95,14 +95,14 @@ Vcells 334432  2.6     786432  6.0   786371  6.0
 +   nd2(),
 +   times=500
 + )
-Unit: microseconds
-              expr      min        lq       mean    median        uq        max
-          runif(1)    1.458    9.7755   11.38588   12.2870   14.5295     57.132
- rng1$nextDouble() 1297.640 2055.7580 2505.51237 2190.4730 2326.1715  20646.716
- rng2$nextDouble() 1075.763 1888.8380 2698.31109 2020.5390 2141.7360 161212.460
-             nd0()  205.246  386.9985  552.04949  440.8025  483.7975  15127.090
-             nd1()  210.361  391.4575  563.21519  444.1130  488.7480  13877.498
-             nd2()  198.654  361.1805  562.81046  421.8035  462.2520  21244.323
+Unit: nanoseconds
+              expr    min        lq       mean    median        uq       max
+          runif(1)    924    4820.0    7423.29    7534.0    9522.5     64563
+ rng1$nextDouble() 923102 1158266.5 1760944.02 1615822.0 1812630.5  17314578
+ rng2$nextDouble() 868199 1092358.0 2164121.44 1504514.0 1696883.0 290814832
+             nd0() 151577  240065.5  357347.61  299421.5  346799.0  15700285
+             nd1() 147534  234957.0  452188.85  292949.5  347822.5  25875268
+             nd2() 134009  229664.0  304000.28  278944.0  328528.5   5722251
  neval
    500
    500
@@ -114,7 +114,7 @@ Unit: microseconds
 > ####
 > 
 > s$.scala.util.Random$nextDouble()
-[1] 0.1651795
+[1] 0.6147056
 > m <- s$.scala.util.Random$new(I(342L),.EVALUATE=FALSE)
 > m(23436)$nextDouble()
 [1] 0.8011135
@@ -151,11 +151,11 @@ Unit: microseconds
 <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
 > 
 > s$.scala.util.Random$nextDouble()
-[1] 0.5336257
+[1] 0.2433945
 > s$.scala.util.Random$nextDouble()
-[1] 0.4123822
+[1] 0.3623402
 > s$do("scala.util.Random")$nextDouble()
-[1] 0.95287
+[1] 0.6202257
 Warning message:
 In s$do("scala.util.Random") :
   Syntax "s$do('scala.util.Random')" is deprecated.  Use "s$.scala.util.Random" instead.
@@ -164,11 +164,11 @@ In s$do("scala.util.Random") :
 class/object () => Int not found.
 ScalaInterpreterReference... res24: () => Int
 > s$.Random$nextDouble()
-[1] 0.4360063
+[1] 0.1553083
 > 
 > a <- s$def() %~% 'Random.nextDouble'
 > a()
-[1] 0.2930921
+[1] 0.1044332
 > 
 > s$.scala.util.Random
 package scala.util
@@ -200,7 +200,7 @@ object Random extends scala.util.Random {
 ScalaInterpreterItem
 > a <- ( s$def() %~% 'scala.util.Random' )()
 > a$nextDouble(.EVALUATE=TRUE)
-[1] 0.1615241
+[1] 0.767841
 > 
 > ####
 > 
@@ -269,7 +269,7 @@ java.lang.reflect.InvocationTargetException
 	at scala.Function0.apply$mcV$sp$(Function0.scala:34)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
 	at scala.App.$anonfun$main$1$adapted(App.scala:76)
-	at scala.collection.immutable.List.foreach(List.scala:378)
+	at scala.collection.immutable.List.foreach(List.scala:389)
 	at scala.App.main(App.scala:76)
 	at scala.App.main$(App.scala:74)
 	at org.ddahl.rscala.Main$.main(Main.scala:3)

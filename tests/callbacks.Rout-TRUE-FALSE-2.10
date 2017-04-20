@@ -69,7 +69,8 @@ Error in parse(text = snippet) : <text>:4:16: unexpected symbol
 4:     a <- "3+9" asfd
                   ^
 java.lang.RuntimeException: Error in R evaluation.
-	at org.ddahl.rscala.RClient.eval(RClient.scala:80)
+	at org.ddahl.rscala.RClient.eval(RClient.scala:82)
+	at org.ddahl.rscala.RClient.eval(RClient.scala:87)
 	at .<init>(<console>:12)
 	at .<clinit>(<console>)
 	at .<init>(<console>:7)
@@ -187,8 +188,8 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:105)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.RuntimeException: Undefined identifier: x
-	at org.ddahl.rscala.RClient.get(RClient.scala:418)
-	at org.ddahl.rscala.RClient.getD1(RClient.scala:543)
+	at org.ddahl.rscala.RClient.get(RClient.scala:423)
+	at org.ddahl.rscala.RClient.getD1(RClient.scala:548)
 	at $line309.$read$$iw$$iw$$anonfun$1.apply(<console>:11)
 	... 43 more
 java.lang.reflect.InvocationTargetException
@@ -203,7 +204,8 @@ Here is am.
 Error in library(asdf) : there is no package called ‘asdf’
 there is no package called ‘asdf’
 java.lang.RuntimeException: Error in R evaluation.
-	at org.ddahl.rscala.RClient.eval(RClient.scala:80)
+	at org.ddahl.rscala.RClient.eval(RClient.scala:82)
+	at org.ddahl.rscala.RClient.eval(RClient.scala:87)
 	at .<init>(<console>:9)
 	at .<clinit>(<console>)
 	at .<init>(<console>:7)

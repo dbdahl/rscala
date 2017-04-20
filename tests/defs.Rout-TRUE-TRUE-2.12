@@ -13,7 +13,7 @@
 +   r
 + }
 > y1 <- mkFunc1()
-<environment: 0x20edee0>
+<environment: 0x362b4e0>
 > identical(y1("Lisa","Dahl"),"Lisa Dahl B.")
 [1] TRUE
 > 
@@ -31,8 +31,8 @@
 [1] TRUE
 > gc()
          used (Mb) gc trigger (Mb) max used (Mb)
-Ncells 231094 12.4     460000 24.6   350000 18.7
-Vcells 334450  2.6     786432  6.0   786371  6.0
+Ncells 231030 12.4     460000 24.6   350000 18.7
+Vcells 334447  2.6     786432  6.0   786371  6.0
 > 
 > 
 > 
@@ -52,14 +52,14 @@ Vcells 334450  2.6     786432  6.0   786371  6.0
 +   name + " " + ( x + y )
 + ')
    user  system elapsed 
-  0.004   0.000   0.536 
+  0.000   0.000   0.333 
 > 
 > # Taking advantage of caching
 > system.time(f <- s$def(x=I(0),y=I(4L),name=I("dog")) %~% '
 +   name + " " + ( x + y )
 + ')
    user  system elapsed 
-  0.000   0.000   0.002 
+  0.004   0.000   0.002 
 > 
 > ####
 > 
@@ -72,9 +72,9 @@ Vcells 334450  2.6     786432  6.0   786371  6.0
 > rng2 <- mkRNG2()
 > 
 > rng1$nextInt(I(10L))
-[1] 3
-> rng2$nextInt(I(10L))
 [1] 8
+> rng2$nextInt(I(10L))
+[1] 6
 > 
 > str <- rng1$toString(.EVALUATE=TRUE,.AS.REFERENCE=TRUE)
 > str$length()
@@ -95,14 +95,14 @@ Vcells 334450  2.6     786432  6.0   786371  6.0
 +   nd2(),
 +   times=500
 + )
-Unit: microseconds
-              expr      min        lq       mean    median        uq        max
-          runif(1)    1.248    8.6855   11.10805   12.0380   14.2300     50.111
- rng1$nextDouble() 1095.041 2042.2560 2301.20430 2204.9080 2410.4050  18544.859
- rng2$nextDouble() 1011.083 1895.5985 3036.34174 2033.8085 2302.7535 305014.353
-             nd0()  223.535  447.8250  596.12650  499.1575  585.5665  12080.414
-             nd1()  229.165  448.5390  626.32289  504.7655  594.7165  13062.625
-             nd2()  217.024  433.6890  632.49103  480.4650  567.1390  24969.969
+Unit: nanoseconds
+              expr    min        lq        mean    median        uq       max
+          runif(1)    848    4373.0    7996.394    8452.0   10861.0     70532
+ rng1$nextDouble() 960081 1323225.0 2110648.602 1687089.0 1972215.5  42606606
+ rng2$nextDouble() 904244 1257735.5 2323940.204 1618870.0 1904189.0 169555788
+             nd0() 180781  283689.5  508452.352  339174.0  411516.5  16652566
+             nd1() 175819  281431.5  445051.314  333770.0  418204.0  22347876
+             nd2() 169993  255727.5  475011.304  323197.5  397596.0  52095673
  neval
    500
    500
@@ -114,7 +114,7 @@ Unit: microseconds
 > ####
 > 
 > s$.scala.util.Random$nextDouble()
-[1] 0.3715789
+[1] 0.1581688
 > m <- s$.scala.util.Random$new(I(342L),.EVALUATE=FALSE)
 > m(23436)$nextDouble()
 [1] 0.8011135
@@ -151,11 +151,11 @@ Unit: microseconds
 <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
 > 
 > s$.scala.util.Random$nextDouble()
-[1] 0.2813646
+[1] 0.1378294
 > s$.scala.util.Random$nextDouble()
-[1] 0.0227147
+[1] 0.2678458
 > s$do("scala.util.Random")$nextDouble()
-[1] 0.9090215
+[1] 0.963268
 Warning message:
 In s$do("scala.util.Random") :
   Syntax "s$do('scala.util.Random')" is deprecated.  Use "s$.scala.util.Random" instead.
@@ -164,11 +164,11 @@ In s$do("scala.util.Random") :
 class/object () => Int not found.
 ScalaInterpreterReference... res24: () => Int
 > s$.Random$nextDouble()
-[1] 0.8910206
+[1] 0.2290844
 > 
 > a <- s$def() %~% 'Random.nextDouble'
 > a()
-[1] 0.3025284
+[1] 0.6841559
 > 
 > s$.scala.util.Random
 package scala.util
@@ -200,7 +200,7 @@ object Random extends scala.util.Random {
 ScalaInterpreterItem
 > a <- ( s$def() %~% 'scala.util.Random' )()
 > a$nextDouble(.EVALUATE=TRUE)
-[1] 0.303076
+[1] 0.6125652
 > 
 > ####
 > 
@@ -276,7 +276,7 @@ java.lang.reflect.InvocationTargetException
 	at scala.Function0.apply$mcV$sp$(Function0.scala:34)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
 	at scala.App.$anonfun$main$1$adapted(App.scala:76)
-	at scala.collection.immutable.List.foreach(List.scala:378)
+	at scala.collection.immutable.List.foreach(List.scala:389)
 	at scala.App.main(App.scala:76)
 	at scala.App.main$(App.scala:74)
 	at org.ddahl.rscala.Main$.main(Main.scala:3)

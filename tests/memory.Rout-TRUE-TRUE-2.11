@@ -118,41 +118,9 @@ java.lang.OutOfMemoryError: Java heap space
 +   s %~% "new Array[Double](100000)"           # Memory problems
 + }
 + },error=function(e) e)
-java.lang.OutOfMemoryError: GC overhead limit exceeded
-	at scala.tools.nsc.transform.SpecializeTypes.specializations(SpecializeTypes.scala:389)
-	at scala.tools.nsc.transform.SpecializeTypes.specializeOn$1(SpecializeTypes.scala:904)
-	at scala.tools.nsc.transform.SpecializeTypes.scala$tools$nsc$transform$SpecializeTypes$$specializeMember(SpecializeTypes.scala:937)
-	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$23$$anonfun$apply$21.apply(SpecializeTypes.scala:784)
-	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$23$$anonfun$apply$21.apply(SpecializeTypes.scala:783)
-	at scala.collection.immutable.List.flatMap(List.scala:327)
-	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$23.apply(SpecializeTypes.scala:783)
-	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$23.apply(SpecializeTypes.scala:781)
-	at scala.collection.immutable.List.flatMap(List.scala:327)
-	at scala.tools.nsc.transform.SpecializeTypes.specializeClass(SpecializeTypes.scala:781)
-	at scala.tools.nsc.transform.SpecializeTypes.transformInfo(SpecializeTypes.scala:1196)
-	at scala.tools.nsc.transform.InfoTransform$Phase$$anon$1.transform(InfoTransform.scala:38)
-	at scala.reflect.internal.Symbols$Symbol.rawInfo(Symbols.scala:1604)
-	at scala.reflect.internal.Symbols$Symbol.info(Symbols.scala:1524)
-	at scala.reflect.internal.Symbols$Symbol.isDerivedValueClass(Symbols.scala:803)
-	at scala.reflect.internal.transform.Erasure$ErasureMap.apply(Erasure.scala:131)
-	at scala.reflect.internal.transform.Erasure$class.specialErasure(Erasure.scala:205)
-	at scala.tools.nsc.transform.Erasure.specialErasure(Erasure.scala:15)
-	at scala.reflect.internal.transform.Erasure$class.transformInfo(Erasure.scala:366)
-	at scala.tools.nsc.transform.Erasure.transformInfo(Erasure.scala:377)
-	at scala.tools.nsc.transform.InfoTransform$Phase$$anon$1.transform(InfoTransform.scala:38)
-	at scala.reflect.internal.Symbols$Symbol.rawInfo(Symbols.scala:1604)
-	at scala.reflect.internal.Symbols$Symbol.info(Symbols.scala:1524)
-	at scala.reflect.internal.Symbols$Symbol.tpeHK(Symbols.scala:1449)
-	at scala.reflect.internal.Types$Type.computeMemberType(Types.scala:694)
-	at scala.reflect.internal.Types$Type.memberType(Types.scala:691)
-	at scala.reflect.internal.TreeGen.mkAttributedSelect(TreeGen.scala:201)
-	at scala.reflect.internal.TreeGen.mkAttributedRef(TreeGen.scala:126)
-	at scala.reflect.internal.TreeGen.mkAttributedRef(TreeGen.scala:132)
-	at scala.reflect.internal.TreeGen.mkAttributedStableRef(TreeGen.scala:164)
-	at scala.tools.nsc.ast.TreeGen.mkImportFromSelector(TreeGen.scala:35)
-	at scala.tools.nsc.ast.TreeGen.mkWildcardImport(TreeGen.scala:25)
-java.lang.OutOfMemoryError: GC overhead limit exceeded
-<simpleError in doTryCatch(return(expr), name, parentenv, handler): Exception thrown.>
+java.lang.OutOfMemoryError: Java heap space
+  ... 32 elided
+<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
 > 
 > 
 > 
