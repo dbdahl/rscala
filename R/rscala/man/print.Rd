@@ -1,16 +1,19 @@
 \name{print}
 \alias{print.ScalaInterpreter}
 \alias{toString.ScalaInterpreter}
-\alias{print.ScalaInterpreterReference}
-\alias{toString.ScalaInterpreterReference}
 \alias{print.ScalaInterpreterItem}
 \alias{toString.ScalaInterpreterItem}
+\alias{print.ScalaInterpreterReference}
+\alias{toString.ScalaInterpreterReference}
+\alias{print.ScalaCachedReference}
+\alias{toString.ScalaCachedReference}
+\alias{print.ScalaFunction}
 \docType{methods}
 \title{
-Prints or returns a character representation of an interpreter or a reference.
+Prints or returns a string representation of a Scala interpreter, a Scala reference, or a Scala function.
 }
 \description{
-These functions print or return a character representation of an interpreter or a reference.
+These functions print or return a string representation of a Scala interpreter, a Scala reference, or a Scala function.
 }
 \usage{
 \method{print}{ScalaInterpreter}(x, ...)
@@ -21,7 +24,7 @@ These functions print or return a character representation of an interpreter or 
 \method{toString}{ScalaInterpreterItem}(x, ...)
 }
 \arguments{
-    \item{x}{An interpreter from the \code{\link{scala}} function or a Scala reference.}
+    \item{x}{An interpreter from the \code{\link{scala}} function, a Scala reference, or a Scala function.}
     \item{...}{Currently ignored.}
 }
 \author{

@@ -6,13 +6,13 @@
 \alias{.rscalaPackage}
 \docType{methods}
 \title{
-Creates an instance of an embedded Scala compiler/interpreter.
+Creates an instance of an embedded Scala interpreter/compiler.
 Provides file path for Scala and this package's JAR file.
 Provides functions to enable other packages to depend on this package.
 }
 \description{
 The function \code{\link{scala}} creates an instance of an embedded Scala
-compiler/interpreter and binds a Scala object named \code{R} to permit
+interpreter/compiler and binds a Scala object named \code{R} to permit
 callbacks to \R.  Options are available to customize where Scala is found and
 how it is invoked (e.g., setting the classpath and maximum heap size). Multiple
 interpreters can be created and each runs independently with its own memory.
@@ -24,8 +24,8 @@ The functions \code{\link{scalaInfo}} and \code{\link{.rscalaJar}} provide file
 paths to JAR files, installation directories, the Scala executable, and this
 package.  Note that if you only want to embed R in a Scala application, you do
 not need to install the package. Simply add the following line to the your SBT
-build.sbt file: \sQuote{libraryDependencies += "org.ddahl" % "rscala_2.11" %
-"_VERSION_"}, where _VERSION_ is the rscala version number (i.e., 1.0.14).
+build.sbt file: \sQuote{libraryDependencies += "org.ddahl" %% "rscala" %
+"_VERSION_"}, where _VERSION_ is the rscala version number (i.e., 2.0.0).
 
 \code{\link{scalaInstall}} downloads and installs Scala in \dQuote{~/.rscala}
 in the user's home directory.  System administrators should install Scala
@@ -33,9 +33,9 @@ globally as described here:
 \url{http://www.scala-lang.org/download/install.html}.  In short, simply
 download the archive, unpack it, and add the \dQuote{scala} script to the path. 
 
-The function \code{\link{.rscalaPackage}} should called by the \code{.onLoad}
+The function \code{\link{.rscalaPackage}} should be called in the \code{.onLoad}
 function of a package that wishes to depend on this package.  The function
-should not be called elsewhere.  This function sets the classpath to the JAR
+should not be called elsewhere.  It sets the classpath to the JAR
 files in the \sQuote{java} directory of the package and passes the \code{...}
 arguments to the \code{\link{scala}} function.  This instance of Scala is
 available as the object \code{s} in the namespace of the package (thereby
@@ -46,7 +46,8 @@ the namespace.
 scala(classpath=character(0),
       serialize.output=FALSE, scala.home=NULL,
       heap.maximum=NULL, command.line.options=NULL, row.major=TRUE,
-      timeout=60, debug=FALSE, stdout=TRUE, stderr=TRUE)
+      timeout=60, debug=FALSE, stdout=TRUE, stderr=TRUE, port=0)
+
 scalaInfo(scala.home=NULL, verbose=FALSE)
 scalaInstall()
 .rscalaJar(version="")
@@ -62,6 +63,7 @@ scalaInstall()
     \item{timeout}{A numeric vector of length one giving the number of seconds to wait for Scala to start before aborting.  The default value is \code{60} seconds.}
     \item{debug}{An option meant only for developers of the package itself and not intended for users of the package.}
     \item{stdout, stderr}{Where \code{stdout} and \code{stderr} output that is not serialized is should be sent.  \code{TRUE} (the default) or \code{""} sends output to the R console (although that may not work on Windows).  \code{FALSE} or \code{NULL} discards the output.  Otherwise, this is the name of the file that receives the output.}
+    \item{port}{If \code{0}, two random ports are selected.  Otherwise, \code{port} and \code{port+1} are used to the TCP/IP connections.}
     \item{verbose}{A logical vector of length one indicating whether information regarding the search for the Scala installation should be displayed.}
     \item{version}{If \code{""}, the package JAR files for all Scala versions are returned. Or, if \code{"2.*.*"} where \code{*} is a placeholder, the JAR file for that specific major version of Scala is returned.}
     \item{pkgname}{A character string giving the name of the package (as provided the second argument of the \code{.onLoad} function) that wishes to depend on this package.}
@@ -77,10 +79,7 @@ scalaInstall()
 David B. Dahl \email{dahl@stat.byu.edu}
 }
 \seealso{
-  \code{\link{scalaEval}},
-  \code{\link{scalaSet}},
-  \code{\link{scalaGet}},
-  \code{\link{scalaDef}},
+  \code{\link{scalap}},
   \code{\link{scalaSettings}},
   \code{\link{strintrplt}}
 }
@@ -100,18 +99,18 @@ capture.output(s \%~\% 'println("This is Scala "+scala.util.Properties.versionSt
 # Function defined in R
 myMean <- function(x) {
   cat("Here I am in R.\n")
-  s \%@\% 'println("Here I am in Scala.")'
   mean(x)
 }
 
 # Function defined in Scala that calls an R function
-callRFunction <- s$def('functionName: String, x: Array[Double]','
+callRFunction <- s$def(func=NULL, x=numeric()) \%~\% '
   R.xx = x
-  R.evalD0("y <- "+functionName+"(xx)")
-')
+  println("Here I am in Scala.")
+  R.evalD0(func,"xx")
+'
 
 # Have Scala call the R's myMean function with input 1:100.
-callRFunction('myMean',1:100)
+callRFunction(myMean,1:100)
 }
 }
 

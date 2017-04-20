@@ -417,18 +417,18 @@ scalaDef <- function(.INTERPRETER,...) {
   result
 }
 
-'%~%.ScalaFunctionArgs' <- function(func,body) {
-  if ( get("interpolate",envir=func$interpreter[['env']]) ) {
-    body <- strintrplt(body,parent.frame())
+'%~%.ScalaFunctionArgs' <- function(interpreter,snippet) {
+  if ( get("interpolate",envir=interpreter$interpreter[['env']]) ) {
+    snippet <- strintrplt(snippet,parent.frame())
   }
-  scalaFunctionArgs(func,body,as.reference=NA,parent.frame())
+  scalaFunctionArgs(interpreter,snippet,as.reference=NA,parent.frame())
 }
 
-'%.~%.ScalaFunctionArgs' <- function(func,body) {
-  if ( get("interpolate",envir=func$interpreter[['env']]) ) {
-    body <- strintrplt(body,parent.frame())
+'%.~%.ScalaFunctionArgs' <- function(interpreter,snippet) {
+  if ( get("interpolate",envir=interpreter$interpreter[['env']]) ) {
+    snippet <- strintrplt(snippet,parent.frame())
   }
-  scalaFunctionArgs(func,body,as.reference=TRUE,parent.frame())
+  scalaFunctionArgs(interpreter,snippet,as.reference=TRUE,parent.frame())
 }
 
 scalaFunctionArgs <- function(func,body,as.reference,workspace) {
@@ -522,12 +522,12 @@ scalaAutoDef <- function(reference,method) {
 '$.ScalaInterpreterReference' <- scalaAutoDef
 '$.ScalaInterpreterItem' <- scalaAutoDef
 
-scalap <- function(interpreter,item.name) {
+scalap <- function(interpreter,class.name) {
   if ( ! inherits(interpreter,"ScalaInterpreter") ) stop("The first argument must be an interpreter.")
   cc(interpreter)
   tryCatch({
     wb(interpreter,SCALAP)
-    wc(interpreter,item.name)
+    wc(interpreter,class.name)
     flush(interpreter[['socketIn']])
     status <- rb(interpreter,"integer")
     if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
