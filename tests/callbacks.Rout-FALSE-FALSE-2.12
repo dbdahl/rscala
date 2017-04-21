@@ -22,6 +22,74 @@
 +   assert(matrix(x,nrow=4))
 + }
 > 
+> #### Get: Unsupported type
+> 
+> g <- list(3)
+> tryCatch(s %@% 'R.g', error=function(e) e)
+<simpleError in scalaEval(interpreter, snippet, parent.frame()): Error in evaluation.>
+> s %~% "3-2"
+[1] 1
+> 
+> #### Get Undefined items
+> 
+> tryCatch(s %@% 'R.ggg', error=function(e) e)
+<simpleError in scalaEval(interpreter, snippet, parent.frame()): Error in evaluation.>
+> s %~% "3+0"
+[1] 3
+> 
+> #### Set: Unsupported non-array type
+> 
+> tryCatch(s %@% 'R.x = List(1,2,3)', error=function(e) e)
+<simpleError in scalaEval(interpreter, snippet, parent.frame()): Error in evaluation.>
+> s %~% "3+2"
+[1] 5
+> 
+> #### Set: Unsupported array type
+> 
+> tryCatch(s %@% 'R.x = Array(new scala.util.Random())', error=function(e) e)
+<simpleError in scalaEval(interpreter, snippet, parent.frame()): Error in evaluation.>
+> s %~% "3+4"
+[1] 7
+> 
+> #### Set: Unsupported ragged array type
+> 
+> tryCatch(s %@% 'R.x = Array(Array(1.0),Array(2.0,3.0))', error=function(e) e)
+<simpleError in scalaEval(interpreter, snippet, parent.frame()): Error in evaluation.>
+> s %~% "3+6"
+[1] 9
+> 
+> #### Setting with indices using single brackets
+> 
+> x <- matrix(1:4,nrow=2)
+> y <- x
+> s %@% 'R.set("x",Array(Array(10.0)),"1,1",false)'
+> y[1,1] <- 10
+> identical(x,y)
+[1] TRUE
+> 
+> tryCatch(s %@% 'R.set("x",Array(Array(10.0)),"1,1asdf",false)', error=function(e) e)
+<simpleError in scalaEval(interpreter, snippet, parent.frame()): Error in evaluation.>
+> s %~% '"Okay 1"'
+[1] "Okay 1"
+> 
+> #### Setting with indices using double brackets
+> 
+> x <- as.list(letters)
+> y <- x
+> s %@% 'R.set("x","Z","26",true)'
+> y[[26]] <- "Z"
+> identical(x,y)
+[1] TRUE
+> 
+> s %@% 'R.set("x","Z","\'bob\'",true)'
+> y[["bob"]] <- "Z"
+> identical(x,y)
+[1] TRUE
+> s %~% '"Okay 2"'
+[1] "Okay 2"
+> 
+> ####
+> 
 > counter <- 0
 > for ( i in 1:10 ) {
 +   s %~% 'R.eval("counter <- counter + 1")'
@@ -62,23 +130,38 @@ Error in parse(text = snippet) : <text>:4:16: unexpected symbol
 > s %~% '3+6'
 [1] 9
 > 
+> ###
 > 
-> myMean <- function(x) {
+> myMean <- function(data,offset) {
 +   cat("Here is am.\n")
-+   mean(x)
++   mean(data+offset)
 + }
 > 
-> callRFunction <- s$def(functionName=I(""), x=numeric()) %~% '
-+   R.xx = x
-+   R.eval("y <- "+functionName+"(xx)")
-+   R.y._1
+> callRFunction <- s$def(func=NULL, x=numeric(), y=NULL) %~% '
++   R.invokeD1(func,x.map(2*_).map(_.getClass),y)
 + '
+> 
+> tryCatch(callRFunction(myMean,1:4,5), error=function(e) e)
+<simpleError in callRFunction(myMean, 1:4, 5): Invocation error.>
+> s %~% "3+4"
+[1] 7
+> 
+> callRFunction <- s$def(func=NULL, x=numeric(), y=NULL) %~% '
++   R.invokeD1(func,x.map(2*_),y)
++ '
+> 
+> callRFunction(myMean,y=0,x=1:100)
+Here is am.
+[1] 101
+> 
+> callRFunction0D2 <- s$def(func=NULL) %~% 'R.invokeD2(func)'
+> callRFunction0D2(gc)
+       [,1] [,2]   [,3] [,4]   [,5] [,6]
+[1,] 234188 12.6 460000 24.6 350000 18.7
+[2,] 338193  2.6 786432  6.0 786371  6.0
 > 
 > tryCatch(callRFunction(1:100),error = function(e) {})
 NULL
-> callRFunction('myMean',1:100)
-Here is am.
-[1] 50.5
 > 
 > # Should be an R evaluation error because 'asfd' is not a package.
 > tryCatch(s %@% 'R.eval("library(asdf)")',error=function(e) e)

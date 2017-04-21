@@ -27,7 +27,7 @@ NULL
 +   val b = 5
 +   a ++ b
 + ",error=function(e) e)
-<console>:16: error: value ++ is not a member of Int
+<console>:17: error: value ++ is not a member of Int
          a ++ b
            ^
 <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>

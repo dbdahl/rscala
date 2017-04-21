@@ -222,19 +222,19 @@ ScalaInterpreterItem
 > options(width=120)
 > microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
 Unit: microseconds
-                      expr      min        lq     mean   median        uq      max neval
- rdg$nextExponential(I(4)) 1577.641 2423.4345 3218.862 2646.688 2850.2700 72191.51  1000
-                   rexp(4)  394.511  634.0955 1154.396  718.905  819.7415 52746.86  1000
+                      expr      min       lq     mean    median        uq      max neval
+ rdg$nextExponential(I(4)) 1235.904 2369.123 3686.749 2579.1580 2809.5500 65086.81  1000
+                   rexp(4)  320.524  625.653 1297.328  704.3485  793.0815 66646.72  1000
 > microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
 Unit: microseconds
-                      expr      min        lq     mean   median       uq      max neval
- rdg$nextExponential(I(4)) 1134.257 1219.1595 2292.033 1451.409 2496.705 86693.06  1000
-                   rexp(4)  282.710  309.1285  632.648  347.565  638.954 25408.06  1000
+                      expr      min       lq      mean   median       uq      max neval
+ rdg$nextExponential(I(4)) 1143.288 1987.519 2908.6947 2362.945 2651.428 60376.88  1000
+                   rexp(4)  292.811  434.708  848.6765  625.660  702.842 70386.47  1000
 > microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
 Unit: microseconds
-                      expr      min       lq      mean    median        uq      max neval
- rdg$nextExponential(I(4)) 1054.654 1164.313 1487.1089 1203.2735 1740.9065 32252.81  1000
-                   rexp(4)  219.909  289.338  356.1234  303.0305  332.4565 13508.57  1000
+                      expr      min       lq      mean   median        uq      max neval
+ rdg$nextExponential(I(4)) 1070.320 1165.948 1340.1491 1197.262 1274.5825 27656.98  1000
+                   rexp(4)  261.706  300.714  372.0865  311.016  333.7405 11886.14  1000
 > 
 > s$.org.ddahl.shallot.parameter.Mass
 package org.ddahl.shallot.parameter
@@ -284,7 +284,7 @@ ScalaInterpreterItem
 > d[['type']]                           # Note the weird 'iw$' prepended to 'Bob'
 [1] "iw$Bob"
 > tryCatch(d$b(),error=function(e) e)   # Doesn't work
-<console>:14: error: not found: type iw$Bob
+<console>:16: error: not found: type iw$Bob
        R.cached(".9").asInstanceOf[iw$Bob].b}
                                    ^
 <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>

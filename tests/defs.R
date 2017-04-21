@@ -129,7 +129,7 @@ s$.scala.util.Random$nextDouble()
 s$.scala.util.Random$nextDouble()
 s$do("scala.util.Random")$nextDouble()
 
-s %~% 'import scala.util.Random'
+s %@% 'import scala.util.Random'
 s$.Random$nextDouble()
 
 a <- s$def() %~% 'Random.nextDouble'

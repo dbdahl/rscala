@@ -222,19 +222,19 @@ ScalaInterpreterItem
 > options(width=120)
 > microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
 Unit: microseconds
-                      expr      min        lq      mean   median        uq       max neval
- rdg$nextExponential(I(4)) 1039.151 1157.2450 1562.3219 1274.372 1771.8610 24225.469  1000
-                   rexp(4)  204.731  279.1975  376.1803  304.269  378.4585  5495.524  1000
+                      expr      min       lq      mean    median       uq       max neval
+ rdg$nextExponential(I(4)) 1035.395 1152.758 1552.7914 1231.2540 1805.947 23065.689  1000
+                   rexp(4)  208.795  281.819  384.9042  304.6365  386.605  5521.803  1000
 > microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
 Unit: microseconds
                       expr      min        lq      mean   median       uq      max neval
- rdg$nextExponential(I(4)) 1064.913 1121.6070 1242.1391 1143.307 1186.974 24751.55  1000
-                   rexp(4)  254.533  272.3015  328.9332  281.114  294.656 30212.72  1000
+ rdg$nextExponential(I(4)) 1081.015 1125.3375 1311.1114 1158.351 1254.868 27950.78  1000
+                   rexp(4)  227.262  271.1795  309.2182  280.172  298.147  7269.74  1000
 > microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
 Unit: microseconds
-                      expr      min       lq      mean   median       uq       max neval
- rdg$nextExponential(I(4)) 1076.118 1124.378 1359.9180 1153.075 1303.741 29278.035  1000
-                   rexp(4)  240.093  267.554  311.2232  276.937  300.352  3709.833  1000
+                      expr      min       lq      mean    median        uq       max neval
+ rdg$nextExponential(I(4)) 1070.383 1119.321 1312.4354 1146.8550 1226.6935 32226.598  1000
+                   rexp(4)  256.036  270.090  306.0647  278.5475  295.2035  3987.381  1000
 > 
 > s$.org.ddahl.shallot.parameter.Mass
 package org.ddahl.shallot.parameter
@@ -284,7 +284,7 @@ ScalaInterpreterItem
 > d[['type']]                           # Note the weird 'iw$' prepended to 'Bob'
 [1] "iw$Bob"
 > tryCatch(d$b(),error=function(e) e)   # Doesn't work
-<console>:10: error: not found: type iw$Bob
+<console>:12: error: not found: type iw$Bob
               R.cached(".9").asInstanceOf[iw$Bob].b}
                                           ^
 <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>

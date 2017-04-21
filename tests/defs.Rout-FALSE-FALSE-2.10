@@ -7,21 +7,21 @@
 > 
 > rng1 <- s %.~% "new scala.util.Random"
 > rng1$nextDouble()
-[1] 0.700549
+[1] 0.7915419
 > 
 > s$r1 <- rng1
 > rng2 <- s$r1
 > rng2$nextDouble()
-[1] 0.09882274
+[1] 0.1561329
 > 
 > rng3 <- s$.scala.util.Random$new()
 > rng3$nextDouble()
-[1] 0.6560213
+[1] 0.5254832
 > 
 > s$r3 <- rng3
 > rng4 <- s$r3
 > rng4$nextDouble()
-[1] 0.1912195
+[1] 0.9859628
 > 
 > 
 > ####
@@ -38,7 +38,7 @@
 +   r
 + }
 > y1 <- mkFunc1()
-<environment: 0x2a69ea8>
+<environment: 0x36dcd90>
 > identical(y1("Lisa","Dahl"),"Lisa Dahl B.")
 [1] TRUE
 > 
@@ -56,8 +56,8 @@
 [1] TRUE
 > gc()
          used (Mb) gc trigger (Mb) max used (Mb)
-Ncells 232031 12.4     460000 24.6   350000 18.7
-Vcells 334667  2.6     786432  6.0   786371  6.0
+Ncells 232036 12.4     460000 24.6   350000 18.7
+Vcells 334668  2.6     786432  6.0   786371  6.0
 > 
 > 
 > 
@@ -77,14 +77,14 @@ Vcells 334667  2.6     786432  6.0   786371  6.0
 +   name + " " + ( x + y )
 + ')
    user  system elapsed 
-  0.000   0.000   0.192 
+  0.004   0.000   0.275 
 > 
 > # Taking advantage of caching
 > system.time(f <- s$def(x=I(0),y=I(4L),name=I("dog")) %~% '
 +   name + " " + ( x + y )
 + ')
    user  system elapsed 
-  0.000   0.000   0.002 
+  0.000   0.000   0.001 
 > 
 > ####
 > 
@@ -97,9 +97,9 @@ Vcells 334667  2.6     786432  6.0   786371  6.0
 > rng2 <- mkRNG2()
 > 
 > rng1$nextInt(I(10L))
-[1] 4
+[1] 1
 > rng2$nextInt(I(10L))
-[1] 7
+[1] 4
 > 
 > str <- rng1$toString(.EVALUATE=TRUE,.AS.REFERENCE=TRUE)
 > str$length()
@@ -122,12 +122,12 @@ Vcells 334667  2.6     786432  6.0   786371  6.0
 + )
 Unit: nanoseconds
               expr    min       lq        mean    median        uq      max
-          runif(1)    903   3219.0    5832.542    6042.5    7491.5    59122
- rng1$nextDouble() 920910 985117.5 1232527.846 1022317.5 1138146.5 17152895
- rng2$nextDouble() 845909 917934.0 1343033.244  953446.0 1079527.5 84552775
-             nd0() 141788 179788.5  241177.920  189249.0  226075.0  4039380
-             nd1() 147152 179086.0  232970.672  187877.5  218089.0  4628998
-             nd2() 135535 176144.5  217220.944  182719.5  196619.0  3103167
+          runif(1)    868   3998.0    6655.394    6579.0    8052.0    78544
+ rng1$nextDouble() 917180 989522.0 1440253.846 1073662.0 1536890.5 31614901
+ rng2$nextDouble() 861867 926422.0 1559149.468 1004681.0 1505325.5 79867665
+             nd0() 134594 179804.5  273842.932  196263.5  260978.0  2875702
+             nd1() 142824 179863.5  285134.448  195371.5  243968.5  7157245
+             nd2() 136129 176126.0  267926.850  187958.5  237054.5  8336806
  neval
    500
    500
@@ -139,7 +139,7 @@ Unit: nanoseconds
 > ####
 > 
 > s$.scala.util.Random$nextDouble()
-[1] 0.1532158
+[1] 0.5397623
 > m <- s$.scala.util.Random$new(I(342L),.EVALUATE=FALSE)
 > m(23436)$nextDouble()
 [1] 0.8011135
@@ -171,29 +171,28 @@ Unit: nanoseconds
 <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
 > 
 > s$.scala.util.Random$nextDouble()
-[1] 0.9023173
+[1] 0.8491356
 > s$.scala.util.Random$nextDouble()
-[1] 0.1419461
+[1] 0.5692754
 > s$do("scala.util.Random")$nextDouble()
-[1] 0.6713851
+[1] 0.5697827
 Warning message:
 In s$do("scala.util.Random") :
   Syntax "s$do('scala.util.Random')" is deprecated.  Use "s$.scala.util.Random" instead.
 > 
-> s %~% 'import scala.util.Random'
-ScalaInterpreterReference... res30: () => Int
+> s %@% 'import scala.util.Random'
 > s$.Random$nextDouble()
-[1] 0.6331247
+[1] 0.4505411
 > 
 > a <- s$def() %~% 'Random.nextDouble'
 > a()
-[1] 0.2571088
+[1] 0.8103128
 > 
 > s$.scala.util.Random
 ScalaInterpreterItem
 > a <- ( s$def() %~% 'scala.util.Random' )()
 > a$nextDouble(.EVALUATE=TRUE)
-[1] 0.9833147
+[1] 0.7864392
 > 
 > ####
 > 

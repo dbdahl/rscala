@@ -223,18 +223,18 @@ ScalaInterpreterItem
 > microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
 Unit: microseconds
                       expr      min       lq      mean   median       uq      max neval
- rdg$nextExponential(I(4)) 1367.974 2181.529 3118.0010 2388.914 2611.534 38336.91  1000
-                   rexp(4)  286.189  531.869  740.3203  599.068  668.970 17159.99  1000
+ rdg$nextExponential(I(4)) 1030.588 1319.313 1934.7384 1929.734 2292.639 29272.39  1000
+                   rexp(4)  213.962  317.404  493.8907  410.403  571.453  5059.25  1000
 > microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
 Unit: microseconds
-                      expr      min       lq      mean    median        uq      max neval
- rdg$nextExponential(I(4)) 1011.534 1297.184 1765.5290 1677.5690 1966.0165 30330.76  1000
-                   rexp(4)  211.595  308.159  490.3019  394.3715  487.5655 38469.88  1000
+                      expr      min       lq      mean   median       uq      max neval
+ rdg$nextExponential(I(4)) 1227.561 2181.878 2332.6180 2329.267 2465.301 35429.66  1000
+                   rexp(4)  241.162  531.022  630.5388  584.715  648.377 47182.09  1000
 > microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
 Unit: microseconds
-                      expr      min        lq      mean    median       uq      max neval
- rdg$nextExponential(I(4)) 1060.912 1510.8580 2067.9343 1921.4350 2118.504 35542.24  1000
-                   rexp(4)  236.056  361.4405  539.8716  466.4615  534.067 27733.26  1000
+                      expr      min       lq      mean    median       uq      max neval
+ rdg$nextExponential(I(4)) 1055.335 1168.841 1628.1300 1298.8215 2012.528 16529.01  1000
+                   rexp(4)  209.043  281.078  418.5468  304.4145  509.693 28860.47  1000
 > 
 > s$.org.ddahl.shallot.parameter.Mass
 package org.ddahl.shallot.parameter
@@ -284,7 +284,7 @@ ScalaInterpreterItem
 > d[['type']]                           # Note the weird 'iw$' prepended to 'Bob'
 [1] "iw$Bob"
 > tryCatch(d$b(),error=function(e) e)   # Doesn't work
-<console>:14: error: not found: type iw$Bob
+<console>:16: error: not found: type iw$Bob
        R.cached(".9").asInstanceOf[iw$Bob].b}
                                    ^
 <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>

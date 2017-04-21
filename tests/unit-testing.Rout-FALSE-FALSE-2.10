@@ -50,6 +50,20 @@
 > s$b <- I(FALSE)
 > s %~% "println(!b)"
 > 
+> # What about when there is no result?
+> tryCatch(s %~% 'import scala.util._', error=function(e) e)
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Exception thrown.>
+> s %~% "5+4"
+[1] 9
+> s %@% 'import scala.util._'
+> 
+> tryCatch(s %.~% 'import scala.util._', error=function(e) e)
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Exception thrown.>
+> s %~% "3+4"
+[1] 7
+> s %@% 'import scala.util._'
+> 
+> # Close
 > close(s)
 > rm(s)
 > 
