@@ -399,7 +399,7 @@ scalaDef <- function(.INTERPRETER,...) {
     value <- argValues[[i]]
     name <- argIdentifiers[[i]]
     if ( is.null(value) ) {
-      header[i] <- paste0('val ',name,' = org.ddahl.rscala.RObject("',name,'")')
+      header[i] <- paste0('val ',name,' = RObject("',name,'")')
     } else if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") ) {
       header[i] <- paste0('val ',name,' = R.cached(R.evalS0("toString(',name,')")).asInstanceOf[',value[['type']],']')
     } else {

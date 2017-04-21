@@ -178,12 +178,18 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
     var counter = 0
     val argsStrings = args.map {
       case null => "NULL"
+      case (name: String, r: RObject) => name + "=" + r.toString
+      case (name: String, o) =>
+        val id = ".rsX" + counter
+        counter += 1
+        set(id,o)
+        name + "=" + id
       case r: RObject => r.toString
       case o =>
-        val name = ".rsX" + counter
+        val id = ".rsX" + counter
         counter += 1
-        set(name,o)
-        name
+        set(id,o)
+        id
     }
     function + "(" + argsStrings.mkString(",") + ")"
   }

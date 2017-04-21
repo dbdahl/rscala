@@ -2,8 +2,16 @@ library(rscala)
 
 s <- scala(debug=FALSE)
 
-bob <- s$def(NULL) %~% 'R.evalD0(s"sum($x1)")'
-bob(1:55)
+mySort <- s$def(NULL,decreasing=I(FALSE)) %~% '
+  R.invokeD1( RObject("sort"), x1, "decreasing" -> decreasing)
+'
+
+d <- FALSE
+
+mySort(rnorm(10),TRUE)
+mySort(rnorm(10))
+
+
 
 bill <- s$def(f=NULL,x=NULL,y=numeric()) %~% '
   R.y = y
