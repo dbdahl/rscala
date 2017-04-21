@@ -141,8 +141,7 @@ s$.scala.math.BigInt$apply(I("777"),I(8L))$'-'(I(500L))$intValue()
 # Example showing callback functionality
 f1 <- s$def(func=NULL,data=numeric()) \%~\% '
   println("Here I am in Scala.")
-  R.observations = data.map(2*_)
-  R.evalD1(func,"observations")
+  R.invokeD1(func,data.map(2*_)).sum
 '
 
 f2 <- function(x) {
@@ -150,7 +149,7 @@ f2 <- function(x) {
   x^3
 }
 
-f1(f2,1:4)
+identical( f1(f2,1:4), sum((2*(1:4))^3) )
 
 # Longer example showing that s$def(...) is more flexible and faster than '\%~\%'
 s$rng <- rng
