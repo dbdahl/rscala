@@ -22,14 +22,25 @@
 +   assert(matrix(x,nrow=4))
 + }
 > 
+> #### Callbacks with named arguments
+> 
+> mySort <- s$def(NULL,ascending=I(TRUE)) %~% '
++   R.invokeD1( RObject("sort"), x1, "decreasing" -> ! ascending )
++ '
+> 
+> set.seed(13242)
+> mySort(runif(12),FALSE)
+ [1] 0.964528786 0.931479614 0.915030151 0.760027263 0.748870265 0.689618096
+ [7] 0.631741739 0.619262272 0.486731296 0.346336568 0.234644646 0.009991797
+> 
 > #### Get: Unsupported type
 > 
 > g <- list(3)
 > tryCatch(s %@% 'R.g', error=function(e) e)
 java.lang.RuntimeException: Unsupported data type: g
-	at org.ddahl.rscala.RClient.get(RClient.scala:493)
-	at org.ddahl.rscala.RClient.selectDynamic(RClient.scala:203)
-	at .<init>(<console>:11)
+	at org.ddahl.rscala.RClient.get(RClient.scala:499)
+	at org.ddahl.rscala.RClient.selectDynamic(RClient.scala:209)
+	at .<init>(<console>:12)
 	at .<clinit>(<console>)
 	at .<init>(<console>:7)
 	at .<clinit>(<console>)
@@ -43,9 +54,9 @@ java.lang.RuntimeException: Unsupported data type: g
 	at scala.tools.nsc.interpreter.IMain.loadAndRunReq$1(IMain.scala:573)
 	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:604)
 	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:568)
-	at org.ddahl.rscala.ScalaServer.doEval(ScalaServer.scala:84)
-	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:500)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:537)
+	at org.ddahl.rscala.ScalaServer.doEval(ScalaServer.scala:85)
+	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:501)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:538)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:5)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
@@ -82,9 +93,9 @@ java.lang.RuntimeException: Unsupported data type: g
 > 
 > tryCatch(s %@% 'R.ggg', error=function(e) e)
 java.lang.RuntimeException: Undefined identifier: ggg
-	at org.ddahl.rscala.RClient.get(RClient.scala:492)
-	at org.ddahl.rscala.RClient.selectDynamic(RClient.scala:203)
-	at .<init>(<console>:11)
+	at org.ddahl.rscala.RClient.get(RClient.scala:498)
+	at org.ddahl.rscala.RClient.selectDynamic(RClient.scala:209)
+	at .<init>(<console>:12)
 	at .<clinit>(<console>)
 	at .<init>(<console>:7)
 	at .<clinit>(<console>)
@@ -98,9 +109,9 @@ java.lang.RuntimeException: Undefined identifier: ggg
 	at scala.tools.nsc.interpreter.IMain.loadAndRunReq$1(IMain.scala:573)
 	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:604)
 	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:568)
-	at org.ddahl.rscala.ScalaServer.doEval(ScalaServer.scala:84)
-	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:500)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:537)
+	at org.ddahl.rscala.ScalaServer.doEval(ScalaServer.scala:85)
+	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:501)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:538)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:5)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
@@ -136,16 +147,16 @@ java.lang.RuntimeException: Undefined identifier: ggg
 > #### Set: Unsupported non-array type
 > 
 > tryCatch(s %@% 'R.x = List(1,2,3)', error=function(e) e)
-<console>:13: error: type mismatch;
+<console>:14: error: type mismatch;
  found   : R.type (with underlying type org.ddahl.rscala.RClient)
  required: ?{def x: ?}
 Note that implicit conversions are not applicable because they are ambiguous:
  both method any2Ensuring in object Predef of type [A](x: A)Ensuring[A]
  and method any2ArrowAssoc in object Predef of type [A](x: A)ArrowAssoc[A]
  are possible conversion functions from R.type to ?{def x: ?}
-val $ires125 = R.x
+val $ires126 = R.x
                ^
-<console>:9: error: type mismatch;
+<console>:10: error: type mismatch;
  found   : R.type (with underlying type org.ddahl.rscala.RClient)
  required: ?{def x: ?}
 Note that implicit conversions are not applicable because they are ambiguous:
@@ -161,16 +172,16 @@ Note that implicit conversions are not applicable because they are ambiguous:
 > #### Set: Unsupported array type
 > 
 > tryCatch(s %@% 'R.x = Array(new scala.util.Random())', error=function(e) e)
-<console>:13: error: type mismatch;
+<console>:14: error: type mismatch;
  found   : R.type (with underlying type org.ddahl.rscala.RClient)
  required: ?{def x: ?}
 Note that implicit conversions are not applicable because they are ambiguous:
  both method any2Ensuring in object Predef of type [A](x: A)Ensuring[A]
  and method any2ArrowAssoc in object Predef of type [A](x: A)ArrowAssoc[A]
  are possible conversion functions from R.type to ?{def x: ?}
-val $ires127 = R.x
+val $ires128 = R.x
                ^
-<console>:9: error: type mismatch;
+<console>:10: error: type mismatch;
  found   : R.type (with underlying type org.ddahl.rscala.RClient)
  required: ?{def x: ?}
 Note that implicit conversions are not applicable because they are ambiguous:
@@ -186,16 +197,16 @@ Note that implicit conversions are not applicable because they are ambiguous:
 > #### Set: Unsupported ragged array type
 > 
 > tryCatch(s %@% 'R.x = Array(Array(1.0),Array(2.0,3.0))', error=function(e) e)
-<console>:13: error: type mismatch;
+<console>:14: error: type mismatch;
  found   : R.type (with underlying type org.ddahl.rscala.RClient)
  required: ?{def x: ?}
 Note that implicit conversions are not applicable because they are ambiguous:
  both method any2Ensuring in object Predef of type [A](x: A)Ensuring[A]
  and method any2ArrowAssoc in object Predef of type [A](x: A)ArrowAssoc[A]
  are possible conversion functions from R.type to ?{def x: ?}
-val $ires129 = R.x
+val $ires130 = R.x
                ^
-<console>:9: error: type mismatch;
+<console>:10: error: type mismatch;
  found   : R.type (with underlying type org.ddahl.rscala.RClient)
  required: ?{def x: ?}
 Note that implicit conversions are not applicable because they are ambiguous:
@@ -226,8 +237,8 @@ Error in parse(text = paste0(x, brackets[1], i, brackets[2], " <- .rscala.set.va
 1: x[[1,1asdf
           ^
 java.lang.RuntimeException: Error in R evaluation.
-	at org.ddahl.rscala.RClient.set(RClient.scala:427)
-	at .<init>(<console>:11)
+	at org.ddahl.rscala.RClient.set(RClient.scala:433)
+	at .<init>(<console>:12)
 	at .<clinit>(<console>)
 	at .<init>(<console>:7)
 	at .<clinit>(<console>)
@@ -241,9 +252,9 @@ java.lang.RuntimeException: Error in R evaluation.
 	at scala.tools.nsc.interpreter.IMain.loadAndRunReq$1(IMain.scala:573)
 	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:604)
 	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:568)
-	at org.ddahl.rscala.ScalaServer.doEval(ScalaServer.scala:84)
-	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:500)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:537)
+	at org.ddahl.rscala.ScalaServer.doEval(ScalaServer.scala:85)
+	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:501)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:538)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:5)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
@@ -313,7 +324,7 @@ java.lang.RuntimeException: Error in R evaluation.
 +     a <- "3+9"
 +   """)
 + ',error=function(e) e)
-<console>:10: error: not found: value ewf
+<console>:11: error: not found: value ewf
   3+4+ewf
       ^
 <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
@@ -329,7 +340,7 @@ java.lang.RuntimeException: Error in R evaluation.
 +     a <- "3+9" asfd
 +   """)
 + ',error=function(e) e)
-<console>:10: warning: a pure expression does nothing in statement position; you may be omitting necessary parentheses
+<console>:11: warning: a pure expression does nothing in statement position; you may be omitting necessary parentheses
   3+4
    ^
 Error in parse(text = snippet) : <text>:4:16: unexpected symbol
@@ -343,7 +354,7 @@ Error in parse(text = snippet) : <text>:4:16: unexpected symbol
 java.lang.RuntimeException: Error in R evaluation.
 	at org.ddahl.rscala.RClient.eval(RClient.scala:80)
 	at org.ddahl.rscala.RClient.eval(RClient.scala:85)
-	at .<init>(<console>:13)
+	at .<init>(<console>:14)
 	at .<clinit>(<console>)
 	at .<init>(<console>:7)
 	at .<clinit>(<console>)
@@ -357,9 +368,9 @@ java.lang.RuntimeException: Error in R evaluation.
 	at scala.tools.nsc.interpreter.IMain.loadAndRunReq$1(IMain.scala:573)
 	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:604)
 	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:568)
-	at org.ddahl.rscala.ScalaServer.doEval(ScalaServer.scala:84)
-	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:500)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:537)
+	at org.ddahl.rscala.ScalaServer.doEval(ScalaServer.scala:85)
+	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:501)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:538)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:5)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
@@ -408,9 +419,9 @@ java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor1.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:126)
-	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:510)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:537)
+	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:127)
+	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:511)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:538)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:5)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
@@ -439,9 +450,9 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:105)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.RuntimeException: Unsupported array type.
-	at org.ddahl.rscala.RClient.set(RClient.scala:420)
-	at org.ddahl.rscala.RClient.set(RClient.scala:214)
-	at org.ddahl.rscala.RClient$$anonfun$1.apply(RClient.scala:185)
+	at org.ddahl.rscala.RClient.set(RClient.scala:426)
+	at org.ddahl.rscala.RClient.set(RClient.scala:220)
+	at org.ddahl.rscala.RClient$$anonfun$1.apply(RClient.scala:191)
 	at org.ddahl.rscala.RClient$$anonfun$1.apply(RClient.scala:179)
 	at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:244)
 	at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:244)
@@ -451,8 +462,8 @@ Caused by: java.lang.RuntimeException: Unsupported array type.
 	at scala.collection.AbstractTraversable.map(Traversable.scala:105)
 	at org.ddahl.rscala.RClient.mkSnippet(RClient.scala:179)
 	at org.ddahl.rscala.RClient.invokeD1(RClient.scala:151)
-	at $line338.$read$$iw$$iw$$anonfun$1.apply(<console>:16)
-	at $line338.$read$$iw$$iw$$anonfun$1.apply(<console>:11)
+	at $line341.$read$$iw$$iw$$anonfun$1.apply(<console>:17)
+	at $line341.$read$$iw$$iw$$anonfun$1.apply(<console>:12)
 	... 33 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Unsupported array type.
@@ -471,17 +482,17 @@ Here is am.
 > callRFunction0D2 <- s$def(func=NULL) %~% 'R.invokeD2(func)'
 > callRFunction0D2(gc)
        [,1] [,2]   [,3] [,4]   [,5] [,6]
-[1,] 234200 12.6 460000 24.6 350000 18.7
-[2,] 338217  2.6 786432  6.0 786371  6.0
+[1,] 234638 12.6 460000 24.6 350000 18.7
+[2,] 338845  2.6 786432  6.0 786371  6.0
 > 
 > tryCatch(callRFunction(1:100),error = function(e) {})
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor1.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:126)
-	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:510)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:537)
+	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:127)
+	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:511)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:538)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:5)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
@@ -510,10 +521,10 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:105)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.RuntimeException: Undefined identifier: x
-	at org.ddahl.rscala.RClient.get(RClient.scala:492)
-	at org.ddahl.rscala.RClient.getD1(RClient.scala:617)
-	at $line342.$read$$iw$$iw$$anonfun$1.apply(<console>:13)
-	at $line342.$read$$iw$$iw$$anonfun$1.apply(<console>:11)
+	at org.ddahl.rscala.RClient.get(RClient.scala:498)
+	at org.ddahl.rscala.RClient.getD1(RClient.scala:623)
+	at $line345.$read$$iw$$iw$$anonfun$1.apply(<console>:14)
+	at $line345.$read$$iw$$iw$$anonfun$1.apply(<console>:12)
 	... 33 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Undefined identifier: x
@@ -526,7 +537,7 @@ there is no package called ‘asdf’
 java.lang.RuntimeException: Error in R evaluation.
 	at org.ddahl.rscala.RClient.eval(RClient.scala:80)
 	at org.ddahl.rscala.RClient.eval(RClient.scala:85)
-	at .<init>(<console>:11)
+	at .<init>(<console>:12)
 	at .<clinit>(<console>)
 	at .<init>(<console>:7)
 	at .<clinit>(<console>)
@@ -540,9 +551,9 @@ java.lang.RuntimeException: Error in R evaluation.
 	at scala.tools.nsc.interpreter.IMain.loadAndRunReq$1(IMain.scala:573)
 	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:604)
 	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:568)
-	at org.ddahl.rscala.ScalaServer.doEval(ScalaServer.scala:84)
-	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:500)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:537)
+	at org.ddahl.rscala.ScalaServer.doEval(ScalaServer.scala:85)
+	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:501)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:538)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:5)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)

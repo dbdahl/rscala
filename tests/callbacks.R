@@ -21,6 +21,15 @@ for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y),as.raw(
   assert(matrix(x,nrow=4))
 }
 
+#### Callbacks with named arguments
+
+mySort <- s$def(NULL,ascending=I(TRUE)) %~% '
+  R.invokeD1( RObject("sort"), x1, "decreasing" -> ! ascending )
+'
+
+set.seed(13242)
+mySort(runif(12),FALSE)
+
 #### Get: Unsupported type
 
 g <- list(3)

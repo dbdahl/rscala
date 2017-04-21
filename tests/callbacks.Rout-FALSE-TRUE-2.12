@@ -22,13 +22,24 @@
 +   assert(matrix(x,nrow=4))
 + }
 > 
+> #### Callbacks with named arguments
+> 
+> mySort <- s$def(NULL,ascending=I(TRUE)) %~% '
++   R.invokeD1( RObject("sort"), x1, "decreasing" -> ! ascending )
++ '
+> 
+> set.seed(13242)
+> mySort(runif(12),FALSE)
+ [1] 0.964528786 0.931479614 0.915030151 0.760027263 0.748870265 0.689618096
+ [7] 0.631741739 0.619262272 0.486731296 0.346336568 0.234644646 0.009991797
+> 
 > #### Get: Unsupported type
 > 
 > g <- list(3)
 > tryCatch(s %@% 'R.g', error=function(e) e)
 java.lang.RuntimeException: Unsupported data type: g
-  at org.ddahl.rscala.RClient.get(RClient.scala:493)
-  at org.ddahl.rscala.RClient.selectDynamic(RClient.scala:203)
+  at org.ddahl.rscala.RClient.get(RClient.scala:499)
+  at org.ddahl.rscala.RClient.selectDynamic(RClient.scala:209)
   ... 54 elided
 <simpleError in scalaEval(interpreter, snippet, parent.frame()): Error in evaluation.>
 > s %~% "3-2"
@@ -38,8 +49,8 @@ java.lang.RuntimeException: Unsupported data type: g
 > 
 > tryCatch(s %@% 'R.ggg', error=function(e) e)
 java.lang.RuntimeException: Undefined identifier: ggg
-  at org.ddahl.rscala.RClient.get(RClient.scala:492)
-  at org.ddahl.rscala.RClient.selectDynamic(RClient.scala:203)
+  at org.ddahl.rscala.RClient.get(RClient.scala:498)
+  at org.ddahl.rscala.RClient.selectDynamic(RClient.scala:209)
   ... 54 elided
 <simpleError in scalaEval(interpreter, snippet, parent.frame()): Error in evaluation.>
 > s %~% "3+0"
@@ -49,9 +60,9 @@ java.lang.RuntimeException: Undefined identifier: ggg
 > 
 > tryCatch(s %@% 'R.x = List(1,2,3)', error=function(e) e)
 java.lang.RuntimeException: Unsupported non-array type.
-  at org.ddahl.rscala.RClient.set(RClient.scala:420)
-  at org.ddahl.rscala.RClient.set(RClient.scala:214)
-  at org.ddahl.rscala.RClient.updateDynamic(RClient.scala:211)
+  at org.ddahl.rscala.RClient.set(RClient.scala:426)
+  at org.ddahl.rscala.RClient.set(RClient.scala:220)
+  at org.ddahl.rscala.RClient.updateDynamic(RClient.scala:217)
   ... 54 elided
 <simpleError in scalaEval(interpreter, snippet, parent.frame()): Error in evaluation.>
 > s %~% "3+2"
@@ -61,9 +72,9 @@ java.lang.RuntimeException: Unsupported non-array type.
 > 
 > tryCatch(s %@% 'R.x = Array(new scala.util.Random())', error=function(e) e)
 java.lang.RuntimeException: Unsupported array type.
-  at org.ddahl.rscala.RClient.set(RClient.scala:420)
-  at org.ddahl.rscala.RClient.set(RClient.scala:214)
-  at org.ddahl.rscala.RClient.updateDynamic(RClient.scala:211)
+  at org.ddahl.rscala.RClient.set(RClient.scala:426)
+  at org.ddahl.rscala.RClient.set(RClient.scala:220)
+  at org.ddahl.rscala.RClient.updateDynamic(RClient.scala:217)
   ... 54 elided
 <simpleError in scalaEval(interpreter, snippet, parent.frame()): Error in evaluation.>
 > s %~% "3+4"
@@ -73,9 +84,9 @@ java.lang.RuntimeException: Unsupported array type.
 > 
 > tryCatch(s %@% 'R.x = Array(Array(1.0),Array(2.0,3.0))', error=function(e) e)
 java.lang.RuntimeException: Ragged arrays are not supported.
-  at org.ddahl.rscala.RClient.set(RClient.scala:420)
-  at org.ddahl.rscala.RClient.set(RClient.scala:214)
-  at org.ddahl.rscala.RClient.updateDynamic(RClient.scala:211)
+  at org.ddahl.rscala.RClient.set(RClient.scala:426)
+  at org.ddahl.rscala.RClient.set(RClient.scala:220)
+  at org.ddahl.rscala.RClient.updateDynamic(RClient.scala:217)
   ... 54 elided
 <simpleError in scalaEval(interpreter, snippet, parent.frame()): Error in evaluation.>
 > s %~% "3+6"
@@ -99,7 +110,7 @@ Error in parse(text = paste0(x, brackets[1], i, brackets[2], " <- .rscala.set.va
 1: x[[1,1asdf
           ^
 java.lang.RuntimeException: Error in R evaluation.
-  at org.ddahl.rscala.RClient.set(RClient.scala:427)
+  at org.ddahl.rscala.RClient.set(RClient.scala:433)
   ... 54 elided
 <simpleError in scalaEval(interpreter, snippet, parent.frame()): Error in evaluation.>
 > s %~% '"Okay 1"'
@@ -142,7 +153,7 @@ java.lang.RuntimeException: Error in R evaluation.
 +     a <- "3+9"
 +   """)
 + ',error=function(e) e)
-<console>:14: error: not found: value ewf
+<console>:15: error: not found: value ewf
   3+4+ewf
       ^
 <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
@@ -158,7 +169,7 @@ java.lang.RuntimeException: Error in R evaluation.
 +     a <- "3+9" asfd
 +   """)
 + ',error=function(e) e)
-<console>:14: warning: a pure expression does nothing in statement position; multiline expressions may require enclosing parentheses
+<console>:15: warning: a pure expression does nothing in statement position; multiline expressions may require enclosing parentheses
   3+4
    ^
 Error in parse(text = snippet) : <text>:4:16: unexpected symbol
@@ -193,9 +204,9 @@ java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:126)
-	at org.ddahl.rscala.ScalaServer.heart(ScalaServer.scala:510)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:537)
+	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:127)
+	at org.ddahl.rscala.ScalaServer.heart(ScalaServer.scala:511)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:538)
 	at org.ddahl.rscala.Main$.delayedEndpoint$org$ddahl$rscala$Main$1(Main.scala:5)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0.apply$mcV$sp(Function0.scala:34)
@@ -230,9 +241,9 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:104)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.RuntimeException: Unsupported array type.
-	at org.ddahl.rscala.RClient.set(RClient.scala:420)
-	at org.ddahl.rscala.RClient.set(RClient.scala:214)
-	at org.ddahl.rscala.RClient.$anonfun$mkSnippet$1(RClient.scala:185)
+	at org.ddahl.rscala.RClient.set(RClient.scala:426)
+	at org.ddahl.rscala.RClient.set(RClient.scala:220)
+	at org.ddahl.rscala.RClient.$anonfun$mkSnippet$1(RClient.scala:191)
 	at scala.collection.TraversableLike.$anonfun$map$1(TraversableLike.scala:234)
 	at scala.collection.IndexedSeqOptimized.foreach(IndexedSeqOptimized.scala:32)
 	at scala.collection.IndexedSeqOptimized.foreach$(IndexedSeqOptimized.scala:29)
@@ -242,7 +253,7 @@ Caused by: java.lang.RuntimeException: Unsupported array type.
 	at scala.collection.AbstractTraversable.map(Traversable.scala:104)
 	at org.ddahl.rscala.RClient.mkSnippet(RClient.scala:179)
 	at org.ddahl.rscala.RClient.invokeD1(RClient.scala:151)
-	at $line344.$read$$iw$$iw$.$anonfun$res121$1(<console>:20)
+	at $line347.$read$$iw$$iw$.$anonfun$res122$1(<console>:21)
 	... 39 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Unsupported array type.
@@ -261,17 +272,17 @@ Here is am.
 > callRFunction0D2 <- s$def(func=NULL) %~% 'R.invokeD2(func)'
 > callRFunction0D2(gc)
        [,1] [,2]   [,3] [,4]   [,5] [,6]
-[1,] 234188 12.6 460000 24.6 350000 18.7
-[2,] 338193  2.6 786432  6.0 786371  6.0
+[1,] 234638 12.6 460000 24.6 350000 18.7
+[2,] 338845  2.6 786432  6.0 786371  6.0
 > 
 > tryCatch(callRFunction(1:100),error = function(e) {})
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:126)
-	at org.ddahl.rscala.ScalaServer.heart(ScalaServer.scala:510)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:537)
+	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:127)
+	at org.ddahl.rscala.ScalaServer.heart(ScalaServer.scala:511)
+	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:538)
 	at org.ddahl.rscala.Main$.delayedEndpoint$org$ddahl$rscala$Main$1(Main.scala:5)
 	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0.apply$mcV$sp(Function0.scala:34)
@@ -306,9 +317,9 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:104)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.RuntimeException: Undefined identifier: x
-	at org.ddahl.rscala.RClient.get(RClient.scala:492)
-	at org.ddahl.rscala.RClient.getD1(RClient.scala:617)
-	at $line348.$read$$iw$$iw$.$anonfun$res123$1(<console>:17)
+	at org.ddahl.rscala.RClient.get(RClient.scala:498)
+	at org.ddahl.rscala.RClient.getD1(RClient.scala:623)
+	at $line351.$read$$iw$$iw$.$anonfun$res124$1(<console>:18)
 	... 39 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Undefined identifier: x

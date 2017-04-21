@@ -22,6 +22,17 @@
 +   assert(matrix(x,nrow=4))
 + }
 > 
+> #### Callbacks with named arguments
+> 
+> mySort <- s$def(NULL,ascending=I(TRUE)) %~% '
++   R.invokeD1( RObject("sort"), x1, "decreasing" -> ! ascending )
++ '
+> 
+> set.seed(13242)
+> mySort(runif(12),FALSE)
+ [1] 0.964528786 0.931479614 0.915030151 0.760027263 0.748870265 0.689618096
+ [7] 0.631741739 0.619262272 0.486731296 0.346336568 0.234644646 0.009991797
+> 
 > #### Get: Unsupported type
 > 
 > g <- list(3)
@@ -157,8 +168,8 @@ Here is am.
 > callRFunction0D2 <- s$def(func=NULL) %~% 'R.invokeD2(func)'
 > callRFunction0D2(gc)
        [,1] [,2]   [,3] [,4]   [,5] [,6]
-[1,] 234188 12.6 460000 24.6 350000 18.7
-[2,] 338193  2.6 786432  6.0 786371  6.0
+[1,] 234638 12.6 460000 24.6 350000 18.7
+[2,] 338845  2.6 786432  6.0 786371  6.0
 > 
 > tryCatch(callRFunction(1:100),error = function(e) {})
 NULL

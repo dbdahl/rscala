@@ -139,17 +139,18 @@ rInt(100)                                     # ... needing to protect scalars a
 s$.scala.math.BigInt$apply(I("777"),I(8L))$'-'(I(500L))$intValue()
 
 # Example showing callback functionality
-f1 <- s$def(func=NULL,data=numeric()) \%~\% '
-  println("Here I am in Scala.")
-  R.invokeD1(func,data.map(2*_)).sum
+f <- s$def(func=NULL, data=numeric(), quiet=I(TRUE)) \%~\% '
+  if ( ! quiet ) println("Here I am in Scala.")
+  R.invokeD1(func, data.map(2*_), "verbose" -> !quiet ).sum
 '
 
-f2 <- function(x) {
-  cat("Here I am in R.\n")
+cube <- function(x, ignored.argument, verbose=TRUE) {
+  if ( verbose ) cat("Here I am in R.\n")
   x^3
 }
 
-identical( f1(f2,1:4), sum((2*(1:4))^3) )
+identical( f(cube,1:4,FALSE), sum((2*(1:4))^3) )
+identical( f(cube,1:4,TRUE),  sum((2*(1:4))^3) )
 
 # Longer example showing that s$def(...) is more flexible and faster than '\%~\%'
 s$rng <- rng
