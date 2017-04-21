@@ -9,44 +9,6 @@ import java.io._
 
 import Protocol._
  
-class Cache {
-
-  private val map = new scala.collection.mutable.ArrayBuffer[(Any,String)]()
-  private val extractor = """\.(\d+)""".r
-
-  def store(x: (Any, String)): String = {
-    val result = """.""" + map.length
-    map.append(x)
-    result
-  }
-
-  def unapply(identifier: String): Option[(Any,String)] = identifier match {
-    case extractor(i) => Some(map(i.toInt))
-    case _ => None
-  }
-
-  def apply(identifier: String): (Any,String) = identifier match {
-    case extractor(i) => map(i.toInt)
-    case _ => map(identifier.toInt)
-  }
-
-  def apply(index: Int): (Any,String) = {
-    map(index)
-  }
-
-  def free(identifier: String): Unit = identifier match {
-    case extractor(i) => map(i.toInt) = null
-    case _ => map(identifier.toInt) = null
-  }
-
-  def free(index: Int): Unit = {
-    map(index) = null
-  }
-
-  def clear() = map.clear()
-
-}
-
 class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutputStream, baosErr: ByteArrayOutputStream, portsFilename: String, debugger: Debugger, serializeOutput: Boolean, rowMajor: Boolean, port: Int) {
 
   private val sockets = new ScalaSockets(portsFilename,port,debugger)
@@ -70,6 +32,12 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
   private val functionMap = new scala.collection.mutable.HashMap[String,(Any,String)]()
 
   private def typeOfTerm(id: String) = repl.symbolOfLine(id).info.toString
+
+  private def mostRecentVar = {
+    val mrv = repl.mostRecentVar
+    if ( mrv == "_rsMRVDummy" ) throw new RuntimeException("There is no result.  Maybe use the %@% operator instead?")
+    mrv
+  }
 
   private def extractReturnType(signature: String) = {
     var squareCount = 0
@@ -111,7 +79,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
   }
 
   private def doEval(): Unit = {
-    val snippet = readString()
+    val snippet = "var _rsMRVDummy = null\n" + readString()
     try {
       val result = repl.interpret(snippet)
       if ( result == Success ) {
@@ -269,7 +237,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
     val optionWithType = try {
       identifier match {
         case "." => 
-          val mrv = repl.mostRecentVar
+          val mrv = mostRecentVar
           (repl.valueOfTerm(mrv),typeOfTerm(mrv))
         case "?" => 
           (Some(functionResult._1),functionResult._2)
@@ -492,18 +460,19 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
           writeString("Null")
           return
         }
-        val id = if ( identifier == "." ) repl.mostRecentVar else identifier
-        val option = try {
-          repl.valueOfTerm(id)
+        val (id, opt) = try {
+          val ident = if ( identifier == "." ) mostRecentVar else identifier
+          val option = repl.valueOfTerm(ident)
+          (ident, option)
         } catch {
           case e: Throwable =>
             if ( debugger.value ) debugger.msg("Caught exception: "+e)
             out.writeInt(ERROR)
             e.printStackTrace(pw)
-            pw.println(e + ( if ( e.getCause != null ) System.lineSeparator +  e.getCause else "" ) )
+            pw.println(e + ( if ( e.getCause != null ) System.lineSeparator + e.getCause else "" ) )
             return
         }
-        if ( option.isEmpty ) out.writeInt(UNDEFINED_IDENTIFIER)
+        if ( opt.isEmpty ) out.writeInt(UNDEFINED_IDENTIFIER)
         else {
           out.writeInt(OK)
           writeString(id)

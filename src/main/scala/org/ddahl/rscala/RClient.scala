@@ -61,12 +61,10 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   * method `evalXY` (where `X` is `I`, `D`, `B`, `S`, or `R` and `Y` is `0`, `1`, or `2`) may be more convenient (e.g.
   * [[evalD0]]).
   */
-  def eval(snippet: String, evalOnly: Boolean, args: String*): Any = {
+  def eval(snippet: String, evalOnly: Boolean): Any = {
     if ( debug ) debugger.msg("Sending EVAL request.")
-    val code = if ( ( args == null ) || args.isEmpty ) snippet
-    else snippet + "(" + args.mkString(",") + ")"
     out.writeInt(if(serializeOutput) EVAL else EVALNAKED)
-    writeString(out,if ( RClient.isWindows ) code.replaceAll("\r\n","\n") else code)
+    writeString(out,if ( RClient.isWindows ) snippet.replaceAll("\r\n","\n") else snippet)
     out.flush()
     if ( scalaServer != null ) {
       if ( debug ) debugger.msg("Spinning up Scala server.")
@@ -87,49 +85,108 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   def eval(snippet: String): Any = eval(snippet,true)
 
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getI0]].  */
-  def evalI0(snippet: String, args: String*) = { eval(snippet,true,args: _*); getI0(".rscala.last.value") }
+  def evalI0(snippet: String) = { eval(snippet,true); getI0(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getD0]].  */
-  def evalD0(snippet: String, args: String*) = { eval(snippet,true,args: _*); getD0(".rscala.last.value") }
+  def evalD0(snippet: String) = { eval(snippet,true); getD0(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getB0]].  */
-  def evalB0(snippet: String, args: String*) = { eval(snippet,true,args: _*); getB0(".rscala.last.value") }
+  def evalB0(snippet: String) = { eval(snippet,true); getB0(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getS0]].  */
-  def evalS0(snippet: String, args: String*) = { eval(snippet,true,args: _*); getS0(".rscala.last.value") }
+  def evalS0(snippet: String) = { eval(snippet,true); getS0(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getR0]].  */
-  def evalR0(snippet: String, args: String*) = { eval(snippet,true,args: _*); getR0(".rscala.last.value") }
+  def evalR0(snippet: String) = { eval(snippet,true); getR0(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getI1]].  */
-  def evalI1(snippet: String, args: String*) = { eval(snippet,true,args: _*); getI1(".rscala.last.value") }
+  def evalI1(snippet: String) = { eval(snippet,true); getI1(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getD1]].  */
-  def evalD1(snippet: String, args: String*) = { eval(snippet,true,args: _*); getD1(".rscala.last.value") }
+  def evalD1(snippet: String) = { eval(snippet,true); getD1(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getB1]].  */
-  def evalB1(snippet: String, args: String*) = { eval(snippet,true,args: _*); getB1(".rscala.last.value") }
+  def evalB1(snippet: String) = { eval(snippet,true); getB1(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getS1]].  */
-  def evalS1(snippet: String, args: String*) = { eval(snippet,true,args: _*); getS1(".rscala.last.value") }
+  def evalS1(snippet: String) = { eval(snippet,true); getS1(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getR1]].  */
-  def evalR1(snippet: String, args: String*) = { eval(snippet,true,args: _*); getR1(".rscala.last.value") }
+  def evalR1(snippet: String) = { eval(snippet,true); getR1(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getI2]].  */
-  def evalI2(snippet: String, args: String*) = { eval(snippet,true,args: _*); getI2(".rscala.last.value") }
+  def evalI2(snippet: String) = { eval(snippet,true); getI2(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getD2]].  */
-  def evalD2(snippet: String, args: String*) = { eval(snippet,true,args: _*); getD2(".rscala.last.value") }
+  def evalD2(snippet: String) = { eval(snippet,true); getD2(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getB2]].  */
-  def evalB2(snippet: String, args: String*) = { eval(snippet,true,args: _*); getB2(".rscala.last.value") }
+  def evalB2(snippet: String) = { eval(snippet,true); getB2(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getS2]].  */
-  def evalS2(snippet: String, args: String*) = { eval(snippet,true,args: _*); getS2(".rscala.last.value") }
+  def evalS2(snippet: String) = { eval(snippet,true); getS2(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getR2]].  */
-  def evalR2(snippet: String, args: String*) = { eval(snippet,true,args: _*); getR2(".rscala.last.value") }
+  def evalR2(snippet: String) = { eval(snippet,true); getR2(".rscala.last.value") }
+
+  /** Invokes an R function with arguments and returns the result using [[getI0]].  */
+  def invokeI0(function: RObject, args: Any*) = evalI0(mkSnippet(function,args))
+  
+  /** Invokes an R function with arguments and returns the result using [[getD0]].  */
+  def invokeD0(function: RObject, args: Any*) = evalD0(mkSnippet(function,args))
+  
+  /** Invokes an R function with arguments and returns the result using [[getB0]].  */
+  def invokeB0(function: RObject, args: Any*) = evalB0(mkSnippet(function,args))
+  
+  /** Invokes an R function with arguments and returns the result using [[getS0]].  */
+  def invokeS0(function: RObject, args: Any*) = evalS0(mkSnippet(function,args))
+  
+  /** Invokes an R function with arguments and returns the result using [[getR0]].  */
+  def invokeR0(function: RObject, args: Any*) = evalR0(mkSnippet(function,args))
+  
+  /** Invokes an R function with arguments and returns the result using [[getI1]].  */
+  def invokeI1(function: RObject, args: Any*) = evalI1(mkSnippet(function,args))
+  
+  /** Invokes an R function with arguments and returns the result using [[getD1]].  */
+  def invokeD1(function: RObject, args: Any*) = evalD1(mkSnippet(function,args))
+  
+  /** Invokes an R function with arguments and returns the result using [[getB1]].  */
+  def invokeB1(function: RObject, args: Any*) = evalB1(mkSnippet(function,args))
+  
+  /** Invokes an R function with arguments and returns the result using [[getS1]].  */
+  def invokeS1(function: RObject, args: Any*) = evalS1(mkSnippet(function,args))
+  
+  /** Invokes an R function with arguments and returns the result using [[getR1]].  */
+  def invokeR1(function: RObject, args: Any*) = evalR1(mkSnippet(function,args))
+  
+  /** Invokes an R function with arguments and returns the result using [[getI2]].  */
+  def invokeI2(function: RObject, args: Any*) = evalI2(mkSnippet(function,args))
+  
+  /** Invokes an R function with arguments and returns the result using [[getD2]].  */
+  def invokeD2(function: RObject, args: Any*) = evalD2(mkSnippet(function,args))
+  
+  /** Invokes an R function with arguments and returns the result using [[getB2]].  */
+  def invokeB2(function: RObject, args: Any*) = evalB2(mkSnippet(function,args))
+  
+  /** Invokes an R function with arguments and returns the result using [[getS2]].  */
+  def invokeS2(function: RObject, args: Any*) = evalS2(mkSnippet(function,args))
+  
+  /** Invokes an R function with arguments and returns the result using [[getR2]].  */
+  def invokeR2(function: RObject, args: Any*) = evalR2(mkSnippet(function,args))
+  
+  private def mkSnippet(function: RObject, args: Seq[Any]) = {
+    var counter = 0
+    val argsStrings = args.map {
+      case null => "NULL"
+      case r: RObject => r.toString
+      case o =>
+        val name = ".rsX" + counter
+        counter += 1
+        set(name,o)
+        name
+    }
+    function + "(" + argsStrings.mkString(",") + ")"
+  }
 
   /** A short-hand way to call [[get]].
   *

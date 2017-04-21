@@ -99,97 +99,97 @@ public class RClient4Java {
   * @param evalOnly An indicator of whether the snippet should be evaluated only, or if otehr steps should be performed.
   * @return   The evaluated Object.
   */
-  public Object eval(String snippet, boolean evalOnly) { return c.eval(snippet,evalOnly,null); }
+  public Object eval(String snippet, boolean evalOnly) { return c.eval(snippet,evalOnly); }
 
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getI0(String) getI0}.  
   * @param snippet  The snippet to be evaluated.
   * @return   The evaluated int.
   */
-  public int evalI0(String snippet) { return c.evalI0(snippet,null); }
+  public int evalI0(String snippet) { return c.evalI0(snippet); }
 
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getD0(String) getD0}. 
   * @param snippet  The snippet to be evaluated.
   * @return   The evaluated double.
   */
-  public double evalD0(String snippet) { return c.evalD0(snippet,null); }
+  public double evalD0(String snippet) { return c.evalD0(snippet); }
 
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getB0(String) getB0}.  
   * @param snippet  The snippet to be evaluated.
   * @return   The evaluated boolean.
   */
-  public boolean evalB0(String snippet) { return c.evalB0(snippet,null); }
+  public boolean evalB0(String snippet) { return c.evalB0(snippet); }
 
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getS0(String) getS0}.  
   * @param snippet  The snippet to be evaluated.
   * @return   The evaluated string.
   */
-  public String evalS0(String snippet) { return c.evalS0(snippet,null); }
+  public String evalS0(String snippet) { return c.evalS0(snippet); }
 
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getR0(String) getR0}.  
   * @param snippet  The snippet to be evaluated.
   * @return   The evaluated byte.
   */
-  public byte evalR0(String snippet) { return c.evalR0(snippet,null); }
+  public byte evalR0(String snippet) { return c.evalR0(snippet); }
 
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getI1(String) getI1}.  
   * @param snippet  The snippet to be evaluated.
   * @return   The evaluated int array.
   */
-  public int[] evalI1(String snippet) { return c.evalI1(snippet,null); }
+  public int[] evalI1(String snippet) { return c.evalI1(snippet); }
 
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getD1(String) getD1}. 
   * @param snippet  The snippet to be evaluated.
   * @return   The evaluated double array.
   */
-  public double[] evalD1(String snippet) { return c.evalD1(snippet,null); }
+  public double[] evalD1(String snippet) { return c.evalD1(snippet); }
 
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getB1(String) getB1}.  
   * @param snippet  The snippet to be evaluated.
   * @return   The evaluated boolean array.
   */
-  public boolean[] evalB1(String snippet) { return c.evalB1(snippet,null); }
+  public boolean[] evalB1(String snippet) { return c.evalB1(snippet); }
 
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getS1(String) getS1}. 
   * @param snippet  The snippet to be evaluated.
   * @return   The evaluated string array.
   */
-  public String[] evalS1(String snippet) { return c.evalS1(snippet,null); }
+  public String[] evalS1(String snippet) { return c.evalS1(snippet); }
 
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getR1(String) getR1}.  
   * @param snippet  The snippet to be evaluated.
   * @return   The evaluated byte array.
   */
-  public byte[] evalR1(String snippet) { return c.evalR1(snippet,null); }
+  public byte[] evalR1(String snippet) { return c.evalR1(snippet); }
 
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getI2(String) getI2}.  
   * @param snippet  The snippet to be evaluated.
   * @return   The evaluated int matrix.
   */
-  public int[][] evalI2(String snippet) { return c.evalI2(snippet,null); }
+  public int[][] evalI2(String snippet) { return c.evalI2(snippet); }
 
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getD2(String) getD2}.  
   * @param snippet  The snippet to be evaluated.
   * @return   The evaluated double matrix.
   */
-  public double[][] evalD2(String snippet) { return c.evalD2(snippet,null); }
+  public double[][] evalD2(String snippet) { return c.evalD2(snippet); }
 
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getB2(String) getB2}.  
   * @param snippet  The snippet to be evaluated.
   * @return   The evaluated boolean matrix.
   */
-  public boolean[][] evalB2(String snippet) { return c.evalB2(snippet,null); }
+  public boolean[][] evalB2(String snippet) { return c.evalB2(snippet); }
 
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getS2(String) getS2}.  
   * @param snippet  The snippet to be evaluated.
   * @return   The evaluated String matrix.
   */
-  public String[][] evalS2(String snippet) { return c.evalS2(snippet,null); }
+  public String[][] evalS2(String snippet) { return c.evalS2(snippet); }
 
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getR2(String) getR2}.  
   * @param snippet  The snippet to be evaluated.
   * @return   The evaluated byte matrix.
   */
-  public byte[][] evalR2(String snippet) { return c.evalR2(snippet,null); }
+  public byte[][] evalR2(String snippet) { return c.evalR2(snippet); }
 
   /** Equivalent to calling <b><tt>set(identifier, value, "", true)</tt></b>. 
   * @param identifier The string of input to be set.

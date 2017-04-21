@@ -49,6 +49,16 @@ s %~% "println(b(3))"
 s$b <- I(FALSE)
 s %~% "println(!b)"
 
+# What about when there is no result?
+tryCatch(s %~% 'import scala.util._', error=function(e) e)
+s %~% "5+4"
+s %@% 'import scala.util._'
+
+tryCatch(s %.~% 'import scala.util._', error=function(e) e)
+s %~% "3+4"
+s %@% 'import scala.util._'
+
+# Close
 close(s)
 rm(s)
 
