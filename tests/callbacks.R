@@ -47,6 +47,30 @@ s %~% "3+4"
 tryCatch(s %@% 'R.x = Array(Array(1.0),Array(2.0,3.0))', error=function(e) e)
 s %~% "3+6"
 
+#### Setting with indices using single brackets
+
+x <- matrix(1:4,nrow=2)
+y <- x
+s %@% 'R.set("x",Array(Array(10.0)),"1,1",false)'
+y[1,1] <- 10
+identical(x,y)
+
+tryCatch(s %@% 'R.set("x",Array(Array(10.0)),"1,1asdf",false)', error=function(e) e)
+s %~% '"Okay 1"'
+
+#### Setting with indices using double brackets
+
+x <- as.list(letters)
+y <- x
+s %@% 'R.set("x","Z","26",true)'
+y[[26]] <- "Z"
+identical(x,y)
+
+s %@% 'R.set("x","Z","\'bob\'",true)'
+y[["bob"]] <- "Z"
+identical(x,y)
+s %~% '"Okay 2"'
+
 ####
 
 counter <- 0
@@ -81,6 +105,7 @@ tryCatch(s %~% '
 ',error=function(e) e)
 s %~% '3+6'
 
+###
 
 myMean <- function(data,offset) {
   cat("Here is am.\n")
