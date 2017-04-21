@@ -1,3 +1,0 @@
-Make Scala references returned by nullary functions cached by hashmap.
-Garbage collect in R by storing references as environment and register them with reg.finalizer
-
