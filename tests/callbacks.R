@@ -21,6 +21,34 @@ for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y),as.raw(
   assert(matrix(x,nrow=4))
 }
 
+#### Get: Unsupported type
+
+g <- list(3)
+tryCatch(s %@% 'R.g', error=function(e) e)
+s %~% "3-2"
+
+#### Get Undefined items
+
+tryCatch(s %@% 'R.ggg', error=function(e) e)
+s %~% "3+0"
+
+#### Set: Unsupported non-array type
+
+tryCatch(s %@% 'R.x = List(1,2,3)', error=function(e) e)
+s %~% "3+2"
+
+#### Set: Unsupported array type
+
+tryCatch(s %@% 'R.x = Array(new scala.util.Random())', error=function(e) e)
+s %~% "3+4"
+
+#### Set: Unsupported ragged array type
+
+tryCatch(s %@% 'R.x = Array(Array(1.0),Array(2.0,3.0))', error=function(e) e)
+s %~% "3+6"
+
+####
+
 counter <- 0
 for ( i in 1:10 ) {
   s %~% 'R.eval("counter <- counter + 1")'
@@ -54,19 +82,28 @@ tryCatch(s %~% '
 s %~% '3+6'
 
 
-myMean <- function(x) {
+myMean <- function(data,offset) {
   cat("Here is am.\n")
-  mean(x)
+  mean(data+offset)
 }
 
-callRFunction <- s$def(functionName=I(""), x=numeric()) %~% '
-  R.xx = x
-  R.eval("y <- "+functionName+"(xx)")
-  R.y._1
+callRFunction <- s$def(func=NULL, x=numeric(), y=NULL) %~% '
+  R.invokeD1(func,x.map(2*_).map(_.getClass),y)
 '
 
+tryCatch(callRFunction(myMean,1:4,5), error=function(e) e)
+s %~% "3+4"
+
+callRFunction <- s$def(func=NULL, x=numeric(), y=NULL) %~% '
+  R.invokeD1(func,x.map(2*_),y)
+'
+
+callRFunction(myMean,y=0,x=1:100)
+
+callRFunction0D2 <- s$def(func=NULL) %~% 'R.invokeD2(func)'
+callRFunction0D2(gc)
+
 tryCatch(callRFunction(1:100),error = function(e) {})
-callRFunction('myMean',1:100)
 
 # Should be an R evaluation error because 'asfd' is not a package.
 tryCatch(s %@% 'R.eval("library(asdf)")',error=function(e) e)

@@ -248,165 +248,177 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
       writeString(out,index)
     }
     writeString(out,identifier)
+    var errorNote: Option[String] = None
     if ( v == null || v.isInstanceOf[Unit] ) {
       if ( debug ) debugger.msg("... which is null")
       out.writeInt(NULLTYPE)
-      out.flush()
-      if ( index != "" ) {
-        val status = in.readInt()
-        if ( status != OK ) {
-          val output = readString(in)
-          if ( output != "" ) println(output)
-          throw new RuntimeException("Error in R evaluation.")
-        }
-      }
-      return
-    }
-    val c = v.getClass
-    if ( debug ) debugger.msg("... whose class is: "+c)
-    if ( debug ) debugger.msg("... and whose value is: "+v)
-    if ( c.isArray ) {
-      c.getName match {
-        case "[I" =>
-          val vv = v.asInstanceOf[Array[Int]]
-          out.writeInt(VECTOR)
-          out.writeInt(vv.length)
-          out.writeInt(INTEGER)
-          for ( i <- 0 until vv.length ) out.writeInt(vv(i))
-        case "[D" =>
-          val vv = v.asInstanceOf[Array[Double]]
-          out.writeInt(VECTOR)
-          out.writeInt(vv.length)
-          out.writeInt(DOUBLE)
-          for ( i <- 0 until vv.length ) out.writeDouble(vv(i))
-        case "[Z" =>
-          val vv = v.asInstanceOf[Array[Boolean]]
-          out.writeInt(VECTOR)
-          out.writeInt(vv.length)
-          out.writeInt(BOOLEAN)
-          for ( i <- 0 until vv.length ) out.writeInt(if ( vv(i) ) 1 else 0)
-        case "[Ljava.lang.String;" =>
-          val vv = v.asInstanceOf[Array[String]]
-          out.writeInt(VECTOR)
-          out.writeInt(vv.length)
-          out.writeInt(STRING)
-          for ( i <- 0 until vv.length ) writeString(out,vv(i))
-        case "[B" =>
-          val vv = v.asInstanceOf[Array[Byte]]
-          out.writeInt(VECTOR)
-          out.writeInt(vv.length)
-          out.writeInt(BYTE)
-          for ( i <- 0 until vv.length ) out.writeByte(vv(i))
-        case "[[I" =>
-          val vv1 = v.asInstanceOf[Array[Array[Int]]]
-          if ( isMatrix(vv1) ) {
-            val vv = transposeIf(vv1, rowMajor)
-            out.writeInt(MATRIX)
-            out.writeInt(vv.length)
-            if ( vv.length > 0 ) out.writeInt(vv(0).length)
-            else out.writeInt(0)
-            out.writeInt(INTEGER)
-            for ( i <- 0 until vv.length ) {
-              val vvv = vv(i)
-              for ( j <- 0 until vvv.length ) {
-                out.writeInt(vvv(j))
-              }
-            }
-          } else out.writeInt(UNSUPPORTED_STRUCTURE)
-        case "[[D" =>
-          val vv1 = v.asInstanceOf[Array[Array[Double]]]
-          if ( isMatrix(vv1) ) {
-            val vv = transposeIf(vv1, rowMajor)
-            out.writeInt(MATRIX)
-            out.writeInt(vv.length)
-            if ( vv.length > 0 ) out.writeInt(vv(0).length)
-            else out.writeInt(0)
-            out.writeInt(DOUBLE)
-            for ( i <- 0 until vv.length ) {
-              val vvv = vv(i)
-              for ( j <- 0 until vvv.length ) {
-                out.writeDouble(vvv(j))
-              }
-            }
-          } else out.writeInt(UNSUPPORTED_STRUCTURE)
-        case "[[Z" =>
-          val vv1 = v.asInstanceOf[Array[Array[Boolean]]]
-          if ( isMatrix(vv1) ) {
-            val vv = transposeIf(vv1, rowMajor)
-            out.writeInt(MATRIX)
-            out.writeInt(vv.length)
-            if ( vv.length > 0 ) out.writeInt(vv(0).length)
-            else out.writeInt(0)
-            out.writeInt(BOOLEAN)
-            for ( i <- 0 until vv.length ) {
-              val vvv = vv(i)
-              for ( j <- 0 until vv(i).length ) {
-                out.writeInt(if ( vvv(j) ) 1 else 0)
-              }
-            }
-          } else out.writeInt(UNSUPPORTED_STRUCTURE)
-        case "[[Ljava.lang.String;" =>
-          val vv1 = v.asInstanceOf[Array[Array[String]]]
-          if ( isMatrix(vv1) ) {
-            val vv = transposeIf(vv1, rowMajor)
-            out.writeInt(MATRIX)
-            out.writeInt(vv.length)
-            if ( vv.length > 0 ) out.writeInt(vv(0).length)
-            else out.writeInt(0)
-            out.writeInt(STRING)
-            for ( i <- 0 until vv.length ) {
-              val vvv = vv(i)
-              for ( j <- 0 until vv(i).length ) {
-                writeString(out,vvv(j))
-              }
-            }
-          } else out.writeInt(UNSUPPORTED_STRUCTURE)
-        case "[[B" =>
-          val vv1 = v.asInstanceOf[Array[Array[Byte]]]
-          if ( isMatrix(vv1) ) {
-            val vv = transposeIf(vv1, rowMajor)
-            out.writeInt(MATRIX)
-            out.writeInt(vv.length)
-            if ( vv.length > 0 ) out.writeInt(vv(0).length)
-            else out.writeInt(0)
-            out.writeInt(BYTE)
-            for ( i <- 0 until vv.length ) {
-              val vvv = vv(i)
-              for ( j <- 0 until vvv.length ) {
-                out.writeByte(vvv(j))
-              }
-            }
-          } else out.writeInt(UNSUPPORTED_STRUCTURE)
-        case _ =>
-          throw new RuntimeException("Unsupported array type: "+c.getName)
-      }
     } else {
-      c.getName match {
-        case "java.lang.Integer" =>
-          out.writeInt(SCALAR)
-          out.writeInt(INTEGER)
-          out.writeInt(v.asInstanceOf[Int])
-        case "java.lang.Double" =>
-          out.writeInt(SCALAR)
-          out.writeInt(DOUBLE)
-          out.writeDouble(v.asInstanceOf[Double])
-        case "java.lang.Boolean" =>
-          out.writeInt(SCALAR)
-          out.writeInt(BOOLEAN)
-          out.writeInt(if (v.asInstanceOf[Boolean]) 1 else 0)
-        case "java.lang.String" =>
-          out.writeInt(SCALAR)
-          out.writeInt(STRING)
-          writeString(out,v.asInstanceOf[String])
-        case "java.lang.Byte" =>
-          out.writeInt(SCALAR)
-          out.writeInt(BYTE)
-          out.writeByte(v.asInstanceOf[Byte])
-        case _ =>
-          throw new RuntimeException("Unsupported non-array type: "+c.getName)
+      val c = v.getClass
+      if ( debug ) debugger.msg("... whose class is: "+c)
+      if ( debug ) debugger.msg("... and whose value is: "+v)
+      if ( c.isArray ) {
+        c.getName match {
+          case "[I" =>
+            val vv = v.asInstanceOf[Array[Int]]
+            out.writeInt(VECTOR)
+            out.writeInt(vv.length)
+            out.writeInt(INTEGER)
+            for ( i <- 0 until vv.length ) out.writeInt(vv(i))
+          case "[D" =>
+            val vv = v.asInstanceOf[Array[Double]]
+            out.writeInt(VECTOR)
+            out.writeInt(vv.length)
+            out.writeInt(DOUBLE)
+            for ( i <- 0 until vv.length ) out.writeDouble(vv(i))
+          case "[Z" =>
+            val vv = v.asInstanceOf[Array[Boolean]]
+            out.writeInt(VECTOR)
+            out.writeInt(vv.length)
+            out.writeInt(BOOLEAN)
+            for ( i <- 0 until vv.length ) out.writeInt(if ( vv(i) ) 1 else 0)
+          case "[Ljava.lang.String;" =>
+            val vv = v.asInstanceOf[Array[String]]
+            out.writeInt(VECTOR)
+            out.writeInt(vv.length)
+            out.writeInt(STRING)
+            for ( i <- 0 until vv.length ) writeString(out,vv(i))
+          case "[B" =>
+            val vv = v.asInstanceOf[Array[Byte]]
+            out.writeInt(VECTOR)
+            out.writeInt(vv.length)
+            out.writeInt(BYTE)
+            for ( i <- 0 until vv.length ) out.writeByte(vv(i))
+          case "[[I" =>
+            val vv1 = v.asInstanceOf[Array[Array[Int]]]
+            if ( isMatrix(vv1) ) {
+              val vv = transposeIf(vv1, rowMajor)
+              out.writeInt(MATRIX)
+              out.writeInt(vv.length)
+              if ( vv.length > 0 ) out.writeInt(vv(0).length)
+              else out.writeInt(0)
+              out.writeInt(INTEGER)
+              for ( i <- 0 until vv.length ) {
+                val vvv = vv(i)
+                for ( j <- 0 until vvv.length ) {
+                  out.writeInt(vvv(j))
+                }
+              }
+            } else {
+              errorNote = Some("Ragged arrays are not supported.")
+              out.writeInt(UNSUPPORTED_STRUCTURE)
+            }
+          case "[[D" =>
+            val vv1 = v.asInstanceOf[Array[Array[Double]]]
+            if ( isMatrix(vv1) ) {
+              val vv = transposeIf(vv1, rowMajor)
+              out.writeInt(MATRIX)
+              out.writeInt(vv.length)
+              if ( vv.length > 0 ) out.writeInt(vv(0).length)
+              else out.writeInt(0)
+              out.writeInt(DOUBLE)
+              for ( i <- 0 until vv.length ) {
+                val vvv = vv(i)
+                for ( j <- 0 until vvv.length ) {
+                  out.writeDouble(vvv(j))
+                }
+              }
+            } else {
+              errorNote = Some("Ragged arrays are not supported.")
+              out.writeInt(UNSUPPORTED_STRUCTURE)
+            }
+          case "[[Z" =>
+            val vv1 = v.asInstanceOf[Array[Array[Boolean]]]
+            if ( isMatrix(vv1) ) {
+              val vv = transposeIf(vv1, rowMajor)
+              out.writeInt(MATRIX)
+              out.writeInt(vv.length)
+              if ( vv.length > 0 ) out.writeInt(vv(0).length)
+              else out.writeInt(0)
+              out.writeInt(BOOLEAN)
+              for ( i <- 0 until vv.length ) {
+                val vvv = vv(i)
+                for ( j <- 0 until vv(i).length ) {
+                  out.writeInt(if ( vvv(j) ) 1 else 0)
+                }
+              }
+            } else {
+              errorNote = Some("Ragged arrays are not supported.")
+              out.writeInt(UNSUPPORTED_STRUCTURE)
+            }
+          case "[[Ljava.lang.String;" =>
+            val vv1 = v.asInstanceOf[Array[Array[String]]]
+            if ( isMatrix(vv1) ) {
+              val vv = transposeIf(vv1, rowMajor)
+              out.writeInt(MATRIX)
+              out.writeInt(vv.length)
+              if ( vv.length > 0 ) out.writeInt(vv(0).length)
+              else out.writeInt(0)
+              out.writeInt(STRING)
+              for ( i <- 0 until vv.length ) {
+                val vvv = vv(i)
+                for ( j <- 0 until vv(i).length ) {
+                  writeString(out,vvv(j))
+                }
+              }
+            } else {
+              errorNote = Some("Ragged arrays are not supported.")
+              out.writeInt(UNSUPPORTED_STRUCTURE)
+            }
+          case "[[B" =>
+            val vv1 = v.asInstanceOf[Array[Array[Byte]]]
+            if ( isMatrix(vv1) ) {
+              val vv = transposeIf(vv1, rowMajor)
+              out.writeInt(MATRIX)
+              out.writeInt(vv.length)
+              if ( vv.length > 0 ) out.writeInt(vv(0).length)
+              else out.writeInt(0)
+              out.writeInt(BYTE)
+              for ( i <- 0 until vv.length ) {
+                val vvv = vv(i)
+                for ( j <- 0 until vvv.length ) {
+                  out.writeByte(vvv(j))
+                }
+              }
+            } else {
+              errorNote = Some("Ragged arrays are not supported.")
+              out.writeInt(UNSUPPORTED_STRUCTURE)
+            }
+          case _ =>
+            errorNote = Some("Unsupported array type.")
+            out.writeInt(UNSUPPORTED_STRUCTURE)
+        }
+      } else {
+        c.getName match {
+          case "java.lang.Integer" =>
+            out.writeInt(SCALAR)
+            out.writeInt(INTEGER)
+            out.writeInt(v.asInstanceOf[Int])
+          case "java.lang.Double" =>
+            out.writeInt(SCALAR)
+            out.writeInt(DOUBLE)
+            out.writeDouble(v.asInstanceOf[Double])
+          case "java.lang.Boolean" =>
+            out.writeInt(SCALAR)
+            out.writeInt(BOOLEAN)
+            out.writeInt(if (v.asInstanceOf[Boolean]) 1 else 0)
+          case "java.lang.String" =>
+            out.writeInt(SCALAR)
+            out.writeInt(STRING)
+            writeString(out,v.asInstanceOf[String])
+          case "java.lang.Byte" =>
+            out.writeInt(SCALAR)
+            out.writeInt(BYTE)
+            out.writeByte(v.asInstanceOf[Byte])
+          case _ =>
+            errorNote = Some("Unsupported non-array type.")
+            out.writeInt(UNSUPPORTED_STRUCTURE)
+        }
       }
     }
     out.flush()
+    if ( errorNote.isDefined ) {
+      throw new RuntimeException(errorNote.get)
+    }
     if ( index != "" ) {
       val status = in.readInt()
       if ( status != OK ) {

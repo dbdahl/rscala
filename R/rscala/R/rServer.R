@@ -73,7 +73,9 @@ rServe <- function(sockets,with.callbacks,workspace=.GlobalEnv) {
         else stop(paste("Unknown data type:",dataType))
         if ( cmd == SET ) assign(identifier,value,envir=workspace)
         else subassign(sockets,identifier,index,value,cmd==SET_SINGLE,workspace)
-      } else stop(paste("Unknown data structure:",dataStructure))
+      } else if ( dataStructure == UNSUPPORTED_STRUCTURE ) {
+        # Don't do anything more.
+      } else stop("Protocol error.")
     } else if ( cmd == GET ) {
       if ( debug ) msg("Got GET")
       identifier <- rc(sockets)
