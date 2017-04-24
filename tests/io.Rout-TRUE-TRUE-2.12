@@ -1,8 +1,8 @@
 > source("common.R",print.eval=TRUE)
-# R version 3.3.3 (2017-03-06) # ramah # TRUE # TRUE
+# R version 3.4.0 (2017-04-21) # ramah # TRUE # TRUE
 > 
 > tryCatch(s %~% "new java.util.Random(23455).nextDoubllllllllle",error=function(e) e)
-<console>:14: error: value nextDoubllllllllle is not a member of java.util.Random
+<console>:15: error: value nextDoubllllllllle is not a member of java.util.Random
        new java.util.Random(23455).nextDoubllllllllle
                                    ^
 <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
@@ -13,6 +13,6 @@
 > capture.output(s %~% "println(3+2)")
 [1] "5"
 > capture.output(s %~% 'R.eval("""cat(R.version.string)""")')
-[1] "R version 3.3.3 (2017-03-06)"
+[1] "R version 3.4.0 (2017-04-21)"
 > 
 > 

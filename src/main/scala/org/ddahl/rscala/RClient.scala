@@ -3,6 +3,7 @@ package org.ddahl.rscala
 import java.net._
 import java.io._
 import scala.language.dynamics
+import java.lang.ref.{Reference, PhantomReference, ReferenceQueue}
 
 import Protocol._
 
@@ -41,6 +42,9 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
 
   import Helper.{readString, writeString, isMatrix, transposeIf}
 
+  private val referenceQueue = new ReferenceQueue[RPersistentReference]()
+  private val referenceMap = new scala.collection.mutable.HashMap[Reference[_ <: RPersistentReference],String]()
+
   /** __For rscala developers only__: Returns `TRUE` if debugging output is enabled. */
   def debug = debugger.value
 
@@ -53,6 +57,27 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
     out.flush()
   }
 
+  private def check4GC() {
+    val first = referenceQueue.poll
+    if ( first != null ) {
+      out.writeInt(FREE)
+      var list = List[Reference[_ <: RPersistentReference]](first)
+      while ( list.head != null ) {
+        list = referenceQueue.poll :: list
+      }
+      list = list.tail
+      out.writeInt(list.size)
+      list.foreach( x => {
+        val id = referenceMap(x)
+        referenceMap.remove(x)
+        val index = id.indexOf("$")
+        val str = if ( index == -1 ) id else id.substring(index+1)
+        writeString(out,str)
+      })
+      out.flush()
+    }
+  }
+
   /** Evaluates `snippet` in the R interpreter.
   *
   * Returns `null` if `evalOnly`.  If `!evalOnly`, the last result of the R expression is converted if possible.
@@ -62,6 +87,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   * [[evalD0]]).
   */
   def eval(snippet: String, evalOnly: Boolean): Any = {
+    check4GC()
     if ( debug ) debugger.msg("Sending EVAL request.")
     out.writeInt(if(serializeOutput) EVAL else EVALNAKED)
     writeString(out,if ( RClient.isWindows ) snippet.replaceAll("\r\n","\n") else snippet)
@@ -82,7 +108,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   }
 
   /** Calls '''`eval(snippet,true)`'''.  */
-  def eval(snippet: String): Any = eval(snippet,true)
+  def eval(snippet: String): Unit = eval(snippet,true)
 
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getI0]].  */
   def evalI0(snippet: String) = { eval(snippet,true); getI0(".rscala.last.value") }
@@ -90,8 +116,8 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getD0]].  */
   def evalD0(snippet: String) = { eval(snippet,true); getD0(".rscala.last.value") }
 
-  /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getB0]].  */
-  def evalB0(snippet: String) = { eval(snippet,true); getB0(".rscala.last.value") }
+  /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getL0]].  */
+  def evalB0(snippet: String) = { eval(snippet,true); getL0(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getS0]].  */
   def evalS0(snippet: String) = { eval(snippet,true); getS0(".rscala.last.value") }
@@ -105,8 +131,8 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getD1]].  */
   def evalD1(snippet: String) = { eval(snippet,true); getD1(".rscala.last.value") }
 
-  /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getB1]].  */
-  def evalB1(snippet: String) = { eval(snippet,true); getB1(".rscala.last.value") }
+  /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getL1]].  */
+  def evalB1(snippet: String) = { eval(snippet,true); getL1(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getS1]].  */
   def evalS1(snippet: String) = { eval(snippet,true); getS1(".rscala.last.value") }
@@ -120,8 +146,8 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getD2]].  */
   def evalD2(snippet: String) = { eval(snippet,true); getD2(".rscala.last.value") }
 
-  /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getB2]].  */
-  def evalB2(snippet: String) = { eval(snippet,true); getB2(".rscala.last.value") }
+  /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getL2]].  */
+  def evalB2(snippet: String) = { eval(snippet,true); getL2(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getS2]].  */
   def evalS2(snippet: String) = { eval(snippet,true); getS2(".rscala.last.value") }
@@ -129,62 +155,65 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getR2]].  */
   def evalR2(snippet: String) = { eval(snippet,true); getR2(".rscala.last.value") }
 
+  /** Invokes an R function with arguments.  */
+  def invoke(function: RReference, args: Any*) = eval(mkSnippet(function,args))
+ 
   /** Invokes an R function with arguments and returns the result using [[getI0]].  */
-  def invokeI0(function: RObject, args: Any*) = evalI0(mkSnippet(function,args))
+  def invokeI0(function: RReference, args: Any*) = evalI0(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getD0]].  */
-  def invokeD0(function: RObject, args: Any*) = evalD0(mkSnippet(function,args))
+  def invokeD0(function: RReference, args: Any*) = evalD0(mkSnippet(function,args))
   
-  /** Invokes an R function with arguments and returns the result using [[getB0]].  */
-  def invokeB0(function: RObject, args: Any*) = evalB0(mkSnippet(function,args))
+  /** Invokes an R function with arguments and returns the result using [[getL0]].  */
+  def invokeL0(function: RReference, args: Any*) = evalB0(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getS0]].  */
-  def invokeS0(function: RObject, args: Any*) = evalS0(mkSnippet(function,args))
+  def invokeS0(function: RReference, args: Any*) = evalS0(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getR0]].  */
-  def invokeR0(function: RObject, args: Any*) = evalR0(mkSnippet(function,args))
+  def invokeR0(function: RReference, args: Any*) = evalR0(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getI1]].  */
-  def invokeI1(function: RObject, args: Any*) = evalI1(mkSnippet(function,args))
+  def invokeI1(function: RReference, args: Any*) = evalI1(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getD1]].  */
-  def invokeD1(function: RObject, args: Any*) = evalD1(mkSnippet(function,args))
+  def invokeD1(function: RReference, args: Any*) = evalD1(mkSnippet(function,args))
   
-  /** Invokes an R function with arguments and returns the result using [[getB1]].  */
-  def invokeB1(function: RObject, args: Any*) = evalB1(mkSnippet(function,args))
+  /** Invokes an R function with arguments and returns the result using [[getL1]].  */
+  def invokeL1(function: RReference, args: Any*) = evalB1(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getS1]].  */
-  def invokeS1(function: RObject, args: Any*) = evalS1(mkSnippet(function,args))
+  def invokeS1(function: RReference, args: Any*) = evalS1(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getR1]].  */
-  def invokeR1(function: RObject, args: Any*) = evalR1(mkSnippet(function,args))
+  def invokeR1(function: RReference, args: Any*) = evalR1(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getI2]].  */
-  def invokeI2(function: RObject, args: Any*) = evalI2(mkSnippet(function,args))
+  def invokeI2(function: RReference, args: Any*) = evalI2(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getD2]].  */
-  def invokeD2(function: RObject, args: Any*) = evalD2(mkSnippet(function,args))
+  def invokeD2(function: RReference, args: Any*) = evalD2(mkSnippet(function,args))
   
-  /** Invokes an R function with arguments and returns the result using [[getB2]].  */
-  def invokeB2(function: RObject, args: Any*) = evalB2(mkSnippet(function,args))
+  /** Invokes an R function with arguments and returns the result using [[getL2]].  */
+  def invokeL2(function: RReference, args: Any*) = evalB2(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getS2]].  */
-  def invokeS2(function: RObject, args: Any*) = evalS2(mkSnippet(function,args))
+  def invokeS2(function: RReference, args: Any*) = evalS2(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getR2]].  */
-  def invokeR2(function: RObject, args: Any*) = evalR2(mkSnippet(function,args))
+  def invokeR2(function: RReference, args: Any*) = evalR2(mkSnippet(function,args))
   
-  private def mkSnippet(function: RObject, args: Seq[Any]) = {
+  private def mkSnippet(function: RReference, args: Seq[Any]) = {
     var counter = 0
     val argsStrings = args.map {
       case null => "NULL"
-      case (name: String, r: RObject) => name + "=" + r.toString
+      case (name: String, r: RReference) => name + "=" + r.toString
       case (name: String, o) =>
         val id = ".rsX" + counter
         counter += 1
         set(id,o)
         name + "=" + id
-      case r: RObject => r.toString
+      case r: RReference => r.toString
       case o =>
         val id = ".rsX" + counter
         counter += 1
@@ -243,6 +272,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   * }}}
   */
   def set(identifier: String, value: Any, index: String = "", singleBrackets: Boolean = true): Unit = {
+    check4GC()
     if ( debug ) debugger.msg("Setting: "+identifier)
     val v = value
     if ( index == "" ) out.writeInt(SET)
@@ -451,9 +481,10 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   * arrays) and matrices (i.e. retangular arrays of arrays) of these types.    Using the method `getXY` (where `X` is
   * `I`, `D`, `B`, or `S` and `Y` is `0`, `1`, or `2`) may be more convenient (e.g.  [[getD0]]).
   */
-  def get(identifier: String): (Any,String) = {
+  def get(identifier: String, asReference: Boolean = false): (Any,String) = {
+    check4GC()
     if ( debug ) debugger.msg("Getting: "+identifier)
-    out.writeInt(GET)
+    if ( asReference ) out.writeInt(GET_REFERENCE) else out.writeInt(GET)
     writeString(out,identifier)
     out.flush()
     in.readInt match {
@@ -495,11 +526,20 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
           case BYTE => ( transposeIf(Array.fill(nrow) { Array.fill(ncol) { in.readByte() } }, rowMajor),"Array[Array[Byte]]")
           case _ => throw new RuntimeException("Protocol error")
         }
+      case REFERENCE =>
+        if ( debug ) debugger.msg("Getting reference.")
+        val reference = RPersistentReference(readString(in))
+        val phantomReference = new PhantomReference(reference, referenceQueue)
+        referenceMap(phantomReference) = reference.name
+        (reference, "org.ddahl.rscala.RPersistentReference")
       case UNDEFINED_IDENTIFIER => throw new RuntimeException("Undefined identifier: "+identifier)
       case UNSUPPORTED_STRUCTURE => throw new RuntimeException("Unsupported data type: "+identifier)
       case e => throw new RuntimeException("Protocol error: Unknown type: "+e)
     }
   }
+
+  /** Converts an ephemeral R reference to a persistent R reference so that it can be accessed outside of the current environment. */
+  def makePersistent(reference: REphemeralReference): RPersistentReference = get(reference.name,true)._1.asInstanceOf[RPersistentReference]
 
   /** Calls '''`get(identifier,false)`''' and converts the result to an `Int`.
   *
@@ -544,7 +584,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   * Integers, doubles, Booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
   * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
   */
-  def getB0(identifier: String): Boolean = get(identifier) match {
+  def getL0(identifier: String): Boolean = get(identifier) match {
     case (a,"Int") => a.asInstanceOf[Int] != 0
     case (a,"Double") => a.asInstanceOf[Double] != 0.0
     case (a,"Boolean") => a.asInstanceOf[Boolean]
@@ -639,7 +679,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   * Integers, doubles, Booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
   * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
   */
-  def getB1(identifier: String): Array[Boolean] = get(identifier) match {
+  def getL1(identifier: String): Array[Boolean] = get(identifier) match {
     case (a,"Int") => Array(a.asInstanceOf[Int] != 0)
     case (a,"Double") => Array(a.asInstanceOf[Double] != 0.0)
     case (a,"Boolean") => Array(a.asInstanceOf[Boolean])
@@ -727,7 +767,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   * Booleans, and strings themselves are not supported.  Vectors (i.e. arrays) of these
   * types are also not supported.
   */
-  def getB2(identifier: String): Array[Array[Boolean]] = get(identifier) match {
+  def getL2(identifier: String): Array[Array[Boolean]] = get(identifier) match {
     case (a,"Array[Array[Int]]") => a.asInstanceOf[Array[Array[Int]]].map(_.map(_ != 0))
     case (a,"Array[Array[Double]]") => a.asInstanceOf[Array[Array[Double]]].map(_.map(_ != 0.0))
     case (a,"Array[Array[Boolean]]") => a.asInstanceOf[Array[Array[Boolean]]]
@@ -900,7 +940,8 @@ object RClient {
     val snippet = s"""
       source("${sourceFileNameForR}")
       file.remove("${sourceFileNameForR}")
-      rscala[['rServe']](rscala[['newSockets']]('${portsFile.getAbsolutePath.replace(File.separator,"/")}',debug=${if ( debug ) "TRUE" else "FALSE"},serialize.output=${if ( serializeOutput ) "TRUE" else "FALSE"},row.major=${if ( rowMajor ) "TRUE" else "FALSE"},timeout=${timeout}),with.callbacks=FALSE)
+      .rsI <- rscala[['newSockets']]('${portsFile.getAbsolutePath.replace(File.separator,"/")}',debug=${if ( debug ) "TRUE" else "FALSE"},serialize.output=${if ( serializeOutput ) "TRUE" else "FALSE"},row.major=${if ( rowMajor ) "TRUE" else "FALSE"},timeout=${timeout})
+      rscala[['rServe']](.rsI,with.callbacks=FALSE)
       q(save='no')
     """.stripMargin
     while ( cmd == null ) Thread.sleep(100)

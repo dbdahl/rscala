@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R version 3.3.3 (2017-03-06) # ramah # TRUE # FALSE
+# R version 3.4.0 (2017-04-21) # ramah # TRUE # FALSE
 > 
 > if ( substr(Sys.getenv("RSCALA_SCALA_VERSION"),1,4) != "2.10" ) {
 +   a <- s %.~% "null"
@@ -27,7 +27,7 @@ NULL
 +   val b = 5
 +   a ++ b
 + ",error=function(e) e)
-<console>:17: error: value ++ is not a member of Int
+<console>:18: error: value ++ is not a member of Int
          a ++ b
            ^
 <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
@@ -49,7 +49,7 @@ class/object (Int, Int) not found.
 ScalaInterpreterReference... res5: (Int, Int)
 > 
 > tryCatch(s$xaa,error = function(e) e)
-<console>:12: error: not found: value xaa
+<console>:13: error: not found: value xaa
        xaa
        ^
 <simpleError in doTryCatch(return(expr), name, parentenv, handler): Undefined identifier: xaa>

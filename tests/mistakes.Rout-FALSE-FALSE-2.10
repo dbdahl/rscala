@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R version 3.3.3 (2017-03-06) # ramah # FALSE # FALSE
+# R version 3.4.0 (2017-04-21) # ramah # FALSE # FALSE
 > 
 > if ( substr(Sys.getenv("RSCALA_SCALA_VERSION"),1,4) != "2.10" ) {
 +   a <- s %.~% "null"

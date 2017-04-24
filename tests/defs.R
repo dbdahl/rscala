@@ -141,6 +141,23 @@ a$nextDouble(.EVALUATE=TRUE)
 
 ####
 
+f <- s$def(x=NULL, wantNull=I(TRUE)) %.~% '
+  val r = R.makePersistent(x)
+  if ( wantNull ) null else r
+'
+
+a <- f(1:10, FALSE)
+a$name()
+
+g <- s$def(func=NULL,y=s$null("RPersistentReference")) %~% '
+  R.invoke(func,y)
+'
+
+g(print, a)
+
+
+####
+
 f <- s$def(x=s$null("(Int,Int)")) %~% 'x._1 + x._2'
 g <- s %~% "(300,400)"
 f(g)

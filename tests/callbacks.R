@@ -24,7 +24,7 @@ for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y),as.raw(
 #### Callbacks with named arguments
 
 mySort <- s$def(NULL,ascending=I(TRUE)) %~% '
-  R.invokeD1( RObject("sort"), x1, "decreasing" -> ! ascending )
+  R.invokeD1( REphemeralReference("sort"), x1, "decreasing" -> ! ascending )
 '
 
 set.seed(13242)

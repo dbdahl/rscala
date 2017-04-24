@@ -113,7 +113,7 @@ public class RClient4Java {
   */
   public double evalD0(String snippet) { return c.evalD0(snippet); }
 
-  /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getB0(String) getB0}.  
+  /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getL0(String) getL0}.
   * @param snippet  The snippet to be evaluated.
   * @return   The evaluated boolean.
   */
@@ -143,7 +143,7 @@ public class RClient4Java {
   */
   public double[] evalD1(String snippet) { return c.evalD1(snippet); }
 
-  /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getB1(String) getB1}.  
+  /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getL1(String) getL1}.
   * @param snippet  The snippet to be evaluated.
   * @return   The evaluated boolean array.
   */
@@ -173,7 +173,7 @@ public class RClient4Java {
   */
   public double[][] evalD2(String snippet) { return c.evalD2(snippet); }
 
-  /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getB2(String) getB2}.  
+  /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getL2(String) getL2}.
   * @param snippet  The snippet to be evaluated.
   * @return   The evaluated boolean matrix.
   */
@@ -223,7 +223,7 @@ public class RClient4Java {
   * @return   The evaluated Object.
   */
   public Object[] get(String identifier) {
-    scala.Tuple2<Object, String> t = c.get(identifier);
+    scala.Tuple2<Object, String> t = c.get(identifier,false);
     Object[] r = { t._1, t._2 };
     return r;
   }
@@ -253,7 +253,7 @@ public class RClient4Java {
   * @param identifier The string to be evaluated.
   * @return   The evaluated boolean.
   */
-  public boolean getB0(String identifier) { return c.getB0(identifier); }
+  public boolean getL0(String identifier) { return c.getL0(identifier); }
 
   /** Calls <b><tt>get(identifier,false)</tt></b> and converts the result to a <tt>String</tt>.
   *
@@ -298,7 +298,7 @@ public class RClient4Java {
   * @param identifier The string to be evaluated.
   * @return   The evaluated boolean array.
   */
-  public boolean[] getB1(String identifier) { return c.getB1(identifier); }
+  public boolean[] getL1(String identifier) { return c.getL1(identifier); }
 
   /** Calls <b><tt>get(identifier,false)</tt></b> and converts the result to a <tt>String[]</tt>.
   *
@@ -346,7 +346,7 @@ public class RClient4Java {
   * @param identifier The string to be evaluated.
   * @return   The evaluated boolean matrix.
   */
-  public boolean[][] getB2(String identifier) { return c.getB2(identifier); }
+  public boolean[][] getL2(String identifier) { return c.getL2(identifier); }
 
   /** Calls <b><tt>get(identifier,false)</tt></b> and converts the result to a <tt>String[][]</tt>.
   *

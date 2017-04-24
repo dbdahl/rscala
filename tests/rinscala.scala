@@ -14,7 +14,7 @@ val port = sys.env.getOrElse("PORT","0") match {
   case e  => e.toInt
 }
 
-val rowMajor = sys.env("ROWMAJOR_FLAG").endsWith("-rowmajor.scala")
+val rowMajor = sys.env.getOrElse("ROWMAJOR_FLAG","-rowmajor.scala").endsWith("-rowmajor.scala")
 
 println(rowMajor)
 val R = org.ddahl.rscala.RClient("R", serializeOutput=sys.env("RSCALA_SERIALIZE").toUpperCase == "TRUE", rowMajor=rowMajor, port=port)
@@ -120,7 +120,7 @@ R.eval("""
 """)
 assert(R.getI2("a").length == ( if ( rowMajor ) 3 else 4 ) )
 assert(R.getD2("a").length == ( if ( rowMajor ) 3 else 4 ) )
-assert(R.getB2("a").length == ( if ( rowMajor ) 3 else 4 ) )
+assert(R.getL2("a").length == ( if ( rowMajor ) 3 else 4 ) )
 assert(R.getS2("a").length == ( if ( rowMajor ) 3 else 4 ) )
 
 R.eval("""
@@ -129,7 +129,7 @@ R.eval("""
 """)
 assert(R.getI2("a").length == ( if ( rowMajor ) 3 else 4 ) )
 assert(R.getD2("a").length == ( if ( rowMajor ) 3 else 4 ) )
-assert(R.getB2("a").length == ( if ( rowMajor ) 3 else 4 ) )
+assert(R.getL2("a").length == ( if ( rowMajor ) 3 else 4 ) )
 assert(R.getS2("a").length == ( if ( rowMajor ) 3 else 4 ) )
 
 R.eval("""
@@ -138,7 +138,7 @@ R.eval("""
 """)
 assert(R.getI2("a").length == ( if ( rowMajor ) 3 else 4 ) )
 assert(R.getD2("a").length == ( if ( rowMajor ) 3 else 4 ) )
-assert(R.getB2("a").length == ( if ( rowMajor ) 3 else 4 ) )
+assert(R.getL2("a").length == ( if ( rowMajor ) 3 else 4 ) )
 assert(R.getS2("a").length == ( if ( rowMajor ) 3 else 4 ) )
 
 R.eval("""
@@ -147,7 +147,7 @@ R.eval("""
 """)
 assert(R.getI2("a").length == ( if ( rowMajor ) 3 else 4 ) )
 assert(R.getD2("a").length == ( if ( rowMajor ) 3 else 4 ) )
-assert(R.getB2("a").length == ( if ( rowMajor ) 3 else 4 ) )
+assert(R.getL2("a").length == ( if ( rowMajor ) 3 else 4 ) )
 assert(R.getS2("a").length == ( if ( rowMajor ) 3 else 4 ) )
 
 R.eval("""
@@ -156,11 +156,11 @@ R.eval("""
 """)
 R.getI1("a")
 R.getD1("a")
-R.getB1("a")
+R.getL1("a")
 R.getS1("a")
 R.getI0("a")
 R.getD0("a")
-R.getB0("a")
+R.getL0("a")
 R.getS0("a")
 
 R.eval("""
@@ -169,11 +169,11 @@ R.eval("""
 """)
 R.getI1("a")
 R.getD1("a")
-R.getB1("a")
+R.getL1("a")
 R.getS1("a")
 R.getI0("a")
 R.getD0("a")
-R.getB0("a")
+R.getL0("a")
 R.getS0("a")
 
 R.eval("""
@@ -182,11 +182,11 @@ R.eval("""
 """)
 R.getI1("a")
 R.getD1("a")
-R.getB1("a")
+R.getL1("a")
 R.getS1("a")
 R.getI0("a")
 R.getD0("a")
-R.getB0("a")
+R.getL0("a")
 R.getS0("a")
 
 R.eval("""
@@ -195,11 +195,11 @@ R.eval("""
 """)
 R.getI1("a")
 R.getD1("a")
-R.getB1("a")
+R.getL1("a")
 R.getS1("a")
 R.getI0("a")
 R.getD0("a")
-R.getB0("a")
+R.getL0("a")
 R.getS0("a")
 
 R.eval("cat('Done')")

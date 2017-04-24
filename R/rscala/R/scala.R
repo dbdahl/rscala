@@ -36,13 +36,14 @@ scala <- function(classpath=character(0),serialize.output=FALSE,scala.home=NULL,
 }
 
 newSockets <- function(portsFilename,debug,serialize.output,row.major,timeout) {
-  functionCache <- new.env()
   env <- new.env()
   assign("open",TRUE,envir=env)
   assign("debug",debug,envir=env)
   assign("rowMajor",row.major,envir=env)
   assign("serializeOutput",serialize.output,envir=env)
   assign("garbage",character(0),envir=env)
+  functionCache <- new.env()
+  references <- new.env()
   ports <- local({
     delay <- 0.1
     start <- proc.time()[3]
@@ -61,7 +62,7 @@ newSockets <- function(portsFilename,debug,serialize.output,row.major,timeout) {
   socketConnectionIn  <- socketConnection(port=ports[1],blocking=TRUE,open="ab",timeout=2678400)
   socketConnectionOut <- socketConnection(port=ports[2],blocking=TRUE,open="rb",timeout=2678400)
   if ( debug ) msg("Connected")
-  result <- list(socketIn=socketConnectionIn,socketOut=socketConnectionOut,env=env,functionCache=functionCache,
+  result <- list(socketIn=socketConnectionIn,socketOut=socketConnectionOut,env=env,functionCache=functionCache,r=references,
                  garbageFunction = function(e) {
                    garbage <- get("garbage",envir=env)
                    garbage[length(garbage)+1] <- e[['identifier']]
@@ -225,7 +226,7 @@ scalaGet <- function(interpreter,identifier,as.reference,workspace) {
       length <- rb(interpreter,"integer")
       dataType <- rb(interpreter,"integer")
       if ( dataType == STRING ) {
-        if ( length > 0 ) sapply(1:length,function(x) rc(interpreter))
+        if ( length > 0 ) sapply(seq_len(length),function(x) rc(interpreter))
         else character(0)
       } else {
         v <- rb(interpreter,typeMap[[dataType]],length)
@@ -237,8 +238,8 @@ scalaGet <- function(interpreter,identifier,as.reference,workspace) {
       dataType <- rb(interpreter,"integer")
       if ( dataType == STRING ) {
         v <- matrix("",nrow=dim[1],ncol=dim[2])
-        if ( dim[1] > 0 ) for ( i in 1:dim[1] ) {
-          if ( dim[2] > 0 ) for ( j in 1:dim[2] ) {
+        if ( dim[1] > 0 ) for ( i in seq_len(dim[1]) ) {
+          if ( dim[2] > 0 ) for ( j in seq_len(dim[2]) ) {
             v[i,j] <- rc(interpreter)
           }
         }
@@ -340,7 +341,7 @@ scalaSet <- function(interpreter,identifier,value,workspace) {
         }
         wb(interpreter,type)
         if ( type == STRING ) {
-          if ( length(value) > 0 ) for ( i in 1:length(value) ) wc(interpreter,value[i])
+          if ( length(value) > 0 ) for ( i in seq_len(length(value)) ) wc(interpreter,value[i])
         } else {
           if ( type == BOOLEAN ) wb(interpreter,as.integer(value))
           else wb(interpreter,value)
@@ -353,9 +354,9 @@ scalaSet <- function(interpreter,identifier,value,workspace) {
         wb(interpreter,MATRIX)
         wb(interpreter,dim(value))
         wb(interpreter,type)
-        if ( nrow(value) > 0 ) for ( i in 1:nrow(value) ) {
+        if ( nrow(value) > 0 ) for ( i in seq_len(nrow(value)) ) {
           if ( type == STRING ) {
-            if ( ncol(value) > 0 ) for ( j in 1:ncol(value) ) wc(interpreter,value[i,j])
+            if ( ncol(value) > 0 ) for ( j in seq_len(ncol(value)) ) wc(interpreter,value[i,j])
           }
           else if ( type == BOOLEAN ) wb(interpreter,as.integer(value[i,]))
           else wb(interpreter,value[i,])
@@ -399,7 +400,7 @@ scalaDef <- function(.INTERPRETER,...) {
     value <- argValues[[i]]
     name <- argIdentifiers[[i]]
     if ( is.null(value) ) {
-      header[i] <- paste0('val ',name,' = RObject("',name,'")')
+      header[i] <- paste0('val ',name,' = REphemeralReference("',name,'")')
     } else if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") ) {
       header[i] <- paste0('val ',name,' = R.cached(R.evalS0("toString(',name,')")).asInstanceOf[',value[['type']],']')
     } else {
@@ -452,22 +453,22 @@ scalaFunctionArgs <- function(func,body,as.reference,workspace) {
     assign(fullBody,list(functionIdentifier=functionIdentifier,functionReturnType=functionReturnType),envir=func$interpreter[['functionCache']])
   }
   funcList <- get(fullBody,envir=func$interpreter[['functionCache']])
-  interpreterName <- tempvar(interpreter, workspace)
+  interpreterName <- uniqueName(interpreter, workspace, ".rsW")
   functionSnippet <- strintrplt('
     function(@{paste(func$identifiers,collapse=", ")}) {
-      .rsInterpreter <- @{interpreterName}
+      .rsI <- @{interpreterName}
       .rsWorkspace <- environment()
       @{ifelse(get("debug",envir=interpreter[["env"]]),\'rscala:::msg(paste("Evaluating Scala function from environment",capture.output(print(.rsWorkspace))))\',"")}
-      rscala:::wb(.rsInterpreter,rscala:::INVOKE)
-      rscala:::wc(.rsInterpreter,"@{funcList$functionIdentifier}")
-      flush(.rsInterpreter[["socketIn"]])
-      rscala:::rServe(.rsInterpreter,TRUE,.rsWorkspace)
-      .rsStatus <- rscala:::rb(.rsInterpreter,"integer")
-      @{ifelse(get("serializeOutput",envir=interpreter[["env"]]),"rscala:::echoResponseScala(.rsInterpreter)","")}
+      rscala:::wb(.rsI,rscala:::INVOKE)
+      rscala:::wc(.rsI,"@{funcList$functionIdentifier}")
+      flush(.rsI[["socketIn"]])
+      rscala:::rServe(.rsI,TRUE,.rsWorkspace)
+      .rsStatus <- rscala:::rb(.rsI,"integer")
+      @{ifelse(get("serializeOutput",envir=interpreter[["env"]]),"rscala:::echoResponseScala(.rsI)","")}
       if ( .rsStatus == rscala:::ERROR ) {
         stop("Invocation error.")
       } else {
-        .rsResult <- rscala:::scalaGet(.rsInterpreter,"?",@{as.reference},.rsWorkspace)
+        .rsResult <- rscala:::scalaGet(.rsI,"?",@{as.reference},.rsWorkspace)
         if ( is.null(.rsResult) ) invisible(.rsResult)
         else .rsResult
       }
@@ -692,7 +693,7 @@ checkType <- function(x) {
 checkType3 <- function(x) {
   if ( is.integer(x) ) "I"
   else if ( is.double(x) ) "D"
-  else if ( is.logical(x) ) "B"
+  else if ( is.logical(x) ) "L"
   else if ( is.character(x) ) "S"
   else if ( is.raw(x) ) "R"
   else stop("Unsupported data type.")
@@ -744,16 +745,6 @@ rc <- function(c) {
   r <- raw(0)
   while ( length(r) != length ) r <- c(r,readBin(c[['socketOut']], "raw", length-length(r), endian="big"))
   rawToChar(r)
-}
-
-tempvar <- function(value, workspace) {
-  while (TRUE) {
-    name <- sprintf(".rs%d",sample.int(.Machine$integer.max,1L))
-    if ( ! exists(name,envir=workspace,inherits=TRUE) ) {
-      assign(name,value,envir=workspace)
-      return(name)
-    }
-  }
 }
 
 pretty <- function(header,body) {

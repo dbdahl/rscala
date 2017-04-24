@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R version 3.3.3 (2017-03-06) # ramah # FALSE # FALSE
+# R version 3.4.0 (2017-04-21) # ramah # FALSE # FALSE
 > 
 > assert <- function(xx) {
 +   if ( ! identical(( s %~% 'R.get("xx")._1' ), xx) ) stop("Not identical (test 1)")
@@ -25,7 +25,7 @@
 > #### Callbacks with named arguments
 > 
 > mySort <- s$def(NULL,ascending=I(TRUE)) %~% '
-+   R.invokeD1( RObject("sort"), x1, "decreasing" -> ! ascending )
++   R.invokeD1( REphemeralReference("sort"), x1, "decreasing" -> ! ascending )
 + '
 > 
 > set.seed(13242)
@@ -167,9 +167,9 @@ Here is am.
 > 
 > callRFunction0D2 <- s$def(func=NULL) %~% 'R.invokeD2(func)'
 > callRFunction0D2(gc)
-       [,1] [,2]   [,3] [,4]   [,5] [,6]
-[1,] 234638 12.6 460000 24.6 350000 18.7
-[2,] 338845  2.6 786432  6.0 786371  6.0
+       [,1] [,2]    [,3] [,4]    [,5] [,6]
+[1,] 339780 18.2  592000 31.7  460000 24.6
+[2,] 635792  4.9 1207352  9.3 1019082  7.8
 > 
 > tryCatch(callRFunction(1:100),error = function(e) {})
 NULL

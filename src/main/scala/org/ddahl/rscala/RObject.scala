@@ -1,8 +1,13 @@
 package org.ddahl.rscala
 
-case class RObject(name: String) {
+sealed trait RReference {
+
+  val name: String
 
   override def toString = name
 
 }
+
+case class REphemeralReference(name: String) extends RReference
+case class RPersistentReference(name: String) extends RReference
 

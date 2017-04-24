@@ -1,6 +1,6 @@
 > row.major <- FALSE
 > source("common.R",print.eval=TRUE)
-# R version 3.3.3 (2017-03-06) # ramah # TRUE # TRUE
+# R version 3.4.0 (2017-04-21) # ramah # TRUE # TRUE
 > 
 > 
 > setget <- function(value) {
@@ -40,13 +40,13 @@
 > setget(matrix(c("1","2","3","4","5","6","7","8"),nrow=2))
 > 
 > a <- matrix(1:6,nrow=2)
-> setget(a[,-c(1,2,3)])
+> setget(a[,-c(1,2)])
 > setget(a[-1,])
-> setget(a[-2,-c(1,2,3)])
+> setget(a[-2,-c(1,2)])
 > 
 > mode(a) <- "character"
-> setget(a[,-c(1,2,3)])
+> setget(a[,-c(1,2)])
 > setget(a[-1,])
-> setget(a[-2,-c(1,2,3)])
+> setget(a[-2,-c(1,2)])
 > 
 > 

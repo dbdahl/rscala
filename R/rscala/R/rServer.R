@@ -55,7 +55,7 @@ rServe <- function(sockets,with.callbacks,workspace=.GlobalEnv) {
         if ( dataType == INTEGER ) value <- rb(sockets,"integer",n=dataLength)
         else if ( dataType == DOUBLE ) value <- rb(sockets,"double",n=dataLength)
         else if ( dataType == BOOLEAN ) value <- rb(sockets,"integer",n=dataLength) != 0
-        else if ( dataType == STRING ) value <- sapply(1:dataLength,function(i) rc(sockets))
+        else if ( dataType == STRING ) value <- sapply(seq_len(dataLength),function(i) rc(sockets))
         else if ( dataType == BYTE ) value <- rb(sockets,"raw",n=dataLength)
         else stop(paste("Unknown data type:",dataType))
         if ( cmd == SET ) assign(identifier,value,envir=workspace)
@@ -68,7 +68,7 @@ rServe <- function(sockets,with.callbacks,workspace=.GlobalEnv) {
         if ( dataType == INTEGER ) value <- matrix(rb(sockets,"integer",n=dataLength),nrow=dataNRow,byrow=TRUE)
         else if ( dataType == DOUBLE ) value <- matrix(rb(sockets,"double",n=dataLength),nrow=dataNRow,byrow=TRUE)
         else if ( dataType == BOOLEAN ) value <- matrix(rb(sockets,"integer",n=dataLength),nrow=dataNRow,byrow=TRUE) != 0
-        else if ( dataType == STRING ) value <- matrix(sapply(1:dataLength,function(i) rc(sockets)),nrow=dataNRow,byrow=TRUE)
+        else if ( dataType == STRING ) value <- matrix(sapply(seq_len(dataLength),function(i) rc(sockets)),nrow=dataNRow,byrow=TRUE)
         else if ( dataType == BYTE ) value <- matrix(rb(sockets,"raw",n=dataLength),nrow=dataNRow,byrow=TRUE)
         else stop(paste("Unknown data type:",dataType))
         if ( cmd == SET ) assign(identifier,value,envir=workspace)
@@ -103,7 +103,7 @@ rServe <- function(sockets,with.callbacks,workspace=.GlobalEnv) {
           }
           wb(sockets,type)
           if ( type == STRING ) {
-            if ( length(value) > 0 ) for ( i in 1:length(value) ) wc(sockets,value[i])
+            if ( length(value) > 0 ) for ( i in seq_len(length(value)) ) wc(sockets,value[i])
           } else {
             if ( type == BOOLEAN ) wb(sockets,as.integer(value))
             else wb(sockets,value)
@@ -113,9 +113,9 @@ rServe <- function(sockets,with.callbacks,workspace=.GlobalEnv) {
           wb(sockets,MATRIX)
           wb(sockets,dim(value))
           wb(sockets,type)
-          if ( nrow(value) > 0 ) for ( i in 1:nrow(value) ) {
+          if ( nrow(value) > 0 ) for ( i in seq_len(nrow(value)) ) {
             if ( type == STRING ) {
-              if ( ncol(value) > 0 ) for ( j in 1:ncol(value) ) wc(sockets,value[i,j])
+              if ( ncol(value) > 0 ) for ( j in seq_len(ncol(value)) ) wc(sockets,value[i,j])
             }
             else if ( type == BOOLEAN ) wb(sockets,as.integer(value[i,]))
             else wb(sockets,value[i,])
@@ -132,8 +132,13 @@ rServe <- function(sockets,with.callbacks,workspace=.GlobalEnv) {
         wb(sockets,UNDEFINED_IDENTIFIER)
       } else {
         wb(sockets,REFERENCE)
-        wc(sockets,new.reference(value,workspace$.))
+        wc(sockets,paste0(".rsI[['r']]$",uniqueName(value,sockets[['r']],"")))
       }
+    } else if ( cmd == FREE ) {
+      if ( debug ) msg("Got FREE")
+      dataLength <- rb(sockets,"integer")
+      what <- sapply(seq_len(dataLength),function(i) rc(sockets))
+      rm(list=what,envir=sockets[['r']])
     } else if ( cmd == SHUTDOWN ) {
       if ( debug ) msg("Got SHUTDOWN")
       return()
@@ -165,14 +170,5 @@ subassign <- function(sockets,x,i,value,single,workspace) {
   }
   rm(".rscala.set.value",envir=workspace)
   invisible(value)
-}
-
-new.reference <- function(value,envir) {
-  name <- ""
-  while ( ( name == "" ) || ( exists(name,envir=envir) ) ) {  
-    name <- paste0(sample(lEtTeRs,1),paste0(sample(alphabet,7,replace=TRUE),collapse=""))
-  }
-  assign(name,value,envir=envir)
-  name
 }
 

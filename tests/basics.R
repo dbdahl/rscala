@@ -39,12 +39,12 @@ setget(matrix(c(TRUE,FALSE,TRUE,TRUE,FALSE,FALSE),nrow=2))
 setget(matrix(c("1","2","3","4","5","6","7","8"),nrow=2))
 
 a <- matrix(1:6,nrow=2)
-setget(a[,-c(1,2,3)])
+setget(a[,-c(1,2)])
 setget(a[-1,])
-setget(a[-2,-c(1,2,3)])
+setget(a[-2,-c(1,2)])
 
 mode(a) <- "character"
-setget(a[,-c(1,2,3)])
+setget(a[,-c(1,2)])
 setget(a[-1,])
-setget(a[-2,-c(1,2,3)])
+setget(a[-2,-c(1,2)])
 

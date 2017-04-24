@@ -19,7 +19,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
   out.flush
   private val R = RClient(this,in,out,debugger,serializeOutput,rowMajor)
   if ( repl.bind("R","org.ddahl.rscala.RClient",R) != Success ) sys.error("Problem binding R.")
-  if ( repl.interpret("import org.ddahl.rscala.RObject") != Success ) sys.error("Problem interpreting import statement.")
+  if ( repl.interpret("import org.ddahl.rscala.{REphemeralReference, RPersistentReference}") != Success ) sys.error("Problem interpreting import statement.")
   if ( serializeOutput ) {
     baosOut.reset
     baosErr.reset
