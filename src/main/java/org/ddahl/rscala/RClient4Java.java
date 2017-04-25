@@ -117,7 +117,7 @@ public class RClient4Java {
   * @param snippet  The snippet to be evaluated.
   * @return   The evaluated boolean.
   */
-  public boolean evalB0(String snippet) { return c.evalB0(snippet); }
+  public boolean evalL0(String snippet) { return c.evalL0(snippet); }
 
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getS0(String) getS0}.  
   * @param snippet  The snippet to be evaluated.
@@ -147,7 +147,7 @@ public class RClient4Java {
   * @param snippet  The snippet to be evaluated.
   * @return   The evaluated boolean array.
   */
-  public boolean[] evalB1(String snippet) { return c.evalB1(snippet); }
+  public boolean[] evalL1(String snippet) { return c.evalL1(snippet); }
 
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getS1(String) getS1}. 
   * @param snippet  The snippet to be evaluated.
@@ -177,7 +177,7 @@ public class RClient4Java {
   * @param snippet  The snippet to be evaluated.
   * @return   The evaluated boolean matrix.
   */
-  public boolean[][] evalB2(String snippet) { return c.evalB2(snippet); }
+  public boolean[][] evalL2(String snippet) { return c.evalL2(snippet); }
 
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getS2(String) getS2}.  
   * @param snippet  The snippet to be evaluated.

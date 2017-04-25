@@ -117,7 +117,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   def evalD0(snippet: String) = { eval(snippet,true); getD0(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getL0]].  */
-  def evalB0(snippet: String) = { eval(snippet,true); getL0(".rscala.last.value") }
+  def evalL0(snippet: String) = { eval(snippet,true); getL0(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getS0]].  */
   def evalS0(snippet: String) = { eval(snippet,true); getS0(".rscala.last.value") }
@@ -132,7 +132,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   def evalD1(snippet: String) = { eval(snippet,true); getD1(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getL1]].  */
-  def evalB1(snippet: String) = { eval(snippet,true); getL1(".rscala.last.value") }
+  def evalL1(snippet: String) = { eval(snippet,true); getL1(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getS1]].  */
   def evalS1(snippet: String) = { eval(snippet,true); getS1(".rscala.last.value") }
@@ -147,7 +147,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   def evalD2(snippet: String) = { eval(snippet,true); getD2(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getL2]].  */
-  def evalB2(snippet: String) = { eval(snippet,true); getL2(".rscala.last.value") }
+  def evalL2(snippet: String) = { eval(snippet,true); getL2(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getS2]].  */
   def evalS2(snippet: String) = { eval(snippet,true); getS2(".rscala.last.value") }
@@ -165,7 +165,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   def invokeD0(function: RReference, args: Any*) = evalD0(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getL0]].  */
-  def invokeL0(function: RReference, args: Any*) = evalB0(mkSnippet(function,args))
+  def invokeL0(function: RReference, args: Any*) = evalL0(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getS0]].  */
   def invokeS0(function: RReference, args: Any*) = evalS0(mkSnippet(function,args))
@@ -180,7 +180,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   def invokeD1(function: RReference, args: Any*) = evalD1(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getL1]].  */
-  def invokeL1(function: RReference, args: Any*) = evalB1(mkSnippet(function,args))
+  def invokeL1(function: RReference, args: Any*) = evalL1(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getS1]].  */
   def invokeS1(function: RReference, args: Any*) = evalS1(mkSnippet(function,args))
@@ -195,7 +195,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   def invokeD2(function: RReference, args: Any*) = evalD2(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getL2]].  */
-  def invokeL2(function: RReference, args: Any*) = evalB2(mkSnippet(function,args))
+  def invokeL2(function: RReference, args: Any*) = evalL2(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getS2]].  */
   def invokeS2(function: RReference, args: Any*) = evalS2(mkSnippet(function,args))
