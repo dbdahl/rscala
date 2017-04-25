@@ -1,6 +1,6 @@
 ## Scala scripting over TCP/IP
 
-scala <- function(classpath=character(0),serialize.output=FALSE,scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=60,debug=FALSE,stdout=TRUE,stderr=TRUE,port=0) {
+scala <- function(classpath=character(),serialize.output=FALSE,scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=60,debug=FALSE,stdout=TRUE,stderr=TRUE,port=0) {
   if ( identical(stdout,TRUE) ) stdout <- ""
   if ( identical(stderr,TRUE) ) stderr <- ""
   debug <- identical(debug,TRUE)
@@ -41,7 +41,7 @@ newSockets <- function(portsFilename,debug,serialize.output,row.major,timeout) {
   assign("debug",debug,envir=env)
   assign("rowMajor",row.major,envir=env)
   assign("serializeOutput",serialize.output,envir=env)
-  assign("garbage",character(0),envir=env)
+  assign("garbage",character(),envir=env)
   functionCache <- new.env(parent=emptyenv())
   references <- new.env(parent=emptyenv())
   ports <- local({
@@ -52,7 +52,7 @@ newSockets <- function(portsFilename,debug,serialize.output,row.major,timeout) {
       Sys.sleep(delay)
       delay <- 1.0*delay
       if ( file.exists(portsFilename) ) {
-        line <- scan(portsFilename,n=2,what=character(0),quiet=TRUE)
+        line <- scan(portsFilename,n=2,what=character(),quiet=TRUE)
         if ( length(line) > 0 ) return(as.numeric(line))
       }
     }
@@ -550,10 +550,27 @@ close.ScalaInterpreter <- function(con,...) {
   close(con[['socketIn']])
 }
 
-.rscalaPackage <- function(pkgname, classpath.appendix=character(0), ...) {
-  classpath <- c(list.files(system.file("java",package=pkgname),pattern=".*.jar$",full.names=TRUE,recursive=TRUE),classpath.appendix)
-  s <- scala(classpath=classpath,...)
-  assign("s",s,envir=parent.env(parent.frame()))    # Assign to environment of depending package
+.rscalaPackage <- function(pkgname, classpath.appendix=character(), ...) {
+  classpath <- c(list.files(system.file("java",package=pkgname),pattern=".*\\.jar$",full.names=TRUE,recursive=TRUE),classpath.appendix)
+  env <- parent.env(parent.frame())    # Environment of depending package (assuming this function is only called in .onLoad function).
+  assign("s", scala(classpath=classpath,...), envir=env)    # Assign to environment of depending package
+  delayedEnv <- get(".rscalaDelayed",envir=env)
+  lapply(
+    ls(envir=delayedEnv), function(x) {
+      expression <- get(x,envir=delayedEnv)
+      eval(expression,envir=env)
+    }
+  )
+  rm(".rscalaDelayed",envir=env)
+  invisible()
+}
+
+.rscalaDelay <- function(expression) {
+  env <- parent.frame()
+  if ( ! exists(".rscalaDelayed",envir=env) ) {
+    assign(".rscalaDelayed",new.env(parent=emptyenv()),envir=env)
+  }
+  uniqueName(substitute(expression),get(".rscalaDelayed",envir=env),"")
   invisible()
 }
 

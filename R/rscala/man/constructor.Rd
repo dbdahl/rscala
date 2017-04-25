@@ -4,6 +4,7 @@
 \alias{scalaInstall}
 \alias{.rscalaJar}
 \alias{.rscalaPackage}
+\alias{.rscalaDelay}
 \docType{methods}
 \title{
 Creates an instance of an embedded Scala interpreter/compiler.
@@ -40,10 +41,12 @@ files in the \sQuote{java} directory of the package and passes the \code{...}
 arguments to the \code{\link{scala}} function.  This instance of Scala is
 available as the object \code{s} in the namespace of the package (thereby
 making it available to the package's function) but it is not exported from
-the namespace.
+the namespace.  Since the object \code{s} is only available once the package is
+loaded, package functions defined using Scala functions via the \code{s$def(...)} 
+mechanism should wrap the expression in the \code{\link{.rscalaDelay}} function.
 }
 \usage{
-scala(classpath=character(0),
+scala(classpath=character(),
       serialize.output=FALSE, scala.home=NULL,
       heap.maximum=NULL, command.line.options=NULL, row.major=TRUE,
       timeout=60, debug=FALSE, stdout=TRUE, stderr=TRUE, port=0)
@@ -51,7 +54,8 @@ scala(classpath=character(0),
 scalaInfo(scala.home=NULL, verbose=FALSE)
 scalaInstall()
 .rscalaJar(version="")
-.rscalaPackage(pkgname, classpath.appendix=character(0), ...)
+.rscalaPackage(pkgname, classpath.appendix=character(), ...)
+.rscalaDelay(expression)
 }
 \arguments{
     \item{classpath}{A character vector whose elements are paths to JAR files or directories which specify the classpath for the Scala compiler/interpreter.}
@@ -69,6 +73,7 @@ scalaInstall()
     \item{pkgname}{A character string giving the name of the package (as provided the second argument of the \code{.onLoad} function) that wishes to depend on this package.}
     \item{classpath.appendix}{A character vector giving additional JAR files or directories for the Scala compiler/interpreter embedded within a package via the \code{\link{.rscalaPackage}} function.  The JAR files in the \sQuote{java} directory of the package are already included and do not need to be added here.}
     \item{...}{These arguments are passed by the \code{\link{.rscalaPackage}} function to the \code{\link{scala}} function.}
+    \item{expression}{An expression that will be evaluated when the \code{\link{.rscalaPackage}} function run.  This facility allows Scala functions to be defined in the package namespace using the \code{s$def(...} mechanism}.
 }
 \value{
     \code{\link{scala}} returns an \R object representing an embedded Scala interpreter.
