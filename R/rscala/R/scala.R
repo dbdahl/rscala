@@ -41,9 +41,9 @@ newSockets <- function(portsFilename,debug,serialize.output,row.major,timeout) {
   assign("debug",debug,envir=env)
   assign("rowMajor",row.major,envir=env)
   assign("serializeOutput",serialize.output,envir=env)
-  assign("garbage",character(),envir=env)
   functionCache <- new.env(parent=emptyenv())
   references <- new.env(parent=emptyenv())
+  garbage <- new.env(parent=emptyenv())
   ports <- local({
     delay <- 0.1
     start <- proc.time()[3]
@@ -62,12 +62,9 @@ newSockets <- function(portsFilename,debug,serialize.output,row.major,timeout) {
   socketConnectionIn  <- socketConnection(port=ports[1],blocking=TRUE,open="ab",timeout=2678400)
   socketConnectionOut <- socketConnection(port=ports[2],blocking=TRUE,open="rb",timeout=2678400)
   if ( debug ) msg("Connected")
-  result <- list(socketIn=socketConnectionIn,socketOut=socketConnectionOut,env=env,functionCache=functionCache,r=references,
-                 garbageFunction = function(e) {
-                   garbage <- get("garbage",envir=env)
-                   garbage[length(garbage)+1] <- e[['identifier']]
-                   assign("garbage",garbage,envir=env)
-                 })
+  result <- list(socketIn=socketConnectionIn,socketOut=socketConnectionOut,env=env,
+                 functionCache=functionCache,r=references,garbage=garbage,
+                 garbageFunction=function(e) uniqueName(e[['identifier']],garbage,""))
   class(result) <- "ScalaInterpreter"
   status <- rb(result,"integer")
   if ( ( length(status) == 0 ) || ( status != OK ) ) stop("Error instantiating interpreter.")
@@ -727,15 +724,15 @@ echoResponseScala <- function(interpreter) {
 
 cc <- function(c) {
   if ( ! get("open",envir=c[['env']]) ) stop("The connection has already been closed.")
-  if ( length(get("garbage",envir=c[['env']])) > 0 ) {
-    env <- c[['env']]
-    garbage <- get("garbage",envir=env)
-    if ( get("debug",envir=env) ) msg(paste0('Sending FREE request for ',length(garbage),' items.'))
+  if ( length(c[['garbage']]) > 0 ) {
+    env <- c[['garbage']]
+    garbage <- ls(envir=env)
+    if ( get("debug",envir=c[['env']]) ) msg(paste0('Sending FREE request for ',length(garbage),' items.'))
     wb(c,FREE)
     wb(c,length(garbage))
-    for ( g in garbage ) wc(c,g)
-    assign("garbage",character(),envir=env)
-    if ( get("serializeOutput",envir=env) ) echoResponseScala(c)
+    for ( g in garbage ) wc(c,get(g,envir=env))
+    rm(list=garbage,envir=env)
+    if ( get("serializeOutput",envir=c[['env']]) ) echoResponseScala(c)
   }
 }
 
