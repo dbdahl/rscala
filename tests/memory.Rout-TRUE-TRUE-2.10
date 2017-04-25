@@ -117,12 +117,11 @@ java.lang.OutOfMemoryError: Java heap space
 + }
 + },error=function(e) e)
 java.lang.OutOfMemoryError: GC overhead limit exceeded
-	at scala.io.Codec$.fromUTF8(Codec.scala:109)
+	at java.nio.CharBuffer.allocate(CharBuffer.java:335)
+	at java.nio.charset.CharsetDecoder.decode(CharsetDecoder.java:795)
+	at java.nio.charset.Charset.decode(Charset.java:807)
+	at scala.io.Codec$.fromUTF8(Codec.scala:108)
 	at scala.reflect.internal.Names$class.newTermName(Names.scala:120)
-	at scala.reflect.internal.SymbolTable.newTermName(SymbolTable.scala:13)
-	at scala.reflect.internal.pickling.UnPickler$Scan.readName(UnPickler.scala:184)
-	at scala.reflect.internal.pickling.UnPickler$Scan$$anonfun$1.apply(UnPickler.scala:256)
-	at scala.reflect.internal.pickling.UnPickler$Scan$$anonfun$1.apply(UnPickler.scala:256)
 java.lang.OutOfMemoryError: Java heap space
 	at .<init>(<console>:11)
 	at .<clinit>(<console>)

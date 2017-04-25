@@ -4,20 +4,20 @@ Error in library(dfasdf) : there is no package called ‘dfasdf’
 there is no package called ‘dfasdf’
 8 
 Burnin the hotspot compiler.
-182208 microseconds
-13649 microseconds
+498322 microseconds
+23410 microseconds
 Get then eval.
-13480 microseconds
-37352 microseconds
+18246 microseconds
+44559 microseconds
 Eval then get.
-333916 microseconds
-12310 microseconds
+36909 microseconds
+12459 microseconds
 Eval then get.
-398501 microseconds
-14957 microseconds
+430466 microseconds
+19739 microseconds
 Get then eval.
-12854 microseconds
-315382 microseconds
+3968283 microseconds
+104835 microseconds
 a
 b
 c

@@ -7,21 +7,21 @@
 > 
 > rng1 <- s %.~% "new scala.util.Random"
 > rng1$nextDouble()
-[1] 0.01732373
+[1] 0.3595247
 > 
 > s$r1 <- rng1
 > rng2 <- s$r1
 > rng2$nextDouble()
-[1] 0.2936369
+[1] 0.3165906
 > 
 > rng3 <- s$.scala.util.Random$new()
 > rng3$nextDouble()
-[1] 0.5807073
+[1] 0.7019046
 > 
 > s$r3 <- rng3
 > rng4 <- s$r3
 > rng4$nextDouble()
-[1] 0.42174
+[1] 0.7614378
 > 
 > 
 > ####
@@ -38,7 +38,7 @@
 +   r
 + }
 > y1 <- mkFunc1()
-<environment: 0x2d69c30>
+<environment: 0x3a0f670>
 > identical(y1("Lisa","Dahl"),"Lisa Dahl B.")
 [1] TRUE
 > 
@@ -56,7 +56,7 @@
 [1] TRUE
 > gc()
          used (Mb) gc trigger (Mb) max used (Mb)
-Ncells 336633 18.0     592000 31.7   460000 24.6
+Ncells 336639 18.0     592000 31.7   460000 24.6
 Vcells 628573  4.8    1207352  9.3  1019082  7.8
 > 
 > 
@@ -77,14 +77,14 @@ Vcells 628573  4.8    1207352  9.3  1019082  7.8
 +   name + " " + ( x + y )
 + ')
    user  system elapsed 
-  0.004   0.000   0.184 
+  0.004   0.000   0.292 
 > 
 > # Taking advantage of caching
 > system.time(f <- s$def(x=I(0),y=I(4L),name=I("dog")) %~% '
 +   name + " " + ( x + y )
 + ')
    user  system elapsed 
-  0.000   0.000   0.001 
+  0.004   0.000   0.001 
 > 
 > ####
 > 
@@ -97,9 +97,9 @@ Vcells 628573  4.8    1207352  9.3  1019082  7.8
 > rng2 <- mkRNG2()
 > 
 > rng1$nextInt(I(10L))
-[1] 4
-> rng2$nextInt(I(10L))
 [1] 6
+> rng2$nextInt(I(10L))
+[1] 7
 > 
 > str <- rng1$toString(.EVALUATE=TRUE,.AS.REFERENCE=TRUE)
 > str$length()
@@ -120,14 +120,14 @@ Vcells 628573  4.8    1207352  9.3  1019082  7.8
 +   nd2(),
 +   times=500
 + )
-Unit: microseconds
-              expr     min        lq        mean    median        uq       max
-          runif(1)   1.017    4.8025    7.553716    7.2560    9.3845    63.538
- rng1$nextDouble() 955.893 1084.3240 1630.559088 1586.1800 1895.2890 12564.994
- rng2$nextDouble() 895.407 1017.5115 1696.380082 1479.8390 1696.8300 88392.874
-             nd0() 180.393  215.9225  397.409774  274.1880  391.6580 19337.841
-             nd1() 170.750  220.3495  411.456316  277.8170  405.3945 17123.141
-             nd2() 164.324  211.3505  417.951274  271.3565  340.0760 30822.526
+Unit: nanoseconds
+              expr    min        lq        mean    median        uq       max
+          runif(1)    882    4660.5    7448.134    6964.5    9759.5     60951
+ rng1$nextDouble() 957208 1074173.0 1820504.642 1579437.5 2042297.0  32920784
+ rng2$nextDouble() 882684  985002.0 1965444.882 1465516.0 1890932.0 172641306
+             nd0() 165670  213373.0  523233.970  267848.5  405537.0  34779311
+             nd1() 157459  216742.5  387782.942  268873.5  406770.5  25362982
+             nd2() 153179  209711.0  442688.498  269449.0  403162.5  24575492
  neval
    500
    500
@@ -139,7 +139,7 @@ Unit: microseconds
 > ####
 > 
 > s$.scala.util.Random$nextDouble()
-[1] 0.647211
+[1] 0.5307844
 > m <- s$.scala.util.Random$new(I(342L),.EVALUATE=FALSE)
 > m(23436)$nextDouble()
 [1] 0.8011135
@@ -176,22 +176,22 @@ Unit: microseconds
 <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
 > 
 > s$.scala.util.Random$nextDouble()
-[1] 0.6299015
+[1] 0.5485672
 > s$.scala.util.Random$nextDouble()
-[1] 0.08677069
+[1] 0.9101612
 > s$do("scala.util.Random")$nextDouble()
-[1] 0.5223103
+[1] 0.05040643
 Warning message:
 In s$do("scala.util.Random") :
   Syntax "s$do('scala.util.Random')" is deprecated.  Use "s$.scala.util.Random" instead.
 > 
 > s %@% 'import scala.util.Random'
 > s$.Random$nextDouble()
-[1] 0.269088
+[1] 0.3005927
 > 
 > a <- s$def() %~% 'Random.nextDouble'
 > a()
-[1] 0.2697926
+[1] 0.4336681
 > 
 > s$.scala.util.Random
 package scala.util
@@ -223,7 +223,7 @@ object Random extends scala.util.Random {
 ScalaInterpreterItem
 > a <- ( s$def() %~% 'scala.util.Random' )()
 > a$nextDouble(.EVALUATE=TRUE)
-[1] 0.4960241
+[1] 0.4194322
 > 
 > ####
 > 
@@ -234,7 +234,7 @@ ScalaInterpreterItem
 > 
 > a <- f(1:10, FALSE)
 > a$name()
-[1] ".rsI[['r']]$DxwiZEMa"
+[1] ".rsI[['r']]$R0HwPWHe"
 > 
 > g <- s$def(func=NULL,y=s$null("RPersistentReference")) %~% '
 +   R.invoke(func,y)

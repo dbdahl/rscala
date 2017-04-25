@@ -36,14 +36,14 @@ scala <- function(classpath=character(0),serialize.output=FALSE,scala.home=NULL,
 }
 
 newSockets <- function(portsFilename,debug,serialize.output,row.major,timeout) {
-  env <- new.env()
+  env <- new.env(parent=emptyenv())
   assign("open",TRUE,envir=env)
   assign("debug",debug,envir=env)
   assign("rowMajor",row.major,envir=env)
   assign("serializeOutput",serialize.output,envir=env)
   assign("garbage",character(0),envir=env)
-  functionCache <- new.env()
-  references <- new.env()
+  functionCache <- new.env(parent=emptyenv())
+  references <- new.env(parent=emptyenv())
   ports <- local({
     delay <- 0.1
     start <- proc.time()[3]

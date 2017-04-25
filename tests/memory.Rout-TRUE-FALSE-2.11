@@ -118,9 +118,41 @@ java.lang.OutOfMemoryError: Java heap space
 +   s %~% "new Array[Double](100000)"           # Memory problems
 + }
 + },error=function(e) e)
-java.lang.OutOfMemoryError: Java heap space
-  ... 32 elided
-<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
+java.lang.OutOfMemoryError: GC overhead limit exceeded
+	at scala.reflect.internal.Types$Type.scala$reflect$internal$Types$Type$$findMemberInternal$1(Types.scala:1014)
+	at scala.reflect.internal.Types$Type.findMember(Types.scala:1016)
+	at scala.reflect.internal.tpe.TypeMaps$adaptToNewRunMap$.adaptToNewRun(TypeMaps.scala:1091)
+	at scala.reflect.internal.tpe.TypeMaps$adaptToNewRunMap$.apply(TypeMaps.scala:1147)
+	at scala.reflect.internal.tpe.TypeMaps$adaptToNewRunMap$.apply(TypeMaps.scala:1076)
+	at scala.collection.immutable.List.loop$1(List.scala:173)
+	at scala.collection.immutable.List.mapConserve(List.scala:189)
+	at scala.reflect.internal.tpe.TypeMaps$adaptToNewRunMap$.apply(TypeMaps.scala:1182)
+	at scala.reflect.internal.tpe.TypeMaps$adaptToNewRunMap$.apply(TypeMaps.scala:1172)
+	at scala.reflect.internal.Symbols$Symbol.adaptInfos(Symbols.scala:1642)
+	at scala.reflect.internal.Symbols$Symbol.rawInfo(Symbols.scala:1594)
+	at scala.reflect.internal.Symbols$Symbol.typeParams(Symbols.scala:1737)
+	at scala.tools.nsc.transform.SpecializeTypes.specializedTypeVars(SpecializeTypes.scala:455)
+	at scala.tools.nsc.transform.SpecializeTypes.specializedTypeVars(SpecializeTypes.scala:447)
+	at scala.tools.nsc.transform.SpecializeTypes.loop$2(SpecializeTypes.scala:429)
+	at scala.tools.nsc.transform.SpecializeTypes.specializedTypeVars(SpecializeTypes.scala:431)
+	at scala.tools.nsc.transform.SpecializeTypes.specializedTypeVars(SpecializeTypes.scala:460)
+	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$specializedTypeVars$2.apply(SpecializeTypes.scala:435)
+	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$specializedTypeVars$2.apply(SpecializeTypes.scala:435)
+	at scala.reflect.internal.SymbolTable.enteringPhase(SymbolTable.scala:235)
+	at scala.tools.nsc.transform.SpecializeTypes.specializedTypeVars(SpecializeTypes.scala:435)
+	at scala.tools.nsc.transform.SpecializeTypes.scala$tools$nsc$transform$SpecializeTypes$$specializeMember(SpecializeTypes.scala:928)
+	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$23$$anonfun$apply$21.apply(SpecializeTypes.scala:784)
+	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$23$$anonfun$apply$21.apply(SpecializeTypes.scala:783)
+	at scala.collection.immutable.List.flatMap(List.scala:327)
+	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$23.apply(SpecializeTypes.scala:783)
+	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$23.apply(SpecializeTypes.scala:781)
+	at scala.collection.immutable.List.flatMap(List.scala:327)
+	at scala.tools.nsc.transform.SpecializeTypes.specializeClass(SpecializeTypes.scala:781)
+	at scala.tools.nsc.transform.SpecializeTypes.transformInfo(SpecializeTypes.scala:1196)
+	at scala.tools.nsc.transform.InfoTransform$Phase$$anon$1.transform(InfoTransform.scala:38)
+	at scala.reflect.internal.Symbols$Symbol.rawInfo(Symbols.scala:1604)
+java.lang.OutOfMemoryError: GC overhead limit exceeded
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Exception thrown.>
 > 
 > 
 > 

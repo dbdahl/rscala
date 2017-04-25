@@ -168,8 +168,8 @@ Here is am.
 > callRFunction0D2 <- s$def(func=NULL) %~% 'R.invokeD2(func)'
 > callRFunction0D2(gc)
        [,1] [,2]    [,3] [,4]    [,5] [,6]
-[1,] 339780 18.2  592000 31.7  460000 24.6
-[2,] 635792  4.9 1207352  9.3 1019082  7.8
+[1,] 339822 18.2  592000 31.7  460000 24.6
+[2,] 635872  4.9 1207352  9.3 1019082  7.8
 > 
 > tryCatch(callRFunction(1:100),error = function(e) {})
 NULL

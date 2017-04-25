@@ -120,41 +120,9 @@ java.lang.OutOfMemoryError: Java heap space
 +   s %~% "new Array[Double](100000)"           # Memory problems
 + }
 + },error=function(e) e)
-java.lang.OutOfMemoryError: GC overhead limit exceeded
-	at scala.collection.mutable.ResizableArray.ensureSize(ResizableArray.scala:103)
-	at scala.collection.mutable.ResizableArray.ensureSize$(ResizableArray.scala:93)
-	at scala.collection.mutable.ArrayBuffer.ensureSize(ArrayBuffer.scala:48)
-	at scala.collection.mutable.ArrayBuffer.$plus$eq(ArrayBuffer.scala:84)
-	at scala.collection.mutable.ArrayBuffer.$plus$eq(ArrayBuffer.scala:48)
-	at scala.collection.generic.Growable.$anonfun$$plus$plus$eq$1(Growable.scala:59)
-	at scala.collection.generic.Growable$$Lambda$5/1324119927.apply(Unknown Source)
-	at scala.collection.Iterator.foreach(Iterator.scala:929)
-	at scala.collection.Iterator.foreach$(Iterator.scala:929)
-	at scala.collection.AbstractIterator.foreach(Iterator.scala:1417)
-	at scala.collection.generic.Growable.$plus$plus$eq(Growable.scala:59)
-	at scala.collection.generic.Growable.$plus$plus$eq$(Growable.scala:50)
-	at scala.collection.mutable.ArrayBuffer.$plus$plus$eq(ArrayBuffer.scala:104)
-	at scala.reflect.io.Streamable$Bytes.toByteArray(Streamable.scala:52)
-	at scala.reflect.io.Streamable$Bytes.toByteArray$(Streamable.scala:49)
-	at scala.reflect.io.Streamable$$anon$2.toByteArray(Streamable.scala:130)
-	at scala.reflect.internal.util.ScalaClassLoader.classBytes(ScalaClassLoader.scala:80)
-	at scala.reflect.internal.util.ScalaClassLoader.classBytes$(ScalaClassLoader.scala:78)
-	at scala.reflect.internal.util.AbstractFileClassLoader.classBytes(AbstractFileClassLoader.scala:33)
-	at scala.reflect.internal.util.AbstractFileClassLoader.findClass(AbstractFileClassLoader.scala:62)
-	at java.lang.ClassLoader.loadClass(ClassLoader.java:424)
-	at java.lang.ClassLoader.loadClass(ClassLoader.java:357)
-	at java.lang.Class.forName0(Native Method)
-	at java.lang.Class.forName(Class.java:348)
-	at scala.reflect.runtime.JavaMirrors$JavaMirror.javaClass(JavaMirrors.scala:555)
-	at scala.reflect.runtime.JavaMirrors$JavaMirror.tryJavaClass(JavaMirrors.scala:559)
-	at scala.reflect.runtime.SymbolLoaders$PackageScope.$anonfun$lookupEntry$1(SymbolLoaders.scala:134)
-	at scala.reflect.runtime.SymbolLoaders$PackageScope$$Lambda$729/40170008.apply(Unknown Source)
-	at scala.reflect.runtime.SymbolLoaders$PackageScope.syncLockSynchronized(SymbolLoaders.scala:121)
-	at scala.reflect.runtime.SymbolLoaders$PackageScope.lookupEntry(SymbolLoaders.scala:123)
-	at scala.reflect.internal.tpe.FindMembers$FindMemberBase.walkBaseClasses(FindMembers.scala:88)
-	at scala.reflect.internal.tpe.FindMembers$FindMemberBase.searchConcreteThenDeferred(FindMembers.scala:56)
-java.lang.OutOfMemoryError: GC overhead limit exceeded
-<simpleError in doTryCatch(return(expr), name, parentenv, handler): Exception thrown.>
+java.lang.OutOfMemoryError: Java heap space
+  ... 32 elided
+<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
 > 
 > 
 > 
