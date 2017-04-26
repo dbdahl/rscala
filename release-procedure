@@ -1,4 +1,6 @@
 install-R --devel
+Bump version number in build.sbt
+Update R/rscala/NEWS detailing changes
 ./bin/package -s -f
 test on Linux, Mac OS, and Windows!
 sbt +publishSigned
@@ -11,4 +13,4 @@ https://oss.sonatype.org/
 Submit to CRAN
 Update webpage using bin/deploy-html
 Update the temperature webapp
-Bump (development) version number
+Bump (development) version number in build.sbt

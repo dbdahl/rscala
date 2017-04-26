@@ -1,4 +1,4 @@
-2.0.0 (2017-xx-xx)
+2.0.0 (2017-05-27)
   * Fixed problem that the protocol.R may be inadvertantly excluded from the
     JAR.
   * Bumped default Scala version to 2.12.2.
