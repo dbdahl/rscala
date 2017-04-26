@@ -567,7 +567,8 @@ close.ScalaInterpreter <- function(con,...) {
   if ( ! exists(".rscalaDelayed",envir=env) ) {
     assign(".rscalaDelayed",new.env(parent=emptyenv()),envir=env)
   }
-  uniqueName(substitute(expression),get(".rscalaDelayed",envir=env),"")
+  env2 <- get(".rscalaDelayed",envir=env)
+  assign(as.character(length(env2)),substitute(expression),envir=env2,inherits=FALSE)
   invisible()
 }
 
