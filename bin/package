@@ -159,7 +159,9 @@ TGZ_NAME=${PKG_NAME}_$MAJOR.tar.gz
 if [[ -n "$TASK_R" ]]
 then
   cd R
+  cp $PKG_NAME/inst/README $PKG_NAME
   R CMD build $FLAG_BUILD_VIGNETTES $PKG_NAME
+  rm $PKG_NAME/README
   R CMD INSTALL $TGZ_NAME
   cd ..
 fi

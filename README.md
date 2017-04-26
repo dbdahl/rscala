@@ -26,7 +26,7 @@ install the package. Simply add the following line to the your SBT build.sbt
 file:
 
 ```scala
-libraryDependencies += "org.ddahl" %% "rscala" % "1.0.15" 
+libraryDependencies += "org.ddahl" %% "rscala" % "2.0.0" 
 ```
 
 Paper:
@@ -37,7 +37,7 @@ Paper:
 
 Resources:
 
-* [Git repository](https://dahl-git.byu.edu/dahl/rscala) containing source code and build & test scripts.
+* [Git repository](https://github.com/dbdahl/rscala) containing source code and build & test scripts.
 * [Package](https://cran.r-project.org/package=rscala) on [Comprehensive R Archive Network (CRAN)](http://cran.r-project.org/).
 * [Scaladoc](https://dahl.byu.edu/software/rscala/scaladoc/org/ddahl/rscala/RClient.html) for embedding R in Scala.
 * [Javadoc](https://dahl.byu.edu/software/rscala/javadoc/org/ddahl/rscala/RClient4Java.html) for embedding R in Java.
