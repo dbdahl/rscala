@@ -100,11 +100,11 @@ cd ..
 function setversion {
   OLDWD="$PWD"
   cd "$PKG_HOME"
-  sed -i $SEDOPT 's/\(\s*val\s*Version\s*=\s*\)"\(.*\)"/\1"'"$1"'"/g' src/main/scala/org/ddahl/$PKG_NAME/Package.scala
-  sed -i $SEDOPT 's/\(\s*val\s*Date\s*=\s*\)"\(.*\)"/\1"'"$2"'"/g' src/main/scala/org/ddahl/$PKG_NAME/Package.scala
+  sed -i $SEDOPT 's/\(\s*val\s*Version\s*=\s*\)"\(.*\)"/\1"'"$1"'"/g' src/main/scala/org/ddahl/$PKG_NAME/server/Package.scala
+  sed -i $SEDOPT 's/\(\s*val\s*Date\s*=\s*\)"\(.*\)"/\1"'"$2"'"/g' src/main/scala/org/ddahl/$PKG_NAME/server/Package.scala
   sed -i $SEDOPT 's/\(\s*Version\s*:\s*\)\(.*\)/\1'"$1"'/g' R/$PKG_NAME/DESCRIPTION
   sed -i $SEDOPT 's/\(\s*Date\s*:\s*\)\(.*\)/\1'"$2"'/g' R/$PKG_NAME/DESCRIPTION
-  rm -f src/main/scala/org/ddahl/$PKG_NAME/Package.scala.trashme
+  rm -f src/main/scala/org/ddahl/$PKG_NAME/server/Package.scala.trashme
   rm -f R/$PKG_NAME/DESCRIPTION.trashme
   cd "$OLDWD"
 }
@@ -147,7 +147,12 @@ then
     cp $others "$dir"
   }
   copy $JARBIN "$PKG_HOME"/R/$PKG_NAME/inst/java ""
-  copy $JARSRC "$PKG_HOME"/R/$PKG_NAME/java -sources
+  # copy $JARSRC "$PKG_HOME"/R/$PKG_NAME/java -sources
+  # Don't keep the sources for all the Scala versions since the code is the same.
+  SRCDIR="$PKG_HOME"/R/${PKG_NAME}/java
+  rm -rf "$SRCDIR"
+  mkdir -p "$SRCDIR"
+  cp "$PKG_HOME"/target/scala-2.12/${PKG_NAME}_2.12-*-sources.jar "$SRCDIR"/${PKG_NAME}-sources.jar
 
   CATPASTE="cat(paste(rscala::scalaInfo()\$jars,collapse=\"$SEP\"))"
   javadoc -classpath "$(R --slave -e "$CATPASTE"):$PKG_HOME"/R/$PKG_NAME/inst/java/'*' -d "$PKG_HOME"/target/java/api/ "$PKG_HOME"/src/main/java/org/ddahl/rscala/RClient4Java.java

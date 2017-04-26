@@ -1,6 +1,6 @@
-package org.ddahl
+package org.ddahl.rscala
 
-package object rscala {
+package object server {
 
   val Version = "0.0.0.0"
 

@@ -5,6 +5,7 @@ import java.io._
 import scala.language.dynamics
 import java.lang.ref.{Reference, PhantomReference, ReferenceQueue}
 
+import server._
 import Protocol._
 
 /** An interface to an R interpreter.
@@ -13,7 +14,7 @@ import Protocol._
 * `scala` from the package [[http://cran.r-project.org/package=rscala rscala]].  It is through this instance `R` that
 * callbacks to the original [[http://www.r-project.org R]] interpreter are possible.
 * 
-* In a JVM-based application, an instance of this class is created using its companion object.  See below.  The paths of the
+* In a Scala application, an instance of this class is created using its companion object.  See below.  The paths of the
 * rscala's JARs (for all supported versions of Scala) are available from [[http://www.r-project.org R]] using `rscala::.rscalaJar()`.
 * To get just the JAR for Scala 2.12, for example, use `rscala::.rscalaJar("2.12")`.
 * 
@@ -24,10 +25,15 @@ import Protocol._
 * val b = R.evalD1("rnorm(8)")
 * val c = R.evalD2("matrix(rnorm(8),nrow=4)")
 
+* R.set("ages", Array(4,2,7,9))
+* R.ages = Array(4,2,7,9)
+* println(R.getI1("ages").mkString("<",", ",">"))
+
 * R eval """
 *   v <- rbinom(8,size=10,prob=0.4)
 *   m <- matrix(v,nrow=4)
 * """
+
 * val v1 = R.get("v")
 * val v2 = R.get("v")._1.asInstanceOf[Array[Int]]   // This works, but is not very convenient
 * val v3 = R.v._1.asInstanceOf[Array[Int]]          // Slightly better
@@ -110,49 +116,49 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   /** Calls '''`eval(snippet,true)`'''.  */
   def eval(snippet: String): Unit = eval(snippet,true)
 
-  /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getI0]].  */
+  /** Calls '''`eval(snippet,true)`''' and returns the result using [[getI0]].  */
   def evalI0(snippet: String) = { eval(snippet,true); getI0(".rscala.last.value") }
 
-  /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getD0]].  */
+  /** Calls '''`eval(snippet,true)`''' and returns the result using [[getD0]].  */
   def evalD0(snippet: String) = { eval(snippet,true); getD0(".rscala.last.value") }
 
-  /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getL0]].  */
+  /** Calls '''`eval(snippet,true)`''' and returns the result using [[getL0]].  */
   def evalL0(snippet: String) = { eval(snippet,true); getL0(".rscala.last.value") }
 
-  /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getS0]].  */
+  /** Calls '''`eval(snippet,true)`''' and returns the result using [[getS0]].  */
   def evalS0(snippet: String) = { eval(snippet,true); getS0(".rscala.last.value") }
 
-  /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getR0]].  */
+  /** Calls '''`eval(snippet,true)`''' and returns the result using [[getR0]].  */
   def evalR0(snippet: String) = { eval(snippet,true); getR0(".rscala.last.value") }
 
-  /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getI1]].  */
+  /** Calls '''`eval(snippet,true)`''' and returns the result using [[getI1]].  */
   def evalI1(snippet: String) = { eval(snippet,true); getI1(".rscala.last.value") }
 
-  /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getD1]].  */
+  /** Calls '''`eval(snippet,true)`''' and returns the result using [[getD1]].  */
   def evalD1(snippet: String) = { eval(snippet,true); getD1(".rscala.last.value") }
 
-  /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getL1]].  */
+  /** Calls '''`eval(snippet,true)`''' and returns the result using [[getL1]].  */
   def evalL1(snippet: String) = { eval(snippet,true); getL1(".rscala.last.value") }
 
-  /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getS1]].  */
+  /** Calls '''`eval(snippet,true)`''' and returns the result using [[getS1]].  */
   def evalS1(snippet: String) = { eval(snippet,true); getS1(".rscala.last.value") }
 
-  /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getR1]].  */
+  /** Calls '''`eval(snippet,true)`''' and returns the result using [[getR1]].  */
   def evalR1(snippet: String) = { eval(snippet,true); getR1(".rscala.last.value") }
 
-  /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getI2]].  */
+  /** Calls '''`eval(snippet,true)`''' and returns the result using [[getI2]].  */
   def evalI2(snippet: String) = { eval(snippet,true); getI2(".rscala.last.value") }
 
-  /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getD2]].  */
+  /** Calls '''`eval(snippet,true)`''' and returns the result using [[getD2]].  */
   def evalD2(snippet: String) = { eval(snippet,true); getD2(".rscala.last.value") }
 
-  /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getL2]].  */
+  /** Calls '''`eval(snippet,true)`''' and returns the result using [[getL2]].  */
   def evalL2(snippet: String) = { eval(snippet,true); getL2(".rscala.last.value") }
 
-  /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getS2]].  */
+  /** Calls '''`eval(snippet,true)`''' and returns the result using [[getS2]].  */
   def evalS2(snippet: String) = { eval(snippet,true); getS2(".rscala.last.value") }
 
-  /** Calls '''`eval(snippet,true,args)`''' and returns the result using [[getR2]].  */
+  /** Calls '''`eval(snippet,true)`''' and returns the result using [[getR2]].  */
   def evalR2(snippet: String) = { eval(snippet,true); getR2(".rscala.last.value") }
 
   /** Invokes an R function with arguments.  */
@@ -815,8 +821,8 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
 * `scala` from the package [[http://cran.r-project.org/package=rscala rscala]].  It is through this instance
 * `R` that callbacks to the original [[http://www.r-project.org R]] interpreter are possible.
 * 
-* The paths of the rscala's JARs, for both Scala 2.10 and 2.11, are available from [[http://www.r-project.org R]] using
-* `rscala::rscalaJar()`.  To get just the JAR for Scala 2.11, for example, use `rscala::rscalaJar("2.11")`.
+* The paths of the rscala's JARs are available from [[http://www.r-project.org R]] using
+* `rscala::.rscalaJar()`.  To get just the JAR for Scala 2.12, for example, use `rscala::.rscalaJar("2.12")`.
 * 
 * {{{ val R = org.ddahl.rscala.RClient() }}}
 */
@@ -842,7 +848,7 @@ object RClient {
     case false => Array[String]("--interactive")
   }
 
-  private lazy val defaultRCmd = isWindows match {
+  def defaultRCmd = isWindows match {
     case true  => findROnWindows
     case false => """R"""
   }

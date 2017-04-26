@@ -1,17 +1,11 @@
 package org.ddahl.rscala;
 
-/** An interface to an R interpreter.
+/** A Java interface to an R interpreter.
 *
-* An object <tt>R</tt> is the instance of this class available in a Scala interpreter created by calling the function
-* <tt>scala</tt> from the package <a href="http://cran.r-project.org/package=rscala">rscala</a>.  It is through this instance <tt>R</tt> that
-* callbacks to the original <a href="http://www.r-project.org">R</a> interpreter are possible.
-* 
-* In a JVM-based application, an instance of this class is created using its companion object.  See below.  The paths of the
-* rscala's JARs (for all supported versions of Scala) are available from <a href="http://www.r-project.org">R</a> using <tt>rscala::.rscalaJar()</tt>.
-* To get just the JAR for Scala 2.12, for example, use <tt>rscala::.rscalaJar("2.12")</tt>.
+* In a Java application, an instance of this class is created as shown below.
 * 
 * <pre><span class="inner-pre" style="font-size:-2px">
-* {@code 
+* {@code
 * import org.ddahl.rscala.RClient4Java;
 * 
 * public class Example {
@@ -62,7 +56,7 @@ public class RClient4Java {
 
   private org.ddahl.rscala.RClient c;
 
-  public RClient4Java() { this(null); }
+  public RClient4Java() { this(org.ddahl.rscala.RClient.defaultRCmd()); }
 
   public RClient4Java(String rCmd) { this(rCmd,false); }
 
@@ -84,9 +78,8 @@ public class RClient4Java {
 
   /** Calls and returns <b><tt>eval(snippet)</tt></b>.
   *   @param snippet  The snippet to be evaluated.
-  *   @return         The evaluated Object.
   */
-  public Object eval(String snippet) { return eval(snippet); }
+  public void eval(String snippet) { c.eval(snippet); }
 
   /** Evaluates <tt>snippet</tt> in the R interpreter.
   *

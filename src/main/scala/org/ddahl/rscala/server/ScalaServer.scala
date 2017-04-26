@@ -1,4 +1,4 @@
-package org.ddahl.rscala
+package org.ddahl.rscala.server
 
 import scala.annotation.tailrec
 import scala.tools.nsc.interpreter.{IMain,ILoop}
@@ -7,6 +7,7 @@ import scala.tools.nsc.Settings
 import java.net._
 import java.io._
 
+import org.ddahl.rscala._
 import Protocol._
  
 class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutputStream, baosErr: ByteArrayOutputStream, portsFilename: String, debugger: Debugger, serializeOutput: Boolean, rowMajor: Boolean, port: Int) {
