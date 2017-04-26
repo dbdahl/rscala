@@ -7,8 +7,8 @@ package org.ddahl.rscala;
 * callbacks to the original <a href="http://www.r-project.org">R</a> interpreter are possible.
 * 
 * In a JVM-based application, an instance of this class is created using its companion object.  See below.  The paths of the
-* rscala's JARs (for all supported versions of Scala) are available from <a href="http://www.r-project.org">R</a> using <tt>rscala::rscalaJar()</tt>.
-* To get just the JAR for Scala 2.11, for example, use <tt>rscala::rscalaJar("2.11")</tt>.
+* rscala's JARs (for all supported versions of Scala) are available from <a href="http://www.r-project.org">R</a> using <tt>rscala::.rscalaJar()</tt>.
+* To get just the JAR for Scala 2.12, for example, use <tt>rscala::.rscalaJar("2.12")</tt>.
 * 
 * <pre><span class="inner-pre" style="font-size:-2px">
 * {@code 

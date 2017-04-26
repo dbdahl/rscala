@@ -14,8 +14,8 @@ import Protocol._
 * callbacks to the original [[http://www.r-project.org R]] interpreter are possible.
 * 
 * In a JVM-based application, an instance of this class is created using its companion object.  See below.  The paths of the
-* rscala's JARs (for all supported versions of Scala) are available from [[http://www.r-project.org R]] using `rscala::rscalaJar()`.
-* To get just the JAR for Scala 2.11, for example, use `rscala::rscalaJar("2.11")`.
+* rscala's JARs (for all supported versions of Scala) are available from [[http://www.r-project.org R]] using `rscala::.rscalaJar()`.
+* To get just the JAR for Scala 2.12, for example, use `rscala::.rscalaJar("2.12")`.
 * 
 * {{{
 * val R = org.ddahl.rscala.RClient()
