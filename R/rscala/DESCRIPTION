@@ -8,5 +8,5 @@ URL: https://github.com/dbdahl/rscala
 BugReports: https://github.com/dbdahl/rscala/issues
 Imports: utils
 SystemRequirements: Scala (>= 2.10)
-Description: The Scala interpreter is embedded in R and callbacks to R from the embedded interpreter are supported.  Conversely, the R interpreter is embedded in Scala.  Scala versions in the 2.10.x, 2.11.x, and 2.12.x series are supported.
+Description: The Scala <http://www.scala-lang.org/> interpreter is embedded in R and callbacks to R from the embedded interpreter are supported.  Conversely, the R interpreter is embedded in Scala.  Scala versions in the 2.10.x, 2.11.x, and 2.12.x series are supported.
 License: GPL (>= 2) | BSD_3_clause + file LICENSE

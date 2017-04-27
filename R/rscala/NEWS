@@ -1,3 +1,6 @@
+2.0.1 (2017-05-27)
+  * Added URL to Scala webpage in DESCRIPTION as requested by CRAN.
+
 2.0.0 (2017-05-27)
   * Scala functions defined in R using the s$def() mechanism now specify the
     arguments using R code instead of a string snippet of Scala code.  Protocol
