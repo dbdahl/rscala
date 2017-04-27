@@ -1,6 +1,27 @@
 2.0.0 (2017-05-27)
-  * Fixed problem that the protocol.R may be inadvertantly excluded from the
+  * Scala functions defined in R using the s$def() mechanism now specify the
+    arguments using R code instead of a string snippet of Scala code.  Protocol
+    overhead is reduced.  Function definition is accessible.  Caching avoids
+    recompiling the same function for a big speed boost.
+  * The s$do() mechanism is deprecated in favor of a simpler syntax.  For
+    example, instead of s$do("scala.util.Random")$nextDouble(), use
+    s$.scala.util.Random$nextDouble().
+  * Scalars are now supported using the more flexible I() function and the
+    "length.one.as.vector" option is removed.
+  * The scalaEval, scalaGet, and scalaSet functions are removed in favor of the
+    %~%, %.~%, %@%, and $ operators.
+  * Support for matrices in either row-major or column-major order.
+  * Support for byte/raw type.
+  * Automatic garbage collection of Scala and R references.
+  * RClient now provides invoke methods to simplify calling R functions from
+    Scala and the scalaCallback function is removed.
+  * Callbacks to the original R interpreter now properly perform lexical
+    scoping as an R user would expect.
+  * Option to set the port numbers for the TCP/IP sockets.
+  * Fixed problem that the protocol.R may be inadvertently excluded from the
     JAR.
+  * Other bug fixes, documentation improvements, behind-the-scenes
+    optimization, and simplifications.
   * Bumped default Scala version to 2.12.2.
 
 1.0.15 (2017-02-07)
