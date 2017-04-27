@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# This script sets up pushing to both the official repository and the github
+# This script sets up pushing to both the official, internal repository and the public github
 # mirror.  Presummably the repository has already been check out using:
+#
 #   git clone git@dahl-git.byu.edu:dahl/rscala.git
 #   cd rscala
 
