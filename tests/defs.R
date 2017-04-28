@@ -1,5 +1,64 @@
 source("common.R",print.eval=TRUE)
 
+asdfasf  # Throw error 
+
+
+s <- scala()
+X <- scala(lazy=TRUE)
+
+f1 <- s$def(x=I(1)) %~% 'x'
+
+f2 <- function(x=I(1)) s %~% 'R.getI0("x")'
+
+f3 <- function(x=I(1)) s %~~% 'x'
+
+f4 <- function(x=I(1),.EVALUATE=FALSE) s %~~% 'x'
+
+f5 <- f4()
+
+g1 <- X()$def(x=I(1)) %~% 'x'
+
+g2 <- function(x=I(1)) X() %~% 'R.getI0("x")'
+
+g3 <- function(x=I(1)) X() %~~% 'x'
+
+g4 <- function(x=I(1),.EVALUATE=FALSE) X() %~~% 'x'
+
+g5 <- g4()
+
+
+f1(2)
+f2(2)
+f3(2)
+f4()(2)
+f5(2)
+
+g1(2)
+g2(2)
+g3(2)
+g4()(2)
+g5(2)
+
+
+library(microbenchmark)
+microbenchmark(
+    f1(2),
+    f2(2),
+    f3(2),
+    f4()(2),
+    f5(2),
+    g1(2),
+    g2(2),
+    g3(2),
+    g4()(2),
+    g5(2),
+  times=10000)
+
+
+
+
+
+
 
 ####
 

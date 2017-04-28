@@ -1,38 +1,62 @@
 ## Scala scripting over TCP/IP
 
-scala <- function(classpath=character(),serialize.output=FALSE,scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=60,debug=FALSE,stdout=TRUE,stderr=TRUE,port=0) {
-  if ( identical(stdout,TRUE) ) stdout <- ""
-  if ( identical(stderr,TRUE) ) stderr <- ""
-  debug <- identical(debug,TRUE)
-  serialize.output <- identical(serialize.output,TRUE)
-  row.major <- identical(row.major, TRUE)
-  port <- as.integer(port[1])
-  if ( debug && serialize.output ) stop("When debug is TRUE, serialize.output must be FALSE.")
-  if ( debug && ( identical(stdout,FALSE) || identical(stdout,NULL) || identical(stderr,FALSE) || identical(stderr,NULL) ) ) stop("When debug is TRUE, stdout and stderr must not be discarded.")
-  userJars <- unlist(strsplit(classpath,.Platform$path.sep))
-  if ( is.null(command.line.options) ) {
-    command.line.options <- getOption("rscala.command.line.options",default=NULL)
+scala <- function(classpath=character(),serialize.output=FALSE,scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=60,debug=FALSE,stdout=TRUE,stderr=TRUE,port=0,lazy=FALSE) {
+  func <- function() {
+    if ( identical(stdout,TRUE) ) stdout <- ""
+    if ( identical(stderr,TRUE) ) stderr <- ""
+    debug <- identical(debug,TRUE)
+    serialize.output <- identical(serialize.output,TRUE)
+    row.major <- identical(row.major, TRUE)
+    port <- as.integer(port[1])
+    if ( debug && serialize.output ) stop("When debug is TRUE, serialize.output must be FALSE.")
+    if ( debug && ( identical(stdout,FALSE) || identical(stdout,NULL) || identical(stderr,FALSE) || identical(stderr,NULL) ) ) stop("When debug is TRUE, stdout and stderr must not be discarded.")
+    userJars <- unlist(strsplit(classpath,.Platform$path.sep))
     if ( is.null(command.line.options) ) {
-      if ( is.null(heap.maximum) ) {
-        heap.maximum <- getOption("rscala.heap.maximum",default=NULL)
-      }
-      if ( !is.null(heap.maximum) ) {
-        command.line.options <- paste("-J",c(paste("-Xmx",heap.maximum,sep=""),"-Xms32M"),sep="")
+      command.line.options <- getOption("rscala.command.line.options",default=NULL)
+      if ( is.null(command.line.options) ) {
+        if ( is.null(heap.maximum) ) {
+          heap.maximum <- getOption("rscala.heap.maximum",default=NULL)
+        }
+        if ( !is.null(heap.maximum) ) {
+          command.line.options <- paste("-J",c(paste("-Xmx",heap.maximum,sep=""),"-Xms32M"),sep="")
+        }
       }
     }
+    sInfo <- scalaInfo(scala.home)
+    if ( is.null(sInfo) ) stop("Cannot find a suitable Scala installation.  Please manually install Scala or run 'scalaInstall()'.")
+    rsJar <- .rscalaJar(sInfo$version)
+    rsClasspath <- shQuote(paste(c(rsJar,userJars),collapse=.Platform$path.sep))
+    portsFilename <- tempfile("rscala-")
+    args <- c(command.line.options,paste0("-Drscala.classpath=",rsClasspath),"-classpath",rsClasspath,"org.ddahl.rscala.server.Main",portsFilename,debug,serialize.output,row.major,port)
+    if ( debug ) msg("\n",sInfo$cmd)
+    if ( debug ) msg("\n",paste0("<",args,">",collapse="\n"))
+    system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
+    sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
+    scalaSettings(sockets,interpolate=TRUE,info=sInfo)
+    sockets
   }
-  sInfo <- scalaInfo(scala.home)
-  if ( is.null(sInfo) ) stop("Cannot find a suitable Scala installation.  Please manually install Scala or run 'scalaInstall()'.")
-  rsJar <- .rscalaJar(sInfo$version)
-  rsClasspath <- shQuote(paste(c(rsJar,userJars),collapse=.Platform$path.sep))
-  portsFilename <- tempfile("rscala-")
-  args <- c(command.line.options,paste0("-Drscala.classpath=",rsClasspath),"-classpath",rsClasspath,"org.ddahl.rscala.server.Main",portsFilename,debug,serialize.output,row.major,port)
-  if ( debug ) msg("\n",sInfo$cmd)
-  if ( debug ) msg("\n",paste0("<",args,">",collapse="\n"))
-  system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
-  sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
-  scalaSettings(sockets,interpolate=TRUE,info=sInfo)
-  sockets
+  if ( ! lazy ) func()
+  else local({
+    s <- NULL
+    delayedSnippets <- character()
+    function(delayed.snippet=NULL) {
+      if ( is.null(delayed.snippet) ) {
+        if ( is.null(s) ) {
+          s <<- func()
+          s %@% delayedSnippets
+          delayedSnippets <<- character()
+        }
+        s
+      } else {
+        if ( is.null(s) ) {
+          delayedSnippets <<- c(delayedSnippets,delayed.snippet)
+        } else {
+          s %@% delayed.snippet
+        }
+        invisible()
+      }
+    }
+  })
 }
 
 newSockets <- function(portsFilename,debug,serialize.output,row.major,timeout) {
@@ -271,16 +295,22 @@ scalaGet <- function(interpreter,identifier,as.reference,workspace) {
   })
 }
 
+scalaNull <- function(type) {
+  structure(list(identifier='null',type=type), class="ScalaNullReference")
+}
+
 '$.ScalaInterpreter' <- function(interpreter,identifier) {
   cc(interpreter)
   if ( identifier == "def" ) function(...) {
+    warning(paste0("Syntax \"s$def(...) %~% '// Scala code'\" is deprecated and will be removed.  Use \"function(...) s %~~% '// Scala code'\" instead."))
     scalaDef(.INTERPRETER=interpreter,...)
   } else if ( identifier == "null" ) function(type) {
+    warning(paste0("This syntax is deprecated and will be removed.  Use the 'scalaNull' function instead."))
     result <- list(interpreter=interpreter,identifier='null',type=type)
     class(result) <- "ScalaInterpreterReference"
     result
   } else if ( identifier == "do" ) function(snippet) {
-    warning(paste0("Syntax \"s$do('",snippet,"')\" is deprecated.  Use \"s$.",snippet,"\" instead."))
+    warning(paste0("Syntax \"s$do('",snippet,"')\" is deprecated and will be removed.  Use \"s$.",snippet,"\" instead."))
     result <- list(interpreter=interpreter,snippet=snippet)
     class(result) <- "ScalaInterpreterItem"
     result
@@ -376,6 +406,28 @@ scalaSet <- function(interpreter,identifier,value,workspace) {
   invisible()
 }
 
+'%~~%.ScalaInterpreter' <- function(interpreter,snippet) {
+  if ( get("interpolate",envir=interpreter[['env']]) ) {
+    snippet <- strintrplt(snippet,parent.frame())
+  }
+  argsValues <- as.list(parent.frame(1))
+  argsFormals <- as.list(formals(sys.function(-2)))
+  as.reference <- NA
+  if ( ! is.null(argsFormals$.AS.REFERENCE) ) {
+    if ( identical(argsFormals$.AS.REFERENCE,TRUE) ) as.reference <- TRUE
+    argsFormals$.AS.REFERENCE <- NULL
+  }
+  evaluate <- TRUE
+  if ( ! is.null(argsFormals$.EVALUATE) ) {
+    if ( ! identical(argsFormals$.EVALUATE,TRUE) ) evaluate <- FALSE
+    argsFormals$.EVALUATE <- NULL
+  }
+  func1 <- do.call(scalaDef,c(list(.INTERPRETER=interpreter),argsFormals))
+  func2 <- scalaFunctionArgs(func1,snippet,as.reference=as.reference,parent.frame())
+  if ( evaluate ) do.call(func2,argsValues)
+  else func2
+}
+
 '$<-.ScalaInterpreter' <- function(interpreter,identifier,value) {
   cc(interpreter)
   scalaSet(interpreter,identifier,value,parent.frame())
@@ -398,7 +450,7 @@ scalaDef <- function(.INTERPRETER,...) {
     name <- argIdentifiers[[i]]
     if ( is.null(value) ) {
       header[i] <- paste0('val ',name,' = REphemeralReference("',name,'")')
-    } else if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") ) {
+    } else if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") || inherits(value,"ScalaNullReference")) {
       header[i] <- paste0('val ',name,' = R.cached(R.evalS0("toString(',name,')")).asInstanceOf[',value[['type']],']')
     } else {
       if ( ( ! is.atomic(value) ) || is.null(value) ) stop(paste0('Type of "',name,'" is not supported.'))
@@ -416,6 +468,7 @@ scalaDef <- function(.INTERPRETER,...) {
 }
 
 '%~%.ScalaFunctionArgs' <- function(interpreter,snippet) {
+  # Deprecated
   if ( get("interpolate",envir=interpreter$interpreter[['env']]) ) {
     snippet <- strintrplt(snippet,parent.frame())
   }
@@ -423,6 +476,7 @@ scalaDef <- function(.INTERPRETER,...) {
 }
 
 '%.~%.ScalaFunctionArgs' <- function(interpreter,snippet) {
+  # Deprecated
   if ( get("interpolate",envir=interpreter$interpreter[['env']]) ) {
     snippet <- strintrplt(snippet,parent.frame())
   }
@@ -547,22 +601,25 @@ close.ScalaInterpreter <- function(con,...) {
   close(con[['socketIn']])
 }
 
-.rscalaPackage <- function(pkgname, classpath.appendix=character(), ...) {
+.rscalaPackage <- function(pkgname, classpath.appendix=character(), lazy=TRUE, ...) {
   classpath <- c(list.files(system.file("java",package=pkgname),pattern=".*\\.jar$",full.names=TRUE,recursive=TRUE),classpath.appendix)
   env <- parent.env(parent.frame())    # Environment of depending package (assuming this function is only called in .onLoad function).
-  assign("s", scala(classpath=classpath,...), envir=env)    # Assign to environment of depending package
-  delayedEnv <- get(".rscalaDelayed",envir=env)
-  lapply(
-    ls(envir=delayedEnv), function(x) {
-      expression <- get(x,envir=delayedEnv)
-      eval(expression,envir=env)
-    }
-  )
-  rm(".rscalaDelayed",envir=env)
+  assign("s", scala(classpath=classpath,lazy=lazy,...), envir=env)    # Assign to environment of depending package
+  if ( exists(".rscalaDelayed",envir=env) ) {
+    delayedEnv <- get(".rscalaDelayed",envir=env)
+    lapply(
+      ls(envir=delayedEnv), function(x) {
+        expression <- get(x,envir=delayedEnv)
+        eval(expression,envir=env)
+      }
+    )
+    rm(".rscalaDelayed",envir=env)
+  }
   invisible()
 }
 
 .rscalaDelay <- function(expression) {
+  warning("The .rscalaDelay function is deprecated and will be removed.")
   env <- parent.frame()
   if ( ! exists(".rscalaDelayed",envir=env) ) {
     assign(".rscalaDelayed",new.env(parent=emptyenv()),envir=env)

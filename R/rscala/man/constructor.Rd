@@ -2,6 +2,7 @@
 \alias{scala}
 \alias{scalaInfo}
 \alias{scalaInstall}
+\alias{scalaNull}
 \alias{.rscalaJar}
 \alias{.rscalaPackage}
 \alias{.rscalaDelay}
@@ -34,27 +35,28 @@ globally as described here:
 \url{http://www.scala-lang.org/download/install.html}.  In short, simply
 download the archive, unpack it, and add the \dQuote{scala} script to the path. 
 
-The function \code{\link{.rscalaPackage}} should be called in the \code{.onLoad}
-function of a package that wishes to depend on this package.  The function
-should not be called elsewhere.  It sets the classpath to the JAR
+The function \code{\link{.rscalaPackage}} should be called in the
+\code{.onLoad} function of a package that wishes to depend on this package.
+The function should not be called elsewhere.  It sets the classpath to the JAR
 files in the \sQuote{java} directory of the package and passes the \code{...}
-arguments to the \code{\link{scala}} function.  This instance of Scala is
-available as the object \code{s} in the namespace of the package (thereby
-making it available to the package's function) but it is not exported from
-the namespace.  Since the object \code{s} is only available once the package is
-loaded, package functions defined using Scala functions via the \code{s$def(...)} 
-mechanism should wrap the expression in the \code{\link{.rscalaDelay}} function.
+arguments to the \code{\link{scala}} function.  The result is available as the
+object \code{s} in the namespace of the package (thereby making it available to
+the package's function) but it is not exported from the namespace.  If
+\code{lazy=TRUE}, the object \code{s} is a function returning the cached Scala
+compiler/interpreter, otherwise it is compiler/interpreter itself.
 }
 \usage{
 scala(classpath=character(),
       serialize.output=FALSE, scala.home=NULL,
       heap.maximum=NULL, command.line.options=NULL, row.major=TRUE,
-      timeout=60, debug=FALSE, stdout=TRUE, stderr=TRUE, port=0)
+      timeout=60, debug=FALSE, stdout=TRUE, stderr=TRUE, port=0,
+      lazy=FALSE)
 
 scalaInfo(scala.home=NULL, verbose=FALSE)
 scalaInstall()
+scalaNull(type)
 .rscalaJar(version="")
-.rscalaPackage(pkgname, classpath.appendix=character(), ...)
+.rscalaPackage(pkgname, classpath.appendix=character(), lazy=TRUE, ...)
 .rscalaDelay(expression)
 }
 \arguments{
@@ -68,7 +70,9 @@ scalaInstall()
     \item{debug}{An option meant only for developers of the package itself and not intended for users of the package.}
     \item{stdout, stderr}{Where \code{stdout} and \code{stderr} output that is not serialized is should be sent.  \code{TRUE} (the default) or \code{""} sends output to the R console (although that may not work on Windows).  \code{FALSE} or \code{NULL} discards the output.  Otherwise, this is the name of the file that receives the output.}
     \item{port}{If \code{0}, two random ports are selected.  Otherwise, \code{port} and \code{port+1} are used to the TCP/IP connections.}
+    \item{lazy}{If \code{FALSE}, an \R object representing an embedded Scala interpreter is returned.  If \code{TRUE}, a nullary function is returned which, on its first call, will create and return an Scala compiler/interpreter and, in subsequent calls, will return its cached value.}
     \item{verbose}{A logical vector of length one indicating whether information regarding the search for the Scala installation should be displayed.}
+    \item{type}{A string containing a valid Scala type, e.g., \code{"List[Double]"}.}
     \item{version}{If \code{""}, the package JAR files for all Scala versions are returned. Or, if \code{"2.*.*"} where \code{*} is a placeholder, the JAR file for that specific major version of Scala is returned.}
     \item{pkgname}{A character string giving the name of the package (as provided the second argument of the \code{.onLoad} function) that wishes to depend on this package.}
     \item{classpath.appendix}{A character vector giving additional JAR files or directories for the Scala compiler/interpreter embedded within a package via the \code{\link{.rscalaPackage}} function.  The JAR files in the \sQuote{java} directory of the package are already included and do not need to be added here.}
@@ -76,7 +80,7 @@ scalaInstall()
     \item{expression}{An expression that will be evaluated when the \code{\link{.rscalaPackage}} function run.  This facility allows Scala functions to be defined in the package namespace using the \code{s$def(...} mechanism}.
 }
 \value{
-    \code{\link{scala}} returns an \R object representing an embedded Scala interpreter.
+    If \code{lazy=FALSE}, \code{\link{scala}} returns an \R object representing an embedded Scala interpreter.  If \code{lazy=TRUE}, a nullary function is returned which, on its first call, will create and return an Scala compiler/interpreter and, in subsequent calls, will return its cached value. 
 
     \code{\link{scalaInfo}} returns a list detailing the Scala executable, version, jars, etc.
 }
@@ -159,7 +163,7 @@ identical( f(cube,1:4,TRUE),  sum((2*(1:4))^3) )
 
 # Longer example showing that s$def(...) is more flexible and faster than '\%~\%'
 s$rng <- rng
-drawGaussian <- s$def(mean=I(0.0), sd=I(1.0)) \%~\% 'mean+sd*rng.nextDouble'
+drawGaussian <- function(mean=I(0.0), sd=I(1.0)) s \%~~\% 'mean+sd*rng.nextDouble'
 drawGaussian(3,0.1)  # No scalar protection or casting is needed.
 n.draws <- 100
 system.time({
@@ -173,7 +177,7 @@ system.time({
   '
   acf(draws,plot=FALSE)
 })
-sampler <- s$def(nDraws=I(1L), rho=I(0.0)) \%~\% '
+sampler <- function(nDraws=I(1L), rho=I(0.0)) s \%~~\% '
   val result = new Array[Double](nDraws)
   result(0) = rng.nextGaussian
   for ( i <- 1 until nDraws ) {

@@ -3,6 +3,7 @@
 \alias{\%@\%}
 \alias{\%~\%}
 \alias{\%.~\%}
+\alias{\%~~\%}
 \alias{$.ScalaInterpreter}
 \alias{$<-.ScalaInterpreter}
 \docType{methods}
