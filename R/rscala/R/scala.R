@@ -190,7 +190,7 @@ toString.ScalaInterpreterItem <- function(x,...) {
   "ScalaInterpreterItem"
 }
 
-scalaGet <- function(interpreter,identifier,as.reference,workspace) {
+scalaGet <- function(interpreter,identifier,as.reference) {
   tryCatch({
     if ( ( ! is.na(as.reference) ) && ( as.reference ) ) {
       if ( inherits(identifier,"ScalaInterpreterReference") || inherits(identifier,"ScalaCachedReference") ) return(identifier)
@@ -279,7 +279,7 @@ scalaGet <- function(interpreter,identifier,as.reference,workspace) {
     } else if ( dataStructure == UNSUPPORTED_STRUCTURE ) {
       if ( is.na(as.reference) ) {
         if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
-        return(scalaGet(interpreter,identifier,as.reference=TRUE))
+        return(scalaGet(interpreter,identifier,TRUE))
       } else {
         if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
         stop("Unsupported data structure.")
@@ -315,24 +315,24 @@ scalaNull <- function(type) {
     class(result) <- "ScalaInterpreterItem"
     result
   } else if ( identifier == "val" ) function(x) {
-    scalaGet(interpreter,x,NA,parent.frame())
+    warning(paste0("Syntax \"s$val()\" is deprecated and will be removed.  Use the 'scalaGet' function instead."))
+    scalaGet(interpreter,x,NA)
   } else if ( identifier == ".val" ) function(x) {
-    scalaGet(interpreter,x,TRUE,parent.frame())
+    warning(paste0("Syntax \"s$.val()\" is deprecated and will be removed.  Use the 'scalaGet' function instead."))
+    scalaGet(interpreter,x,TRUE)
   } else if ( substr(identifier,1,1) == "." ) {
     identifier <- substring(identifier,2)
     result <- list(interpreter=interpreter,snippet=identifier)
     class(result) <- "ScalaInterpreterItem"
     result
   } else if ( identifier %in% names(interpreter) ) {
-    stop("This item is not user accessible.")
+    stop("This item is not accessible via the '$' operator.")
   } else {
-    scalaGet(interpreter,identifier,NA,parent.frame())
+    scalaGet(interpreter,identifier,NA)
   }
 }
 
-scalaSet <- function(interpreter,identifier,value,workspace) {
-  debug <- get("debug",envir=interpreter[['env']])
-  if ( debug ) msg(paste0("Starting scalaSet with environment:",capture.output(print(workspace))))
+scalaSet <- function(interpreter,identifier,value) {
   tryCatch({
     if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") ) {
       if ( get("debug",envir=interpreter[['env']]) ) msg("Sending SET request.")
@@ -430,7 +430,7 @@ scalaSet <- function(interpreter,identifier,value,workspace) {
 
 '$<-.ScalaInterpreter' <- function(interpreter,identifier,value) {
   cc(interpreter)
-  scalaSet(interpreter,identifier,value,parent.frame())
+  scalaSet(interpreter,identifier,value)
   interpreter
 }
 
@@ -519,7 +519,7 @@ scalaFunctionArgs <- function(func,body,as.reference,workspace) {
       if ( .rsStatus == rscala:::ERROR ) {
         stop("Invocation error.")
       } else {
-        .rsResult <- rscala:::scalaGet(.rsI,"?",@{as.reference},.rsWorkspace)
+        .rsResult <- rscala:::scalaGet(.rsI,"?",@{as.reference})
         if ( is.null(.rsResult) ) invisible(.rsResult)
         else .rsResult
       }
@@ -750,7 +750,7 @@ scalaInfo <- function(scala.home=NULL,verbose=FALSE) {
 
 evalAndGet <- function(interpreter,snippet,as.reference,workspace) {
   scalaEval(interpreter,snippet,workspace)
-  scalaGet(interpreter,".",as.reference,workspace)
+  scalaGet(interpreter,".",as.reference)
 }
 
 checkType <- function(x) {
