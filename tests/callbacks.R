@@ -7,7 +7,7 @@ assert <- function(xx) {
   s %@% 'R.a = xx'
   if ( ! identical(a, xx) ) stop("Not identical (test 3)")
   if ( ! identical(s$.R$get(I("xx"))$"_1"(), xx) ) stop("Not identical (test 4)")
-  m <- s$def() %~% 'R.get("xx")._1'
+  m <- function() s %!% 'R.get("xx")._1'
   if ( ! identical(m(), xx) ) stop("Not identical (test 5)")
 }
 
@@ -23,7 +23,7 @@ for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y),as.raw(
 
 #### Callbacks with named arguments
 
-mySort <- s$def(NULL,ascending=I(TRUE)) %~% '
+mySort <- function(NULL,ascending=I(TRUE)) s %!% '
   R.invokeD1( REphemeralReference("sort"), x1, "decreasing" -> ! ascending )
 '
 
@@ -121,20 +121,20 @@ myMean <- function(data,offset) {
   mean(data+offset)
 }
 
-callRFunction <- s$def(func=NULL, x=numeric(), y=NULL) %~% '
+callRFunction <- function(func=NULL, x=numeric(), y=NULL) s %!% '
   R.invokeD1(func,x.map(2*_).map(_.getClass),y)
 '
 
 tryCatch(callRFunction(myMean,1:4,5), error=function(e) e)
 s %~% "3+4"
 
-callRFunction <- s$def(func=NULL, x=numeric(), y=NULL) %~% '
+callRFunction <- function(func=NULL, x=numeric(), y=NULL) s %!% '
   R.invokeD1(func,x.map(2*_),y)
 '
 
 callRFunction(myMean,y=0,x=1:100)
 
-callRFunction0D2 <- s$def(func=NULL) %~% 'R.invokeD2(func)'
+callRFunction0D2 <- function(func=NULL) s %~% 'R.invokeD2(func)'
 callRFunction0D2(gc)
 
 tryCatch(callRFunction(1:100),error = function(e) {})
