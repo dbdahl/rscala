@@ -46,13 +46,25 @@ doit2(rnorm(10))
 
 
 # Multiple callbacks in compiled code.
-doit3 <- s$def(x=numeric()) %~% '
+doit3 <- function(x=numeric()) s %!% '
   R.set("y",x.map(2*_))
   Array(R.evalD0("f(y)"),
         R.evalD0("g(y)"))
 '
 
 doit3(rnorm(10))
+
+
+
+# Multiple callbacks in compiled code.
+doit4Maker <- function(x=numeric(),.EVALUATE=FALSE) s %!% '
+  R.set("y",x.map(2*_))
+  Array(R.evalD0("f(y)"),
+        R.evalD0("g(y)"))
+'
+
+doit4 <- doit4Maker()
+doit4(rnorm(10))
 
 
 
@@ -66,6 +78,7 @@ microbenchmark(
   doit1(rnorm(10)),
   doit2(rnorm(10)),
   doit3(rnorm(10)),
+  doit4(rnorm(10)),
   times=10
 )
 microbenchmark(
@@ -73,6 +86,7 @@ microbenchmark(
   #doit1(rnorm(10)),
   #doit2(rnorm(10)),
   doit3(rnorm(10)),
+  doit4(rnorm(10)),
   times=1000
 )
 
@@ -83,6 +97,7 @@ microbenchmark(
   doit1(rnorm(10)),
   doit2(rnorm(10)),
   doit3(rnorm(10)),
+  doit4(rnorm(10)),
   times=5
 )
 
