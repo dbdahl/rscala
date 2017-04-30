@@ -270,8 +270,8 @@ scalaNull <- function(type) {
 '$.ScalaInterpreter' <- function(interpreter,identifier) {
   cc(interpreter)
   if ( identifier == "def" ) function(...) {
-    warning(paste0("Syntax \"s$def(...) %~% '// Scala code'\" is deprecated and will be removed.  Use \"function(...) s %~~% '// Scala code'\" instead."))
-    scalaDef(.INTERPRETER=interpreter,...)
+    warning(paste0("Syntax \"s$def(...) %~% '// Scala code'\" is deprecated and will be removed.  Use \"function(...) s %!% '// Scala code'\" instead."))
+    scalaFunctionArgs(.INTERPRETER=interpreter,...)
   } else if ( identifier == "null" ) function(type) {
     warning(paste0("This syntax is deprecated and will be removed.  Use the 'scalaNull' function instead."))
     result <- list(interpreter=interpreter,identifier='null',type=type)
@@ -374,24 +374,22 @@ scalaSet <- function(interpreter,identifier,value) {
   invisible()
 }
 
-'%~~%.ScalaInterpreter' <- function(interpreter,snippet) {
+'%!%.ScalaInterpreter'  <- function(interpreter,snippet) scalaDef(interpreter,snippet,NA)
+'%.!%.ScalaInterpreter' <- function(interpreter,snippet) scalaDef(interpreter,snippet,TRUE)
+
+scalaDef <- function(interpreter,snippet,as.reference) {
   if ( get("interpolate",envir=interpreter[['env']]) ) {
     snippet <- strintrplt(snippet,parent.frame())
   }
-  argsValues <- as.list(parent.frame(1))
-  argsFormals <- as.list(formals(sys.function(-2)))
-  as.reference <- NA
-  if ( ! is.null(argsFormals$.AS.REFERENCE) ) {
-    if ( identical(argsFormals$.AS.REFERENCE,TRUE) ) as.reference <- TRUE
-    argsFormals$.AS.REFERENCE <- NULL
-  }
+  argsValues <- as.list(parent.frame(2))
+  argsFormals <- as.list(formals(sys.function(-3)))
   evaluate <- TRUE
   if ( ! is.null(argsFormals$.EVALUATE) ) {
     if ( ! identical(argsFormals$.EVALUATE,TRUE) ) evaluate <- FALSE
     argsFormals$.EVALUATE <- NULL
   }
-  func1 <- do.call(scalaDef,c(list(.INTERPRETER=interpreter),argsFormals))
-  func2 <- scalaFunctionArgs(func1,snippet,as.reference=as.reference,parent.frame())
+  func1 <- do.call(scalaFunctionArgs,c(list(.INTERPRETER=interpreter),argsFormals))
+  func2 <- scalaMkFunction(func1,snippet,as.reference=as.reference,parent.frame())
   if ( evaluate ) do.call(func2,argsValues)
   else func2
 }
@@ -402,7 +400,7 @@ scalaSet <- function(interpreter,identifier,value) {
   interpreter
 }
 
-scalaDef <- function(.INTERPRETER,...) {
+scalaFunctionArgs <- function(.INTERPRETER,...) {
   argValues <- list(...)
   argIdentifiers <- names(argValues)
   if ( is.null(argIdentifiers) ) {
@@ -440,7 +438,7 @@ scalaDef <- function(.INTERPRETER,...) {
   if ( get("interpolate",envir=interpreter$interpreter[['env']]) ) {
     snippet <- strintrplt(snippet,parent.frame())
   }
-  scalaFunctionArgs(interpreter,snippet,as.reference=NA,parent.frame())
+  scalaMkFunction(interpreter,snippet,as.reference=NA,parent.frame())
 }
 
 '%.~%.ScalaFunctionArgs' <- function(interpreter,snippet) {
@@ -448,10 +446,10 @@ scalaDef <- function(.INTERPRETER,...) {
   if ( get("interpolate",envir=interpreter$interpreter[['env']]) ) {
     snippet <- strintrplt(snippet,parent.frame())
   }
-  scalaFunctionArgs(interpreter,snippet,as.reference=TRUE,parent.frame())
+  scalaMkFunction(interpreter,snippet,as.reference=TRUE,parent.frame())
 }
 
-scalaFunctionArgs <- function(func,body,as.reference,workspace) {
+scalaMkFunction <- function(func,body,as.reference,workspace) {
   interpreter <- func$interpreter
   body <- paste(body,collapse="\n")
   fullBody <- paste0(c(func$header,body),collapse='\n')
@@ -511,7 +509,7 @@ print.ScalaFunction <- function(x,...) {
   cat(signature,'\n',p,'}\n',sep='')
 }
 
-scalaAutoDef <- function(reference,method) {
+scalaAutoMkFunction <- function(reference,method) {
   interpreter <- reference[['interpreter']]
   function(..., .AS.REFERENCE = NA, .EVALUATE = TRUE) {
     args <- list(...)
@@ -532,15 +530,15 @@ scalaAutoDef <- function(reference,method) {
       }
     } else stop('Unrecognized reference type.')
     snippet <- strintrplt(snippet)
-    f <- scalaFunctionArgs(scalaDef(.INTERPRETER=interpreter,...),snippet,as.reference=.AS.REFERENCE,parent.frame())
+    f <- scalaMkFunction(scalaFunctionArgs(.INTERPRETER=interpreter,...),snippet,as.reference=.AS.REFERENCE,parent.frame())
     if ( .EVALUATE ) f(...)
     else f
   }
 }
 
-'$.ScalaCachedReference' <- scalaAutoDef
-'$.ScalaInterpreterReference' <- scalaAutoDef
-'$.ScalaInterpreterItem' <- scalaAutoDef
+'$.ScalaCachedReference' <- scalaAutoMkFunction
+'$.ScalaInterpreterReference' <- scalaAutoMkFunction
+'$.ScalaInterpreterItem' <- scalaAutoMkFunction
 
 scalap <- function(interpreter,class.name) {
   if ( ! inherits(interpreter,"ScalaInterpreter") ) stop("The first argument must be an interpreter.")
@@ -577,7 +575,8 @@ close.ScalaInterpreter <- function(con,...) {
     s <- scala(classpath=classpath,...)
     s %@% snippet
     s
-  }, envir=env)
+  }, assign.env=env)
+  # Deprecated and will be removed.
   if ( exists(".rscalaDelayed",envir=env) ) {
     delayedEnv <- get(".rscalaDelayed",envir=env)
     lapply(
