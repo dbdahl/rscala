@@ -1,45 +1,17 @@
 library(rscala)
 s <- scala()
 
-x <- 5
-m <- function() s %!% 'R.get("x")._1'
-m()
-
-wrapper <- function() {
-  n <- function() s %!% 'R.get("x")._1'
-  n()
-}
-
-wrapper()
-
-wrapper2 <- function(x) {
-  n <- function() s %!% 'R.get("x")._1'
-  n()
-}
-
-wrapper2(55) ## But should be 55
-
-wrapper3 <- function() {
-  x <- 10
-  n <- function() s %!% 'R.get("x")._1'
-  n()
-}
-
-wrapper3() ## But should be 10
-
-#### Idea:  rather than .EVALUATE=FALSE,
-###
-##
-
 f <- function(x=I(1.0)) s %!% "2*x"
 f()
+f(5)
 
-g <- function(x=I(1.0),.EVALUATE=FALSE) s %!% "2*x"
-h <- g()
-h()        # Should that support default arguments?  It doesn't right now.
+h <- scalaOptimize(f)
+h()        # Should that support default arguments?  I think this could be easy done by setting the write environemtn when the funtion is defined.  It doesn't right now.
 h(5)
 
-h <- scalaAsFunction(f)
-h()
-h(5)
+library(microbenchmark)
+microbenchmark(
+  f(5),
+  h(5),
+  times=1000)
 

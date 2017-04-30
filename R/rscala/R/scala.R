@@ -101,7 +101,7 @@ strintrpltIf <- function(snippet,env,interpreter) {
 
 scalaEvalGet <- function(interpreter,snippet,as.reference) {
   cc(interpreter)
-  snippet <- strintrpltIf(paste(snippet,collapse="\n"),parent.frame(),interpreter)
+  snippet <- strintrpltIf(paste(snippet,collapse="\n"),parent.frame(2),interpreter)
   result <- evalAndGet(interpreter,snippet,as.reference,parent.frame(2))
   if ( is.null(result) ) invisible(result)
   else result
@@ -376,18 +376,19 @@ scalaSet <- function(interpreter,identifier,value) {
 '%.!%.ScalaInterpreter' <- function(interpreter,snippet) scalaDef(interpreter,snippet,TRUE)
 
 scalaDef <- function(interpreter,snippet,as.reference) {
-  snippet <- strintrpltIf(snippet,parent.frame(),interpreter)
+  snippet <- strintrpltIf(snippet,parent.frame(3),interpreter)
   argsValues <- as.list(parent.frame(2))
   argsFormals <- as.list(formals(sys.function(-3)))
-  evaluate <- TRUE
-  if ( ! is.null(argsFormals$.EVALUATE) ) {
-    if ( ! identical(argsFormals$.EVALUATE,TRUE) ) evaluate <- FALSE
-    argsFormals$.EVALUATE <- NULL
-  }
+  evaluate <- ! exists(".SCALA.OPTIMIZE", envir = parent.frame(3))
   func1 <- do.call(scalaFunctionArgs,c(list(.INTERPRETER=interpreter),argsFormals))
-  func2 <- scalaMkFunction(func1,snippet,as.reference=as.reference,parent.frame())
+  func2 <- scalaMkFunction(func1,snippet,as.reference=as.reference,parent.frame(2))
   if ( evaluate ) do.call(func2,argsValues)
   else func2
+}
+
+scalaOptimize <- function(scalaFunction) {
+  .SCALA.OPTIMIZE <- TRUE
+  scalaFunction()
 }
 
 '$<-.ScalaInterpreter' <- function(interpreter,identifier,value) {

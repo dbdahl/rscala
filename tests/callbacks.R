@@ -23,8 +23,8 @@ for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y),as.raw(
 
 #### Callbacks with named arguments
 
-mySort <- function(NULL,ascending=I(TRUE)) s %!% '
-  R.invokeD1( REphemeralReference("sort"), x1, "decreasing" -> ! ascending )
+mySort <- function(x=NULL,ascending=I(TRUE)) s %!% '
+  R.invokeD1( REphemeralReference("sort"), x, "decreasing" -> ! ascending )
 '
 
 set.seed(13242)
@@ -134,7 +134,7 @@ callRFunction <- function(func=NULL, x=numeric(), y=NULL) s %!% '
 
 callRFunction(myMean,y=0,x=1:100)
 
-callRFunction0D2 <- function(func=NULL) s %~% 'R.invokeD2(func)'
+callRFunction0D2 <- function(func=NULL) s %!% 'R.invokeD2(func)'
 callRFunction0D2(gc)
 
 tryCatch(callRFunction(1:100),error = function(e) {})

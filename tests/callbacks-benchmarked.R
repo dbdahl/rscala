@@ -56,14 +56,9 @@ doit3(rnorm(10))
 
 
 
-# Multiple callbacks in compiled code.
-doit4Maker <- function(x=numeric(),.EVALUATE=FALSE) s %!% '
-  R.set("y",x.map(2*_))
-  Array(R.evalD0("f(y)"),
-        R.evalD0("g(y)"))
-'
+# Multiple callbacks in compiled code with optimization.
+doit4 <- scalaOptimize(doit3)
 
-doit4 <- doit4Maker()
 doit4(rnorm(10))
 
 
