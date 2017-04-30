@@ -92,15 +92,16 @@ scalaEval <- function(interpreter,snippet,workspace) {
   else invisible(NULL)
 }
 
+strintrpltIf <- function(snippet,env,interpreter) {
+  if ( get("interpolate",envir=interpreter[['env']]) ) strintrplt(snippet,env) else snippet
+}
+
 '%~%.ScalaInterpreter'  <- function(interpreter,snippet) scalaEvalGet(interpreter,snippet,NA)
 '%.~%.ScalaInterpreter' <- function(interpreter,snippet) scalaEvalGet(interpreter,snippet,TRUE)
 
 scalaEvalGet <- function(interpreter,snippet,as.reference) {
   cc(interpreter)
-  snippet <- paste(snippet,collapse="\n")
-  if ( get("interpolate",envir=interpreter[['env']]) ) {
-    snippet <- strintrplt(snippet,parent.frame())
-  }
+  snippet <- strintrpltIf(paste(snippet,collapse="\n"),parent.frame(),interpreter)
   result <- evalAndGet(interpreter,snippet,as.reference,parent.frame(2))
   if ( is.null(result) ) invisible(result)
   else result
@@ -108,10 +109,7 @@ scalaEvalGet <- function(interpreter,snippet,as.reference) {
 
 '%@%.ScalaInterpreter' <- function(interpreter,snippet) {
   cc(interpreter)
-  snippet <- paste(snippet,collapse="\n")
-  if ( get("interpolate",envir=interpreter[['env']]) ) {
-    snippet <- strintrplt(snippet,parent.frame())
-  }
+  snippet <- strintrpltIf(paste(snippet,collapse="\n"),parent.frame(),interpreter)
   scalaEval(interpreter,snippet,parent.frame())
 }
 
@@ -378,9 +376,7 @@ scalaSet <- function(interpreter,identifier,value) {
 '%.!%.ScalaInterpreter' <- function(interpreter,snippet) scalaDef(interpreter,snippet,TRUE)
 
 scalaDef <- function(interpreter,snippet,as.reference) {
-  if ( get("interpolate",envir=interpreter[['env']]) ) {
-    snippet <- strintrplt(snippet,parent.frame())
-  }
+  snippet <- strintrpltIf(snippet,parent.frame(),interpreter)
   argsValues <- as.list(parent.frame(2))
   argsFormals <- as.list(formals(sys.function(-3)))
   evaluate <- TRUE
@@ -435,17 +431,13 @@ scalaFunctionArgs <- function(.INTERPRETER,...) {
 
 '%~%.ScalaFunctionArgs' <- function(interpreter,snippet) {
   # Deprecated
-  if ( get("interpolate",envir=interpreter$interpreter[['env']]) ) {
-    snippet <- strintrplt(snippet,parent.frame())
-  }
+  snippet <- strintrpltIf(snippet,parent.frame(),interpreter)
   scalaMkFunction(interpreter,snippet,as.reference=NA,parent.frame())
 }
 
 '%.~%.ScalaFunctionArgs' <- function(interpreter,snippet) {
   # Deprecated
-  if ( get("interpolate",envir=interpreter$interpreter[['env']]) ) {
-    snippet <- strintrplt(snippet,parent.frame())
-  }
+  snippet <- strintrpltIf(snippet,parent.frame(),interpreter)
   scalaMkFunction(interpreter,snippet,as.reference=TRUE,parent.frame())
 }
 
