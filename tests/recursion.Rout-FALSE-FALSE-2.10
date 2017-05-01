@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # ramah # FALSE # FALSE
+# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # FALSE
 > 
 > 
 > # This is not recursion via callbacks.
@@ -48,7 +48,7 @@ Hello 9 from R.
 > 
 > 
 > # This is recursion via callbacks using a predefined function
-> hh <- s$def(x=I(0L)) %~% '
+> hh <- function(x=I(0L)) s %!% '
 +   println(s"Hello $x from Scala.")
 +   R.eval(s"h(${x+1})")
 + '
@@ -72,7 +72,7 @@ Hello 9 from R.
 > 
 > 
 > # This is recursion via callbacks using a Scala function
-> i <- s$def(x=I(0L)) %~% '
+> i <- function(x=I(0L)) s %!% '
 +   if ( x < 10 ) {
 +     println(s"Hello $x from Scala.")
 +     R.eval(s"""cat("Hello ${x} from R.\n"); i(${x+1})""")
@@ -297,11 +297,11 @@ Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
 Unit: milliseconds
- expr        min         lq       mean      median          uq        max neval
- f(0) 752.084380 941.229513 1173.66858 1125.163499 1323.916970 1725.94854     5
- g(0) 541.099554 583.899006  824.74895  859.817195  912.643034 1226.28594     5
- h(0)   7.434654   7.838913   10.06615    8.229687    9.548288   17.27921     5
- i(0)   9.895826  12.718766   17.92940   12.753324   19.149872   35.12920     5
+ expr       min        lq       mean     median         uq        max neval
+ f(0) 927.41359 935.66413 1394.49325 1507.68401 1577.68364 2024.02088     5
+ g(0) 472.44464 610.30475  756.04254  775.78449  844.25945 1077.41935     5
+ h(0)  22.73530  23.12887   26.12019   23.65985   27.79937   33.27759     5
+ i(0)  27.38751  27.84447   36.43442   32.08765   32.99048   61.86198     5
 > 
 > cat("####\n")
 ####
@@ -2309,8 +2309,8 @@ Hello 8 from R.
 Hello 9 from R.
 Unit: milliseconds
  expr      min       lq     mean   median       uq      max neval
- h(0) 3.467350 3.817537 5.166552 4.081708 5.632682 20.53037   100
- i(0) 3.677817 4.012794 5.456452 4.217714 6.609365 12.76577   100
+ h(0) 10.48864 11.84773 15.19850 13.42502 16.74541 54.03526   100
+ i(0) 10.48952 12.53074 15.87045 13.97531 18.15693 47.21143   100
 > 
 > 
 > 

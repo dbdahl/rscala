@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # ramah # FALSE # TRUE
+# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # TRUE
 > 
 > 
 > set.seed(3432585)
@@ -16,8 +16,6 @@
               ^
 <simpleError in doTryCatch(return(expr), name, parentenv, handler): Undefined identifier: adf>
 > 
-> tryCatch(s$.val("def"),error = function(e) e)
-<simpleError in doTryCatch(return(expr), name, parentenv, handler): Undefined identifier: def>
 > tryCatch(s$def <- 4,error = function(e) e)
 > s %~% "3+4"
 <console>:1: error: illegal start of simple pattern
@@ -25,21 +23,24 @@
            ^
 [1] 7
 > 
-> f <- s$ def(x=I(numeric()),y=I(numeric())) %~% '
-+   x+y
-+ '
-> f(3,4)
-[1] 7
-> 
 > x <- as.character(0:8)
 > set.seed(234235)
 > s$x <- rnorm(100)
 > tryCatch(s$val(x),error = function(e) e)
 NULL
+Warning message:
+In s$val(x) :
+  Syntax "s$val()" is deprecated and will be removed.  Use the 'scalaGet' function instead.
 > identical(s$x,s$.val("x"))
 [1] FALSE
+Warning message:
+In s$.val("x") :
+  Syntax "s$.val()" is deprecated and will be removed.  Use the 'scalaGet' function instead.
 > identical(s$x,s$val("x"))
 [1] TRUE
+Warning message:
+In s$val("x") :
+  Syntax "s$val()" is deprecated and will be removed.  Use the 'scalaGet' function instead.
 > 
 > s %~% "val $bob = 4"
 [1] 4
@@ -47,5 +48,8 @@ NULL
 [1] 4
 > s$val('$bob')
 [1] 4
+Warning message:
+In s$val("$bob") :
+  Syntax "s$val()" is deprecated and will be removed.  Use the 'scalaGet' function instead.
 > 
 > 

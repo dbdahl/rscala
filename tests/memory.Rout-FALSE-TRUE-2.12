@@ -1,6 +1,6 @@
 > heap.maximum <- "64M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # ramah # FALSE # TRUE
+# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # TRUE
 > 
 > tryCatch(a <- s$".Array[Double]"$new(I(20000000L)),error=function(e) e)
 java.lang.reflect.InvocationTargetException
@@ -8,11 +8,11 @@ java.lang.reflect.InvocationTargetException
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:127)
-	at org.ddahl.rscala.ScalaServer.heart(ScalaServer.scala:511)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:538)
-	at org.ddahl.rscala.Main$.delayedEndpoint$org$ddahl$rscala$Main$1(Main.scala:5)
-	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:3)
+	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:128)
+	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:512)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:539)
+	at org.ddahl.rscala.server.Main$.delayedEndpoint$org$ddahl$rscala$server$Main$1(Main.scala:5)
+	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0.apply$mcV$sp(Function0.scala:34)
 	at scala.Function0.apply$mcV$sp$(Function0.scala:34)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
@@ -20,8 +20,8 @@ java.lang.reflect.InvocationTargetException
 	at scala.collection.immutable.List.foreach(List.scala:389)
 	at scala.App.main(App.scala:76)
 	at scala.App.main$(App.scala:74)
-	at org.ddahl.rscala.Main$.main(Main.scala:3)
-	at org.ddahl.rscala.Main.main(Main.scala)
+	at org.ddahl.rscala.server.Main$.main(Main.scala:3)
+	at org.ddahl.rscala.server.Main.main(Main.scala)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -46,16 +46,16 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.OutOfMemoryError: Java heap space
 	at $line6.$read$$iw$$iw$.$anonfun$res1$1(<console>:18)
-	at $line6.$read$$iw$$iw$$$Lambda$1008/1869673263.apply(Unknown Source)
+	at $line6.$read$$iw$$iw$$$Lambda$1008/1521204009.apply(Unknown Source)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:127)
-	at org.ddahl.rscala.ScalaServer.heart(ScalaServer.scala:511)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:538)
-	at org.ddahl.rscala.Main$.delayedEndpoint$org$ddahl$rscala$Main$1(Main.scala:5)
-	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:3)
+	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:128)
+	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:512)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:539)
+	at org.ddahl.rscala.server.Main$.delayedEndpoint$org$ddahl$rscala$server$Main$1(Main.scala:5)
+	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0.apply$mcV$sp(Function0.scala:34)
 	at scala.Function0.apply$mcV$sp$(Function0.scala:34)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
@@ -64,8 +64,8 @@ Caused by: java.lang.OutOfMemoryError: Java heap space
 	at scala.collection.immutable.List.foreach(List.scala:389)
 	at scala.App.main(App.scala:76)
 	at scala.App.main$(App.scala:74)
-	at org.ddahl.rscala.Main$.main(Main.scala:3)
-	at org.ddahl.rscala.Main.main(Main.scala)
+	at org.ddahl.rscala.server.Main$.main(Main.scala:3)
+	at org.ddahl.rscala.server.Main.main(Main.scala)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -86,7 +86,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # ramah # FALSE # TRUE
+# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(I(20000000L)),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -94,7 +94,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="64M")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # ramah # FALSE # TRUE
+# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(I(20000000L)),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -102,7 +102,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="128M")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # ramah # FALSE # TRUE
+# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # TRUE
 > for ( i in 1:2000 ) {
 +   a <- s$".Array[Double]"$new(I(100000L))  # No memory problems
 + }
@@ -112,41 +112,9 @@ java.lang.OutOfMemoryError: Java heap space
 +   s %~% "new Array[Double](100000)"           # Memory problems
 + }
 + },error=function(e) e)
-java.lang.OutOfMemoryError: GC overhead limit exceeded
-	at java.util.Arrays.copyOf(Arrays.java:3236)
-	at java.io.ByteArrayOutputStream.grow(ByteArrayOutputStream.java:118)
-	at java.io.ByteArrayOutputStream.ensureCapacity(ByteArrayOutputStream.java:93)
-	at java.io.ByteArrayOutputStream.write(ByteArrayOutputStream.java:153)
-	at java.io.BufferedOutputStream.flushBuffer(BufferedOutputStream.java:82)
-	at java.io.BufferedOutputStream.flush(BufferedOutputStream.java:140)
-	at java.io.DataOutputStream.flush(DataOutputStream.java:123)
-	at java.io.FilterOutputStream.close(FilterOutputStream.java:158)
-	at scala.tools.nsc.backend.jvm.BytecodeWriters$ClassBytecodeWriter.writeClass(BytecodeWriters.scala:124)
-	at scala.tools.nsc.backend.jvm.BytecodeWriters$ClassBytecodeWriter.writeClass$(BytecodeWriters.scala:118)
-	at scala.tools.nsc.backend.jvm.BytecodeWriters$$anon$4.writeClass(BytecodeWriters.scala:47)
-	at scala.tools.nsc.backend.jvm.GenBCode$BCodePhase.sendToDisk$1(GenBCode.scala:408)
-	at scala.tools.nsc.backend.jvm.GenBCode$BCodePhase.drainQ3(GenBCode.scala:428)
-	at scala.tools.nsc.backend.jvm.GenBCode$BCodePhase.buildAndSendToDisk(GenBCode.scala:387)
-	at scala.tools.nsc.backend.jvm.GenBCode$BCodePhase.run(GenBCode.scala:350)
-	at scala.tools.nsc.Global$Run.compileUnitsInternal(Global.scala:1427)
-	at scala.tools.nsc.Global$Run.compileUnits(Global.scala:1412)
-	at scala.tools.nsc.Global$Run.compileSources(Global.scala:1407)
-	at scala.tools.nsc.interpreter.IMain.compileSourcesKeepingRun(IMain.scala:432)
-	at scala.tools.nsc.interpreter.IMain$ReadEvalPrint.compileAndSaveRun(IMain.scala:801)
-	at scala.tools.nsc.interpreter.IMain$ReadEvalPrint.compile(IMain.scala:759)
-	at scala.tools.nsc.interpreter.IMain$Request.compile$lzycompute(IMain.scala:948)
-	at scala.tools.nsc.interpreter.IMain$Request.compile(IMain.scala:943)
-	at scala.tools.nsc.interpreter.IMain.compile(IMain.scala:601)
-	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:590)
-	at scala.tools.nsc.interpreter.IMain.interpretSynthetic(IMain.scala:563)
-	at scala.tools.nsc.interpreter.ExprTyper.doInterpret(ExprTyper.scala:19)
-	at scala.tools.nsc.interpreter.ExprTyper.asExpr$1(ExprTyper.scala:30)
-	at scala.tools.nsc.interpreter.ExprTyper.$anonfun$symbolOfLine$2(ExprTyper.scala:55)
-	at scala.tools.nsc.interpreter.ExprTyper$$Lambda$940/505231702.apply(Unknown Source)
-	at scala.tools.nsc.interpreter.IMain.beSilentDuring(IMain.scala:215)
-	at scala.tools.nsc.interpreter.ExprTyper.symbolOfLine(ExprTyper.scala:55)
-java.lang.OutOfMemoryError: GC overhead limit exceeded
-<simpleError in doTryCatch(return(expr), name, parentenv, handler): Exception thrown.>
+java.lang.OutOfMemoryError: Java heap space
+  ... 32 elided
+<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
 > 
 > 
 > 

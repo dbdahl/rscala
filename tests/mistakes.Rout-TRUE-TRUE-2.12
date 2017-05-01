@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # ramah # TRUE # TRUE
+# R Under development (unstable) (2017-04-25 r72623) # ramah # TRUE # TRUE
 > 
 > if ( substr(Sys.getenv("RSCALA_SCALA_VERSION"),1,4) != "2.10" ) {
 +   a <- s %.~% "null"
@@ -63,6 +63,9 @@ NULL
 > s$.val("xaa")
 class/object Double not found.
 ScalaInterpreterReference... xaa: Double
+Warning message:
+In s$.val("xaa") :
+  Syntax "s$.val()" is deprecated and will be removed.  Use the 'scalaGet' function instead.
 > 
 > withNA <- c(1,2,3,NA,4)
 > s$withNA <- withNA

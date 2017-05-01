@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # ramah # TRUE # FALSE
+# R Under development (unstable) (2017-04-25 r72623) # ramah # TRUE # FALSE
 > 
 > 
 > ####
@@ -7,21 +7,25 @@
 > 
 > rng1 <- s %.~% "new scala.util.Random"
 > rng1$nextDouble()
-[1] 0.7531463
+[1] 0.2103679
 > 
 > s$r1 <- rng1
 > rng2 <- s$r1
 > rng2$nextDouble()
-[1] 0.3027168
+[1] 0.5631466
 > 
 > rng3 <- s$.scala.util.Random$new()
 > rng3$nextDouble()
-[1] 0.893047
+[1] 0.7169985
 > 
 > s$r3 <- rng3
 > rng4 <- s$r3
 > rng4$nextDouble()
-[1] 0.846852
+[1] 0.9412628
+> 
+> f <- rng4$nextDouble(.EVALUATE=FALSE)
+> f()
+[1] 0.6836327
 > 
 > 
 > ####
@@ -32,13 +36,13 @@
 +   see <- "B."
 +   x <- "Milly"
 +   print(environment())
-+   r <- s$def(I("Mack"),I("Bob")) %~% '
++   r <- function(x1=I("Mack"),x2=I("Bob")) s %!% '
 +     x1+" "+x2+" "+R.getS0("see")
 +   '
 +   r
 + }
 > y1 <- mkFunc1()
-<environment: 0x389f368>
+<environment: 0x34a2ba0>
 > identical(y1("Lisa","Dahl"),"Lisa Dahl B.")
 [1] TRUE
 > 
@@ -46,7 +50,7 @@
 > mkFunc2 <- function() {
 +   see <- "MMMM."
 +   x <- "Milly"
-+   r <- s$def(x=I("Mack"),y=I("Bob")) %.~% '
++   r <- function(x=I("Mack"),y=I("Bob")) s %.!% '
 +       x+" "+y+" "+R.getS0("see")
 +   '
 +   r
@@ -56,8 +60,8 @@
 [1] TRUE
 > gc()
          used (Mb) gc trigger (Mb) max used (Mb)
-Ncells 336639 18.0     592000 31.7   460000 24.6
-Vcells 628573  4.8    1207352  9.3  1019082  7.8
+Ncells 336668 18.0     592000 31.7   460000 24.6
+Vcells 629069  4.8    1207128  9.3  1018856  7.8
 > 
 > 
 > 
@@ -73,41 +77,49 @@ Vcells 628573  4.8    1207352  9.3  1019082  7.8
 > 
 > 
 > # Realistic timing
-> system.time(e <- s$def(x=I(0),y=I(4L),name=I("dog")) %~% '
-+   name + " " + ( x + y )
-+ ')
+> system.time({
++   e <- function(x=I(0),y=I(4L),name=I("dog")) s %!% '
++     name + " " + ( x + y )
++   '
++   scalaOptimize(e)
++ })
    user  system elapsed 
-  0.004   0.000   0.328 
+  0.004   0.000   0.434 
 > 
 > # Taking advantage of caching
-> system.time(f <- s$def(x=I(0),y=I(4L),name=I("dog")) %~% '
-+   name + " " + ( x + y )
-+ ')
+> system.time({
++   f <- function(x=I(0),y=I(4L),name=I("dog")) s %!% '
++     name + " " + ( x + y )
++   '
++   scalaOptimize(f)
++ })
    user  system elapsed 
-  0.000   0.000   0.001 
+  0.000   0.000   0.002 
 > 
 > ####
 > 
-> nextDouble <- s$def(rng=s$null("scala.util.Random")) %~% "rng.nextDouble()"
+> nextDouble <- function(rng=s$null("scala.util.Random")) s %!% "rng.nextDouble()"
 > 
-> mkRNG1 <- s$def() %.~% 'new scala.util.Random()'
+> mkRNG1 <- function() s %.!% 'new scala.util.Random()'
 > mkRNG2 <- function() s %.~% 'new scala.util.Random()'
 > 
 > rng1 <- mkRNG1()
 > rng2 <- mkRNG2()
 > 
 > rng1$nextInt(I(10L))
-[1] 2
+[1] 6
 > rng2$nextInt(I(10L))
-[1] 1
+[1] 3
 > 
-> str <- rng1$toString(.EVALUATE=TRUE,.AS.REFERENCE=TRUE)
+> str <- rng1$toString(.AS.REFERENCE=TRUE)
 > str$length()
 [1] 26
 > 
 > nd0 <- rng1$nextDouble(.EVALUATE=FALSE)
-> nd1 <- s$def() %~% 'R.cached("@{toString(rng1)}").asInstanceOf[@{rng1[[\'type\']]}].nextDouble()'
-> nd2 <- s$def() %~% '@{rng2}.nextDouble()'
+> nd1 <- function() s %!% 'R.cached("@{toString(rng1)}").asInstanceOf[@{rng1[[\'type\']]}].nextDouble()'
+> nd1b <- scalaOptimize(nd1)
+> nd2 <- function() s %!% '@{rng2}.nextDouble()'
+> nd2b <- scalaOptimize(nd2)
 > 
 > library("microbenchmark")
 > 
@@ -117,18 +129,24 @@ Vcells 628573  4.8    1207352  9.3  1019082  7.8
 +   rng2$nextDouble(),
 +   nd0(),
 +   nd1(),
++   nd1b(),
 +   nd2(),
++   nd2b(),
 +   times=500
 + )
 Unit: microseconds
-              expr      min       lq       mean    median        uq        max
-          runif(1)    1.015    7.818   10.18621   11.1520   13.2855     62.332
- rng1$nextDouble() 1115.223 1886.387 2044.24312 2087.6165 2240.6825  10813.038
- rng2$nextDouble() 1037.176 1682.845 2349.29985 1945.5685 2110.6440 210586.002
-             nd0()  210.946  408.249  640.08941  462.4065  507.1130  42369.648
-             nd1()  216.078  361.472  520.66123  457.1015  503.9815  10880.689
-             nd2()  215.119  334.545  501.74248  444.2475  490.7025  12502.131
+              expr     min        lq        mean    median       uq        max
+          runif(1)   1.081    6.4660    7.995148    8.0010    9.844     62.732
+ rng1$nextDouble() 995.522 1097.9870 1549.517862 1283.7855 1712.302  19362.433
+ rng2$nextDouble() 932.518 1041.8560 1836.800040 1223.6725 1654.668 193415.085
+             nd0() 182.557  218.0450  438.328406  250.0880  341.364  34025.059
+             nd1() 892.319 1019.2880 1466.049642 1135.4935 1583.405  32830.533
+            nd1b() 183.504  220.8030  354.737878  258.2705  356.102   9942.450
+             nd2() 858.048  959.8795 1327.072146 1090.5535 1448.570   8276.009
+            nd2b() 164.787  216.0140  340.848178  241.9865  313.592   5214.784
  neval
+   500
+   500
    500
    500
    500
@@ -138,17 +156,77 @@ Unit: microseconds
 > 
 > ####
 > 
+> f <- function(x=4) {
++   if ( x < 0 ) stop("'x' must be positive")
++   if ( x == 0 ) x <- 10
++   s %!% '2*x.sum'
++ }
+> 
+> f(4)
+[1] 8
+> tryCatch(f(-3), error=function(e) e)
+<simpleError in f(-3): 'x' must be positive>
+> f(0)
+[1] 20
+> 
+> g <- scalaOptimize(f)
+> g(4)
+[1] 8
+> g(-3)     ## Note that no error because R code as been optimized away!
+[1] -6
+> g(0)      ## And we don't get the special case when x==0.
+[1] 0
+> 
+> h <- function(x=4) {
++   if ( x < 0 ) stop("'x' must be positive")
++   if ( x == 0 ) x <- 10
++   s %~% '2*R.getD1("x").sum'
++ }
+> 
+> h(4)
+[1] 8
+> tryCatch(h(-3), error=function(e) e)
+<simpleError in h(-3): 'x' must be positive>
+> h(0)
+[1] 20
+> 
+> library(microbenchmark)
+> microbenchmark(
++   f(4),
++   g(4),
++   h(4),        # h is *slow* and it has the memory leak inherent in Scala's REPL.
++   times=100)
+Unit: microseconds
+ expr        min         lq       mean      median          uq       max neval
+ f(4)   1360.248   2133.595   3815.782   2323.1735   2707.1760  49337.53   100
+ g(4)    389.692    626.549   1499.277    732.4725    867.9505  15438.71   100
+ h(4) 101350.930 141617.323 224708.308 184299.3575 259195.9225 640967.90   100
+> 
+> microbenchmark(
++   f(4),        
++   g(4),        # g is faster, but you lose the checking and special behavior.
++   times=1000)
+Unit: microseconds
+ expr     min        lq      mean   median        uq      max neval
+ f(4) 903.127 1049.3055 1579.7155 1398.875 1768.0435 35703.28  1000
+ g(4) 238.786  316.2385  519.4548  404.882  535.2415 21424.08  1000
+> 
+> 
+> 
+> 
+> ####
+> 
 > s$.scala.util.Random$nextDouble()
-[1] 0.7711499
+[1] 0.08212859
 > m <- s$.scala.util.Random$new(I(342L),.EVALUATE=FALSE)
 > m(23436)$nextDouble()
 [1] 0.8011135
-> m(63202)$nextDouble()
-[1] 0.8263897
+> m(63502)$nextDouble()
+[1] 0.1435077
 > m(93222)$nextDouble()
 [1] 0.4889048
-> m(93332)$nextDouble()
-[1] 0.5044919
+> m(93222)$nextDouble()
+[1] 0.4889048
 > 
 > n <- m(5)$nextDouble(.EVALUATE=FALSE)   # Wrapping with I() is not needed.
 > n()
@@ -167,7 +245,7 @@ Unit: microseconds
 > a <- s$.a
 > a$apply(I(3L))
 [1] 4
-> tryCatch(a$apply(3L),error=function(e) e)
+> tryCatch(a$apply(3L),error=function(e) e)  # Needs to be wrapped in I().
 <console>:19: error: type mismatch;
  found   : Array[Int]
  required: Int
@@ -176,69 +254,50 @@ Unit: microseconds
 <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
 > 
 > s$.scala.util.Random$nextDouble()
-[1] 0.168742
+[1] 0.8877258
 > s$.scala.util.Random$nextDouble()
-[1] 0.4851246
-> s$do("scala.util.Random")$nextDouble()
-[1] 0.460887
-Warning message:
-In s$do("scala.util.Random") :
-  Syntax "s$do('scala.util.Random')" is deprecated.  Use "s$.scala.util.Random" instead.
+[1] 0.8104003
 > 
 > s %@% 'import scala.util.Random'
 > s$.Random$nextDouble()
-[1] 0.8416452
+[1] 0.7697315
 > 
-> a <- s$def() %~% 'Random.nextDouble'
+> a <- function() s %!% 'Random.nextDouble'
 > a()
-[1] 0.7925769
+[1] 0.8550669
 > 
-> s$.scala.util.Random
-package scala.util
-class Random extends scala.AnyRef with scala.Serializable {
-  val self: java.util.Random = { /* compiled code */ }
-  def this(self: java.util.Random) = { /* compiled code */ }
-  def this(seed: scala.Long) = { /* compiled code */ }
-  def this(seed: scala.Int) = { /* compiled code */ }
-  def this() = { /* compiled code */ }
-  def nextBoolean(): scala.Boolean = { /* compiled code */ }
-  def nextBytes(bytes: scala.Array[scala.Byte]): scala.Unit = { /* compiled code */ }
-  def nextDouble(): scala.Double = { /* compiled code */ }
-  def nextFloat(): scala.Float = { /* compiled code */ }
-  def nextGaussian(): scala.Double = { /* compiled code */ }
-  def nextInt(): scala.Int = { /* compiled code */ }
-  def nextInt(n: scala.Int): scala.Int = { /* compiled code */ }
-  def nextLong(): scala.Long = { /* compiled code */ }
-  def nextString(length: scala.Int): scala.Predef.String = { /* compiled code */ }
-  def nextPrintableChar(): scala.Char = { /* compiled code */ }
-  def setSeed(seed: scala.Long): scala.Unit = { /* compiled code */ }
-  def shuffle[T, CC[X] <: scala.TraversableOnce[X]](xs: CC[T])(implicit bf: scala.collection.generic.CanBuildFrom[CC[T], T, CC[T]]): CC[T] = { /* compiled code */ }
-  @scala.deprecated("Preserved for backwards binary compatibility. To remove in 2.12.x.")
-  final def isAlphaNum$1(c: scala.Char): scala.Boolean = { /* compiled code */ }
-  def alphanumeric: scala.collection.immutable.Stream[scala.Char] = { /* compiled code */ }
-}
-object Random extends scala.util.Random {
-  def this() = { /* compiled code */ }
-  implicit def javaRandomToRandom(r: java.util.Random): scala.util.Random = { /* compiled code */ }
-}
-
-ScalaInterpreterItem
-> a <- ( s$def() %~% 'scala.util.Random' )()
-> a$nextDouble(.EVALUATE=TRUE)
-[1] 0.07449447
+> a <- s$.scala.util.Random
+> a$nextDouble()
+[1] 0.7056335
+> 
+> b <- ( function() s %!% 'scala.util.Random' )()
+> b$nextDouble()
+[1] 0.04255424
+> 
+> library(microbenchmark)
+> microbenchmark(
++   a$nextDouble(),
++   b$nextDouble(),
++   times=1000
++   )
+Unit: microseconds
+           expr     min       lq     mean   median       uq      max neval
+ a$nextDouble() 907.441  995.425 1447.467 1109.917 1731.634 53998.43  1000
+ b$nextDouble() 966.290 1052.725 1566.250 1169.549 1903.918 36227.82  1000
+>   
 > 
 > ####
 > 
-> f <- s$def(x=NULL, wantNull=I(TRUE)) %.~% '
+> f <- function(x=NULL, wantNull=I(TRUE)) s %.!% '
 +   val r = R.makePersistent(x)
 +   if ( wantNull ) null else r
 + '
 > 
 > a <- f(1:10, FALSE)
 > a$name()
-[1] ".rsI[['r']]$Yv4g263D"
+[1] ".rsI[['r']]$yVELCbGr"
 > 
-> g <- s$def(func=NULL,y=s$null("RPersistentReference")) %~% '
+> g <- function(func=NULL,y=scalaNull("RPersistentReference")) s %!% '
 +   R.invoke(func,y)
 + '
 > 
@@ -248,85 +307,85 @@ ScalaInterpreterItem
 > 
 > ####
 > 
-> f <- s$def(x=s$null("(Int,Int)")) %~% 'x._1 + x._2'
+> f <- function(x=scalaNull("(Int,Int)")) s %!% 'x._1 + x._2'
 > g <- s %~% "(300,400)"
 > f(g)
 [1] 700
-> f(s %~% "(30,40)")
+> f(s %.~% "(30,40)")
 [1] 70
 > 
-> f2 <- s$def() %~% 'println("Yes")'
+> f2 <- function() s %~% 'println("Yes")'
 > f2()
 Yes
 > capture.output(f2())
 [1] "Yes"
 > 
 > a <- s %.~% "(300,234)"
-> f1 <- s$def(x=s$null("(Int,Int)"),y=numeric()) %~% 'x._1 + x._2 + y.sum'
+> f1 <- function(x=scalaNull("(Int,Int)"),y=numeric()) s %!% 'x._1 + x._2 + y.sum'
 > f1(a,c(2,3,4,6))
 [1] 549
 > 
-> f1 <- s$def(x=s$null("(Int,Int)"),y=s$null("Array[Double]")) %~% 'x._1 + x._2 + y.sum'
+> f1 <- function(x=scalaNull("(Int,Int)"),y=scalaNull("Array[Double]")) s %!% 'x._1 + x._2 + y.sum'
 > b <- s %.~% "Array[Double](2,3,4,5)"
 > f1(a,b)
 [1] 548
 > 
 > ####
 > 
-> (s$def() %~% 'println("Yes")')()
+> (function() s %!% 'println("Yes")')()
 Yes
-> (s$def() %~% '0')()
+> (function() s %!% '0')()
 [1] 0
-> (s$def() %~% 'null')()
+> (function() s %!% 'null')()
 > 
 > ####
 > 
-> tryCatch((s$def() %~% 'a+b')(),error = function(e) e)
+> tryCatch((function() s %!% 'a+b')(),error = function(e) e)
 <console>:18: error: not found: value b
        a+b}
          ^
 <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
-> tryCatch((s$def() %~% 'a+')(),error = function(e) e)
+> tryCatch((function() s %!% 'a+')(),error = function(e) e)
 <console>:18: error: missing argument list for method + in class any2stringadd
 Unapplied methods are only converted to functions when a function type is expected.
 You can make this conversion explicit by writing `$plus _` or `$plus(_)` instead of `$plus`.
        a+}
         ^
 <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
-> tryCatch((s$def() %~% 'import org.asdfad')(),error = function(e) {e})
+> tryCatch((function() s %!% 'import org.asdfad')(),error = function(e) {e})
 <console>:17: error: object asdfad is not a member of package org
        import org.asdfad}
               ^
 <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
-> tryCatch((s$def() %~% 'throw new RuntimeException()')(),error = function(e) {e})
+> tryCatch((function() s %!% 'throw new RuntimeException()')(),error = function(e) {e})
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.ScalaServer.doInvoke(ScalaServer.scala:127)
-	at org.ddahl.rscala.ScalaServer.org$ddahl$rscala$ScalaServer$$heart(ScalaServer.scala:511)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:530)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:530)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:530)
+	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:128)
+	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:512)
+	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:531)
+	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:531)
+	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:531)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withErr(Console.scala:92)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:529)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:529)
-	at org.ddahl.rscala.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:529)
+	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:530)
+	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:530)
+	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:530)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withOut(Console.scala:65)
-	at org.ddahl.rscala.ScalaServer.run(ScalaServer.scala:528)
-	at org.ddahl.rscala.Main$.delayedEndpoint$org$ddahl$rscala$Main$1(Main.scala:5)
-	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:3)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:529)
+	at org.ddahl.rscala.server.Main$.delayedEndpoint$org$ddahl$rscala$server$Main$1(Main.scala:5)
+	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:34)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
 	at scala.App$$anonfun$main$1.apply(App.scala:76)
 	at scala.App$$anonfun$main$1.apply(App.scala:76)
-	at scala.collection.immutable.List.foreach(List.scala:381)
+	at scala.collection.immutable.List.foreach(List.scala:392)
 	at scala.collection.generic.TraversableForwarder$class.foreach(TraversableForwarder.scala:35)
 	at scala.App$class.main(App.scala:76)
-	at org.ddahl.rscala.Main$.main(Main.scala:3)
-	at org.ddahl.rscala.Main.main(Main.scala)
+	at org.ddahl.rscala.server.Main$.main(Main.scala:3)
+	at org.ddahl.rscala.server.Main.main(Main.scala)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -346,12 +405,12 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:103)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.RuntimeException
-	at $line116.$read$$iw$$iw$$anonfun$1.apply(<console>:17)
-	at $line116.$read$$iw$$iw$$anonfun$1.apply(<console>:16)
+	at $line323.$read$$iw$$iw$$anonfun$1.apply(<console>:17)
+	at $line323.$read$$iw$$iw$$anonfun$1.apply(<console>:16)
 	... 45 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException
-<simpleError in (s$def() %~% "throw new RuntimeException()")(): Invocation error.>
+<simpleError in (structure(function () {    .rsI <- .rsWStf8dNY3    .rsWorkspace <- environment()    rscala:::wb(.rsI, rscala:::INVOKE)    rscala:::wc(.rsI, "res155")    flush(.rsI[["socketIn"]])    rscala:::rServe(.rsI, TRUE, .rsWorkspace)    .rsStatus <- rscala:::rb(.rsI, "integer")    rscala:::echoResponseScala(.rsI)    if (.rsStatus == rscala:::ERROR) {        stop("Invocation error.")    }    else {        .rsResult <- rscala:::scalaGet(.rsI, "?", NA)        if (is.null(.rsResult))             invisible(.rsResult)        else .rsResult    }}, identifiers = character(0), scalaHeader = character(0), scalaBody = "throw new RuntimeException()", returnType = "Nothing", asReference = NA, class = "ScalaFunction"))(): Invocation error.>
 > s %~% "5+6"   # Everything's still okay!
 [1] 11
 > 

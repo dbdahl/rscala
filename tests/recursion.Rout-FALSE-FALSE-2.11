@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # ramah # FALSE # FALSE
+# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # FALSE
 > 
 > 
 > # This is not recursion via callbacks.
@@ -48,7 +48,7 @@ Hello 9 from R.
 > 
 > 
 > # This is recursion via callbacks using a predefined function
-> hh <- s$def(x=I(0L)) %~% '
+> hh <- function(x=I(0L)) s %!% '
 +   println(s"Hello $x from Scala.")
 +   R.eval(s"h(${x+1})")
 + '
@@ -72,7 +72,7 @@ Hello 9 from R.
 > 
 > 
 > # This is recursion via callbacks using a Scala function
-> i <- s$def(x=I(0L)) %~% '
+> i <- function(x=I(0L)) s %!% '
 +   if ( x < 10 ) {
 +     println(s"Hello $x from Scala.")
 +     R.eval(s"""cat("Hello ${x} from R.\n"); i(${x+1})""")
@@ -297,16 +297,11 @@ Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
 Unit: milliseconds
- expr        min         lq        mean      median          uq        max
- f(0) 775.076839 896.125506 1490.740362 1343.436014 1755.530507 2683.53294
- g(0) 412.464769 707.140852  960.657754  847.898726 1132.255215 1703.52921
- h(0)   4.678605   4.943109    8.392978    5.568973    5.818678   20.95552
- i(0)   4.995363   5.522664    9.717338    9.203940    9.684564   19.18016
- neval
-     5
-     5
-     5
-     5
+ expr       min         lq       mean     median         uq        max neval
+ f(0) 858.05933 1169.87727 1508.65130 1195.34196 1816.51307 2503.46488     5
+ g(0) 373.36661  739.80811 1181.24794 1070.32319 1116.27810 2606.46372     5
+ h(0)  17.29116   18.34049   21.76988   18.85236   22.23803   32.12734     5
+ i(0)  16.23329   21.06134   32.77649   35.07758   41.14163   50.36859     5
 > 
 > cat("####\n")
 ####
@@ -2314,8 +2309,8 @@ Hello 8 from R.
 Hello 9 from R.
 Unit: milliseconds
  expr      min       lq     mean   median       uq      max neval
- h(0) 3.740113 4.002268 5.162660 4.754042 5.914424 11.96998   100
- i(0) 3.765028 4.751259 5.717148 5.297643 6.344218 12.99823   100
+ h(0) 11.14771 12.50683 15.52450 13.68110 17.62375 53.61395   100
+ i(0) 12.24127 13.56903 17.75235 16.02973 21.11349 50.43765   100
 > 
 > 
 > 

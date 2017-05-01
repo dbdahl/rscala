@@ -21,28 +21,28 @@ Searching for a suitable Scala installation.
 
 [1] "/home/dahl/local/scala/scala/scala-2.10.6/bin/scala"
 --------
-Running battery for 2.11.8
+Running battery for 2.11.11
 
 Searching for a suitable Scala installation.
-  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala/scala-2.11.8/bin/scala)
-  * SUCCESS: 'scala.home' (/home/dahl/local/scala/scala/scala-2.11.8) argument
+  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala/scala-2.11.11/bin/scala)
+  * SUCCESS: 'scala.home' (/home/dahl/local/scala/scala/scala-2.11.11) argument
 
-[1] "/home/dahl/local/scala/scala/scala-2.11.8/bin/scala"
+[1] "/home/dahl/local/scala/scala/scala-2.11.11/bin/scala"
 
 Searching for a suitable Scala installation.
   * FAILURE: 'scala.home' argument is NULL
-  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala/scala-2.11.8/bin/scala)
-  * SUCCESS: SCALA_HOME (/home/dahl/local/scala/scala/scala-2.11.8) environment variable
+  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala/scala-2.11.11/bin/scala)
+  * SUCCESS: SCALA_HOME (/home/dahl/local/scala/scala/scala-2.11.11) environment variable
 
-[1] "/home/dahl/local/scala/scala/scala-2.11.8/bin/scala"
+[1] "/home/dahl/local/scala/scala/scala-2.11.11/bin/scala"
 
 Searching for a suitable Scala installation.
   * FAILURE: 'scala.home' argument is NULL
   * FAILURE: SCALA_HOME () environment variable
-  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala/scala-2.11.8/bin/scala)
+  * ATTEMPT: Found a candidate (/home/dahl/local/scala/scala/scala-2.11.11/bin/scala)
   * SUCCESS: 'scala' in the shell's search path
 
-[1] "/home/dahl/local/scala/scala/scala-2.11.8/bin/scala"
+[1] "/home/dahl/local/scala/scala/scala-2.11.11/bin/scala"
 --------
 Running battery for 2.12.2
 

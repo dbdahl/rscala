@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # ramah # FALSE # FALSE
+# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # FALSE
 > 
 > 
 > # This is not recursion via callbacks.
@@ -48,7 +48,7 @@ Hello 9 from R.
 > 
 > 
 > # This is recursion via callbacks using a predefined function
-> hh <- s$def(x=I(0L)) %~% '
+> hh <- function(x=I(0L)) s %!% '
 +   println(s"Hello $x from Scala.")
 +   R.eval(s"h(${x+1})")
 + '
@@ -72,7 +72,7 @@ Hello 9 from R.
 > 
 > 
 > # This is recursion via callbacks using a Scala function
-> i <- s$def(x=I(0L)) %~% '
+> i <- function(x=I(0L)) s %!% '
 +   if ( x < 10 ) {
 +     println(s"Hello $x from Scala.")
 +     R.eval(s"""cat("Hello ${x} from R.\n"); i(${x+1})""")
@@ -297,11 +297,11 @@ Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
 Unit: milliseconds
- expr        min        lq       mean     median         uq        max neval
- f(0) 974.923018 978.73726 1280.17727 1069.97736 1209.67611 2167.57262     5
- g(0) 444.558506 527.27219  831.88821  828.11140  835.67659 1523.82239     5
- h(0)   8.158367  10.36339   14.97433   15.55900   19.58071   21.21018     5
- i(0)   8.725044  10.17660   10.61154   10.33423   11.21042   12.61143     5
+ expr       min         lq       mean     median         uq        max neval
+ f(0) 813.86647 1123.98923 1834.84872 1574.99427 2131.16396 3530.22967     5
+ g(0) 434.54111  906.84818 1201.79588 1219.98354 1347.41156 2100.19502     5
+ h(0)  14.45075   15.77426   24.06768   25.55905   26.41393   38.14042     5
+ i(0)  16.15622   26.76377   33.88432   28.22306   31.58633   66.69221     5
 > 
 > cat("####\n")
 ####
@@ -2308,9 +2308,9 @@ Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
 Unit: milliseconds
- expr      min       lq     mean   median       uq      max neval
- h(0) 3.674938 7.828415 10.73651 8.969653 10.71132 35.41305   100
- i(0) 4.025100 7.973690 12.84480 9.426642 14.76101 71.59701   100
+ expr       min       lq     mean   median       uq      max neval
+ h(0)  9.712867 11.50856 13.52984 12.52707 14.20408 46.18601   100
+ i(0) 11.232201 12.16025 14.25420 13.21331 14.83139 50.80384   100
 > 
 > 
 > 

@@ -1,6 +1,6 @@
 > port <- as.integer(runif(1,1024,65535))
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # ramah # FALSE # TRUE
+# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # TRUE
 > 
 > tryCatch(source("common.R",print.eval=TRUE), error=function(e) e)
 java.net.BindException: Address already in use (Bind failed)
@@ -8,10 +8,10 @@ java.net.BindException: Address already in use (Bind failed)
 	at java.net.AbstractPlainSocketImpl.bind(AbstractPlainSocketImpl.java:387)
 	at java.net.ServerSocket.bind(ServerSocket.java:375)
 	at java.net.ServerSocket.<init>(ServerSocket.java:237)
-	at org.ddahl.rscala.ScalaSockets.<init>(ScalaSockets.scala:10)
-	at org.ddahl.rscala.ScalaServer.<init>(ScalaServer.scala:14)
-	at org.ddahl.rscala.ScalaServer$.apply(ScalaServer.scala:583)
-	at org.ddahl.rscala.Main$delayedInit$body.apply(Main.scala:5)
+	at org.ddahl.rscala.server.ScalaSockets.<init>(ScalaSockets.scala:10)
+	at org.ddahl.rscala.server.ScalaServer.<init>(ScalaServer.scala:15)
+	at org.ddahl.rscala.server.ScalaServer$.apply(ScalaServer.scala:584)
+	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:5)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
 	at scala.App$$anonfun$main$1.apply(App.scala:71)
@@ -19,8 +19,8 @@ java.net.BindException: Address already in use (Bind failed)
 	at scala.collection.immutable.List.foreach(List.scala:318)
 	at scala.collection.generic.TraversableForwarder$class.foreach(TraversableForwarder.scala:32)
 	at scala.App$class.main(App.scala:71)
-	at org.ddahl.rscala.Main$.main(Main.scala:3)
-	at org.ddahl.rscala.Main.main(Main.scala)
+	at org.ddahl.rscala.server.Main$.main(Main.scala:3)
+	at org.ddahl.rscala.server.Main.main(Main.scala)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -38,6 +38,6 @@ java.net.BindException: Address already in use (Bind failed)
 	at scala.tools.nsc.MainGenericRunner.process(MainGenericRunner.scala:96)
 	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:105)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
-<simpleError in (function() {    delay <- 0.1    start <- proc.time()[3]    while (TRUE) {        if ((proc.time()[3] - start) > timeout)             stop("Timed out waiting for Scala to start.")        Sys.sleep(delay)        delay <- 1 * delay        if (file.exists(portsFilename)) {            line <- scan(portsFilename, n = 2, what = character(0),                 quiet = TRUE)            if (length(line) > 0)                 return(as.numeric(line))        }    }})(): Timed out waiting for Scala to start.>
+<simpleError in (function() {    delay <- 0.1    start <- proc.time()[3]    while (TRUE) {        if ((proc.time()[3] - start) > timeout)             stop("Timed out waiting for Scala to start.")        Sys.sleep(delay)        delay <- 1 * delay        if (file.exists(portsFilename)) {            line <- scan(portsFilename, n = 2, what = character(),                 quiet = TRUE)            if (length(line) > 0)                 return(as.numeric(line))        }    }})(): Timed out waiting for Scala to start.>
 > 
 > 

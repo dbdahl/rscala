@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # ramah # FALSE # FALSE
+# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # FALSE
 > 
 > assert <- function(xx) {
 +   if ( ! identical(( s %~% 'R.get("xx")._1' ), xx) ) stop("Not identical (test 1)")
@@ -8,7 +8,7 @@
 +   s %@% 'R.a = xx'
 +   if ( ! identical(a, xx) ) stop("Not identical (test 3)")
 +   if ( ! identical(s$.R$get(I("xx"))$"_1"(), xx) ) stop("Not identical (test 4)")
-+   m <- s$def() %~% 'R.get("xx")._1'
++   m <- function() s %!% 'R.get("xx")._1'
 +   if ( ! identical(m(), xx) ) stop("Not identical (test 5)")
 + }
 > 
@@ -24,8 +24,8 @@
 > 
 > #### Callbacks with named arguments
 > 
-> mySort <- s$def(NULL,ascending=I(TRUE)) %~% '
-+   R.invokeD1( REphemeralReference("sort"), x1, "decreasing" -> ! ascending )
+> mySort <- function(x=NULL,ascending=I(TRUE)) s %!% '
++   R.invokeD1( REphemeralReference("sort"), x, "decreasing" -> ! ascending )
 + '
 > 
 > set.seed(13242)
@@ -148,16 +148,16 @@ Error in parse(text = snippet) : <text>:4:16: unexpected symbol
 +   mean(data+offset)
 + }
 > 
-> callRFunction <- s$def(func=NULL, x=numeric(), y=NULL) %~% '
+> callRFunction <- function(func=NULL, x=numeric(), y=NULL) s %!% '
 +   R.invokeD1(func,x.map(2*_).map(_.getClass),y)
 + '
 > 
 > tryCatch(callRFunction(myMean,1:4,5), error=function(e) e)
-<simpleError in callRFunction(myMean, 1:4, 5): Invocation error.>
+<simpleError in (structure(function (func, x, y) {    .rsI <- .rsWdjylnL03    .rsWorkspace <- environment()    rscala:::wb(.rsI, rscala:::INVOKE)    rscala:::wc(.rsI, "res122")    flush(.rsI[["socketIn"]])    rscala:::rServe(.rsI, TRUE, .rsWorkspace)    .rsStatus <- rscala:::rb(.rsI, "integer")    if (.rsStatus == rscala:::ERROR) {        stop("Invocation error.")    }    else {        .rsResult <- rscala:::scalaGet(.rsI, "?", NA)        if (is.null(.rsResult))             invisible(.rsResult)        else .rsResult    }}, identifiers = c("func", "x", "y"), scalaHeader = c("val func = REphemeralReference(\"func\")", "val x = R.getD1(\"x\")", "val y = REphemeralReference(\"y\")"), scalaBody = "\n  R.invokeD1(func,x.map(2*_).map(_.getClass),y)\n", returnType = "Array[Double]", asReference = NA, class = "ScalaFunction"))(func = function (data,     offset) {    cat("Here is am.\n")    mean(data + offset)}, x = 1:4, y = 5): Invocation error.>
 > s %~% "3+4"
 [1] 7
 > 
-> callRFunction <- s$def(func=NULL, x=numeric(), y=NULL) %~% '
+> callRFunction <- function(func=NULL, x=numeric(), y=NULL) s %!% '
 +   R.invokeD1(func,x.map(2*_),y)
 + '
 > 
@@ -165,13 +165,14 @@ Error in parse(text = snippet) : <text>:4:16: unexpected symbol
 Here is am.
 [1] 101
 > 
-> callRFunction0D2 <- s$def(func=NULL) %~% 'R.invokeD2(func)'
+> callRFunction0D2 <- function(func=NULL) s %!% 'R.invokeD2(func)'
 > callRFunction0D2(gc)
        [,1] [,2]    [,3] [,4]    [,5] [,6]
-[1,] 339798 18.2  592000 31.7  460000 24.6
-[2,] 635816  4.9 1207352  9.3 1019082  7.8
+[1,] 339947 18.2  592000 31.7  460000 24.6
+[2,] 637005  4.9 1207128  9.3 1018856  7.8
 > 
 > tryCatch(callRFunction(1:100),error = function(e) {})
+Error in func(.rsX0, y) : could not find function "func"
 NULL
 > 
 > # Should be an R evaluation error because 'asfd' is not a package.
