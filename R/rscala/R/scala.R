@@ -432,13 +432,13 @@ scalaFunctionArgs <- function(.INTERPRETER,...) {
 
 '%~%.ScalaFunctionArgs' <- function(interpreter,snippet) {
   # Deprecated
-  snippet <- strintrpltIf(snippet,parent.frame(),interpreter)
+  snippet <- strintrpltIf(snippet,parent.frame(),interpreter$interpreter)
   scalaMkFunction(interpreter,snippet,as.reference=NA,parent.frame())
 }
 
 '%.~%.ScalaFunctionArgs' <- function(interpreter,snippet) {
   # Deprecated
-  snippet <- strintrpltIf(snippet,parent.frame(),interpreter)
+  snippet <- strintrpltIf(snippet,parent.frame(),interpreter$interpreter)
   scalaMkFunction(interpreter,snippet,as.reference=TRUE,parent.frame())
 }
 
