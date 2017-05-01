@@ -560,13 +560,13 @@ close.ScalaInterpreter <- function(con,...) {
   close(con[['socketIn']])
 }
 
-.rscalaPackage <- function(pkgname, classpath.appendix=character(), snippet, ...) {
+.rscalaPackage <- function(pkgname, classpath.appendix=character(), snippet=character(), ...) {
   classpath <- c(list.files(system.file("java",package=pkgname),pattern=".*\\.jar$",full.names=TRUE,recursive=TRUE),classpath.appendix)
   env <- parent.env(parent.frame())    # Environment of depending package (assuming this function is only called in .onLoad function).
   # Lazy initialization of 's' in environment of depending package
   delayedAssign("s", {
     s <- scala(classpath=classpath,...)
-    s %@% snippet
+    if ( length(snippet) > 0 ) s %@% snippet
     s
   }, assign.env=env)
   # Deprecated and will be removed.
