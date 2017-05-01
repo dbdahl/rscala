@@ -184,6 +184,7 @@ system.time(acf(sampler(n.draws,0.5),plot=FALSE))
 system.time(acf(sampler(n.draws,0.9),plot=FALSE))
 sampler2 <- scalaOptimize(sampler)
 system.time(acf(sampler2(n.draws,0.9),plot=FALSE))
+close(s)
 }
 }
 
