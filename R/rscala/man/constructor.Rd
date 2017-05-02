@@ -50,8 +50,8 @@ scala(classpath=character(),
       timeout=60, debug=FALSE, stdout=TRUE, stderr=TRUE, port=0)
 
 scalaInfo(scala.home=NULL, verbose=FALSE)
-scalaInstall()
-.rscalaJar(version="")
+scalaInstall(major.version=c("2.12","2.11","2.10")[1])
+.rscalaJar(major.version=c("2.12","2.11","2.10")[1])
 .rscalaPackage(pkgname, classpath.appendix=character(), snippet=character(), ...)
 .rscalaDelay(expression)
 }
@@ -67,7 +67,7 @@ scalaInstall()
     \item{stdout, stderr}{Where \code{stdout} and \code{stderr} output that is not serialized is should be sent.  \code{TRUE} (the default) or \code{""} sends output to the R console (although that may not work on Windows).  \code{FALSE} or \code{NULL} discards the output.  Otherwise, this is the name of the file that receives the output.}
     \item{port}{If \code{0}, two random ports are selected.  Otherwise, \code{port} and \code{port+1} are used to the TCP/IP connections.}
     \item{verbose}{A logical vector of length one indicating whether information regarding the search for the Scala installation should be displayed.}
-    \item{version}{If \code{""}, the package JAR files for all Scala versions are returned. Or, if \code{"2.*.*"} where \code{*} is a placeholder, the JAR file for that specific major version of Scala is returned.}
+    \item{major.version}{A string specifying the major Scala version (e.g., "2.12").  If \code{""}, the JAR files for all Scala versions are returned by \code{\link{.rscalaJar}}.}
     \item{pkgname}{A character string giving the name of the package (as provided the second argument of the \code{.onLoad} function) that wishes to depend on this package.}
     \item{classpath.appendix}{A character vector giving additional JAR files or directories for the Scala compiler/interpreter embedded within a package via the \code{\link{.rscalaPackage}} function.  The JAR files in the \sQuote{java} directory of the package are already included and do not need to be added here.}
     \item{snippet}{A character vector providing Scala code that will evaluated when the interpreter in the package namespace is first used.}

@@ -594,9 +594,9 @@ close.ScalaInterpreter <- function(con,...) {
   invisible()
 }
 
-.rscalaJar <- function(version="") {
-  if ( version == "" ) major.version <- ".*"
-  else major.version <- substr(version,1,4)
+.rscalaJar <- function(major.version=c("2.12","2.11","2.10")[1]) {
+  if ( major.version == "" ) major.version <- ".*"
+  else major.version <- substr(major.version,1,4)
   list.files(system.file("java",package="rscala"),pattern=paste("rscala_",major.version,'-.*\\.jar$',sep=""),full.names=TRUE)
 }
 
@@ -695,11 +695,16 @@ scalaInfo <- function(scala.home=NULL,verbose=FALSE) {
   if ( ! is.null(info) ) { if ( verbose ) cat(tab,successMsg,techniqueMsg,"\n\n",sep=""); return(info) }
   else if ( verbose ) cat(tab,failureMsg,techniqueMsg,"\n",sep="")
   # Attempt 4
-  installDir <- normalizePath(file.path("~",".rscala",sprintf("scala-%s",CURRENT_SUPPORTED_SCALA_VERSION)),mustWork=FALSE)
-  info <- scalaInfoEngine(file.path(installDir,"bin","scala"),verbose)
-  if ( verbose ) techniqueMsg <- sprintf("special installation directory (%s)",installDir)
-  if ( ! is.null(info) ) { if ( verbose ) cat(tab,successMsg,techniqueMsg,"\n\n",sep=""); return(info) }
-  else if ( verbose ) cat(tab,failureMsg,techniqueMsg,"\n",sep="")
+  candidates <- list.dirs(normalizePath(file.path("~",".rscala"),mustWork=FALSE),recursive=FALSE)
+  details <- file.info(candidates)
+  details <- details[order(as.POSIXct(details$mtime),decreasing=TRUE), ]
+  candidates <- rownames(details)
+  for ( installDir in candidates ) {
+    info <- scalaInfoEngine(file.path(installDir,"bin","scala"),verbose)
+    if ( verbose ) techniqueMsg <- sprintf("special installation directory (%s)",installDir)
+    if ( ! is.null(info) ) { if ( verbose ) cat(tab,successMsg,techniqueMsg,"\n\n",sep=""); return(info) }
+    else if ( verbose ) cat(tab,failureMsg,techniqueMsg,"\n",sep="")
+  }
   # Attempt 5
   if ( ! verbose ) scalaInfo(scala.home=scala.home,verbose=TRUE)
   else {
@@ -796,16 +801,20 @@ pretty <- function(header,body) {
   paste0(paste(c(headerWithPadding,bodyWithPadding),collapse='\n'),'\n')
 }
 
-scalaInstall <- function() {
+scalaInstall <- function(major.version=c("2.12","2.11","2.10")[1]) {
+  if ( major.version == "2.12" ) version <- SCALA_212_VERSION
+  else if ( major.version == "2.11" ) version <- SCALA_211_VERSION
+  else if ( major.version == "2.10" ) version <- SCALA_210_VERSION
+  else stop("Unsupported major version.")
   installPath <- normalizePath(file.path("~",".rscala"),mustWork=FALSE)
-  url <- sprintf("http://downloads.lightbend.com/scala/%s/scala-%s.tgz",CURRENT_SUPPORTED_SCALA_VERSION,CURRENT_SUPPORTED_SCALA_VERSION)
+  url <- sprintf("http://downloads.lightbend.com/scala/%s/scala-%s.tgz",version,version)
   dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
   destfile <- file.path(installPath,basename(url))
   result <- download.file(url,destfile)
   if ( result != 0 ) return(invisible(result))
   result <- untar(destfile,exdir=installPath,tar="internal")    # Use internal to avoid problems on a Mac.
   unlink(destfile)
-  if ( result == 0 ) cat("Successfully installed Scala in ",file.path(installPath,sprintf("scala-%s",CURRENT_SUPPORTED_SCALA_VERSION)),"\n",sep="")
+  if ( result == 0 ) cat("Successfully installed Scala in ",file.path(installPath,sprintf("scala-%s",version)),"\n",sep="")
   invisible(result)
 }
 
