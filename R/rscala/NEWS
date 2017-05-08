@@ -1,10 +1,27 @@
-2.0.2 (2017-XX-XX)
-  *
+2.1.0 (2017-05-08)
+  * Scala function defined in R can now use the %!% and %.!% operators.  See
+    examples.  The alternative s$def() mechanism is deprecated and will be
+    removed.
+  * Overhead in Scala functions can be reduced with the scalaOptimize
+    function.
+  * s$null() is deprecated in favor of the scalaNull function.
+  * s$val() and s$.val() are deprecated in favor of quoted strings, if needed.
+    For example, instead of s$val("_Foo"), use s$"_Foo".
+  * For package developers depending on rscala, the embedded interpreter is
+    now only initialized on first use.
+  * For package developers depending on rscala, the .rscalaDelayed function is
+    deprecated and will be removed.  Instead, use the snippet argument of the
+    .rscalaPackage function.
+  * Added support for installing more than just the most recent version of
+    Scala.
+  * When attempting to find a suitable Scala installation, look for more than
+    just the most recent version in the "~/.rscala" directory.
+  * Internal reduction of duplicate code.
 
-2.0.1 (2017-05-27)
-  * Added URL to Scala webpage in DESCRIPTION as requested by CRAN.
+2.0.1 (2017-04-27)
+  * Added URL to Scala web page in DESCRIPTION as requested by CRAN.
 
-2.0.0 (2017-05-27)
+2.0.0 (2017-04-27)
   * Scala functions defined in R using the s$def() mechanism now specify the
     arguments using R code instead of a string snippet of Scala code.  Protocol
     overhead is reduced.  Function definition is accessible.  Caching avoids

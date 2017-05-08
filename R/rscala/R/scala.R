@@ -281,10 +281,10 @@ scalaNull <- function(type) {
     class(result) <- "ScalaInterpreterItem"
     result
   } else if ( identifier == "val" ) function(x) {
-    warning(paste0("Syntax \"s$val()\" is deprecated and will be removed.  Use the 'scalaGet' function instead."))
+    warning(paste0("Syntax \"s$val()\" is deprecated and will be removed."))
     scalaGet(interpreter,x,NA)
   } else if ( identifier == ".val" ) function(x) {
-    warning(paste0("Syntax \"s$.val()\" is deprecated and will be removed.  Use the 'scalaGet' function instead."))
+    warning(paste0("Syntax \"s$.val()\" is deprecated and will be removed."))
     scalaGet(interpreter,x,TRUE)
   } else if ( substr(identifier,1,1) == "." ) {
     identifier <- substring(identifier,2)

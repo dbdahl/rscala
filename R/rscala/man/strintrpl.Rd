@@ -5,7 +5,7 @@
 Performs string interpolation with arbitrary R code.
 }
 \description{
-This function allows a character vector to have arbitrary \R code embedded within it.  The embedded \R code --- placed between \sQuote{@\{} and \sQuote{\}} --- is evaluated by default in the environment from which this function is called (not defined).  Any number of instances of embedded \R code is possible.  The result of the function is a character vector in which the embedded \R code is replaced by character representations of the results of evaluating the embedded \R code.
+This function allows a character vector to have arbitrary \R code embedded within it.  The embedded \R code --- placed between \sQuote{@\{} and \sQuote{\}} --- is evaluated by default in the environment from which this function is called (not defined).  The result of the function is a character vector in which the embedded \R code is replaced by character representations of the results of evaluating the embedded \R code.
 }
 \usage{
 strintrplt(snippet,envir=parent.frame())

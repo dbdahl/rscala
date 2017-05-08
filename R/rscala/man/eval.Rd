@@ -44,7 +44,7 @@ scalaNull(type)
     \item{scalaFunction}{A (unoptimized) Scala function created by calling \code{interpreter \%!\% snippet} and \code{interpreter \%.!\% snippet} within a function.}
     \item{type}{A string containing a valid Scala type, e.g., \code{"List[Double]"}.}
     \item{identifier}{A character vector of length one containing a valid Scala identifier.}
-    \item{value}{Either: i. a vector or matrix of integers, doubles, logicals, or characters, or ii. a Scala reference.}
+    \item{value}{Either: i. a vector or matrix of integers, doubles, logicals, characters, or raw, or ii. a Scala reference.}
     \item{class.name}{A character vector of length one containing a full-qualified class name.}
 }
 \details{
@@ -52,30 +52,30 @@ scalaNull(type)
 \code{interpreter \%@\% snippet} evaluates
 the expression \var{snippet}, whereas \code{interpreter \%~\% snippet} both
 evaluates the expression \var{snippet} and attempts to return a vector or
-matrix of integers, doubles, logicals, or characters or --- if this is not
+matrix of integers, doubles, logicals, characters, or raw or --- if this is not
 possible --- \code{NULL} is returned.  
 \code{interpreter \%.~\% snippet} has the same behavior except it always
 returns a Scala reference.  References may be used later for assignment and Scala
-function arguments.  Note that memory associated as a result of assignment or
+function arguments.  Note that memory allocated as a result of assignment or
 executing \code{snippet} will never be garbage collected due to a limitation of
 Scala's REPL.  (See the Scala bug detailed here:
 \url{https://issues.scala-lang.org/browse/SI-4331}.)
 
 \code{interpreter \%!\% snippet} and \code{interpreter \%.!\% snippet}
 are the analog to \code{interpreter \%~\% snippet} and \code{interpreter \%~\% snippet},
-respectively.  They should only be used within a function to define a Scala function.
+respectively, that should only be used within a function to define a Scala function.
 Memory associated with the return values by function defined by
 \code{interpreter \%!\% snippet} and \code{interpreter \%.!\% snippet} is
 garbage collected.  Thus, heavy usage of \code{interpreter \%!\% snippet} and \code{interpreter \%.!\% snippet}
-functions is encouraged for memory intensive applications.  Importantely, these
-functions have much less less invocation latency than the equivalent code using
+functions is encouraged for memory intensive applications.  Importantly, these
+functions have much less invocation latency than the equivalent code using
 \code{\link{\%~\%}} and \code{\link{\%.~\%}}.  The speed difference in
 invocation is especially noticeable for quick functions.  These Scala functions
 can be further optimized by using the \code{\link{scalaOptimize}} function.
 
 \code{interpreter$identifier} and
-\code{interpreter$identifier <- value} make it easy to get and set variables in
-the interpreter.
+\code{interpreter$identifier <- value} get and set variables in the interpreter.
+
 }
 \value{
     \code{s$x} try to convert the Scala object \code{x} to a vector or matrix of integers, doubles, logicals, characters, or raw.
@@ -86,7 +86,7 @@ the interpreter.
     \code{function(...) s \%!\% snippet} returns a Scala function where \code{...} should be named arguments that can be used in the Scala code given in \code{snippet}.
     \code{function(...) s \%.!\% snippet} is the same, except a Scala reference is always returned.
 
-    \code{scalaFunction(f)} return an optimized Scala function (having less invocation latency) for the (unoptimize) Scala function \code{f}.
+    \code{scalaFunction(f)} returns an optimized Scala function having less invocation latency than the provided (unoptimized) Scala function \code{f}.
 
     \code{scalaNull(type)} returns a null reference whose Scala type is \code{type}.  This can be helpful in defining Scala functions.
 

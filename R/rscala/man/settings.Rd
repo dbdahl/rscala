@@ -13,7 +13,7 @@ scalaSettings(interpreter, interpolate=NULL, info=NULL)
 }
 \arguments{
     \item{interpreter}{A Scala interpreter from the constructor (i.e. \code{\link{scala}}).}
-    \item{interpolate}{If \code{TRUE}, the interpreter will call \code{\link{strintrplt}} on the supplied code before running it.}
+    \item{interpolate}{If \code{TRUE}, the interpreter will call \code{\link{strintrplt}} before running code.}
     \item{info}{An argument that cannot be set by the user.}
 }
 \author{
