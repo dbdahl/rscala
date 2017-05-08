@@ -22,7 +22,7 @@ scala <- function(classpath=character(),serialize.output=FALSE,scala.home=NULL,h
     }
   }
   sInfo <- scalaInfo(scala.home)
-  if ( is.null(sInfo) ) stop("Cannot find Scala.  Please install Scala or run 'rscala::scalaInstall()'.")
+  if ( is.null(sInfo) ) stop('Please run "rscala::scalaInstall()" or install Scala manually.')
   rsJar <- .rscalaJar(sInfo$version)
   rsClasspath <- shQuote(paste(c(rsJar,userJars),collapse=.Platform$path.sep))
   portsFilename <- tempfile("rscala-")
