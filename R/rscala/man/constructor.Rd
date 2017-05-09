@@ -85,8 +85,8 @@ David B. Dahl \email{dahl@stat.byu.edu}
 \seealso{
   \code{\link{scalaSettings}},
   \code{\link{scalap}},
-  \code{\link{strintrplt}}
-  \code{\link{rscala-package}},
+  \code{\link{strintrplt}},
+  \code{\link{rscala-package}}
 }
 \keyword{interface}
 
