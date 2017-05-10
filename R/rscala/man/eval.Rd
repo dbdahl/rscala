@@ -11,7 +11,7 @@
 \alias{$<-.ScalaInterpreter}
 \docType{methods}
 \title{
-Execute code, set values, and get values in an embedded interpreter.
+Execute Code, Set Values, and Get Values in a Scala Interpreter
 }
 \description{
 These functions define the package's interface to an embedded Scala

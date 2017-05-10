@@ -10,7 +10,7 @@
 \alias{print.ScalaFunction}
 \docType{methods}
 \title{
-Prints or returns a string representation of a Scala interpreter, a Scala reference, or a Scala function.
+String Representation of a Scala Interpreter, Reference, or Function
 }
 \description{
 These functions print or return a string representation of a Scala interpreter, a Scala reference, or a Scala function.

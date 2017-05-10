@@ -2,7 +2,7 @@
 \alias{close.ScalaInterpreter}
 \docType{methods}
 \title{
-Closes the resources associated with an interpreter.
+Closes the Resources of a Scala Interpreter
 }
 \description{
 This function closes (i.e., frees) the resources associated with an interpreter.  Subsequent uses of the interpreter object will fail.

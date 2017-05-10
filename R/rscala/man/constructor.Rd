@@ -7,9 +7,7 @@
 \alias{.rscalaDelay}
 \docType{methods}
 \title{
-Creates an instance of an embedded Scala interpreter/compiler.
-Provides file path for Scala and this package's JAR file.
-Provides functions to enable other packages to depend on this package.
+Create an Instance of an Embedded Scala Interpreter
 }
 \description{
 The function \code{\link{scala}} creates an instance of an embedded Scala

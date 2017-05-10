@@ -2,7 +2,7 @@
 \alias{scalaSettings}
 \docType{methods}
 \title{
-Retrieves information about the Scala interpreter and sets the interpolation behavior.
+Settings of the Scala Interpreter
 }
 \description{
 When only the interpreter is provided, this function retrieves information about the interpreter.
