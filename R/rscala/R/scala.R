@@ -31,6 +31,8 @@ scala <- function(classpath=character(),serialize.output=FALSE,scala.home=NULL,h
   if ( debug ) msg("\n",paste0("<",args,">",collapse="\n"))
   system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
   sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
+  sInfo$classpath <- rsClasspath
+  sInfo$command.line.options <- command.line.options
   scalaSettings(sockets,interpolate=TRUE,info=sInfo)
   sockets
 }
@@ -560,15 +562,20 @@ close.ScalaInterpreter <- function(con,...) {
   close(con[['socketIn']])
 }
 
-.rscalaPackage <- function(pkgname, classpath.appendix=character(), snippet=character(), ...) {
+jarsOfPackage <- function(pkgname, major.version) {
+  jarsMajor <- list.files(file.path(system.file("java",package=pkgname),paste0("scala-",major.version)),pattern=".*\\.jar$",full.names=TRUE,recursive=FALSE)
+  jarsAny <- list.files(system.file("java",package=pkgname),pattern=".*\\.jar$",full.names=TRUE,recursive=FALSE)
+  c(jarsMajor,jarsAny)
+}
+
+.rscalaPackage <- function(pkgname, snippet=character(), classpath.packages=character(), classpath.prepend=character(), classpath.append=character(), ...) {
   env <- parent.env(parent.frame())    # Environment of depending package (assuming this function is only called in .onLoad function).
   # Lazy initialization of 's' in environment of depending package
   delayedAssign("s", {
     sInfo <- scalaInfo()
     if ( is.null(sInfo) ) stop('Please run "rscala::scalaInstall()" or install Scala manually.')
-    jarsMajor <- list.files(file.path(system.file("java",package=pkgname),sInfo$major.version),pattern=".*\\.jar$",full.names=TRUE,recursive=FALSE)
-    jarsAny <- list.files(system.file("java",package=pkgname),pattern=".*\\.jar$",full.names=TRUE,recursive=FALSE)
-    classpath <- c(jarsMajor,jarsAny,classpath.appendix)
+    pkgJars <- unlist(lapply(c(pkgname,classpath.packages), function(p) jarsOfPackage(p, sInfo$major.version)))
+    classpath <- c(classpath.prepend,pkgJars,classpath.append)
     s <- scala(classpath=classpath,scalaInfo=sInfo,...)
     if ( length(snippet) > 0 ) s %@% snippet
     s
