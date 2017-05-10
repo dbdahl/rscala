@@ -1,6 +1,6 @@
 ## Scala scripting over TCP/IP
 
-scala <- function(classpath=character(),serialize.output=FALSE,scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=60,debug=FALSE,stdout=TRUE,stderr=TRUE,port=0) {
+scala <- function(classpath=character(),serialize.output=FALSE,scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=60,debug=FALSE,stdout=TRUE,stderr=TRUE,port=0,scalaInfo=NULL) {
   if ( identical(stdout,TRUE) ) stdout <- ""
   if ( identical(stderr,TRUE) ) stderr <- ""
   debug <- identical(debug,TRUE)
@@ -21,7 +21,7 @@ scala <- function(classpath=character(),serialize.output=FALSE,scala.home=NULL,h
       }
     }
   }
-  sInfo <- scalaInfo(scala.home)
+  sInfo <- if ( is.null(scalaInfo) ) scalaInfo(scala.home) else scalaInfo
   if ( is.null(sInfo) ) stop('Please run "rscala::scalaInstall()" or install Scala manually.')
   rsJar <- .rscalaJar(sInfo$version)
   rsClasspath <- shQuote(paste(c(rsJar,userJars),collapse=.Platform$path.sep))
@@ -561,11 +561,15 @@ close.ScalaInterpreter <- function(con,...) {
 }
 
 .rscalaPackage <- function(pkgname, classpath.appendix=character(), snippet=character(), ...) {
-  classpath <- c(list.files(system.file("java",package=pkgname),pattern=".*\\.jar$",full.names=TRUE,recursive=TRUE),classpath.appendix)
   env <- parent.env(parent.frame())    # Environment of depending package (assuming this function is only called in .onLoad function).
   # Lazy initialization of 's' in environment of depending package
   delayedAssign("s", {
-    s <- scala(classpath=classpath,...)
+    sInfo <- scalaInfo()
+    if ( is.null(sInfo) ) stop('Please run "rscala::scalaInstall()" or install Scala manually.')
+    jarsMajor <- list.files(file.path(system.file("java",package=pkgname),sInfo$major.version),pattern=".*\\.jar$",full.names=TRUE,recursive=FALSE)
+    jarsAny <- list.files(system.file("java",package=pkgname),pattern=".*\\.jar$",full.names=TRUE,recursive=FALSE)
+    classpath <- c(jarsMajor,jarsAny,classpath.appendix)
+    s <- scala(classpath=classpath,scalaInfo=sInfo,...)
     if ( length(snippet) > 0 ) s %@% snippet
     s
   }, assign.env=env)

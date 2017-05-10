@@ -47,7 +47,8 @@ the namespace.  The object \code{s} is only initialized on its first usage.
 scala(classpath=character(),
       serialize.output=FALSE, scala.home=NULL,
       heap.maximum=NULL, command.line.options=NULL, row.major=TRUE,
-      timeout=60, debug=FALSE, stdout=TRUE, stderr=TRUE, port=0)
+      timeout=60, debug=FALSE, stdout=TRUE, stderr=TRUE, port=0,
+      scalaInfo=NULL)
 
 scalaInfo(scala.home=NULL, verbose=FALSE)
 scalaInstall(major.version=c("2.12","2.11","2.10")[1])
@@ -66,6 +67,7 @@ scalaInstall(major.version=c("2.12","2.11","2.10")[1])
     \item{debug}{An option meant only for developers of the package itself and not intended for users of the package.}
     \item{stdout, stderr}{Where standard output and standard error results that are not serialized should be sent.  \code{TRUE} (the default) or \code{""} sends output to the R console (although that may not work on Windows).  \code{FALSE} or \code{NULL} discards the output.  Otherwise, this is the name of the file that receives the output.}
     \item{port}{If \code{0}, two random ports are selected.  Otherwise, \code{port} and \code{port+1} are used to the TCP/IP connections.}
+    \item{scalaInfo}{The result of a previous call to \code{\link{scalaInfo}}.}
     \item{verbose}{A logical vector of length one indicating whether information regarding the search for the Scala installation should be displayed.}
     \item{major.version}{A string specifying the major Scala version (e.g., "2.12").  If \code{""}, the JAR files for all Scala versions are returned by \code{\link{.rscalaJar}}.}
     \item{pkgname}{A character string giving the name of the package (as provided the second argument of the \code{.onLoad} function) that wishes to depend on this package.}

@@ -1,3 +1,7 @@
+2.1.1 (2017-05-09)
+  * Added functionality for depending packages to use Scala 2.10.x, 2.11.x, or
+    2.12.x (rather than what version the developer is using).
+
 2.1.0 (2017-05-08)
   * Scala function defined in R can now use the %!% and %.!% operators.  See
     examples.  The alternative s$def() mechanism is deprecated and will be
