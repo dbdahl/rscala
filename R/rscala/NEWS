@@ -1,4 +1,4 @@
-2.1.1 (2017-05-10)
+2.1.1 (2017-05-11)
   * Added functionality for depending packages to use Scala 2.10.x, 2.11.x, or
     2.12.x (rather than what version the developer is using).
 
