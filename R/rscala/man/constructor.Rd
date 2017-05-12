@@ -24,7 +24,7 @@ paths to JAR files, installation directories, the Scala executable, and this
 package.  Note that if you only want to embed R in a Scala application, you do
 not need to install the package. Simply add the following line to the your SBT
 build.sbt file: \sQuote{libraryDependencies += "org.ddahl" %% "rscala" %
-"_VERSION_"}, where _VERSION_ is the rscala version number (i.e., 2.1.1).
+"_VERSION_"}, where _VERSION_ is the rscala version number (i.e., 2.1.2).
 
 \code{\link{scalaInstall}} downloads and installs Scala in \dQuote{~/.rscala}
 in the user's home directory.  System administrators can install Scala
@@ -62,7 +62,7 @@ scalaInstall(major.version=c("2.12","2.11","2.10")[1])
 \arguments{
     \item{classpath}{A character vector whose elements are paths to JAR files or directories which specify the classpath for the Scala compiler/interpreter.}
     \item{serialize.output}{Should standard output (stdout) and standard error (stderr) be captured and serialized back to R?  \code{FALSE} (the default) is recommended except on Windows where \code{TRUE} may be needed to see output and error messages.}
-    \item{scala.home}{A character vector of length one giving the path where Scala is installed.  When set to \code{NULL} (the default), the function sequentially tries to find the Scala home by:  i. using the environment variable \code{SCALA_HOME}, ii. querying the operating system search path, and iii. looking in subdirectories of \code{~/.rscala}.  If all these fail, the function offers to download and install Scala in the above mentioned path (if the current \R session is interactive) or it downloads and installs Scala in a temporary directory (if the current \R session is noninteractive).}
+    \item{scala.home}{A character vector of length one giving the path where Scala is installed.  When set to \code{NULL} (the default), the function sequentially tries to find the Scala home by:  i. querying the glocal option \var{rscala.scala.home}, ii. using the environment variable \code{SCALA_HOME}, iii. querying the operating system search path, and iv. looking in subdirectories of \code{~/.rscala}.  If all these fail, the function displaces a message to help the user install Scala.}
     \item{heap.maximum}{A character vector of length one used to specify the maximum heap size in the JVM.  If \code{NULL}, the global option \var{rscala.heap.maximum} is queried and, if that is also \code{NULL}, Scala's default value is used.  This option is ignored if \var{command.line.options} is not null.}
     \item{command.line.options}{A character vector whose elements are passed as command line arguments when invoking Scala.  If \code{NULL}, the global option \var{rscala.command.line.options} is queried and, if that is also \code{NULL}, the value is set to \code{NULL}.  A value of \code{NULL} means no extra arguments are provided.  If you simply want to add to the classpath and/or set the maximum heap size, use the \var{classpath} and \var{heap.maximum} arguments.}
     \item{row.major}{Should matrices in Scala be row major?}

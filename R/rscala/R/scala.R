@@ -693,6 +693,14 @@ scalaInfo <- function(scala.home=NULL,verbose=FALSE) {
     stop("Cannot find Scala using 'scala.home' argument.  Expand search by *not* specifying 'scala.home' argument.")
   }
   # Attempt 2
+  scala.home.tmp <- getOption("rscala.scala.home",default="")
+  info <- if ( scala.home.tmp != "" ) {
+    scalaInfoEngine(file.path(scala.home.tmp,"bin","scala"),verbose)
+  } else NULL
+  if ( verbose ) techniqueMsg <- sprintf("'rscala.scala.home' (%s) global option",scala.home.tmp)
+  if ( ! is.null(info) ) { if ( verbose ) cat(tab,successMsg,techniqueMsg,"\n\n",sep=""); return(info) }
+  else if ( verbose ) cat(tab,failureMsg,techniqueMsg,"\n",sep="")
+  # Attempt 3
   scala.home.tmp <- Sys.getenv("SCALA_HOME")
   if ( verbose ) techniqueMsg <- sprintf("SCALA_HOME (%s) environment variable",scala.home.tmp)
   info <- if ( scala.home.tmp != "" ) {
@@ -700,12 +708,12 @@ scalaInfo <- function(scala.home=NULL,verbose=FALSE) {
   } else NULL
   if ( ! is.null(info) ) { if ( verbose ) cat(tab,successMsg,techniqueMsg,"\n\n",sep=""); return(info) }
   else if ( verbose ) cat(tab,failureMsg,techniqueMsg,"\n",sep="")
-  # Attempt 3
+  # Attempt 4
   info <- scalaInfoEngine(Sys.which("scala"),verbose)
   if ( verbose ) techniqueMsg <- "'scala' in the shell's search path"
   if ( ! is.null(info) ) { if ( verbose ) cat(tab,successMsg,techniqueMsg,"\n\n",sep=""); return(info) }
   else if ( verbose ) cat(tab,failureMsg,techniqueMsg,"\n",sep="")
-  # Attempt 4
+  # Attempt 5
   candidates <- list.dirs(normalizePath(file.path("~",".rscala"),mustWork=FALSE),recursive=FALSE)
   details <- file.info(candidates)
   details <- details[order(as.POSIXct(details$mtime),decreasing=TRUE), ]
@@ -716,7 +724,7 @@ scalaInfo <- function(scala.home=NULL,verbose=FALSE) {
     if ( ! is.null(info) ) { if ( verbose ) cat(tab,successMsg,techniqueMsg,"\n\n",sep=""); return(info) }
     else if ( verbose ) cat(tab,failureMsg,techniqueMsg,"\n",sep="")
   }
-  # Attempt 5
+  # Attempt 6
   if ( ! verbose ) scalaInfo(scala.home=scala.home,verbose=TRUE)
   else {
     cat("\nCannot find a suitable Scala installation.\n\n")
