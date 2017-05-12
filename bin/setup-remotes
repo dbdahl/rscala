@@ -6,6 +6,8 @@
 #   git clone git@dahl-git.byu.edu:dahl/rscala.git
 #   cd rscala
 
+cd $(dirname $(readlink -f "$0"))/..
+
 if [[ $(git remote -v | wc -l) -gt 2 ]]
 then
   2>&1 echo "error: more remotes found than expected."
