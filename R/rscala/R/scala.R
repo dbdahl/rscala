@@ -25,6 +25,7 @@ scala <- function(classpath=character(),serialize.output=FALSE,scala.home=NULL,h
   if ( is.null(sInfo) ) stop('Please run "rscala::scalaInstall()" or install Scala manually.')
   rsJar <- .rscalaJar(sInfo$version)
   rsClasspath <- shQuote(paste(c(rsJar,userJars),collapse=.Platform$path.sep))
+  command.line.options <- shQuote(command.line.options)
   portsFilename <- tempfile("rscala-")
   args <- c(command.line.options,paste0("-Drscala.classpath=",rsClasspath),"-classpath",rsClasspath,"org.ddahl.rscala.server.Main",portsFilename,debug,serialize.output,row.major,port)
   if ( debug ) msg("\n",sInfo$cmd)
