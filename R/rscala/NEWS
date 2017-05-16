@@ -1,4 +1,6 @@
-2.1.2 (2017-05-15)
+2.1.2 (2017-05-16)
+  * Added 'classpath.packages' argument to 'scala' function for easily using
+    JARs for other packages.
   * Added 'rscala.scala.home' global option to provide another means to find
     the Scala home directory.
   * s$val(), s$.val(), and s$do() are reinstated (but not recommended unless

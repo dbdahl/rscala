@@ -1,6 +1,6 @@
 ## Scala scripting over TCP/IP
 
-scala <- function(classpath=character(),serialize.output=FALSE,scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=60,debug=FALSE,stdout=TRUE,stderr=TRUE,port=0,scalaInfo=NULL) {
+scala <- function(classpath=character(),classpath.packages=character(),serialize.output=FALSE,scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=60,debug=FALSE,stdout=TRUE,stderr=TRUE,port=0,scalaInfo=NULL) {
   if ( identical(stdout,TRUE) ) stdout <- ""
   if ( identical(stderr,TRUE) ) stderr <- ""
   debug <- identical(debug,TRUE)
@@ -9,7 +9,10 @@ scala <- function(classpath=character(),serialize.output=FALSE,scala.home=NULL,h
   port <- as.integer(port[1])
   if ( debug && serialize.output ) stop("When debug is TRUE, serialize.output must be FALSE.")
   if ( debug && ( identical(stdout,FALSE) || identical(stdout,NULL) || identical(stderr,FALSE) || identical(stderr,NULL) ) ) stop("When debug is TRUE, stdout and stderr must not be discarded.")
-  userJars <- unlist(strsplit(classpath,.Platform$path.sep))
+  sInfo <- if ( is.null(scalaInfo) ) scalaInfo(scala.home) else scalaInfo
+  if ( is.null(sInfo) ) stop('Please run "rscala::scalaInstall()" or install Scala manually.')
+  pkgJars <- unlist(lapply(classpath.packages, function(p) jarsOfPackage(p, sInfo$major.version)))
+  userJars <- c(unlist(strsplit(classpath,.Platform$path.sep)),pkgJars)
   if ( is.null(command.line.options) ) {
     command.line.options <- getOption("rscala.command.line.options",default=NULL)
     if ( is.null(command.line.options) ) {
@@ -21,8 +24,6 @@ scala <- function(classpath=character(),serialize.output=FALSE,scala.home=NULL,h
       }
     }
   }
-  sInfo <- if ( is.null(scalaInfo) ) scalaInfo(scala.home) else scalaInfo
-  if ( is.null(sInfo) ) stop('Please run "rscala::scalaInstall()" or install Scala manually.')
   rsJar <- .rscalaJar(sInfo$version)
   rsClasspath <- shQuote(paste(c(rsJar,userJars),collapse=.Platform$path.sep))
   command.line.options <- shQuote(command.line.options)
@@ -576,8 +577,10 @@ jarsOfPackage <- function(pkgname, major.version) {
     sInfo <- scalaInfo()
     if ( is.null(sInfo) ) stop('Please run "rscala::scalaInstall()" or install Scala manually.')
     pkgJars <- unlist(lapply(c(pkgname,classpath.packages), function(p) jarsOfPackage(p, sInfo$major.version)))
+    classpath.prepend <- unlist(strsplit(classpath.prepend,.Platform$path.sep))
+    classpath.append <- unlist(strsplit(classpath.append,.Platform$path.sep))
     classpath <- c(classpath.prepend,pkgJars,classpath.append)
-    s <- scala(classpath=classpath,scalaInfo=sInfo,...)
+    s <- scala(classpath=classpath,classpath.packages=NULL,scalaInfo=sInfo,...)
     if ( length(snippet) > 0 ) s %@% snippet
     s
   }, assign.env=env)

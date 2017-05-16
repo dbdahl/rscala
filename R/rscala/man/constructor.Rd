@@ -42,7 +42,7 @@ making it available to the package's function) but it is not exported from
 the namespace.  The object \code{s} is only initialized on its first usage.
 }
 \usage{
-scala(classpath=character(),
+scala(classpath=character(), classpath.packages=character(),
       serialize.output=FALSE, scala.home=NULL,
       heap.maximum=NULL, command.line.options=NULL, row.major=TRUE,
       timeout=60, debug=FALSE, stdout=TRUE, stderr=TRUE, port=0,
@@ -61,6 +61,7 @@ scalaInstall(major.version=c("2.12","2.11","2.10")[1])
 }
 \arguments{
     \item{classpath}{A character vector whose elements are paths to JAR files or directories which specify the classpath for the Scala compiler/interpreter.}
+    \item{classpath.packages}{A character vector giving names of other installed packages whose JAR files should be appended to the classpath.}
     \item{serialize.output}{Should standard output (stdout) and standard error (stderr) be captured and serialized back to R?  \code{FALSE} (the default) is recommended except on Windows where \code{TRUE} may be needed to see output and error messages.}
     \item{scala.home}{A character vector of length one giving the path where Scala is installed.  When set to \code{NULL} (the default), the function sequentially tries to find the Scala home by:  i. querying the glocal option \var{rscala.scala.home}, ii. using the environment variable \code{SCALA_HOME}, iii. querying the operating system search path, and iv. looking in subdirectories of \code{~/.rscala}.  If all these fail, the function displaces a message to help the user install Scala.}
     \item{heap.maximum}{A character vector of length one used to specify the maximum heap size in the JVM.  If \code{NULL}, the global option \var{rscala.heap.maximum} is queried and, if that is also \code{NULL}, Scala's default value is used.  This option is ignored if \var{command.line.options} is not null.}
@@ -75,7 +76,6 @@ scalaInstall(major.version=c("2.12","2.11","2.10")[1])
     \item{major.version}{A string specifying the major Scala version (e.g., "2.12").  If \code{""}, the JAR files for all Scala versions are returned by \code{\link{.rscalaJar}}.}
     \item{pkgname}{A character string giving the name of the package (as provided the second argument of the \code{.onLoad} function) that wishes to depend on this package.}
     \item{snippet}{A character vector providing Scala code that will evaluated when the interpreter in the package namespace is first used.}
-    \item{classpath.packages}{A character vector giving names of other installed packages whose JAR files should be appended to the classpath for the Scala compiler/interpreter embedded within a package via the \code{\link{.rscalaPackage}} function.  The JAR files in the package's \sQuote{java} directory are already included and do not need to be added here.}
     \item{classpath.prepend}{A character vector giving the full path to JAR files to add to the \emph{beginning} of the classpath for the Scala compiler/interpreter embedded within a package via the \code{\link{.rscalaPackage}} function.  The JAR files in the package's \sQuote{java} directory are already included and do not need to be added here.}
     \item{classpath.append}{A character vector giving the full path to JAR files to add to the \emph{end} of the classpath for the Scala compiler/interpreter embedded within a package via the \code{\link{.rscalaPackage}} function.  The JAR files in the package's \sQuote{java} directory are already included and do not need to be added here.}
     \item{...}{These arguments are passed by the \code{\link{.rscalaPackage}} function to the \code{\link{scala}} function.}
