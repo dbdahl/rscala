@@ -1,11 +1,14 @@
-2.2.0 (2017-05-12)
+2.2.0 (2017-05-17)
   * Vectors of length one are treated as scalar unless wrapped by the I()
     function.  This new behavior is opposite of the previous behavior but
     consistent with the jsonlite and RJSONIO packages.
+  * Added 'classpath.packages' argument to 'scala' function for easily using
+    JARs for other packages.
   * Added 'rscala.scala.home' global option to provide another means to find
     the Scala home directory.
   * s$val(), s$.val(), and s$do() are reinstated (but not recommended unless
     you need the arguments to be variables instead of string literals).
+  * Fixed bug by wrapping command.line.arguments by the shQuote function.
 
 2.1.1 (2017-05-11)
   * Added functionality for depending packages to use Scala 2.10.x, 2.11.x, or
