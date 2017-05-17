@@ -24,7 +24,7 @@ paths to JAR files, installation directories, the Scala executable, and this
 package.  Note that if you only want to embed R in a Scala application, you do
 not need to install the package. Simply add the following line to the your SBT
 build.sbt file: \sQuote{libraryDependencies += "org.ddahl" %% "rscala" %
-"_VERSION_"}, where _VERSION_ is the rscala version number (i.e., 2.1.2).
+"_VERSION_"}, where _VERSION_ is the rscala version number (i.e., 2.2.0).
 
 \code{\link{scalaInstall}} downloads and installs Scala in \dQuote{~/.rscala}
 in the user's home directory.  System administrators can install Scala
@@ -120,13 +120,13 @@ s$rPi
 s$val("rPi")
 s$.val("rPi")
 
-s$rPi <- I(pi)     # Now rPi is a scalar, not an array of length one.
+s$rPi <- I(pi)     # Now rPi is an array of length one.
 s$rPi              # It doesn't matter to R...
 s$.val("rPi")      # ... but it does to Scala.
 
 # Convenient notation
-a1 <- s \%~\%  "rPi/2"   # As an R value
-a2 <- s \%.~\% "rPi/2"   # As a Scala reference
+a1 <- s \%~\%  "rPi(0)/2"   # As an R value
+a2 <- s \%.~\% "rPi(0)/2"   # As a Scala reference
 
 # References can be set
 s$foo <- a2
@@ -135,22 +135,22 @@ s$foo
 # Instantiate an object
 seed <- 2349234L
 scalap(s,'scala.util.Random')
-s$.scala.util.Random             # More convenient that using scalap.
-rng <- s$.scala.util.Random$new(I(seed))  # Scala equivalent: new scala.util.Random(seed)
+s$.scala.util.Random                   # More convenient that using scalap.
+rng <- s$.scala.util.Random$new(seed)  # Scala equivalent: new scala.util.Random(seed)
 
 # Call method of a reference
-system.time(rng$nextInt(I(100L)))   # Scala equivalent: rng.nextInt(100)
-system.time(rng$nextInt(I(100L)))   # Notice it runs much faster the second time due to caching
+system.time(rng$nextInt(100L))   # Scala equivalent: rng.nextInt(100)
+system.time(rng$nextInt(100L))   # Notice it runs much faster the second time due to caching
 
-rInt <- rng$nextInt(I(100L),.EVALUATE=FALSE)  # Define function to call quickly later without ...
+rInt <- rng$nextInt(100L,.EVALUATE=FALSE)  # Define function to call quickly later without ...
 rInt(100)                                     # ... needing to protect scalars and ensure type.
 
 # Call method of companion object and call methods of a reference
 # Scala equivalent: (scala.math.BigInt("777",8) - 500).intValue
-s$.scala.math.BigInt$apply(I("777"),I(8L))$'-'(I(500L))$intValue()
+s$.scala.math.BigInt$apply("777",8L)$'-'(500L)$intValue()
 
 # Example showing callback functionality
-f <- s$def(func=NULL, data=numeric(), quiet=I(TRUE)) \%~\% '
+f <- s$def(func=NULL, data=numeric(), quiet=TRUE) \%~\% '
   if ( ! quiet ) println("Here I am in Scala.")
   R.invokeD1(func, data.map(2*_), "verbose" -> !quiet ).sum
 '
@@ -164,7 +164,7 @@ identical( f(cube,1:4,FALSE), sum((2*(1:4))^3) )
 identical( f(cube,1:4,TRUE),  sum((2*(1:4))^3) )
 
 # Longer example showing that s$def(...) is more flexible and faster than '\%~\%'
-drawGaussian <- function(mean=I(0.0), sd=I(1.0), rng=scalaNull("scala.util.Random")) s \%!\% '
+drawGaussian <- function(mean=0.0, sd=1.0, rng=scalaNull("scala.util.Random")) s \%!\% '
   mean+sd*rng.nextDouble
 '
 drawGaussian(3,0.1,rng)  # No scalar protection or casting is needed.
@@ -181,7 +181,7 @@ system.time({
   '
   acf(draws,plot=FALSE)
 })
-sampler <- function(nDraws=I(1L), rho=I(0.0), rng=scalaNull("scala.util.Random")) s \%!\% '
+sampler <- function(nDraws=1L, rho=0.0, rng=scalaNull("scala.util.Random")) s \%!\% '
   val result = new Array[Double](nDraws)
   result(0) = rng.nextGaussian
   for ( i <- 1 until nDraws ) {
