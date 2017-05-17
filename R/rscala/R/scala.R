@@ -317,12 +317,9 @@ scalaSet <- function(interpreter,identifier,value) {
     } else {
       if ( ! is.atomic(value) ) stop("Data structure is not supported.")
       asScalar <- if ( inherits(value,"AsIs") ) {
-        if ( length(value) != 1 ) stop("Values wrapped in I() must be of length one.")
         value <- as.vector(value)
-        TRUE
-      } else {
         FALSE
-      }
+      } else length(value) == 1
       if ( is.vector(value) ) {
         type <- checkType(value)
         if ( get("debug",envir=interpreter[['env']]) ) msg("Sending SET request.")
@@ -420,9 +417,10 @@ scalaFunctionArgs <- function(.INTERPRETER,...) {
     } else {
       if ( ( ! is.atomic(value) ) || is.null(value) ) stop(paste0('Type of "',name,'" is not supported.'))
       type <- checkType3(value)
-      len <- if ( inherits(value,"AsIs") ) 0
-      else if ( is.vector(value) ) 1
-      else if ( is.matrix(value) ) 2
+      len <- if ( inherits(value,"AsIs") ) 1
+      else if ( is.vector(value) ) {
+        if ( length(value) == 1 ) 0 else 1
+      } else if ( is.matrix(value) ) 2
       else stop(paste0('Type of "',name,'" is not supported.'))
       header[i] <- paste0('val ',name,' = R.get',type,len,'("',name,'")')
     }

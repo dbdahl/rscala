@@ -1,4 +1,7 @@
-2.1.2 (2017-05-12)
+2.2.0 (2017-05-12)
+  * Vectors of length one are treated as scalar unless wrapped by the I()
+    function.  This new behavior is opposite of the previous behavior but
+    consistent with the jsonlite and RJSONIO packages.
   * Added 'rscala.scala.home' global option to provide another means to find
     the Scala home directory.
   * s$val(), s$.val(), and s$do() are reinstated (but not recommended unless

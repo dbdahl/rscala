@@ -88,11 +88,9 @@ rServe <- function(sockets,with.callbacks,workspace=.GlobalEnv) {
         wb(sockets,UNSUPPORTED_STRUCTURE)
       } else {
         asScalar <- if ( inherits(value,"AsIs") ) {
-          if ( length(value) == 1 ) value <- as.vector(value)
-          TRUE
-        } else {
+          value <- as.vector(value)
           FALSE
-        }
+        } else length(value) == 1
         if ( is.vector(value) ) {
           type <- checkType(value)
           if ( asScalar ) {
