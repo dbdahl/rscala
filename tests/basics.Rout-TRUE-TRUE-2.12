@@ -1,6 +1,6 @@
 > row.major <- FALSE
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # TRUE # TRUE
+# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # TRUE
 > 
 > 
 > setget <- function(value) {
@@ -17,6 +17,12 @@
 > setget(double(0))
 > setget(logical(0))
 > setget(character(0))
+> 
+> setget(4L)
+> setget(5)
+> setget(TRUE)
+> setget(FALSE)
+> setget("David")
 > 
 > setget(I(4L))
 > setget(I(5))

@@ -1,6 +1,6 @@
 > jars <- c("commons-math3-3.2.jar","shallot.jar")
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # TRUE # TRUE
+# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # TRUE
 > 
 > tryCatch(s %~% 'new org.apache.commons.math3.random.EmpiricalDistribution()',error=function(e) e)   # Scala 2.11.x class loader is weird.  This line avoid subsequent problems.
 package org.apache.commons.math3.random;
@@ -215,26 +215,26 @@ object RandomDataGenerator {
 ScalaInterpreterItem
 > rdg <- s$.org.apache.commons.math3.random.RandomDataGenerator$new()
 > 
-> rdg$reSeed(I(39234L))
-> rexp <- rdg$nextExponential(I(2),.EVALUATE=FALSE)
+> rdg$reSeed(39234L)
+> rexp <- rdg$nextExponential(2,.EVALUATE=FALSE)
 > 
 > library(microbenchmark)
 > options(width=120)
-> microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
+> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: microseconds
-                      expr      min        lq      mean   median        uq      max neval
- rdg$nextExponential(I(4)) 1097.406 1242.5140 1622.5688 1342.778 1561.9230 33371.62  1000
-                   rexp(4)  244.189  321.1855  511.4482  347.576  468.8885 18140.82  1000
-> microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
+                   expr      min        lq      mean    median        uq      max neval
+ rdg$nextExponential(4) 1039.359 1144.7970 1566.8799 1242.5210 1490.8570 15795.52  1000
+                rexp(4)  223.150  292.4745  549.7901  319.3545  412.4725 35387.42  1000
+> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: microseconds
-                      expr      min       lq      mean    median       uq       max neval
- rdg$nextExponential(I(4)) 1079.918 1190.228 1422.5578 1245.6355 1357.988 35837.452  1000
-                   rexp(4)  225.658  307.764  344.1076  322.0445  353.017  2240.621  1000
-> microbenchmark(rdg$nextExponential(I(4)),rexp(4),times=1000L)
+                   expr     min        lq      mean   median        uq       max neval
+ rdg$nextExponential(4) 995.933 1145.1505 1327.8741 1186.094 1318.9180  9099.042  1000
+                rexp(4) 207.870  283.1475  376.3712  296.599  324.7305 33753.537  1000
+> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: microseconds
-                      expr      min       lq      mean    median        uq       max neval
- rdg$nextExponential(I(4)) 1106.712 1198.044 1422.2650 1257.0560 1409.3830  9232.327  1000
-                   rexp(4)  231.855  305.948  413.5709  320.4995  353.1805 37421.977  1000
+                   expr      min        lq      mean    median        uq      max neval
+ rdg$nextExponential(4) 1021.066 1133.9610 1389.3005 1195.8690 1350.4955 36268.43  1000
+                rexp(4)  218.167  285.6905  379.9537  298.9795  352.3825 25275.47  1000
 > 
 > s$.org.ddahl.shallot.parameter.Mass
 package org.ddahl.shallot.parameter
@@ -252,14 +252,14 @@ object Mass extends scala.AnyRef {
 }
 
 ScalaInterpreterItem
-> massFactory3 <- s$.org.ddahl.shallot.parameter.Mass$factory(I(1.0),I(3.0),rdg)
+> massFactory3 <- s$.org.ddahl.shallot.parameter.Mass$factory(1.0,3.0,rdg)
 > s %~% "3+4"
 [1] 7
 > 
-> mass <- s$.org.ddahl.shallot.parameter.Mass$apply(I(3.4))
+> mass <- s$.org.ddahl.shallot.parameter.Mass$apply(3.4)
 > massFactory1 <- s$.org.ddahl.shallot.parameter.Mass$factory(mass)
-> massFactory2 <- s$.org.ddahl.shallot.parameter.Mass$factory(I(3.0))
-> massFactory3 <- s$.org.ddahl.shallot.parameter.Mass$factory(I(1.0),I(3.0),rdg)
+> massFactory2 <- s$.org.ddahl.shallot.parameter.Mass$factory(3.0)
+> massFactory3 <- s$.org.ddahl.shallot.parameter.Mass$factory(1.0,3.0,rdg)
 > massFactory3$apply()$logValue()
 [1] -2.27295
 > massFactory3$apply()$logValue()
@@ -293,13 +293,13 @@ ScalaInterpreterItem
 > d$b()                    # Now it does
 [1] 4
 > 
-> d$sum(I(4L))
+> d$sum(4L)
 [1] 11
-> m <- d$sum(I(5L),.EVALUATE=FALSE)
+> m <- d$sum(5L,.EVALUATE=FALSE)
 > 
 > m(3)                                                   # Casting is not necessary here
 [1] 10
-> d$sum(I(as.integer(3)))                                # But it is here
+> d$sum(as.integer(3))                                   # But it is here
 [1] 10
 > 
 > 

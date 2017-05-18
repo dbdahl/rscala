@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # TRUE
+# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # TRUE
 > 
 > 
 > # This is not recursion via callbacks.
@@ -68,7 +68,7 @@ Hello 9 from Scala.
 > 
 > 
 > # This is recursion via callbacks using a predefined function
-> hh <- function(x=I(0L)) s %!% '
+> hh <- function(x=0L) s %!% '
 +   println(s"Hello $x from Scala.")
 +   R.eval(s"h(${x+1})")
 + '
@@ -102,7 +102,7 @@ Hello 9 from Scala.
 > 
 > 
 > # This is recursion via callbacks using a Scala function
-> i <- function(x=I(0L)) s %!% '
+> i <- function(x=0L) s %!% '
 +   if ( x < 10 ) {
 +     println(s"Hello $x from Scala.")
 +     R.eval(s"""cat("Hello ${x} from R.\n"); i(${x+1})""")
@@ -537,11 +537,11 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Unit: milliseconds
- expr       min         lq       mean     median         uq        max neval
- f(0) 844.54594 1259.14208 1887.53713 1891.55724 2531.41881 2911.02158     5
- g(0) 472.64166 1093.96627 1224.60002 1178.42890 1651.65535 1726.30790     5
- h(0)  21.01021   29.01597   33.55271   29.46420   37.82065   50.45251     5
- i(0)  29.62016   31.49850   41.67285   34.88379   51.88591   60.47591     5
+ expr       min        lq       mean     median         uq        max neval
+ f(0) 802.19601 965.14422 1191.98968 1042.05537 1172.87883 1977.67396     5
+ g(0) 392.05193 525.90401  795.70156  727.20741  890.61215 1442.73232     5
+ h(0)  13.96613  14.04474   17.92818   16.76161   18.43306   26.43535     5
+ i(0)  12.39765  16.04763   20.27921   20.20029   23.66357   29.08691     5
 > 
 > cat("####\n")
 ####
@@ -4548,9 +4548,9 @@ Hello 8 from R.
 Hello 9 from Scala.
 Hello 9 from R.
 Unit: milliseconds
- expr      min       lq     mean   median       uq      max neval
- h(0) 10.43819 11.87311 14.69201 13.07087 16.26027 47.00244   100
- i(0) 10.42854 12.72864 15.72666 15.04935 17.25369 50.70777   100
+ expr       min       lq     mean   median       uq      max neval
+ h(0)  9.688591 13.24163 16.64086 15.14054 18.22424 49.58186   100
+ i(0) 10.575202 13.97001 18.42719 17.21703 20.13482 49.25272   100
 > 
 > 
 > 

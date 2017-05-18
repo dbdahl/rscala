@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # FALSE
+# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # FALSE
 > 
 > 
 > # This is not recursion via callbacks.
@@ -48,7 +48,7 @@ Hello 9 from R.
 > 
 > 
 > # This is recursion via callbacks using a predefined function
-> hh <- function(x=I(0L)) s %!% '
+> hh <- function(x=0L) s %!% '
 +   println(s"Hello $x from Scala.")
 +   R.eval(s"h(${x+1})")
 + '
@@ -72,7 +72,7 @@ Hello 9 from R.
 > 
 > 
 > # This is recursion via callbacks using a Scala function
-> i <- function(x=I(0L)) s %!% '
+> i <- function(x=0L) s %!% '
 +   if ( x < 10 ) {
 +     println(s"Hello $x from Scala.")
 +     R.eval(s"""cat("Hello ${x} from R.\n"); i(${x+1})""")
@@ -297,11 +297,11 @@ Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
 Unit: milliseconds
- expr       min         lq       mean     median         uq        max neval
- f(0) 858.05933 1169.87727 1508.65130 1195.34196 1816.51307 2503.46488     5
- g(0) 373.36661  739.80811 1181.24794 1070.32319 1116.27810 2606.46372     5
- h(0)  17.29116   18.34049   21.76988   18.85236   22.23803   32.12734     5
- i(0)  16.23329   21.06134   32.77649   35.07758   41.14163   50.36859     5
+ expr        min         lq       mean     median         uq        max neval
+ f(0) 1016.48533 1066.90125 1243.37642 1229.44510 1445.31016 1458.74026     5
+ g(0)  500.54611  509.27798  626.94055  608.77594  626.61263  889.49010     5
+ h(0)   13.40452   19.96549   19.50659   19.97617   21.84755   22.33919     5
+ i(0)   18.81270   19.83199   25.64074   21.92876   26.96906   40.66121     5
 > 
 > cat("####\n")
 ####
@@ -2309,8 +2309,8 @@ Hello 8 from R.
 Hello 9 from R.
 Unit: milliseconds
  expr      min       lq     mean   median       uq      max neval
- h(0) 11.14771 12.50683 15.52450 13.68110 17.62375 53.61395   100
- i(0) 12.24127 13.56903 17.75235 16.02973 21.11349 50.43765   100
+ h(0) 8.855774 11.78587 16.37516 14.40728 16.77361 71.80278   100
+ i(0) 9.678459 11.60762 16.32568 14.60058 17.99888 50.71736   100
 > 
 > 
 > 

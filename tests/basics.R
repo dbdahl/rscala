@@ -17,6 +17,12 @@ setget(double(0))
 setget(logical(0))
 setget(character(0))
 
+setget(4L)
+setget(5)
+setget(TRUE)
+setget(FALSE)
+setget("David")
+
 setget(I(4L))
 setget(I(5))
 setget(I(TRUE))

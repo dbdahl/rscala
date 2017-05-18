@@ -1,8 +1,8 @@
 > heap.maximum <- "64M"
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # TRUE # TRUE
+# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # TRUE
 > 
-> tryCatch(a <- s$".Array[Double]"$new(I(20000000L)),error=function(e) e)
+> tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
@@ -92,25 +92,25 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # TRUE # TRUE
-> tryCatch(a <- s$".Array[Double]"$new(I(20000000L)),error=function(e) e)
+# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # TRUE
+> tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
 ----
 > 
 > options(rscala.heap.maximum="64M")
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # TRUE # TRUE
-> tryCatch(a <- s$".Array[Double]"$new(I(20000000L)),error=function(e) e)
+# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # TRUE
+> tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
 ----
 > 
 > options(rscala.heap.maximum="128M")
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # TRUE # TRUE
+# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # TRUE
 > for ( i in 1:2000 ) {
-+   a <- s$".Array[Double]"$new(I(100000L))  # No memory problems
++   a <- s$".Array[Double]"$new(100000L)  # No memory problems
 + }
 > 
 > tryCatch({
@@ -118,41 +118,9 @@ java.lang.OutOfMemoryError: Java heap space
 +   s %~% "new Array[Double](100000)"           # Memory problems
 + }
 + },error=function(e) e)
-java.lang.OutOfMemoryError: GC overhead limit exceeded
-	at scala.collection.immutable.List$.newBuilder(List.scala:464)
-	at scala.collection.generic.GenTraversableFactory$$anon$1.apply(GenTraversableFactory.scala:43)
-	at scala.collection.TraversableLike$class.to(TraversableLike.scala:588)
-	at scala.collection.AbstractTraversable.to(Traversable.scala:104)
-	at scala.collection.TraversableOnce$class.toList(TraversableOnce.scala:294)
-	at scala.collection.AbstractTraversable.toList(Traversable.scala:104)
-	at scala.tools.nsc.transform.SpecializeTypes.scala$tools$nsc$transform$SpecializeTypes$$subst(SpecializeTypes.scala:1163)
-	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$23$$anonfun$apply$21.apply(SpecializeTypes.scala:790)
-	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$23$$anonfun$apply$21.apply(SpecializeTypes.scala:783)
-	at scala.collection.immutable.List.flatMap(List.scala:338)
-	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$23.apply(SpecializeTypes.scala:783)
-	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$23.apply(SpecializeTypes.scala:781)
-	at scala.collection.immutable.List.flatMap(List.scala:338)
-	at scala.tools.nsc.transform.SpecializeTypes.specializeClass(SpecializeTypes.scala:781)
-	at scala.tools.nsc.transform.SpecializeTypes.transformInfo(SpecializeTypes.scala:1196)
-	at scala.tools.nsc.transform.InfoTransform$Phase$$anon$1.transform(InfoTransform.scala:38)
-	at scala.reflect.internal.Symbols$Symbol.rawInfo(Symbols.scala:1625)
-	at scala.reflect.internal.Symbols$Symbol.info(Symbols.scala:1545)
-	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$transformInfo$1$$anonfun$apply$38.apply(SpecializeTypes.scala:1188)
-	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$transformInfo$1$$anonfun$apply$38.apply(SpecializeTypes.scala:1188)
-	at scala.collection.immutable.List.map(List.scala:284)
-	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$transformInfo$1.apply(SpecializeTypes.scala:1188)
-	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$transformInfo$1.apply(SpecializeTypes.scala:1188)
-	at scala.reflect.internal.SymbolTable.enteringPhase(SymbolTable.scala:235)
-	at scala.reflect.internal.SymbolTable.exitingPhase(SymbolTable.scala:256)
-	at scala.tools.nsc.transform.SpecializeTypes.transformInfo(SpecializeTypes.scala:1188)
-	at scala.tools.nsc.transform.InfoTransform$Phase$$anon$1.transform(InfoTransform.scala:38)
-	at scala.reflect.internal.Symbols$Symbol.rawInfo(Symbols.scala:1625)
-	at scala.reflect.internal.Symbols$Symbol.info(Symbols.scala:1545)
-	at scala.reflect.internal.Symbols$Symbol.isDerivedValueClass(Symbols.scala:824)
-	at scala.reflect.internal.transform.Erasure$ErasureMap.apply(Erasure.scala:131)
-	at scala.reflect.internal.transform.Erasure$class.specialErasure(Erasure.scala:205)
-java.lang.OutOfMemoryError: GC overhead limit exceeded
-<simpleError in doTryCatch(return(expr), name, parentenv, handler): Exception thrown.>
+java.lang.OutOfMemoryError: Java heap space
+  ... 32 elided
+<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
 > 
 > 
 > 

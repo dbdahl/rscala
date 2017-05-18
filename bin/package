@@ -146,7 +146,17 @@ then
     mkdir -p "$dir"
     cp $others "$dir"
   }
-  copy $JARBIN "$PKG_HOME"/R/$PKG_NAME/inst/java ""
+  # copy $JARBIN "$PKG_HOME"/R/$PKG_NAME/inst/java ""
+  JARDIR="$PKG_HOME"/R/${PKG_NAME}/inst/java
+  rm -rf "$JARDIR"
+  mkdir -p "$JARDIR"/scala-2.12
+  mkdir -p "$JARDIR"/scala-2.11
+  mkdir -p "$JARDIR"/scala-2.10
+  shopt -s extglob
+  find "$PKG_HOME"/target -regex '.*/'${PKG_NAME}'_2.12-.*[^a-zA-Z]+\(-SNAPSHOT\)?\.jar' -exec cp {} "$JARDIR"/scala-2.12 \;
+  find "$PKG_HOME"/target -regex '.*/'${PKG_NAME}'_2.11-.*[^a-zA-Z]+\(-SNAPSHOT\)?\.jar' -exec cp {} "$JARDIR"/scala-2.11 \;
+  find "$PKG_HOME"/target -regex '.*/'${PKG_NAME}'_2.10-.*[^a-zA-Z]+\(-SNAPSHOT\)?\.jar' -exec cp {} "$JARDIR"/scala-2.10 \;
+
   # copy $JARSRC "$PKG_HOME"/R/$PKG_NAME/java -sources
   # Don't keep the sources for all the Scala versions since the code is the same.
   SRCDIR="$PKG_HOME"/R/${PKG_NAME}/java
@@ -155,7 +165,7 @@ then
   cp "$PKG_HOME"/target/scala-2.12/${PKG_NAME}_2.12-*-sources.jar "$SRCDIR"/${PKG_NAME}-sources.jar
 
   CATPASTE="cat(paste(rscala::scalaInfo()\$jars,collapse=\"$SEP\"))"
-  javadoc -classpath "$(R --slave -e "$CATPASTE"):$PKG_HOME"/R/$PKG_NAME/inst/java/'*' -d "$PKG_HOME"/target/java/api/ "$PKG_HOME"/src/main/java/org/ddahl/rscala/RClient4Java.java
+  javadoc -classpath "$(R --slave -e "$CATPASTE"):$PKG_HOME"/R/$PKG_NAME/inst/java/scala-2.12/'*' -d "$PKG_HOME"/target/java/api/ "$PKG_HOME"/src/main/java/org/ddahl/rscala/RClient4Java.java
 
 fi
 

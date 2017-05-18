@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # FALSE
+# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # FALSE
 > 
 > 
 > # This is not recursion via callbacks.
@@ -48,7 +48,7 @@ Hello 9 from R.
 > 
 > 
 > # This is recursion via callbacks using a predefined function
-> hh <- function(x=I(0L)) s %!% '
+> hh <- function(x=0L) s %!% '
 +   println(s"Hello $x from Scala.")
 +   R.eval(s"h(${x+1})")
 + '
@@ -72,7 +72,7 @@ Hello 9 from R.
 > 
 > 
 > # This is recursion via callbacks using a Scala function
-> i <- function(x=I(0L)) s %!% '
+> i <- function(x=0L) s %!% '
 +   if ( x < 10 ) {
 +     println(s"Hello $x from Scala.")
 +     R.eval(s"""cat("Hello ${x} from R.\n"); i(${x+1})""")
@@ -297,11 +297,11 @@ Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
 Unit: milliseconds
- expr       min         lq       mean     median         uq        max neval
- f(0) 813.86647 1123.98923 1834.84872 1574.99427 2131.16396 3530.22967     5
- g(0) 434.54111  906.84818 1201.79588 1219.98354 1347.41156 2100.19502     5
- h(0)  14.45075   15.77426   24.06768   25.55905   26.41393   38.14042     5
- i(0)  16.15622   26.76377   33.88432   28.22306   31.58633   66.69221     5
+ expr        min         lq       mean     median         uq        max neval
+ f(0) 1070.57346 1112.03492 1227.13228 1184.99894 1321.72703 1446.32705     5
+ g(0)  599.19900  637.88692  641.42601  638.09699  641.52831  690.41882     5
+ h(0)   11.84444   16.46664   35.75859   24.96257   40.75042   84.76888     5
+ i(0)   19.18787   25.59336   35.66420   34.28505   49.54778   49.70695     5
 > 
 > cat("####\n")
 ####
@@ -2308,9 +2308,9 @@ Hello 7 from R.
 Hello 8 from R.
 Hello 9 from R.
 Unit: milliseconds
- expr       min       lq     mean   median       uq      max neval
- h(0)  9.712867 11.50856 13.52984 12.52707 14.20408 46.18601   100
- i(0) 11.232201 12.16025 14.25420 13.21331 14.83139 50.80384   100
+ expr      min       lq     mean   median       uq      max neval
+ h(0) 8.465913  9.49038 18.14684 18.45924 23.43210 72.51523   100
+ i(0) 9.110098 10.77783 19.78235 18.50219 24.86562 58.47201   100
 > 
 > 
 > 

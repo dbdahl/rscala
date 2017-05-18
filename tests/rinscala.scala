@@ -104,7 +104,7 @@ R.aa
 R.name = "David"
 val (v,t2) = R.name
 R.name._2
-R.name._1.asInstanceOf[Array[String]](0)
+R.name._1.asInstanceOf[String]
 
 R.a = 4
 

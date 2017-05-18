@@ -1,8 +1,8 @@
 > heap.maximum <- "64M"
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # TRUE
+# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # TRUE
 > 
-> tryCatch(a <- s$".Array[Double]"$new(I(20000000L)),error=function(e) e)
+> tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
@@ -80,25 +80,25 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # TRUE
-> tryCatch(a <- s$".Array[Double]"$new(I(20000000L)),error=function(e) e)
+# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # TRUE
+> tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
 ----
 > 
 > options(rscala.heap.maximum="64M")
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # TRUE
-> tryCatch(a <- s$".Array[Double]"$new(I(20000000L)),error=function(e) e)
+# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # TRUE
+> tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
 ----
 > 
 > options(rscala.heap.maximum="128M")
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # TRUE
+# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # TRUE
 > for ( i in 1:2000 ) {
-+   a <- s$".Array[Double]"$new(I(100000L))  # No memory problems
++   a <- s$".Array[Double]"$new(100000L)  # No memory problems
 + }
 > 
 > tryCatch({
@@ -106,11 +106,6 @@ java.lang.OutOfMemoryError: Java heap space
 +   s %~% "new Array[Double](100000)"           # Memory problems
 + }
 + },error=function(e) e)
-java.lang.OutOfMemoryError: GC overhead limit exceeded
-	at java.util.Arrays.copyOfRange(Arrays.java:3664)
-	at java.lang.String.<init>(String.java:207)
-	at java.lang.StringBuilder.toString(StringBuilder.java:407)
-	at scala.collection.mutable.StringBuilder.toString(StringBuilder.scala:427)
 java.lang.OutOfMemoryError: Java heap space
 	at .<init>(<console>:11)
 	at .<clinit>(<console>)

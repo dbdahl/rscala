@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # TRUE # TRUE
+# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # TRUE
 > 
 > 
 > # This is not recursion via callbacks.
@@ -68,7 +68,7 @@ Hello 9 from Scala.
 > 
 > 
 > # This is recursion via callbacks using a predefined function
-> hh <- function(x=I(0L)) s %!% '
+> hh <- function(x=0L) s %!% '
 +   println(s"Hello $x from Scala.")
 +   R.eval(s"h(${x+1})")
 + '
@@ -102,7 +102,7 @@ Hello 9 from Scala.
 > 
 > 
 > # This is recursion via callbacks using a Scala function
-> i <- function(x=I(0L)) s %!% '
+> i <- function(x=0L) s %!% '
 +   if ( x < 10 ) {
 +     println(s"Hello $x from Scala.")
 +     R.eval(s"""cat("Hello ${x} from R.\n"); i(${x+1})""")
@@ -538,10 +538,10 @@ Hello 9 from R.
 Hello 9 from Scala.
 Unit: milliseconds
  expr       min         lq       mean     median         uq        max neval
- f(0) 995.04458 1095.79839 1275.79083 1295.10853 1360.04045 1632.96223     5
- g(0) 602.58305  767.14650  817.11990  844.78583  926.20450  944.87963     5
- h(0)  32.03688   35.62062   49.45182   51.16662   58.28884   70.14613     5
- i(0)  33.00140   42.79508   54.61144   63.67839   65.91355   67.66877     5
+ f(0) 868.10792 1236.63080 1321.45353 1386.50547 1506.30845 1609.71498     5
+ g(0) 637.76223  651.62841  821.73228  856.72702  961.30286 1001.24089     5
+ h(0)  44.35065   49.04201   64.36887   49.77707   77.21901  101.45561     5
+ i(0)  35.92107   35.96152   49.92548   49.27215   62.26655   66.20612     5
 > 
 > cat("####\n")
 ####
@@ -4549,8 +4549,8 @@ Hello 8 from Scala.
 Hello 9 from Scala.
 Unit: milliseconds
  expr      min       lq     mean   median       uq      max neval
- h(0) 12.14581 14.09210 24.89286 19.50993 31.61870 108.0104   100
- i(0) 13.21026 15.27773 28.38283 19.04594 35.66927 107.8450   100
+ h(0) 11.16627 12.63310 20.15335 14.42941 23.58700 74.65786   100
+ i(0) 12.73653 13.38906 20.36049 15.53589 21.79975 64.32396   100
 > 
 > 
 > 

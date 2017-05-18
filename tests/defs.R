@@ -30,7 +30,7 @@ mkFunc1 <- function() {
   see <- "B."
   x <- "Milly"
   print(environment())
-  r <- function(x1=I("Mack"),x2=I("Bob")) s %!% '
+  r <- function(x1="Mack",x2="Bob") s %!% '
     x1+" "+x2+" "+R.getS0("see")
   '
   r
@@ -42,7 +42,7 @@ identical(y1("Lisa","Dahl"),"Lisa Dahl B.")
 mkFunc2 <- function() {
   see <- "MMMM."
   x <- "Milly"
-  r <- function(x=I("Mack"),y=I("Bob")) s %.!% '
+  r <- function(x="Mack",y="Bob") s %.!% '
       x+" "+y+" "+R.getS0("see")
   '
   r
@@ -65,7 +65,7 @@ identical(func1(),"Lisa Dahl B.")
 
 # Realistic timing
 system.time({
-  e <- function(x=I(0),y=I(4L),name=I("dog")) s %!% '
+  e <- function(x=0,y=4L,name="dog") s %!% '
     name + " " + ( x + y )
   '
   scalaOptimize(e)
@@ -73,7 +73,7 @@ system.time({
 
 # Taking advantage of caching
 system.time({
-  f <- function(x=I(0),y=I(4L),name=I("dog")) s %!% '
+  f <- function(x=0,y=4L,name="dog") s %!% '
     name + " " + ( x + y )
   '
   scalaOptimize(f)
@@ -89,8 +89,8 @@ mkRNG2 <- function() s %.~% 'new scala.util.Random()'
 rng1 <- mkRNG1()
 rng2 <- mkRNG2()
 
-rng1$nextInt(I(10L))
-rng2$nextInt(I(10L))
+rng1$nextInt(10L)
+rng2$nextInt(10L)
 
 str <- rng1$toString(.AS.REFERENCE=TRUE)
 str$length()
@@ -120,7 +120,7 @@ microbenchmark(
 f <- function(x=4) {
   if ( x < 0 ) stop("'x' must be positive")
   if ( x == 0 ) x <- 10
-  s %!% '2*x.sum'
+  s %!% '2*x'
 }
 
 f(4)
@@ -135,7 +135,7 @@ g(0)      ## And we don't get the special case when x==0.
 h <- function(x=4) {
   if ( x < 0 ) stop("'x' must be positive")
   if ( x == 0 ) x <- 10
-  s %~% '2*R.getD1("x").sum'
+  s %~% '2*R.getD0("x")'
 }
 
 h(4)
@@ -160,25 +160,24 @@ microbenchmark(
 ####
 
 s$.scala.util.Random$nextDouble()
-m <- s$.scala.util.Random$new(I(342L),.EVALUATE=FALSE)
+m <- s$.scala.util.Random$new(342L,.EVALUATE=FALSE)
 m(23436)$nextDouble()
 m(63502)$nextDouble()
 m(93222)$nextDouble()
 m(93222)$nextDouble()
 
-n <- m(5)$nextDouble(.EVALUATE=FALSE)   # Wrapping with I() is not needed.
+n <- m(5)$nextDouble(.EVALUATE=FALSE)
 n()
 n()
 n()
 
-s$'.Array[Int]'$new(I(5L))
+s$'.Array[Int]'$new(5L)
 
 ####
 
 s$a <- 1:10
 a <- s$.a
-a$apply(I(3L))
-tryCatch(a$apply(3L),error=function(e) e)  # Needs to be wrapped in I().
+a$apply(3L)
 
 s$.scala.util.Random$nextDouble()
 s$.scala.util.Random$nextDouble()
@@ -205,7 +204,7 @@ microbenchmark(
 
 ####
 
-f <- function(x=NULL, wantNull=I(TRUE)) s %.!% '
+f <- function(x=NULL, wantNull=TRUE) s %.!% '
   val r = R.makePersistent(x)
   if ( wantNull ) null else r
 '

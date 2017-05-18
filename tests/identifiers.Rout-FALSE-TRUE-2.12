@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # TRUE
+# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # TRUE
 > 
 > 
 > set.seed(3432585)
@@ -28,19 +28,10 @@ val def = value
 > s$x <- rnorm(100)
 > tryCatch(s$val(x),error = function(e) e)
 NULL
-Warning message:
-In s$val(x) :
-  Syntax "s$val()" is deprecated and will be removed.  Use the 'scalaGet' function instead.
 > identical(s$x,s$.val("x"))
 [1] FALSE
-Warning message:
-In s$.val("x") :
-  Syntax "s$.val()" is deprecated and will be removed.  Use the 'scalaGet' function instead.
 > identical(s$x,s$val("x"))
 [1] TRUE
-Warning message:
-In s$val("x") :
-  Syntax "s$val()" is deprecated and will be removed.  Use the 'scalaGet' function instead.
 > 
 > s %~% "val $bob = 4"
 [1] 4
@@ -48,8 +39,5 @@ In s$val("x") :
 [1] 4
 > s$val('$bob')
 [1] 4
-Warning message:
-In s$val("$bob") :
-  Syntax "s$val()" is deprecated and will be removed.  Use the 'scalaGet' function instead.
 > 
 > 

@@ -1,8 +1,8 @@
 > heap.maximum <- "64M"
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # TRUE
+# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # TRUE
 > 
-> tryCatch(a <- s$".Array[Double]"$new(I(20000000L)),error=function(e) e)
+> tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
@@ -82,25 +82,25 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # TRUE
-> tryCatch(a <- s$".Array[Double]"$new(I(20000000L)),error=function(e) e)
+# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # TRUE
+> tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
 ----
 > 
 > options(rscala.heap.maximum="64M")
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # TRUE
-> tryCatch(a <- s$".Array[Double]"$new(I(20000000L)),error=function(e) e)
+# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # TRUE
+> tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
 ----
 > 
 > options(rscala.heap.maximum="128M")
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # TRUE
+# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # TRUE
 > for ( i in 1:2000 ) {
-+   a <- s$".Array[Double]"$new(I(100000L))  # No memory problems
++   a <- s$".Array[Double]"$new(100000L)  # No memory problems
 + }
 > 
 > tryCatch({
@@ -109,38 +109,38 @@ java.lang.OutOfMemoryError: Java heap space
 + }
 + },error=function(e) e)
 java.lang.OutOfMemoryError: GC overhead limit exceeded
-	at scala.reflect.internal.util.Collections$class.mapList(Collections.scala:52)
-	at scala.reflect.internal.SymbolTable.mapList(SymbolTable.scala:16)
-	at scala.reflect.internal.Symbols$class.deriveSymbols(Symbols.scala:3608)
-	at scala.reflect.internal.SymbolTable.deriveSymbols(SymbolTable.scala:16)
-	at scala.reflect.internal.Symbols$class.cloneSymbols(Symbols.scala:3668)
-	at scala.reflect.internal.SymbolTable.cloneSymbols(SymbolTable.scala:16)
-	at scala.reflect.internal.Symbols$class.cloneSymbolsAndModify(Symbols.scala:3679)
-	at scala.reflect.internal.SymbolTable.cloneSymbolsAndModify(SymbolTable.scala:16)
-	at scala.reflect.internal.transform.Erasure$ErasureMap.apply(Erasure.scala:140)
-	at scala.reflect.internal.transform.Erasure$class.specialErasure(Erasure.scala:209)
-	at scala.tools.nsc.transform.Erasure.specialErasure(Erasure.scala:15)
-	at scala.reflect.internal.transform.Erasure$class.transformInfo(Erasure.scala:366)
-	at scala.tools.nsc.transform.Erasure.transformInfo(Erasure.scala:388)
-	at scala.tools.nsc.transform.InfoTransform$Phase$$anon$1.transform(InfoTransform.scala:38)
-	at scala.reflect.internal.Symbols$Symbol.rawInfo(Symbols.scala:1625)
-	at scala.reflect.internal.Symbols$Symbol.info(Symbols.scala:1545)
-	at scala.tools.nsc.backend.ScalaPrimitives.addPrimitives(ScalaPrimitives.scala:448)
-	at scala.tools.nsc.backend.ScalaPrimitives.init(ScalaPrimitives.scala:246)
-	at scala.tools.nsc.backend.icode.GenICode$ICodePhase.run(GenICode.scala:52)
-	at scala.tools.nsc.Global$Run.compileUnitsInternal(Global.scala:1528)
-	at scala.tools.nsc.Global$Run.compileUnits(Global.scala:1513)
-	at scala.tools.nsc.Global$Run.compileSources(Global.scala:1508)
-	at scala.tools.nsc.interpreter.IMain.compileSourcesKeepingRun(IMain.scala:442)
-	at scala.tools.nsc.interpreter.IMain$ReadEvalPrint.compileAndSaveRun(IMain.scala:862)
-	at scala.tools.nsc.interpreter.IMain$ReadEvalPrint.compile(IMain.scala:820)
-	at scala.tools.nsc.interpreter.IMain$Request.compile$lzycompute(IMain.scala:1009)
-	at scala.tools.nsc.interpreter.IMain$Request.compile(IMain.scala:1004)
-	at scala.tools.nsc.interpreter.IMain.compile(IMain.scala:586)
-	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:574)
-	at scala.tools.nsc.interpreter.IMain.interpretSynthetic(IMain.scala:573)
-	at scala.tools.nsc.interpreter.ExprTyper$class.asExpr$1(ExprTyper.scala:26)
-	at scala.tools.nsc.interpreter.ExprTyper$$anonfun$symbolOfLine$1.apply(ExprTyper.scala:51)
+	at scala.tools.nsc.typechecker.Namers$Namer.checkSelectors(Namers.scala:549)
+	at scala.tools.nsc.typechecker.Namers$Namer.importSig(Namers.scala:1553)
+	at scala.tools.nsc.typechecker.Namers$Namer.getSig$1(Namers.scala:1647)
+	at scala.tools.nsc.typechecker.Namers$Namer.typeSig(Namers.scala:1650)
+	at scala.tools.nsc.typechecker.Namers$Namer$$anonfun$monoTypeCompleter$1$$anonfun$apply$1.apply$mcV$sp(Namers.scala:869)
+	at scala.tools.nsc.typechecker.Namers$Namer$$anonfun$monoTypeCompleter$1$$anonfun$apply$1.apply(Namers.scala:868)
+	at scala.tools.nsc.typechecker.Namers$Namer$$anonfun$monoTypeCompleter$1$$anonfun$apply$1.apply(Namers.scala:868)
+	at scala.tools.nsc.typechecker.Namers$Namer.scala$tools$nsc$typechecker$Namers$Namer$$logAndValidate(Namers.scala:1677)
+	at scala.tools.nsc.typechecker.Namers$Namer$$anonfun$monoTypeCompleter$1.apply(Namers.scala:868)
+	at scala.tools.nsc.typechecker.Namers$Namer$$anonfun$monoTypeCompleter$1.apply(Namers.scala:860)
+	at scala.tools.nsc.typechecker.Namers$$anon$1.completeImpl(Namers.scala:1799)
+	at scala.tools.nsc.typechecker.Namers$LockingTypeCompleter$class.complete(Namers.scala:1807)
+	at scala.tools.nsc.typechecker.Namers$$anon$1.complete(Namers.scala:1797)
+	at scala.reflect.internal.Symbols$Symbol.info(Symbols.scala:1535)
+	at scala.reflect.internal.Symbols$Symbol.initialize(Symbols.scala:1680)
+	at scala.tools.nsc.typechecker.Typers$Typer.scala$tools$nsc$typechecker$Typers$Typer$$typedStat$1(Typers.scala:3026)
+	at scala.tools.nsc.typechecker.Typers$Typer$$anonfun$65.apply(Typers.scala:3150)
+	at scala.tools.nsc.typechecker.Typers$Typer$$anonfun$65.apply(Typers.scala:3150)
+	at scala.collection.immutable.List.loop$1(List.scala:176)
+	at scala.collection.immutable.List.mapConserve(List.scala:200)
+	at scala.tools.nsc.typechecker.Typers$Typer.typedStats(Typers.scala:3150)
+	at scala.tools.nsc.typechecker.Typers$Typer.typedTemplate(Typers.scala:1916)
+	at scala.tools.nsc.typechecker.Typers$Typer.typedModuleDef(Typers.scala:1803)
+	at scala.tools.nsc.typechecker.Typers$Typer.typedMemberDef$1(Typers.scala:5337)
+	at scala.tools.nsc.typechecker.Typers$Typer.typed1(Typers.scala:5386)
+	at scala.tools.nsc.typechecker.Typers$Typer.runTyper$1(Typers.scala:5423)
+	at scala.tools.nsc.typechecker.Typers$Typer.scala$tools$nsc$typechecker$Typers$Typer$$typedInternal(Typers.scala:5450)
+	at scala.tools.nsc.typechecker.Typers$Typer.body$2(Typers.scala:5397)
+	at scala.tools.nsc.typechecker.Typers$Typer.typed(Typers.scala:5401)
+	at scala.tools.nsc.interpreter.ReplGlobal$$anon$1$$anon$2.typed(ReplGlobal.scala:36)
+	at scala.tools.nsc.typechecker.Typers$Typer.typedByValueExpr(Typers.scala:5481)
+	at scala.tools.nsc.typechecker.Typers$Typer.scala$tools$nsc$typechecker$Typers$Typer$$typedStat$1(Typers.scala:3042)
 java.lang.OutOfMemoryError: GC overhead limit exceeded
 <simpleError in doTryCatch(return(expr), name, parentenv, handler): Exception thrown.>
 > 

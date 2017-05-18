@@ -37,7 +37,7 @@ tryCatch(s$xaa,error = function(e) e)
 s$xaa <- NULL
 s$xaa
 
-s$xaa <- I(3)
+s$xaa <- 3
 s$xaa
 s$.val("xaa")
 

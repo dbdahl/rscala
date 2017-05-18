@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # FALSE
+# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # FALSE
 > 
 > assert <- function(xx) {
 +   if ( ! identical(( s %~% 'R.get("xx")._1' ), xx) ) stop("Not identical (test 1)")
@@ -7,7 +7,7 @@
 +   s$xx <- xx
 +   s %@% 'R.a = xx'
 +   if ( ! identical(a, xx) ) stop("Not identical (test 3)")
-+   if ( ! identical(s$.R$get(I("xx"))$"_1"(), xx) ) stop("Not identical (test 4)")
++   if ( ! identical(s$.R$get("xx")$"_1"(), xx) ) stop("Not identical (test 4)")
 +   m <- function() s %!% 'R.get("xx")._1'
 +   if ( ! identical(m(), xx) ) stop("Not identical (test 5)")
 + }
@@ -24,7 +24,7 @@
 > 
 > #### Callbacks with named arguments
 > 
-> mySort <- function(x=NULL,ascending=I(TRUE)) s %!% '
+> mySort <- function(x=NULL,ascending=TRUE) s %!% '
 +   R.invokeD1( REphemeralReference("sort"), x, "decreasing" -> ! ascending )
 + '
 > 
@@ -107,7 +107,7 @@
 + }
 > if ( counter != 10 ) stop("Counter is off.")
 > for ( i in 1:10 ) {
-+   s$.R$eval(I("counter <<- counter - 1"))
++   s$.R$eval("counter <<- counter - 1")
 + }
 > if ( counter != 0 ) stop("Counter is off.")
 > 
@@ -153,7 +153,7 @@ Error in parse(text = snippet) : <text>:4:16: unexpected symbol
 + '
 > 
 > tryCatch(callRFunction(myMean,1:4,5), error=function(e) e)
-<simpleError in (structure(function (func, x, y) {    .rsI <- .rsWdjylnL03    .rsWorkspace <- environment()    rscala:::wb(.rsI, rscala:::INVOKE)    rscala:::wc(.rsI, "res122")    flush(.rsI[["socketIn"]])    rscala:::rServe(.rsI, TRUE, .rsWorkspace)    .rsStatus <- rscala:::rb(.rsI, "integer")    if (.rsStatus == rscala:::ERROR) {        stop("Invocation error.")    }    else {        .rsResult <- rscala:::scalaGet(.rsI, "?", NA)        if (is.null(.rsResult))             invisible(.rsResult)        else .rsResult    }}, identifiers = c("func", "x", "y"), scalaHeader = c("val func = REphemeralReference(\"func\")", "val x = R.getD1(\"x\")", "val y = REphemeralReference(\"y\")"), scalaBody = "\n  R.invokeD1(func,x.map(2*_).map(_.getClass),y)\n", returnType = "Array[Double]", asReference = NA, class = "ScalaFunction"))(func = function (data,     offset) {    cat("Here is am.\n")    mean(data + offset)}, x = 1:4, y = 5): Invocation error.>
+<simpleError in (structure(function (func, x, y) {    .rsI <- .rsWHamTklDC    .rsWorkspace <- environment()    rscala:::wb(.rsI, rscala:::INVOKE)    rscala:::wc(.rsI, "res122")    flush(.rsI[["socketIn"]])    rscala:::rServe(.rsI, TRUE, .rsWorkspace)    .rsStatus <- rscala:::rb(.rsI, "integer")    if (.rsStatus == rscala:::ERROR) {        stop("Invocation error.")    }    else {        .rsResult <- rscala:::scalaGet(.rsI, "?", NA)        if (is.null(.rsResult))             invisible(.rsResult)        else .rsResult    }}, identifiers = c("func", "x", "y"), scalaHeader = c("val func = REphemeralReference(\"func\")", "val x = R.getD1(\"x\")", "val y = REphemeralReference(\"y\")"), scalaBody = "\n  R.invokeD1(func,x.map(2*_).map(_.getClass),y)\n", returnType = "Array[Double]", asReference = NA, class = "ScalaFunction"))(func = function (data,     offset) {    cat("Here is am.\n")    mean(data + offset)}, x = 1:4, y = 5): Invocation error.>
 > s %~% "3+4"
 [1] 7
 > 
@@ -168,8 +168,8 @@ Here is am.
 > callRFunction0D2 <- function(func=NULL) s %!% 'R.invokeD2(func)'
 > callRFunction0D2(gc)
        [,1] [,2]    [,3] [,4]    [,5] [,6]
-[1,] 339956 18.2  592000 31.7  460000 24.6
-[2,] 637689  4.9 1207128  9.3 1018856  7.8
+[1,] 340436 18.2  592000 31.7  460000 24.6
+[2,] 637074  4.9 1207245  9.3 1019096  7.8
 > 
 > tryCatch(callRFunction(1:100),error = function(e) {})
 Error in func(.rsX0, y) : could not find function "func"

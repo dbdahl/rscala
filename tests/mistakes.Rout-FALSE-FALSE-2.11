@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # FALSE
+# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # FALSE
 > 
 > if ( substr(Sys.getenv("RSCALA_SCALA_VERSION"),1,4) != "2.10" ) {
 +   a <- s %.~% "null"
@@ -48,14 +48,11 @@ ScalaInterpreterReference... res5: (Int, Int)
 > s$xaa
 NULL
 > 
-> s$xaa <- I(3)
+> s$xaa <- 3
 > s$xaa
 [1] 3
 > s$.val("xaa")
 ScalaInterpreterReference... xaa: Double
-Warning message:
-In s$.val("xaa") :
-  Syntax "s$.val()" is deprecated and will be removed.  Use the 'scalaGet' function instead.
 > 
 > withNA <- c(1,2,3,NA,4)
 > s$withNA <- withNA

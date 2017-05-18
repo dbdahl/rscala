@@ -1,8 +1,8 @@
 > heap.maximum <- "64M"
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # TRUE # TRUE
+# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # TRUE
 > 
-> tryCatch(a <- s$".Array[Double]"$new(I(20000000L)),error=function(e) e)
+> tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
@@ -94,25 +94,25 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # TRUE # TRUE
-> tryCatch(a <- s$".Array[Double]"$new(I(20000000L)),error=function(e) e)
+# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # TRUE
+> tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
 ----
 > 
 > options(rscala.heap.maximum="64M")
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # TRUE # TRUE
-> tryCatch(a <- s$".Array[Double]"$new(I(20000000L)),error=function(e) e)
+# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # TRUE
+> tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
 ----
 > 
 > options(rscala.heap.maximum="128M")
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # TRUE # TRUE
+# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # TRUE
 > for ( i in 1:2000 ) {
-+   a <- s$".Array[Double]"$new(I(100000L))  # No memory problems
++   a <- s$".Array[Double]"$new(100000L)  # No memory problems
 + }
 > 
 > tryCatch({
@@ -121,42 +121,39 @@ java.lang.OutOfMemoryError: Java heap space
 + }
 + },error=function(e) e)
 java.lang.OutOfMemoryError: GC overhead limit exceeded
-	at java.util.Arrays.copyOf(Arrays.java:3332)
-	at java.lang.AbstractStringBuilder.ensureCapacityInternal(AbstractStringBuilder.java:124)
-	at java.lang.AbstractStringBuilder.append(AbstractStringBuilder.java:448)
-	at java.lang.StringBuilder.append(StringBuilder.java:136)
-	at scala.tools.nsc.backend.jvm.BTypesFromSymbols.$anonfun$buildInlineInfoFromClassSymbol$5(BTypesFromSymbols.scala:583)
-	at scala.tools.nsc.backend.jvm.BTypesFromSymbols$$Lambda$540/1825738663.apply(Unknown Source)
-	at scala.collection.Iterator$$anon$11.nextCur(Iterator.scala:473)
-	at scala.collection.Iterator$$anon$11.hasNext(Iterator.scala:479)
-	at scala.collection.Iterator.foreach(Iterator.scala:929)
-	at scala.collection.Iterator.foreach$(Iterator.scala:929)
-	at scala.collection.AbstractIterator.foreach(Iterator.scala:1417)
-	at scala.collection.TraversableOnce.toMap(TraversableOnce.scala:316)
-	at scala.collection.TraversableOnce.toMap$(TraversableOnce.scala:314)
-	at scala.collection.AbstractIterator.toMap(Iterator.scala:1417)
-	at scala.tools.nsc.backend.jvm.BTypesFromSymbols.buildInlineInfoFromClassSymbol(BTypesFromSymbols.scala:616)
-	at scala.tools.nsc.backend.jvm.BTypesFromSymbols.buildFromSymbol$1(BTypesFromSymbols.scala:522)
-	at scala.tools.nsc.backend.jvm.BTypesFromSymbols.buildInlineInfo(BTypesFromSymbols.scala:527)
-	at scala.tools.nsc.backend.jvm.BTypesFromSymbols.setClassInfo(BTypesFromSymbols.scala:444)
-	at scala.tools.nsc.backend.jvm.BTypesFromSymbols.$anonfun$classBTypeFromSymbol$5(BTypesFromSymbols.scala:126)
-	at scala.tools.nsc.backend.jvm.BTypesFromSymbols$$Lambda$532/1063980005.apply(Unknown Source)
-	at scala.collection.MapLike.getOrElse(MapLike.scala:128)
-	at scala.collection.MapLike.getOrElse$(MapLike.scala:126)
-	at scala.collection.concurrent.TrieMap.getOrElse(TrieMap.scala:631)
-	at scala.tools.nsc.backend.jvm.BTypesFromSymbols.classBTypeFromSymbol(BTypesFromSymbols.scala:118)
-	at scala.tools.nsc.backend.jvm.BCodeHelpers$BCInnerClassGen.internalName(BCodeHelpers.scala:529)
-	at scala.tools.nsc.backend.jvm.BCodeHelpers$BCInnerClassGen.internalName$(BCodeHelpers.scala:529)
-	at scala.tools.nsc.backend.jvm.BCodeHelpers$JCommonBuilder.internalName(BCodeHelpers.scala:1031)
-	at scala.tools.nsc.backend.jvm.BCodeHelpers$BCForwardersGen.addForwarder(BCodeHelpers.scala:901)
-	at scala.tools.nsc.backend.jvm.BCodeHelpers$BCForwardersGen.$anonfun$addForwarders$4(BCodeHelpers.scala:981)
-	at scala.tools.nsc.backend.jvm.BCodeHelpers$BCForwardersGen.$anonfun$addForwarders$4$adapted(BCodeHelpers.scala:972)
-	at scala.tools.nsc.backend.jvm.BCodeHelpers$BCForwardersGen$$Lambda$658/1774720883.apply(Unknown Source)
-	at scala.reflect.internal.Scopes$Scope.foreach(Scopes.scala:396)
-error: Error while emitting <console>
-GC overhead limit exceeded
-java.lang.OutOfMemoryError: Java heap space
-  ... 32 elided
+	at scala.reflect.internal.transform.UnCurry$$anon$1.apply(UnCurry.scala:47)
+	at scala.reflect.internal.tpe.TypeMaps$TypeMap.mapOver(TypeMaps.scala:126)
+	at scala.reflect.internal.transform.UnCurry$$anon$1.apply(UnCurry.scala:53)
+	at scala.reflect.internal.transform.UnCurry.transformInfo(UnCurry.scala:154)
+	at scala.reflect.internal.transform.UnCurry.transformInfo$(UnCurry.scala:148)
+	at scala.tools.nsc.transform.UnCurry.transformInfo(UnCurry.scala:53)
+	at scala.tools.nsc.transform.InfoTransform$Phase$$anon$1.transform(InfoTransform.scala:38)
+	at scala.reflect.internal.Symbols$Symbol.rawInfo(Symbols.scala:1614)
+	at scala.reflect.internal.Symbols$Symbol.info(Symbols.scala:1531)
+	at scala.tools.nsc.transform.SpecializeTypes.specializedParams(SpecializeTypes.scala:276)
+	at scala.tools.nsc.transform.SpecializeTypes.scala$tools$nsc$transform$SpecializeTypes$$normalizeMember(SpecializeTypes.scala:855)
+	at scala.tools.nsc.transform.SpecializeTypes.$anonfun$specializeClass$30(SpecializeTypes.scala:801)
+	at scala.tools.nsc.transform.SpecializeTypes.specializeClass(SpecializeTypes.scala:799)
+	at scala.tools.nsc.transform.SpecializeTypes.transformInfo(SpecializeTypes.scala:1215)
+	at scala.tools.nsc.transform.InfoTransform$Phase$$anon$1.transform(InfoTransform.scala:38)
+	at scala.reflect.internal.Symbols$Symbol.rawInfo(Symbols.scala:1614)
+	at scala.reflect.internal.Symbols$Symbol.info(Symbols.scala:1531)
+	at scala.reflect.internal.Symbols$Symbol.isDerivedValueClass(Symbols.scala:821)
+	at scala.reflect.internal.transform.Erasure$ErasureMap.apply(Erasure.scala:131)
+	at scala.reflect.internal.transform.Erasure.specialErasure(Erasure.scala:219)
+	at scala.reflect.internal.transform.Erasure.specialErasure$(Erasure.scala:217)
+	at scala.tools.nsc.transform.Erasure.specialErasure(Erasure.scala:15)
+	at scala.reflect.internal.transform.Erasure.transformInfo(Erasure.scala:398)
+	at scala.reflect.internal.transform.Erasure.transformInfo$(Erasure.scala:360)
+	at scala.tools.nsc.transform.Erasure.transformInfo(Erasure.scala:15)
+	at scala.tools.nsc.transform.InfoTransform$Phase$$anon$1.transform(InfoTransform.scala:38)
+	at scala.reflect.internal.Symbols$Symbol.rawInfo(Symbols.scala:1614)
+	at scala.reflect.internal.Symbols$Symbol.info(Symbols.scala:1531)
+	at scala.reflect.internal.Symbols$Symbol.tpeHK(Symbols.scala:1456)
+	at scala.reflect.internal.Types$Type.memberType(Types.scala:704)
+	at scala.reflect.internal.TreeGen.mkAttributedSelect(TreeGen.scala:234)
+	at scala.reflect.internal.TreeGen.mkAttributedRef(TreeGen.scala:162)
+java.lang.OutOfMemoryError: GC overhead limit exceeded
 <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
 > 
 > 

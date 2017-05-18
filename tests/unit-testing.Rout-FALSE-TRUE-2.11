@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # TRUE
+# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # TRUE
 > 
 > 
 > test <- function(a,value,func=list()) {
@@ -50,7 +50,7 @@ true
 > s$b <- seq(0,1,length=5)
 > s %~% "println(b(3))"
 0.75
-> s$b <- I(FALSE)
+> s$b <- FALSE
 > s %~% "println(!b)"
 true
 > 

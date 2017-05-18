@@ -1,8 +1,8 @@
 > heap.maximum <- "64M"
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # TRUE # FALSE
+# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # FALSE
 > 
-> tryCatch(a <- s$".Array[Double]"$new(I(20000000L)),error=function(e) e)
+> tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
@@ -94,25 +94,25 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # TRUE # FALSE
-> tryCatch(a <- s$".Array[Double]"$new(I(20000000L)),error=function(e) e)
+# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # FALSE
+> tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
 ----
 > 
 > options(rscala.heap.maximum="64M")
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # TRUE # FALSE
-> tryCatch(a <- s$".Array[Double]"$new(I(20000000L)),error=function(e) e)
+# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # FALSE
+> tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
 ----
 > 
 > options(rscala.heap.maximum="128M")
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # TRUE # FALSE
+# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # FALSE
 > for ( i in 1:2000 ) {
-+   a <- s$".Array[Double]"$new(I(100000L))  # No memory problems
++   a <- s$".Array[Double]"$new(100000L)  # No memory problems
 + }
 > 
 > tryCatch({
@@ -120,9 +120,41 @@ java.lang.OutOfMemoryError: Java heap space
 +   s %~% "new Array[Double](100000)"           # Memory problems
 + }
 + },error=function(e) e)
-java.lang.OutOfMemoryError: Java heap space
-  ... 32 elided
-<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
+java.lang.OutOfMemoryError: GC overhead limit exceeded
+	at scala.reflect.internal.Scopes$Scope.createHash(Scopes.scala:142)
+	at scala.reflect.internal.Scopes$Scope.enterEntry(Scopes.scala:112)
+	at scala.reflect.internal.Scopes$Scope.enter(Scopes.scala:124)
+	at scala.reflect.internal.SymbolPairs$Cursor.fillDecls$1(SymbolPairs.scala:168)
+	at scala.reflect.internal.SymbolPairs$Cursor.fillDecls$1(SymbolPairs.scala:164)
+	at scala.reflect.internal.SymbolPairs$Cursor.fillDecls$1(SymbolPairs.scala:164)
+	at scala.reflect.internal.SymbolPairs$Cursor.init(SymbolPairs.scala:191)
+	at scala.reflect.internal.SymbolPairs$Cursor.<init>(SymbolPairs.scala:146)
+	at scala.tools.nsc.transform.OverridingPairs$Cursor.<init>(OverridingPairs.scala:20)
+	at scala.tools.nsc.transform.Erasure$ComputeBridges$BridgesCursor.<init>(Erasure.scala:460)
+	at scala.tools.nsc.transform.Erasure$ComputeBridges.$anonfun$opc$1(Erasure.scala:475)
+	at scala.tools.nsc.transform.Erasure$ComputeBridges$$Lambda$467/1335505684.apply(Unknown Source)
+	at scala.tools.nsc.Global.enteringExplicitOuter(Global.scala:989)
+	at scala.tools.nsc.transform.Erasure$ComputeBridges.<init>(Erasure.scala:475)
+	at scala.tools.nsc.transform.Erasure$ErasureTransformer.bridgeDefs(Erasure.scala:908)
+	at scala.tools.nsc.transform.Erasure$ErasureTransformer.addBridges(Erasure.scala:914)
+	at scala.tools.nsc.transform.Erasure$ErasureTransformer$$anon$1.preErase(Erasure.scala:1166)
+	at scala.tools.nsc.transform.Erasure$ErasureTransformer$$anon$1.transform(Erasure.scala:1200)
+	at scala.tools.nsc.transform.Erasure$ErasureTransformer$$anon$1.transform(Erasure.scala:936)
+	at scala.reflect.api.Trees$Transformer.transformTemplate(Trees.scala:2563)
+	at scala.reflect.internal.Trees.$anonfun$itransform$4(Trees.scala:1412)
+	at scala.reflect.internal.Trees$$Lambda$363/681384962.apply(Unknown Source)
+	at scala.tools.nsc.transform.TypingTransformers$TypingTransformer.atOwner(TypingTransformers.scala:30)
+	at scala.tools.nsc.transform.TypingTransformers$TypingTransformer.atOwner(TypingTransformers.scala:25)
+	at scala.reflect.internal.Trees.itransform(Trees.scala:1411)
+	at scala.reflect.internal.Trees.itransform$(Trees.scala:1340)
+	at scala.reflect.internal.SymbolTable.itransform(SymbolTable.scala:16)
+	at scala.reflect.internal.SymbolTable.itransform(SymbolTable.scala:16)
+	at scala.reflect.api.Trees$Transformer.transform(Trees.scala:2555)
+	at scala.tools.nsc.transform.TypingTransformers$TypingTransformer.transform(TypingTransformers.scala:44)
+	at scala.tools.nsc.transform.Erasure$ErasureTransformer$$anon$1.transform(Erasure.scala:1221)
+	at scala.tools.nsc.transform.Erasure$ErasureTransformer$$anon$1.transform(Erasure.scala:936)
+java.lang.OutOfMemoryError: GC overhead limit exceeded
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Exception thrown.>
 > 
 > 
 > 

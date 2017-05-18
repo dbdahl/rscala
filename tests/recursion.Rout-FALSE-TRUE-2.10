@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-04-25 r72623) # ramah # FALSE # TRUE
+# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # TRUE
 > 
 > 
 > # This is not recursion via callbacks.
@@ -68,7 +68,7 @@ Hello 9 from Scala.
 > 
 > 
 > # This is recursion via callbacks using a predefined function
-> hh <- function(x=I(0L)) s %!% '
+> hh <- function(x=0L) s %!% '
 +   println(s"Hello $x from Scala.")
 +   R.eval(s"h(${x+1})")
 + '
@@ -102,7 +102,7 @@ Hello 9 from Scala.
 > 
 > 
 > # This is recursion via callbacks using a Scala function
-> i <- function(x=I(0L)) s %!% '
+> i <- function(x=0L) s %!% '
 +   if ( x < 10 ) {
 +     println(s"Hello $x from Scala.")
 +     R.eval(s"""cat("Hello ${x} from R.\n"); i(${x+1})""")
@@ -537,11 +537,11 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Unit: milliseconds
- expr        min         lq       mean     median         uq        max neval
- f(0) 1051.97189 1127.27021 1378.92276 1220.56943 1485.03044 2009.77183     5
- g(0)  452.13467  600.03940  791.74283  843.21905  950.89533 1112.42572     5
- h(0)   24.99558   25.00470   35.26456   25.93036   28.84564   71.54654     5
- i(0)   17.14806   29.09394   42.74894   44.54001   50.37052   72.59218     5
+ expr       min        lq       mean     median         uq        max neval
+ f(0) 782.96066 1202.0065 1356.81148 1392.15013 1463.22835 1943.71177     5
+ g(0) 552.89484  631.7384  810.72488  930.84195  952.47236  985.67681     5
+ h(0)  26.85837   32.2154   42.09958   32.77816   40.06027   78.58571     5
+ i(0)  28.37040   34.7778   52.23259   56.04221   68.73274   73.23978     5
 > 
 > cat("####\n")
 ####
@@ -4549,8 +4549,8 @@ Hello 9 from Scala.
 Hello 9 from R.
 Unit: milliseconds
  expr      min       lq     mean   median       uq      max neval
- h(0) 10.03990 11.73268 14.92978 12.87471 16.02359 59.75748   100
- i(0) 11.28209 12.80331 15.48567 13.96752 17.58440 33.43859   100
+ h(0) 10.22938 10.67714 14.25926 11.80071 13.87718 55.58518   100
+ i(0) 11.01502 11.65587 14.25424 13.02252 15.23323 36.98336   100
 > 
 > 
 > 

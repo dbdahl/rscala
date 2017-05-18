@@ -608,9 +608,9 @@ jarsOfPackage <- function(pkgname, major.version) {
 }
 
 .rscalaJar <- function(major.version=c("2.12","2.11","2.10")[1]) {
-  if ( major.version == "" ) major.version <- ".*"
-  else major.version <- substr(major.version,1,4)
-  list.files(system.file("java",package="rscala"),pattern=paste("rscala_",major.version,'-.*\\.jar$',sep=""),full.names=TRUE)
+  major.version <- substr(major.version,1,4)
+  if ( ! ( major.version %in% c("2.10","2.11","2.12") ) ) stop("Unsupported major version.")
+  jarsOfPackage("rscala",major.version)
 }
 
 scalaInfoEngine <- function(scala.command,verbose) {

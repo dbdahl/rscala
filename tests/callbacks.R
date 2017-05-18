@@ -6,7 +6,7 @@ assert <- function(xx) {
   s$xx <- xx
   s %@% 'R.a = xx'
   if ( ! identical(a, xx) ) stop("Not identical (test 3)")
-  if ( ! identical(s$.R$get(I("xx"))$"_1"(), xx) ) stop("Not identical (test 4)")
+  if ( ! identical(s$.R$get("xx")$"_1"(), xx) ) stop("Not identical (test 4)")
   m <- function() s %!% 'R.get("xx")._1'
   if ( ! identical(m(), xx) ) stop("Not identical (test 5)")
 }
@@ -23,7 +23,7 @@ for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y),as.raw(
 
 #### Callbacks with named arguments
 
-mySort <- function(x=NULL,ascending=I(TRUE)) s %!% '
+mySort <- function(x=NULL,ascending=TRUE) s %!% '
   R.invokeD1( REphemeralReference("sort"), x, "decreasing" -> ! ascending )
 '
 
@@ -88,7 +88,7 @@ for ( i in 1:10 ) {
 }
 if ( counter != 10 ) stop("Counter is off.")
 for ( i in 1:10 ) {
-  s$.R$eval(I("counter <<- counter - 1"))
+  s$.R$eval("counter <<- counter - 1")
 }
 if ( counter != 0 ) stop("Counter is off.")
 
