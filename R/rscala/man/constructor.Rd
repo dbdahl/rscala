@@ -4,6 +4,7 @@
 \alias{scalaInstall}
 \alias{.rscalaJar}
 \alias{.rscalaPackage}
+\alias{.rscalaPackageUnload}
 \alias{.rscalaDelay}
 \docType{methods}
 \title{
@@ -24,7 +25,7 @@ paths to JAR files, installation directories, the Scala executable, and this
 package.  Note that if you only want to embed R in a Scala application, you do
 not need to install the package. Simply add the following line to the your SBT
 build.sbt file: \sQuote{libraryDependencies += "org.ddahl" %% "rscala" %
-"_VERSION_"}, where _VERSION_ is the rscala version number (i.e., 2.2.1).
+"_VERSION_"}, where _VERSION_ is the rscala version number (i.e., 2.2.2).
 
 \code{\link{scalaInstall}} downloads and installs Scala in \dQuote{~/.rscala}
 in the user's home directory.  System administrators can install Scala
@@ -40,6 +41,9 @@ arguments to the \code{\link{scala}} function.  This instance of Scala is
 available as the object \code{s} in the namespace of the package (thereby
 making it available to the package's function) but it is not exported from
 the namespace.  The object \code{s} is only initialized on its first usage.
+The function \code{\link{.rscalaPackageUnload}} should be called in the
+\code{.onUnload} function of a package that wishes to depend on this package so
+that \code{close(s)} is called (if needed).
 }
 \usage{
 scala(classpath=character(), classpath.packages=character(),
@@ -56,6 +60,8 @@ scalaInstall(major.version=c("2.12","2.11","2.10")[1])
 
 .rscalaPackage(pkgname, snippet=character(), classpath.packages=character(),
                classpath.prepend=character(), classpath.append=character(), ...)
+
+.rscalaPackageUnload()
 
 .rscalaDelay(expression)
 }

@@ -1,6 +1,11 @@
+2.2.2 (2017-05-24)
+  * Improved behavior for packages that depend on rscala, including adding
+    the .rscalaPackageUnload function to spin down the instance of
+    the Scala interpreter/compiler started by the .rscalaPackage function.
+  * Moved example to \donttest instead of \dontrun.
+
 2.2.1 (2017-05-24)
-  * Fixed a few behind-the-scenes issues with packages that import rscala.
-  * Moved example to \donttest intead of \dontrun.
+  * Never released.
 
 2.2.0 (2017-05-23)
   * Vectors of length one are treated as scalar unless wrapped by the I()

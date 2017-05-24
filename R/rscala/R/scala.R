@@ -570,6 +570,8 @@ jarsOfPackage <- function(pkgname, major.version) {
 
 .rscalaPackage <- function(pkgname, snippet=character(), classpath.packages=character(), classpath.prepend=character(), classpath.append=character(), ...) {
   env <- parent.env(parent.frame())    # Environment of depending package (assuming this function is only called in .onLoad function).
+  assign(".rscalaPackageEnv",new.env(parent=emptyenv()), envir=env)
+  assign("sIsForced",FALSE,envir=get(".rscalaPackageEnv",envir=env))
   # Lazy initialization of 's' in environment of depending package
   delayedAssign("s", {
     sInfo <- scalaInfo()
@@ -579,6 +581,7 @@ jarsOfPackage <- function(pkgname, major.version) {
     classpath.append <- unlist(strsplit(classpath.append,.Platform$path.sep))
     classpath <- c(classpath.prepend,pkgJars,classpath.append)
     s <- scala(classpath=classpath,classpath.packages=NULL,scalaInfo=sInfo,...)
+    assign("sIsForced",TRUE,envir=get(".rscalaPackageEnv",envir=env))
     if ( length(snippet) > 0 ) s %@% snippet
     s
   }, assign.env=env)
@@ -594,6 +597,14 @@ jarsOfPackage <- function(pkgname, major.version) {
     rm(".rscalaDelayed",envir=env)
   }
   invisible()
+}
+
+.rscalaPackageUnload <- function() {
+  env <- parent.env(parent.frame())
+  sIsForced <- get("sIsForced",envir=get(".rscalaPackageEnv",envir=env))
+  if ( sIsForced ) {
+    close(get("s",envir=env))
+  }
 }
 
 .rscalaDelay <- function(expression) {
