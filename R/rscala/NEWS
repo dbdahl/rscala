@@ -1,4 +1,4 @@
-2.2.0 (2017-05-17)
+2.2.0 (2017-05-23)
   * Vectors of length one are treated as scalar unless wrapped by the I()
     function.  This new behavior is opposite of the previous behavior but
     consistent with the jsonlite and RJSONIO packages.
