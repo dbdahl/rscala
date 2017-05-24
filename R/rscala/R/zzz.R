@@ -4,10 +4,3 @@ typeMap[[DOUBLE]] <- "double"
 typeMap[[BOOLEAN]] <- "integer"
 typeMap[[STRING]] <- "character"
 typeMap[[BYTE]] <- "raw"
-
-.onAttach <- function(libname, pkgname) {
-  output <- capture.output({
-    info <- scalaInfo()
-  })
-  if ( is.null(info) ) packageStartupMessage(paste(output,collapse="\n"))
-}

@@ -24,7 +24,7 @@ paths to JAR files, installation directories, the Scala executable, and this
 package.  Note that if you only want to embed R in a Scala application, you do
 not need to install the package. Simply add the following line to the your SBT
 build.sbt file: \sQuote{libraryDependencies += "org.ddahl" %% "rscala" %
-"_VERSION_"}, where _VERSION_ is the rscala version number (i.e., 2.2.0).
+"_VERSION_"}, where _VERSION_ is the rscala version number (i.e., 2.2.1).
 
 \code{\link{scalaInstall}} downloads and installs Scala in \dQuote{~/.rscala}
 in the user's home directory.  System administrators can install Scala
@@ -104,7 +104,7 @@ David B. Dahl \email{dahl@stat.byu.edu}
 .rscalaJar()
 scalaInfo(verbose=TRUE)
 
-\dontrun{
+\donttest{
 # Make an instance of the Scala interpreter and see how its output is captured.
 s <- scala(serialize.output=TRUE)
 capture.output(s \%~\% 'println("This is Scala "+scala.util.Properties.versionString)')
@@ -150,7 +150,7 @@ rInt(100)                                     # ... needing to protect scalars a
 s$.scala.math.BigInt$apply("777",8L)$'-'(500L)$intValue()
 
 # Example showing callback functionality
-f <- s$def(func=NULL, data=numeric(), quiet=TRUE) \%~\% '
+f <- function(func=NULL, data=numeric(), quiet=TRUE) s \%!\% '
   if ( ! quiet ) println("Here I am in Scala.")
   R.invokeD1(func, data.map(2*_), "verbose" -> !quiet ).sum
 '
@@ -163,7 +163,7 @@ cube <- function(x, ignored.argument, verbose=TRUE) {
 identical( f(cube,1:4,FALSE), sum((2*(1:4))^3) )
 identical( f(cube,1:4,TRUE),  sum((2*(1:4))^3) )
 
-# Longer example showing that s$def(...) is more flexible and faster than '\%~\%'
+# Longer example showing more flexible than '\%~\%'
 drawGaussian <- function(mean=0.0, sd=1.0, rng=scalaNull("scala.util.Random")) s \%!\% '
   mean+sd*rng.nextDouble
 '
