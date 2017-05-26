@@ -3,6 +3,8 @@
 
 \documentclass[article]{jss}
 
+\let\hlesc\hlstd \let\hlpps\hlstd \let\hllin\hlstd \let\hlslc\hlcom 
+
 \usepackage{lscape}
 \usepackage{multicol}
 \usepackage{multirow}
@@ -114,9 +116,8 @@ requires no special installations or configurations of \R or \Scala.}
 \newcommand{\mytilde}{\lower.6ex\hbox{\char`\~}}
 <<setup, include=FALSE>>=
 library(knitr)
-opts_chunk$set(fig.path='figure/latex-', cache.path='cache/latex-', cache=TRUE, size="small", out.columns=84)
-opts_chunk$set(fig.path='figure/minimal-', fig.align='center', fig.show='hold')
-options(formatR.arrow=TRUE,width=90)
+opts_chunk$set(fig.path='figure/latex-', cache.path='cache/latex-', cache=TRUE, size="small", out.columns=84, fig.align='center', fig.show='hold')
+options(formatR.arrow=TRUE, width=90)
 hook_source <- knit_hooks$get('source')
 knit_hooks$set(source = function(x, options) {
   txt <- hook_source(x, options)
@@ -143,13 +144,18 @@ knit_hooks$set(output = function(x, options) {
 })
 @
 
+<<trashme>>=
+3+9
+getwd()
+@
+
 %% include your article here, just as usual
 %% Note that you should use the \pkg{}, \proglang{} and \code{} commands.
 
 \section{Introduction}
 \label{introduction}
 
-\Scala \citep{scala} is a general-purpose, statically-typed programming
+\Scala  \citep{scala} is a general-purpose, statically-typed programming
 language that supports both object-oriented and functional programming
 paradigms.  The integration of these two paradigms allows a developer to
 choose the best paradigm for a given task.  Code is generally concise, thanks
@@ -260,6 +266,10 @@ function:
 
 <<instantiateInterpreter>>=
 s <- scala()
+@
+
+<<BBBBinstantiateInterpreter>>=
+s %~% "1-3"
 @
 
 Options are available to customize where \Scala and \Java are located and how
@@ -695,6 +705,7 @@ To instantiate an \R interpreter in a \Scala application, use the special
 val R = org.ddahl.rscala.RClient()
 val side = R.evalS0("sample(c('heads', 'tails'), 1)")
 println(s"Your coin landed $side.")
+R.exit
 @
 
 The previous statements assume that, on Windows, the registry keys option was

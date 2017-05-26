@@ -1,0 +1,22 @@
+#!/bin/bash
+
+cd $(dirname $(readlink -f "$0"))
+CWD=$PWD
+cd ../R/rscala/vignettes
+
+# Start the server.
+$CWD/knitr-server &
+PID=$!
+
+# Give the server a chance to start.
+sleep 2
+
+# Do an initial deep run.
+echo n | netcat localhost 7491
+
+# Watch for chances.
+vulture article.Rnw bash -c "echo r | netcat localhost 7491"
+
+# Kill the server.
+kill $PID
+

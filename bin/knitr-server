@@ -1,0 +1,27 @@
+#!/usr/bin/env Rscript
+
+library(knitr)
+
+while ( TRUE ) {
+  cat("At the top.\n")
+  socket <- socketConnection(port=7491,server=TRUE,blocking=TRUE,timeout=2592000)
+  cmd <- readChar(socket,nchars=1)
+  close(socket)
+  if ( cmd == "n" ) {
+    system2("rm",c("-rf","cache"))
+    knit("article.Rnw")
+    system2("pdflatex","article.tex")
+    system2("bittex","article.tex")
+    system2("pdflatex","article.tex")
+    system2("pdflatex","article.tex")
+  }
+  else if ( cmd == "r" ) {
+    knit("article.Rnw")
+    system2("pdflatex","article.tex")
+  }
+  else if ( cmd == "h" ) {
+    cat("Hi.\n")
+  }
+  else stop("protocal error")
+}
+
