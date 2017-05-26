@@ -3,26 +3,71 @@
 
 \documentclass[article]{jss}
 
+\usepackage{lscape}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{rotating}
+\usepackage{booktabs}
+\usepackage{paralist}
+\usepackage{thumbpdf}
+\usepackage[11pt]{moresize}
+\usepackage{alltt}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage[T1]{fontenc}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+%\overfullrule=3mm
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% declarations for jss.cls %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{xspace}
+
+\newcommand{\rscala}{\pkg{rscala}\xspace}
+\newcommand{\jvmr}{\pkg{jvmr}\xspace}
+\newcommand{\rJava}{\pkg{rJava}\xspace}
+\newcommand{\Rserve}{\pkg{Rserve}\xspace}
+\newcommand{\Rcpp}{\pkg{Rcpp}\xspace}
+\newcommand{\inline}{\pkg{Inline}\xspace}
+\newcommand{\R}{\proglang{R}\xspace}
+\newcommand{\Rscript}{\proglang{Rscript}\xspace}
+\newcommand{\C}{\proglang{C}\xspace}
+\newcommand{\Python}{\proglang{Python}\xspace}
+\newcommand{\Csharp}{\proglang{C\#}\xspace}
+\newcommand{\Ruby}{\proglang{Ruby}\xspace}
+\newcommand{\Cpp}{\proglang{C++}\xspace}
+\newcommand{\Scala}{\proglang{Scala}\xspace}
+\newcommand{\Java}{\proglang{Java}\xspace}
+\newcommand{\Fortran}{\proglang{Fortran}\xspace}
+\newcommand{\BeanShell}{\pkg{BeanShell}\xspace}
 
 %% almost as usual
-\author{Achim Zeileis\\Brigham Young University \And 
-        Second Author\\Affiliation}
-\title{A Capitalized Title: Something about a Package \pkg{foo}}
+\author{David B.\ Dahl\\Brigham Young University}
+\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.2.2,\ \ Document Date: 2017-06-10}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
 
 %% for pretty printing and a nice hypersummary also set:
-\Plainauthor{Achim Zeileis, Second Author} %% comma-separated
-\Plaintitle{A Capitalized Title: Something about a Package foo} %% without formatting
-\Shorttitle{\pkg{foo}: A Capitalized Title} %% a short title (if necessary)
+\Plainauthor{David B. Dahl} %% comma-separated
+\Plaintitle{rscala: Integration of R and Scala} %% without formatting
+\Shorttitle{\rscala: Integration of \R and \Scala} %% a short title (if necessary)
 
 %% an abstract and keywords
-\Abstract{
-  The abstract of the article.
-}
-\Keywords{keywords, comma-separated, not capitalized, \proglang{Java}}
-\Plainkeywords{keywords, comma-separated, not capitalized, Java} %% without formatting
+\Abstract{This paper introduces the \rscala package for the statistical
+software \R.  This package provides a two-way bridge between \R and \Scala
+enabling a user to exploit each language's respective strengths in a single
+project.  The \rscala package
+transparently brings \Scala and \Java methods into \R as if they were native \R functions.
+Specifically, \Scala classes can be instantiated and methods of \Scala classes
+can be called directly. Furthermore, arbitrary \Scala code can be executed on the fly from
+within \R, inline \Scala functions can be defined, and callbacks to the
+original \R interpreter are supported.  Finally, \rscala also enables arbitrary \R code to be
+embedded within a \Scala application.  The \rscala package is available on CRAN and
+requires no special installations or configurations of \R or \Scala.}
+
+\Keywords{embedded interpreter, \Java, Java Virtual Machine, JVM, \R, \Scala}
+\Plainkeywords{embedded interpreter, Java, Java Virtual Machine, JVM, R, Scala} %% without formatting
+
 %% at least one keyword must be supplied
 
 %% publication information
@@ -31,20 +76,22 @@
 %% \Issue{9}
 %% \Month{June}
 %% \Year{2012}
-%% \Submitdate{2012-06-04}
+\Submitdate{2017-06-10}
 %% \Acceptdate{2012-06-04}
 
 %% The address of (at least) one author should be given
 %% in the following format:
 \Address{
-  Achim Zeileis\\
-  Department of Statistics and Mathematics\\
-  Faculty of Economics and Statistics\\
-  Universit\"at Innsbruck\\
-  6020 Innsbruck, Austria\\
-  E-mail: \email{Achim.Zeileis@uibk.ac.at}\\
-  URL: \url{http://eeecon.uibk.ac.at/~zeileis/}
+  David B.\ Dahl\\
+  Professor and Associate Department Chair\\
+  Department of Statistics\\
+  Brigham Young University \\
+  223 TMCB\\
+  Provo, UT 84602\\
+  E-mail: \email{dahl@stat.byu.edu}\\
+  URL: \url{https://dahl.byu.edu}\\
 }
+
 %% It is also possible to add a telephone and fax number
 %% before the e-mail in the following format:
 %% Telephone: +43/512/507-7103
@@ -55,13 +102,1307 @@
 
 %% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%% \renewcommand{\textfraction}{0.05}
+%% \renewcommand{\topfraction}{0.95}
+%% \renewcommand{\bottomfraction}{0.95}
+%% \renewcommand{\floatpagefraction}{0.35}
+%% \setcounter{totalnumber}{5}
 
 \begin{document}
+
+% Fix poorly formatted tilde.
+\newcommand{\mytilde}{\lower.6ex\hbox{\char`\~}}
+<<setup, include=FALSE>>=
+library(knitr)
+opts_chunk$set(fig.path='figure/latex-', cache.path='cache/latex-', cache=TRUE, size="small", out.columns=84)
+opts_chunk$set(fig.path='figure/minimal-', fig.align='center', fig.show='hold')
+options(formatR.arrow=TRUE,width=90)
+hook_source <- knit_hooks$get('source')
+knit_hooks$set(source = function(x, options) {
+  txt <- hook_source(x, options)
+  # extend the default source hook
+  gsub('~', '\\\\mytilde', txt)
+})
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  if (!is.null(n <- options$out.lines)) {
+    x = unlist(strsplit(x, '\n'))
+    if (length(x) > n) {
+      # truncate the output
+      x = c(head(x, n), '....\n')
+    }
+    x = paste(x, collapse = '\n') # paste first n lines together
+  }
+  if (!is.null(n <- options$out.columns)) {
+    x = unlist(strsplit(x, '\n'))
+    probs <- nchar(x)>options$out.columns
+    x[probs] <- paste(substr(x[probs],1,options$out.columns-3), '...', sep="")
+    x = paste(x, collapse = '\n') # paste first n lines together
+  }
+  hook_output(x, options)
+})
+@
 
 %% include your article here, just as usual
 %% Note that you should use the \pkg{}, \proglang{} and \code{} commands.
 
-\section[About Java]{About \proglang{Java}}
-%% Note: If there is markup in \(sub)section, then it has to be escape as above.
+\section{Introduction}
+\label{introduction}
+
+\Scala \citep{scala} is a general-purpose, statically-typed programming
+language that supports both object-oriented and functional programming
+paradigms.  The integration of these two paradigms allows a developer to
+choose the best paradigm for a given task.  Code is generally concise, thanks
+in part to type inference.  Martin Odersky, a professor at EPFL in Switzerland,
+is the primary architect of \Scala. Previously, Odersky worked for Sun Microsystems
+where he developed the current generation of the \Java \citep{java} compiler.
+It is said that \Scala's design is influenced by criticisms of \Java though
+a high level of interoperability between \Scala and \Java is maintained.
+Indeed, \Scala source code compiles to \Java bytecode and runs on the Java
+Virtual Machine (JVM).  Typesafe, a company co-founded by Odersky,
+provides an open source platform centered around \Scala and makes its money
+providing training, consulting, and commercial support for the platform.
+
+\R \citep{r} is a scripting language and environment developed by statisticians
+for statistical computing and graphics.  \R
+has many contributors and a large base of statistically-oriented users.  \Scala
+and \R each have distinct strengths and weaknesses.  We believe that \Scala
+deserves consideration when looking for a general-purpose programming language
+to complement \R, but advocating \Scala for statistical computing is beyond
+the scope of this paper.  Instead, this paper introduces our \rscala
+\citep{rscala} package to those that are already somewhat familiar with \R and
+\Scala.  The package allows users to seamlessly incorporate \R and \Scala (or
+\Java) code in one program and utilize each language's respective strengths
+(including libraries, methods, speed, graphics, etc.).  Specifically, \rscala
+provides a two-way bridge between \R and \Scala, enabling \R to execute
+\Scala code and vice versa.  \Scala and \Java classes can be instantiated,
+methods of \Scala and \Java classes can be called directly, inline \Scala
+functions can be defined, and arbitrary \Scala code can be executed on the fly
+from within \R.  Callbacks from \Scala into the original \R interpreter are
+also supported.  Conversely, arbitrary \R code can be evaluated from within a \Scala
+application through an embedded \R interpreter.
+
+Thus the \rscala package allows \R developers to reuse \Scala code and apply
+their \Scala skills to make \R extensions.  On the other hand, \rscala allows
+\Scala developers to make use of \R's broad array of data analysis and graphing
+capabilities from within a \Scala application.  The \rscala package is intended
+to provide this bridge to those who have an interest in both \Scala and \R.
+This is not unlike what has already been done with \R and other languages.
+Although largely transparent to the user, much of \R's core is implemented with
+calls to \C, \Cpp, and \Fortran code.  These low-level languages provide more
+flexibility in memory management and compile to code that executes relatively
+quickly.  The \rJava \citep{rjava} package extends this support to precompiled
+\Java code.  While results vary depending on the algorithm and testing
+methodology, it is generally recognized that well-designed \C, \Cpp, and
+\Fortran code will execute faster and use less memory than \Java.
+Nevertheless, \Java arguably has several advantages and has attracted a
+substantial developer base.  The \rJava package allows developers to use
+existing \Java code and to apply their \Java skills to make \R extensions.  The
+\rscala package aims to do for \Scala what \rJava has done for \Java.
+
+The paper is organized as follows.  Section \ref{usage} provides a general
+usage guide to get users started quickly.  Technical details of the package
+implementation are discussed in Section \ref{implementation}.  Comparisons to
+other software, including numerical benchmarks, are provided in Section
+\ref{comparisons}.  Section \ref{caseStudies} looks at two case studies using
+the \rscala package.  We conclude with future work in Section \ref{conclusion}.
+
+\section{Usage of the package}
+\label{usage}
+
+In this section, we provide an introduction to the \rscala package with the
+intent of getting users quickly started integrating \R and \Scala.  Those
+interested in the more technical aspects of the \rscala package --- discussed
+in subsequent sections --- will also benefit from understanding the syntax and
+ideas presented in this section.
+
+\clearpage
+\subsection{Installation}
+
+The \rscala package is available on the Comprehensive R Archive Network (CRAN)
+and can be installed through \R's graphical interface or by executing the
+following \R expression:
+
+<<installPackage,eval=FALSE>>=
+install.packages('rscala')
+@
+
+The package runs on a standard installation of \R; no special compilation flags
+or installation procedures are needed.  The \rscala package can use an existing
+\Scala installation (versions 2.10.x and 2.11.x are supported) or can install
+\Scala using
+
+<<installScala,eval=FALSE>>=
+rscala::scalaInstall()
+@
+
+This places \Scala in the user's home directory: `$\sim$/.rscala'.  System
+administrators will likely want to install \Scala globally as described on the
+\Scala webpage.  In short, simply download the archive, unpack it, and add the
+``scala'' script to the path.  Note that \Scala requires \Java.  The
+\rscala package tries various methods to find a suitable \Scala installation,
+including searching the path.  Details on the search are available using
+
+<<scalaInfo,eval=FALSE>>=
+rscala::scalaInfo(verbose=TRUE)
+@
+
+\subsection[Accessing Scala in R]{Accessing \Scala in \R}
+
+Load the \rscala package in an \R session using
+
+<<library>>=
+library('rscala')
+@
+
+A \Scala interpreter instance is created using the \code{scala}
+function:
+
+<<instantiateInterpreter>>=
+s <- scala()
+@
+
+Options are available to customize where \Scala and \Java are located and how
+they are invoked (e.g., setting the classpath and maximum heap size).  Details
+on this and all other functions are provided in the \R documentation for the
+package (e.g., \code{help(scala)}).  Multiple instances of the
+\Scala interpreter can be created and each instance runs independently with its
+own memory.  Each interpreter can use multiple threads/cores but the bridge
+between \R and \Scala is not thread-safe.  As such, multiple \R threads/cores
+should not access the same interpreter simultaneously.
+
+\subsubsection[Instantiating Scala objects and calling methods]{Instantiating \Scala objects and calling methods}
+\label{instantiateAndCall}
+
+The \rscala package allows \R to hold a reference to any \Scala object and to
+call the object's methods directly.  There is also support for calling
+methods of a companion object and for instantiating objects.  This
+functionality is illustrated in Table~\ref{callingScala}.  These examples
+display classes and companion objects for \code{scala.util.Random},
+\code{scala.math.BigInt}, and \code{scala.Array}, but any classes and companion
+objects in the classpath can be called in this manner. The only exception is
+inner classes which are not supported.  If a method takes type parameters or is
+otherwise not a valid identifier in \R (e.g., an operator method), the call to
+the method should be enclosed in quotes.  For example, note that the methods
+\code{apply[Int]} and \code{:+} are quoted here:
+
+<<quoteWhenNecessary, out.lines=16>>=
+h <- s$do('List')$'apply[Int]'(1L, 2L, 3L)
+g <- h$":+"(100L)
+g$toString()
+@
+
+\begin{table}[tb]
+\small
+\centering
+\begin{tabular}{p{3ex}ll}
+\toprule
+\multicolumn{2}{l}{\textbf{\textit{Description}}} & \\
+& \textbf{Scala} & \textbf{R using the \rscala package} \\
+\midrule
+\noalign{\vspace{1ex}}
+\multicolumn{2}{l}{\textit{Instantiate an object}} & \\
+& \code{val a = new scala.util.Random()} & \code{a <- s\$do(\textquotesingle{}scala.util.Random\textquotesingle{})\$new()} \\
+\noalign{\vspace{1ex}}
+\multicolumn{2}{l}{\textit{Method with arguments}} & \\
+& \code{a.setSeed(1234)} & \code{a$setSeed(1234L)} \\
+\noalign{\vspace{1ex}}
+\multicolumn{2}{l}{\textit{Method without arguments}} & \\
+& \code{a.nextGaussian} & \code{a$nextGaussian()} \\
+\noalign{\vspace{1ex}}
+\multicolumn{2}{l}{\textit{Companion object's method}} & \\
+& \code{val b = BigInt.probablePrime(8, a)} & \code{b <- s$do(\textquotesingle{}BigInt\textquotesingle{})$probablePrime(8L, a)} \\
+\noalign{\vspace{1ex}}
+\multicolumn{2}{l}{\textit{Companion object's special \code{apply} method}} & \\
+& \code{val c = Array(b)} & \code{c <- s$do(\textquotesingle{}Array\textquotesingle{})$apply(b)} \\
+\noalign{\vspace{1ex}}
+\multicolumn{2}{l}{\textit{Object's special \code{update} method}} & \\
+& \code{c(0) = b.pow(4)} & \code{c$update(0L, b$pow(4L))} \\
+\noalign{\vspace{1ex}}
+\multicolumn{2}{l}{\textit{Object's special \code{apply} method}} & \\
+& \code{c(0).intValue} & \code{c$apply(0L)$intValue()} \\
+\noalign{\vspace{1ex}}
+\bottomrule
+\end{tabular}
+\caption{Examples showing how to replicate \Scala expressions in \R via the \rscala package.}
+\label{callingScala}
+\end{table}
+
+\Scala runs on the Java Virtual Machine and it supports instantiating
+\Java classes and calling object and static methods.  As such, \rscala
+automatically provides this support as well.  \Scala provides the \code{scalap}
+executable to list the methods of class and companion objects.  Its output is
+available directly in \R using the \code{scalap} function.  For example:
+
+<<scalap, out.lines=14>>=
+scalap(s, 'scala.util.Random')
+@
+
+\subsubsection[Return values when calling Scala]{Return values when calling \Scala}
+
+When calling \Scala from within \R, the return value is one of the following:
+\begin{compactitem}
+\item A reference, i.e., an \R object of class \code{ScalaInterpreterReference}.  The methods of a reference can be called in subsequent statements, as exemplified by \code{a} and \code{c} in the right column of Table~\ref{callingScala}.
+\item A vector of integers, doubles, logicals, or characters.
+\item A matrix of integers, doubles, logicals, or characters.
+\end{compactitem}
+
+The return value is guaranteed to be a reference if the optional argument
+\code{as.reference} is set to \code{TRUE}.  For example, use
+\code{c$apply(0L)$intValue(as.reference=TRUE)}) to get a reference for the last
+expression of Table~\ref{callingScala}.  When \code{as.reference=FALSE}, an
+error is generated when a vector or matrix cannot be returned.  Finally, the
+default is \code{as.reference=NA} which results in a vector or matrix being
+returned if possible and a reference otherwise.
+
+We now describe the special support for integers, doubles, logicals, and
+characters --- jointly referred to as \emph{primitives} --- as well as vectors and
+matrices of these types.  Vectors in \R are implemented in \Scala as arrays.
+Matrices in \R are implemented in \Scala as rectangular arrays of arrays, i.e.,
+arrays of arrays of the same length.  These types and data structures can be
+copied from \R into \Scala and \emph{vice versa}.  Table~\ref{mappings}
+summarizes this special support and how \rscala converts data between the
+languages.  In the table, variables with the same identifier (e.g., \code{b})
+are equivalent in \R and \Scala.  For example, a matrix of integers in \R
+(e.g., \code{j <- matrix(c(1L, 2L), nrow=2)}) maps to a row-major rectangular
+array of arrays of \Scala's \code{Int} (e.g., \code{val j = Array(Array(1),
+Array(2))}).
+
+\begin{table}[tb]
+\small
+\centering
+\begin{tabular}{lll}
+\toprule
+     \textbf{Primitive} & \textbf{Vector (array)} & \textbf{Matrix (rectangular array of arrays)} \\
+\midrule
+\noalign{\vspace{2ex}}
+\code{a <- TRUE} & \code{e <- c(TRUE, FALSE)} & \code{i <- matrix(c(TRUE, FALSE), nrow=2)} \\
+\code{val a = true} & \code{val e = Array(true, false)} & \code{val i=Array(Array(true), Array(false))} \\
+\noalign{\vspace{4ex}}
+ \code{b <- 1L} & \code{f <- c(1L, 2L, 3L)} & \code{j <- matrix(c(1L, 2L), nrow=2)} \\
+ \code{val b = 1} & \code{val f = Array(1, 2, 3)} & \code{val j = Array(Array(1), Array(2))} \\
+\noalign{\vspace{4ex}}
+ \code{c <- 1.0} & \code{g <- c(1.0, 2.0, 3.0)} & \code{k <- matrix(c(1.0, 2.0), nrow=2)} \\
+ \code{val c = 1.0} & \code{val g = Array(1.0, 2.0, 3.0)} & \code{val k = Array(Array(1.0), Array(2.0))} \\
+\noalign{\vspace{4ex}}
+ \code{d <- 'a'} & \code{h <- c('a', 'b', 'c')} & \code{l <- matrix(c('a', 'b'), nrow=2)} \\
+ \code{val d = 'a'} & \code{val h = Array('a', 'b', 'c')} & \code{val l = Array(Array('a'), Array('b'))} \\
+\noalign{\vspace{2ex}}
+\bottomrule
+\end{tabular}
+\caption{Integers, doubles, logicals, and characters (labeled \emph{primitives}), as well as vectors and
+matrices of these types can be seamlessly copied between \R and \Scala.  Each cell in the table contains
+two lines: an \R expression (top) and the equivalent \Scala expression (bottom).}
+\label{mappings}
+\end{table}
+
+\subsubsection[Arguments when calling Scala]{Arguments when calling \Scala}
+
+When instantiating \Scala classes, calling methods of objects, or calling
+methods of companion objects, an argument can be either: i.\ a \Scala reference
+or ii.\ a vector or matrix of integers, doubles, logicals, or characters. Vectors and matrices
+supplied as arguments to \Scala methods are automatically converted to \Scala
+arrays and rectangular arrays as illustrated in Table~\ref{mappings}.
+Of course, \Scala reference objects require no conversion. For example, the \Scala reference object \code{b} in 
+the right-hand column of Table~\ref{callingScala} is used as an argument
+for the \code{apply} method on the next line in that table.
+  
+\subsubsection[Defining inline Scala functions]{Defining inline \Scala functions}
+\label{inline}
+
+In addition to calling precompiled \Scala methods, the \rscala package allows
+the user to define \Scala methods within an \R session.  These \emph{inline}
+methods are compiled and cached for execution later in the \R session.  This
+feature is available using the \code{intpDef} method, or its shorthand
+substitute \code{s$def(args, body)}, where \code{args} gives the name and
+\Scala type of each argument and \code{body} is arbitrary \Scala code with
+access to the arguments defined in \code{args}.  We demonstrate this
+functionality by defining a function to compute the number of partitions of $n$
+items, i.e., the Bell number \citep{bell}.
+
+<<bellUsingScala>>=
+bell.using.rscala <- function(n=1L) s %!% '
+  def snsk(n: Int, k: Int): BigInt = {
+    if ( n == 0 && k == 0 ) BigInt(1)
+    else if ( n == 0 || k == 0 ) BigInt(0)
+    else k * snsk(n - 1, k) + snsk(n - 1, k - 1)
+  }
+  ( 0 to n ).map( snsk(n,_) ).sum.doubleValue
+'
+@
+
+Note that the object \code{bell.using.rscala} is an \R function which calls the
+\Scala code.  Since \code{n} is defined as an \code{Int} in the example above,
+the argument \code{n} when calling the function is either a
+\code{ScalaInterpreterReference} to a \Scala's \code{Int} object or is
+automatically cast to an integer with \R's \code{as.integer} function.  For
+example, although the literal \code{10} is stored in \R as a double, it is cast
+to an integer here:
+
+<<callBellUsingScala>>=
+bell.using.rscala(10)
+@
+
+There are also three optional arguments, as seen here:
+
+<<bellArgs>>=
+args(bell.using.rscala)
+@
+
+The effect of the \code{as.reference} argument has already been discussed.  The
+\code{quiet} and \code{gc} arguments are discussed later.
+
+An \R implementation of the same algorithm is
+
+<<bellUsingR>>=
+bell.using.R <- function(n) {
+  snsk <- function(n, k) {
+    if ( n == 0 && k == 0 ) 1
+    else if ( n == 0 || k == 0 ) 0
+    else k * snsk(n - 1, k) + snsk(n - 1, k - 1)
+  }
+  sum( sapply(0:n, function(k) snsk(n,k)) )
+}
+@
+
+Notice that the \Scala implementation, depending on the value of $n$, can be
+significantly faster than the \R implementation:
+
+<<timeBellFunctions>>=
+system.time(bell.using.rscala(16))
+system.time(bell.using.R(16))
+@
+
+\subsubsection[Evaluating arbitrary Scala code]{Evaluating arbitrary \Scala code}
+\label{evalCode}
+
+The \rscala package also allows arbitrary snippets of \Scala code to be
+compiled and executed on the fly.  These code snippets can be any mixture of
+statements, functions, class definitions, imports, etc.  Consider an earlier
+example.  Rather than evaluating the right column of Table~\ref{callingScala}
+in \R, the \Scala code in the left column can be evaluated more directly in \R
+as follows:
+
+<<arbitraryScalaCode>>=
+s %~% '
+  val a = new scala.util.Random()
+  a.setSeed(1234)
+  println(a.nextGaussian)
+  val b = BigInt.probablePrime(16, a)
+  val c = Array(b)
+  c(0) = b.pow(4)
+  c(0).intValue
+'
+@
+
+Note that the
+output from the \code{println(a.nextGaussian)} statement is displayed.
+To suppress output from \Scala, set the 
+\code{quiet} global option of the \code{intpSettings} function:
+
+<<arbitraryScalaCodeWithoutOutput>>=
+s %~% '
+  val a = new scala.util.Random()
+  a.setSeed(1234)
+  println(a.nextGaussian)
+  val b = BigInt.probablePrime(16, a)
+  val c = Array(b)
+  c(0) = b.pow(4)
+  c(0).intValue
+'
+@
+
+The return value for the evaluation is the value of the last expression.
+It is an integer vector of length one because the
+\Scala result's type \code{Int} could be converted to an integer vector in \R.
+If a conversion is not possible, the return value is a reference.  A reference
+is guaranteed when using the \code{\%.~\%} operator:
+
+<<getReference>>=
+s %.~% 'c(0).intValue'
+@
+
+By default, the \code{\%~\%} and \code{\%.~\%} operators perform string
+interpolation of the right-hand-side character vector before compiling and
+executing the \Scala snippet.  Any expression between `\code{@\{}' and
+`\code{\}}' is evaluated in the \R session and its string representation
+(returned by the \code{toString} function) is used to replace
+`\code{@\{...\}}'.  For example:
+
+<<stringInterpolation>>=
+class.name <- 'STAT 624'
+s %~% '"@{tolower(class.name)}".reverse'
+@
+
+The code snippet can contain any number of `\code{@\{...\}}' embedded
+expressions.  String interpolation is enabled or disabled globally using the
+\code{interpolate} option in the \code{intpSettings} function.  The
+\code{\%~\%} and \code{\%.~\%} operators are shorthand substitutes for the
+\code{intpEval} function which provides call-specific settings for
+\code{interpolate} and \code{quiet}.
+
+\subsubsection{Getting and setting values}
+
+Values may be copied between \Scala and \R using \code{intpSet} and
+\code{intpGet} functions:
+
+<<gettingAndSetting>>=
+normal.Mean0.Sd1 <- rnorm(10)
+normal.Mean0.Sd1
+
+s$x <- normal.Mean0.Sd1
+s %@% 'val y = x.map(2 * _ + 1)'
+
+normal.Mean1.Sd2 <- s$y
+normal.Mean1.Sd2
+@
+
+The shorthand substitutes for the previous calls to \code{intpSet} and
+\code{intpGet} are
+
+<<gettingAndSettingShorthand>>=
+s$x <- normal.Mean0.Sd1
+normal.Mean1.Sd2 <- s$y
+@
+
+Notice that \code{s$def(...} and \code{s$do(...}
+do not conflict with the shorthand substitutes to
+\code{intpSet} and \code{intpGet} because \code{def} and \code{do} are reserved
+words in \Scala and are, therefore, not valid identifiers.
+
+\subsubsection{Memory management}
+
+We now make a few remarks on memory management.  To set the maximum Java heap
+size, use the optional \code{java.heap.maximum} argument in the
+\code{scala} function.  Due to an
+\href{https://issues.scala-lang.org/browse/SI-4331}{unresolved bug (SI-4331)}
+in the \Scala REPL (read-eval-print-loop), memory associated with values
+returned by \Scala's REPL cannot be recovered within that instance of the
+\Scala interpreter even if the identifier is later set to another value (e.g.,
+\code{null}).  Specifically, bound values from calls to the \code{intpEval}
+function and its shorthand substitutes \code{\%~\%} and \code{\%.~\%} are
+subject to this memory leak (e.g., \code{a}, \code{b}, \code{c}, \code{res2},
+and \code{y} in the previous code).  Likewise, values bound using
+\code{intpSet} and its shorthand substitute are also subject to the memory leak
+(e.g., \code{x} in the previous code).
+
+In contrast, memory \emph{not} subject to this leak are those associated
+with calls to \code{s$do(...}, functions returned by \code{s$def(...}, and
+calls to methods of \Scala objects.  No special handling is needed if the return
+value of these functions is a primitive, vector, or matrix.  For example, the
+following code requires no memory management.
+
+<<noMemoryManagementNeeded,results='hide'>>=
+e <- s$do('scala.util.Random')$new()
+sapply(1:1000, function(i) e$nextGaussian())
+f <- function(n=1L) s %!% 'Array.fill(n) { scala.util.Random.nextGaussian }'
+g1 <- f(1000)
+@
+
+If the return value of one of these functions is a reference, the associated
+memory in \Scala will not be recovered until the \R's
+\code{ScalaInterpreterReference} object no longer exists \emph{and} the garbage
+collection function \code{intpGC} is called, or the \code{gc} argument is set
+to \code{TRUE}.  Because this garbage collection is somewhat time consuming,
+the default value of the \code{gc} argument is \code{FALSE}.  Continuing with
+the previous example, consider this code:
+
+<<resultAsReference,results='hide'>>=
+f <- function(n=1L) s %.!% 'Array.fill(n) { scala.util.Random.nextGaussian }'
+g1 <- f(1000)
+@
+
+\clearpage
+The variable \code{g2} is a reference to memory owned by the embedded \Scala
+interpreter.  The embedded \Scala interpreter will not recover the associated
+memory until \code{g2} is removed and \code{intpGC} is called:
+
+<<garbageCollection,results='hide'>>=
+rm(g2)
+@
+
+\subsubsection[Callbacks from Scala into the original R interpreter]{Callbacks from \Scala into the original \R interpreter}
+
+When an embedded \Scala instance is created with the \code{scala}
+function, an instance of the \Scala class
+\code{org.ddahl.rscala.callback.RClient} is bound to the identifier \code{R}.
+This object \code{R} provides access to the original \R interpreter.  Having
+the ability to callback into the original \R interpreter facilitates writing
+generic functions in \Scala that can be customized by an \R user with no
+knowledge of \Scala.  The full Scaladoc for the \code{RClient} class,
+including examples, is available in the online supplement.  Here we merely
+demonstrate this feature with a simple example that shows \R calling an inline
+\Scala method which itself calls an \R function.  Consider this first
+implementation:
+
+<<callbacksVersion1>>=
+myMean <- function(x) {
+  cat('Here I am.\n')
+  mean(x)
+}
+
+callRFunc <- function(name="",x=numeric()) s %!% '
+  R.xx = x
+  R.evalD0(s"$name(xx)")
+'
+
+callRFunc('myMean', 1:100)
+@
+
+In this example, the character vector containing the name of the \code{myMean}
+function is passed to the \code{callRFunc} function defined as an inline
+\Scala function.  This inline \Scala method calls back into the original \R
+interpreter using the \code{evalD0} method of the \code{R} object.
+
+A more advanced implementation utilizes the class
+\code{org.ddahl.rscala.callback.RObject}.  Objects of this class are created in
+\R with the \code{intpWrap} function and can represent arbitrary \R objects
+which can later be used in embedded \R code.  Using the \code{RObject} class
+can reduce the need to copy data between \R and \Scala.  The class is also
+documented in the Scaladoc and is demonstrated here:
+
+<<callbacksVersion2>>=
+cat("Out of date.\n")
+@
+
+\subsection[Accessing the R interpreter within a Scala or Java application]{Accessing the \R interpreter within a \Scala or \Java application}
+
+So far this paper has demonstrated calling \Scala code from \R.
+Conversely, the \rscala package also allows an \R interpreter to be embedded in
+a \Scala, \Java, or any other JVM-based application that has the
+\rscala JAR in its classpath.  Two versions of the JAR file are provided: one
+for each of \Scala 2.10.x and \Scala 2.11.x.  Find the path of these JAR files
+using
+
+<<whereAreTheJars>>=
+rscala::.rscalaJar()
+@
+
+The paths for specific versions of the JAR files are located using
+
+<<whereAreTheJarsSpecific>>=
+rscala::.rscalaJar('2.10')
+rscala::.rscalaJar('2.11')
+rscala::.rscalaJar('2.12')
+@
+
+To instantiate an \R interpreter in a \Scala application, use the special
+\code{apply} method of the companion object to the
+\code{org.ddahl.rscala.callback.RClient} class:
+
+<<scalaScript,engine="scala",engine.opts=paste0('-cp "',rscala::.rscalaJar('2.12'),'"'),comment="//">>=
+// Scala code
+val R = org.ddahl.rscala.RClient()
+val side = R.evalS0("sample(c('heads', 'tails'), 1)")
+println(s"Your coin landed $side.")
+@
+
+The previous statements assume that, on Windows, the registry keys option was
+not disabled during installation.  On other operating systems, \code{R} is
+assumed to be in the path.  If these assumptions are not met or a particular
+installation of \R is desired, the path to the \R executable may be specified
+as the first argument to the \code{apply} function.  The \rscala package must
+be available to the selected \R executable.
+
+To use the \code{RClient} class in a \Java or other JVM-based application, the
+\Scala JARs 
+and the \rscala JAR
+must be in the classpath.
+These file system paths can be located from \R using \code{rscala::scalaInfo()\$jars} and \code{rscala::.rscalaJar()}, respectively.
+To
+instantiate an \R interpreter, call one of the \code{apply} static methods.
+The full Scaladoc for the \code{org.ddahl.rscala.callback.RClient} class and
+its companion object, including examples, is available in the online
+supplement.
+
+\subsection{Debugging and error propagation}
+
+We now describe how the \rscala package supports \Scala exceptions and \R
+errors.  If a run-time exception occurs while executing \Scala code within \R,
+a reference to the exception is returned:
+
+<<runtimeException, out.lines=10>>=
+tryCatch(x <- s %~% '
+  val n = 10
+  if ( n != 20 ) throw new RuntimeException("n is not 20.")
+', error=function(e) e)
+@
+
+If \code{quiet=FALSE} is set using the \code{intpSettings} function, the stack
+trace is printed in \R's console.  Since \code{x} is a reference to the
+exception, the stack trace can also be displayed using
+
+The above example is a run-time exception, but compile-time exceptions behave
+in the same way.  For example, the code below tries to instantiate a class that
+is not defined in the current classpath:
+
+<<exceptionMessage>>=
+tryCatch(x <- s %~% 'val a = new ClassThatDoesNotExist()',error=function(e) e)
+@
+
+Errors in \R code embedded in a \Scala or \Java application result in a runtime
+exception.  Likewise, errors in callbacks to the \R interpreter using the
+\code{R} object lead to a reference to the exception.  For example, the code
+below is valid \Scala but the function does not exist in the \R interpreter and
+leads to an error:
+
+<<compiletimeException>>=
+tryCatch(x <- s %~% 'R.eval("nonexistantFunctionInR()")',error=function(e) e)
+@
+
+\subsection[Developing packages depending on rscala]{Developing packages depending on \rscala}
+
+We now describe how to develop an \R package with \Scala code using the \rscala
+package.  Just as several packages on CRAN are implemented using precompiled
+\Java code accessed through the \rJava package, we provide tools such that
+\Scala developers can develop packages that run embedded \Scala source code or
+execute precompiled \Scala or \Java code.
+
+An \R package based on \rscala should include \code{rscala} in the
+\code{Depends} or \code{Imports} field of the package's \code{DESCRIPTION}
+file.  If using the \code{Imports} field, the \code{NAMESPACE} file should also
+include \code{import(rscala)}.  As with packages that depend on \rJava, JAR
+files that the package developer wishes to be in the classpath are placed in
+the package's \code{java} directory.  The package should define an
+\code{.onLoad} function which calls \code{rscalaPackage(pkgname)}, where
+\code{pkgname} is the package's name.  Since the namespace is not yet sealed,
+this function is able to define an environment \code{E} in the package's
+namespace.  This environment contains \code{pkgname} (the package's name) and
+\code{jars} (the path of all the JAR files in the package's \code{java}
+directory).  Finally, the \R package should call \code{rscalaLoad(classpath,
+...)}, where \code{classpath} and \code{...} are passed to the
+\code{scala} function and the result is set to \code{E\$s}.  If
+\code{classpath} is \code{NULL}, then \code{E\$jars} is used.  An acceptable
+\code{.onLoad} function may be as simple as
+
+<<onLoad, eval=FALSE>>=
+.onLoad <- function(libname, pkgname) {
+  .rscalaPackage(pkgname)
+}
+
+.onUnload <- function(libname) {
+  .rscalaPackageUnload()
+}
+@
+
+The package then has access to an embedded \Scala interpreter through
+\code{E\$s} with which the package can run embedded \Scala source code or
+execute precompiled \Scala or \Java code.  If desired, the call to the
+\code{rscalaLoad} function can be outside the \code{.onLoad} function, waiting
+until the \Scala interpreter \code{E\$s} is first needed.  Subsequent calls to
+\code{rscalaLoad} have no effect and return immediately.
+
+Because \rscala's syntax for calling precompiled code is very similar to
+\rJava's high-level ``\$ convenience operator,'' developing a package based on
+the \rscala package can be very familiar to those accustomed to the \rJava
+package.  Take, for example, CRAN's \pkg{mailR} package: ``Interface to Apache
+Commons Email to send emails from \R'' \citep{mailr}.  This package depends on
+the \rJava package and mostly uses its high-level \code{\$} convenience
+operator.  As a proof of concept, we ported the \pkg{mailR} package to \rscala,
+replacing the dependency on \rJava.  Among the 264 lines in the \R scripts for
+version 0.4.1 of the \pkg{mailR} package, we rewrote 13 lines and added one
+more line to complete the port.  Further, 11 lines in the original \rJava
+implementation could be removed because of the way in which \rscala handles
+exceptions.  As an example of what simple changes needed to be made, consider
+one expression from the original \rJava-based package:
+
+<<mailR.rJava, eval=FALSE>>=
+base_dir <- .jnew("java.io.File", normalizePath(getwd()))
+@
+
+In our port to \rscala, we replaced this line with
+
+<<mailR.rscala, eval=FALSE>>=
+base_dir <- E$s$.java.io.File$new(normalizePath(getwd()))
+@
+
+Of course, porting a package that makes frequent use of \rJava's low-level
+interface (e.g., the \code{.jcall} function) will require more changes.
+The online supplement contains both the original \pkg{mailR} package and our port to \rscala.
+
+\section{Implementation}
+\label{implementation}
+
+The \rscala package is designed
+around a client/server model using local TCP/IP sockets.
+
+\subsection[Implementation of Scala code in R]{Implementation of \Scala code in \R}
+
+We first describe how \Scala code is accessed from \R.  The
+\code{scala} function asynchronously spawns a new instance of the
+Java Virtual Machine using the \code{java} executable by calling the
+\code{main} static method of the \code{scala.tools.nsc.MainGenericRunner}
+class.  This is the same class that the \code{scala} executable shell script
+uses when \Scala is started from the command line.  The arguments supplied to
+the \code{java} executable are also the same with the exception that we prepend
+the classpath to give precedence to a modified \code{scala.Console} class.  Our
+modification facilitates redirecting console output to the \R console via TCP/IP
+sockets.
+
+The \code{scala} function uses the \code{java} process's standard
+input to start a custom TCP/IP server that is bound to a randomly selected
+port.  The TCP/IP server accepts only a single local connection.  The \Scala
+server is implemented using the \Java standard library.  \R repeatedly tries to
+connect to the \Scala server as a client using functions from the \pkg{base} \R
+package.  The \Scala server has an instance of
+\code{scala.tools.nsc.interpreter.IMain}, the class representing \Scala's REPL.
+The \R client accesses the functionality of the server's REPL class by means of
+a custom protocol.
+
+\Scala's REPL is capable of compiling and executing \Scala code on the fly as
+well as setting and getting values of identifiers.  When a particular \Scala
+method is called for the first time in \R, a one-time compilation occurs behind
+the scenes.  The compiled method is then cached and re-used for subsequent
+calls to the same method.  As an illustration, consider the code below and
+notice that the elapsed time is significantly less in the second call to the
+same method:
+
+<<fasterAfterFirstTime>>=
+system.time( s$do("sys")$props("user.name") )
+system.time( s$do("sys")$props("user.name") )
+@
+
+This difference is most noticeable when the actual execution time is short
+relative to the one-time compilation time.  The \code{system.time} function in
+\R does \emph{not} measure the CPU time and system time spent in \Scala, but
+the elapsed time is indeed an accurate measure of the wall time.
+
+Callback functionality is implemented over the same TCP/IP sockets.
+Immediately after the \R client requests the execution of \Scala code, \R
+becomes a temporary, embedded server for the \Scala code to access the original
+\R interpreter through the \code{R} object (an instance of the \code{RClient}
+class).  The embedded \R server interprets code and sets/gets values using the
+\code{parse}, \code{eval}, \code{assign}, and \code{get} functions.  After the
+\Scala server executes the \Scala code, it tells the embedded \R server to exit
+and the \Scala server resumes its usual behavior.
+
+\subsection[Implementation of R code in Scala and other JVM applications]{Implementation of \R code in \Scala and other JVM applications}
+
+The functionality that allows \Scala, \Java, and other JVM-based applications
+to access an embedded \R interpreter is achieved by reusing the code
+implementing the previously-discussed callback functionality.  In this case,
+however, there is not an existing instance of the \R interpreter.  The class
+\code{RClient} spawns an \R instance, uses the same code to connect the \R
+client to the \Scala server, and then immediately starts the embedded \R
+server.  There are actually two versions of the \code{RClient} class. The \Java
+version (\code{org.ddahl.rscala.java.RClient}) is a thin wrapper over the \Scala
+version (\code{org.ddahl.rscala.callback.RClient}).  The wrapper provides familiar
+Javadoc to \Java developers and also hides various \Scala-specific features.
+
+\section{Comparisons to other software}
+\label{comparisons}
+
+In this section we compare and contrast the \rscala package to other related
+software.
+
+\subsection[Comparison to rJava]{Comparison to \rJava}
+\label{vsRJava}
+
+The \rJava package, together with the included JRI (Java/R interface) software for callbacks,
+serves as inspiration for our \rscala package.  Indeed, we adopt \rJava's
+high-level \code{\$} convenience operator in \rscala.  The
+implementations of the two packages are, however, quite different.  The \rscala
+package uses TCP/IP sockets for communication between processes.  As a
+consequence, \R, \Scala, and/or \Java can be updated without 
+reinstalling the package.  In contrast, \rJava uses \Java's JNI (Java native interface) to
+dynamically load the JVM shared library in \R's process space.  The versions of
+\R and \Java must be compatible (i.e., both 32-bit or both 64-bit binaries) and
+updates to either \R or \Java usually require reinstalling the package or
+running \code{R CMD javareconf}.  Callbacks are provided in \rJava using the
+JRI software included with the \rJava package. This requires that \R be
+compiled with the option \code{\textemdash{}enable-R-shlib}. This option is enabled by
+default on Windows and Mac OS X, but it is not enabled for most Linux
+distributions.  While installing \rJava requires a bit more care and
+maintenance, we will see in Section \ref{benchmarks} that it invokes methods
+faster than \rscala does.  JRI also provides a richer interface to \R objects
+than does \rscala.
+
+Since \Scala compiles to \Java bytecode and runs on the Java Virtual Machine,
+some of the functionality in the \rscala package can be replicated using the
+\rJava package.  Both \rscala and \rJava can call precompiled \Java bytecode.
+Features that \rJava does not support include defining inline functions
+(Section \ref{inline}), evaluating arbitrary code (Section \ref{evalCode}), and
+explicit support for \Scala.
+
+We now consider the difficulty of calling \Scala from \rJava.  After working on
+several projects using \rJava to access \Scala code in \R, we found that \Scala
+was cumbersome to use.  \Scala provides several features that do not map
+directly to \Java equivalents.  The \Scala compiler uses name mangling,
+behind-the-scenes code generation, and other techniques when compiling to \Java
+bytecode.  Calling \Scala code that makes use of these features from \rJava
+requires some understanding of \Scala's compiler at a minimum, but often the
+developer is required to write a \Java-friendly wrapper method in \Scala that
+hides advanced \Scala features.  We illustrate this scenario with a few
+examples.  Consider the following \Scala code:
+
+<<scalaScript2,engine="scala",engine.opts=paste0('-nowarn -cp "',rscala::.rscalaJar('2.12'),'"'),comment="//">>=
+// Scala code
+val a = List[String]("apples", "bananas")
+
+var b = List.empty[String]
+b = "bananas" :: b
+b = "apples"  :: b
+
+println(a == b)
+@
+
+The equivalent \R code to create the objects \code{a} and \code{b} in \Scala using the \rscala package
+is a straight-forward syntactic translation:
+
+<<rscalaEquivalent>>=
+a <- s$do('List')$apply('apples', 'bananas')
+
+b <- s$do('List')$'empty[String]'()
+b <- b$'::'('bananas')
+b <- b$'::'('apples')
+
+cat( a$'=='(b) )
+@
+
+There appears to be no translation of the \Scala code to create the object
+\code{a} using the \rJava package.  This is because the \Scala compiler uses
+internal classes to implement the \emph{varargs} in the \code{apply} method.
+One solution would be to write a \Java-friendly wrapper method that the
+developer could call using \rJava.  The object \code{b} can be created in \R
+using the \rJava package, but the developer has to know: i.\ that the \code{::}
+method gets renamed to \code{\$colon\$colon} because \code{::} does not conform
+to JVM specifications, ii.\ that the \Scala companion object \code{List} is
+represented in \Java bytecode by the class \code{List\$}, and iii.\ that
+\Scala's \code{==} method compiles to \Java's \code{equals} method.  Below is
+the equivalent \R code using the \rJava package, except one cannot translate
+the \Scala code for the object \code{a} to an \rJava equivalent:
+
+<<rJavaEquivalent>>=
+@
+
+\clearpage
+\subsection[Comparison to Rcpp]{Comparison to \Rcpp}
+\label{vsRcpp}
+
+From a user's perspective, the \rscala package is very similar to the \Rcpp
+package \citep{rcpp}, with the obvious difference that \rscala supports \Scala
+and \Rcpp supports \Cpp and \C.  Both packages allow the user to define an
+inline function within \R and return an \R function which wraps the
+newly-compiled function.  Both also support callbacks to the original \R
+interpreter and both provide a foundation for building other packages.  Whereas
+\Rcpp loads dynamically-compiled code into R's process space, \rscala uses
+TCP/IP sockets for communication between the \R and JVM processes.  The
+benchmarks in Section \ref{benchmarks} will show that \Rcpp is generally unmatched in
+execution speed, especially for short-lived function calls.
+
+\subsection[Comparison to Rserve]{Comparison to \Rserve}
+\label{vsRserve}
+
+\Rserve \citep{rserve} ``is a TCP/IP server which allows other programs to use facilities of
+\R... without the need to initialize \R or link against [the] \R library''
+(\url{http://www.rforge.net/Rserve}).  Whereas the \rscala package only
+supports \Scala, \Java, and other JVM-based applications, a client for \Rserve
+can be written in any language that supports TCP/IP sockets.  Clients are
+currently available for \Java, \Cpp, \R, \Python, \Csharp, \proglang{.Net/CLI},
+and \Ruby.  Note that \rJava's JRI links against the \R library and one of the
+benefits of the \Rserve's client/server approach is that it ``prevent[s]
+multi-threading problems that arise when linking against \R library directly''
+(\url{http://www.rforge.net/Rserve/doc.html}).  The \rscala package shares this benefit
+because it too is implemented using a client/server approach.  Like \rJava's
+JRI, however, \Rserve requires that \R be compiled with the option
+\code{\textemdash{}enable-R-shlib} which is the default on Windows and Mac OS X, but is
+not the default on most Linux distributions.  The \rscala package uses a
+standard installation of \R on all platforms.  \Rserve provides the same rich
+interface to \R objects as \rJava.  Benchmarks in Section \ref{benchmarks} will
+show that \Rserve is faster than \rscala.  Finally, we note that \rscala is
+neutral with respect to choice of operating system, but \Rserve has some
+limitations on Windows and the user is advised to not ``use Windows unless you
+really have to'' (\url{http://www.rforge.net/Rserve/doc.html}).
+
+\subsection{Benchmarks}
+\label{benchmarks}
+
+In this section we explore the performance of the \rscala package relative to
+other software used to accomplish the same tasks.  All benchmarks were run in
+\R 3.2.0 compiled from source with the option \code{\textemdash{}enable-R-shlib}.
+The following packages were installed from CRAN: \rscala 1.0.6, \rJava 0.9.6,
+\Rcpp 0.11.5, \Rserve 1.7.3, and \pkg{microbenchmark} 1.4.2 \citep{micro}.  The benchmarking
+workstation runs Ubuntu 14.04.02, has 32GB of RAM, and has an Intel i7-3930K
+CPU with 6 cores and hyperthreading enabled yielding a total of 12 virtual cores.
+The workstation has \Scala 2.11.6 and \Java 1.7.0\_17.  Unless stated
+otherwise, our benchmarking functions are single-threaded.
+
+\subsubsection{Computing the mean of a sample}
+\label{benchmarksForward}
+
+Consider the simple task of computing the mean of a random sample of size $n$
+from the uniform distribution on the unit interval.  We explore several
+implementations of this task through two functions based on standard \R, one function based on
+\Rcpp, three functions based on \rJava, and five functions based on \rscala.
+For example,
+\code{standardR2}, \code{rJava1}, \code{rJava2}, \code{rscala1}, and
+\code{rscala2} all involve looping in \R instead of the compiled code.
+Other reasons for the different versions include calling inline
+functions versus precompiled code and using package-specific features such as
+\rJava's low-level and high-level interfaces.  The online supplement
+has the complete source code for functions and benchmarking.  Note that the \R
+and \Rcpp functions use the same underlying \C code to sample random uniforms.
+Likewise, \rJava and \rscala use the same code to sample random uniforms, but
+this code is different from that used by \R and \Rcpp.  We find that the \Rcpp
+function is the fastest (not listed in the table) and choose it as the
+reference from which performance ratios of the other methods are calculated.
+
+\begin{table}[tb]
+\scriptsize
+\centering
+\begin{tabular}{l|rr|rr|rr|rr|rr}
+  \toprule
+             & \multicolumn{2}{c|}{1 Sample} & \multicolumn{2}{c|}{10 Samples} & \multicolumn{2}{c|}{100 Samples} & \multicolumn{2}{c|}{1,000 Samples} & \multicolumn{2}{c}{10,000 Samples}\\
+  Function   &  Seconds &   Ratio &  Seconds &   Ratio &  Seconds &   Ratio &  Seconds &   Ratio &  Seconds &   Ratio \\
+  \midrule
+  \texttt{standardR2} &   0.0000 &       2 &   0.0000 &       4 &   0.0002 &      19 &   0.002 &      84 &   0.02 &      135 \\
+  \texttt{rJava1}     &   0.0003 &      65 &   0.0008 &     109 &   0.0054 &     481 &   0.042 &   1,864 &   0.40 &    2,685 \\
+  \texttt{rJava2}     &   0.0023 &     442 &   0.0176 &   2,275 &   0.1567 &  14,005 &   1.524 &  67,266 &  15.22 &  101,530 \\
+  \texttt{rscala1}    &   0.0017 &     336 &   0.0091 &   1,174 &   0.0643 &   5,744 &   0.455 &  20,097 &   4.47 &   29,808 \\
+  \texttt{rscala2}    &   0.0018 &     351 &   0.0083 &   1,077 &   0.0582 &   5,200 &   0.405 &  17,873 &   3.94 &   26,263 \\
+  \bottomrule
+\end{tabular}
+\caption{Benchmarks of functions whose performance relative to the \Rcpp function gets worse as the sample size $n$ increases.  The definitions of the functions are provided in the online supplement.}
+\label{benchmarkForwardWorse}
+\end{table}
+
+Using the package \pkg{microbenchmark}, we run the benchmarking
+functions 50 times for each of the following sample sizes for $n$:  1, 10, 100,
+\ldots, 10,000.  We find that as $n$ increases, the performance relative to
+\Rcpp gets worse for some functions.  Their results are displayed in
+Table~\ref{benchmarkForwardWorse}.  Each of these functions involves looping in
+\R instead of the compiled code.  Among these slow implementations, we note
+that \code{standardR2} is the fastest and that the performance of the \rscala
+implementations lies between two \rJava implementations. The only difference in
+these two \rJava implementations is that the slower version uses the high-level
+\code{\$} convenience operator.
+
+\begin{table}[tb]
+\scriptsize
+\centering
+\begin{tabular}{l|rr|rr|rr|rr|rr}
+  \toprule
+             & \multicolumn{2}{c|}{1 Sample} & \multicolumn{2}{c|}{100 Samples} & \multicolumn{2}{c|}{10,000 Samples} & \multicolumn{2}{c|}{1,000,000 Samples} & \multicolumn{2}{c}{100,000,000 Samples}\\
+  Function   &  Seconds &   Ratio &  Seconds &   Ratio &  Seconds &   Ratio &  Seconds &   Ratio &  Seconds &   Ratio \\
+  \midrule
+  \texttt{standardR1} &   0.0000 &    2.9 &   0.0000 &    2.9 &   0.0006 &    2.3 &   0.0379 &    2.31 &   3.2078 &    2.27 \\
+  \texttt{rJava3}     &   0.0001 &   18.3 &   0.0001 &   14.5 &   0.0005 &    2.1 &   0.0232 &    1.41 &   2.1679 &    1.53 \\
+  \texttt{rscala3}    &   0.0005 &  123.5 &   0.0009 &  144.0 &   0.0019 &    8.1 &   0.0436 &    2.65 &   3.4078 &    2.41 \\
+  \texttt{rscala4}    &   0.0005 &  117.5 &   0.0005 &   84.6 &   0.0013 &    5.5 &   0.0259 &    1.58 &   2.1679 &    1.53 \\
+  \texttt{rscala5}    &   0.0005 &  117.1 &   0.0005 &   84.9 &   0.0012 &    5.0 &   0.0258 &    1.57 &   2.1686 &    1.53 \\
+  \bottomrule
+\end{tabular}
+\caption{Benchmarks of functions whose performance relative to the \Rcpp function gets better as the sample size $n$ increases.  The definitions of the functions are provided in the online supplement.}
+\label{benchmarkForwardBetter}
+\end{table}
+
+We test the other functions for even larger $n$: 1, 100, \ldots, 100,000,000.
+The performance of the other functions improves with $n$ but seems to
+asymptote.  These results are displayed in Table~\ref{benchmarkForwardBetter}.
+The functions \code{rJava3} and \code{rscala5} call exactly the same \Java
+bytecode and the initial performance difference is due to the overhead for the
+TCP/IP protocol used by \rscala.  As $n$ increases, the performance difference
+virtually disappears. The function \code{rscala4} is written in \Scala using a
+while-loop and compiles to essentially the same \Java bytecode used in
+\code{rJava3} and \code{rscala5}.  The function \code{rscala3} demonstrates the
+well-known fact that for-loops in \Scala are not optimized for performance.
+
+\clearpage
+\subsubsection[Calling into the JVM and back into R]{Calling into the JVM and back into \R}
+\label{benchmarksBack}
+
+To further investigate the performance of \rscala relative to other software,
+we benchmark the performance of \Rcpp, \rJava, and \rscala in calling a very
+simple \R function:
+
+<<sleepFunction, eval=FALSE>>=
+sleep <- function(secs) {
+  Sys.sleep(secs)
+  rnorm(1)
+}
+@
+
+This function takes an argument \code{secs} and pauses the function for the
+specified time.  Although this function is of little practical utility, we use
+it to simulate functions in \R whose execution may be very fast (by sleeping 0
+seconds), somewhat computationally expensive (by sleeping 1 second), and
+something in between (by sleeping 0.01 seconds).  It is interesting to
+investigate the invocation overhead of the three methods in calling the
+functions with the different sleep times.  The online supplement has
+complete code for the functions and benchmarking.  The \rJava function uses the
+low-level interface (as opposed to the high-level \code{\$} convenience
+operator) for performance reasons.  The \Rcpp function is again the fastest and
+we use it as the reference when calculating performance ratios for the other
+methods.
+
+\begin{table}[tb]
+\scriptsize
+\centering
+\begin{tabular}{l|rr|rr|rr}
+  \toprule
+             & \multicolumn{2}{c|}{1 Second Sleep} & \multicolumn{2}{c|}{0.01 Seconds Sleep} & \multicolumn{2}{c}{0 Seconds Sleep} \\
+  Function                 & Seconds& Ratio & Seconds& Ratio &Seconds & Ratio   \\
+  \midrule
+  \texttt{callback.Rcpp}   & 1.0011 & 1.000 & 0.0101 & 1.003 & 0.0000 &   6.246 \\
+  \texttt{callback.rJava}  & 1.0013 & 1.000 & 0.0102 & 1.013 & 0.0001 &  22.559 \\
+  \texttt{callback.rscala} & 1.0031 & 1.002 & 0.0116 & 1.156 & 0.0012 & 237.130 \\
+  \bottomrule
+\end{tabular}
+\caption{Benchmarks of functions calling a simple \R function that sleeps for 1, 0.01, and 0 seconds.
+Performance ratios are relative to the \Rcpp function.  The definitions of the functions are provided in the online supplement.}
+\label{benchmarkBack}
+\end{table}
+
+We see from Table~\ref{benchmarkBack} that the \rscala function has the highest
+invocation latency.  The ratios indicate that the protocol overhead is
+important for short-lived \R functions (i.e., when sleeping 0 seconds) but
+negligible for long-lived \R functions (i.e., when sleeping 1 second).
+
+\subsubsection[Calling into R from a JVM application]{Calling into \R from a JVM application}
+\label{benchmarksJVM}
+
+We now consider the performance and simplicity of calling \R code from within a
+\Java application.  Suppose there is an array of doubles in the \Java
+application and we wish to produce a normal q-q plot of the data using \R.  We
+compare an \rscala solution against two alternatives:  i.\ spawning a separate
+\R process using the \Rscript executable, and ii.\ using the \Java client for
+\Rserve.  We measure the time needed to produce 200 plots of randomly-generated
+data.  The online supplement contains the related \Rscript and \Java source code.
+
+Spawning a separate \R process using \Rscript requires somewhat tedious coding
+to save the data to a file for \R to read and plot.  Further, since a new \R
+process is started for each plot, the performance is rather poor as well, taking
+a total of 26.7 seconds for the 200 plots.  Conversely, the \Rserve and
+\rscala solutions are both more convenient and quite similar.  The \Rserve
+solution takes only 0.6 seconds and the \rscala solution takes 1.4 seconds
+demonstrating that the protocol overhead of \Rserve is less than that of
+\rscala.
+
+\section{Case studies}
+\label{caseStudies}
+
+\subsection{Bayesian logistic regression}
+\label{logisticRegression}
+
+In this section we use a custom Markov chain Monte Carlo (MCMC) algorithm to
+fit a Bayesian logistic regression model in \R.  This model can also be
+estimated in \R through a variety of other algorithms using \R packages such as
+RStan \citep{stan-manual:2014}, rbugs \citep{Rbugs}, R2jags \citep{r2jags},
+rjags \citep{Rjags}, R2WinBUGS \citep{r2winbugs}, R2OpenBUGS
+\citep{r2openbugs}, and BRugs \citep{brugs}.  Our interest here,
+however, is \emph{not} to determine the best algorithm for Bayesian model
+fitting, but rather to compare the convenience and computational speed of
+\Scala, \C, and standard \R in implementing the same commonly-used,
+computationally-expensive algorithm.
+
+Studies show that babies who breastfeed have a significantly reduced risk of
+health problems such as HIV, obesity, and neurological defects due to the
+fact that milk contains natural immune components that are not present in baby
+formula \citep{standby}.  Medical professionals have observed that premature
+babies take longer to learn how to breastfeed and many are not breastfeeding by
+the time they are ready to leave the hospital \citep{standby2}.  To quantify
+this relationship, a statistician wishes to fit a logistic regression model in
+which the probability of breastfeeding before leaving the hospital is modeled
+as a function of gestational age.  Data is available on $n=64$ infants where
+$y_i = 1$ if the baby is breastfeeding at departure and $x_i$ is the
+gestational age.  The model is
+\[
+\text{Pr}(y_i = 1) \ = \ \frac{1}{1+\exp\{-(\beta_0 + \beta_1 x_i)\}}
+\]
+where $\beta_0$ and $\beta_1$ are unknown parameters to estimate.  We assume
+independent Normal($-15$, $5$) and Normal($1$, $1$) priors on $\beta_0$ and
+$\beta_1$, respectively.
+
+Since the model is not conjugate, we obtain samples from the joint posterior
+distribution using a Metropolis sampling algorithm with a uniform random walk.
+We examine the convenience and computational speed of running a single MCMC
+chain as well as simultaneously running 6 and 12 independent chains in
+parallel.  Recall that the test machine has 6 cores and hyperthreading is enabled
+making it appear that there are 12 cores.  We run the chains for 1,001,000
+iterations using the prior means as the starting state.  We discard the first
+1,000 iterations for burn-in. This same MCMC algorithm is implemented in \Scala
+using \rscala, in \C using the \code{.C} interface, and in standard \R.  Note
+that a \C implementation using the \code{.Call} interface requires a more
+intimate knowledge of \R's \C API.  The implementations, data, and benchmarking
+code are all available in the online supplement.
+
+\begin{table}[tb]
+\centering
+\begin{tabular}{r|rr|rr|rr}
+  \toprule
+ & \multicolumn{2}{c|}{1 core} & \multicolumn{2}{c|}{6 cores} & \multicolumn{2}{c}{12 cores} \\
+Language & Seconds & Ratio & Seconds & Ratio & Seconds & Ratio \\
+   \midrule
+\Scala using \rscala  & 1.12 & 1.00 & 0.29 & 1.00 & 0.18 & 1.00 \\
+\C using \code{.C}    & 1.48 & 1.32 & 0.31 & 1.09 & 0.24 & 1.36 \\
+Standard \R           & 15.79   & 14.11 & 3.78 & 13.15 & 2.70 & 15.08 \\
+   \bottomrule
+\end{tabular}
+\caption{Breastfeeding infants example:  Wall time and relative performance of three implementations of the same
+algorithm using 1, 6, and 12 cores.}
+\label{mcmcInfant}
+\end{table}
+
+The results are in Table~\ref{mcmcInfant} along with wall times and performance
+ratios (relative to \Scala).  Surprisingly, we find that the \Scala
+implementation is slightly faster than the \C implementation.  This may be due
+to the fact that the \Scala code uses a different library for evaluating the
+log of the binomial probabilities or because the \code{.C} interface is not as
+performant as the \code{.Call} interface.  The standard \R implementation is
+about 13-15 times slower.
+
+The breastfeeding infants example involves $n=64$ observations at one of six
+unique values of the predictor.  To see how the results might change for larger
+datasets, we simulated a dataset of $n=20,000$ observations at one of 200
+unique values of the predictor.  The results are found in
+Table~\ref{mcmcSimulated}.  The most striking finding is that the standard \R
+implementation improves dramatically, now being only 1.4-1.6 times slower than
+the \Scala implementation.  The explanation is that the standard \R
+implementation, for this simulated data example, spends 72.5\% of the time in
+the function \code{dbinom}.  This function is implemented in \C using the
+\code{.Call} interface.  It is not surprising that a \C implementation
+and another implementation based mostly on \C (i.e., the standard \R
+implementation) perform similarly.
+
+\begin{table}[tb]
+\centering
+\begin{tabular}{r|rr|rr|rr}
+  \toprule
+ & \multicolumn{2}{c|}{1 core} & \multicolumn{2}{c|}{6 cores} & \multicolumn{2}{c}{12 cores} \\
+Language & Seconds & Ratio & Seconds & Ratio & Seconds & Ratio \\
+   \midrule
+\Scala using \rscala  & 47.35 & 1.00 & 10.82 & 1.00 & 7.87 & 1.00 \\
+\C using \code{.C}    & 53.17 & 1.12 & 11.49 & 1.06 & 7.67 & 0.97 \\
+Standard \R           & 75.51 & 1.59 & 16.15 & 1.49 & 11.30 & 1.44 \\
+   \bottomrule
+\end{tabular}
+\caption{Simulated data example:  Wall time and relative performance of three implementations of the same
+algorithm using 1, 6, and 12 cores.}
+\label{mcmcSimulated}
+\end{table}
+
+\subsection[Scala web application using R]{\Scala web application using \R}
+\label{webApp}
+
+Suppose a \Scala developer maintains a website based on the \pkg{Play
+Framework} \citep{playframework} for web development.  He is tasked with
+adding new functionality to the website which, for any airport and any year,
+displays: i.\ a graph of daily high and low temperatures and ii.\ the yearly
+high and low temperatures with their dates.  He can look for a \Scala or
+\Java library to obtain the weather data and another
+library for plotting.  If he is already familiar with \R, however,
+the data, computation, and plotting tasks are easily accomplished using the
+\pkg{weatherData} \citep{weather} and \pkg{ggplot2} \citep{ggplot22} packages:
+
+<<webappUsingR, eval=FALSE>>=
+library("weatherData")
+library("ggplot2")
+theme_set(theme_gray(base_size=18))
+
+.cache <- new.env()
+cache <- function(location, year) {
+  key <- paste0(location, "-", year)
+  if ( exists(key, envir=.cache) ) get(key, envir=.cache)
+  else {
+    d <- na.omit(getWeatherForYear(location, year))
+
+    maxT <- d[which.max(d$Max_TemperatureF), c("Max_TemperatureF", "Date")]
+    minT <- d[which.min(d$Min_TemperatureF), c("Min_TemperatureF", "Date")]
+
+    p <- ggplot(d, aes(x=Date)) + coord_cartesian(ylim = c(-10, 110))
+    p <- p + labs(x="", y=expression(paste("Temperature (", degree, "F)")))
+    p <- p + geom_line(aes(y=Max_TemperatureF))
+    p <- p + stat_smooth(se=FALSE, aes(y=Max_TemperatureF), method="loess", span=0.3)
+    p <- p + geom_line(aes(y=Min_TemperatureF))
+    p <- p + stat_smooth(se=FALSE, aes(y=Min_TemperatureF), method="loess", span=0.3)
+    p <- p + geom_ribbon(aes(ymin=Min_TemperatureF, ymax=Max_TemperatureF),
+                             fill = "tomato", alpha = 0.4)
+
+    fn <- normalizePath(paste0(tempdir(), .Platform$file.sep, key, ".svg"))
+    svg(fn, width=6, height=4)
+    print(p)
+    dev.off()
+
+    fmt <- "%B %e, %Y"
+    result <- list(filename=fn, minValue=minT[1, 1], minDate=format(minT[1, 2], fmt),
+                                maxValue=maxT[1, 1], maxDate=format(maxT[1, 2], fmt))
+    assign(key, result, envir=.cache)
+    result
+  }
+}
+@
+
+The task for the developer now becomes how to serve the plot and information
+in the \pkg{Play Framework}.  Two possible solutions are to use \Rscript or
+\Rserve, as discussed in Section \ref{benchmarksJVM}.  Moving away from the
+\pkg{Play Framework}, one might consider setting up a web server using RApache
+\citep{rapache}, CGIwithR \citep{cgi}, or Shiny \citep{shiny}.  In this case
+study, however, we assume that one has already invested resources in setting up
+and maintaining a website based on the \pkg{Play Framework}.  We demonstrate
+how easy it is to add the desired functionality to the existing
+infrastructure using \rscala.
+
+Entire books have been written on the \pkg{Play Framework} (e.g., \cite{one},
+\cite{two}), so here we only highlight issues specific to using \rscala in the
+\pkg{Play Framework}.  First, the \rscala JAR should be copied to the \code{lib}
+directory of the web application.  The location of this JAR is available from
+\R using \code{rscala::.rscalaJar(\textquotesingle{}2.12\textquotesingle{})}.  In the \emph{controller} for the
+web application, we instantiate a \Scala interpreter using
+
+\begin{Code}
+private val R = org.ddahl.rscala.callback.RClient()
+\end{Code}
+
+Note that the \pkg{Play Framework} is highly parallelized, but recall that the
+bridge between \R and \Scala is not thread-safe.  A pool of instances of the
+\code{RClient} class could be employed but, for simplicity, here we simply wrap
+any access to the single \code{R} object using the \code{R.synchronized}
+method.  The \R code listed above is evaluated in the \emph{controller} using
+the \code{eval} method of the \code{R} object.  Setting up the \emph{model},
+\emph{view}, and other aspects of the \emph{controller} are developed as usual
+in the \pkg{Play Framework}.  Figure~\ref{screenshot} shows a screenshot of the
+web application and the web application is hosted here:
+
+\begin{figure}[tb]
+\begin{center}
+\includegraphics{screenshot.png}
+\caption{Screenshot of the temperatures web application developed with the \pkg{Play Framework} using \rscala.}
+\label{screenshot}
+\end{center}
+\end{figure}
+
+\begin{center}
+\url{http://dahl.byu.edu/software/rscala/temperature/}
+\end{center}
+
+We provide the complete source and instructions for setting up the application
+in the online supplement.
+
+\section{Conclusion}
+\label{conclusion}
+
+This paper introduced the \rscala package that allows users to seamlessly
+incorporate \R and \Scala in one program, exploiting each language's respective
+strengths.  We believe that the \rscala package is stable and complete.  In the
+future, we would like to support more data structures in \R (e.g., lists and
+data frames).  While callbacks from \Scala to the original \R interpreter are
+supported, we would also like to support callbacks 
+from \R to \Scala as well.  We also suspect that our client/server protocol
+could be extended to support other JVM-based languages such as Jython
+\citep{jython} and jRuby \citep{jruby}.
+
+%Known issues:  Incomplete lines.  Tab completion.
+
+\section*{Acknowledgements}
+
+The author's work on this paper is supported by NIH NIGMS R01 GM104972.  The
+author thanks the following students: Floid Gilbert, Deepthi Uppalapati, Scott
+Ferguson, and Richard Payne.
+
+\bibliography{refs}
+
+\setcounter{section}{0}
+\renewcommand{\thesection}{Appendix \Alph{section}}
 
 \end{document}
+

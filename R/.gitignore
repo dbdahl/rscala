@@ -1,5 +1,4 @@
-*.Rcheck
-rscala_*.tar.gz
+rscala/inst/doc/*
 rscala/inst/java/scala-*/rscala_*.jar
 rscala/java/rscala-sources.jar
 rscala/R/protocol.R

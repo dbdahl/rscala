@@ -1,2 +1,5 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^vignettes/jss-style\.zip$
+^vignettes/jss\.bst$
+^vignettes/jss\.cls$

@@ -78,6 +78,7 @@ do
       FLAG_BUILD_VIGNETTES=
       FLAG_CHECK_EXAMPLES=
       FLAG_CHECK_VIGNETTES=
+      rm -rf R/$PKG_NAME/inst/doc
       ;;
     f)
       TASK_R=yes
