@@ -54,3 +54,16 @@ BinomialCoefficient2(100,70)
 BinomialCoefficient2(1000,400)
 
 
+
+if(n<1||k<0){
+return 1;
+}
+if(k>n/2)
+k=n-k;
+int[] res = new int[k+1];
+res[0]=1;
+for(int i =1 ;i<=k;i++){
+res[i]=res[i-1]*(n-i+1)/i;
+}
+return res[k];
+}
