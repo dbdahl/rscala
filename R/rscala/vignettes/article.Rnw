@@ -292,13 +292,36 @@ threads/cores should not access the same interpreter simultaneously.
 \Scala code can be compiled and executed using several operators defined for
 \Scala instances.  The most basic operator is \code{\%@\%}, which takes a
 \Scala instance on the left-hand side and, on the right-hand side, an arbitrary
-snippet of valid Scala code (containing any mixture of statements, functions,
-class definitions, imports, etc.) and does \emph{not} provide any results to
-\R, e.g.:
+snippet of valid Scala code that is evaluated in the embedded \Scala
+interpreter.  The \code{\%@\%} operator always returns \code{NULL} to \R, e.g.,
+consider computing the binomial coefficient $10 \choose 3$:
 
 <<evaluateScalaCodeSimple>>=
-s %@% 'val sqrt2 = math.sqrt(2)'
+result <- s %@% '
+  val c_10_3 = (1 to 10).product / ( (1 to 3).product * (1 to (10-3)).product )
+  println(c_10_3)
+'
+
+result
 @
+
+The value of \code{result} is \code{NULL} but the side effect of printing
+\code{120} to the console is displayed in the \R session in many environments.
+If the argument ``\code{serialize.output=TRUE}'' is passed to ``\code{scala}''
+function when instantiating \Scala, printing is displayed for all operating
+systems and environments.  This is not the default, however, because the
+serializing the output is often not needed yet requires some processing
+overhead.
+
+The second operator for evaluating \Scala codes is \code{\%~\%} which, in
+addition running the \Scala snippet, returns the result to \R, e.g.,
+
+<<evaluateScalaCodeSimpleWithReturn>>=
+result <- s %~% '(1 to 10).product / ( (1 to 3).product * (1 to (10-3)).product )'
+result
+@
+
+
 
 Results from previous expressions are available in subsequent expressions and
 multiline expressions are supported, e.g.:
