@@ -144,11 +144,6 @@ knit_hooks$set(output = function(x, options) {
 })
 @
 
-<<trashme>>=
-3+9
-getwd()
-@
-
 %% include your article here, just as usual
 %% Note that you should use the \pkg{}, \proglang{} and \code{} commands.
 
@@ -213,7 +208,7 @@ other software, including numerical benchmarks, are provided in Section
 \ref{comparisons}.  Section \ref{caseStudies} looks at two case studies using
 the \rscala package.  We conclude with future work in Section \ref{conclusion}.
 
-\section{Usage of the package}
+\section[Accessing Scala in R]{Accessing \Scala in \R}
 \label{usage}
 
 In this section, we provide an introduction to the \rscala package with the
@@ -223,39 +218,44 @@ in subsequent sections --- will also benefit from understanding the syntax and
 ideas presented in this section.
 
 \clearpage
-\subsection{Installation}
+\subsection{Package Installation}
 
-The \rscala package is available on the Comprehensive R Archive Network (CRAN)
-and can be installed through \R's graphical interface or by executing the
-following \R expression:
+The \rscala package is available on the Comprehensive \R Archive Network (CRAN)
+and can be installed by executing the following \R expression:
 
 <<installPackage,eval=FALSE>>=
 install.packages('rscala')
 @
 
-The package runs on a standard installation of \R; no special compilation flags
-or installation procedures are needed.  The \rscala package can use an existing
-\Scala installation (versions 2.10.x and 2.11.x are supported) or can install
-\Scala using
+% The package runs on a standard installation of \R; no special compilation flags or installation procedures are needed.
 
-<<installScala,eval=FALSE>>=
-rscala::scalaInstall()
-@
-
-This places \Scala in the user's home directory: `$\sim$/.rscala'.  System
-administrators will likely want to install \Scala globally as described on the
+The \rscala package requires an \Scala installation in the 2.10, 2.11, and 2.12
+series.  System administrators can install \Scala using their operating
+system's package management system (e.g., ``\code{sudo apt install scala}'' on
+Debian/Ubuntu based systems) or can install \Scala manually as described on the
 \Scala webpage.  In short, simply download the archive, unpack it, and add the
-``scala'' script to the path.  Note that \Scala requires \Java.  The
-\rscala package tries various methods to find a suitable \Scala installation,
-including searching the path.  Details on the search are available using
+``\code{scala}'' script to the path.  Note that \Scala requires that \Java is
+installed.  The \rscala package provides various methods to find a suitable
+\Scala installation, including searching the path.  Details on the search are
+available using:
 
 <<scalaInfo,eval=FALSE>>=
 rscala::scalaInfo(verbose=TRUE)
 @
 
-\subsection[Accessing Scala in R]{Accessing \Scala in \R}
+Alternatively, Scala can be installed in the user's directory ``\code{\mytilde/.rscala}'' using:
 
-Load the \rscala package in an \R session using
+<<installScala,eval=FALSE>>=
+rscala::scalaInstall()
+@
+
+We recommend Scala in the 2.12 series, but systems with the older Java 6 must also
+use the older versions of Scala, e.g., 
+\code{rscala::scalaInstall("2.11")}.
+
+\subsection[Instantiating a Scala Interpreter in R]{Instantiating a \Scala Interpreter in \R}
+
+Load the \rscala package in an \R session using:
 
 <<library>>=
 library('rscala')
@@ -264,22 +264,66 @@ library('rscala')
 A \Scala interpreter instance is created using the \code{scala}
 function:
 
-<<instantiateInterpreter>>=
+<<instantiateInterpreter,eval=FALSE>>=
 s <- scala()
 @
 
-<<BBBBinstantiateInterpreter>>=
-s %~% "1-3"
+<<instantiateInterpreterHidden,eval=TRUE,include=FALSE>>=
+s <- scala(serialize.output=TRUE)
 @
 
-Options are available to customize where \Scala and \Java are located and how
-they are invoked (e.g., setting the classpath and maximum heap size).  Details
-on this and all other functions are provided in the \R documentation for the
-package (e.g., \code{help(scala)}).  Multiple instances of the
-\Scala interpreter can be created and each instance runs independently with its
-own memory.  Each interpreter can use multiple threads/cores but the bridge
-between \R and \Scala is not thread-safe.  As such, multiple \R threads/cores
-should not access the same interpreter simultaneously.
+The default arguments can be overridden to customize how \Scala is found, how
+it is invoked (e.g., setting the classpath and maximum heap size), whether
+matrices are in row-major or column-major order, the TCP/IP ports for the
+socket connections, and how output from \Scala is treated.  Details on this and
+all other functions are provided in the \R documentation for the package (e.g.,
+\code{help(scala)}).  A \Scala instance is only valid during the \R session in
+which it is created and cannot be saved and restored through the \code{save}
+and \code{load} functions.
+
+Multiple instances of the \Scala interpreter can be created, each from a call
+to the \code{scala} function.  Scala instances run independently with their own
+memory, classpath, etc.  Each Scala instance can use multiple threads/cores but
+the bridge between \R and \Scala is not thread-safe.  As such, multiple \R
+threads/cores should not access the same interpreter simultaneously.
+
+\subsection[Evaluating Scala Code]{Evaluating \Scala Code}
+
+\Scala code can be compiled and executed using several operators defined for
+\Scala instances.  The most basic operator is \code{\%@\%}, which takes a
+\Scala instance on the left-hand side and, on the right-hand side, an arbitrary
+snippet of valid Scala code (containing any mixture of statements, functions,
+class definitions, imports, etc.) and does \emph{not} provide any results to
+\R, e.g.:
+
+<<evaluateScalaCodeSimple>>=
+s %@% 'val sqrt2 = math.sqrt(2)'
+@
+
+Results from previous expressions are available in subsequent expressions and
+multiline expressions are supported, e.g.:
+
+<<evaluateScalaCodeMultiline>>=
+s %@% '
+  case class Point(x: Double, y: Double)
+  val b = Point(sqrt2,sqrt2)
+  println(b)
+'
+@
+
+Although there is no result of Scala expressions evaluated using the
+\code{\%@\%} operator, the side effect of printing to the console \emph{may} be
+displayed in the \R session when using Linux and Mac OS X and, if
+``\code{serialize.output=TRUE}'' when the ``\code{scala}'' function was called,
+\emph{will be} displayed for all operating systems (including Windows).
+
+
+
+
+The \rscala package allows arbitrary snippets of Scala code to be compiled and executed
+on the fly. These code snippets can be any mixture of statements, functions, class definitions,
+imports, etc. Consider an earlier example. Rather than evaluating the right column of Table 1
+i
 
 \subsubsection[Instantiating Scala objects and calling methods]{Instantiating \Scala objects and calling methods}
 \label{instantiateAndCall}

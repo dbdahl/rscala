@@ -14,6 +14,7 @@ while ( TRUE ) {
     system2("bittex","article.tex")
     system2("pdflatex","article.tex")
     system2("pdflatex","article.tex")
+    system2("pdflatex","article.tex")
   }
   else if ( cmd == "r" ) {
     knit("article.Rnw")
