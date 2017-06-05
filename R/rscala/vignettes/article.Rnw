@@ -218,7 +218,7 @@ in subsequent sections --- will also benefit from understanding the syntax and
 ideas presented in this section.
 
 \clearpage
-\subsection{Package Installation}
+\subsection[Package and Scala Installation]{Package and \Scala Installation}
 
 The \rscala package is available on the Comprehensive \R Archive Network (CRAN)
 and can be installed by executing the following \R expression:
@@ -229,12 +229,12 @@ install.packages('rscala')
 
 % The package runs on a standard installation of \R; no special compilation flags or installation procedures are needed.
 
-The \rscala package requires an \Scala installation in the 2.10, 2.11, and 2.12
+The \rscala package requires a \Scala installation in the 2.10, 2.11, and 2.12
 series.  System administrators can install \Scala using their operating
 system's package management system (e.g., ``\code{sudo apt install scala}'' on
 Debian/Ubuntu based systems) or can install \Scala manually as described on the
-\Scala webpage.  In short, simply download the archive, unpack it, and add the
-``\code{scala}'' script to the path.  Note that \Scala requires that \Java is
+\Scala webpage (e.g., download the archive, unpack it, and add the
+\code{scala} script to the path).  Note that \Scala requires that \Java is
 installed.  The \rscala package provides various methods to find a suitable
 \Scala installation, including searching the path.  Details on the search are
 available using:
@@ -243,26 +243,25 @@ available using:
 rscala::scalaInfo(verbose=TRUE)
 @
 
-Alternatively, Scala can be installed in the user's directory ``\code{\mytilde/.rscala}'' using:
+Alternatively, Scala can be installed in the user's directory \code{\mytilde/.rscala} using:
 
 <<installScala,eval=FALSE>>=
 rscala::scalaInstall()
 @
 
-We recommend Scala in the 2.12 series, but systems with the older Java 6 must also
-use the older versions of Scala, e.g., 
-\code{rscala::scalaInstall("2.11")}.
+We recommend Scala in the 2.12 series, but systems with the older Java 6 must
+also use the older versions of Scala (e.g.,
+\code{rscala::scalaInstall("2.11")}).
 
 \subsection[Instantiating a Scala Interpreter in R]{Instantiating a \Scala Interpreter in \R}
 
-Load the \rscala package in an \R session using:
+Load and attach the \rscala package in an \R session using:
 
 <<library>>=
 library('rscala')
 @
 
-A \Scala interpreter instance is created using the \code{scala}
-function:
+A \Scala instance is created using the \code{scala} function:
 
 <<instantiateInterpreter,eval=FALSE>>=
 s <- scala()
@@ -270,31 +269,34 @@ s <- scala()
 
 <<instantiateInterpreterHidden,eval=TRUE,include=FALSE>>=
 s <- scala(serialize.output=TRUE)
+s %@% 'scala.util.Random.setSeed(3242)'
 @
 
-The default arguments can be overridden to customize how \Scala is found, how
-it is invoked (e.g., setting the classpath and maximum heap size), whether
-matrices are in row-major or column-major order, the TCP/IP ports for the
-socket connections, and how output from \Scala is treated.  Details on this and
-all other functions are provided in the \R documentation for the package (e.g.,
-\code{help(scala)}).  A \Scala instance is only valid during the \R session in
-which it is created and cannot be saved and restored through the \code{save}
-and \code{load} functions.
+The default arguments of the \code{scala} function can be overridden to
+customize how \Scala is found, how it is invoked (e.g., setting the classpath
+and maximum heap size), whether matrices are in row-major or column-major
+order, the TCP/IP ports for the socket connections, and how output from \Scala
+is treated.  Details on this and all other functions are provided in the \R
+documentation for the package (e.g., \code{help(scala)}).  A \Scala session is
+only valid during the \R session in which it is created and cannot be saved and
+restored through the \code{save} and \code{load} functions.
 
-Multiple instances of the \Scala interpreter can be created, each from a call
-to the \code{scala} function.  Scala instances run independently with their own
-memory, classpath, etc.  Each Scala instance can use multiple threads/cores but
-the bridge between \R and \Scala is not thread-safe.  As such, multiple \R
-threads/cores should not access the same interpreter simultaneously.
+Multiple \Scala instances can be created, each from a call to the \code{scala}
+function.  Scala instances run independently with their own memory, classpath,
+history, etc.  Each Scala instance can use multiple threads/cores but the
+bridge between \R and \Scala is not thread-safe.  As such, multiple \R
+threads/cores should not access the same \Scala instance simultaneously.
 
-\subsection[Evaluating Scala Code]{Evaluating \Scala Code}
+\subsection[Calling Scala Code in R]{Calling \Scala Code in \R}
 
-\Scala code can be compiled and executed using several operators defined for
-\Scala instances.  The most basic operator is \code{\%@\%}, which takes a
-\Scala instance on the left-hand side and, on the right-hand side, an arbitrary
-snippet of valid Scala code that is evaluated in the embedded \Scala
-interpreter.  The \code{\%@\%} operator always returns \code{NULL}, e.g.,
-consider computing the binomial coefficient $10 \choose 3$:
+\subsubsection{Evaluation Without Results}
+
+\Scala code can be compiled and executed within an \R session using several
+operators.  The most basic operator is \code{\%@\%}, which takes a \Scala
+instance on the left-hand side and, on the right-hand side, an arbitrary
+snippet of valid \Scala code that is evaluated in the embedded \Scala instance.
+The \code{\%@\%} operator always returns \code{NULL}.  For example, consider
+computing the binomial coefficient $10 \choose 3$:
 
 <<evaluateScalaCodeSimple>>=
 result <- s %@% '
@@ -305,44 +307,96 @@ result <- s %@% '
 result
 @
 
-The value of \code{result} is \code{NULL} but the side effect of printing
-\code{120} to the console is displayed in the \R session in \emph{many} environments and operating systems.
-If the argument ``\code{serialize.output=TRUE}'' is passed to ``\code{scala}''
-function when instantiating \Scala, printing is displayed for \emph{all} situations.
-This is not the default, however, because the
-serializing the output is often not needed yet requires some processing
+Since the \code{\%@\%} operator was used, the value of \code{result} is
+\code{NULL} but, as shown here, the side effect of printing \code{120} to the
+console is displayed in the \R session in \emph{many} environments and
+operating systems.  If the argument \code{serialize.output=TRUE} is passed to
+the \code{scala} function when instantiating \Scala, printing is displayed for
+\emph{all} situations.  This is not the default, however, because the
+serializing output is often not needed yet requires some processing
 overhead.
 
-The second operator for evaluating \Scala codes is \code{\%\mytilde\%} which, in
+\subsubsection{String Interpolation}
+
+The \pkg{rscala} package provides for string interpolation to evaluate
+arbitrary \R code and replace its string representation before
+evaluating the entire string as \Scala code.  The right-hand-side character
+vector is scanned for ``\code{@\{}'', followed by an arbitrary string, and ended by
+``\code{\}}''.  The arbitrary string is evaluated as an \R expression in the
+environment in which the \code{\%@\%} operator is called.  Finally, \code{@\{...\}} is
+replaced with the string representation of the \R expression.  For example,
+
+<<evaluateScalaCodeStringInterpolation>>=
+n <- 10
+k <- 3
+label <- "number of threesomes among ten people"
+s %@% '
+  val count = (1 to @{k}).foldLeft(1) { (prod,i) => prod * (@{n}-i+1)/i }
+  println("The @{label} is "+count+".")
+'
+@
+
+\subsubsection{Evaluation With Results}
+
+Another interface to the Scala instance is provided by the \code{\%\mytilde\%} operator which, in
 addition running the \Scala snippet, returns the result to \R, e.g.,
 
 <<evaluateScalaCodeSimpleWithReturn>>=
-result <- s %~% '(1 to 3).foldLeft(1) { (prod,i) => prod * (10-i+1)/i }'
-result
+nThreesomes <- s %~% '(1 to @{k}).foldLeft(1) { (prod,i) => prod * (@{n}-i+1)/i }'
+nThreesomes
+@
+  
+Results from previous expressions are available in subsequent \Scala
+expressions.  For example, we can check that \code{c\_10\_3} (which was defined
+in our first \Scala snippet) raised to the power of 2 is in fact equal to $120^2$.
+
+<<evaluateScalaCodePrevious>>=
+s %~% '@{nThreesomes^2} == math.pow(c_10_3, 2)'
 @
 
-Results from previous expressions are available in subsequent expressions, e.g.:
+Care is needed, however, when using string interpolation because it relies on
+\R's character representation on an \R expression.  One might be suprised, for
+example, that the following expression is false:
 
-<<evaluateScalaCodeMultiline>>=
-s %~% 's"10 choose 3 is $c_10_3"'
+<<evaluateScalaCodeInterpolationError>>=
+s %~% '@{nThreesomes^20} == math.pow(c_10_3, 20)'
 @
 
-A \Scala result of class Byte, Int, Double, Boolean, or String are passed to \R
-as length-one vectors of raw, integer, double, logical, or character,
-respectively.  Likewise, \Scala arrays and rectangular arrays  of these types are passed to \R as
-vectors and matrices of the equivalent types.
+This is because the right-hand-side of the operator reduces to comparing a
+calculated \code{Double} to a \code{Double} obtained by parsing a double
+literial (i.e., ``6.191736e+20''), which is a slightly different value.
 
-(labeled \emph{primitives}), as well as vectors and
-matrices of these types can be seamlessly copied between \R and \Scala.
+\subsubsection{Primitive Types}
+
+A \Scala result of class \code{Byte}, \code{Int}, \code{Double},
+\code{Boolean}, or \code{String} is passed to \R as a length-one vector of raw,
+integer, double, logical, or character, respectively.  We refer to these as the
+\emph{primitive} types supported by the \pkg{rscala} package. Further, \Scala
+arrays and rectangular array of arrays of the primitive types are passed to \R
+as vectors and matrices of the equivalent \R types.  Since the \code{row.major}
+argument to the \code{scala} function was left at its default value of
+\code{TRUE} when defining the \Scala instance \code{s}, the \Scala code below
+results in a 2x5 matrix in \R:
+
+<<evaluateScalaCodeVector>>=
+s %~% 'Array.fill(2)(Array.fill(5)(scala.util.Random.nextDouble))'
+@
+
+Table \ref{mappings} illustrates the mapping of primitive \Scala and \R types
+using example snippets assuming \code{row.major=TRUE} when calling the \code{scala}
+function.
 
 \begin{table}[tb]
-\small
+\scriptsize
 \centering
 \begin{tabular}{lll}
 \toprule
-     \textbf{Primitive} & \textbf{Vector (array)} & \textbf{Matrix (rectangular array of arrays)} \\
+     \textbf{Primitive} & \textbf{Vector / Array} & \textbf{Matrix / Rectangular Array of Arrays} \\
 \midrule
 \noalign{\vspace{2ex}}
+\code{z <- as.raw(3)} & \code{e <- as.raw(c(1, 2))} & \code{i <- as.raw(matrix(c(1, 2), nrow=2))} \\
+\code{val z = 3.toByte} & \code{val e = Array(1.toByte, 2.toByte)} & \code{val i = Array(Array(1.toByte), Array(2.toByte))} \\
+\noalign{\vspace{4ex}}
 \code{a <- TRUE} & \code{e <- c(TRUE, FALSE)} & \code{i <- matrix(c(TRUE, FALSE), nrow=2)} \\
 \code{val a = true} & \code{val e = Array(true, false)} & \code{val i=Array(Array(true), Array(false))} \\
 \noalign{\vspace{4ex}}
@@ -352,17 +406,37 @@ matrices of these types can be seamlessly copied between \R and \Scala.
  \code{c <- 1.0} & \code{g <- c(1.0, 2.0, 3.0)} & \code{k <- matrix(c(1.0, 2.0), nrow=2)} \\
  \code{val c = 1.0} & \code{val g = Array(1.0, 2.0, 3.0)} & \code{val k = Array(Array(1.0), Array(2.0))} \\
 \noalign{\vspace{4ex}}
- \code{d <- 'a'} & \code{h <- c('a', 'b', 'c')} & \code{l <- matrix(c('a', 'b'), nrow=2)} \\
- \code{val d = 'a'} & \code{val h = Array('a', 'b', 'c')} & \code{val l = Array(Array('a'), Array('b'))} \\
+ \code{d <- "a"} & \code{h <- c("a", "b", "c")} & \code{l <- matrix(c("a", "b"), nrow=2)} \\
+ \code{val d = "a"} & \code{val h = Array("a", "b", "c")} & \code{val l = Array(Array("a"), Array("b"))} \\
 \noalign{\vspace{2ex}}
 \bottomrule
 \end{tabular}
-\caption{Integers, doubles, logicals, and characters (labeled \emph{primitives}), as well as vectors and
-matrices of these types can be seamlessly copied between \R and \Scala.  Each cell in the table contains
-two lines: an \R expression (top) and the equivalent \Scala expression (bottom).}
+\caption{\Scala values of type \code{Byte}, \code{Int}, \code{Double},
+\code{Boolean}, or \code{String} (labeled \emph{primitives}), as well as arrays
+and rectangular arrays of arrays of these types are copied from \Scala to \R as
+length-one vectors, vectors, and matrices of the equivalent R types.  Each cell
+in the table contains two lines: an \R expression (top) and the equivalent
+\Scala expression (bottom).  The matrix examples assume that \code{row.major=TRUE} when calling the \code{scala} function.}
 \label{mappings}
 \end{table}
 
+\subsubsection[Scala References]{\Scala References}
+
+If the result of a \Scala expression is not a primitive type, an array of a
+primitive type, or a matrix of a primitive type, then the \code{\%\mytilde\%}
+operator will return a \Scala reference to the result which can be used in
+subsequent calculations.  If a \Scala reference is desired even working with this
+primitive types, use the \code{\%.\mytilde\%} operator, e.g.:
+
+
+
+
+\Scala references are discussed in
+more details in Section ??.
+
+
+(labeled \emph{primitives}), as well as vectors and
+matrices of these types can be seamlessly copied between \R and \Scala.
 
 
 
