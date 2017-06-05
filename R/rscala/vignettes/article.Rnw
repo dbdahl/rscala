@@ -293,12 +293,12 @@ threads/cores should not access the same interpreter simultaneously.
 \Scala instances.  The most basic operator is \code{\%@\%}, which takes a
 \Scala instance on the left-hand side and, on the right-hand side, an arbitrary
 snippet of valid Scala code that is evaluated in the embedded \Scala
-interpreter.  The \code{\%@\%} operator always returns \code{NULL} to \R, e.g.,
+interpreter.  The \code{\%@\%} operator always returns \code{NULL}, e.g.,
 consider computing the binomial coefficient $10 \choose 3$:
 
 <<evaluateScalaCodeSimple>>=
 result <- s %@% '
-  val c_10_3 = (1 to 10).product / ( (1 to 3).product * (1 to (10-3)).product )
+  val c_10_3 = (1 to 3).foldLeft(1) { (prod,i) => prod * (10-i+1)/i }
   println(c_10_3)
 '
 
@@ -306,47 +306,65 @@ result
 @
 
 The value of \code{result} is \code{NULL} but the side effect of printing
-\code{120} to the console is displayed in the \R session in many environments.
+\code{120} to the console is displayed in the \R session in \emph{many} environments and operating systems.
 If the argument ``\code{serialize.output=TRUE}'' is passed to ``\code{scala}''
-function when instantiating \Scala, printing is displayed for all operating
-systems and environments.  This is not the default, however, because the
+function when instantiating \Scala, printing is displayed for \emph{all} situations.
+This is not the default, however, because the
 serializing the output is often not needed yet requires some processing
 overhead.
 
-The second operator for evaluating \Scala codes is \code{\%~\%} which, in
+The second operator for evaluating \Scala codes is \code{\%\mytilde\%} which, in
 addition running the \Scala snippet, returns the result to \R, e.g.,
 
 <<evaluateScalaCodeSimpleWithReturn>>=
-result <- s %~% '(1 to 10).product / ( (1 to 3).product * (1 to (10-3)).product )'
+result <- s %~% '(1 to 3).foldLeft(1) { (prod,i) => prod * (10-i+1)/i }'
 result
 @
 
-
-
-Results from previous expressions are available in subsequent expressions and
-multiline expressions are supported, e.g.:
+Results from previous expressions are available in subsequent expressions, e.g.:
 
 <<evaluateScalaCodeMultiline>>=
-s %@% '
-  case class Point(x: Double, y: Double)
-  val b = Point(sqrt2,sqrt2)
-  println(b)
-'
+s %~% 's"10 choose 3 is $c_10_3"'
 @
 
-Although there is no result of Scala expressions evaluated using the
-\code{\%@\%} operator, the side effect of printing to the console \emph{may} be
-displayed in the \R session when using Linux and Mac OS X and, if
-``\code{serialize.output=TRUE}'' when the ``\code{scala}'' function was called,
-\emph{will be} displayed for all operating systems (including Windows).
+A \Scala result of class Byte, Int, Double, Boolean, or String are passed to \R
+as length-one vectors of raw, integer, double, logical, or character,
+respectively.  Likewise, \Scala arrays and rectangular arrays  of these types are passed to \R as
+vectors and matrices of the equivalent types.
+
+(labeled \emph{primitives}), as well as vectors and
+matrices of these types can be seamlessly copied between \R and \Scala.
+
+\begin{table}[tb]
+\small
+\centering
+\begin{tabular}{lll}
+\toprule
+     \textbf{Primitive} & \textbf{Vector (array)} & \textbf{Matrix (rectangular array of arrays)} \\
+\midrule
+\noalign{\vspace{2ex}}
+\code{a <- TRUE} & \code{e <- c(TRUE, FALSE)} & \code{i <- matrix(c(TRUE, FALSE), nrow=2)} \\
+\code{val a = true} & \code{val e = Array(true, false)} & \code{val i=Array(Array(true), Array(false))} \\
+\noalign{\vspace{4ex}}
+ \code{b <- 1L} & \code{f <- c(1L, 2L, 3L)} & \code{j <- matrix(c(1L, 2L), nrow=2)} \\
+ \code{val b = 1} & \code{val f = Array(1, 2, 3)} & \code{val j = Array(Array(1), Array(2))} \\
+\noalign{\vspace{4ex}}
+ \code{c <- 1.0} & \code{g <- c(1.0, 2.0, 3.0)} & \code{k <- matrix(c(1.0, 2.0), nrow=2)} \\
+ \code{val c = 1.0} & \code{val g = Array(1.0, 2.0, 3.0)} & \code{val k = Array(Array(1.0), Array(2.0))} \\
+\noalign{\vspace{4ex}}
+ \code{d <- 'a'} & \code{h <- c('a', 'b', 'c')} & \code{l <- matrix(c('a', 'b'), nrow=2)} \\
+ \code{val d = 'a'} & \code{val h = Array('a', 'b', 'c')} & \code{val l = Array(Array('a'), Array('b'))} \\
+\noalign{\vspace{2ex}}
+\bottomrule
+\end{tabular}
+\caption{Integers, doubles, logicals, and characters (labeled \emph{primitives}), as well as vectors and
+matrices of these types can be seamlessly copied between \R and \Scala.  Each cell in the table contains
+two lines: an \R expression (top) and the equivalent \Scala expression (bottom).}
+\label{mappings}
+\end{table}
 
 
 
-
-The \rscala package allows arbitrary snippets of Scala code to be compiled and executed
-on the fly. These code snippets can be any mixture of statements, functions, class definitions,
-imports, etc. Consider an earlier example. Rather than evaluating the right column of Table 1
-i
 
 \subsubsection[Instantiating Scala objects and calling methods]{Instantiating \Scala objects and calling methods}
 \label{instantiateAndCall}
@@ -444,34 +462,6 @@ are equivalent in \R and \Scala.  For example, a matrix of integers in \R
 (e.g., \code{j <- matrix(c(1L, 2L), nrow=2)}) maps to a row-major rectangular
 array of arrays of \Scala's \code{Int} (e.g., \code{val j = Array(Array(1),
 Array(2))}).
-
-\begin{table}[tb]
-\small
-\centering
-\begin{tabular}{lll}
-\toprule
-     \textbf{Primitive} & \textbf{Vector (array)} & \textbf{Matrix (rectangular array of arrays)} \\
-\midrule
-\noalign{\vspace{2ex}}
-\code{a <- TRUE} & \code{e <- c(TRUE, FALSE)} & \code{i <- matrix(c(TRUE, FALSE), nrow=2)} \\
-\code{val a = true} & \code{val e = Array(true, false)} & \code{val i=Array(Array(true), Array(false))} \\
-\noalign{\vspace{4ex}}
- \code{b <- 1L} & \code{f <- c(1L, 2L, 3L)} & \code{j <- matrix(c(1L, 2L), nrow=2)} \\
- \code{val b = 1} & \code{val f = Array(1, 2, 3)} & \code{val j = Array(Array(1), Array(2))} \\
-\noalign{\vspace{4ex}}
- \code{c <- 1.0} & \code{g <- c(1.0, 2.0, 3.0)} & \code{k <- matrix(c(1.0, 2.0), nrow=2)} \\
- \code{val c = 1.0} & \code{val g = Array(1.0, 2.0, 3.0)} & \code{val k = Array(Array(1.0), Array(2.0))} \\
-\noalign{\vspace{4ex}}
- \code{d <- 'a'} & \code{h <- c('a', 'b', 'c')} & \code{l <- matrix(c('a', 'b'), nrow=2)} \\
- \code{val d = 'a'} & \code{val h = Array('a', 'b', 'c')} & \code{val l = Array(Array('a'), Array('b'))} \\
-\noalign{\vspace{2ex}}
-\bottomrule
-\end{tabular}
-\caption{Integers, doubles, logicals, and characters (labeled \emph{primitives}), as well as vectors and
-matrices of these types can be seamlessly copied between \R and \Scala.  Each cell in the table contains
-two lines: an \R expression (top) and the equivalent \Scala expression (bottom).}
-\label{mappings}
-\end{table}
 
 \subsubsection[Arguments when calling Scala]{Arguments when calling \Scala}
 

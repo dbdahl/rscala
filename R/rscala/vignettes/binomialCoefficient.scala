@@ -54,16 +54,17 @@ BinomialCoefficient2(100,70)
 BinomialCoefficient2(1000,400)
 
 
+object BinomialCoefficient3 {
 
-if(n<1||k<0){
-return 1;
+  def apply(n: Int, k: Int) = {
+    if ( ( n < k ) || ( k < 0 ) ) BigInt(0)
+    else {
+      val kk = if ( k > n/2 ) n-k else k
+      (1 to kk).foldLeft(BigInt(1)) { (product,i) => product * (n-i+1)/i }
+    }
+  }
+
 }
-if(k>n/2)
-k=n-k;
-int[] res = new int[k+1];
-res[0]=1;
-for(int i =1 ;i<=k;i++){
-res[i]=res[i-1]*(n-i+1)/i;
-}
-return res[k];
-}
+
+BinomialCoefficient3(10000,300)
+
