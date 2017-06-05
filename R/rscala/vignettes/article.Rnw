@@ -287,7 +287,7 @@ history, etc.  Each Scala instance can use multiple threads/cores but the
 bridge between \R and \Scala is not thread-safe.  As such, multiple \R
 threads/cores should not access the same \Scala instance simultaneously.
 
-\subsection[Calling Scala Code in R]{Calling \Scala Code in \R}
+\subsection[Calling Scala Code from R]{Calling \Scala Code from \R}
 
 \subsubsection{Evaluation Without Results}
 
@@ -309,9 +309,9 @@ result
 
 Since the \code{\%@\%} operator was used, the value of \code{result} is
 \code{NULL} but, as shown here, the side effect of printing \code{120} to the
-console is displayed in the \R session in \emph{many} environments and
+console is displayed in the \R session here and in \emph{many} environments and
 operating systems.  If the argument \code{serialize.output=TRUE} is passed to
-the \code{scala} function when instantiating \Scala, printing is displayed for
+the \code{scala} function when instantiating \Scala, printing is displayed in
 \emph{all} situations.  This is not the default, however, because the
 serializing output is often not needed yet requires some processing
 overhead.
@@ -339,7 +339,7 @@ s %@% '
 \subsubsection{Evaluation With Results}
 
 Another interface to the Scala instance is provided by the \code{\%\mytilde\%} operator which, in
-addition running the \Scala snippet, returns the result to \R, e.g.,
+addition to running the \Scala snippet, returns the result to \R, e.g.,
 
 <<evaluateScalaCodeSimpleWithReturn>>=
 nThreesomes <- s %~% '(1 to @{k}).foldLeft(1) { (prod,i) => prod * (@{n}-i+1)/i }'
@@ -347,8 +347,9 @@ nThreesomes
 @
   
 Results from previous expressions are available in subsequent \Scala
-expressions.  For example, we can check that \code{c\_10\_3} (which was defined
-in our first \Scala snippet) raised to the power of 2 is in fact equal to $120^2$.
+expressions.  For example, we can check that the \R expression \code{nThreesomes}\verb=^=2
+is in fact equal to \code{c\_10\_3} (which was defined
+in our first \Scala snippet) raised to the power of 2.
 
 <<evaluateScalaCodePrevious>>=
 s %~% '@{nThreesomes^2} == math.pow(c_10_3, 2)'
@@ -363,20 +364,25 @@ s %~% '@{nThreesomes^20} == math.pow(c_10_3, 20)'
 @
 
 This is because the right-hand-side of the operator reduces to comparing a
-calculated \code{Double} to a \code{Double} obtained by parsing a double
-literial (i.e., ``6.191736e+20''), which is a slightly different value.
+\code{Double} obtained by parsing a double literial obtained by string
+interpolation (i.e., ``6.191736e+20'') to a calculated \code{Double}, which is
+a slightly different value.
 
-\subsubsection{Primitive Types}
+\subsubsection{Primitive and Copyable Types}
 
 A \Scala result of class \code{Byte}, \code{Int}, \code{Double},
 \code{Boolean}, or \code{String} is passed to \R as a length-one vector of raw,
 integer, double, logical, or character, respectively.  We refer to these as the
 \emph{primitive} types supported by the \pkg{rscala} package. Further, \Scala
 arrays and rectangular array of arrays of the primitive types are passed to \R
-as vectors and matrices of the equivalent \R types.  Since the \code{row.major}
-argument to the \code{scala} function was left at its default value of
-\code{TRUE} when defining the \Scala instance \code{s}, the \Scala code below
-results in a 2x5 matrix in \R:
+as vectors and matrices of the equivalent \R types.  We call values that are
+primitives, arrays of primitives, and rectangular arrays of arrays of the
+primitive types \emph{copyable} types.  The name is meant to remind us that
+passing this kind of data over the interface between \Scala and \R involves
+copying which, for a large data structure, can be computationally costly.
+Since the \code{row.major} argument to the \code{scala} function was left at
+its default value of \code{TRUE} when defining the \Scala instance \code{s},
+the code below results in a 2x5 matrix in \R:
 
 <<evaluateScalaCodeVector>>=
 s %~% 'Array.fill(2)(Array.fill(5)(scala.util.Random.nextDouble))'
@@ -394,49 +400,185 @@ function.
      \textbf{Primitive} & \textbf{Vector / Array} & \textbf{Matrix / Rectangular Array of Arrays} \\
 \midrule
 \noalign{\vspace{2ex}}
-\code{z <- as.raw(3)} & \code{e <- as.raw(c(1, 2))} & \code{i <- as.raw(matrix(c(1, 2), nrow=2))} \\
-\code{val z = 3.toByte} & \code{val e = Array(1.toByte, 2.toByte)} & \code{val i = Array(Array(1.toByte), Array(2.toByte))} \\
+\code{a <- as.raw(3)} & \code{f <- as.raw(c(1, 2))} & \code{k <- as.raw(matrix(c(1, 2), nrow=2))} \\
+\code{val a = 3.toByte} & \code{val f = Array(1.toByte, 2.toByte)} & \code{val k = Array(Array(1.toByte), Array(2.toByte))} \\
 \noalign{\vspace{4ex}}
-\code{a <- TRUE} & \code{e <- c(TRUE, FALSE)} & \code{i <- matrix(c(TRUE, FALSE), nrow=2)} \\
-\code{val a = true} & \code{val e = Array(true, false)} & \code{val i=Array(Array(true), Array(false))} \\
+\code{b <- TRUE} & \code{g <- c(TRUE, FALSE)} & \code{l <- matrix(c(TRUE, FALSE), nrow=2)} \\
+\code{val b = true} & \code{val g = Array(true, false)} & \code{val l = Array(Array(true), Array(false))} \\
 \noalign{\vspace{4ex}}
- \code{b <- 1L} & \code{f <- c(1L, 2L, 3L)} & \code{j <- matrix(c(1L, 2L), nrow=2)} \\
- \code{val b = 1} & \code{val f = Array(1, 2, 3)} & \code{val j = Array(Array(1), Array(2))} \\
+ \code{c <- 1L} & \code{h <- c(1L, 2L, 3L)} & \code{m <- matrix(c(1L, 2L), nrow=2)} \\
+ \code{val c = 1} & \code{val h = Array(1, 2, 3)} & \code{val m = Array(Array(1), Array(2))} \\
 \noalign{\vspace{4ex}}
- \code{c <- 1.0} & \code{g <- c(1.0, 2.0, 3.0)} & \code{k <- matrix(c(1.0, 2.0), nrow=2)} \\
- \code{val c = 1.0} & \code{val g = Array(1.0, 2.0, 3.0)} & \code{val k = Array(Array(1.0), Array(2.0))} \\
+ \code{d <- 1.0} & \code{i <- c(1.0, 2.0, 3.0)} & \code{n <- matrix(c(1.0, 2.0), nrow=2)} \\
+ \code{val d = 1.0} & \code{val i = Array(1.0, 2.0, 3.0)} & \code{val n = Array(Array(1.0), Array(2.0))} \\
 \noalign{\vspace{4ex}}
- \code{d <- "a"} & \code{h <- c("a", "b", "c")} & \code{l <- matrix(c("a", "b"), nrow=2)} \\
- \code{val d = "a"} & \code{val h = Array("a", "b", "c")} & \code{val l = Array(Array("a"), Array("b"))} \\
+ \code{e <- "a"} & \code{j <- c("a", "b", "c")} & \code{o <- matrix(c("a", "b"), nrow=2)} \\
+ \code{val e = "a"} & \code{val j = Array("a", "b", "c")} & \code{val o = Array(Array("a"), Array("b"))} \\
 \noalign{\vspace{2ex}}
 \bottomrule
 \end{tabular}
 \caption{\Scala values of type \code{Byte}, \code{Int}, \code{Double},
 \code{Boolean}, or \code{String} (labeled \emph{primitives}), as well as arrays
 and rectangular arrays of arrays of these types are copied from \Scala to \R as
-length-one vectors, vectors, and matrices of the equivalent R types.  Each cell
+length-one vectors, vectors, and matrices of the equivalent R types.  These are all called \emph{copyable} types.  Each cell
 in the table contains two lines: an \R expression (top) and the equivalent
-\Scala expression (bottom).  The matrix examples assume that \code{row.major=TRUE} when calling the \code{scala} function.}
+\Scala expression (bottom) with the same identifier.  The matrix examples
+assume that \code{row.major=TRUE} when the \code{scala} function was called.}
 \label{mappings}
 \end{table}
 
 \subsubsection[Scala References]{\Scala References}
 
-If the result of a \Scala expression is not a primitive type, an array of a
-primitive type, or a matrix of a primitive type, then the \code{\%\mytilde\%}
-operator will return a \Scala reference to the result which can be used in
-subsequent calculations.  If a \Scala reference is desired even working with this
-primitive types, use the \code{\%.\mytilde\%} operator, e.g.:
+If the result of a \Scala expression is not a copyable type, then the
+\code{\%\mytilde\%} operator will return a \Scala reference to the result which
+can be used in subsequent evaluations.  If a \Scala reference is desired even
+when working with copyable types, use the \code{\%.\mytilde\%} operator.
+
+In the example below, an instance of the class \code{scala.util.Random} is
+created and, since the result is not a copyable type, a \Scala reference is
+returned.  Second, a \Scala reference to an array of integers is returned
+(despite the fact this is a copyable type) because the \code{\%.\mytilde\%}
+operator is used:
+
+<<evaluateScalaCodeReference>>=
+rng <- s %~% 'new scala.util.Random()'
+rng
+
+oneToTen <- s %.~% 'Array.range(1,11)'
+oneToTen
+@
+
+In the next example, a \Scala reference is used via string interpolation to
+call methods of \Scala objects:
+
+\clearpage
+<<evaluateScalaCodeReferenceInterpolation>>=
+s %~% '
+  @{rng}.setSeed(24234)
+  @{rng}.nextDouble()
+'
+
+s %~% '@{oneToTen}.sum'
+@
+
+\Scala references can also be used to call methods more directly using the
+\code{\$} operator for \Scala references.  For example, the previous example
+can be expressed equivalently as:
+
+<<evaluateScalaCodeReference2>>=
+rng$setSeed(24234L)
+rng$nextDouble()
+oneToTen$sum()
+@
+
+\subsubsection{Calling Methods of Companion Objects}
+
+Methods of companions objects --- which are roughly \Scala's equivalent to \Java's static methods --- can be called in three
+ways.  For example, consider the companion object \code{Array}.
+One of its methods is \code{range}.  The following three statements are all functionally equivalent:
+
+<<evaluateScalaCodeCompanion>>=
+oneToTen <- s %~% 'Array.range(1,11)'
+oneToTen <- s$.Array$range(1L,11L)
+oneToTen <- s$do("Array")$range(1L,11L)
+@
+
+These three equivalent expression each have their advantanges in terms of
+flexibility, readability, and speed.  The first is pure \Scala code and
+self-evident to a \Scala developer but, as will be shown later, is the slowest.
+The second is concise, fast, and flexible in that the arguments to the method
+can be variables or literals.  The last is somewhat awkward, fast, and has the
+flexiblity that the name of the companion object can itself be a variable or
+literal, as well as its arguments.
+
+\subsubsection[Dealing with the Special apply and update Methods]{Dealing with the Special \code{apply} and \code{update} Methods}
+
+\Scala users are aware of the ``compiler magic'' that injects calls to the
+\code{apply} method of objects when no method is specified.  In the
+\pkg{rscala} package, this works for \Scala snippets, but the \code{apply}
+method must be specified explicilty when using the \code{\$} operator.  That
+is, the following are all functionally equivalent:
+
+<<evaluateScalaCodeApply>>=
+fibSeq <- s %~% 'Array(0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89)'
+fibSeq <- s %~% 'Array.apply(0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89)'
+fibSeq <- s$.Array$apply(0L, 1L, 1L, 2L, 3L, 5L, 8L, 13L, 21L, 34L, 55L, 89L)
+fibSeq <- s$do("Array")$apply(0L, 1L, 1L, 2L, 3L, 5L, 8L, 13L, 21L, 34L, 55L, 89L)
+@
+
+Likewise, the \code{update} method is automatically injected when appropriate
+by the \Scala compiler, but must be explicity called when using the \code{\$}
+operator.  For example, consider an array:
+
+<<evaluateScalaCodeArray>>=
+s %@% 'val fibSeq = Array[Double](0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89)'
+fibSeqReference <- s %.~% 'fibSeq'
+@
+
+We can assign the value of $\pi$ to the second element of the array
+using the following functionally equivalent approaches:
+
+<<evaluateScalaCodeUpdate>>=
+s %@% 'fibSeq(1) = math.Pi'
+s$.fibSeq$update(1L,pi)
+fibSeqReference$update(1L,pi)
+@
+
+\subsubsection{Getting and Setting Values}
+
+adf
+adf
+
+\subsubsection{Instantiating Objects}
+
+Like calling methods of companion objects, \Scala objects can be instantiated
+in three ways.  For example, new instances of the \code{scala.util.Random}
+class can be created in the following three ways:
+
+<<evaluateScalaCodeInstantiate>>=
+rng <- s %~% 'new scala.util.Random()'
+rng <- s$.scala.util.Random$new()
+rng <- s$do("scala.util.Random")$new()
+@
+
+Again, like for companion objects, each way has its advantages in terms of
+flexibility, readability, and speed.
+
+\subsubsection{Quoting Method Names}
+
+\Scala has a type parameterization which are similiar but arguably more
+advanced than generics in \Java and templates in \Cpp.  In many instances, the
+\Scala compiler infers the type parameter, but the user may need or want to
+explicitly provide the type parameter.  When using the \code{\$} operator, the
+method name with its type parameter may need to quoted to prevent parsing
+errors in \R.  The following three expressions are functionally equivalent:
+
+<<evaluateScalaCodeApplyWithQuote>>=
+fibSeq <- s %~% 'Array[Double](0, 1, 1, 2, 3, 5, 8, 13, 21, 34)'
+fibSeq <- s %~% 'Array.apply[Double](0, 1, 1, 2, 3, 5, 8, 13, 21, 34)'
+fibSeq <- s$.Array$'apply[Double]'(0L, 1L, 1L, 2L, 3L, 5L, 8L, 13L, 21L, 34L)
+fibSeq <- s$do('Array')$'apply[Double]'(0L, 1L, 1L, 2L, 3L, 5L, 8L, 13L, 21L, 34L)
+@
+
+Note the quotes around \code{apply[Double]} used in the last two expressions.  Of course, since \R treats
+numeric literals as doubles, the simplest way to get the same result from the \code{apply} method
+of the \code{Array} companion object is:
+
+<<evaluateScalaCodeApplyWithQuoteSimple>>=
+fibSeq <- s$.Array$apply(0, 1, 1, 2, 3, 5, 8, 13, 21, 34)
+@
+
+Likewise, names of \Scala methods may not be valid identifiers in \R and may
+also need to be quoted to avoid parsing errors in R.  For example, note that
+the method \code{:+} is quoted in the example below:
+
+<<quoteWhenNecessary>>=
+list <- s$.List$apply(1L, 2L, 3L)
+augmentedList <- list$":+"(100L)
+paste0(augmentedList$toString(), " now contains 100.")
+@
 
 
-
-
-\Scala references are discussed in
-more details in Section ??.
-
-
-(labeled \emph{primitives}), as well as vectors and
-matrices of these types can be seamlessly copied between \R and \Scala.
 
 
 
@@ -450,16 +592,12 @@ functionality is illustrated in Table~\ref{callingScala}.  These examples
 display classes and companion objects for \code{scala.util.Random},
 \code{scala.math.BigInt}, and \code{scala.Array}, but any classes and companion
 objects in the classpath can be called in this manner. The only exception is
-inner classes which are not supported.  If a method takes type parameters or is
+inner classes which are not supported.
+
+If a method takes type parameters or is
 otherwise not a valid identifier in \R (e.g., an operator method), the call to
 the method should be enclosed in quotes.  For example, note that the methods
 \code{apply[Int]} and \code{:+} are quoted here:
-
-<<quoteWhenNecessary, out.lines=16>>=
-h <- s$do('List')$'apply[Int]'(1L, 2L, 3L)
-g <- h$":+"(100L)
-g$toString()
-@
 
 \begin{table}[tb]
 \small

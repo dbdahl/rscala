@@ -9,6 +9,7 @@ while ( TRUE ) {
   close(socket)
   if ( cmd == "n" ) {
     system2("rm",c("-rf","cache"))
+    system2("clean-tex")
     knit("article.Rnw")
     system2("pdflatex","article.tex")
     system2("bittex","article.tex")

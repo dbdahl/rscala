@@ -128,7 +128,7 @@ toString.ScalaInterpreter <- function(x,...) {
 
 print.ScalaInterpreterReference <- function(x,...) {
   type <- x[['type']]
-  scalap(x[['interpreter']],type)
+  # scalap(x[['interpreter']],type)
   cat("ScalaInterpreterReference... ")
   cat(x[['identifier']],": ",type,"\n",sep="")
   invisible(x)
@@ -140,7 +140,7 @@ toString.ScalaInterpreterReference <- function(x,...) {
 
 print.ScalaCachedReference <- function(x,...) {
   type <- x[['type']]
-  scalap(x[['interpreter']],type)
+  # scalap(x[['interpreter']],type)
   cat("ScalaCachedReference... ")
   cat("*: ",type,"\n",sep="")
   invisible(x)
@@ -151,13 +151,13 @@ toString.ScalaCachedReference <- function(x,...) {
 }
 
 print.ScalaInterpreterItem <- function(x,...) {
-  scalap(x[['interpreter']],x[['snippet']])
-  cat("ScalaInterpreterItem\n")
+  # scalap(x[['interpreter']],x[['snippet']])
+  cat(toString(x),"\n",sep="")
   invisible(x)
 }
 
 toString.ScalaInterpreterItem <- function(x,...) {
-  "ScalaInterpreterItem"
+  paste0("ScalaInterpreterItem of type ",x[['snippet']])
 }
 
 scalaGet <- function(interpreter,identifier,as.reference) {
