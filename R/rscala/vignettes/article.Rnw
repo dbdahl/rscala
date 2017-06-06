@@ -338,7 +338,7 @@ s %@% '
 \subsubsection{Evaluation With Results}
 
 Another interface to the Scala instance is provided by the \code{\%\mytilde\%} operator which, in
-addition to running the \Scala snippet, returns the result to \R, e.g.,
+addition to running the \Scala snippet, returns the result of the last expression to \R, e.g.,
 
 <<evaluateScalaCodeSimpleWithReturn>>=
 nThreesomes <- s %~% '(1 to @{k}).foldLeft(1) { (prod,i) => prod * (@{n}-i+1)/i }'
@@ -388,8 +388,11 @@ s %~% 'Array.fill(2)(Array.fill(5)(scala.util.Random.nextDouble))'
 @
 
 Table \ref{mappings} illustrates the mapping of primitive \Scala and \R types
-using example snippets.  The examples involving matrices assume \code{row.major=TRUE} when calling the \code{scala}
-function.
+using example snippets.  The examples involving matrices assume
+\code{row.major=TRUE} when calling the \code{scala} function.  Variables with
+the same identifier (e.g., \code{b}) are equivalent in \R and \Scala.  For
+example, a vector of integers in \R (e.g., \code{h <- c(1L, 2L, 3L)}) maps to the \Scala type
+\code{Array[Int]} (e.g., \code{val h = Array(1, 2, 3)}).
 
 \begin{table}[tb]
 \scriptsize
@@ -547,22 +550,23 @@ oneToTenReference <- s$do("Array")$range(1L, 11L, .AS.REFERENCE=TRUE)
 \Scala users are aware of the ``compiler magic'' that injects calls to the
 \code{apply} method of objects when no method is specified.  In the
 \rscala package, this works for \Scala snippets, but the \code{apply}
-method must be specified explicilty when using the \code{\$} operator.  That
-is, the following are all functionally equivalent:
+method must be specified explicilty when using the \code{\$} operator.
+For example, consider an array of the starting elements of the Fibonacci sequence
+and the following functionally-equivalent expressions:
 
 <<evaluateScalaCodeApply>>=
-fibSeq <- s %~% 'Array(0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89)'
-fibSeq <- s %~% 'Array.apply(0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89)'
-fibSeq <- s$.Array$apply(0L, 1L, 1L, 2L, 3L, 5L, 8L, 13L, 21L, 34L, 55L, 89L)
-fibSeq <- s$do("Array")$apply(0L, 1L, 1L, 2L, 3L, 5L, 8L, 13L, 21L, 34L, 55L, 89L)
+fibSeqAsInt <- s %~% 'Array(0, 1, 1, 2, 3, 5, 8, 13, 21)'
+fibSeqAsInt <- s %~% 'Array.apply(0, 1, 1, 2, 3, 5, 8, 13, 21)'
+fibSeqAsInt <- s$.Array$apply(0L, 1L, 1L, 2L, 3L, 5L, 8L, 13L, 21L)
+fibSeqAsInt <- s$do("Array")$apply(0L, 1L, 1L, 2L, 3L, 5L, 8L, 13L, 21L)
 @
 
 Likewise, the \code{update} method is automatically injected when appropriate
 by the \Scala compiler, but must be explicity called when using the \code{\$}
-operator.  For example, consider an array of the starting elements of the Fibonacci sequence:
+operator.
 
 <<evaluateScalaCodeArray>>=
-s %@% 'val fibSeq = Array[Double](0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89)'
+s %@% 'val fibSeq = Array[Double](0, 1, 1, 2, 3, 5, 8, 13, 21)'
 fibSeqReference <- s %.~% 'fibSeq'
 @
 
@@ -613,13 +617,13 @@ advanced than generics in \Java and templates in \Cpp.  In many instances, the
 \Scala compiler infers the type parameter, but the user may need or want to
 explicitly provide it.  When using the \code{\$} operator, the
 method name with its type parameter may need to quoted to prevent parsing
-errors in \R.  The following three expressions are functionally equivalent:
+errors in \R.  The following expressions are functionally equivalent:
 
 <<evaluateScalaCodeApplyWithQuote>>=
-fibSeq <- s %~% 'Array[Double](0, 1, 1, 2, 3, 5, 8, 13, 21, 34)'
-fibSeq <- s %~% 'Array.apply[Double](0, 1, 1, 2, 3, 5, 8, 13, 21, 34)'
-fibSeq <- s$.Array$'apply[Double]'(0L, 1L, 1L, 2L, 3L, 5L, 8L, 13L, 21L, 34L)
-fibSeq <- s$do('Array')$'apply[Double]'(0L, 1L, 1L, 2L, 3L, 5L, 8L, 13L, 21L, 34L)
+fibSeqAsDouble <- s %~% 'Array[Double](0, 1, 1, 2, 3, 5, 8, 13, 21)'
+fibSeqAsDouble <- s %~% 'Array.apply[Double](0, 1, 1, 2, 3, 5, 8, 13, 21)'
+fibSeqAsDouble <- s$.Array$'apply[Double]'(0L, 1L, 1L, 2L, 3L, 5L, 8L, 13L, 21L)
+fibSeqAsDouble <- s$do('Array')$'apply[Double]'(0L, 1L, 1L, 2L, 3L, 5L, 8L, 13L, 21L)
 @
 
 Note the quotes around \code{apply[Double]} used in the last two expressions.  Of course, since \R treats
@@ -627,7 +631,7 @@ numeric literals as doubles, the simplest way to get the same result from the \c
 of the \code{Array} companion object is:
 
 <<evaluateScalaCodeApplyWithQuoteSimple>>=
-fibSeq <- s$.Array$apply(0, 1, 1, 2, 3, 5, 8, 13, 21, 34)
+fibSeqAsDouble <- s$.Array$apply(0, 1, 1, 2, 3, 5, 8, 13, 21)
 @
 
 Likewise, names of \Scala methods may not be valid identifiers in \R and may
@@ -636,14 +640,41 @@ the method \code{:+} is quoted in the example below:
 
 <<quoteWhenNecessary>>=
 list <- s$.List$apply(1L, 2L, 3L)
-augmentedList <- list$":+"(100L)
+augmentedList <- list$':+'(100L)
 paste0(augmentedList$toString(), " now contains 100.")
 @
 
 \subsubsection{Getting and Setting Values}
 
-adf
-adf
+As demonstrated previously, values of copyable types and \Scala references can
+be obtained as the result of evaluating a \Scala expression using the
+\code{\%\mytilde\%} and \code{\%.\mytilde\%} operators.  The expression can be very complex or, as in the examples below, merely
+the name of a \Scala identifier, e.g.:
+
+<<gettingUsingDollarSign1>>=
+fibSeqAsDouble  <- s %~%  'fibSeq'
+fibSeqReference <- s %.~% 'fibSeq'
+@
+
+\Scala values can also be obtained using the \code{\$} operator and the name of the identifier.  For example, the
+following are both return the same result to the first example (involving \code{s \%\mytilde\%  'fibSeq'}):
+
+<<gettingUsingDollarSign2>>=
+fibSeqAsDouble <- s$fibSeq
+fibSeqAsDouble <- s$val('fibSeq')
+@
+
+The second example (involving \code{s \%.\mytilde\% 'fibSeq'}) results the same result as:
+<<gettingUsingDollarSign3>>=
+fibSeqReference <- s$.val('fibSeq')
+@
+
+Likewise, values of copyable types and \Scala references may be set in the \Scala session using assignment with the \code{\$} operator, e.g.:
+
+<<gettingUsingDollarSign4>>=
+s$fibSeq <- c(0, 1, 1, 2, 3, 5, 8, 13, 21)
+s$copyOfFibSeq <- fibSeqReference
+@
 
 \subsubsection{Discovering Methods}
 
@@ -662,6 +693,8 @@ function as follows:
 scalap(rng)
 @
 
+\subsubsection[Defining Scala Functions]{Defining \Scala Functions}
+
 
 
 \subsubsection{Memory Management}
@@ -670,7 +703,58 @@ The \rscala package takes advantage of the garbage collection facilities in
 both \R and \Scala and, as such, the user often does not need to think about
 memory management issues.  There are a few importance things to note, however.
 
-Due
+All memory allocated as a result of evaluating a \Scala expression using the \code{\%\mytilde\%} and \code{\%\mytilde\%} operators,
+as well as memory allocated by assignment using the \code{\$} operator, cannot be recovered within that instance of \Scala
+even if the identifier is later set to another value (e.g., \code{null}).
+This is due to
+an \href{https://issues.scala-lang.org/browse/SI-4331}{unresolved issue (SI-4331)}
+in the \Scala REPL (read-eval-print-loop).
+
+In contrast, memory \emph{not} subject to this leak are those associated
+with calls to \code{s\$do(...}, functions returned by \code{s\$def(...}, and
+calls to methods of \Scala objects.  No special handling is needed if the return
+value of these functions is a primitive, vector, or matrix.  For example, the
+following code requires no memory management.
+
+<<noMemoryManagementNeeded,results='hide'>>=
+e <- s$do('scala.util.Random')$new()
+sapply(1:1000, function(i) e$nextGaussian())
+f <- function(n=1L) s %!% 'Array.fill(n) { scala.util.Random.nextGaussian }'
+g1 <- f(1000)
+@
+
+If the return value of one of these functions is a reference, the associated
+memory in \Scala will not be recovered until the \R's
+\code{ScalaInterpreterReference} object no longer exists \emph{and} the garbage
+collection function \code{intpGC} is called, or the \code{gc} argument is set
+to \code{TRUE}.  Because this garbage collection is somewhat time consuming,
+the default value of the \code{gc} argument is \code{FALSE}.  Continuing with
+the previous example, consider this code:
+
+<<resultAsReference,results='hide'>>=
+f <- function(n=1L) s %.!% 'Array.fill(n) { scala.util.Random.nextGaussian }'
+g1 <- f(1000)
+@
+
+\clearpage
+The variable \code{g2} is a reference to memory owned by the embedded \Scala
+interpreter.  The embedded \Scala interpreter will not recover the associated
+memory until \code{g2} is removed and \code{intpGC} is called:
+
+<<garbageCollection,results='hide'>>=
+rm(g2)
+@
+
+
+on a \Scala instance is
+
+
+Note that memory allocated as a result of assignment or executing
+     `snippet' will never be garbage collected due to a limitation of
+     Scala's REPL.  (See the Scala bug detailed here: <URL:
+     https://issues.scala-lang.org/browse/SI-4331>.)
+
+
 
 The default maximum heap size set by the Java Virtual Machine may not be
 sufficient and can be explicitly set in two ways.  It can be set using the
@@ -680,36 +764,6 @@ the global option \code{rscala.heap.maximum} (e.g.,
 the latter.
 
 JVM arguements.
-
-\subsubsection[Return values when calling Scala]{Return values when calling \Scala}
-
-When calling \Scala from within \R, the return value is one of the following:
-\begin{compactitem}
-\item A reference, i.e., an \R object of class \code{ScalaInterpreterReference}.  The methods of a reference can be called in subsequent statements, as exemplified by \code{a} and \code{c} in the right column of Table~\ref{callingScala}.
-\item A vector of integers, doubles, logicals, or characters.
-\item A matrix of integers, doubles, logicals, or characters.
-\end{compactitem}
-
-The return value is guaranteed to be a reference if the optional argument
-\code{as.reference} is set to \code{TRUE}.  For example, use
-\code{c$apply(0L)$intValue(as.reference=TRUE)}) to get a reference for the last
-expression of Table~\ref{callingScala}.  When \code{as.reference=FALSE}, an
-error is generated when a vector or matrix cannot be returned.  Finally, the
-default is \code{as.reference=NA} which results in a vector or matrix being
-returned if possible and a reference otherwise.
-
-We now describe the special support for integers, doubles, logicals, and
-characters --- jointly referred to as \emph{primitives} --- as well as vectors and
-matrices of these types.  Vectors in \R are implemented in \Scala as arrays.
-Matrices in \R are implemented in \Scala as rectangular arrays of arrays, i.e.,
-arrays of arrays of the same length.  These types and data structures can be
-copied from \R into \Scala and \emph{vice versa}.  Table~\ref{mappings}
-summarizes this special support and how \rscala converts data between the
-languages.  In the table, variables with the same identifier (e.g., \code{b})
-are equivalent in \R and \Scala.  For example, a matrix of integers in \R
-(e.g., \code{j <- matrix(c(1L, 2L), nrow=2)}) maps to a row-major rectangular
-array of arrays of \Scala's \code{Int} (e.g., \code{val j = Array(Array(1),
-Array(2))}).
 
 \subsubsection[Defining inline Scala functions]{Defining inline \Scala functions}
 \label{inline}
@@ -775,154 +829,6 @@ significantly faster than the \R implementation:
 <<timeBellFunctions>>=
 system.time(bell.using.rscala(16))
 system.time(bell.using.R(16))
-@
-
-\subsubsection[Evaluating arbitrary Scala code]{Evaluating arbitrary \Scala code}
-\label{evalCode}
-
-The \rscala package also allows arbitrary snippets of \Scala code to be
-compiled and executed on the fly.  These code snippets can be any mixture of
-statements, functions, class definitions, imports, etc.  Consider an earlier
-example.  Rather than evaluating the right column of Table~\ref{callingScala}
-in \R, the \Scala code in the left column can be evaluated more directly in \R
-as follows:
-
-<<arbitraryScalaCode>>=
-s %~% '
-  val a = new scala.util.Random()
-  a.setSeed(1234)
-  println(a.nextGaussian)
-  val b = BigInt.probablePrime(16, a)
-  val c = Array(b)
-  c(0) = b.pow(4)
-  c(0).intValue
-'
-@
-
-Note that the
-output from the \code{println(a.nextGaussian)} statement is displayed.
-To suppress output from \Scala, set the 
-\code{quiet} global option of the \code{intpSettings} function:
-
-<<arbitraryScalaCodeWithoutOutput>>=
-s %~% '
-  val a = new scala.util.Random()
-  a.setSeed(1234)
-  println(a.nextGaussian)
-  val b = BigInt.probablePrime(16, a)
-  val c = Array(b)
-  c(0) = b.pow(4)
-  c(0).intValue
-'
-@
-
-The return value for the evaluation is the value of the last expression.
-It is an integer vector of length one because the
-\Scala result's type \code{Int} could be converted to an integer vector in \R.
-If a conversion is not possible, the return value is a reference.  A reference
-is guaranteed when using the \code{\%.~\%} operator:
-
-<<getReference>>=
-s %.~% 'c(0).intValue'
-@
-
-By default, the \code{\%~\%} and \code{\%.~\%} operators perform string
-interpolation of the right-hand-side character vector before compiling and
-executing the \Scala snippet.  Any expression between `\code{@\{}' and
-`\code{\}}' is evaluated in the \R session and its string representation
-(returned by the \code{toString} function) is used to replace
-`\code{@\{...\}}'.  For example:
-
-<<stringInterpolation>>=
-class.name <- 'STAT 624'
-s %~% '"@{tolower(class.name)}".reverse'
-@
-
-The code snippet can contain any number of `\code{@\{...\}}' embedded
-expressions.  String interpolation is enabled or disabled globally using the
-\code{interpolate} option in the \code{intpSettings} function.  The
-\code{\%~\%} and \code{\%.~\%} operators are shorthand substitutes for the
-\code{intpEval} function which provides call-specific settings for
-\code{interpolate} and \code{quiet}.
-
-\subsubsection{Getting and setting values}
-
-Values may be copied between \Scala and \R using \code{intpSet} and
-\code{intpGet} functions:
-
-<<gettingAndSetting>>=
-normal.Mean0.Sd1 <- rnorm(10)
-normal.Mean0.Sd1
-
-s$x <- normal.Mean0.Sd1
-s %@% 'val y = x.map(2 * _ + 1)'
-
-normal.Mean1.Sd2 <- s$y
-normal.Mean1.Sd2
-@
-
-The shorthand substitutes for the previous calls to \code{intpSet} and
-\code{intpGet} are
-
-<<gettingAndSettingShorthand>>=
-s$x <- normal.Mean0.Sd1
-normal.Mean1.Sd2 <- s$y
-@
-
-Notice that \code{s$def(...} and \code{s$do(...}
-do not conflict with the shorthand substitutes to
-\code{intpSet} and \code{intpGet} because \code{def} and \code{do} are reserved
-words in \Scala and are, therefore, not valid identifiers.
-
-\subsubsection{Memory management}
-
-We now make a few remarks on memory management.  To set the maximum Java heap
-size, use the optional \code{java.heap.maximum} argument in the
-\code{scala} function.  Due to an
-\href{https://issues.scala-lang.org/browse/SI-4331}{unresolved bug (SI-4331)}
-in the \Scala REPL (read-eval-print-loop), memory associated with values
-returned by \Scala's REPL cannot be recovered within that instance of the
-\Scala interpreter even if the identifier is later set to another value (e.g.,
-\code{null}).  Specifically, bound values from calls to the \code{intpEval}
-function and its shorthand substitutes \code{\%~\%} and \code{\%.~\%} are
-subject to this memory leak (e.g., \code{a}, \code{b}, \code{c}, \code{res2},
-and \code{y} in the previous code).  Likewise, values bound using
-\code{intpSet} and its shorthand substitute are also subject to the memory leak
-(e.g., \code{x} in the previous code).
-
-In contrast, memory \emph{not} subject to this leak are those associated
-with calls to \code{s$do(...}, functions returned by \code{s$def(...}, and
-calls to methods of \Scala objects.  No special handling is needed if the return
-value of these functions is a primitive, vector, or matrix.  For example, the
-following code requires no memory management.
-
-<<noMemoryManagementNeeded,results='hide'>>=
-e <- s$do('scala.util.Random')$new()
-sapply(1:1000, function(i) e$nextGaussian())
-f <- function(n=1L) s %!% 'Array.fill(n) { scala.util.Random.nextGaussian }'
-g1 <- f(1000)
-@
-
-If the return value of one of these functions is a reference, the associated
-memory in \Scala will not be recovered until the \R's
-\code{ScalaInterpreterReference} object no longer exists \emph{and} the garbage
-collection function \code{intpGC} is called, or the \code{gc} argument is set
-to \code{TRUE}.  Because this garbage collection is somewhat time consuming,
-the default value of the \code{gc} argument is \code{FALSE}.  Continuing with
-the previous example, consider this code:
-
-<<resultAsReference,results='hide'>>=
-f <- function(n=1L) s %.!% 'Array.fill(n) { scala.util.Random.nextGaussian }'
-g1 <- f(1000)
-@
-
-\clearpage
-The variable \code{g2} is a reference to memory owned by the embedded \Scala
-interpreter.  The embedded \Scala interpreter will not recover the associated
-memory until \code{g2} is removed and \code{intpGC} is called:
-
-<<garbageCollection,results='hide'>>=
-rm(g2)
 @
 
 \subsubsection[Callbacks from Scala into the original R interpreter]{Callbacks from \Scala into the original \R interpreter}
