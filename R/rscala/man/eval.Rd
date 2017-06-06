@@ -39,13 +39,13 @@ scalaNull(type)
 \method{$}{ScalaInterpreter}(interpreter, identifier) <- value
 }
 \arguments{
-    \item{interpreter}{An interpreter from the \code{\link{scala}} function.}
+    \item{interpreter}{An interpreter from the \code{\link{scala}} function.  Or, when used in the \code{\link{scalap}} function, a Scala reference or a Scala interpreter.}
     \item{snippet}{A character vector of arbitrary length to be evaluated by the interpreter.  Multiline elements are accepted.}
     \item{scalaFunction}{A (unoptimized) Scala function created by calling \code{interpreter \%!\% snippet} and \code{interpreter \%.!\% snippet} within a function.}
     \item{type}{A string containing a valid Scala type, e.g., \code{"List[Double]"}.}
     \item{identifier}{A character vector of length one containing a valid Scala identifier.}
     \item{value}{Either: i. a vector or matrix of integers, doubles, logicals, characters, or raw, or ii. a Scala reference.}
-    \item{class.name}{A character vector of length one containing a full-qualified class name.}
+    \item{class.name}{A character vector of length one containing a full-qualified class name.  This should not be provided if the first argument to the \code{\link{scalap}} function is a Scala reference.}
 }
 \details{
 

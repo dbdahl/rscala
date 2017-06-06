@@ -317,7 +317,7 @@ serializing output is often not needed yet imposes some overhead.
 
 \subsubsection{String Interpolation}
 
-The \pkg{rscala} package provides for string interpolation to evaluate
+The \rscala package provides for string interpolation to evaluate
 arbitrary \R code and replace its string representation before
 evaluating the entire string as \Scala code.  The right-hand-side character
 vector is scanned for ``\code{@\{}'', followed by an arbitrary string, and ended by
@@ -372,7 +372,7 @@ a slightly different value.
 A \Scala result of class \code{Byte}, \code{Int}, \code{Double},
 \code{Boolean}, or \code{String} is passed back to \R as a length-one vector of raw,
 integer, double, logical, or character, respectively.  We refer to these as the
-\emph{primitive types} supported by the \pkg{rscala} package. Further, \Scala
+\emph{primitive types} supported by the \rscala package. Further, \Scala
 arrays and rectangular array of arrays of the primitive types are passed to \R
 as vectors and matrices of the equivalent \R types.  We call \emph{copyable types} those types that are
 primitives, arrays of primitives, and rectangular arrays of arrays of the
@@ -443,8 +443,8 @@ operator is used:
 rng <- s %~% 'new scala.util.Random()'
 rng
 
-oneToTen <- s %.~% 'Array.range(1,11)'
-oneToTen
+oneToTenReference <- s %.~% 'Array.range(1,11)'
+oneToTenReference
 @
 
 In the next example, a \Scala reference is used via string interpolation to
@@ -457,7 +457,7 @@ s %~% '
   @{rng}.nextDouble()
 '
 
-s %~% '@{oneToTen}.sum'
+s %~% '@{oneToTenReference}.sum'
 @
 
 \Scala references can also be used to call methods more directly using the
@@ -467,36 +467,21 @@ can be expressed equivalently as:
 <<evaluateScalaCodeReference2>>=
 rng$setSeed(24234L)
 rng$nextDouble()
-oneToTen$sum()
-@
-
-\Scala provides the \code{scalap}
-executable to list the methods of classes and companion objects.  Its output is
-available directly in \R using the \code{scalap} function.  For example:
-
-<<scalap1, out.lines=10>>=
-scalap(s, 'scala.util.Random')
-@
-
-Or, if you already have a \Scala reference (e.g., the previously-defined \code{rng}), you can simply use the \code{scalap}
-function as follows:
-
-<<scalap2, out.lines=10>>=
-scalap(rng)
+oneToTenReference$sum()
 @
 
 \subsubsection{Arguments to Method Calls and Length-One Vectors}
 
 Arguments to \Scala methods called using the \code{\$} operator on a \Scala
-reference can be copyable types (see Table \ref{mappings}) and \Scala
-references.  One quirk worth noting is how length-one vectors in \R are
+reference can be copyable types and \Scala
+references.  One item worth noting is how length-one vectors in \R are
 handled.  Note that in the previous \R expression \code{rng\$setSeed(24234L)},
-the value \code{24234L} as an integer vector of length one in \R, but is passed
+the value \code{24234L} is an integer vector of length one in \R, but is passed
 to \Scala as \code{Int}, not \code{Array[Int]}.  This is usually the most convenient
 behavior.  If, however, an \R vector should be treated as an array
 by \Scala, despite the fact that it might be of length one, wrap the vector in a call to the \code{I} function
 to ensure that the vector is treated ``as is''.  For example, consider an object
-with any \code{apply} method
+with an \code{apply} method
 that takes an array and a value and sets every element of the array to that value:
 
 <<lengthOne>>=
@@ -531,9 +516,9 @@ ways.  For example, consider the companion object \code{Array}.
 Its \code{range} method creates an array of regularly-spaced elements.  The following three statements are all functionally equivalent:
 
 <<evaluateScalaCodeCompanion>>=
-oneToTen <- s %~% 'Array.range(1,11)'
-oneToTen <- s$.Array$range(1L,11L)
-oneToTen <- s$do("Array")$range(1L,11L)
+oneToTen <- s %~% 'Array.range(1, 11)'
+oneToTen <- s$.Array$range(1L, 11L)
+oneToTen <- s$do("Array")$range(1L, 11L)
 @
 
 These three equivalent expression each have their advantanges in terms of
@@ -544,11 +529,24 @@ can be variables or literals.  The last is also fast, somewhat awkward, but also
 flexiblity that the name of the companion object can itself be a variable or
 literal (as well as its arguments).
 
-\subsubsection[Dealing with the Special apply and update Methods]{Dealing with the Special \code{apply} and \code{update} Methods}
+In the previous example, the result was a copyable type and therefore was
+serialized across the TCP/IP bridge.  If a \Scala reference is desired the
+expression \code{s \%\mytilde\% 'Array.range(1,11)'} should instead use the
+\code{\%.\mytilde\%} operator.  Likewise, to obtain a \Scala reference for the other
+two expressions in the previous example, a final argument \code{.AS.REFERENCE=TRUE} should
+be used.  These are illustrated below in the following three functionally equivalent expressions:
+
+<<evaluateScalaCodeCompanionAsReference>>=
+oneToTenReference <- s %.~% 'Array.range(1, 11)'
+oneToTenReference <- s$.Array$range(1L, 11L, .AS.REFERENCE=TRUE)
+oneToTenReference <- s$do("Array")$range(1L, 11L, .AS.REFERENCE=TRUE)
+@
+
+\subsubsection[The apply and update Methods]{The \code{apply} and \code{update} Methods}
 
 \Scala users are aware of the ``compiler magic'' that injects calls to the
 \code{apply} method of objects when no method is specified.  In the
-\pkg{rscala} package, this works for \Scala snippets, but the \code{apply}
+\rscala package, this works for \Scala snippets, but the \code{apply}
 method must be specified explicilty when using the \code{\$} operator.  That
 is, the following are all functionally equivalent:
 
@@ -597,6 +595,17 @@ rng <- s$do("scala.util.Random")$new()
 Again, like for companion objects, each way has its advantages in terms of
 flexibility, readability, and speed.
 
+\subsubsection[Interfacing with Java]{Interfacing with \Java}
+
+\Scala runs on the Java Virtual Machine and since it supports instantiating
+\Java classes and calling object and static methods, the \rscala package
+automatically provides this support as well.  It may be helpful, for example,
+to find the system's time zone through a chain of calls using the standard Java library:
+
+<<javaVersion>>=
+s$.java.util.TimeZone$getDefault()$getDisplayName()
+@
+
 \subsubsection{Quoting Method Names}
 
 \Scala has a type parameterization which are similiar but arguably more
@@ -636,66 +645,41 @@ paste0(augmentedList$toString(), " now contains 100.")
 adf
 adf
 
+\subsubsection{Discovering Methods}
+
+\Scala provides the \code{scalap} executable to list the methods of classes and
+companion objects.  Its output is available directly in \R using the
+\code{scalap} function.  For example:
+
+<<scalap1, out.lines=10>>=
+scalap(s, 'scala.util.Random')
+@
+
+Or, if you already have a \Scala reference (e.g., the previously-defined \code{rng}), you can simply use the \code{scalap}
+function as follows:
+
+<<scalap2, out.lines=10>>=
+scalap(rng)
+@
 
 
 
+\subsubsection{Memory Management}
 
-\subsubsection[Instantiating Scala objects and calling methods]{Instantiating \Scala objects and calling methods}
-\label{instantiateAndCall}
+The \rscala package takes advantage of the garbage collection facilities in
+both \R and \Scala and, as such, the user often does not need to think about
+memory management issues.  There are a few importance things to note, however.
 
-The \rscala package allows \R to hold a reference to any \Scala object and to
-call the object's methods directly.  There is also support for calling
-methods of a companion object and for instantiating objects.  This
-functionality is illustrated in Table~\ref{callingScala}.  These examples
-display classes and companion objects for \code{scala.util.Random},
-\code{scala.math.BigInt}, and \code{scala.Array}, but any classes and companion
-objects in the classpath can be called in this manner. The only exception is
-inner classes which are not supported.
+Due
 
-If a method takes type parameters or is
-otherwise not a valid identifier in \R (e.g., an operator method), the call to
-the method should be enclosed in quotes.  For example, note that the methods
-\code{apply[Int]} and \code{:+} are quoted here:
+The default maximum heap size set by the Java Virtual Machine may not be
+sufficient and can be explicitly set in two ways.  It can be set using the
+\code{heap.size} argument to the \code{scala} function, or it can be set using
+the global option \code{rscala.heap.maximum} (e.g.,
+\code{options(rscala.heap.maximum="4G")}).  The former takes presidence over
+the latter.
 
-\begin{table}[tb]
-\small
-\centering
-\begin{tabular}{p{3ex}ll}
-\toprule
-\multicolumn{2}{l}{\textbf{\textit{Description}}} & \\
-& \textbf{Scala} & \textbf{R using the \rscala package} \\
-\midrule
-\noalign{\vspace{1ex}}
-\multicolumn{2}{l}{\textit{Instantiate an object}} & \\
-& \code{val a = new scala.util.Random()} & \code{a <- s\$do(\textquotesingle{}scala.util.Random\textquotesingle{})\$new()} \\
-\noalign{\vspace{1ex}}
-\multicolumn{2}{l}{\textit{Method with arguments}} & \\
-& \code{a.setSeed(1234)} & \code{a$setSeed(1234L)} \\
-\noalign{\vspace{1ex}}
-\multicolumn{2}{l}{\textit{Method without arguments}} & \\
-& \code{a.nextGaussian} & \code{a$nextGaussian()} \\
-\noalign{\vspace{1ex}}
-\multicolumn{2}{l}{\textit{Companion object's method}} & \\
-& \code{val b = BigInt.probablePrime(8, a)} & \code{b <- s$do(\textquotesingle{}BigInt\textquotesingle{})$probablePrime(8L, a)} \\
-\noalign{\vspace{1ex}}
-\multicolumn{2}{l}{\textit{Companion object's special \code{apply} method}} & \\
-& \code{val c = Array(b)} & \code{c <- s$do(\textquotesingle{}Array\textquotesingle{})$apply(b)} \\
-\noalign{\vspace{1ex}}
-\multicolumn{2}{l}{\textit{Object's special \code{update} method}} & \\
-& \code{c(0) = b.pow(4)} & \code{c$update(0L, b$pow(4L))} \\
-\noalign{\vspace{1ex}}
-\multicolumn{2}{l}{\textit{Object's special \code{apply} method}} & \\
-& \code{c(0).intValue} & \code{c$apply(0L)$intValue()} \\
-\noalign{\vspace{1ex}}
-\bottomrule
-\end{tabular}
-\caption{Examples showing how to replicate \Scala expressions in \R via the \rscala package.}
-\label{callingScala}
-\end{table}
-
-\Scala runs on the Java Virtual Machine and it supports instantiating
-\Java classes and calling object and static methods.  As such, \rscala
-automatically provides this support as well.
+JVM arguements.
 
 \subsubsection[Return values when calling Scala]{Return values when calling \Scala}
 
@@ -727,17 +711,6 @@ are equivalent in \R and \Scala.  For example, a matrix of integers in \R
 array of arrays of \Scala's \code{Int} (e.g., \code{val j = Array(Array(1),
 Array(2))}).
 
-\subsubsection[Arguments when calling Scala]{Arguments when calling \Scala}
-
-When instantiating \Scala classes, calling methods of objects, or calling
-methods of companion objects, an argument can be either: i.\ a \Scala reference
-or ii.\ a vector or matrix of integers, doubles, logicals, or characters. Vectors and matrices
-supplied as arguments to \Scala methods are automatically converted to \Scala
-arrays and rectangular arrays as illustrated in Table~\ref{mappings}.
-Of course, \Scala reference objects require no conversion. For example, the \Scala reference object \code{b} in 
-the right-hand column of Table~\ref{callingScala} is used as an argument
-for the \code{apply} method on the next line in that table.
-  
 \subsubsection[Defining inline Scala functions]{Defining inline \Scala functions}
 \label{inline}
 

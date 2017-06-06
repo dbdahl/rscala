@@ -536,6 +536,10 @@ scalaAutoMkFunction <- function(reference,method) {
 '$.ScalaInterpreterItem' <- scalaAutoMkFunction
 
 scalap <- function(interpreter,class.name) {
+  if ( inherits(interpreter,"ScalaInterpreterReference") || inherits(interpreter,"ScalaCachedReference") ) {
+    if ( ! missing(class.name) ) stop("'class.name' should not be provided if the first argument is a Scala reference.")
+    return(scalap(interpreter[['interpreter']],interpreter[['type']]))
+  }
   if ( ! inherits(interpreter,"ScalaInterpreter") ) stop("The first argument must be an interpreter.")
   cc(interpreter)
   tryCatch({

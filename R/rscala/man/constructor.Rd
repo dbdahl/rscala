@@ -141,8 +141,8 @@ s$foo
 # Instantiate an object
 seed <- 2349234L
 scalap(s,'scala.util.Random')
-s$.scala.util.Random                   # More convenient that using scalap.
 rng <- s$.scala.util.Random$new(seed)  # Scala equivalent: new scala.util.Random(seed)
+scalap(rng)
 
 # Call method of a reference
 system.time(rng$nextInt(100L))   # Scala equivalent: rng.nextInt(100)

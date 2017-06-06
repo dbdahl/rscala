@@ -1,6 +1,6 @@
 2.2.3 (2017-06-XX)
   * Suppress default printing of 'scalap' results (which is chatty and are
-    often unavailable).
+    often unavailable).  Make 'scalap' work with Scala references.
 
 2.2.2 (2017-05-24)
   * Improved behavior for packages that depend on rscala, including adding
