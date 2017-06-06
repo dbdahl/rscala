@@ -693,7 +693,67 @@ function as follows:
 scalap(rng)
 @
 
-\subsubsection[Defining Scala Functions]{Defining \Scala Functions}
+\subsubsection[Defining Inline Scala Functions]{Defining Inline \Scala Functions}
+\label{inline}
+
+In addition to calling previously-compiled \Scala methods, the \rscala package
+allows for the definition of inline \Scala functions within an \R session.
+These methods are compiled on the fly and cached for execution later in the \R
+session.  We demonstrate this functionality by defining a function to compute
+the number of partitions of $n$ items, i.e., the Bell number \citep{bell}:
+
+<<bellUsingScala>>=
+bell.using.rscala <- function(n=1L) s %!% '
+  def snsk(n: Int, k: Int): BigInt = {
+    if ( n == 0 && k == 0 ) BigInt(1)
+    else if ( n == 0 || k == 0 ) BigInt(0)
+    else k * snsk(n - 1, k) + snsk(n - 1, k - 1)
+  }
+  ( 0 to n ).map( snsk(n,_) ).sum.doubleValue
+'
+@
+
+Note that the object \code{bell.using.rscala} is an \R function which calls the associated
+\Scala code.  Since \code{n} is defined as an \code{Int} in the example above,
+the argument \code{n} when calling the function is either a
+\code{ScalaInterpreterReference} to a \Scala's \code{Int} object or is
+automatically cast to an integer with \R's \code{as.integer} function.  For
+example, although the literal \code{10} is stored in \R as a double, it is cast
+to an integer here:
+
+<<callBellUsingScala>>=
+bell.using.rscala(10)
+@
+
+There are also three optional arguments, as seen here:
+
+<<bellArgs>>=
+args(bell.using.rscala)
+@
+
+The effect of the \code{as.reference} argument has already been discussed.  The
+\code{quiet} and \code{gc} arguments are discussed later.
+
+An \R implementation of the same algorithm is
+
+<<bellUsingR>>=
+bell.using.R <- function(n) {
+  snsk <- function(n, k) {
+    if ( n == 0 && k == 0 ) 1
+    else if ( n == 0 || k == 0 ) 0
+    else k * snsk(n - 1, k) + snsk(n - 1, k - 1)
+  }
+  sum( sapply(0:n, function(k) snsk(n,k)) )
+}
+@
+
+Notice that the \Scala implementation, depending on the value of $n$, can be
+significantly faster than the \R implementation:
+
+<<timeBellFunctions>>=
+system.time(bell.using.rscala(16))
+system.time(bell.using.R(16))
+@
 
 
 
@@ -764,72 +824,6 @@ the global option \code{rscala.heap.maximum} (e.g.,
 the latter.
 
 JVM arguements.
-
-\subsubsection[Defining inline Scala functions]{Defining inline \Scala functions}
-\label{inline}
-
-In addition to calling precompiled \Scala methods, the \rscala package allows
-the user to define \Scala methods within an \R session.  These \emph{inline}
-methods are compiled and cached for execution later in the \R session.  This
-feature is available using the \code{intpDef} method, or its shorthand
-substitute \code{s$def(args, body)}, where \code{args} gives the name and
-\Scala type of each argument and \code{body} is arbitrary \Scala code with
-access to the arguments defined in \code{args}.  We demonstrate this
-functionality by defining a function to compute the number of partitions of $n$
-items, i.e., the Bell number \citep{bell}.
-
-<<bellUsingScala>>=
-bell.using.rscala <- function(n=1L) s %!% '
-  def snsk(n: Int, k: Int): BigInt = {
-    if ( n == 0 && k == 0 ) BigInt(1)
-    else if ( n == 0 || k == 0 ) BigInt(0)
-    else k * snsk(n - 1, k) + snsk(n - 1, k - 1)
-  }
-  ( 0 to n ).map( snsk(n,_) ).sum.doubleValue
-'
-@
-
-Note that the object \code{bell.using.rscala} is an \R function which calls the
-\Scala code.  Since \code{n} is defined as an \code{Int} in the example above,
-the argument \code{n} when calling the function is either a
-\code{ScalaInterpreterReference} to a \Scala's \code{Int} object or is
-automatically cast to an integer with \R's \code{as.integer} function.  For
-example, although the literal \code{10} is stored in \R as a double, it is cast
-to an integer here:
-
-<<callBellUsingScala>>=
-bell.using.rscala(10)
-@
-
-There are also three optional arguments, as seen here:
-
-<<bellArgs>>=
-args(bell.using.rscala)
-@
-
-The effect of the \code{as.reference} argument has already been discussed.  The
-\code{quiet} and \code{gc} arguments are discussed later.
-
-An \R implementation of the same algorithm is
-
-<<bellUsingR>>=
-bell.using.R <- function(n) {
-  snsk <- function(n, k) {
-    if ( n == 0 && k == 0 ) 1
-    else if ( n == 0 || k == 0 ) 0
-    else k * snsk(n - 1, k) + snsk(n - 1, k - 1)
-  }
-  sum( sapply(0:n, function(k) snsk(n,k)) )
-}
-@
-
-Notice that the \Scala implementation, depending on the value of $n$, can be
-significantly faster than the \R implementation:
-
-<<timeBellFunctions>>=
-system.time(bell.using.rscala(16))
-system.time(bell.using.R(16))
-@
 
 \subsubsection[Callbacks from Scala into the original R interpreter]{Callbacks from \Scala into the original \R interpreter}
 
