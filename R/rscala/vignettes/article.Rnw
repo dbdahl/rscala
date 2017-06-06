@@ -470,6 +470,21 @@ rng$nextDouble()
 oneToTen$sum()
 @
 
+\Scala provides the \code{scalap}
+executable to list the methods of classes and companion objects.  Its output is
+available directly in \R using the \code{scalap} function.  For example:
+
+<<scalap1, out.lines=10>>=
+scalap(s, 'scala.util.Random')
+@
+
+Or, if you already have a \Scala reference (e.g., the previously-defined \code{rng}), you can simply use the \code{scalap}
+function as follows:
+
+<<scalap2, out.lines=10>>=
+scalap(rng)
+@
+
 \subsubsection{Arguments to Method Calls and Length-One Vectors}
 
 Arguments to \Scala methods called using the \code{\$} operator on a \Scala
@@ -680,13 +695,7 @@ the method should be enclosed in quotes.  For example, note that the methods
 
 \Scala runs on the Java Virtual Machine and it supports instantiating
 \Java classes and calling object and static methods.  As such, \rscala
-automatically provides this support as well.  \Scala provides the \code{scalap}
-executable to list the methods of class and companion objects.  Its output is
-available directly in \R using the \code{scalap} function.  For example:
-
-<<scalap, out.lines=14>>=
-scalap(s, 'scala.util.Random')
-@
+automatically provides this support as well.
 
 \subsubsection[Return values when calling Scala]{Return values when calling \Scala}
 
