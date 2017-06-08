@@ -85,7 +85,7 @@ requires no special installations or configurations of \R or \Scala.}
 %% in the following format:
 \Address{
   David B.\ Dahl\\
-  Professor and Associate Department Chair\\
+  Professor\\ % and Associate Department Chair\\
   Department of Statistics\\
   Brigham Young University \\
   223 TMCB\\
@@ -268,6 +268,7 @@ s <- scala()
 @
 
 <<instantiateInterpreterHidden,eval=TRUE,include=FALSE>>=
+set.seed(2234)
 s <- scala(serialize.output=TRUE)
 s %@% 'scala.util.Random.setSeed(3242)'
 @
@@ -796,129 +797,187 @@ operator returns the \R equivalent of copyable types in \Scala and a \Scala
 reference if the result is not a copyable type.  On the other hand, the
 \code{\%.!\%} operator always returns a \Scala reference.
 
-The consumer of a \Scala function need to know the implementation is written is
-\Scala.  There are a few considerations, however, for the programmer of a
-\Scala function.  First, the last expression of a \Scala function should always
-use either the \code{\%!\%} operator or the \code{\%.!\%} operator.  Second, as
-with calling methods of \Scala references, the arguments to \Scala functions
-can be copyable types and \Scala references.  Third, default values must be
-provided for every argument, thereby indicating to \rscala the type of the
-argument.  If the user passes arguments of different types than those indicated
-by the default values, they are cast to the expected type.
+The consumer of a \Scala function may not need to know the implementation is
+written is \Scala.  There are a few considerations, however, for the programmer
+of a \Scala function.  First, the last expression of a \Scala function should
+always use either the \code{\%!\%} operator or the \code{\%.!\%} operator.
+Second, as the arguments to \Scala functions can be copyable types, \Scala
+references, or \code{NULL}, where \code{NULL} is used to indicate
+arbitrary \R objects.   Third, default values must be provided for every
+argument, thereby indicating to \rscala the type of the argument.  If the user
+passes arguments of different types than those indicated by the default values,
+they are cast to the expected type.  The result of the \code{scalaNull}
+function can be used to specify a \Scala reference  without having to
+instantiate an object of that class.  For example, an argument to \Scala
+function might be \code{rng = scalaNull("scala.util.Random")} indicating that
+the argument should be an object of class \code{scala.util.Random} and
+eliminating the need to have such an object when the \Scala function
+is defined.
 
+\subsubsection[Assessing R from Embedded Scala]{Assessing \R from Embedded \Scala}
 
+When a \Scala instance is created with the \code{scala} function, an instance
+of the \Scala class \code{org.ddahl.rscala.RClient} is bound to the identifier
+\code{R}.  This object provides access to the \R session from the embedded
+\Scala session.  The Scaladoc for the \code{RClient} class, which is linked on
+the landing page of the the \rscala's GibHub repository
+(\url{https://github.com/dbdahl/rscala}), provides comprehensive documentation
+for the methods.  Here we demonstrate the functionatlity.  To assign a value in
+the \R session, use the \code{set} method, e.g.:
+
+<<setInScala>>=
+s %@% '
+  R.set("zone", java.util.TimeZone.getDefault.getDisplayName)
+  R.set("atLeast8", scala.util.Properties.isJavaAtLeast("1.8"))
+'
+zone
+atLeast8
+@
+
+Values of \R variables can be accessed in \Scala using several methods.  The
+first is the \code{get} method that returns a \code{Tuple2} giving the value
+whose static type is \code{Any} and a \code{String} representing its type.
+Consider the example below in which the value of the \R variable \code{T} is
+obtained.  Although the runtime type of the first element in this instance of
+the tuple will be \code{Boolean}, the static type is \code{Any}.  Therefore,
+it will likely need to be cast to be useful, as demonstrated with the call to
+\code{asInstanceOf[Boolean]} below:
+
+<<getInScala>>=
+s %@% '
+  val result = R.get("T")
+  println("The result is " + result)
+  if ( result._1.asInstanceOf[Boolean] ) {
+    println("Good, nobody messed with the value of T.")
+  }
+'
+@
+
+Instead of casting the result from the \code{get} method, it may be more
+convenient to use a suite of method whose name starts with \code{get} and ends
+in $XY$, where $X \in \{$\code{R}, \code{I}, \code{D}, \code{L}, \code{S}$\}$
+and $Y \in \{$\code{0}, \code{1}, \code{2}$\}$.  The value of $X$ indicates
+whether the result from \R should be interpreted as raw, integer, double,
+logical, or character, respectively.  The value of $Y$ indicates whether the
+result should be interpreted as a primitive, array of primitives, or a
+rectangular array of arrays of primitives, respectively.  For example,
+
+<<getInScala2>>=
+s %@% 'if ( R.getL0("T") ) { println("Good, nobody messed with the value of T.") } '
+@
+
+\R expressions can also be evaluated with a suite of method whone name starts
+with \code{eval} and ends in $XY$, with $X$ and $Y$ having the same meaning as
+the methods starting with \code{get}.  In the example below, both \R and \Scala
+are used to sample from chi-square distribution with $100$ degrees of freedom:
+
+<<evalInScala>>=
+set.seed(324)
+s %~% 'R.evalD1("rnorm(100, sd=3)").map(math.pow(_, 2)).sum'
+@
+
+The \code{RClient} class also provides the ability to call \R function through
+methods that start with \code{invoke} and end in $XY$ (as in the \code{get} and
+\code{eval} methods).  For example, the previous example could also be
+implemented as follows:
+
+<<invokeInScala>>=
+set.seed(324)
+s %~% 'R.invokeD1("rnorm", 100, "sd" -> 3).map(math.pow(_, 2)).sum'
+@
+
+The example above demonstrates the use of \Scala's builtin array notation for
+creating pairs (e.g., \code{"sd" -> 3}) to provide named arguments to the \R
+function invoked from \Scala.  The arguments to an \code{invoke} method can be
+a copyable types, \Scala references, and NULL, where \code{NULL} is used to
+indicate arbitrary \R objects.
+
+A more interesting use case is calling a user-supplied \R function from \Scala.
+First, consider an \R function that computes $f(n,\alpha)$, the expectation of
+the Ewens($n$,$\alpha$) distribution or, equivalently, the expected number of
+clusters when sampling $n$ observations from a discrete random measure obtained
+from the Dirichlet process with mass parameter $\alpha$:
+
+<<enc>>=
+f <- function(n,alpha) sapply(alpha, function(a) sum(a/(1:n+a-1)))
+f(100, 1.0)
+@
+
+In a Bayesian analysis, the Ewens distribution is a prior distribution in
+random partition models and $\alpha$ is a hyperparameter.  In the prior
+elicitation process, practioners may want to find the value of $\alpha$ that
+corresponds to the experts anticipated number of clusters.  Thus, the task is
+to solve $f(n,\alpha) = \mu$ for $\alpha$, given fixed values for $n$ and $\mu$.
+To be specific, suppose $n=1000$ and $\mu=10$. The value $\alpha$ can be
+obtained using root finding methods (e.g., the \code{uniroot} function in \R).
+Here, we demonstrate the bisection method implemented as a \Scala function and
+calling an anonyous, user-supplied \R function:
+
+<<rootFinding>>=
+bisection <- function(func=NULL, lower=1.0, upper=1.0, epsilon=0.000000001) s %!% '
+  def g(x: Double) = R.invokeD0(func, x)
+  val (fLower, fUpper) = (g(lower), g(upper))
+  if ( fLower*fUpper > 0 ) sys.error("lower and upper do not straddle the root.")
+  @scala.annotation.tailrec
+  def engine(l: Double, u: Double, fLower: Double, fUpper: Double): Double = {
+    if ( math.abs(l-u) <= epsilon ) ( l + u ) / 2
+    else {
+      val c = ( l + u ) / 2
+      val fCenter = g(c)
+      if ( fLower*fCenter < 0 ) engine(l,c,fLower,fCenter)
+      else engine(c,u,fCenter,fUpper)
+    }
+  }
+  engine(lower, upper, fLower, fUpper)
+'
+
+bisection(function(a) f(100,a) - 10, 0.1, 20)
+@
+
+The most important aspect of this example is found in the first line of the
+\Scala function.  There the \code{invokeD0} method of the object \code{R}
+receives \code{func} (which was passed as the first argument to the \Scala
+function with type \code{NULL} so that it could be referenced later without any
+conversion) and a value \code{x}.  The function returns the result as a
+\code{Double}.
+
+Finally, we note that the \rscala package supports infinite recursion (subject
+to available resources) between \R and \Scala.  For example, the
+\code{recursive.sum} function below repeatedly calls itself from \Scala to
+compute $0+1+2+\ldots+n$:
+
+<<recursion>>=
+recursive.sum <- function(n=0L) {
+  s %!% 'if ( n <= 0 ) 0 else n + R.invokeI0("recursive.sum", n-1)'
+}
+recursive.sum(10)
+@
 
 \subsubsection{Memory Management}
 
-The \rscala package takes advantage of the garbage collection facilities in
-both \R and \Scala and, as such, the user often does not need to think about
-memory management issues.  There are a few importance things to note, however.
+The \rscala package ties into the garbage collectors in both \R and \Scala and,
+as such, the user often does not need to think about memory management issues.
+There are a few importance things to note, however.  First, the default maximum
+heap size set by the Java Virtual Machine may not be sufficient and can be
+explicitly set in two ways.  It can be set using the \code{heap.size} argument
+to the \code{scala} function, or it can be set using the global option
+\code{rscala.heap.maximum} (e.g., \code{options(rscala.heap.maximum="4G")}).
+The former takes presidence over the latter.
 
-All memory allocated as a result of evaluating a \Scala expression using the \code{\%\mytilde\%} and \code{\%\mytilde\%} operators,
-as well as memory allocated by assignment using the \code{\$} operator, cannot be recovered within that instance of \Scala
-even if the identifier is later set to another value (e.g., \code{null}).
-This is due to
-an \href{https://issues.scala-lang.org/browse/SI-4331}{unresolved issue (SI-4331)}
-in the \Scala REPL (read-eval-print-loop).
-
-In contrast, memory \emph{not} subject to this leak are those associated
-with calls to \code{s\$do(...}, functions returned by \code{s\$def(...}, and
-calls to methods of \Scala objects.  No special handling is needed if the return
-value of these functions is a primitive, vector, or matrix.  For example, the
-following code requires no memory management.
-
-<<noMemoryManagementNeeded,results='hide'>>=
-e <- s$do('scala.util.Random')$new()
-sapply(1:1000, function(i) e$nextGaussian())
-f <- function(n=1L) s %!% 'Array.fill(n) { scala.util.Random.nextGaussian }'
-g1 <- f(1000)
-@
-
-If the return value of one of these functions is a reference, the associated
-memory in \Scala will not be recovered until the \R's
-\code{ScalaInterpreterReference} object no longer exists \emph{and} the garbage
-collection function \code{intpGC} is called, or the \code{gc} argument is set
-to \code{TRUE}.  Because this garbage collection is somewhat time consuming,
-the default value of the \code{gc} argument is \code{FALSE}.  Continuing with
-the previous example, consider this code:
-
-<<resultAsReference,results='hide'>>=
-f <- function(n=1L) s %.!% 'Array.fill(n) { scala.util.Random.nextGaussian }'
-g1 <- f(1000)
-@
-
-\clearpage
-The variable \code{g2} is a reference to memory owned by the embedded \Scala
-interpreter.  The embedded \Scala interpreter will not recover the associated
-memory until \code{g2} is removed and \code{intpGC} is called:
-
-<<garbageCollection,results='hide'>>=
-rm(g2)
-@
-
-
-on a \Scala instance is
-
-
-Note that memory allocated as a result of assignment or executing
-     `snippet' will never be garbage collected due to a limitation of
-     Scala's REPL.  (See the Scala bug detailed here: <URL:
-     https://issues.scala-lang.org/browse/SI-4331>.)
-
-
-
-The default maximum heap size set by the Java Virtual Machine may not be
-sufficient and can be explicitly set in two ways.  It can be set using the
-\code{heap.size} argument to the \code{scala} function, or it can be set using
-the global option \code{rscala.heap.maximum} (e.g.,
-\code{options(rscala.heap.maximum="4G")}).  The former takes presidence over
-the latter.
-
-JVM arguements.
-
-\subsubsection[Callbacks from Scala into the original R interpreter]{Callbacks from \Scala into the original \R interpreter}
-
-When an embedded \Scala instance is created with the \code{scala}
-function, an instance of the \Scala class
-\code{org.ddahl.rscala.callback.RClient} is bound to the identifier \code{R}.
-This object \code{R} provides access to the original \R interpreter.  Having
-the ability to callback into the original \R interpreter facilitates writing
-generic functions in \Scala that can be customized by an \R user with no
-knowledge of \Scala.  The full Scaladoc for the \code{RClient} class,
-including examples, is available in the online supplement.  Here we merely
-demonstrate this feature with a simple example that shows \R calling an inline
-\Scala method which itself calls an \R function.  Consider this first
-implementation:
-
-<<callbacksVersion1>>=
-myMean <- function(x) {
-  cat('Here I am.\n')
-  mean(x)
-}
-
-callRFunc <- function(name="",x=numeric()) s %!% '
-  R.xx = x
-  R.evalD0(s"$name(xx)")
-'
-
-callRFunc('myMean', 1:100)
-@
-
-In this example, the character vector containing the name of the \code{myMean}
-function is passed to the \code{callRFunc} function defined as an inline
-\Scala function.  This inline \Scala method calls back into the original \R
-interpreter using the \code{evalD0} method of the \code{R} object.
-
-A more advanced implementation utilizes the class
-\code{org.ddahl.rscala.callback.RObject}.  Objects of this class are created in
-\R with the \code{intpWrap} function and can represent arbitrary \R objects
-which can later be used in embedded \R code.  Using the \code{RObject} class
-can reduce the need to copy data between \R and \Scala.  The class is also
-documented in the Scaladoc and is demonstrated here:
-
-<<callbacksVersion2>>=
-cat("Out of date.\n")
-@
+Second, there is an
+\href{https://issues.scala-lang.org/browse/SI-4331}{unresolved issue (SI-4331)}
+with the \Scala REPL (read-eval-print-loop) in which allocated memory cannot be
+freed (even if the identifier is later set to another value).  This issue
+manifests itself in \rscala in that all memory allocated as a result of
+evaluating a \Scala expression using the \code{\%\mytilde\%} and
+\code{\%\mytilde\%} operators, as well as memory allocated by assignment using
+the \code{\$} operator, cannot be recovered.  In contrast, memory \emph{not}
+subject to this issue is that associated with \Scala functions and calls to
+methods using \Scala references.  Thus, heavy usage of \Scala functions and
+method calls on \Scala references is encouraged for memory intensive
+applications.  Further, as will be shown later, they also enjoy less invocation
+latency than the equivalent code using the \code{\%\mytilde\%} and \code{\%.\mytilde\%}
+operators.
 
 \subsection[Accessing the R interpreter within a Scala or Java application]{Accessing the \R interpreter within a \Scala or \Java application}
 

@@ -163,53 +163,103 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
 
   /** Invokes an R function with arguments.  */
   def invoke(function: RReference, args: Any*) = eval(mkSnippet(function,args))
+
+  /** Invokes an R function with arguments.  */
+  def invoke(functionName: String, args: Any*) = eval(mkSnippet(functionName,args))
  
   /** Invokes an R function with arguments and returns the result using [[getI0]].  */
   def invokeI0(function: RReference, args: Any*) = evalI0(mkSnippet(function,args))
-  
+
+  /** Invokes an R function with arguments and returns the result using [[getI0]].  */
+  def invokeI0(functionName: String, args: Any*) = evalI0(mkSnippet(functionName,args))
+
   /** Invokes an R function with arguments and returns the result using [[getD0]].  */
   def invokeD0(function: RReference, args: Any*) = evalD0(mkSnippet(function,args))
+  
+  /** Invokes an R function with arguments and returns the result using [[getD0]].  */
+  def invokeD0(functionName: String, args: Any*) = evalD0(mkSnippet(functionName,args))
   
   /** Invokes an R function with arguments and returns the result using [[getL0]].  */
   def invokeL0(function: RReference, args: Any*) = evalL0(mkSnippet(function,args))
   
+  /** Invokes an R function with arguments and returns the result using [[getL0]].  */
+  def invokeL0(functionName: String, args: Any*) = evalL0(mkSnippet(functionName,args))
+  
   /** Invokes an R function with arguments and returns the result using [[getS0]].  */
   def invokeS0(function: RReference, args: Any*) = evalS0(mkSnippet(function,args))
+  
+  /** Invokes an R function with arguments and returns the result using [[getS0]].  */
+  def invokeS0(functionName: String, args: Any*) = evalS0(mkSnippet(functionName,args))
   
   /** Invokes an R function with arguments and returns the result using [[getR0]].  */
   def invokeR0(function: RReference, args: Any*) = evalR0(mkSnippet(function,args))
   
+  /** Invokes an R function with arguments and returns the result using [[getR0]].  */
+  def invokeR0(functionName: String, args: Any*) = evalR0(mkSnippet(functionName,args))
+  
   /** Invokes an R function with arguments and returns the result using [[getI1]].  */
   def invokeI1(function: RReference, args: Any*) = evalI1(mkSnippet(function,args))
+  
+  /** Invokes an R function with arguments and returns the result using [[getI1]].  */
+  def invokeI1(functionName: String, args: Any*) = evalI1(mkSnippet(functionName,args))
   
   /** Invokes an R function with arguments and returns the result using [[getD1]].  */
   def invokeD1(function: RReference, args: Any*) = evalD1(mkSnippet(function,args))
   
+  /** Invokes an R function with arguments and returns the result using [[getD1]].  */
+  def invokeD1(functionName: String, args: Any*) = evalD1(mkSnippet(functionName,args))
+  
   /** Invokes an R function with arguments and returns the result using [[getL1]].  */
   def invokeL1(function: RReference, args: Any*) = evalL1(mkSnippet(function,args))
+  
+  /** Invokes an R function with arguments and returns the result using [[getL1]].  */
+  def invokeL1(functionName: String, args: Any*) = evalL1(mkSnippet(functionName,args))
   
   /** Invokes an R function with arguments and returns the result using [[getS1]].  */
   def invokeS1(function: RReference, args: Any*) = evalS1(mkSnippet(function,args))
   
+  /** Invokes an R function with arguments and returns the result using [[getS1]].  */
+  def invokeS1(functionName: String, args: Any*) = evalS1(mkSnippet(functionName,args))
+  
   /** Invokes an R function with arguments and returns the result using [[getR1]].  */
   def invokeR1(function: RReference, args: Any*) = evalR1(mkSnippet(function,args))
+  
+  /** Invokes an R function with arguments and returns the result using [[getR1]].  */
+  def invokeR1(functionName: String, args: Any*) = evalR1(mkSnippet(functionName,args))
   
   /** Invokes an R function with arguments and returns the result using [[getI2]].  */
   def invokeI2(function: RReference, args: Any*) = evalI2(mkSnippet(function,args))
   
+  /** Invokes an R function with arguments and returns the result using [[getI2]].  */
+  def invokeI2(functionName: String, args: Any*) = evalI2(mkSnippet(functionName,args))
+  
   /** Invokes an R function with arguments and returns the result using [[getD2]].  */
   def invokeD2(function: RReference, args: Any*) = evalD2(mkSnippet(function,args))
+  
+  /** Invokes an R function with arguments and returns the result using [[getD2]].  */
+  def invokeD2(functionName: String, args: Any*) = evalD2(mkSnippet(functionName,args))
   
   /** Invokes an R function with arguments and returns the result using [[getL2]].  */
   def invokeL2(function: RReference, args: Any*) = evalL2(mkSnippet(function,args))
   
+  /** Invokes an R function with arguments and returns the result using [[getL2]].  */
+  def invokeL2(functionName: String, args: Any*) = evalL2(mkSnippet(functionName,args))
+  
   /** Invokes an R function with arguments and returns the result using [[getS2]].  */
   def invokeS2(function: RReference, args: Any*) = evalS2(mkSnippet(function,args))
+  
+  /** Invokes an R function with arguments and returns the result using [[getS2]].  */
+  def invokeS2(functionName: String, args: Any*) = evalS2(mkSnippet(functionName,args))
   
   /** Invokes an R function with arguments and returns the result using [[getR2]].  */
   def invokeR2(function: RReference, args: Any*) = evalR2(mkSnippet(function,args))
   
-  private def mkSnippet(function: RReference, args: Seq[Any]) = {
+  /** Invokes an R function with arguments and returns the result using [[getR2]].  */
+  def invokeR2(functionName: String, args: Any*) = evalR2(mkSnippet(functionName,args))
+  
+  private def mkSnippet(functionName: String, args: Seq[Any]): String = mkSnippet(REphemeralReference(functionName), args)
+
+  private def mkSnippet(function: RReference, args: Seq[Any]): String = {
     var counter = 0
     val argsStrings = args.map {
       case null => "NULL"
@@ -829,14 +879,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
 object RClient {
 
   import scala.sys.process._
-
-  private val isWindows: Boolean = sys.props("os.name").toLowerCase match {
-    case s if s.startsWith("""windows""") => true
-    case s if s.startsWith("""linux""") => false
-    case s if s.startsWith("""unix""") => false
-    case s if s.startsWith("""mac""") => false
-    case _ => throw new RuntimeException("Unrecognized OS")
-  }
+  import scala.util.Properties.{isWin => isWindows}
 
   private val defaultArguments = isWindows match {
     case true  => Array[String]("--no-save","--no-restore","--silent","--slave") 
