@@ -474,7 +474,7 @@ rng$nextDouble()
 oneToTenReference$sum()
 @
 
-\subsubsection{Arguments to Method Calls and Length-One Vectors}
+\subsubsection{Length-one vectors and arguments to method calls}
 
 Arguments to \Scala methods called using the \code{\$} operator on a \Scala
 reference can be copyable types and \Scala
@@ -597,15 +597,15 @@ rng <- s$.scala.util.Random$new()
 rng <- s$do("scala.util.Random")$new()
 @
 
-Again, like for companion objects, each way has its advantages in terms of
+Again, as for companion objects, each way has its advantages in terms of
 flexibility, readability, and speed.
 
 \subsubsection[Interfacing with Java]{Interfacing with \Java}
 
 \Scala runs on the Java Virtual Machine and since it supports instantiating
 \Java classes and calling object and static methods, the \rscala package
-automatically provides this support as well.  It may be helpful, for example,
-to find the system's time zone through a chain of calls using the standard Java library:
+automatically provides this support as well.  For example,
+to find the system's time zone through a chain of calls using the standard \Java library:
 
 <<javaVersion>>=
 s$.java.util.TimeZone$getDefault()$getDisplayName()
@@ -814,7 +814,7 @@ the argument should be an object of class \code{scala.util.Random} and
 eliminating the need to have such an object when the \Scala function
 is defined.
 
-\subsubsection[Assessing R from Embedded Scala]{Assessing \R from Embedded \Scala}
+\subsubsection[Callbacks into R from Embedded Scala]{Callbacks into \R from Embedded \Scala}
 
 When a \Scala instance is created with the \code{scala} function, an instance
 of the \Scala class \code{org.ddahl.rscala.RClient} is bound to the identifier
@@ -979,108 +979,52 @@ applications.  Further, as will be shown later, they also enjoy less invocation
 latency than the equivalent code using the \code{\%\mytilde\%} and \code{\%.\mytilde\%}
 operators.
 
-\subsection[Accessing the R interpreter within a Scala or Java application]{Accessing the \R interpreter within a \Scala or \Java application}
-
-So far this paper has demonstrated calling \Scala code from \R.
-Conversely, the \rscala package also allows an \R interpreter to be embedded in
-a \Scala, \Java, or any other JVM-based application that has the
-\rscala JAR in its classpath.  Two versions of the JAR file are provided: one
-for each of \Scala 2.10.x and \Scala 2.11.x.  Find the path of these JAR files
-using
-
-<<whereAreTheJars>>=
-rscala::.rscalaJar()
-@
-
-The paths for specific versions of the JAR files are located using
-
-<<whereAreTheJarsSpecific>>=
-rscala::.rscalaJar('2.10')
-rscala::.rscalaJar('2.11')
-rscala::.rscalaJar('2.12')
-@
-
-To instantiate an \R interpreter in a \Scala application, use the special
-\code{apply} method of the companion object to the
-\code{org.ddahl.rscala.callback.RClient} class:
-
-<<scalaScript,engine="scala",engine.opts=paste0('-cp "',rscala::.rscalaJar('2.12'),'"'),comment="//">>=
-// Scala code
-val R = org.ddahl.rscala.RClient()
-val side = R.evalS0("sample(c('heads', 'tails'), 1)")
-println(s"Your coin landed $side.")
-R.exit
-@
-
-The previous statements assume that, on Windows, the registry keys option was
-not disabled during installation.  On other operating systems, \code{R} is
-assumed to be in the path.  If these assumptions are not met or a particular
-installation of \R is desired, the path to the \R executable may be specified
-as the first argument to the \code{apply} function.  The \rscala package must
-be available to the selected \R executable.
-
-To use the \code{RClient} class in a \Java or other JVM-based application, the
-\Scala JARs 
-and the \rscala JAR
-must be in the classpath.
-These file system paths can be located from \R using \code{rscala::scalaInfo()\$jars} and \code{rscala::.rscalaJar()}, respectively.
-To
-instantiate an \R interpreter, call one of the \code{apply} static methods.
-The full Scaladoc for the \code{org.ddahl.rscala.callback.RClient} class and
-its companion object, including examples, is available in the online
-supplement.
-
-\subsection{Debugging and error propagation}
-
-We now describe how the \rscala package supports \Scala exceptions and \R
-errors.  If a run-time exception occurs while executing \Scala code within \R,
-a reference to the exception is returned:
-
-<<runtimeException, out.lines=10>>=
-tryCatch(x <- s %~% '
-  val n = 10
-  if ( n != 20 ) throw new RuntimeException("n is not 20.")
-', error=function(e) e)
-@
-
-If \code{quiet=FALSE} is set using the \code{intpSettings} function, the stack
-trace is printed in \R's console.  Since \code{x} is a reference to the
-exception, the stack trace can also be displayed using
-
-The above example is a run-time exception, but compile-time exceptions behave
-in the same way.  For example, the code below tries to instantiate a class that
-is not defined in the current classpath:
-
-<<exceptionMessage>>=
-tryCatch(x <- s %~% 'val a = new ClassThatDoesNotExist()',error=function(e) e)
-@
-
-Errors in \R code embedded in a \Scala or \Java application result in a runtime
-exception.  Likewise, errors in callbacks to the \R interpreter using the
-\code{R} object lead to a reference to the exception.  For example, the code
-below is valid \Scala but the function does not exist in the \R interpreter and
-leads to an error:
-
-<<compiletimeException>>=
-tryCatch(x <- s %~% 'R.eval("nonexistantFunctionInR()")',error=function(e) e)
-@
-
 \subsection[Developing packages depending on rscala]{Developing packages depending on \rscala}
 
-We now describe how to develop an \R package with \Scala code using the \rscala
-package.  Just as several packages on CRAN are implemented using precompiled
-\Java code accessed through the \rJava package, we provide tools such that
-\Scala developers can develop packages that run embedded \Scala source code or
-execute precompiled \Scala or \Java code.
-
+The \rscala package supports writing \R packages using \Scala.  For example,
+the \pkg{shallot} and \pkg{bamboo} packages on CRAN implement statistical
+methodology of associated journal articles using \Scala accessed via the
+\rscala package.  The readers are invited study those examples, but we highlight a few items here.
 An \R package based on \rscala should include \code{rscala} in the
-\code{Depends} or \code{Imports} field of the package's \code{DESCRIPTION}
-file.  If using the \code{Imports} field, the \code{NAMESPACE} file should also
-include \code{import(rscala)}.  As with packages that depend on \rJava, JAR
-files that the package developer wishes to be in the classpath are placed in
-the package's \code{java} directory.  The package should define an
-\code{.onLoad} function which calls \code{rscalaPackage(pkgname)}, where
-\code{pkgname} is the package's name.  Since the namespace is not yet sealed,
+\code{Imports} field of the package's \code{DESCRIPTION}
+file and the \code{NAMESPACE} file should include a line with \code{import(rscala)}.
+The package should define an
+\code{.onLoad} function which calls \code{.rscalaPackage(pkgname)}, where
+\code{pkgname} is the package's name, e.g.:
+
+<<onLoad, eval=FALSE>>=
+.onLoad <- function(libname, pkgname) {
+  .rscalaPackage(pkgname)
+}
+@
+
+Analogous to \rJava's \code{.jpackage} function, the \code{.rscalaPackage}
+function adds the files in the source package's \code{inst/java} directory to
+\Scala's classpath.  \code{.rscalaPackage} function takes several optional
+arguments.  The \code{classpath.packages} allows a package to use the JAR files
+of another package.  For example, the \pkg{shallot} packages imports the
+\pkg{commonsMath} package and has \code{classpath.packages="commonsMath"} so
+that the \pkg{shallot} package does not need to distribute itself the JAR file
+of the Apache Commons Mathematics Library.
+
+
+ that: i.~provide additional functionality to set the classpath, ii.~give a \Scala snippet to ev
+
+     the JAR files in the ‘java’ directory of the package and passes
+     the ‘...’ arguments to the ‘scala’ function.  This instance of
+     Scala is available as the object ‘s’ in the namespace of the
+     package (thereby making it available to the package's function)
+     but it is not exported from the namespace.  The object ‘s’ is only
+     initialized on its first usage. The function
+     ‘.rscalaPackageUnload’ should be called in the ‘.onUnload’
+     function of a package that wishes to depend on this package so
+     that ‘close(s)’ is called (if needed).
+
+
+
+Since the namespace is not yet sealed,
+
+
 this function is able to define an environment \code{E} in the package's
 namespace.  This environment contains \code{pkgname} (the package's name) and
 \code{jars} (the path of all the JAR files in the package's \code{java}
@@ -1090,11 +1034,7 @@ directory).  Finally, the \R package should call \code{rscalaLoad(classpath,
 \code{classpath} is \code{NULL}, then \code{E\$jars} is used.  An acceptable
 \code{.onLoad} function may be as simple as
 
-<<onLoad, eval=FALSE>>=
-.onLoad <- function(libname, pkgname) {
-  .rscalaPackage(pkgname)
-}
-
+<<onUnload, eval=FALSE>>=
 .onUnload <- function(libname) {
   .rscalaPackageUnload()
 }
@@ -1134,6 +1074,64 @@ base_dir <- E$s$.java.io.File$new(normalizePath(getwd()))
 Of course, porting a package that makes frequent use of \rJava's low-level
 interface (e.g., the \code{.jcall} function) will require more changes.
 The online supplement contains both the original \pkg{mailR} package and our port to \rscala.
+
+\section[Accessing R in Scala]{Accessing \R in \Scala}
+
+So far we have demonstrated calling \Scala code from \R.  Conversely, \rscala
+also allows an \R interpreter to be embedded in a \Scala application.  This
+functionality comes as a byproduct of \rscala's previously-described support
+for callbacks into \R from embedded \Scala, but it can be useful in its own right.
+
+Those who are interesting in accessing \R from \Scala should also consider
+\Rserve \citep{rserve} which, like \rscala, is ``a TCP/IP server which allows
+other programs to use facilities of \R'' (\url{http://www.rforge.net/Rserve}).
+\Rserve clients are available for many languages including \Java and therefore
+\Scala (since \Scala can call \Java code).  \Rserve is fast and provides a much
+richer API than \rscala, but requires that \R be compiled with the option
+\code{\textemdash{}enable-R-shlib} (which is the default on Windows and Mac OS
+X, but is on some Linux distributions).  \Rserve also has some limitations on
+Windows and the user is advised to not ``use Windows unless you really have
+to'' (\url{http://www.rforge.net/Rserve/doc.html}).
+
+Conversely, \rscala works the same on all operating systems, uses a standard
+installation of \R, and is integrated with \Scala's standard dependency
+management system.  To make the \code{org.ddahl.rscala.RClient} class available
+to a \Scala application, simply add the following line to SBT's
+\code{build.sbt} file:
+
+<<sbt, engine="scala", eval=FALSE>>=
+libraryDependencies += "org.ddahl" %% "rscala" % "2.2.3"
+@
+
+Note that the \rscala package does \emph{not} even need to be installed in \R.  The
+example below shows a simply \Scala snippet that: 1.~finds the city in Europe that is
+closest on average to all other European cites (as given by \R's builtin dataset \code{eurodist}), and
+ii.~wraps \R's \code{qnorm} function to define a method in \Scala by the same name:
+
+<<scalaScript,engine="scala",engine.opts=paste0('-cp "',rscala::.rscalaJar('2.12'),'"'),comment="//">>=
+val R = org.ddahl.rscala.RClient()
+
+val distances = R.evalD2("as.matrix(eurodist)")
+val cities = R.evalS1("attr(eurodist,'Labels')")
+val centralCity = distances.map(_.sum).zip(cities).minBy(_._1)._2
+println(s"Europe's central city is $centralCity.")
+
+def qnorm(x: Double, mean: Double = 0, sd: Double = 1, lowerTail: Boolean = true) = {
+  R.invokeD0("qnorm", x, mean, sd, "lower.tail" -> lowerTail)
+}
+
+val alpha = 0.05
+println(s"If Z is N(0,1), P(Z >= ${qnorm(alpha, lowerTail=false)}) = $alpha.")
+
+R.exit
+@
+
+The previous example assume that, on Windows, the registry keys option was
+not disabled during installation.  On other operating systems, \code{R} is
+assumed to be in the search path.  If these assumptions are not met or a particular
+installation of \R is desired, the path to the \R executable may be specified
+explicitly (e.g., \code{org.ddahl.rscala.RClient(pathToR)}).
+
 
 \section{Implementation}
 \label{implementation}
