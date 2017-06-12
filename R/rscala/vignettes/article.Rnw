@@ -982,15 +982,16 @@ operators.
 \subsection[Developing packages depending on rscala]{Developing packages depending on \rscala}
 
 The \rscala package supports writing \R packages using \Scala.  For example,
-the \pkg{shallot} and \pkg{bamboo} packages on CRAN implement statistical
-methodology of associated journal articles using \Scala accessed via the
-\rscala package.  The readers are invited study those examples, but we highlight a few items here.
-An \R package based on \rscala should include \code{rscala} in the
-\code{Imports} field of the package's \code{DESCRIPTION}
-file and the \code{NAMESPACE} file should include a line with \code{import(rscala)}.
-The package should define an
-\code{.onLoad} function which calls \code{.rscalaPackage(pkgname)}, where
-\code{pkgname} is the package's name, e.g.:
+the \pkg{shallot} \citep{shallotSoftware} and \pkg{bamboo}
+\citep{bambooSoftware} packages on CRAN use \Scala via the \rscala package to
+implement statistical methodology of associated journal articles
+\citep{shallotPaper,bambooPaper}.  Readers are invited to study those examples,
+but we describe the details below.  An \R package based on \rscala should
+include \code{rscala} in the \code{Imports} field of the package's
+\code{DESCRIPTION} file and the \code{NAMESPACE} file should include a line
+with \code{import(rscala)}.  The package should define an \code{.onLoad}
+function which calls \code{.rscalaPackage(pkgname)}, where \code{pkgname} is
+the package's name.  The \code{onLoad} function may be as simple as:
 
 <<onLoad, eval=FALSE>>=
 .onLoad <- function(libname, pkgname) {
@@ -998,54 +999,61 @@ The package should define an
 }
 @
 
-Analogous to \rJava's \code{.jpackage} function, the \code{.rscalaPackage}
-function adds the files in the source package's \code{inst/java} directory to
-\Scala's classpath.  \code{.rscalaPackage} function takes several optional
-arguments.  The \code{classpath.packages} allows a package to use the JAR files
-of another package.  For example, the \pkg{shallot} packages imports the
-\pkg{commonsMath} package and has \code{classpath.packages="commonsMath"} so
-that the \pkg{shallot} package does not need to distribute itself the JAR file
-of the Apache Commons Mathematics Library.
+The \code{.rscalaPackage} function binds a \Scala instance to the identifier
+\code{s} in the package's namespace using \R's \code{delayedAssign} such that
+the start-up cost of instantiating a \Scala instance is only incurred when
+\code{s} is first used.  Analogous to \rJava's \code{.jpackage} function, the
+\code{.rscalaPackage} function adds the JAR files in the source package's
+\code{inst/java} directory to \Scala's classpath.  This function takes several
+optional arguments.  The \code{classpath.packages} allows the package to use
+the JAR files of another package.  For example, the \pkg{shallot} package
+imports the \pkg{commonsMath} package \citep{commonsMathSoftware} and uses the
+\code{classpath.packages} argument so that the \pkg{shallot} package can use
+the Apache Commons Mathematics Library without having to bundle its JAR file.
+The arguments \code{classpath.prepend} and \code{classpath.append} give fine
+grained control over the classpath.  The argument \code{snippet} provides
+\Scala expressions that should be evaluated once \Scala is eventually
+instantiated.  This is a useful to provide, for example, definition and import
+statements.  Finally, other arguments to \code{.rscalaPackage} are passed
+directly to the \code{scala} function.  The \code{.onLoad} function of the
+\pkg{shallot} package demonstrates several of these optional arguments and also
+shows a callback to \R so that random data generation is based on \R's random
+number seed:
 
+<<onLoad2, eval=FALSE>>=
+.onLoad <- function(libname, pkgname) {
+  snippet <- '
+    import org.ddahl.shallot._
+    import org.apache.commons.math3.random.{ RandomDataGenerator => RDG }
 
- that: i.~provide additional functionality to set the classpath, ii.~give a \Scala snippet to ev
+    def rdg() = {
+      val r = new org.apache.commons.math3.random.RandomDataGenerator()
+      val ints = R.evalI1("runif(2,-.Machine$integer.max,.Machine$integer.max)")
+      val seed = ((ints(0).asInstanceOf[Long]) << 32) | (ints(1) & 0xffffffffL)
+      r.reSeed(seed)
+      r
+    }
+  '
+  ## Users may want to use 'options(rscala.heap.maximum="2G")'.
+  .rscalaPackage(pkgname,classpath.packages="commonsMath",snippet=snippet)
+  ## This circumvents a weird bug in the class loader of Scala 2.11.x.
+  sInfo <- scalaInfo()
+  if ( ( ! is.null(sInfo) ) && ( sInfo$major.version == "2.11" ) ) {
+    s$.org.apache.commons.math3.random.EmpiricalDistribution$new()
+  }
+}
+@
 
-     the JAR files in the ‘java’ directory of the package and passes
-     the ‘...’ arguments to the ‘scala’ function.  This instance of
-     Scala is available as the object ‘s’ in the namespace of the
-     package (thereby making it available to the package's function)
-     but it is not exported from the namespace.  The object ‘s’ is only
-     initialized on its first usage. The function
-     ‘.rscalaPackageUnload’ should be called in the ‘.onUnload’
-     function of a package that wishes to depend on this package so
-     that ‘close(s)’ is called (if needed).
-
-
-
-Since the namespace is not yet sealed,
-
-
-this function is able to define an environment \code{E} in the package's
-namespace.  This environment contains \code{pkgname} (the package's name) and
-\code{jars} (the path of all the JAR files in the package's \code{java}
-directory).  Finally, the \R package should call \code{rscalaLoad(classpath,
-...)}, where \code{classpath} and \code{...} are passed to the
-\code{scala} function and the result is set to \code{E\$s}.  If
-\code{classpath} is \code{NULL}, then \code{E\$jars} is used.  An acceptable
-\code{.onLoad} function may be as simple as
+A package's embedded \Scala instance should be terminated when the package is
+unloaded by calling the \code{.rscalaPackageUnload} function in the
+\code{.onUnload} hook, e.g.:
 
 <<onUnload, eval=FALSE>>=
-.onUnload <- function(libname) {
+.onUnload <- function(libpath) {
   .rscalaPackageUnload()
 }
 @
 
-The package then has access to an embedded \Scala interpreter through
-\code{E\$s} with which the package can run embedded \Scala source code or
-execute precompiled \Scala or \Java code.  If desired, the call to the
-\code{rscalaLoad} function can be outside the \code{.onLoad} function, waiting
-until the \Scala interpreter \code{E\$s} is first needed.  Subsequent calls to
-\code{rscalaLoad} have no effect and return immediately.
 
 Because \rscala's syntax for calling precompiled code is very similar to
 \rJava's high-level ``\$ convenience operator,'' developing a package based on
@@ -1054,26 +1062,37 @@ package.  Take, for example, CRAN's \pkg{mailR} package: ``Interface to Apache
 Commons Email to send emails from \R'' \citep{mailr}.  This package depends on
 the \rJava package and mostly uses its high-level \code{\$} convenience
 operator.  As a proof of concept, we ported the \pkg{mailR} package to \rscala,
-replacing the dependency on \rJava.  Among the 264 lines in the \R scripts for
-version 0.4.1 of the \pkg{mailR} package, we rewrote 13 lines and added one
-more line to complete the port.  Further, 11 lines in the original \rJava
-implementation could be removed because of the way in which \rscala handles
-exceptions.  As an example of what simple changes needed to be made, consider
-one expression from the original \rJava-based package:
+replacing the dependency on \rJava.  Version 0.6 of the \pkg{mailR} package is
+available on GitHub at \url{https://github.com/rpremraj/mailR} and our port is
+at \url{https://github.com/dbdahl/mailR}.  The port involved two script files,
+the \code{DESCRIPTION} file, and the \code{NAMESPACE} file.  We deleted 16
+lines, added 4 lines, and modified 15 lines.  Most modifications were simple
+changes like:
 
 <<mailR.rJava, eval=FALSE>>=
 base_dir <- .jnew("java.io.File", normalizePath(getwd()))
 @
 
-In our port to \rscala, we replaced this line with
+became
 
 <<mailR.rscala, eval=FALSE>>=
-base_dir <- E$s$.java.io.File$new(normalizePath(getwd()))
+base_dir <- s$.java.io.File$new(normalizePath(getwd()))
 @
 
-Of course, porting a package that makes frequent use of \rJava's low-level
-interface (e.g., the \code{.jcall} function) will require more changes.
-The online supplement contains both the original \pkg{mailR} package and our port to \rscala.
+The difference between the two version can be viewed here:
+\url{https://github.com/dbdahl/mailR/commit/feb911f}.  Of course, porting a
+package that makes frequent use of \rJava's low-level interface (e.g., the
+\code{.jcall} function) will require more changes.  The previously mentioned
+\pkg{bamboo} was originally implemented in \rJava.  The original \rJava code is
+commented out with equivalent \rscala code following immediately after.  See,
+for example, \url{https://github.com/dbdahl/bamboo/blob/master/R/bamboo.R}
+which illustrates the difficulty in calling \Scala from \rJava since \Scala
+provides several features that do not map directly to \Java equivalents.  The
+\Scala compiler uses name mangling, behind-the-scenes code generation, and
+other techniques when compiling to \Java bytecode.  Calling \Scala code that
+makes use of these features from \rJava requires some understanding of \Scala's
+compiler at a minimum, but often the developer is required to write a
+\Java-friendly wrapper method in \Scala that hides advanced \Scala features.
 
 \section[Accessing R in Scala]{Accessing \R in \Scala}
 
