@@ -1027,9 +1027,9 @@ number seed:
     import org.apache.commons.math3.random.{ RandomDataGenerator => RDG }
 
     def rdg() = {
-      val r = new org.apache.commons.math3.random.RandomDataGenerator()
       val ints = R.evalI1("runif(2,-.Machine$integer.max,.Machine$integer.max)")
       val seed = ((ints(0).asInstanceOf[Long]) << 32) | (ints(1) & 0xffffffffL)
+      val r = RDG()
       r.reSeed(seed)
       r
     }
@@ -1082,7 +1082,7 @@ base_dir <- s$.java.io.File$new(normalizePath(getwd()))
 The difference between the two version can be viewed here:
 \url{https://github.com/dbdahl/mailR/commit/feb911f}.  Of course, porting a
 package that makes frequent use of \rJava's low-level interface (e.g., the
-\code{.jcall} function) will require more changes.  The previously mentioned
+\code{.jcall} function) will require more changes.  The previously-mentioned
 \pkg{bamboo} was originally implemented in \rJava.  The original \rJava code is
 commented out with equivalent \rscala code following immediately after.  See,
 for example, \url{https://github.com/dbdahl/bamboo/blob/master/R/bamboo.R}
@@ -1122,19 +1122,38 @@ to a \Scala application, simply add the following line to SBT's
 libraryDependencies += "org.ddahl" %% "rscala" % "2.2.3"
 @
 
-Note that the \rscala package does \emph{not} even need to be installed in \R.  The
-example below shows a simply \Scala snippet that: 1.~finds the city in Europe that is
-closest on average to all other European cites (as given by \R's builtin dataset \code{eurodist}), and
-ii.~wraps \R's \code{qnorm} function to define a method in \Scala by the same name:
+Note that the \rscala package does \emph{not} even need to be installed in \R.
+An embedded \R interpreter is instantiate as follows:
 
-<<scalaScript,engine="scala",engine.opts=paste0('-cp "',rscala::.rscalaJar('2.12'),'"'),comment="//">>=
+<<scalaScript0,engine="scala",engine.opts=paste0('-cp "',rscala::.rscalaJar('2.12'),'"'),comment="//",eval=FALSE>>=
+val R = org.ddahl.rscala.RClient()
+@
+
+This assumes assume that the registry keys option was
+not disabled during installation on Windows.  On other operating systems, \code{R} is
+assumed to be in the search path.  If these assumptions are not met or a particular
+installation of \R is desired, the path to the \R executable may be specified
+explicitly (e.g., \code{org.ddahl.rscala.RClient(pathToR)}).
+
+We have found that embedding \R in a \Scala application can be an easy and convenient way
+to facilitate statistical calculations, access statistical functions, manage data, and produce
+plots.  All four of these are illustrated in the fllowing example which:
+1.~finds the city in
+Europe that is closest on average to all other European cites (as given by \R's
+builtin dataset \code{eurodist}), ii.~wraps \R's \code{qnorm} function to
+define a method in \Scala by the same name, iii.~write data to disk and reads it again, and iv.~produces a
+dendrogram for hierarchical clustering:
+
+<<scalaScript1,engine="scala",engine.opts=paste0('-cp "',rscala::.rscalaJar('2.12'),'"'),comment="//">>=
 val R = org.ddahl.rscala.RClient()
 
+// Item 1: Facilitate statistical calculations
 val distances = R.evalD2("as.matrix(eurodist)")
 val cities = R.evalS1("attr(eurodist,'Labels')")
 val centralCity = distances.map(_.sum).zip(cities).minBy(_._1)._2
 println(s"Europe's central city is $centralCity.")
 
+// Item 2: Access statistical functions
 def qnorm(x: Double, mean: Double = 0, sd: Double = 1, lowerTail: Boolean = true) = {
   R.invokeD0("qnorm", x, mean, sd, "lower.tail" -> lowerTail)
 }
@@ -1142,15 +1161,29 @@ def qnorm(x: Double, mean: Double = 0, sd: Double = 1, lowerTail: Boolean = true
 val alpha = 0.05
 println(s"If Z is N(0,1), P(Z >= ${qnorm(alpha, lowerTail=false)}) = $alpha.")
 
+// Item 3: Manage data
+val distancesFromDisk = R.evalD2("""
+  write.csv(as.matrix(eurodist),file='eurodist.csv',row.names=FALSE)
+  as.matrix(read.csv('eurodist.csv'))
+""")
+
+// Item 4: Produce plots
+val plotFileName = "dendrogram.pdf"
+R.eval(s"""
+  pdf("$plotFileName")
+  plot(hclust(eurodist))
+  dev.off()
+""")
+
 R.exit
 @
 
-The previous example assume that, on Windows, the registry keys option was
-not disabled during installation.  On other operating systems, \code{R} is
-assumed to be in the search path.  If these assumptions are not met or a particular
-installation of \R is desired, the path to the \R executable may be specified
-explicitly (e.g., \code{org.ddahl.rscala.RClient(pathToR)}).
-
+\begin{figure}
+\begin{center}
+\includegraphics[width=4in]{dendrogram.pdf}
+\end{center}
+\caption{Dendrogram produced by \R embedded within a \Scala application.}
+\end{figure}
 
 \section{Implementation}
 \label{implementation}
@@ -1267,7 +1300,7 @@ developer is required to write a \Java-friendly wrapper method in \Scala that
 hides advanced \Scala features.  We illustrate this scenario with a few
 examples.  Consider the following \Scala code:
 
-<<scalaScript2,engine="scala",engine.opts=paste0('-nowarn -cp "',rscala::.rscalaJar('2.12'),'"'),comment="//">>=
+<<scalaScript20,engine="scala",engine.opts=paste0('-nowarn -cp "',rscala::.rscalaJar('2.12'),'"'),comment="//">>=
 // Scala code
 val a = List[String]("apples", "bananas")
 
