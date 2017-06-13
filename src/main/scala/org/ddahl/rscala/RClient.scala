@@ -879,7 +879,8 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
 object RClient {
 
   import scala.sys.process._
-  import scala.util.Properties.{isWin => isWindows}
+
+  private val isWindows = scala.util.Properties.isWin
 
   private val defaultArguments = isWindows match {
     case true  => Array[String]("--no-save","--no-restore","--silent","--slave") 
