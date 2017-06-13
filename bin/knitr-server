@@ -12,7 +12,7 @@ while ( TRUE ) {
     system2("clean-tex")
     knit("article.Rnw")
     system2("pdflatex","article.tex")
-    system2("bittex","article.tex")
+    system2("bibtex","article.aux")
     system2("pdflatex","article.tex")
     system2("pdflatex","article.tex")
     system2("pdflatex","article.tex")
