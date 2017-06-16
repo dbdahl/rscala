@@ -46,3 +46,8 @@ S3method("print","ScalaFunction")
 S3method("%~%","ScalaFunctionArgs")
 S3method("%.~%","ScalaFunctionArgs")
 
+S3method(".DollarNames", "ScalaInterpreter")
+S3method(".DollarNames", "ScalaInterpreterItem")
+S3method(".DollarNames", "ScalaInterpreterReference")
+S3method(".DollarNames", "ScalaCachedReference")
+

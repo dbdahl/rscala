@@ -295,8 +295,6 @@ scalaNull <- function(type) {
     result <- list(interpreter=interpreter,snippet=identifier)
     class(result) <- "ScalaInterpreterItem"
     result
-  } else if ( identifier %in% names(interpreter) ) {
-    stop("This item is not accessible via the '$' operator.")
   } else {
     scalaGet(interpreter,identifier,NA)
   }

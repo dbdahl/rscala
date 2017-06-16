@@ -1096,7 +1096,7 @@ base_dir <- s$.java.io.File$new(normalizePath(getwd()))
 The difference between the two version can be viewed here:
 \url{https://github.com/dbdahl/mailR/commit/feb911f}.  Of course, porting a
 package that makes frequent use of \rJava's ``low-level interface'' (e.g., the
-\code{.jcall} function) will require more changes.  The previously-mentioned
+\code{.jcall} function) will require more changes.  The 
 \pkg{bamboo} was originally implemented in \rJava.  The original \rJava code is
 commented out with equivalent \rscala code following immediately after.  See,
 for example, \url{https://github.com/dbdahl/bamboo/blob/master/R/bamboo.R}.

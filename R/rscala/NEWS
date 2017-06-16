@@ -1,4 +1,6 @@
 2.2.3 (2017-06-XX)
+  * Added rudimentary support for tab completion for methods on Scala
+    references.
   * Suppress default printing of 'scalap' results (which is chatty and are
     often unavailable).  Make 'scalap' work with Scala references.
 
