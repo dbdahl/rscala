@@ -1,10 +1,10 @@
 .DollarNames.ScalaCachedReference <- function(x, pattern="") {
   type <- x[['type']]
-  methods <- x[['interpreter']] %~% '
+  findMethods <- function() x[['interpreter']] %!% '
     import reflect.runtime.{universe => ru}
     ru.typeOf[@{type}].members.map(_.toString).toSet.filter(_.startsWith("method ")).map(_.substring(7)).filter(!_.startsWith("$")).toArray
    '
-  grep(pattern, methods, value=TRUE)
+  grep(pattern, findMethods(), value=TRUE)
 }
 
 .DollarNames.ScalaInterpreterReference <- .DollarNames.ScalaCachedReference

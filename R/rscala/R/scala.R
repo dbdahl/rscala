@@ -397,19 +397,19 @@ scalaOptimize <- function(scalaFunction) {
 }
 
 scalaFunctionArgs <- function(.INTERPRETER,...) {
-  argValues <- list(...)
-  argIdentifiers <- names(argValues)
-  if ( is.null(argIdentifiers) ) {
-    argIdentifiers <- paste0(rep('x',length(argValues)),seq_along(argValues))
-  } else if ( any(argIdentifiers=='' ) ) {
-    w <- argIdentifiers==''
-    argIdentifiers[w] <- paste0(rep('x',sum(w)),seq_along(argValues[argIdentifiers=='']))
+  argsValues <- list(...)
+  argsIdentifiers <- names(argsValues)
+  if ( is.null(argsIdentifiers) ) {
+    argsIdentifiers <- paste0(rep('x',length(argsValues)),seq_along(argsValues))
+  } else if ( any(argsIdentifiers=='' ) ) {
+    w <- argsIdentifiers==''
+    argsIdentifiers[w] <- paste0(rep('x',sum(w)),seq_along(argsValues[argsIdentifiers=='']))
   }
-  if ( length(unique(argIdentifiers)) != length(argIdentifiers) ) stop('Argument names must be unique.')
-  header <- character(length(argValues))
-  for ( i in seq_along(argValues) ) {
-    value <- argValues[[i]]
-    name <- argIdentifiers[[i]]
+  if ( length(unique(argsIdentifiers)) != length(argsIdentifiers) ) stop('Argument names must be unique.')
+  header <- character(length(argsValues))
+  for ( i in seq_along(argsValues) ) {
+    value <- argsValues[[i]]
+    name <- argsIdentifiers[[i]]
     if ( is.null(value) ) {
       header[i] <- paste0('val ',name,' = REphemeralReference("',name,'")')
     } else if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") || inherits(value,"ScalaNullReference")) {
@@ -425,7 +425,7 @@ scalaFunctionArgs <- function(.INTERPRETER,...) {
       header[i] <- paste0('val ',name,' = R.get',type,len,'("',name,'")')
     }
   }
-  result <- list(interpreter=.INTERPRETER,identifiers=argIdentifiers,header=header)
+  result <- list(interpreter=.INTERPRETER,identifiers=argsIdentifiers,header=header)
   class(result) <- 'ScalaFunctionArgs'
   result
 }
