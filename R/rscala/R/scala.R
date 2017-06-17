@@ -378,6 +378,7 @@ scalaDef <- function(interpreter,snippet,as.reference) {
   snippet <- strintrpltIf(snippet,parent.frame(3),interpreter)
   argsValues <- as.list(parent.frame(2))
   argsFormals <- as.list(formals(sys.function(-3)))
+  if ( length(argsFormals) != length(argsValues) ) stop('A Scala function cannot have R code that defines new variables.')
   evaluate <- ! exists(".SCALA.OPTIMIZE", envir = parent.frame(3))
   func1 <- do.call(scalaFunctionArgs,c(list(.INTERPRETER=interpreter),argsFormals))
   func2 <- scalaMkFunction(func1,snippet,as.reference=as.reference,parent.frame(2))
