@@ -375,13 +375,15 @@ scalaSet <- function(interpreter,identifier,value) {
 '%.!%.ScalaInterpreter' <- function(interpreter,snippet) scalaDef(interpreter,snippet,TRUE)
 
 scalaDef <- function(interpreter,snippet,as.reference) {
-  snippet <- strintrpltIf(snippet,parent.frame(3),interpreter)
-  argsValues <- as.list(parent.frame(2))
+  pf <- parent.frame(2)
+  snippet <- strintrpltIf(snippet,pf,interpreter)
   argsFormals <- as.list(formals(sys.function(-3)))
+  argsFormals <- argsFormals[intersect(ls(envir=pf),names(argsFormals))]
+  argsValues <- mget(names(argsFormals),envir=pf)
   if ( length(argsFormals) != length(argsValues) ) stop('A Scala function cannot have R code that defines new variables.')
   evaluate <- ! exists(".SCALA.OPTIMIZE", envir = parent.frame(3))
   func1 <- do.call(scalaFunctionArgs,c(list(.INTERPRETER=interpreter),argsFormals))
-  func2 <- scalaMkFunction(func1,snippet,as.reference=as.reference,parent.frame(2))
+  func2 <- scalaMkFunction(func1,snippet,as.reference=as.reference,pf)
   if ( evaluate ) do.call(func2,argsValues)
   else func2
 }
