@@ -568,7 +568,7 @@ close.ScalaInterpreter <- function(con,...) {
 }
 
 jarsOfPackage <- function(pkgname, major.version) {
-  if ( ! ( pkgname %in% installed.packages() )  ) stop(paste0("Package ",pkgname," is not intalled, but its JARs were requested."))
+  if ( ! ( pkgname %in% installed.packages() )  ) stop(paste0("Package ",pkgname," is not installed, but its JARs were requested."))
   jarsMajor <- list.files(file.path(system.file("java",package=pkgname),paste0("scala-",major.version)),pattern=".*\\.jar$",full.names=TRUE,recursive=FALSE)
   jarsAny <- list.files(system.file("java",package=pkgname),pattern=".*\\.jar$",full.names=TRUE,recursive=FALSE)
   c(jarsMajor,jarsAny)
