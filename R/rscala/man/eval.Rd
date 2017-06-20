@@ -78,10 +78,10 @@ can be further optimized by using the \code{\link{scalaOptimize}} function.
 
 }
 \value{
-    \code{s$x} try to convert the Scala object \code{x} to a vector or matrix of integers, doubles, logicals, characters, or raw.
+    \code{s$x} tries to convert the Scala object \code{x} to a vector or matrix of integers, doubles, logicals, characters, or raw.
     If a conversion is not possible, a Scala reference is returned.  \code{s$.x} always returns a Scala reference for the Scala object \code{x}.
 
-    \code{s$x <- value} always return \code{value} after having set the Scala variable \code{x} to it.
+    \code{s$x <- value} always returns \code{value} after having set the Scala variable \code{x} to it.
 
     \code{function(...) s \%!\% snippet} returns a Scala function where \code{...} should be named arguments that can be used in the Scala code given in \code{snippet}.
     \code{function(...) s \%.!\% snippet} is the same, except a Scala reference is always returned.
