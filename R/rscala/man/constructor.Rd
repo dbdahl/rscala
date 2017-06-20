@@ -81,7 +81,7 @@ scalaInstall(major.version=NA)
     \item{verbose}{A logical vector of length one indicating whether information regarding the search for the Scala installation should be displayed.}
     \item{major.version}{Either \code{NA} (in which case the system picks the appropriate version) or a string specifying the major Scala version (e.g., "2.12").}
     \item{pkgname}{A character string giving the name of the package (as provided the second argument of the \code{.onLoad} function) that wishes to depend on this package.}
-    \item{snippet}{A character vector providing Scala code that will evaluated when the interpreter in the package namespace is first used.}
+    \item{snippet}{A character vector providing Scala code that will be evaluated when the interpreter in the package namespace is first used.}
     \item{classpath.prepend}{A character vector giving the full path to JAR files to add to the \emph{beginning} of the classpath for the Scala compiler/interpreter embedded within a package via the \code{\link{.rscalaPackage}} function.  The JAR files in the package's \sQuote{java} directory are already included and do not need to be added here.}
     \item{classpath.append}{A character vector giving the full path to JAR files to add to the \emph{end} of the classpath for the Scala compiler/interpreter embedded within a package via the \code{\link{.rscalaPackage}} function.  The JAR files in the package's \sQuote{java} directory are already included and do not need to be added here.}
     \item{...}{These arguments are passed by the \code{\link{.rscalaPackage}} function to the \code{\link{scala}} function.}
