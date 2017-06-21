@@ -1210,49 +1210,34 @@ around a client/server model using local TCP/IP sockets.
 
 \subsection[Implementation of Scala code in R]{Implementation of \Scala code in \R}
 
-We first describe how \Scala code is accessed from \R.  The
-\code{scala} function asynchronously spawns a new instance of the
-Java Virtual Machine using the \code{java} executable by calling the
-\code{main} static method of the \code{scala.tools.nsc.MainGenericRunner}
-class.  This is the same class that the \code{scala} executable shell script
-uses when \Scala is started from the command line.  The arguments supplied to
-the \code{java} executable are also the same with the exception that we prepend
-the classpath to give precedence to a modified \code{scala.Console} class.  Our
-modification facilitates redirecting console output to the \R console via TCP/IP
-sockets.
+The \code{scala} function instantiates a \Scala interpreter using R's
+\code{system2} function to asynchronously run \Scala code which implements a
+TCP/IP server whose port is randomly selected by default, but can be fixed at a
+given value.  The server accepts only a single local connection.  While the
+server is starting up, \R repeatedly tries to connect to it as a client using
+functions from the \pkg{base} \R package.  The \Scala server has an instance of
+\code{scala.tools.nsc.interpreter.IMain}, the class representing \Scala's
+read-eval-print loop (REPL).  The \R client accesses the functionality of the
+server's REPL class by means of a custom protocol.
 
-The \code{scala} function uses the \code{java} process's standard
-input to start a custom TCP/IP server that is bound to a randomly selected
-port.  The TCP/IP server accepts only a single local connection.  The \Scala
-server is implemented using the \Java standard library.  \R repeatedly tries to
-connect to the \Scala server as a client using functions from the \pkg{base} \R
-package.  The \Scala server has an instance of
-\code{scala.tools.nsc.interpreter.IMain}, the class representing \Scala's REPL.
-The \R client accesses the functionality of the server's REPL class by means of
-a custom protocol.
-
-\Scala's REPL is capable of compiling and executing \Scala code on the fly as
-well as setting and getting values of identifiers.  When a particular \Scala
-method is called for the first time in \R, a one-time compilation occurs behind
-the scenes.  The compiled method is then cached and re-used for subsequent
-calls to the same method.  As an illustration, consider the code below and
-notice that the elapsed time is significantly less in the second call to the
-same method:
+The \rscala package takes advantage of \Scala's REPL ability to compile and
+execute \Scala code on the fly as well as setting and getting values of
+identifiers.  When a \Scala function is called for the first time (or when a
+particular method of a \Scala reference is called for the first time), a
+one-time compilation occurs behind the scenes.  The compiled method is then
+cached and re-used for subsequent calls.  As an illustration, consider the code
+below and notice that the elapsed time is significantly less in the second call
+to the same method:
 
 <<fasterAfterFirstTime>>=
-system.time( s$do("sys")$props("user.name") )
-system.time( s$do("sys")$props("user.name") )
+system.time( print(s$.sys$props("user.name")) )
+system.time( print(s$.sys$props("user.name")) )
 @
-
-This difference is most noticeable when the actual execution time is short
-relative to the one-time compilation time.  The \code{system.time} function in
-\R does \emph{not} measure the CPU time and system time spent in \Scala, but
-the elapsed time is indeed an accurate measure of the wall time.
 
 Callback functionality is implemented over the same TCP/IP sockets.
 Immediately after the \R client requests the execution of \Scala code, \R
-becomes a temporary, embedded server for the \Scala code to access the original
-\R interpreter through the \code{R} object (an instance of the \code{RClient}
+becomes a temporary, embedded server to allow the \Scala code to access the \R
+interpreter through the \code{R} object (an instance of the \code{RClient}
 class).  The embedded \R server interprets code and sets/gets values using the
 \code{parse}, \code{eval}, \code{assign}, and \code{get} functions.  After the
 \Scala server executes the \Scala code, it tells the embedded \R server to exit
@@ -1267,9 +1252,10 @@ however, there is not an existing instance of the \R interpreter.  The class
 \code{RClient} spawns an \R instance, uses the same code to connect the \R
 client to the \Scala server, and then immediately starts the embedded \R
 server.  There are actually two versions of the \code{RClient} class. The \Java
-version (\code{org.ddahl.rscala.java.RClient}) is a thin wrapper over the \Scala
-version (\code{org.ddahl.rscala.callback.RClient}).  The wrapper provides familiar
-Javadoc to \Java developers and also hides various \Scala-specific features.
+version (\code{org.ddahl.rscala.RClient4Java}) is a thin wrapper over the
+\Scala version (\code{org.ddahl.rscala.RClient}).  The wrapper provides
+familiar Javadoc to \Java developers and also hides various \Scala-specific
+features.
 
 \section{Comparisons to other software}
 \label{comparisons}
