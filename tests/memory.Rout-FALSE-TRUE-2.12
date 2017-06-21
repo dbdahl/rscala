@@ -1,6 +1,6 @@
 > heap.maximum <- "64M"
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # TRUE
+# R version 3.4.0 (2017-04-21) # becker # FALSE # TRUE
 > 
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 java.lang.reflect.InvocationTargetException
@@ -46,7 +46,7 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.OutOfMemoryError: Java heap space
 	at $line6.$read$$iw$$iw$.$anonfun$res1$1(<console>:18)
-	at $line6.$read$$iw$$iw$$$Lambda$1008/1521204009.apply(Unknown Source)
+	at $line6.$read$$iw$$iw$$$Lambda$1008/1413886135.apply(Unknown Source)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -60,7 +60,7 @@ Caused by: java.lang.OutOfMemoryError: Java heap space
 	at scala.Function0.apply$mcV$sp$(Function0.scala:34)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
 	at scala.App.$anonfun$main$1$adapted(App.scala:76)
-	at scala.App$$Lambda$100/1651191114.apply(Unknown Source)
+	at scala.App$$Lambda$100/1694819250.apply(Unknown Source)
 	at scala.collection.immutable.List.foreach(List.scala:389)
 	at scala.App.main(App.scala:76)
 	at scala.App.main$(App.scala:74)
@@ -71,7 +71,7 @@ Caused by: java.lang.OutOfMemoryError: Java heap space
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
 	at scala.reflect.internal.util.ScalaClassLoader.$anonfun$run$2(ScalaClassLoader.scala:98)
-	at scala.reflect.internal.util.ScalaClassLoader$$Lambda$99/1973538135.apply(Unknown Source)
+	at scala.reflect.internal.util.ScalaClassLoader$$Lambda$99/2110121908.apply(Unknown Source)
 	at scala.reflect.internal.util.ScalaClassLoader.asContext(ScalaClassLoader.scala:32)
 	at scala.reflect.internal.util.ScalaClassLoader.asContext$(ScalaClassLoader.scala:30)
 	at scala.reflect.internal.util.ScalaClassLoader$URLClassLoader.asContext(ScalaClassLoader.scala:129)
@@ -86,7 +86,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # TRUE
+# R version 3.4.0 (2017-04-21) # becker # FALSE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -94,7 +94,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="64M")
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # TRUE
+# R version 3.4.0 (2017-04-21) # becker # FALSE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -102,7 +102,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="128M")
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # TRUE
+# R version 3.4.0 (2017-04-21) # becker # FALSE # TRUE
 > for ( i in 1:2000 ) {
 +   a <- s$".Array[Double]"$new(100000L)  # No memory problems
 + }
@@ -112,9 +112,41 @@ java.lang.OutOfMemoryError: Java heap space
 +   s %~% "new Array[Double](100000)"           # Memory problems
 + }
 + },error=function(e) e)
-java.lang.OutOfMemoryError: Java heap space
-  ... 32 elided
-<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
+java.lang.OutOfMemoryError: GC overhead limit exceeded
+	at scala.collection.immutable.List.$colon$colon(List.scala:112)
+	at scala.tools.nsc.transform.SpecializeTypes.scala$tools$nsc$transform$SpecializeTypes$$normalizeMember(SpecializeTypes.scala:847)
+	at scala.tools.nsc.transform.SpecializeTypes.$anonfun$specializeClass$30(SpecializeTypes.scala:801)
+	at scala.tools.nsc.transform.SpecializeTypes.specializeClass(SpecializeTypes.scala:799)
+	at scala.tools.nsc.transform.SpecializeTypes.transformInfo(SpecializeTypes.scala:1215)
+	at scala.tools.nsc.transform.InfoTransform$Phase$$anon$1.transform(InfoTransform.scala:38)
+	at scala.reflect.internal.Symbols$Symbol.rawInfo(Symbols.scala:1614)
+	at scala.reflect.internal.Symbols$Symbol.info(Symbols.scala:1531)
+	at scala.reflect.internal.Symbols$Symbol.isDerivedValueClass(Symbols.scala:821)
+	at scala.reflect.internal.transform.Erasure$ErasureMap.apply(Erasure.scala:131)
+	at scala.reflect.internal.transform.Erasure.specialErasure(Erasure.scala:223)
+	at scala.reflect.internal.transform.Erasure.specialErasure$(Erasure.scala:217)
+	at scala.tools.nsc.transform.Erasure.specialErasure(Erasure.scala:15)
+	at scala.reflect.internal.transform.Erasure.transformInfo(Erasure.scala:398)
+	at scala.reflect.internal.transform.Erasure.transformInfo$(Erasure.scala:360)
+	at scala.tools.nsc.transform.Erasure.transformInfo(Erasure.scala:15)
+	at scala.tools.nsc.transform.InfoTransform$Phase$$anon$1.transform(InfoTransform.scala:38)
+	at scala.reflect.internal.Symbols$Symbol.rawInfo(Symbols.scala:1614)
+	at scala.reflect.internal.Symbols$Symbol.info(Symbols.scala:1531)
+	at scala.reflect.internal.Symbols$Symbol.tpe_$times(Symbols.scala:1485)
+	at scala.reflect.internal.Symbols$Symbol.tpe(Symbols.scala:1450)
+	at scala.reflect.internal.Types.$anonfun$symTpe$1(Types.scala:4720)
+	at scala.reflect.internal.Types$$Lambda$112/305623748.apply(Unknown Source)
+	at scala.reflect.internal.util.Collections.mapList(Collections.scala:52)
+	at scala.reflect.internal.util.Collections.mapList$(Collections.scala:51)
+	at scala.reflect.internal.SymbolTable.mapList(SymbolTable.scala:16)
+	at scala.reflect.internal.Types$MethodType.paramTypes(Types.scala:2506)
+	at scala.tools.nsc.backend.ScalaPrimitives.$anonfun$addPrimitives$1(ScalaPrimitives.scala:450)
+	at scala.tools.nsc.backend.ScalaPrimitives.addPrimitives(ScalaPrimitives.scala:447)
+	at scala.tools.nsc.backend.ScalaPrimitives.init(ScalaPrimitives.scala:234)
+	at scala.tools.nsc.backend.jvm.GenBCode$BCodePhase.run(GenBCode.scala:336)
+	at scala.tools.nsc.Global$Run.compileUnitsInternal(Global.scala:1427)
+java.lang.OutOfMemoryError: GC overhead limit exceeded
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Exception thrown.>
 > 
 > 
 > 

@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # TRUE
+# R version 3.4.0 (2017-04-21) # becker # TRUE # TRUE
 > 
 > 
 > # This is not recursion via callbacks.
@@ -538,10 +538,10 @@ Hello 9 from R.
 Hello 9 from Scala.
 Unit: milliseconds
  expr        min         lq       mean     median         uq        max neval
- f(0) 1118.87041 1350.36920 1721.92262 1456.08642 2002.11113 2682.17595     5
- g(0)  682.54627  853.93811 1061.66382  960.47282 1295.49548 1515.86641     5
- h(0)   15.58328   15.64891   27.33219   20.74263   31.73003   52.95609     5
- i(0)   28.99303   34.80389   45.59578   46.77817   47.96448   69.43932     5
+ f(0) 1867.54412 1908.74913 2398.24715 2145.34802 2249.26293 3820.33157     5
+ g(0)  976.29445 1177.97239 1332.37980 1453.00940 1491.40174 1563.22103     5
+ h(0)   31.80057   38.61825   53.58044   54.57617   64.04167   78.86552     5
+ i(0)   34.07195   59.19939   74.68210   80.36308   91.18568  108.59041     5
 > 
 > cat("####\n")
 ####
@@ -4548,9 +4548,9 @@ Hello 7 from Scala.
 Hello 8 from Scala.
 Hello 9 from Scala.
 Unit: milliseconds
- expr      min       lq     mean   median       uq      max neval
- h(0) 11.94084 15.41788 21.37041 19.10916 24.34975 73.53331   100
- i(0) 12.94738 17.77757 25.32953 20.50485 26.85442 78.32375   100
+ expr     min       lq     mean   median       uq      max neval
+ h(0) 17.9362 30.26895 39.11597 33.60380 37.89861 149.3182   100
+ i(0) 19.4741 33.60525 41.42281 36.45725 41.74657 131.3021   100
 > 
 > 
 > 
@@ -9672,10 +9672,10 @@ java.lang.RuntimeException: Error in R evaluation.
 <simpleError in (structure(function (x) {    .rsI <- .rsWmSVaEf8d    .rsWorkspace <- environment()    rscala:::wb(.rsI, rscala:::INVOKE)    rscala:::wc(.rsI, "res22")    flush(.rsI[["socketIn"]])    rscala:::rServe(.rsI, TRUE, .rsWorkspace)    .rsStatus <- rscala:::rb(.rsI, "integer")    rscala:::echoResponseScala(.rsI)    if (.rsStatus == rscala:::ERROR) {        stop("Invocation error.")    }    else {        .rsResult <- rscala:::scalaGet(.rsI, "?", NA)        if (is.null(.rsResult))             invisible(.rsResult)        else .rsResult    }}, identifiers = "x", scalaHeader = "val x = R.getI0(\"x\")", scalaBody = "\n  if ( x < 10 ) {\n    println(s\"Hello $x from Scala.\")\n    R.eval(s\"\"\"cat(\"Hello ${x} from R.\n\"); i(${x+1})\"\"\")\n  }\n", returnType = "Unit", asReference = NA, class = "ScalaFunction"))(x = -15): Invocation error.>
 > 
 > 
-java.net.SocketException: Broken pipe (Write failed)
+java.net.SocketException: Broken pipe
 	at java.net.SocketOutputStream.socketWrite0(Native Method)
-	at java.net.SocketOutputStream.socketWrite(SocketOutputStream.java:111)
-	at java.net.SocketOutputStream.write(SocketOutputStream.java:155)
+	at java.net.SocketOutputStream.socketWrite(SocketOutputStream.java:109)
+	at java.net.SocketOutputStream.write(SocketOutputStream.java:153)
 	at java.io.BufferedOutputStream.flushBuffer(BufferedOutputStream.java:82)
 	at java.io.BufferedOutputStream.flush(BufferedOutputStream.java:140)
 	at java.io.DataOutputStream.flush(DataOutputStream.java:123)

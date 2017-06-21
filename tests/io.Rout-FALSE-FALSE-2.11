@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # FALSE
+# R version 3.4.0 (2017-04-21) # becker # FALSE # FALSE
 > 
 > tryCatch(s %~% "new java.util.Random(23455).nextDoubllllllllle",error=function(e) e)
 <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
@@ -10,6 +10,6 @@
 > capture.output(s %~% "println(3+2)")
 character(0)
 > capture.output(s %~% 'R.eval("""cat(R.version.string)""")')
-[1] "R Under development (unstable) (2017-05-14 r72674)"
+[1] "R version 3.4.0 (2017-04-21)"
 > 
 > 

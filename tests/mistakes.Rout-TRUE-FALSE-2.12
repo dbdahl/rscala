@@ -1,11 +1,10 @@
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # FALSE
+# R version 3.4.0 (2017-04-21) # becker # TRUE # FALSE
 > 
 > if ( substr(Sys.getenv("RSCALA_SCALA_VERSION"),1,4) != "2.10" ) {
 +   a <- s %.~% "null"
 +   print(a)
 + }
-class/object Null not found.
 ScalaInterpreterReference... res1: Null
 > 
 > a <- s %~% "null"
@@ -37,7 +36,6 @@ NULL
 +   val b = 5
 +   (a,b)
 + "
-class/object (Int, Int) not found.
 ScalaInterpreterReference... res4: (Int, Int)
 > 
 > s %.~% "
@@ -45,7 +43,6 @@ ScalaInterpreterReference... res4: (Int, Int)
 +   val b = 5
 +   (a,b)
 + "
-class/object (Int, Int) not found.
 ScalaInterpreterReference... res5: (Int, Int)
 > 
 > tryCatch(s$xaa,error = function(e) e)
@@ -61,7 +58,6 @@ NULL
 > s$xaa
 [1] 3
 > s$.val("xaa")
-class/object Double not found.
 ScalaInterpreterReference... xaa: Double
 > 
 > withNA <- c(1,2,3,NA,4)

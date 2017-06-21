@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # TRUE
+# R version 3.4.0 (2017-04-21) # becker # FALSE # TRUE
 > 
 > 
 > # This is not recursion via callbacks.
@@ -537,11 +537,11 @@ Hello 8 from Scala.
 Hello 9 from R.
 Hello 9 from Scala.
 Unit: milliseconds
- expr       min        lq       mean     median         uq        max neval
- f(0) 802.19601 965.14422 1191.98968 1042.05537 1172.87883 1977.67396     5
- g(0) 392.05193 525.90401  795.70156  727.20741  890.61215 1442.73232     5
- h(0)  13.96613  14.04474   17.92818   16.76161   18.43306   26.43535     5
- i(0)  12.39765  16.04763   20.27921   20.20029   23.66357   29.08691     5
+ expr        min         lq       mean     median         uq        max neval
+ f(0) 1033.88065 1038.14202 1355.79385 1106.84901 1317.66746 2282.43012     5
+ g(0)  529.05720  529.37405  858.48418  763.45406  906.11689 1564.41870     5
+ h(0)   17.73268   20.62042   32.30423   23.72854   26.23715   73.20240     5
+ i(0)   16.74610   21.30436   22.76646   22.10988   24.01433   29.65763     5
 > 
 > cat("####\n")
 ####
@@ -4548,9 +4548,9 @@ Hello 8 from R.
 Hello 9 from Scala.
 Hello 9 from R.
 Unit: milliseconds
- expr       min       lq     mean   median       uq      max neval
- h(0)  9.688591 13.24163 16.64086 15.14054 18.22424 49.58186   100
- i(0) 10.575202 13.97001 18.42719 17.21703 20.13482 49.25272   100
+ expr      min       lq     mean   median       uq      max neval
+ h(0) 13.24902 15.72199 21.68994 19.66284 23.05842 98.97377   100
+ i(0) 14.83531 17.83732 24.51628 22.97298 25.93398 80.74568   100
 > 
 > 
 > 

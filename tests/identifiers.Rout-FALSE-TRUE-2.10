@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # TRUE
+# R version 3.4.0 (2017-04-21) # becker # FALSE # TRUE
 > 
 > 
 > set.seed(3432585)

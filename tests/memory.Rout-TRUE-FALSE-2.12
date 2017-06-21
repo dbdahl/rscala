@@ -1,6 +1,6 @@
 > heap.maximum <- "64M"
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # FALSE
+# R version 3.4.0 (2017-04-21) # becker # TRUE # FALSE
 > 
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 java.lang.reflect.InvocationTargetException
@@ -54,7 +54,7 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.OutOfMemoryError: Java heap space
 	at $line6.$read$$iw$$iw$.$anonfun$res1$1(<console>:18)
-	at $line6.$read$$iw$$iw$$$Lambda$1010/983767354.apply(Unknown Source)
+	at $line6.$read$$iw$$iw$$$Lambda$1010/1029898472.apply(Unknown Source)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -62,12 +62,12 @@ Caused by: java.lang.OutOfMemoryError: Java heap space
 	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:128)
 	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:512)
 	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$2(ScalaServer.scala:531)
-	at org.ddahl.rscala.server.ScalaServer$$Lambda$917/824881806.apply$mcV$sp(Unknown Source)
+	at org.ddahl.rscala.server.ScalaServer$$Lambda$917/833240229.apply$mcV$sp(Unknown Source)
 	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withErr(Console.scala:192)
 	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$1(ScalaServer.scala:531)
-	at org.ddahl.rscala.server.ScalaServer$$Lambda$916/354605216.apply$mcV$sp(Unknown Source)
+	at org.ddahl.rscala.server.ScalaServer$$Lambda$916/1927963027.apply$mcV$sp(Unknown Source)
 	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withOut(Console.scala:163)
@@ -78,7 +78,7 @@ Caused by: java.lang.OutOfMemoryError: Java heap space
 	at scala.Function0.apply$mcV$sp$(Function0.scala:34)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
 	at scala.App.$anonfun$main$1$adapted(App.scala:76)
-	at scala.App$$Lambda$100/1651191114.apply(Unknown Source)
+	at scala.App$$Lambda$100/1694819250.apply(Unknown Source)
 	at scala.collection.immutable.List.foreach(List.scala:389)
 	at scala.App.main(App.scala:76)
 	at scala.App.main$(App.scala:74)
@@ -94,7 +94,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # FALSE
+# R version 3.4.0 (2017-04-21) # becker # TRUE # FALSE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -102,7 +102,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="64M")
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # FALSE
+# R version 3.4.0 (2017-04-21) # becker # TRUE # FALSE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -110,7 +110,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="128M")
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # FALSE
+# R version 3.4.0 (2017-04-21) # becker # TRUE # FALSE
 > for ( i in 1:2000 ) {
 +   a <- s$".Array[Double]"$new(100000L)  # No memory problems
 + }
@@ -120,41 +120,9 @@ java.lang.OutOfMemoryError: Java heap space
 +   s %~% "new Array[Double](100000)"           # Memory problems
 + }
 + },error=function(e) e)
-java.lang.OutOfMemoryError: GC overhead limit exceeded
-	at scala.reflect.internal.Scopes$Scope.createHash(Scopes.scala:142)
-	at scala.reflect.internal.Scopes$Scope.enterEntry(Scopes.scala:112)
-	at scala.reflect.internal.Scopes$Scope.enter(Scopes.scala:124)
-	at scala.reflect.internal.SymbolPairs$Cursor.fillDecls$1(SymbolPairs.scala:168)
-	at scala.reflect.internal.SymbolPairs$Cursor.fillDecls$1(SymbolPairs.scala:164)
-	at scala.reflect.internal.SymbolPairs$Cursor.fillDecls$1(SymbolPairs.scala:164)
-	at scala.reflect.internal.SymbolPairs$Cursor.init(SymbolPairs.scala:191)
-	at scala.reflect.internal.SymbolPairs$Cursor.<init>(SymbolPairs.scala:146)
-	at scala.tools.nsc.transform.OverridingPairs$Cursor.<init>(OverridingPairs.scala:20)
-	at scala.tools.nsc.transform.Erasure$ComputeBridges$BridgesCursor.<init>(Erasure.scala:460)
-	at scala.tools.nsc.transform.Erasure$ComputeBridges.$anonfun$opc$1(Erasure.scala:475)
-	at scala.tools.nsc.transform.Erasure$ComputeBridges$$Lambda$467/1335505684.apply(Unknown Source)
-	at scala.tools.nsc.Global.enteringExplicitOuter(Global.scala:989)
-	at scala.tools.nsc.transform.Erasure$ComputeBridges.<init>(Erasure.scala:475)
-	at scala.tools.nsc.transform.Erasure$ErasureTransformer.bridgeDefs(Erasure.scala:908)
-	at scala.tools.nsc.transform.Erasure$ErasureTransformer.addBridges(Erasure.scala:914)
-	at scala.tools.nsc.transform.Erasure$ErasureTransformer$$anon$1.preErase(Erasure.scala:1166)
-	at scala.tools.nsc.transform.Erasure$ErasureTransformer$$anon$1.transform(Erasure.scala:1200)
-	at scala.tools.nsc.transform.Erasure$ErasureTransformer$$anon$1.transform(Erasure.scala:936)
-	at scala.reflect.api.Trees$Transformer.transformTemplate(Trees.scala:2563)
-	at scala.reflect.internal.Trees.$anonfun$itransform$4(Trees.scala:1412)
-	at scala.reflect.internal.Trees$$Lambda$363/681384962.apply(Unknown Source)
-	at scala.tools.nsc.transform.TypingTransformers$TypingTransformer.atOwner(TypingTransformers.scala:30)
-	at scala.tools.nsc.transform.TypingTransformers$TypingTransformer.atOwner(TypingTransformers.scala:25)
-	at scala.reflect.internal.Trees.itransform(Trees.scala:1411)
-	at scala.reflect.internal.Trees.itransform$(Trees.scala:1340)
-	at scala.reflect.internal.SymbolTable.itransform(SymbolTable.scala:16)
-	at scala.reflect.internal.SymbolTable.itransform(SymbolTable.scala:16)
-	at scala.reflect.api.Trees$Transformer.transform(Trees.scala:2555)
-	at scala.tools.nsc.transform.TypingTransformers$TypingTransformer.transform(TypingTransformers.scala:44)
-	at scala.tools.nsc.transform.Erasure$ErasureTransformer$$anon$1.transform(Erasure.scala:1221)
-	at scala.tools.nsc.transform.Erasure$ErasureTransformer$$anon$1.transform(Erasure.scala:936)
-java.lang.OutOfMemoryError: GC overhead limit exceeded
-<simpleError in doTryCatch(return(expr), name, parentenv, handler): Exception thrown.>
+java.lang.OutOfMemoryError: Java heap space
+  ... 32 elided
+<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
 > 
 > 
 > 

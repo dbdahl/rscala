@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # FALSE
+# R version 3.4.0 (2017-04-21) # becker # TRUE # FALSE
 > 
 > assert <- function(xx) {
 +   if ( ! identical(( s %~% 'R.get("xx")._1' ), xx) ) stop("Not identical (test 1)")
@@ -38,8 +38,8 @@
 > g <- list(3)
 > tryCatch(s %@% 'R.g', error=function(e) e)
 java.lang.RuntimeException: Unsupported data type: g
-  at org.ddahl.rscala.RClient.get(RClient.scala:542)
-  at org.ddahl.rscala.RClient.selectDynamic(RClient.scala:244)
+  at org.ddahl.rscala.RClient.get(RClient.scala:592)
+  at org.ddahl.rscala.RClient.selectDynamic(RClient.scala:294)
   ... 60 elided
 <simpleError in scalaEval(interpreter, snippet, parent.frame()): Error in evaluation.>
 > s %~% "3-2"
@@ -49,8 +49,8 @@ java.lang.RuntimeException: Unsupported data type: g
 > 
 > tryCatch(s %@% 'R.ggg', error=function(e) e)
 java.lang.RuntimeException: Undefined identifier: ggg
-  at org.ddahl.rscala.RClient.get(RClient.scala:541)
-  at org.ddahl.rscala.RClient.selectDynamic(RClient.scala:244)
+  at org.ddahl.rscala.RClient.get(RClient.scala:591)
+  at org.ddahl.rscala.RClient.selectDynamic(RClient.scala:294)
   ... 60 elided
 <simpleError in scalaEval(interpreter, snippet, parent.frame()): Error in evaluation.>
 > s %~% "3+0"
@@ -60,9 +60,9 @@ java.lang.RuntimeException: Undefined identifier: ggg
 > 
 > tryCatch(s %@% 'R.x = List(1,2,3)', error=function(e) e)
 java.lang.RuntimeException: Unsupported non-array type.
-  at org.ddahl.rscala.RClient.set(RClient.scala:462)
-  at org.ddahl.rscala.RClient.set(RClient.scala:255)
-  at org.ddahl.rscala.RClient.updateDynamic(RClient.scala:252)
+  at org.ddahl.rscala.RClient.set(RClient.scala:512)
+  at org.ddahl.rscala.RClient.set(RClient.scala:305)
+  at org.ddahl.rscala.RClient.updateDynamic(RClient.scala:302)
   ... 60 elided
 <simpleError in scalaEval(interpreter, snippet, parent.frame()): Error in evaluation.>
 > s %~% "3+2"
@@ -72,9 +72,9 @@ java.lang.RuntimeException: Unsupported non-array type.
 > 
 > tryCatch(s %@% 'R.x = Array(new scala.util.Random())', error=function(e) e)
 java.lang.RuntimeException: Unsupported array type.
-  at org.ddahl.rscala.RClient.set(RClient.scala:462)
-  at org.ddahl.rscala.RClient.set(RClient.scala:255)
-  at org.ddahl.rscala.RClient.updateDynamic(RClient.scala:252)
+  at org.ddahl.rscala.RClient.set(RClient.scala:512)
+  at org.ddahl.rscala.RClient.set(RClient.scala:305)
+  at org.ddahl.rscala.RClient.updateDynamic(RClient.scala:302)
   ... 60 elided
 <simpleError in scalaEval(interpreter, snippet, parent.frame()): Error in evaluation.>
 > s %~% "3+4"
@@ -84,9 +84,9 @@ java.lang.RuntimeException: Unsupported array type.
 > 
 > tryCatch(s %@% 'R.x = Array(Array(1.0),Array(2.0,3.0))', error=function(e) e)
 java.lang.RuntimeException: Ragged arrays are not supported.
-  at org.ddahl.rscala.RClient.set(RClient.scala:462)
-  at org.ddahl.rscala.RClient.set(RClient.scala:255)
-  at org.ddahl.rscala.RClient.updateDynamic(RClient.scala:252)
+  at org.ddahl.rscala.RClient.set(RClient.scala:512)
+  at org.ddahl.rscala.RClient.set(RClient.scala:305)
+  at org.ddahl.rscala.RClient.updateDynamic(RClient.scala:302)
   ... 60 elided
 <simpleError in scalaEval(interpreter, snippet, parent.frame()): Error in evaluation.>
 > s %~% "3+6"
@@ -110,7 +110,7 @@ Error in parse(text = paste0(x, brackets[1], i, brackets[2], " <- .rscala.set.va
 1: x[[1,1asdf
           ^
 java.lang.RuntimeException: Error in R evaluation.
-  at org.ddahl.rscala.RClient.set(RClient.scala:469)
+  at org.ddahl.rscala.RClient.set(RClient.scala:519)
   ... 60 elided
 <simpleError in scalaEval(interpreter, snippet, parent.frame()): Error in evaluation.>
 > s %~% '"Okay 1"'
@@ -247,24 +247,24 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:103)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.RuntimeException: Unsupported array type.
-	at org.ddahl.rscala.RClient.set(RClient.scala:462)
-	at org.ddahl.rscala.RClient.set(RClient.scala:255)
-	at org.ddahl.rscala.RClient$$anonfun$1.apply(RClient.scala:226)
-	at org.ddahl.rscala.RClient$$anonfun$1.apply(RClient.scala:214)
+	at org.ddahl.rscala.RClient.set(RClient.scala:512)
+	at org.ddahl.rscala.RClient.set(RClient.scala:305)
+	at org.ddahl.rscala.RClient$$anonfun$1.apply(RClient.scala:276)
+	at org.ddahl.rscala.RClient$$anonfun$1.apply(RClient.scala:264)
 	at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:234)
 	at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:234)
 	at scala.collection.IndexedSeqOptimized$class.foreach(IndexedSeqOptimized.scala:33)
 	at scala.collection.mutable.WrappedArray.foreach(WrappedArray.scala:35)
 	at scala.collection.TraversableLike$class.map(TraversableLike.scala:234)
 	at scala.collection.AbstractTraversable.map(Traversable.scala:104)
-	at org.ddahl.rscala.RClient.mkSnippet(RClient.scala:214)
-	at org.ddahl.rscala.RClient.invokeD1(RClient.scala:186)
+	at org.ddahl.rscala.RClient.mkSnippet(RClient.scala:264)
+	at org.ddahl.rscala.RClient.invokeD1(RClient.scala:207)
 	at $line347.$read$$iw$$iw$$anonfun$1.apply(<console>:21)
 	at $line347.$read$$iw$$iw$$anonfun$1.apply(<console>:16)
 	... 45 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Unsupported array type.
-<simpleError in (structure(function (func, x, y) {    .rsI <- .rsWASzdLbwv    .rsWorkspace <- environment()    rscala:::wb(.rsI, rscala:::INVOKE)    rscala:::wc(.rsI, "res122")    flush(.rsI[["socketIn"]])    rscala:::rServe(.rsI, TRUE, .rsWorkspace)    .rsStatus <- rscala:::rb(.rsI, "integer")    rscala:::echoResponseScala(.rsI)    if (.rsStatus == rscala:::ERROR) {        stop("Invocation error.")    }    else {        .rsResult <- rscala:::scalaGet(.rsI, "?", NA)        if (is.null(.rsResult))             invisible(.rsResult)        else .rsResult    }}, identifiers = c("func", "x", "y"), scalaHeader = c("val func = REphemeralReference(\"func\")", "val x = R.getD1(\"x\")", "val y = REphemeralReference(\"y\")"), scalaBody = "\n  R.invokeD1(func,x.map(2*_).map(_.getClass),y)\n", returnType = "Array[Double]", asReference = NA, class = "ScalaFunction"))(func = function (data,     offset) {    cat("Here is am.\n")    mean(data + offset)}, x = 1:4, y = 5): Invocation error.>
+<simpleError in (structure(function (func, x, y) {    .rsI <- .rsWSjcS9oNV    .rsWorkspace <- environment()    rscala:::wb(.rsI, rscala:::INVOKE)    rscala:::wc(.rsI, "res122")    flush(.rsI[["socketIn"]])    rscala:::rServe(.rsI, TRUE, .rsWorkspace)    .rsStatus <- rscala:::rb(.rsI, "integer")    rscala:::echoResponseScala(.rsI)    if (.rsStatus == rscala:::ERROR) {        stop("Invocation error.")    }    else {        .rsResult <- rscala:::scalaGet(.rsI, "?", NA)        if (is.null(.rsResult))             invisible(.rsResult)        else .rsResult    }}, identifiers = c("func", "x", "y"), scalaHeader = c("val func = REphemeralReference(\"func\")", "val x = R.getD1(\"x\")", "val y = REphemeralReference(\"y\")"), scalaBody = "\n  R.invokeD1(func,x.map(2*_).map(_.getClass),y)\n", returnType = "Array[Double]", asReference = NA, class = "ScalaFunction"))(func = function (data,     offset) {    cat("Here is am.\n")    mean(data + offset)}, x = 1:4, y = 5): Invocation error.>
 > s %~% "3+4"
 [1] 7
 > 
@@ -279,8 +279,8 @@ Here is am.
 > callRFunction0D2 <- function(func=NULL) s %!% 'R.invokeD2(func)'
 > callRFunction0D2(gc)
        [,1] [,2]    [,3] [,4]    [,5] [,6]
-[1,] 340560 18.2  592000 31.7  460000 24.6
-[2,] 636513  4.9 1207245  9.3 1019096  7.8
+[1,] 353071 18.9  750400 40.1  506755 27.1
+[2,] 647043  5.0 1231374  9.4 1044892  8.0
 > 
 > tryCatch(callRFunction(1:100),error = function(e) {})
 Error in func(.rsX0, y) : could not find function "func"
@@ -334,7 +334,7 @@ java.lang.reflect.InvocationTargetException
 Caused by: java.lang.RuntimeException: Error in R evaluation.
 	at org.ddahl.rscala.RClient.eval(RClient.scala:112)
 	at org.ddahl.rscala.RClient.evalD1(RClient.scala:138)
-	at org.ddahl.rscala.RClient.invokeD1(RClient.scala:186)
+	at org.ddahl.rscala.RClient.invokeD1(RClient.scala:207)
 	at $line351.$read$$iw$$iw$$anonfun$1.apply(<console>:21)
 	at $line351.$read$$iw$$iw$$anonfun$1.apply(<console>:16)
 	... 45 more

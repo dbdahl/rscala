@@ -1,74 +1,8 @@
 > jars <- c("commons-math3-3.2.jar","shallot.jar")
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # TRUE
+# R version 3.4.0 (2017-04-21) # becker # FALSE # TRUE
 > 
 > tryCatch(s %~% 'new org.apache.commons.math3.random.EmpiricalDistribution()',error=function(e) e)   # Scala 2.11.x class loader is weird.  This line avoid subsequent problems.
-package org.apache.commons.math3.random;
-class EmpiricalDistribution extends org.apache.commons.math3.distribution.AbstractRealDistribution {
-  final var upperBounds: scala.Array[scala.Double];
-  final var loaded: scala.Boolean;
-  final val binCount: scala.Int;
-  final var delta: scala.Double;
-  final var min: scala.Double;
-  final var max: scala.Double;
-  final var sampleStats: org.apache.commons.math3.stat.descriptive.SummaryStatistics;
-  final val binStats: java.util.List;
-  protected final val randomData: org.apache.commons.math3.random.RandomDataGenerator;
-  def getKernel(org.apache.commons.math3.stat.descriptive.SummaryStatistics): org.apache.commons.math3.distribution.RealDistribution;
-  def cumBinP(scala.Int): scala.Double;
-  def k(scala.Double): org.apache.commons.math3.distribution.RealDistribution;
-  def kB(scala.Int): scala.Double;
-  def pBminus(scala.Int): scala.Double;
-  def pB(scala.Int): scala.Double;
-  def reseedRandomGenerator(scala.Long): scala.Unit;
-  def sample(): scala.Double;
-  def isSupportConnected(): scala.Boolean;
-  def isSupportUpperBoundInclusive(): scala.Boolean;
-  def isSupportLowerBoundInclusive(): scala.Boolean;
-  def getSupportUpperBound(): scala.Double;
-  def getSupportLowerBound(): scala.Double;
-  def getNumericalVariance(): scala.Double;
-  def getNumericalMean(): scala.Double;
-  def inverseCumulativeProbability(scala.Double): scala.Double;
-    throws org.apache.commons.math3.exception.OutOfRangeException
-  def cumulativeProbability(scala.Double): scala.Double;
-  def density(scala.Double): scala.Double;
-  def probability(scala.Double): scala.Double;
-  def reSeed(scala.Long): scala.Unit;
-  def isLoaded(): scala.Boolean;
-  def getGeneratorUpperBounds(): scala.Array[scala.Double];
-  def getUpperBounds(): scala.Array[scala.Double];
-  def getBinStats(): java.util.List;
-  def getBinCount(): scala.Int;
-  def getSampleStats(): org.apache.commons.math3.stat.descriptive.StatisticalSummary;
-  def getNextValue(): scala.Double;
-    throws org.apache.commons.math3.exception.MathIllegalStateException
-  def findBin(scala.Double): scala.Int;
-  def fillBinStats(org.apache.commons.math3.random.EmpiricalDistribution$DataAdapter): scala.Unit;
-    throws java.io.IOException
-  def load(java.io.File): scala.Unit;
-    throws java.io.IOException, org.apache.commons.math3.exception.NullArgumentException
-  def load(java.net.URL): scala.Unit;
-    throws java.io.IOException, org.apache.commons.math3.exception.NullArgumentException, org.apache.commons.math3.exception.ZeroException
-  def load(scala.Array[scala.Double]): scala.Unit;
-    throws org.apache.commons.math3.exception.NullArgumentException
-  def this(scala.Int, org.apache.commons.math3.random.RandomDataGenerator): scala.Unit;
-  def this(org.apache.commons.math3.random.RandomDataImpl): scala.Unit;
-  def this(scala.Int, org.apache.commons.math3.random.RandomDataImpl): scala.Unit;
-  def this(org.apache.commons.math3.random.RandomGenerator): scala.Unit;
-  def this(scala.Int, org.apache.commons.math3.random.RandomGenerator): scala.Unit;
-  def this(scala.Int): scala.Unit;
-  def this(): scala.Unit;
-}
-object EmpiricalDistribution {
-  def access$100(org.apache.commons.math3.random.EmpiricalDistribution, scala.Double): scala.Int;
-  def access$200(org.apache.commons.math3.random.EmpiricalDistribution): java.util.List;
-  def access$302(org.apache.commons.math3.random.EmpiricalDistribution, org.apache.commons.math3.stat.descriptive.SummaryStatistics): org.apache.commons.math3.stat.descriptive.SummaryStatistics;
-  def access$300(org.apache.commons.math3.random.EmpiricalDistribution): org.apache.commons.math3.stat.descriptive.SummaryStatistics;
-  final val DEFAULT_BIN_COUNT: scala.Int;
-  final val FILE_CHARSET: java.lang.String;
-  final val serialVersionUID: scala.Long;
-}
 ScalaInterpreterReference... res1: org.apache.commons.math3.random.EmpiricalDistribution
 > 
 > 
@@ -143,76 +77,7 @@ object RandomDataGenerator {
   final val serialVersionUID: scala.Long;
 }
 > s$.org.apache.commons.math3.random.RandomDataGenerator
-package org.apache.commons.math3.random;
-class RandomDataGenerator extends scala.AnyRef with java.io.Serializable with org.apache.commons.math3.random.RandomData {
-  final var secRand: java.security.SecureRandom;
-  final var rand: org.apache.commons.math3.random.RandomGenerator;
-  def getNatural(scala.Int): scala.Array[scala.Int];
-  def shuffle(scala.Array[scala.Int], scala.Int): scala.Unit;
-  def getSecRan(): java.security.SecureRandom;
-  def initRan(): scala.Unit;
-  def getRandomGenerator(): org.apache.commons.math3.random.RandomGenerator;
-  def setSecureAlgorithm(java.lang.String, java.lang.String): scala.Unit;
-    throws java.security.NoSuchAlgorithmException, java.security.NoSuchProviderException
-  def reSeed(): scala.Unit;
-  def reSeedSecure(scala.Long): scala.Unit;
-  def reSeedSecure(): scala.Unit;
-  def reSeed(scala.Long): scala.Unit;
-  def nextSample(java.util.Collection, scala.Int): scala.Array[scala.Any];
-    throws org.apache.commons.math3.exception.NumberIsTooLargeException, org.apache.commons.math3.exception.NotStrictlyPositiveException
-  def nextPermutation(scala.Int, scala.Int): scala.Array[scala.Int];
-    throws org.apache.commons.math3.exception.NumberIsTooLargeException, org.apache.commons.math3.exception.NotStrictlyPositiveException
-  def nextUniform(scala.Double, scala.Double, scala.Boolean): scala.Double;
-    throws org.apache.commons.math3.exception.NumberIsTooLargeException, org.apache.commons.math3.exception.NotFiniteNumberException, org.apache.commons.math3.exception.NotANumberException
-  def nextUniform(scala.Double, scala.Double): scala.Double;
-    throws org.apache.commons.math3.exception.NumberIsTooLargeException, org.apache.commons.math3.exception.NotFiniteNumberException, org.apache.commons.math3.exception.NotANumberException
-  def nextF(scala.Double, scala.Double): scala.Double;
-    throws org.apache.commons.math3.exception.NotStrictlyPositiveException
-  def nextChiSquare(scala.Double): scala.Double;
-  def nextCauchy(scala.Double, scala.Double): scala.Double;
-  def nextBinomial(scala.Int, scala.Double): scala.Int;
-  def nextBeta(scala.Double, scala.Double): scala.Double;
-  def nextZipf(scala.Int, scala.Double): scala.Int;
-    throws org.apache.commons.math3.exception.NotStrictlyPositiveException
-  def nextWeibull(scala.Double, scala.Double): scala.Double;
-    throws org.apache.commons.math3.exception.NotStrictlyPositiveException
-  def nextT(scala.Double): scala.Double;
-    throws org.apache.commons.math3.exception.NotStrictlyPositiveException
-  def nextPascal(scala.Int, scala.Double): scala.Int;
-    throws org.apache.commons.math3.exception.NotStrictlyPositiveException, org.apache.commons.math3.exception.OutOfRangeException
-  def nextHypergeometric(scala.Int, scala.Int, scala.Int): scala.Int;
-    throws org.apache.commons.math3.exception.NotPositiveException, org.apache.commons.math3.exception.NotStrictlyPositiveException, org.apache.commons.math3.exception.NumberIsTooLargeException
-  def nextGamma(scala.Double, scala.Double): scala.Double;
-    throws org.apache.commons.math3.exception.NotStrictlyPositiveException
-  def nextExponential(scala.Double): scala.Double;
-    throws org.apache.commons.math3.exception.NotStrictlyPositiveException
-  def nextGaussian(scala.Double, scala.Double): scala.Double;
-    throws org.apache.commons.math3.exception.NotStrictlyPositiveException
-  def nextPoisson(scala.Double): scala.Long;
-    throws org.apache.commons.math3.exception.NotStrictlyPositiveException
-  def nextSecureLong(scala.Long, scala.Long): scala.Long;
-    throws org.apache.commons.math3.exception.NumberIsTooLargeException
-  def nextSecureInt(scala.Int, scala.Int): scala.Int;
-    throws org.apache.commons.math3.exception.NumberIsTooLargeException
-  def nextSecureHexString(scala.Int): java.lang.String;
-    throws org.apache.commons.math3.exception.NotStrictlyPositiveException
-  def nextLong(scala.Long, scala.Long): scala.Long;
-    throws org.apache.commons.math3.exception.NumberIsTooLargeException
-  def nextInt(scala.Int, scala.Int): scala.Int;
-    throws org.apache.commons.math3.exception.NumberIsTooLargeException
-  def nextHexString(scala.Int): java.lang.String;
-    throws org.apache.commons.math3.exception.NotStrictlyPositiveException
-  def this(org.apache.commons.math3.random.RandomGenerator): scala.Unit;
-  def this(): scala.Unit;
-}
-object RandomDataGenerator {
-  def nextLong(org.apache.commons.math3.random.RandomGenerator, scala.Long): scala.Long;
-    throws java.lang.IllegalArgumentException
-  def nextLong(java.security.SecureRandom, scala.Long): scala.Long;
-    throws java.lang.IllegalArgumentException
-  final val serialVersionUID: scala.Long;
-}
-ScalaInterpreterItem
+ScalaInterpreterItem of type org.apache.commons.math3.random.RandomDataGenerator
 > rdg <- s$.org.apache.commons.math3.random.RandomDataGenerator$new()
 > 
 > rdg$reSeed(39234L)
@@ -222,36 +87,22 @@ ScalaInterpreterItem
 > options(width=120)
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: microseconds
-                   expr      min       lq      mean   median       uq      max neval
- rdg$nextExponential(4) 1102.445 1684.812 2135.1150 2239.755 2403.099 20816.41  1000
-                rexp(4)  233.676  361.183  586.5783  521.804  602.246 30699.91  1000
+                   expr      min        lq      mean   median        uq      max neval
+ rdg$nextExponential(4) 1581.961 1847.3105 2708.9930 2658.619 3075.9610 80849.95  1000
+                rexp(4)  340.025  434.2815  712.0141  635.164  790.6185 20090.77  1000
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: microseconds
-                   expr     min        lq      mean    median        uq       max neval
- rdg$nextExponential(4) 999.757 1112.9495 1577.3597 1209.6865 1937.2945 35774.118  1000
-                rexp(4) 203.035  250.5485  350.9432  269.0675  377.7185  3007.879  1000
+                   expr      min        lq    mean   median        uq      max neval
+ rdg$nextExponential(4) 1600.909 1957.4510 2771.23 2934.521 3142.3205 16487.44  1000
+                rexp(4)  378.514  443.5655  872.41  740.665  827.7995 85539.31  1000
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: microseconds
-                   expr      min        lq      mean    median       uq      max neval
- rdg$nextExponential(4) 1050.000 1421.7540 2267.3366 2190.8180 2422.975 49339.67  1000
-                rexp(4)  208.511  301.4055  549.4625  510.8895  598.476 51949.78  1000
+                   expr      min       lq      mean    median        uq      max neval
+ rdg$nextExponential(4) 1600.466 2914.463 4149.2273 3136.5040 3334.4230 85907.79  1000
+                rexp(4)  371.902  725.191  947.3741  788.7525  841.8745 22496.11  1000
 > 
 > s$.org.ddahl.shallot.parameter.Mass
-package org.ddahl.shallot.parameter
-class Mass extends org.ddahl.shallot.parameter.PositiveRealNumber {
-  def this(value: scala.Double) = { /* compiled code */ }
-  val logValue: scala.Double = { /* compiled code */ }
-  val logGammaValue: scala.Double = { /* compiled code */ }
-}
-object Mass extends scala.AnyRef {
-  def this() = { /* compiled code */ }
-  def apply(value: scala.Double): org.ddahl.shallot.parameter.Mass = { /* compiled code */ }
-  def factory(mass: org.ddahl.shallot.parameter.Mass): scala.Function0[org.ddahl.shallot.parameter.Mass] = { /* compiled code */ }
-  def factory(value: scala.Double): scala.Function0[org.ddahl.shallot.parameter.Mass] = { /* compiled code */ }
-  def factory(shape: scala.Double, rate: scala.Double, rdg: org.apache.commons.math3.random.RandomDataGenerator): scala.Function0[org.ddahl.shallot.parameter.Mass] = { /* compiled code */ }
-}
-
-ScalaInterpreterItem
+ScalaInterpreterItem of type org.ddahl.shallot.parameter.Mass
 > massFactory3 <- s$.org.ddahl.shallot.parameter.Mass$factory(1.0,3.0,rdg)
 > s %~% "3+4"
 [1] 7

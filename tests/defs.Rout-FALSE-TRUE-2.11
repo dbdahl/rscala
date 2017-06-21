@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # TRUE
+# R version 3.4.0 (2017-04-21) # becker # FALSE # TRUE
 > 
 > 
 > ####
@@ -7,25 +7,25 @@
 > 
 > rng1 <- s %.~% "new scala.util.Random"
 > rng1$nextDouble()
-[1] 0.5059508
+[1] 0.07564419
 > 
 > s$r1 <- rng1
 > rng2 <- s$r1
 > rng2$nextDouble()
-[1] 0.6692882
+[1] 0.5380752
 > 
 > rng3 <- s$.scala.util.Random$new()
 > rng3$nextDouble()
-[1] 0.5150602
+[1] 0.4895833
 > 
 > s$r3 <- rng3
 > rng4 <- s$r3
 > rng4$nextDouble()
-[1] 0.3313587
+[1] 0.5735445
 > 
 > f <- rng4$nextDouble(.EVALUATE=FALSE)
 > f()
-[1] 0.9792377
+[1] 0.1246794
 > 
 > 
 > ####
@@ -42,7 +42,7 @@
 +   r
 + }
 > y1 <- mkFunc1()
-<environment: 0x16c7a80>
+<environment: 0x320d738>
 > identical(y1("Lisa","Dahl"),"Lisa Dahl B.")
 [1] TRUE
 > 
@@ -60,8 +60,8 @@
 [1] TRUE
 > gc()
          used (Mb) gc trigger (Mb) max used (Mb)
-Ncells 337173 18.1     592000 31.7   460000 24.6
-Vcells 629842  4.9    1207245  9.3  1019096  7.8
+Ncells 349676 18.7     592000 31.7   460000 24.6
+Vcells 640237  4.9    1231220  9.4  1041801  8.0
 > 
 > 
 > 
@@ -84,7 +84,7 @@ Vcells 629842  4.9    1207245  9.3  1019096  7.8
 +   scalaOptimize(e)
 + })
    user  system elapsed 
-  0.004   0.000   0.267 
+  0.004   0.000   0.354 
 > 
 > # Taking advantage of caching
 > system.time({
@@ -94,7 +94,7 @@ Vcells 629842  4.9    1207245  9.3  1019096  7.8
 +   scalaOptimize(f)
 + })
    user  system elapsed 
-  0.000   0.000   0.001 
+  0.004   0.000   0.001 
 > 
 > ####
 > 
@@ -107,9 +107,9 @@ Vcells 629842  4.9    1207245  9.3  1019096  7.8
 > rng2 <- mkRNG2()
 > 
 > rng1$nextInt(10L)
-[1] 5
+[1] 0
 > rng2$nextInt(10L)
-[1] 4
+[1] 9
 > 
 > str <- rng1$toString(.AS.REFERENCE=TRUE)
 > str$length()
@@ -134,16 +134,16 @@ Vcells 629842  4.9    1207245  9.3  1019096  7.8
 +   nd2b(),
 +   times=500
 + )
-Unit: nanoseconds
-              expr    min        lq        mean    median        uq       max
-          runif(1)    986    6014.5    8614.896    7785.5   11596.5     50762
- rng1$nextDouble() 914279 1008066.5 1532642.306 1236309.5 2066683.0  10763507
- rng2$nextDouble() 834512  946214.5 2472282.196 1198207.5 1959183.0 441510891
-             nd0() 134864  190896.0  311671.212  238201.0  402035.0   5998984
-             nd1() 818941  930491.0 1465009.674 1189353.0 1977942.0  14643462
-            nd1b() 140309  189833.5  313935.782  226113.0  399004.0   5181794
-             nd2() 759910  891044.0 1369453.862 1156328.0 1822076.5   4367570
-            nd2b() 137128  185394.0  302134.584  224737.0  390307.0   3619046
+Unit: microseconds
+              expr      min        lq      mean    median        uq        max
+          runif(1)    1.690    9.4460   12.5975   12.4635   16.1905    111.040
+ rng1$nextDouble() 1423.373 1566.3290 2438.4157 2078.6280 2769.9245  80082.898
+ rng2$nextDouble() 1294.625 1464.3490 2579.9022 2003.9355 2605.8105 230925.348
+             nd0()  229.326  299.7265  657.3319  421.4000  564.5925  75251.423
+             nd1() 1309.072 1491.3040 2329.0538 2056.6740 2623.6815  68304.532
+            nd1b()  238.580  300.1525  477.4630  371.2165  566.5765   9600.123
+             nd2() 1224.946 1369.5320 1995.0774 1763.7860 2389.3925  20666.206
+            nd2b()  237.546  296.3275  554.0758  358.5935  555.7400  27241.504
  neval
    500
    500
@@ -198,18 +198,18 @@ Unit: nanoseconds
 +   times=100)
 Unit: microseconds
  expr       min         lq       mean     median          uq       max neval
- f(4)  1082.072  1691.6270   2206.125   2043.761   2155.8405  16498.69   100
- g(4)   275.794   427.5175   1238.305    555.702    637.8455  20953.97   100
- h(4) 61989.764 98295.1995 135140.091 119678.101 165857.3770 331192.31   100
+ f(4)  1392.085   2360.461   3131.739   2528.547   2704.3860  17133.51   100
+ g(4)   354.106    677.428   1687.513    729.788    857.4425  29576.20   100
+ h(4) 86821.885 142165.612 181994.785 176237.301 207538.0880 362590.79   100
 > 
 > microbenchmark(
 +   f(4),        
 +   g(4),        # g is faster, but you lose the checking and special behavior.
 +   times=1000)
 Unit: microseconds
- expr     min       lq      mean    median        uq       max neval
- f(4) 872.185 1115.242 1510.8488 1337.9880 1862.6515  5945.063  1000
- g(4) 214.127  296.196  461.7641  346.9705  546.8225 38503.706  1000
+ expr      min        lq     mean    median        uq       max neval
+ f(4) 1312.518 2233.2295 4596.789 2490.2890 2754.5715 108943.49  1000
+ g(4)  372.466  643.8035 1338.046  740.6945  812.1115  71323.03  1000
 > 
 > 
 > 
@@ -217,7 +217,7 @@ Unit: microseconds
 > ####
 > 
 > s$.scala.util.Random$nextDouble()
-[1] 0.8501581
+[1] 0.2132856
 > m <- s$.scala.util.Random$new(342L,.EVALUATE=FALSE)
 > m(23436)$nextDouble()
 [1] 0.8011135
@@ -247,25 +247,25 @@ Unit: microseconds
 [1] 4
 > 
 > s$.scala.util.Random$nextDouble()
-[1] 0.286049
+[1] 0.1829153
 > s$.scala.util.Random$nextDouble()
-[1] 0.2989188
+[1] 0.8831235
 > 
 > s %@% 'import scala.util.Random'
 > s$.Random$nextDouble()
-[1] 0.383313
+[1] 0.6037192
 > 
 > a <- function() s %!% 'Random.nextDouble'
 > a()
-[1] 0.8915579
+[1] 0.6519076
 > 
 > a <- s$.scala.util.Random
 > a$nextDouble()
-[1] 0.9745604
+[1] 0.3530137
 > 
 > b <- ( function() s %!% 'scala.util.Random' )()
 > b$nextDouble()
-[1] 0.465674
+[1] 0.8814259
 > 
 > library(microbenchmark)
 > microbenchmark(
@@ -273,10 +273,10 @@ Unit: microseconds
 +   b$nextDouble(),
 +   times=1000
 +   )
-Unit: microseconds
-           expr     min       lq     mean   median       uq       max neval
- a$nextDouble() 811.099 901.5785 1433.312 1179.382 1953.599  5873.607  1000
- b$nextDouble() 864.043 965.6305 1632.115 1338.966 2080.610 52011.252  1000
+Unit: milliseconds
+           expr      min       lq     mean   median       uq      max neval
+ a$nextDouble() 1.349014 2.452941 5.820459 2.613342 4.367199 202.5626  1000
+ b$nextDouble() 1.440678 2.621506 6.273642 2.791553 4.751686 114.5184  1000
 >   
 > 
 > ####
@@ -288,7 +288,7 @@ Unit: microseconds
 > 
 > a <- f(1:10, FALSE)
 > a$name()
-[1] ".rsI[['r']]$tdhoRspI"
+[1] ".rsI[['r']]$fEfhoAlA"
 > 
 > g <- function(func=NULL,y=scalaNull("RPersistentReference")) s %!% '
 +   R.invoke(func,y)
@@ -394,7 +394,7 @@ Caused by: java.lang.RuntimeException
 	... 35 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException
-<simpleError in (structure(function () {    .rsI <- .rsWRhp0Q8lv    .rsWorkspace <- environment()    rscala:::wb(.rsI, rscala:::INVOKE)    rscala:::wc(.rsI, "res154")    flush(.rsI[["socketIn"]])    rscala:::rServe(.rsI, TRUE, .rsWorkspace)    .rsStatus <- rscala:::rb(.rsI, "integer")    if (.rsStatus == rscala:::ERROR) {        stop("Invocation error.")    }    else {        .rsResult <- rscala:::scalaGet(.rsI, "?", NA)        if (is.null(.rsResult))             invisible(.rsResult)        else .rsResult    }}, identifiers = character(0), scalaHeader = character(0), scalaBody = "throw new RuntimeException()", returnType = "Nothing", asReference = NA, class = "ScalaFunction"))(): Invocation error.>
+<simpleError in (structure(function () {    .rsI <- .rsWqUS2LxPd    .rsWorkspace <- environment()    rscala:::wb(.rsI, rscala:::INVOKE)    rscala:::wc(.rsI, "res154")    flush(.rsI[["socketIn"]])    rscala:::rServe(.rsI, TRUE, .rsWorkspace)    .rsStatus <- rscala:::rb(.rsI, "integer")    if (.rsStatus == rscala:::ERROR) {        stop("Invocation error.")    }    else {        .rsResult <- rscala:::scalaGet(.rsI, "?", NA)        if (is.null(.rsResult))             invisible(.rsResult)        else .rsResult    }}, identifiers = character(0), scalaHeader = character(0), scalaBody = "throw new RuntimeException()", returnType = "Nothing", asReference = NA, class = "ScalaFunction"))(): Invocation error.>
 > s %~% "5+6"   # Everything's still okay!
 [1] 11
 > 

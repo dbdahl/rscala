@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-05-14 r72674) # ramah # FALSE # TRUE
+# R version 3.4.0 (2017-04-21) # becker # FALSE # TRUE
 > 
 > tryCatch(s %~% "new java.util.Random(23455).nextDoubllllllllle",error=function(e) e)
 <console>:15: error: value nextDoubllllllllle is not a member of java.util.Random
@@ -14,6 +14,6 @@
 5
 character(0)
 > capture.output(s %~% 'R.eval("""cat(R.version.string)""")')
-[1] "R Under development (unstable) (2017-05-14 r72674)"
+[1] "R version 3.4.0 (2017-04-21)"
 > 
 > 

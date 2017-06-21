@@ -1,6 +1,6 @@
 > heap.maximum <- "64M"
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # FALSE
+# R version 3.4.0 (2017-04-21) # becker # TRUE # FALSE
 > 
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 java.lang.reflect.InvocationTargetException
@@ -92,7 +92,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # FALSE
+# R version 3.4.0 (2017-04-21) # becker # TRUE # FALSE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -100,7 +100,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="64M")
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # FALSE
+# R version 3.4.0 (2017-04-21) # becker # TRUE # FALSE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -108,7 +108,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="128M")
 > source("common.R",print.eval=TRUE)
-# R Under development (unstable) (2017-05-14 r72674) # ramah # TRUE # FALSE
+# R version 3.4.0 (2017-04-21) # becker # TRUE # FALSE
 > for ( i in 1:2000 ) {
 +   a <- s$".Array[Double]"$new(100000L)  # No memory problems
 + }
@@ -118,40 +118,8 @@ java.lang.OutOfMemoryError: Java heap space
 +   s %~% "new Array[Double](100000)"           # Memory problems
 + }
 + },error=function(e) e)
-java.lang.OutOfMemoryError: GC overhead limit exceeded
-	at scala.runtime.ObjectRef.create(ObjectRef.java:22)
-	at scala.collection.TraversableOnce$class.foldLeft(TraversableOnce.scala:156)
-	at scala.collection.AbstractTraversable.foldLeft(Traversable.scala:104)
-	at scala.collection.TraversableOnce$class.$div$colon(TraversableOnce.scala:151)
-	at scala.collection.AbstractTraversable.$div$colon(Traversable.scala:104)
-	at scala.collection.SetLike$class.$plus$plus(SetLike.scala:141)
-	at scala.collection.AbstractSet.$plus$plus(Set.scala:47)
-	at scala.tools.nsc.transform.SpecializeTypes.loop$2(SpecializeTypes.scala:429)
-	at scala.tools.nsc.transform.SpecializeTypes.specializedTypeVars(SpecializeTypes.scala:431)
-	at scala.tools.nsc.transform.SpecializeTypes.specializedTypeVars(SpecializeTypes.scala:460)
-	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$specializedTypeVars$2.apply(SpecializeTypes.scala:435)
-	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$specializedTypeVars$2.apply(SpecializeTypes.scala:435)
-	at scala.reflect.internal.SymbolTable.enteringPhase(SymbolTable.scala:235)
-	at scala.tools.nsc.transform.SpecializeTypes.specializedTypeVars(SpecializeTypes.scala:435)
-	at scala.tools.nsc.transform.SpecializeTypes.scala$tools$nsc$transform$SpecializeTypes$$specializeMember(SpecializeTypes.scala:928)
-	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$23$$anonfun$apply$21.apply(SpecializeTypes.scala:784)
-	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$23$$anonfun$apply$21.apply(SpecializeTypes.scala:783)
-	at scala.collection.immutable.List.flatMap(List.scala:338)
-	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$23.apply(SpecializeTypes.scala:783)
-	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$23.apply(SpecializeTypes.scala:781)
-	at scala.collection.immutable.List.flatMap(List.scala:338)
-	at scala.tools.nsc.transform.SpecializeTypes.specializeClass(SpecializeTypes.scala:781)
-	at scala.tools.nsc.transform.SpecializeTypes.transformInfo(SpecializeTypes.scala:1196)
-	at scala.tools.nsc.transform.InfoTransform$Phase$$anon$1.transform(InfoTransform.scala:38)
-	at scala.reflect.internal.Symbols$Symbol.rawInfo(Symbols.scala:1625)
-	at scala.reflect.internal.Symbols$Symbol.info(Symbols.scala:1545)
-	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$transformInfo$1$$anonfun$apply$38.apply(SpecializeTypes.scala:1188)
-	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$transformInfo$1$$anonfun$apply$38.apply(SpecializeTypes.scala:1188)
-	at scala.collection.immutable.List.map(List.scala:288)
-	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$transformInfo$1.apply(SpecializeTypes.scala:1188)
-	at scala.tools.nsc.transform.SpecializeTypes$$anonfun$transformInfo$1.apply(SpecializeTypes.scala:1188)
-	at scala.reflect.internal.SymbolTable.enteringPhase(SymbolTable.scala:235)
-java.lang.OutOfMemoryError: GC overhead limit exceeded
+java.lang.OutOfMemoryError: Java heap space
+  ... 32 elided
 <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
 > 
 > 
