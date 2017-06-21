@@ -157,7 +157,7 @@ print.ScalaInterpreterItem <- function(x,...) {
 }
 
 toString.ScalaInterpreterItem <- function(x,...) {
-  paste0("ScalaInterpreterItem of type ",x[['snippet']])
+  paste0("ScalaInterpreterItem for ",x[['snippet']])
 }
 
 scalaGet <- function(interpreter,identifier,as.reference) {
