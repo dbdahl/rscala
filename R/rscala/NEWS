@@ -1,4 +1,6 @@
 2.2.3 (2017-06-XX)
+  * By defaut, set serialize.output to TRUE on Windows and FALSE otherwise
+    so that Windows users also see stack traces and output be default.
   * Added rudimentary support for tab completion for methods on Scala
     references.
   * Suppress default printing of 'scalap' results (which is chatty and are
