@@ -775,8 +775,8 @@ bell.version2 <- function(n=1L, format=c("character","integer","double","log")[3
 @
 
 There are a few minor differences (e.g., \Scala uses zero-based indexing of
-arrays, there are syntactically differences between \R and \Scala, and the
-\Scala version avoid the copying found in the \R version), but the practical
+arrays, syntactic differences between \R and \Scala, and the
+\Scala version avoids the copying found in the \R version), but the practical
 difference is that the \code{bell.version2} uses infinite precision integer
 arithmetic based on \Scala's builtin \code{BigInt} class.  Of course, overflow
 still occurs when \code{format="integer"} or \code{format="double"} for small
@@ -784,7 +784,7 @@ $n$, but there is no overflow for practically any $n$ when \code{format="log"}
 and the exact value is provided when \code{format="character"}.  Consider the
 \Scala function below that demonstrates: i.~exact integer calculations for
 large $n$, and ii.~that subsequent calls to \Scala functions are faster than
-the first call because of caching of the complication of the \Scala snippet:
+the first call because of caching the compilation of the \Scala snippet:
 
 <<callBellUsingScala>>=
 system.time( bigNumber <- bell.version2(500, format="character") )
@@ -806,7 +806,7 @@ reference if the result is not a copyable type.  On the other hand, the
 \code{\%.!\%} operator always returns a \Scala reference.
 
 The consumer of a \Scala function may not need to know that the implementation
-is written is \Scala.  There are a few considerations, however, for the
+is written in \Scala.  There are a few considerations, however, for the
 programmer of a \Scala function.  First, the last expression of a \Scala
 function should always use either the \code{\%!\%} operator or the
 \code{\%.!\%} operator.  Second, as the arguments to \Scala functions can be
@@ -842,7 +842,7 @@ atLeast8
 @
 
 Values of \R variables can be accessed in \Scala using several methods.  The
-first is the \code{get} method that returns a \code{Tuple2} giving the value
+first is the \code{get} method that returns a \code{Tuple2} giving a value
 whose static type is \code{Any} and a \code{String} representing its more
 specific type according to the \Scala compiler.  Consider the example below in
 which the value of the \R variable \code{T} is obtained.  Although the runtime
@@ -861,7 +861,7 @@ s %@% '
 @
 
 Instead of casting the result from the \code{get} method, it may be more
-convenient to use a suite of method whose name starts with \code{get} and ends
+convenient to use a suite of methods whose names start with \code{get} and end
 in $XY$, where $X \in \{$\code{R}, \code{I}, \code{D}, \code{L}, \code{S}$\}$
 and $Y \in \{$\code{0}, \code{1}, \code{2}$\}$.  The value of $X$ indicates
 whether the result from \R should be interpreted as raw, integer, double,
@@ -873,8 +873,8 @@ rectangular array of arrays of primitives, respectively.  For example,
 s %@% 'if ( R.getL0("T") ) { println("Good, nobody messed with the value of T.") } '
 @
 
-\R expressions can also be evaluated with a suite of method whose name starts
-with \code{eval} and ends in $XY$, with $X$ and $Y$ having the same meaning as
+\R expressions can also be evaluated with a suite of methods whose names start
+with \code{eval} and end in $XY$, with $X$ and $Y$ having the same meaning as
 the methods starting with \code{get}.  In the example below, \R and \Scala are
 used together to sample from chi-square distribution with $100$ degrees of
 freedom:
