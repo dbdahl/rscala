@@ -1225,7 +1225,7 @@ given value.  The server accepts only a single local connection.  While the
 server is starting up, \R repeatedly tries to connect to it as a client using
 functions from the \pkg{base} \R package.  The \Scala server has an instance of
 \code{scala.tools.nsc.interpreter.IMain}, the class representing \Scala's
-read-eval-print loop (REPL).  The \R client accesses the functionality of the
+read-eval-print-loop (REPL).  The \R client accesses the functionality of the
 server's REPL class by means of a custom protocol.
 
 The \rscala package takes advantage of \Scala's REPL ability to compile and
