@@ -788,7 +788,7 @@ askToInstall <- function(major.version) {
   }
 }
 
-findJava <- function() {
+findJava <- function() {  ## Mimic how the 'scala' shell script finds Java.
   javaName <- if ( .Platform$OS.type == "windows" ) "java.exe" else "java"
   fromPath <- function() {
     candidate <- Sys.which(javaName)[[javaName]]
