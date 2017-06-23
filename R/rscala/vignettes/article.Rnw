@@ -398,7 +398,7 @@ equivalent in \R and \Scala.  For example, a vector of integers in \R (e.g.,
      \textbf{Primitives} & \textbf{Vectors / Arrays} & \textbf{Matrices / Rectangular Arrays of Arrays} \\
 \midrule
 \noalign{\vspace{2ex}}
-\code{a <- as.raw(3)} & \code{f <- as.raw(c(1, 2))} & \code{k <- as.raw(matrix(c(1, 2), nrow=2))} \\
+\code{a <- as.raw(3)} & \code{f <- as.raw(c(1, 2))} & \code{k <- matrix(as.raw(c(1, 2)), nrow=2)} \\
 \code{val a = 3.toByte} & \code{val f = Array(1.toByte, 2.toByte)} & \code{val k = Array(Array(1.toByte), Array(2.toByte))} \\
 \noalign{\vspace{4ex}}
 \code{b <- TRUE} & \code{g <- c(TRUE, FALSE)} & \code{l <- matrix(c(TRUE, FALSE), nrow=2)} \\
