@@ -115,7 +115,7 @@ requires no special installations or configurations of \R or \Scala.}
 % Fix poorly formatted tilde.
 \newcommand{\mytilde}{\lower.6ex\hbox{\char`\~}}
 <<setup, include=FALSE>>=
-library(knitr)
+library("knitr")
 opts_chunk$set(fig.path='figure/latex-', cache.path='cache/latex-', cache=TRUE, size="small", out.columns=84, fig.align='center', fig.show='hold')
 options(formatR.arrow=TRUE, width=90)
 hook_source <- knit_hooks$get('source')
@@ -124,24 +124,24 @@ knit_hooks$set(source = function(x, options) {
   # extend the default source hook
   gsub('~', '\\\\mytilde', txt)
 })
-hook_output = knit_hooks$get('output')
-knit_hooks$set(output = function(x, options) {
-  if (!is.null(n <- options$out.lines)) {
-    x = unlist(strsplit(x, '\n'))
-    if (length(x) > n) {
-      # truncate the output
-      x = c(head(x, n), '....\n')
-    }
-    x = paste(x, collapse = '\n') # paste first n lines together
-  }
-  if (!is.null(n <- options$out.columns)) {
-    x = unlist(strsplit(x, '\n'))
-    probs <- nchar(x)>options$out.columns
-    x[probs] <- paste(substr(x[probs],1,options$out.columns-3), '...', sep="")
-    x = paste(x, collapse = '\n') # paste first n lines together
-  }
-  hook_output(x, options)
-})
+#hook_output = knit_hooks$get('output')
+#knit_hooks$set(output = function(x, options) {
+#  if (!is.null(n <- options$out.lines)) {
+#    x = unlist(strsplit(x, '\n'))
+#    if (length(x) > n) {
+#      # truncate the output
+#      x = c(head(x, n), '....\n')
+#    }
+#    x = paste(x, collapse = '\n') # paste first n lines together
+#  }
+#  if (!is.null(n <- options$out.columns)) {
+#    x = unlist(strsplit(x, '\n'))
+#    probs <- nchar(x)>options$out.columns
+#    x[probs] <- paste(substr(x[probs],1,options$out.columns-3), '...', sep="")
+#    x = paste(x, collapse = '\n') # paste first n lines together
+#  }
+#  hook_output(x, options)
+#})
 @
 
 %% include your article here, just as usual
@@ -1240,6 +1240,35 @@ to the same method:
 <<fasterAfterFirstTime>>=
 system.time( print(s$.sys$props("user.name")) )
 system.time( print(s$.sys$props("user.name")) )
+@
+
+<<benchmarkAgainstRJava>>=
+library('rJava',quietly=TRUE)
+result <- .jinit(list.files(file.path(scalaInfo(s)$home,"lib"),full.names=TRUE))
+
+rJavaReference <- .jnew("scala.util.Random")
+rJavaLowLevelFunction <- function() .jcall(rJavaReference,"D","nextGaussian")
+
+rscalaReference <- s$.scala.util.Random$new()
+rscalaOptimizedFunction <- rscalaReference$nextGaussian(.EVALUATE=FALSE)
+
+library('microbenchmark')
+timings <- microbenchmark(
+  rJavaLowLevelFunction(), rscalaOptimizedFunction(), rJavaReference$nextGaussian(),
+  rscalaReference$nextGaussian(), times=1000)
+@
+
+<<benchmarkAgainstRJavaTable, echo=FALSE, results='asis'>>=
+library(xtable)
+sumTimings <- summary(timings)
+units <- attr(sumTimings,"unit")
+reps <- sumTimings[1,"neval"]
+sumTimings <- sumTimings[,c("expr","lq","mean","median","uq")]
+sumTimings[,1] <- paste0("\\code{",sumTimings[,1],"}")
+colnames(sumTimings) <- c("Expression","Q1","Mean","Median","Q3")
+xtab <- xtable(sumTimings)
+caption(xtab) <- paste0("Comparison of execution time of various ways to call the \\code{nextGaussian} method of an instance of the \\code{scala.util.Random} class.  Since the method itself is relatively fast, the timings here give an indication of the overhead involved in the various techniques.  Each expression was evaluated ",reps," times and the results are in ",units,".")
+print(xtab,include.rownames=FALSE,booktabs=TRUE)
 @
 
 Callback functionality is implemented over the same TCP/IP sockets.
