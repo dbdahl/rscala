@@ -1,6 +1,6 @@
 ## Scala scripting over TCP/IP
 
-scala <- function(classpath=character(),classpath.packages=character(),serialize.output=.Platform$OS.type=="windows",scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=60,debug=FALSE,stdout=TRUE,stderr=TRUE,port=0,scalaInfo=NULL) {
+scala <- function(classpath=character(),classpath.packages=character(),serialize.output=.Platform$OS.type=="windows",scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=60,debug=FALSE,stdout=TRUE,stderr=TRUE,port=0,scalaInfo=NULL,major.version=c("2.10","2.11","2.12")) {
   if ( identical(stdout,TRUE) ) stdout <- ""
   if ( identical(stderr,TRUE) ) stderr <- ""
   debug <- identical(debug,TRUE)
@@ -9,7 +9,7 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
   port <- as.integer(port[1])
   if ( debug && serialize.output ) stop("When debug is TRUE, serialize.output must be FALSE.")
   if ( debug && ( identical(stdout,FALSE) || identical(stdout,NULL) || identical(stderr,FALSE) || identical(stderr,NULL) ) ) stop("When debug is TRUE, stdout and stderr must not be discarded.")
-  sInfo <- if ( is.null(scalaInfo) ) scalaInfo(scala.home) else scalaInfo
+  sInfo <- if ( is.null(scalaInfo) ) scalaInfo(scala.home, major.version) else scalaInfo
   if ( is.null(sInfo) ) stop('Please run "rscala::scalaInstall()" or install Scala manually.')
   pkgJars <- unlist(lapply(classpath.packages, function(p) jarsOfPackage(p, sInfo$major.version)))
   userJars <- c(unlist(strsplit(classpath,.Platform$path.sep)),pkgJars)
@@ -578,13 +578,13 @@ jarsOfPackage <- function(pkgname, major.version) {
   c(jarsMajor,jarsAny)
 }
 
-.rscalaPackage <- function(pkgname, snippet=character(), classpath.packages=character(), classpath.prepend=character(), classpath.append=character(), ...) {
+.rscalaPackage <- function(pkgname, snippet=character(), classpath.packages=character(), classpath.prepend=character(), classpath.append=character(), major.version=c("2.10","2.11","2.12"), ...) {
   env <- parent.env(parent.frame())    # Environment of depending package (assuming this function is only called in .onLoad function).
   assign(".rscalaPackageEnv",new.env(parent=emptyenv()), envir=env)
   assign("sIsForced",FALSE,envir=get(".rscalaPackageEnv",envir=env))
   # Lazy initialization of 's' in environment of depending package
   delayedAssign("s", {
-    sInfo <- scalaInfo()
+    sInfo <- scalaInfo(major.version=major.version)
     if ( is.null(sInfo) ) stop('Please run "rscala::scalaInstall()" or install Scala manually.')
     pkgJars <- unlist(lapply(c(pkgname,classpath.packages), function(p) jarsOfPackage(p, sInfo$major.version)))
     classpath.prepend <- unlist(strsplit(classpath.prepend,.Platform$path.sep))
@@ -628,18 +628,24 @@ jarsOfPackage <- function(pkgname, major.version) {
   invisible()
 }
 
-.rscalaJar <- function(major.version=NA) {
+.rscalaJar <- function(major.version=c("2.10","2.11","2.12")) {
+  if ( length(major.version) > 1 ) {
+    return(sapply(major.version,.rscalaJar,USE.NAMES=FALSE))
+  }
+  if ( length(major.version) == 0 ) stop("At least one major version must be supplied.")
   if ( is.na(major.version) ) {
     javaVersion <- javaVersion(findJava())
     if ( javaVersion <= 7 ) major.version <- "2.11"
     else major.version <- "2.12"
   }
   major.version <- substr(major.version,1,4)
-  if ( ! ( major.version %in% c("2.10","2.11","2.12") ) ) stop("Unsupported major version.")
-  jarsOfPackage("rscala",major.version)
+  if ( ! ( major.version %in% c("2.10","2.11","2.12") ) ) stop(paste("Unsupported major version:",major.version))
+  result <- jarsOfPackage("rscala",major.version)
+  names(result) <- major.version
+  result
 }
 
-scalaInfoEngine <- function(scala.command,verbose) {
+scalaInfoEngine <- function(scala.command,major.version,verbose) {
   scala.command <- normalizePath(scala.command,mustWork=FALSE)
   if ( ! file.exists(scala.command) ) return(NULL)
   if ( verbose ) {
@@ -652,7 +658,7 @@ scalaInfoEngine <- function(scala.command,verbose) {
   if ( length(libraryJar) == 0 ) {
     if ( verbose ) cat(tab,sprintf("scala-library.jar is not in 'lib' directory of assumed Scala home (%s)\n",scala.home),sep="")
     scala.home <- NULL
-    if ( .Platform$OS != "windows" ) {
+    if ( .Platform$OS.type != "windows" ) {
       if ( verbose ) cat(tab,"Looking for 'scala.home' property in 'scala' script\n",sep="")
       showArguments <- system.file(file.path("bin","showArguments"),package="rscala")
       scala.home <- suppressWarnings(
@@ -683,7 +689,7 @@ scalaInfoEngine <- function(scala.command,verbose) {
     }
   }
   libraryJar <- libraryJar[1]
-  major.version <- tryCatch({
+  actual.major.version <- tryCatch({
     fn <- unz(libraryJar,"library.properties")
     lines <- readLines(fn)
     close(fn)
@@ -691,18 +697,19 @@ scalaInfoEngine <- function(scala.command,verbose) {
     if ( substr(version,4,4) == "." ) substr(version,1,3)
     else substr(version,1,4)
   },error=function(e) { NULL } )
-  if ( is.null(major.version) ) {
+  if ( is.null(actual.major.version) ) {
     if ( verbose ) cat(sprintf("Cannot get Scala version from library jar (%s)\n",libraryJar))
     return(NULL)
   }
-  if ( ! ( major.version %in% c("2.10","2.11","2.12") ) ) {
-    if ( verbose ) cat(sprintf("Unsupported major version (%s) from Scala executable (%s)\n",major.version,scala.command))
+  if ( ! ( actual.major.version %in% major.version ) ) {
+    if ( verbose ) cat(sprintf("      Major version %s is not what was requested: %s\n",actual.major.version,paste(major.version,collapse=", ")))
     return(NULL)
   }
-  list(cmd=scala.command,home=scala.home,version=version,major.version=major.version)
+  list(cmd=scala.command,home=scala.home,version=version,major.version=actual.major.version)
 }
 
-scalaInfo <- function(scala.home=NULL,verbose=FALSE) {
+scalaInfo <- function(scala.home=NULL,major.version=c("2.10","2.11","2.12"),verbose=FALSE) {
+  if ( inherits(scala.home,"ScalaInterpreter") ) return(get("info",scala.home[['env']]))
   if ( verbose ) cat("\nSearching for a suitable Scala installation.\n")
   tab <- "  * "
   if ( verbose ) {
@@ -714,16 +721,16 @@ scalaInfo <- function(scala.home=NULL,verbose=FALSE) {
     if ( verbose ) cat(tab,failureMsg,techniqueMsg," is NULL","\n",sep="")
   } else {
     # Attempt 1
-    info <- scalaInfoEngine(file.path(scala.home,"bin","scala"),verbose)
+    info <- scalaInfoEngine(file.path(scala.home,"bin","scala"),major.version,verbose)
     if ( verbose ) techniqueMsg <- sprintf("'scala.home' (%s) argument",scala.home)
     if ( ! is.null(info) ) { if ( verbose ) cat(tab,successMsg,techniqueMsg,"\n\n",sep=""); return(info) }
     else if ( verbose ) cat(tab,failureMsg,techniqueMsg,"\n",sep="")
     stop("Cannot find Scala using 'scala.home' argument.  Expand search by *not* specifying 'scala.home' argument.")
   }
   # Attempt 2
-  scala.home.tmp <- getOption("rscala.scala.home",default="")
-  info <- if ( scala.home.tmp != "" ) {
-    scalaInfoEngine(file.path(scala.home.tmp,"bin","scala"),verbose)
+  scala.home.tmp <- getOption("rscala.scala.home",default="<UNSET>")
+  info <- if ( scala.home.tmp != "<UNSET>" ) {
+    scalaInfoEngine(file.path(scala.home.tmp,"bin","scala"),major.version,verbose)
   } else NULL
   if ( verbose ) techniqueMsg <- sprintf("'rscala.scala.home' (%s) global option",scala.home.tmp)
   if ( ! is.null(info) ) { if ( verbose ) cat(tab,successMsg,techniqueMsg,"\n\n",sep=""); return(info) }
@@ -732,12 +739,12 @@ scalaInfo <- function(scala.home=NULL,verbose=FALSE) {
   scala.home.tmp <- Sys.getenv("SCALA_HOME")
   if ( verbose ) techniqueMsg <- sprintf("SCALA_HOME (%s) environment variable",scala.home.tmp)
   info <- if ( scala.home.tmp != "" ) {
-    scalaInfoEngine(file.path(scala.home.tmp,"bin","scala"),verbose)
+    scalaInfoEngine(file.path(scala.home.tmp,"bin","scala"),major.version,verbose)
   } else NULL
   if ( ! is.null(info) ) { if ( verbose ) cat(tab,successMsg,techniqueMsg,"\n\n",sep=""); return(info) }
   else if ( verbose ) cat(tab,failureMsg,techniqueMsg,"\n",sep="")
   # Attempt 4
-  info <- scalaInfoEngine(Sys.which("scala"),verbose)
+  info <- scalaInfoEngine(Sys.which("scala"),major.version,verbose)
   if ( verbose ) techniqueMsg <- "'scala' in the shell's search path"
   if ( ! is.null(info) ) { if ( verbose ) cat(tab,successMsg,techniqueMsg,"\n\n",sep=""); return(info) }
   else if ( verbose ) cat(tab,failureMsg,techniqueMsg,"\n",sep="")
@@ -747,13 +754,13 @@ scalaInfo <- function(scala.home=NULL,verbose=FALSE) {
   details <- details[order(as.POSIXct(details$mtime),decreasing=TRUE), ]
   candidates <- rownames(details)
   for ( installDir in candidates ) {
-    info <- scalaInfoEngine(file.path(installDir,"bin","scala"),verbose)
+    info <- scalaInfoEngine(file.path(installDir,"bin","scala"),major.version,verbose)
     if ( verbose ) techniqueMsg <- sprintf("special installation directory (%s)",installDir)
     if ( ! is.null(info) ) { if ( verbose ) cat(tab,successMsg,techniqueMsg,"\n\n",sep=""); return(info) }
     else if ( verbose ) cat(tab,failureMsg,techniqueMsg,"\n",sep="")
   }
   # Attempt 6
-  if ( ! verbose ) scalaInfo(scala.home=scala.home,verbose=TRUE)
+  if ( ! verbose ) scalaInfo(scala.home=scala.home,major.version=major.version,verbose=TRUE)
   else {
     cat("\nCannot find a suitable Scala installation.\n\n")
     f <- file(system.file("README",package="rscala"),open="r")
@@ -761,16 +768,19 @@ scalaInfo <- function(scala.home=NULL,verbose=FALSE) {
     close(f)
     cat(readme,sep="\n")
     cat("\n")
-    if ( interactive() && askToInstall() ) {
-      scalaInstall()
-      scalaInfo(scala.home=scala.home)
+    if ( interactive() ){
+      actual.major.version <- lastestVersion(major.version)
+      if ( askToInstall(actual.major.version) ) {
+        scalaInstall(actual.major.version)
+        scalaInfo(scala.home=scala.home,major.version=actual.major.version)
+      } else invisible()
     } else invisible()
   }
 }
 
-askToInstall <- function() {
+askToInstall <- function(major.version) {
   while ( TRUE ) {
-    response <- readline(prompt="Would you like to install Scala now? [Y/n] ")
+    response <- readline(prompt=paste("Would you like to install Scala",major.version,"now? [Y/n] "))
     response <- toupper(trimws(response))
     if ( response == "" ) response <- "Y"
     if ( response == "Y" ) return(TRUE)
@@ -778,7 +788,7 @@ askToInstall <- function() {
   }
 }
 
-findJava <- function() {
+findJava <- function() {  ## Mimic how the 'scala' shell script finds Java.
   javaName <- if ( .Platform$OS.type == "windows" ) "java.exe" else "java"
   fromPath <- function() {
     candidate <- Sys.which(javaName)[[javaName]]
@@ -893,11 +903,21 @@ pretty <- function(header,body) {
   paste0(paste(c(headerWithPadding,bodyWithPadding),collapse='\n'),'\n')
 }
 
-scalaInstall <- function(major.version=NA) {
-  if ( is.na(major.version) ) {
-    javaVersion <- javaVersion(findJava())
-    if ( javaVersion <= 7 ) major.version <- "2.11"
-    else major.version <- "2.12"
+lastestVersion <- function(major.version) {
+  max <- major.version[1]
+  for ( i in major.version[-1] ) {
+    if ( compareVersion(max,i) < 0 ) max <- i
+  }
+  max
+}
+
+scalaInstall <- function(major.version=c("2.10","2.11","2.12")) {
+  if ( length(major.version) > 1 ) return(scalaInstall(lastestVersion(major.version)))
+  if ( length(major.version) == 0 ) stop("At least one major version must be supplied.")
+  javaVersion <- javaVersion(findJava())
+  if ( ( javaVersion <= 7 ) && ( compareVersion("2.11",major.version) < 0 ) ) {
+    cat("It appears you are using an old version of Java, so Scala 2.11 will be installed.\n")
+    return(scalaInstall("2.11"))
   }
   if ( major.version == "2.12" ) version <- SCALA_212_VERSION
   else if ( major.version == "2.11" ) version <- SCALA_211_VERSION
