@@ -373,7 +373,7 @@ as vectors and matrices of the equivalent \R types.  We call \emph{copyable
 types} those types that are primitives, arrays of primitives, and rectangular
 arrays of arrays of the primitive types.  The name is meant to remind us that
 passing this kind of data between \Scala and \R involves serializing the data
-over the TCP/IP interface, a potentially-costly exercise for a large data
+over the TCP/IP interface, a potentially-costly exercise for large data
 structures.  Since the \code{row.major} argument to the \code{scala} function
 was left at its default value of \code{TRUE} when defining the \Scala instance
 \code{s}, the code below results in a 2x5 matrix in \R:
@@ -561,7 +561,7 @@ fibSeqAsInt <- s$do("Array")$apply(0L, 1L, 1L, 2L, 3L, 5L, 8L, 13L, 21L)
 @
 
 Likewise, the \code{update} method is automatically injected by the \Scala
-compiler when appropriate, but must be explicit called when using the
+compiler when appropriate, but must be explicit when using the
 \code{\$} operator.
 
 <<evaluateScalaCodeArray>>=
@@ -613,7 +613,7 @@ s$.java.util.TimeZone$getDefault()$getDisplayName()
 
 \subsubsection{Quoting Method Names}
 
-\Scala has a type parameterization which are similar but arguably more
+\Scala has a type parameterization which is similar but arguably more
 advanced than generics in \Java and templates in \Cpp.  In many instances, the
 \Scala compiler infers the type parameter, but the user may need or want to
 explicitly provide it.  When using the \code{\$} operator, the method name with
@@ -706,8 +706,8 @@ scalap(rng)
 In addition to calling previously-compiled \Scala methods, the \rscala package
 allows for the definition of \Scala functions \emph{within} an \R session.  The
 associated \Scala code is compiled on-the-fly and cached for subsequent
-evaluation in the \R session.  This feature is inspired by the packages
-\pkg{inline} and \Rcpp packages in \R for \C, \Cpp, and \Fortran.  We do not
+evaluation in the \R session.  This feature is inspired by the 
+\Rcpp and \pkg{inline} packages in \R for \C, \Cpp, and \Fortran.  We do not
 recommend that long, complicated algorithms be implemented as inline \Scala
 functions, but these functions can be helpful for implementing small tasks or
 writing code to interface with existing \Scala code.
@@ -723,7 +723,6 @@ as the Aitken's array or the Peirce triangle):
 bell.version1 <- function(n=1, format=c("character","integer","double","log")[3]) {
   if ( n <= 0 ) stop("'n' must be at least 1.")
   if ( n == 1 ) return(1)
-  r1 <- r2 <- numeric(n)
   r1 <- r2 <- numeric(n)
   r1[1] <- 1
   for ( k in 2:n ) {
