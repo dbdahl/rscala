@@ -50,16 +50,18 @@ scala(classpath=character(), classpath.packages=character(),
       serialize.output=.Platform$OS.type=="windows", scala.home=NULL,
       heap.maximum=NULL, command.line.options=NULL, row.major=TRUE,
       timeout=60, debug=FALSE, stdout=TRUE, stderr=TRUE, port=0,
-      scalaInfo=NULL)
+      scalaInfo=NULL, major.version=c("2.10","2.11","2.12"))
 
-scalaInfo(scala.home=NULL, verbose=FALSE)
+scalaInfo(scala.home=NULL, major.version=c("2.10","2.11","2.12"),
+          verbose=FALSE)
 
-scalaInstall(major.version=NA)
+scalaInstall(major.version=c("2.10","2.11","2.12"))
 
-.rscalaJar(major.version=NA)
+.rscalaJar(major.version=c("2.10","2.11","2.12"))
 
 .rscalaPackage(pkgname, snippet=character(), classpath.packages=character(),
-               classpath.prepend=character(), classpath.append=character(), ...)
+               classpath.prepend=character(), classpath.append=character(),
+               major.version=c("2.10","2.11","2.12"), ...)
 
 .rscalaPackageUnload()
 
@@ -68,8 +70,8 @@ scalaInstall(major.version=NA)
 \arguments{
     \item{classpath}{A character vector whose elements are paths to JAR files or directories which specify the classpath for the Scala compiler/interpreter.}
     \item{classpath.packages}{A character vector giving names of other installed packages whose JAR files should be appended to the classpath.}
-    \item{serialize.output}{Should standard output (stdout) and standard error (stderr) be captured and serialized back to R?  The default is \code{TRUE} on Windows and \code{FALSE} on other operating systems.  \code{FALSE} requires less computing and is usually not necessary on Linux and Mac OS X.  \code{TRUE} may be needed to see output and error messages on Windows.}
-    \item{scala.home}{A character vector of length one giving the path where Scala is installed.  When set to \code{NULL} (the default), the function sequentially tries to find the Scala home by:  i. querying the glocal option \var{rscala.scala.home}, ii. using the environment variable \code{SCALA_HOME}, iii. querying the operating system search path, and iv. looking in subdirectories of \code{~/.rscala}.  If all these fail, the function displaces a message to help the user install Scala.}
+    \item{serialize.output}{Should standard output (stdout) and standard error (stderr) be captured and serialized back to R?  The default is \code{TRUE} on Windows and \code{FALSE} on other operating systems.  \code{FALSE} requires less computing and is usually not necessary on Linux and Mac OS X.  Depending on the environment and operating system in which R is run, \code{TRUE} may be needed to see output and error messages.}
+    \item{scala.home}{A character vector of length one giving the path where Scala is installed.  When set to \code{NULL} (the default), the function sequentially tries to find the Scala home by:  i. querying the glocal option \var{rscala.scala.home}, ii. using the environment variable \code{SCALA_HOME}, iii. querying the operating system search path, and iv. looking in subdirectories of \code{~/.rscala}.  If all these fail, the function displaces a message to help the user install Scala.  Alternatively, in the class of \code{\link{scalaInfo}}, \code{scala.home} may also be the result of the \code{\link{scala}} function.}
     \item{heap.maximum}{A character vector of length one used to specify the maximum heap size in the JVM.  If \code{NULL}, the global option \var{rscala.heap.maximum} is queried and, if that is also \code{NULL}, Scala's default value is used.  This option is ignored if \var{command.line.options} is not null.}
     \item{command.line.options}{A character vector whose elements are passed as command line arguments when invoking Scala.  If \code{NULL}, the global option \var{rscala.command.line.options} is queried and, if that is also \code{NULL}, the value is set to \code{NULL}.  A value of \code{NULL} means no extra arguments are provided.  If you simply want to add to the classpath and/or set the maximum heap size, use the \var{classpath} and \var{heap.maximum} arguments.}
     \item{row.major}{Should matrices in Scala be row major?}
@@ -79,7 +81,7 @@ scalaInstall(major.version=NA)
     \item{port}{If \code{0}, two random ports are selected.  Otherwise, \code{port} and \code{port+1} are used to the TCP/IP connections.}
     \item{scalaInfo}{The result of a previous call to \code{\link{scalaInfo}}.}
     \item{verbose}{A logical vector of length one indicating whether information regarding the search for the Scala installation should be displayed.}
-    \item{major.version}{Either \code{NA} (in which case the system picks the appropriate version) or a string specifying the major Scala version (e.g., "2.12").}
+    \item{major.version}{The character vector giving acceptable major version numbers (e.g., c("2.10","2.11","2.12")), or \code{NA} in which case the system picks the appropriate version.}
     \item{pkgname}{A character string giving the name of the package (as provided the second argument of the \code{.onLoad} function) that wishes to depend on this package.}
     \item{snippet}{A character vector providing Scala code that will be evaluated when the interpreter in the package namespace is first used.}
     \item{classpath.prepend}{A character vector giving the full path to JAR files to add to the \emph{beginning} of the classpath for the Scala compiler/interpreter embedded within a package via the \code{\link{.rscalaPackage}} function.  The JAR files in the package's \sQuote{java} directory are already included and do not need to be added here.}

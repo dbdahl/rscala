@@ -267,9 +267,9 @@ s %@% 'scala.util.Random.setSeed(3242)'
 @
 
 The default arguments of the \code{scala} function can be overridden to
-customize how \Scala is found, how it is invoked (e.g., setting the classpath
-and maximum heap size), whether matrices are in row-major or column-major
-order, the TCP/IP ports for the local socket connections, and how output from
+customize: i.~how \Scala is found and the desired \Scala version, ii.~how it is invoked (e.g., setting the classpath
+and maximum heap size), iii.~whether matrices are in row-major or column-major
+order, iv.~the TCP/IP ports for the local socket connections, and v.~how output from
 \Scala is treated.  Details on this and all other functions are provided in the
 \R documentation for the package (e.g., \code{help(scala)}).  A \Scala session
 is only valid during the \R session in which it is created and cannot be saved
@@ -277,8 +277,10 @@ and restored through, for example, the \code{save} and \code{load} functions.
 
 Multiple \Scala instances can be created, each from a call to the \code{scala}
 function.  Scala instances run independently with their own memory, classpath,
-history, etc.  Multiple \R processes/threads should not access the same \Scala
-instance simultaneously, but \Scala itself can use multiple threads/cores.
+history, etc.  For a given \Scala instance, the \rscala bridge is not thread
+safe so multiple \R processes/threads should not access the same \Scala
+instance simultaneously, nor should multiple \Scala threads call back to \R
+simultaneously.
 
 \subsection[Calling Scala Code from R]{Calling \Scala Code from \R}
 
@@ -302,11 +304,10 @@ result
 
 Since the \code{\%@\%} operator was used, the value of \code{result} is
 \code{NULL} but, as shown here, the side effect of printing \code{120} to the
-console is displayed in the \R session here and in \emph{many} environments and
-operating systems.  If the argument \code{serialize.output=TRUE} is passed to
-the \code{scala} function when instantiating \Scala, printing is displayed in
-\emph{all} situations.  This is not the default, however, because the
-serializing output is often not needed yet imposes some overhead.
+console is displayed in the \R session.  Output behavior may depend on the
+environment and operating system in which R is run and the arguments
+\code{serialize.output}, \code{stdout}, and \code{stderr} of the \code{scala}
+function can be used to customize console output.
 
 \subsubsection{String Interpolation}
 
@@ -994,8 +995,8 @@ The \rscala package supports writing \R packages using \Scala.  For example,
 the \pkg{shallot} \citep{shallotSoftware} and \pkg{bamboo}
 \citep{bambooSoftware} packages on CRAN use \Scala via the \rscala package to
 implement statistical methodology of associated journal articles
-\citep{shallotPaper,bambooPaper}.  Readers are invited to study those examples,
-but we describe the details below.  An \R package based on \rscala should
+\citep{shallotPaper,bambooPaper}.  Readers are invited to study those examples
+and we describe the process below.  An \R package based on \rscala should
 include \code{rscala} in the \code{Imports} field of the package's
 \code{DESCRIPTION} file and the \code{NAMESPACE} file should include a line
 with \code{import(rscala)}.  The package should define an \code{.onLoad}
@@ -1016,6 +1017,13 @@ installed, the user is asked for permission to download and install \Scala
 (using the \code{scalaInstall} function).  Analogous to \rJava's
 \code{.jpackage} function, the \code{.rscalaPackage} function adds the JAR
 files in the source package's \code{inst/java} directory to \Scala's classpath.
+Since \Scala is binary compatible only within major version, package developers
+are encouraged to support major version 2.10, 2.11, and 2.12 by placing
+cross-compiled versions of \Scala JAR files in \code{inst/java/scala-2.10},
+\code{inst/java/scala-2.11}, and \code{inst/java/scala-2.12}, respectively.  If
+a package only supports specific major versions of \Scala, the
+\code{major.version} argument should be overridden when calling the
+\code{.rscalaPackage} function.
 
 The \code{.rscalaPackage} function takes several optional arguments.  The
 \code{classpath.packages} allows the package to use the JAR files of another
@@ -1044,7 +1052,7 @@ shows a callback to \R so that random data generation in \Scala is based on
     def rdg() = {
       val ints = R.evalI1("runif(2,-.Machine$integer.max,.Machine$integer.max)")
       val seed = ((ints(0).asInstanceOf[Long]) << 32) | (ints(1) & 0xffffffffL)
-      val r = RDG()
+      val r = new RDG()
       r.reSeed(seed)
       r
     }
@@ -1104,8 +1112,8 @@ This example also illustrates the difficulty in calling \Scala from \rJava
 since \Scala provides several features that do not map directly to \Java
 equivalents.  The \Scala compiler uses name mangling, behind-the-scenes code
 generation, and other techniques when compiling to \Java bytecode.  Calling
-\Scala code that makes use of these features from \rJava requires some
-understanding of \Scala's compiler at a minimum, but often the developer is
+\Scala code that makes use of these features from \rJava requires at a minimum some
+understanding of \Scala's compiler, but often the developer is
 required to write \Java-friendly wrapper methods in \Scala that hide advanced
 \Scala features.
 
@@ -1139,8 +1147,9 @@ file:
 libraryDependencies += "org.ddahl" %% "rscala" % "2.2.3"
 @
 
-Note that the \rscala package does \emph{not} even need to be installed in \R.
-An embedded \R interpreter is instantiate as follows:
+Note that the \rscala package does \emph{not} even need to be installed in \R
+since the necessary \R code is bundled in the JAR file.
+An embedded \R interpreter is instantiated as follows:
 
 <<scalaScript0,engine="scala",engine.opts=paste0('-cp "',rscala::.rscalaJar('2.12'),'"'),comment="//",eval=FALSE>>=
 val R = org.ddahl.rscala.RClient()
@@ -1178,7 +1187,7 @@ def qnorm(x: Double, mean: Double = 0, sd: Double = 1, lowerTail: Boolean = true
 val alpha = 0.05
 println(s"If Z is N(0,1), P(Z >= ${qnorm(alpha, lowerTail=false)}) = $alpha.")
 
-// Item 3: Manage data
+// Item 3: Read and write data to disk
 val distancesFromDisk = R.evalD2("""
   write.csv(as.matrix(eurodist),file='eurodist.csv',row.names=FALSE)
   as.matrix(read.csv('eurodist.csv'))
