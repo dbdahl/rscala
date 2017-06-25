@@ -88,9 +88,7 @@ scalaEval <- function(interpreter,snippet,workspace) {
     if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
   }, interrupt = function(x) {
     assign("open",FALSE,envir=interpreter[['env']])
-    close(interpreter[['socketOut']])
-    close(interpreter[['socketIn']])
-    message("Interpreter closed by interrupt.")
+    stop("## Interpreter closed by interrupt. ##")
   })
   if ( ( length(status) == 0 ) || ( status != OK ) ) stop("Error in evaluation.")
   else invisible(NULL)
@@ -259,9 +257,7 @@ scalaGet <- function(interpreter,identifier,as.reference) {
     value
   }, interrupt = function(x) {
     assign("open",FALSE,envir=interpreter[['env']])
-    close(interpreter[['socketOut']])
-    close(interpreter[['socketIn']])
-    message("Interpreter closed by interrupt.")
+    stop("## Interpreter closed by interrupt. ##")
   })
 }
 
@@ -364,9 +360,7 @@ scalaSet <- function(interpreter,identifier,value) {
     }
   }, interrupt = function(x) {
     assign("open",FALSE,envir=interpreter[['env']])
-    close(interpreter[['socketOut']])
-    close(interpreter[['socketIn']])
-    message("Interpreter closed by interrupt.")
+    stop("## Interpreter closed by interrupt. ##")
   })
   invisible()
 }
@@ -404,6 +398,7 @@ scalaOptimize <- function(scalaFunction) {
 }
 
 scalaFunctionArgs <- function(.INTERPRETER,...) {
+  cc(.INTERPRETER)
   argsValues <- list(...)
   argsIdentifiers <- names(argsValues)
   if ( is.null(argsIdentifiers) ) {
@@ -474,21 +469,26 @@ scalaMkFunction <- function(func,body,as.reference,workspace) {
   functionSnippet <- strintrplt('
     function(@{paste(func$identifiers,collapse=", ")}) {
       .rsI <- @{interpreterName}
-      .rsWorkspace <- environment()
-      @{ifelse(get("debug",envir=interpreter[["env"]]),\'rscala:::msg(paste("Evaluating Scala function from environment",capture.output(print(.rsWorkspace))))\',"")}
-      rscala:::wb(.rsI,rscala:::INVOKE)
-      rscala:::wc(.rsI,"@{funcList$functionIdentifier}")
-      flush(.rsI[["socketIn"]])
-      rscala:::rServe(.rsI,TRUE,.rsWorkspace)
-      .rsStatus <- rscala:::rb(.rsI,"integer")
-      @{ifelse(get("serializeOutput",envir=interpreter[["env"]]),"rscala:::echoResponseScala(.rsI)","")}
-      if ( .rsStatus == rscala:::ERROR ) {
-        stop("Invocation error.")
-      } else {
-        .rsResult <- rscala:::scalaGet(.rsI,"?",@{as.reference})
-        if ( is.null(.rsResult) ) invisible(.rsResult)
-        else .rsResult
-      }
+      tryCatch({
+        .rsWorkspace <- environment()
+        @{ifelse(get("debug",envir=interpreter[["env"]]),\'rscala:::msg(paste("Evaluating Scala function from environment",capture.output(print(.rsWorkspace))))\',"")}
+        rscala:::wb(.rsI,rscala:::INVOKE)
+        rscala:::wc(.rsI,"@{funcList$functionIdentifier}")
+        flush(.rsI[["socketIn"]])
+        rscala:::rServe(.rsI,TRUE,.rsWorkspace)
+        .rsStatus <- rscala:::rb(.rsI,"integer")
+        @{ifelse(get("serializeOutput",envir=interpreter[["env"]]),"rscala:::echoResponseScala(.rsI)","")}
+        if ( .rsStatus == rscala:::ERROR ) {
+          stop("Invocation error.")
+        } else {
+          .rsResult <- rscala:::scalaGet(.rsI,"?",@{as.reference})
+          if ( is.null(.rsResult) ) invisible(.rsResult)
+          else .rsResult
+        }
+      }, interrupt = function(x) {
+        assign("open",FALSE,envir=.rsI[["env"]])
+        stop("## Interpreter closed by interrupt. ##")
+      })
     }
   ')
   functionDefinition <- eval(parse(text=functionSnippet),envir=workspace)
@@ -555,9 +555,7 @@ scalap <- function(interpreter,class.name) {
     if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
   }, interrupt = function(x) {
     assign("open",FALSE,envir=interpreter[['env']])
-    close(interpreter[['socketOut']])
-    close(interpreter[['socketIn']])
-    message("Interpreter closed by interrupt.")
+    stop("## Interpreter closed by interrupt. ##")
   })
 }
 
