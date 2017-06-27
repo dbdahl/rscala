@@ -280,6 +280,11 @@ scalaNull <- function(type) {
     result <- list(interpreter=interpreter,snippet=snippet)
     class(result) <- "ScalaInterpreterItem"
     result
+  } else if ( identifier == "var" ) function(x) {
+    if ( ( ! inherits(x,"ScalaCachedReference") ) || ( x[['type']] != "org.ddahl.rscala.PersistentReference" ) ) {
+      stop("The argument must be a Scala reference to an PersistentReference.")
+    }
+    get(x$name(),envir=interpreter[['r']])
   } else if ( identifier == "val" ) function(x) {
     # warning(paste0("Syntax \"s$val()\" is deprecated and will be removed."))
     scalaGet(interpreter,x,NA)
@@ -413,7 +418,7 @@ scalaFunctionArgs <- function(.INTERPRETER,...) {
     value <- argsValues[[i]]
     name <- argsIdentifiers[[i]]
     if ( is.null(value) ) {
-      header[i] <- paste0('val ',name,' = REphemeralReference("',name,'")')
+      header[i] <- paste0('val ',name,' = EphemeralReference("',name,'")')
     } else if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") || inherits(value,"ScalaNullReference")) {
       header[i] <- paste0('val ',name,' = R.cached(R.evalS0("toString(',name,')")).asInstanceOf[',value[['type']],']')
     } else {

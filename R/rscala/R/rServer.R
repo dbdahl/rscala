@@ -130,7 +130,7 @@ rServe <- function(sockets,with.callbacks,workspace=.GlobalEnv) {
         wb(sockets,UNDEFINED_IDENTIFIER)
       } else {
         wb(sockets,REFERENCE)
-        wc(sockets,paste0(".rsI[['r']]$",uniqueName(value,sockets[['r']],"")))
+        wc(sockets,uniqueName(value,sockets[['r']],""))
       }
     } else if ( cmd == FREE ) {
       if ( debug ) msg("Got FREE")

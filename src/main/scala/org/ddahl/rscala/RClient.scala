@@ -3,7 +3,7 @@ package org.ddahl.rscala
 import java.net._
 import java.io._
 import scala.language.dynamics
-import java.lang.ref.{Reference, PhantomReference, ReferenceQueue}
+import java.lang.ref.{Reference => JavaReference, PhantomReference, ReferenceQueue}
 
 import server._
 import Protocol._
@@ -48,8 +48,8 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
 
   import Helper.{readString, writeString, isMatrix, transposeIf}
 
-  private val referenceQueue = new ReferenceQueue[RPersistentReference]()
-  private val referenceMap = new scala.collection.mutable.HashMap[Reference[_ <: RPersistentReference],String]()
+  private val referenceQueue = new ReferenceQueue[PersistentReference]()
+  private val referenceMap = new scala.collection.mutable.HashMap[JavaReference[_ <: PersistentReference],String]()
 
   /** __For rscala developers only__: Returns `TRUE` if debugging output is enabled. */
   def debug = debugger.value
@@ -59,6 +59,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   * Subsequent calls to the other methods will fail.
   */
   def exit() = {
+    check4GC()
     out.writeInt(SHUTDOWN)
     out.flush()
   }
@@ -67,7 +68,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
     val first = referenceQueue.poll
     if ( first != null ) {
       out.writeInt(FREE)
-      var list = List[Reference[_ <: RPersistentReference]](first)
+      var list = List[JavaReference[_ <: PersistentReference]](first)
       while ( list.head != null ) {
         list = referenceQueue.poll :: list
       }
@@ -76,9 +77,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
       list.foreach( x => {
         val id = referenceMap(x)
         referenceMap.remove(x)
-        val index = id.indexOf("$")
-        val str = if ( index == -1 ) id else id.substring(index+1)
-        writeString(out,str)
+        writeString(out,id)
       })
       out.flush()
     }
@@ -115,6 +114,9 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
 
   /** Calls '''`eval(snippet,true)`'''.  */
   def eval(snippet: String): Unit = eval(snippet,true)
+
+  /** Calls '''`eval(snippet,true)`''' and returns the result using [[getReference]].  */
+  def evalReference(snippet: String) = { eval(snippet,true); getReference(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getI0]].  */
   def evalI0(snippet: String) = { eval(snippet,true); getI0(".rscala.last.value") }
@@ -162,114 +164,120 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
   def evalR2(snippet: String) = { eval(snippet,true); getR2(".rscala.last.value") }
 
   /** Invokes an R function with arguments.  */
-  def invoke(function: RReference, args: Any*) = eval(mkSnippet(function,args))
+  def invoke(function: Reference, args: Any*) = eval(mkSnippet(function,args))
 
   /** Invokes an R function with arguments.  */
   def invoke(functionName: String, args: Any*) = eval(mkSnippet(functionName,args))
- 
+
+  /** Invokes an R function with arguments and returns the result using [[getReference]].  */
+  def invokeReference(function: Reference, args: Any*) = evalReference(mkSnippet(function,args))
+
+  /** Invokes an R function with arguments and returns the result using [[getReference]].  */
+  def invokeReference(functionName: String, args: Any*) = evalReference(mkSnippet(functionName,args))
+
   /** Invokes an R function with arguments and returns the result using [[getI0]].  */
-  def invokeI0(function: RReference, args: Any*) = evalI0(mkSnippet(function,args))
+  def invokeI0(function: Reference, args: Any*) = evalI0(mkSnippet(function,args))
 
   /** Invokes an R function with arguments and returns the result using [[getI0]].  */
   def invokeI0(functionName: String, args: Any*) = evalI0(mkSnippet(functionName,args))
 
   /** Invokes an R function with arguments and returns the result using [[getD0]].  */
-  def invokeD0(function: RReference, args: Any*) = evalD0(mkSnippet(function,args))
+  def invokeD0(function: Reference, args: Any*) = evalD0(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getD0]].  */
   def invokeD0(functionName: String, args: Any*) = evalD0(mkSnippet(functionName,args))
   
   /** Invokes an R function with arguments and returns the result using [[getL0]].  */
-  def invokeL0(function: RReference, args: Any*) = evalL0(mkSnippet(function,args))
+  def invokeL0(function: Reference, args: Any*) = evalL0(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getL0]].  */
   def invokeL0(functionName: String, args: Any*) = evalL0(mkSnippet(functionName,args))
   
   /** Invokes an R function with arguments and returns the result using [[getS0]].  */
-  def invokeS0(function: RReference, args: Any*) = evalS0(mkSnippet(function,args))
+  def invokeS0(function: Reference, args: Any*) = evalS0(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getS0]].  */
   def invokeS0(functionName: String, args: Any*) = evalS0(mkSnippet(functionName,args))
   
   /** Invokes an R function with arguments and returns the result using [[getR0]].  */
-  def invokeR0(function: RReference, args: Any*) = evalR0(mkSnippet(function,args))
+  def invokeR0(function: Reference, args: Any*) = evalR0(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getR0]].  */
   def invokeR0(functionName: String, args: Any*) = evalR0(mkSnippet(functionName,args))
   
   /** Invokes an R function with arguments and returns the result using [[getI1]].  */
-  def invokeI1(function: RReference, args: Any*) = evalI1(mkSnippet(function,args))
+  def invokeI1(function: Reference, args: Any*) = evalI1(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getI1]].  */
   def invokeI1(functionName: String, args: Any*) = evalI1(mkSnippet(functionName,args))
   
   /** Invokes an R function with arguments and returns the result using [[getD1]].  */
-  def invokeD1(function: RReference, args: Any*) = evalD1(mkSnippet(function,args))
+  def invokeD1(function: Reference, args: Any*) = evalD1(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getD1]].  */
   def invokeD1(functionName: String, args: Any*) = evalD1(mkSnippet(functionName,args))
   
   /** Invokes an R function with arguments and returns the result using [[getL1]].  */
-  def invokeL1(function: RReference, args: Any*) = evalL1(mkSnippet(function,args))
+  def invokeL1(function: Reference, args: Any*) = evalL1(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getL1]].  */
   def invokeL1(functionName: String, args: Any*) = evalL1(mkSnippet(functionName,args))
   
   /** Invokes an R function with arguments and returns the result using [[getS1]].  */
-  def invokeS1(function: RReference, args: Any*) = evalS1(mkSnippet(function,args))
+  def invokeS1(function: Reference, args: Any*) = evalS1(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getS1]].  */
   def invokeS1(functionName: String, args: Any*) = evalS1(mkSnippet(functionName,args))
   
   /** Invokes an R function with arguments and returns the result using [[getR1]].  */
-  def invokeR1(function: RReference, args: Any*) = evalR1(mkSnippet(function,args))
+  def invokeR1(function: Reference, args: Any*) = evalR1(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getR1]].  */
   def invokeR1(functionName: String, args: Any*) = evalR1(mkSnippet(functionName,args))
   
   /** Invokes an R function with arguments and returns the result using [[getI2]].  */
-  def invokeI2(function: RReference, args: Any*) = evalI2(mkSnippet(function,args))
+  def invokeI2(function: Reference, args: Any*) = evalI2(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getI2]].  */
   def invokeI2(functionName: String, args: Any*) = evalI2(mkSnippet(functionName,args))
   
   /** Invokes an R function with arguments and returns the result using [[getD2]].  */
-  def invokeD2(function: RReference, args: Any*) = evalD2(mkSnippet(function,args))
+  def invokeD2(function: Reference, args: Any*) = evalD2(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getD2]].  */
   def invokeD2(functionName: String, args: Any*) = evalD2(mkSnippet(functionName,args))
   
   /** Invokes an R function with arguments and returns the result using [[getL2]].  */
-  def invokeL2(function: RReference, args: Any*) = evalL2(mkSnippet(function,args))
+  def invokeL2(function: Reference, args: Any*) = evalL2(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getL2]].  */
   def invokeL2(functionName: String, args: Any*) = evalL2(mkSnippet(functionName,args))
   
   /** Invokes an R function with arguments and returns the result using [[getS2]].  */
-  def invokeS2(function: RReference, args: Any*) = evalS2(mkSnippet(function,args))
+  def invokeS2(function: Reference, args: Any*) = evalS2(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getS2]].  */
   def invokeS2(functionName: String, args: Any*) = evalS2(mkSnippet(functionName,args))
   
   /** Invokes an R function with arguments and returns the result using [[getR2]].  */
-  def invokeR2(function: RReference, args: Any*) = evalR2(mkSnippet(function,args))
+  def invokeR2(function: Reference, args: Any*) = evalR2(mkSnippet(function,args))
   
   /** Invokes an R function with arguments and returns the result using [[getR2]].  */
   def invokeR2(functionName: String, args: Any*) = evalR2(mkSnippet(functionName,args))
   
-  private def mkSnippet(functionName: String, args: Seq[Any]): String = mkSnippet(REphemeralReference(functionName), args)
+  private def mkSnippet(functionName: String, args: Seq[Any]): String = mkSnippet(EphemeralReference(functionName), args)
 
-  private def mkSnippet(function: RReference, args: Seq[Any]): String = {
+  private def mkSnippet(function: Reference, args: Seq[Any]): String = {
     var counter = 0
     val argsStrings = args.map {
       case null => "NULL"
-      case (name: String, r: RReference) => name + "=" + r.toString
+      case (name: String, r: Reference) => name + "=" + r.toString
       case (name: String, o) =>
         val id = ".rsX" + counter
         counter += 1
         set(id,o)
         name + "=" + id
-      case r: RReference => r.toString
+      case r: Reference => r.toString
       case o =>
         val id = ".rsX" + counter
         counter += 1
@@ -584,18 +592,21 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
         }
       case REFERENCE =>
         if ( debug ) debugger.msg("Getting reference.")
-        val reference = RPersistentReference(readString(in))
+        val reference = PersistentReference(readString(in))
         val phantomReference = new PhantomReference(reference, referenceQueue)
         referenceMap(phantomReference) = reference.name
-        (reference, "org.ddahl.rscala.RPersistentReference")
+        (reference, "org.ddahl.rscala.PersistentReference")
       case UNDEFINED_IDENTIFIER => throw new RuntimeException("Undefined identifier: "+identifier)
       case UNSUPPORTED_STRUCTURE => throw new RuntimeException("Unsupported data type: "+identifier)
       case e => throw new RuntimeException("Protocol error: Unknown type: "+e)
     }
   }
 
+  /** Obtains a persistent R reference to the named object so that it can be accessed outside of the current environment. */
+  def getReference(identifier: String): PersistentReference = get(identifier,true)._1.asInstanceOf[PersistentReference]
+
   /** Converts an ephemeral R reference to a persistent R reference so that it can be accessed outside of the current environment. */
-  def makePersistent(reference: REphemeralReference): RPersistentReference = get(reference.name,true)._1.asInstanceOf[RPersistentReference]
+  def getReference(reference: EphemeralReference): PersistentReference = getReference(reference.name)
 
   /** Calls '''`get(identifier,false)`''' and converts the result to an `Int`.
   *

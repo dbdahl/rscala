@@ -4,7 +4,7 @@ package org.ddahl.rscala
 *
 * @author David B. Dahl
 */
-sealed trait RReference {
+sealed trait Reference {
 
   val name: String
 
@@ -13,22 +13,22 @@ sealed trait RReference {
 }
 
 /** A reference to an R object which is only guaranteed to be valid in the scope in which it was created.  */
-class REphemeralReference private[rscala] (val name: String) extends RReference
+class EphemeralReference private[rscala] (val name: String) extends Reference
 
 /** A reference to an R object which is only guaranteed to be valid in the scope in which it was created.  */
-object REphemeralReference {
+object EphemeralReference {
 
-  def apply(name: String) = new REphemeralReference(name)
+  def apply(name: String) = new EphemeralReference(name)
 
 }
 
 /** A reference to an R object which persists beyond the scope in which it was created.  */
-class RPersistentReference private[rscala] (val name: String) extends RReference
+class PersistentReference private[rscala] (val name: String) extends Reference
 
 /** A reference to an R object which persists beyond the scope in which it was created.  */
-object RPersistentReference {
+object PersistentReference {
 
-  private[rscala] def apply(name: String) = new RPersistentReference(name)
+  private[rscala] def apply(name: String) = new PersistentReference(name)
 
 }
 
