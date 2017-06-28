@@ -542,7 +542,7 @@ class RClient private (private val scalaServer: ScalaServer, private val in: Dat
     if ( identifier.startsWith(".") ) {
       scalaServer.cacheMap(identifier)._1
     } else {
-      scalaServer.repl.valueOfTerm(identifier).get
+      scalaServer.repl.valueOfTerm(identifier).getOrElse(null)
     }
   }
 
