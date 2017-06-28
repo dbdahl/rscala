@@ -15,6 +15,7 @@ export("scalaSettings")
 export("scalaInfo")
 export("scalaNull")
 export("scalaOptimize")
+export("scalaUnboxReference")
 export("scalap")
 export("scala")
 

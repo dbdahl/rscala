@@ -536,6 +536,13 @@ scalaAutoMkFunction <- function(reference,method) {
   }
 }
 
+scalaUnboxReference <- function(x) {
+  if ( ( ! inherits(x,"ScalaCachedReference") ) || ( x[['type']] != "org.ddahl.rscala.PersistentReference" ) ) {
+    stop("The argument must be a Scala reference to an PersistentReference.")
+  }
+  get(x$name(),envir=x[['interpreter']][['r']])
+}
+
 '$.ScalaCachedReference' <- scalaAutoMkFunction
 '$.ScalaInterpreterReference' <- scalaAutoMkFunction
 '$.ScalaInterpreterItem' <- scalaAutoMkFunction
