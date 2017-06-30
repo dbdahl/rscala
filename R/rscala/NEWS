@@ -1,4 +1,5 @@
-2.2.3 (2017-06-XX)
+2.2.3 (2017-07-XX)
+  * Added s$var(x) to get the value of an R reference 'x'.
   * If a requested version of R does not exits, offer to install Scala if
     R is interactive.
   * By default, set serialize.output to TRUE on Windows and FALSE otherwise

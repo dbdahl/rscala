@@ -280,6 +280,12 @@ scalaNull <- function(type) {
     result <- list(interpreter=interpreter,snippet=snippet)
     class(result) <- "ScalaInterpreterItem"
     result
+  } else if ( identifier == "var" ) function(x) {
+    if ( inherits(x,"ScalaCachedReference") && ( x[['type']] == "org.ddahl.rscala.PersistentReference" ) ) {
+      get(x$name(),envir=x[['interpreter']][['r']])
+    } else if ( is.character(x) && ( length(x) == 1 ) ) {
+      get(x,envir=interpreter[['r']])
+    } else stop("Argument must be a persistent R reference or a string ID of the persistent R reference.")
   } else if ( identifier == "val" ) function(x) {
     # warning(paste0("Syntax \"s$val()\" is deprecated and will be removed."))
     scalaGet(interpreter,x,NA)
