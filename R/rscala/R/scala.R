@@ -516,6 +516,10 @@ print.ScalaFunction <- function(x,...) {
 }
 
 scalaAutoMkFunction <- function(reference,method) {
+  if ( method == "type" ) {
+    if ( inherits(reference,"ScalaInterpreterItem") ) return(reference[['snippet']])
+    else return(reference[['type']])
+  }
   interpreter <- reference[['interpreter']]
   function(..., .AS.REFERENCE = NA, .EVALUATE = TRUE) {
     args <- list(...)
