@@ -1,5 +1,7 @@
 #!/bin/bash
 
+PORT=7491
+
 cd $(dirname $(readlink -f "$0"))
 CWD=$PWD
 cd ../R/rscala/vignettes
@@ -12,10 +14,10 @@ PID=$!
 sleep 2
 
 # Do an initial deep run.
-echo n | netcat localhost 7491
+$CWD/knitr-compile n
 
 # Watch for chances.
-vulture article.Rnw bash -c "echo r | netcat localhost 7491"
+vulture article.Rnw bash -c "$CWD/knitr-compile r"
 
 # Kill the server.
 kill $PID
