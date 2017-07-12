@@ -556,6 +556,18 @@ object ScalaServer {
     }
     val classpath = urls.map(_.getPath)
     settings.classpath.value = classpath.distinct.mkString(java.io.File.pathSeparator)
+    settings.deprecation.value = true
+    settings.feature.value = true
+    settings.unchecked.value = true
+    // Allow reflective calls without a warning since we make us of them.
+    // Use refective since Scala 2.10.x doess not have settings.language.
+    if ( util.Properties.versionNumberString.split("""\.""").take(2).mkString(".") != "2.10" ) {
+      val m = settings.language.getClass.getMethod("add","".getClass)
+      m.setAccessible(true)
+      m.invoke(settings.language,"reflectiveCalls")
+    }
+    // A better way to do it, but Scala 2.10.x doess not have settings.language.
+    // settings.language.add("reflectiveCalls")
     // Set up sinks
     val (debugger,prntWrtr,baosOut,baosErr) = serializeOutput match {
       case true =>
