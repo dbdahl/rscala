@@ -560,13 +560,15 @@ object ScalaServer {
     settings.feature.value = true
     settings.unchecked.value = true
     // Allow reflective calls without a warning since we make us of them.
-    // Use refective since Scala 2.10.x doess not have settings.language.
-    if ( util.Properties.versionNumberString.split("""\.""").take(2).mkString(".") != "2.10" ) {
-      val m = settings.language.getClass.getMethod("add","".getClass)
-      m.setAccessible(true)
-      m.invoke(settings.language,"reflectiveCalls")
+    // Use refective since Scala 2.10.x doess not have the settings.language.add method.
+    val m1 = if ( util.Properties.versionNumberString.split("""\.""").take(2).mkString(".") == "2.10" ) {
+      settings.language.getClass.getMethod("appendToValue","".getClass)
+    } else {
+      settings.language.getClass.getMethod("add","".getClass)
     }
-    // A better way to do it, but Scala 2.10.x doess not have settings.language.
+    m1.setAccessible(true)
+    m1.invoke(settings.language,"reflectiveCalls")
+    // A better way to do it, but Scala 2.10.x doess not the settings.language.add method.
     // settings.language.add("reflectiveCalls")
     // Set up sinks
     val (debugger,prntWrtr,baosOut,baosErr) = serializeOutput match {
@@ -585,9 +587,9 @@ object ScalaServer {
     // Instantiate an interpreter
     val intp = new IMain(settings,prntWrtr)
     // Suppress output; equivalent to :silent in REPL, but it's private, so use reflection.
-    val m = intp.getClass.getMethod("printResults_$eq",java.lang.Boolean.TYPE)
-    m.setAccessible(true)
-    m.invoke(intp,java.lang.Boolean.FALSE)
+    val m2 = intp.getClass.getMethod("printResults_$eq",java.lang.Boolean.TYPE)
+    m2.setAccessible(true)
+    m2.invoke(intp,java.lang.Boolean.FALSE)
     // Another way to do it, but Scala 2.10.x is chatty and prints "Switched off result printing."
     // val iloop = new ILoop()
     // iloop.intp = intp
