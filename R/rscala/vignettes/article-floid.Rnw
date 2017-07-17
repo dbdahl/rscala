@@ -48,7 +48,7 @@
 
 %% almost as usual
 \author{David B.\ Dahl\\Brigham Young University}
-\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.2.3,\ \ Document Date: 2017-06-10}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
+\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.2.3,\ \ Document Date: 2017-07-24}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
 
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{David B. Dahl} %% comma-separated
@@ -227,7 +227,7 @@ The \rscala package requires a \Scala installation of the 2.10.x, 2.11.x, or
 2.12.x series.  A convenience function,
 \code{rscala::scalaInstall()}, is provided to download and install \Scala in the user's
 home directory under \code{.rscala}. Because this is a user-level
-installation, elevated privileges are not required.
+installation, administrator privileges are not required.
 
 Alternatively, system administrators can install \Scala using their operating
 system's software management system (e.g., ``\code{sudo apt install scala}'' on
@@ -254,7 +254,7 @@ s <- scala(serialize.output=TRUE)
 s %@% 'scala.util.Random.setSeed(3242)'
 @
 
-By default, the \code{scala} function searches your system for a suitable
+By default, the \code{scala} function searches the system for a suitable
 \Scala installation to create the instance.  Use the \code{scalaInfo} function
 as follows to display the default \Scala installation and \rscala's search
 sequence.
@@ -276,11 +276,13 @@ Multiple \Scala instances can be created in the same \R session.
 Each \Scala instance runs independently with its own memory, classpath,
 history, etc.
 
-The \rscala bridge is not thread-safe so multiple \R processes/threads should not access the same \Scala
+The \rscala bridge is not thread-safe, so multiple \R processes/threads should not access the same \Scala
 instance simultaneously, nor should multiple \Scala threads call back to \R
 simultaneously.
 
 \subsection[Calling Scala code from R]{Calling \Scala code from \R}
+
+\subsubsection{Evaluation of \Scala snippets}
 
 \Scala code can be compiled and executed within an \R session using several
 operators.  The most basic operator is \code{\%@\%}, which evaluates a snippet of \Scala code and returns \code{NULL}.
@@ -296,8 +298,12 @@ result <- s %@% '
 result
 @
 
-Notice that the side effect of printing \code{120} to the
-console is still displayed even though the operator returns \code{NULL}.
+Notice the side effect of printing \code{120} to the
+console even though the operator returns \code{NULL}.
+The console printing behavior depends on the
+environment and operating system in which R is run.  The arguments
+\code{serialize.output}, \code{stdout}, and \code{stderr} of the \code{scala}
+function can be used to customize console output.
 
 \Scala values defined outside of functions or methods are available in subsequent \Scala
 expressions. For example, the value \code{c_10_3} defined in the previous code snippet
@@ -314,6 +320,7 @@ operator which returns the result of the last expression in the snippet to \R.
 result <- s %~% '(1 to 3).foldLeft(1) { (prod,i) => prod * (10-i+1)/i }'
 result
 @
+
 
 \subsubsection{String interpolation}
 
@@ -400,7 +407,7 @@ code examples.
 \caption{\Scala values of type \code{Byte}, \code{Int}, \code{Double},
 \code{Boolean}, or \code{String} (labeled \emph{primitives}), as well as arrays
 and rectangular arrays of arrays of these types are copied from \Scala to \R as
-length-one vectors, vectors, and matrices of the equivalent R types.  These are
+length-one vectors, vectors, and matrices of the equivalent \R types.  These are
 called \emph{copyable types}.  Each cell in the table contains two lines: an \R
 expression (top) and the equivalent \Scala expression (bottom) with the same
 identifier.  The matrix examples assume that the \code{scala} function is
@@ -843,23 +850,22 @@ Here, we demonstrate the bisection method implemented as a
 The argument's type is set as \code{NULL} so its value can be referenced in \Scala without any conversion.
 
 <<rootFinding>>=
-bisection <- function(func=NULL, lower=1.0, upper=1.0, epsilon=0.000000001)
-  s %!% '
-    def g(x: Double) = R.invokeD0(func, x)
-    val (fLower, fUpper) = (g(lower), g(upper))
-    if ( fLower*fUpper > 0 ) sys.error("lower and upper do not straddle the root.")
-    @scala.annotation.tailrec
-    def engine(l: Double, u: Double, fLower: Double, fUpper: Double): Double = {
-      if ( math.abs(l-u) <= epsilon ) ( l + u ) / 2
-      else {
-        val c = ( l + u ) / 2
-        val fCenter = g(c)
-        if ( fLower*fCenter < 0 ) engine(l,c,fLower,fCenter)
-        else engine(c,u,fCenter,fUpper)
-      }
+bisection <- function(func=NULL, lower=1.0, upper=1.0, epsilon=0.000000001) s %!% '
+  def g(x: Double) = R.invokeD0(func, x)
+  val (fLower, fUpper) = (g(lower), g(upper))
+  if ( fLower*fUpper > 0 ) sys.error("lower and upper do not straddle the root.")
+  @scala.annotation.tailrec
+  def engine(l: Double, u: Double, fLower: Double, fUpper: Double): Double = {
+    if ( math.abs(l-u) <= epsilon ) ( l + u ) / 2
+    else {
+      val c = ( l + u ) / 2
+      val fCenter = g(c)
+      if ( fLower*fCenter < 0 ) engine(l,c,fLower,fCenter)
+      else engine(c,u,fCenter,fUpper)
     }
-    engine(lower, upper, fLower, fUpper)
-  '
+  }
+  engine(lower, upper, fLower, fUpper)
+'
 
 bisection(function(a) f(100,a) - 10, 0.1, 20)
 @
@@ -874,18 +880,17 @@ to available resources) between \R and \Scala.  For example, the
 compute $0+1+2+\ldots+n$.
 
 <<recursion>>=
-recursive.sum <- function(n=0L)
-  s %!% '
-    if ( n <= 0 ) 0 else n + R.invokeI0("recursive.sum", n-1)
-  '
+recursive.sum <- function(n=0L) s %!% '
+  if ( n <= 0 ) 0 else n + R.invokeI0("recursive.sum", n-1)
+'
 recursive.sum(10)
 @
 
 \subsubsection{Memory management}
 
 The \rscala package ties into the garbage collectors of both \R and \Scala.
-As such, the user does not often need to think about memory management
-issues. There are a few important things to note, however.  First, the default
+As such, the user often does not need to think about memory management.
+There are a few important things to note, however.  First, the default
 maximum heap size set by the Java Virtual Machine may not be sufficient.
 Adjust the heap size using the \code{scala} function's \code{heap.size}
 argument, or use the global option \code{rscala.heap.maximum} (e.g.,
@@ -910,11 +915,11 @@ operators.
 The \rscala package enables developers to use \Scala in their own \R packages.  For example,
 the \pkg{shallot} \citep{shallotSoftware} and \pkg{bamboo}
 \citep{bambooSoftware} packages on CRAN use \Scala via \rscala to
-implement the statistical methodology related to their associated journal articles
+implement statistical methodology of associated journal articles
 \citep{shallotPaper,bambooPaper}.  Readers are invited to study those examples
 in addition to the process described here.
 
-Include \code{rscala} in the \code{Imports} field of the package's
+An \R package based on \rscala should include \code{rscala} in the \code{Imports} field of the package's
 \code{DESCRIPTION} file. Also, add \code{import(rscala)} to the \code{NAMESPACE} file.
 Define an \code{.onLoad}
 function which calls \code{.rscalaPackage(pkgname)}, where \code{pkgname} is
@@ -945,12 +950,13 @@ a package supports only specific major versions of \Scala, change the
 The \code{.rscalaPackage} function takes several optional arguments.  The
 \code{classpath.packages} argument allows the package to use the JAR files of another
 package.  For example, the \pkg{shallot} package uses this argument to import the
-Apache Commons Mathematics Library JAR files distributed with the \pkg{commonsMath} package.  The rational is
+Apache Commons Mathematics Library \citep{commonsMathSoftware} JAR files distributed with the \pkg{commonsMath} package.
+The rational is
 that JAR files can be large and, by having them in a separate package,
 they do not need to be updated as frequently.
 The arguments \code{classpath.prepend} and \code{classpath.append}
 provide fine-grained control over the classpath.  The argument \code{snippet}
-provides \Scala expressions that should be evaluated when \Scala is
+provides \Scala expressions that will be evaluated when \Scala is
 instantiated.  This feature is useful for definitions and import
 statements.  Finally, other arguments to \code{.rscalaPackage} are passed
 directly to the \code{scala} function.  This \code{.onLoad} function taken from the
@@ -1030,7 +1036,7 @@ since \Scala provides several features that do not map directly to \Java
 equivalents.  The \Scala compiler uses name mangling, behind-the-scenes code
 generation, and other techniques when compiling to \Java bytecode.  Using
 these \Scala features from \rJava requires, at a minimum, some
-understanding of \Scala's compiler. Often, the developer is
+understanding of \Scala's compiler.  Often, the developer is
 required to write \Java-friendly wrapper methods in \Scala that hide advanced
 \Scala features.
 
