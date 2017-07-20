@@ -1,6 +1,6 @@
 > heap.maximum <- "64M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # becker # TRUE # FALSE
+# R version 3.4.0 (2017-04-21) # rencher # TRUE # FALSE
 > 
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 java.lang.reflect.InvocationTargetException
@@ -54,7 +54,7 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.OutOfMemoryError: Java heap space
 	at $line6.$read$$iw$$iw$.$anonfun$res1$1(<console>:18)
-	at $line6.$read$$iw$$iw$$$Lambda$1010/1029898472.apply(Unknown Source)
+	at $line6.$read$$iw$$iw$$$Lambda$1014/1611221523.apply(Unknown Source)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -62,12 +62,12 @@ Caused by: java.lang.OutOfMemoryError: Java heap space
 	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:128)
 	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:512)
 	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$2(ScalaServer.scala:531)
-	at org.ddahl.rscala.server.ScalaServer$$Lambda$917/833240229.apply$mcV$sp(Unknown Source)
+	at org.ddahl.rscala.server.ScalaServer$$Lambda$922/1974622245.apply$mcV$sp(Unknown Source)
 	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withErr(Console.scala:192)
 	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$1(ScalaServer.scala:531)
-	at org.ddahl.rscala.server.ScalaServer$$Lambda$916/1927963027.apply$mcV$sp(Unknown Source)
+	at org.ddahl.rscala.server.ScalaServer$$Lambda$921/552674617.apply$mcV$sp(Unknown Source)
 	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withOut(Console.scala:163)
@@ -87,14 +87,14 @@ Caused by: java.lang.OutOfMemoryError: Java heap space
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 java.lang.reflect.InvocationTargetException
 java.lang.OutOfMemoryError: Java heap space
-<simpleError in f(...): Invocation error.>
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Invocation error.>
 > close(s)
 > cat("----\n")
 ----
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # becker # TRUE # FALSE
+# R version 3.4.0 (2017-04-21) # rencher # TRUE # FALSE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -102,7 +102,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="64M")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # becker # TRUE # FALSE
+# R version 3.4.0 (2017-04-21) # rencher # TRUE # FALSE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -110,7 +110,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="128M")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # becker # TRUE # FALSE
+# R version 3.4.0 (2017-04-21) # rencher # TRUE # FALSE
 > for ( i in 1:2000 ) {
 +   a <- s$".Array[Double]"$new(100000L)  # No memory problems
 + }

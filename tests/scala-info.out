@@ -8,7 +8,7 @@ Searching for a suitable Scala installation.
 
 Searching for a suitable Scala installation.
   * FAILURE: 'scala.home' argument is NULL
-  * FAILURE: 'rscala.scala.home' () global option
+  * FAILURE: 'rscala.scala.home' (<UNSET>) global option
   * ATTEMPT: Found a candidate (/UShare/dahl/local/scala/scala/scala-2.10.6/bin/scala)
   * SUCCESS: SCALA_HOME (/UShare/dahl/local/scala/scala/scala-2.10.6) environment variable
 
@@ -16,7 +16,7 @@ Searching for a suitable Scala installation.
 
 Searching for a suitable Scala installation.
   * FAILURE: 'scala.home' argument is NULL
-  * FAILURE: 'rscala.scala.home' () global option
+  * FAILURE: 'rscala.scala.home' (<UNSET>) global option
   * FAILURE: SCALA_HOME () environment variable
   * ATTEMPT: Found a candidate (/UShare/dahl/local/scala/scala/scala-2.10.6/bin/scala)
   * SUCCESS: 'scala' in the shell's search path
@@ -33,7 +33,7 @@ Searching for a suitable Scala installation.
 
 Searching for a suitable Scala installation.
   * FAILURE: 'scala.home' argument is NULL
-  * FAILURE: 'rscala.scala.home' () global option
+  * FAILURE: 'rscala.scala.home' (<UNSET>) global option
   * ATTEMPT: Found a candidate (/UShare/dahl/local/scala/scala/scala-2.11.11/bin/scala)
   * SUCCESS: SCALA_HOME (/UShare/dahl/local/scala/scala/scala-2.11.11) environment variable
 
@@ -41,7 +41,7 @@ Searching for a suitable Scala installation.
 
 Searching for a suitable Scala installation.
   * FAILURE: 'scala.home' argument is NULL
-  * FAILURE: 'rscala.scala.home' () global option
+  * FAILURE: 'rscala.scala.home' (<UNSET>) global option
   * FAILURE: SCALA_HOME () environment variable
   * ATTEMPT: Found a candidate (/UShare/dahl/local/scala/scala/scala-2.11.11/bin/scala)
   * SUCCESS: 'scala' in the shell's search path
@@ -58,7 +58,7 @@ Searching for a suitable Scala installation.
 
 Searching for a suitable Scala installation.
   * FAILURE: 'scala.home' argument is NULL
-  * FAILURE: 'rscala.scala.home' () global option
+  * FAILURE: 'rscala.scala.home' (<UNSET>) global option
   * ATTEMPT: Found a candidate (/UShare/dahl/local/scala/scala/scala-2.12.2/bin/scala)
   * SUCCESS: SCALA_HOME (/UShare/dahl/local/scala/scala/scala-2.12.2) environment variable
 
@@ -66,7 +66,7 @@ Searching for a suitable Scala installation.
 
 Searching for a suitable Scala installation.
   * FAILURE: 'scala.home' argument is NULL
-  * FAILURE: 'rscala.scala.home' () global option
+  * FAILURE: 'rscala.scala.home' (<UNSET>) global option
   * FAILURE: SCALA_HOME () environment variable
   * ATTEMPT: Found a candidate (/UShare/dahl/local/scala/scala/scala-2.12.2/bin/scala)
   * SUCCESS: 'scala' in the shell's search path
@@ -83,7 +83,7 @@ Successfully installed Scala in /UShare/dahl/.rscala/scala-2.12.2
 
 Searching for a suitable Scala installation.
   * FAILURE: 'scala.home' argument is NULL
-  * FAILURE: 'rscala.scala.home' () global option
+  * FAILURE: 'rscala.scala.home' (<UNSET>) global option
   * FAILURE: SCALA_HOME () environment variable
   * FAILURE: 'scala' in the shell's search path
   * ATTEMPT: Found a candidate (/UShare/dahl/.rscala/scala-2.12.2/bin/scala)

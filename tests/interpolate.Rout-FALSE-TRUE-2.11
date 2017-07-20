@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # becker # FALSE # TRUE
+# R version 3.4.0 (2017-04-21) # rencher # FALSE # TRUE
 > 
 > 
 > s %~% "val a = @{1+3}"
@@ -7,7 +7,7 @@
 > s$a
 [1] 4
 > s$.a
-ScalaInterpreterItem of type a
+ScalaInterpreterItem for a
 > 
 > name <- "David Dahl"
 > s %~% 'val name = "@{name}".reverse'
