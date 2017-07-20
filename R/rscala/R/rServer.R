@@ -143,6 +143,9 @@ rServe <- function(sockets,with.callbacks,workspace=.GlobalEnv) {
     } else if ( cmd == EXIT ) {
       if ( debug ) msg("Got EXIT")
       return()
+    } else if ( cmd == PING ) {
+      if ( debug ) msg("Got PING")
+      wb(sockets,OK)
     } else stop(paste("Unknown command:",cmd))
     flush(sockets[['socketIn']])
   }

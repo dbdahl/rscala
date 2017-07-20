@@ -20,6 +20,7 @@ object Protocol {
 
   // Commands
   val EXIT          = 100
+  val PING          = 101
   val FREE          = 103
   val EVAL          = 104
   val SET           = 105
