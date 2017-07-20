@@ -142,7 +142,6 @@ h(4)
 tryCatch(h(-3), error=function(e) e)
 h(0)
 
-library(microbenchmark)
 microbenchmark(
   f(4),
   g(4),
@@ -194,7 +193,6 @@ a$nextDouble()
 b <- ( function() s %!% 'scala.util.Random' )()
 b$nextDouble()
 
-library(microbenchmark)
 microbenchmark(
   a$nextDouble(),
   b$nextDouble(),
@@ -205,14 +203,14 @@ microbenchmark(
 ####
 
 f <- function(x=NULL, wantNull=TRUE) s %.!% '
-  val r = R.makePersistent(x)
+  val r = R.getReference(x)
   if ( wantNull ) null else r
 '
 
 a <- f(1:10, FALSE)
 a$name()
 
-g <- function(func=NULL,y=scalaNull("RPersistentReference")) s %!% '
+g <- function(func=NULL,y=scalaNull("PersistentReference")) s %!% '
   R.invoke(func,y)
 '
 
