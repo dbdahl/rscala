@@ -37,7 +37,8 @@ function usage() {
   echo "             -r builds the R package,"
   echo "             -c does basic checking,"
   echo "             -v does basic checking with vignettes,"
-  echo "             -f does build, and full checking."
+  echo "             -f does build and full checking."
+  echo "             -p does build, full checking, and posts to web server."
   exit 1
 }
 
@@ -54,12 +55,13 @@ TASK_RCHECK=
 FLAG_BUILD_VIGNETTES="--no-build-vignettes"
 FLAG_CHECK_EXAMPLES="--no-examples"
 FLAG_CHECK_VIGNETTES="--no-build-vignettes --no-vignettes"
-FLAG_CHECK_CRAN=""
+FLAG_CHECK_CRAN=
+FLAG_POST=
 
 # Set up
 cd "$PKG_HOME"
 
-while getopts ":srcvf" o
+while getopts ":srcvfp" o
 do
   case "${o}" in
     s)
@@ -88,6 +90,16 @@ do
       FLAG_CHECK_VIGNETTES=
       FLAG_CHECK_CRAN="--as-cran --run-dontrun --run-donttest"
       rm -rf R/$PKG_NAME/inst/doc
+      ;;
+    p)
+      TASK_R=yes
+      TASK_RCHECK=yes
+      FLAG_BUILD_VIGNETTES=
+      FLAG_CHECK_EXAMPLES=
+      FLAG_CHECK_VIGNETTES=
+      FLAG_CHECK_CRAN="--as-cran --run-dontrun --run-donttest"
+      rm -rf R/$PKG_NAME/inst/doc
+      FLAG_POST=yes
       ;;
     *)
       usage
@@ -202,6 +214,14 @@ fi
 if [[ -n "$TASK_R" ]]
 then
   mkdir -p deliveries
-  mv R/$TGZ_NAME deliveries
+  cp R/$TGZ_NAME deliveries
+  JARSNAME=rscalaJars_$MAJOR.tar.gz
+  tar czf deliveries/"$JARSNAME" --directory R/rscala/inst/java/ .
+  if [[ -n "$FLAG_POST" ]]
+  then
+    scp deliveries/"$TGZ_NAME" deliveries/"$JARSNAME" dahl.byu.edu:public
+    echo -e "####\nPosted to\n  https://dahl.byu.edu/public/$TGZ_NAME\n  https://dahl.byu.edu/public/$JARSNAME\n####"
+  fi
 fi
+
 
