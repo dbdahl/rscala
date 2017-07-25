@@ -282,10 +282,10 @@ simultaneously.
 
 \subsection[Calling Scala code from R]{Calling \Scala code from \R}
 
-\subsubsection[Evaluation of Scala snippets]{Evaluation of \Scala snippets}
+\subsubsection[Evaluating Scala snippets]{Evaluating \Scala snippets}
 
 \Scala code can be compiled and executed within an \R session using several
-operators.  The most basic operator is \code{\%@\%}, which evaluates a snippet of \Scala code and returns \code{NULL}.
+operators.  The most basic operator is \code{\%@\%} which evaluates a snippet of \Scala code and returns \code{NULL}.
 Consider, for example,
 computing the binomial coefficient $10 \choose 3$.
 
