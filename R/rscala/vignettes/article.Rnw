@@ -1270,15 +1270,16 @@ and the \Scala server resumes its usual behavior.
 \subsection[Implementation of R code in Scala and other JVM applications]{Implementation of \R code in \Scala and other JVM applications}
 
 The functionality that allows \Scala, \Java, and other JVM-based applications
-to access an embedded \R interpreter is achieved by reusing the
-previously-discussed callback functionality.  In this case,
+to access an embedded \R interpreter is achieved by reusing the code
+implementing the previously-discussed callback functionality.  In this case,
 however, there is not an existing instance of the \R interpreter.  The class
-\code{RClient} spawns an \R instance, connects the \R
+\code{RClient} spawns an \R instance, uses the same code to connect the \R
 client to the \Scala server, and then immediately starts the embedded \R
 server.  There are two versions of the \R client. The \Java
 version (\code{org.ddahl.rscala.RClient4Java}) is a thin wrapper over the
-\Scala version (\code{org.ddahl.rscala.RClient}).  The wrapper hides \Scala-specific
-features and provides familiar Javadoc to \Java developers.
+\Scala version (\code{org.ddahl.rscala.RClient}).  The wrapper provides
+familiar Javadoc to \Java developers and also hides various \Scala-specific
+features.
 
 \section{Comparisons to other software}
 \label{comparisons}

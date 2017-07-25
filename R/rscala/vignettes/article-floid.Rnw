@@ -3,7 +3,7 @@
 
 \documentclass[article]{jss}
 
-\let\hlesc\hlstd \let\hlpps\hlstd \let\hllin\hlstd \let\hlslc\hlcom 
+\let\hlesc\hlstd \let\hlpps\hlstd \let\hllin\hlstd \let\hlslc\hlcom
 
 \usepackage{lscape}
 \usepackage{multicol}
@@ -282,10 +282,10 @@ simultaneously.
 
 \subsection[Calling Scala code from R]{Calling \Scala code from \R}
 
-\subsubsection[Evaluation of Scala snippets]{Evaluation of \Scala snippets}
+\subsubsection[Evaluating Scala snippets]{Evaluating \Scala snippets}
 
 \Scala code can be compiled and executed within an \R session using several
-operators.  The most basic operator is \code{\%@\%}, which evaluates a snippet of \Scala code and returns \code{NULL}.
+operators.  The most basic operator is \code{\%@\%} which evaluates a snippet of \Scala code and returns \code{NULL}.
 Consider, for example,
 computing the binomial coefficient $10 \choose 3$.
 
@@ -1085,7 +1085,7 @@ The difference between the two versions can be viewed here:
 package that makes frequent use of \rJava's ``low-level interface'' (e.g., the
 \code{.jcall} function) will require more changes.
 
-The 
+The
 \pkg{bamboo} package was originally implemented in \rJava.  The original \rJava code is
 commented out with equivalent \rscala code following immediately after.  See,
 for example, \url{https://github.com/dbdahl/bamboo/blob/master/R/bamboo.R}.
@@ -1202,13 +1202,17 @@ around a client/server model using local TCP/IP sockets.
 \subsection[Implementation of Scala code in R]{Implementation of \Scala code in \R}
 
 The \code{scala} function uses \R's
-\code{system2} function to start the Java Virtual Machine running code that implements a TCP/IP server
-and creates an instance of \code{scala.tools.nsc.interpreter.IMain} for \Scala's
-read-eval-print-loop (REPL). The TCP/IP
-server's port is randomly selected by default, but it can be fixed at a
-given value.  The server accepts only a single local connection.  While the \Scala
-server is starting up, the \R component repeatedly attempts to establish a connection using
-functions from the \pkg{base} \R package.  After connecting, the \R client interfaces with the
+\code{system2} function to start the Java Virtual Machine running a TCP/IP server
+using a custom protocol and whose port is randomly selected by default.
+The \Scala server has an instance of
+\code{scala.tools.nsc.interpreter.IMain}, the class representing \Scala's
+read-eval-print-loop (REPL).
+
+  The server accepts only a single local connection.  While the
+the server is starting up, \R repeatedly tries to connect using
+functions from the \pkg{base} \R package.  The \Scala server has an instance of
+\code{scala.tools.nsc.interpreter.IMain}, the class representing \Scala's
+read-eval-print-loop (REPL).  The \R client accesses the functionality of the
 server's REPL class by means of a custom protocol.
 
 The \rscala package takes advantage of the \Scala REPL's ability to compile and
@@ -1218,7 +1222,7 @@ particular method of a \Scala reference is called for the first time), a
 one-time compilation occurs behind the scenes.  The compiled method is then
 cached and re-used for subsequent calls.  As an illustration, consider the code
 below and notice that the elapsed time is significantly less in the second call
-to the same method:
+to the same method.
 
 <<fasterAfterFirstTime>>=
 system.time( print(s$.sys$props("user.name")) )
@@ -1291,7 +1295,7 @@ serves as inspiration for our \rscala package.  Indeed, we adopt \rJava's
 high-level \code{\$} convenience operator in \rscala.  The
 implementations of the two packages are, however, quite different.  The \rscala
 package uses TCP/IP sockets for communication between processes.  As a
-consequence, \R, \Scala, and/or \Java can be updated without 
+consequence, \R, \Scala, and/or \Java can be updated without
 reinstalling the package.  In contrast, \rJava uses \Java's JNI (Java native interface) to
 dynamically load the JVM shared library in \R's process space.  The versions of
 \R and \Java must be compatible (i.e., both 32-bit or both 64-bit binaries) and
@@ -1774,7 +1778,7 @@ incorporate \R and \Scala in one program, exploiting each language's respective
 strengths.  We believe that the \rscala package is stable and complete.  In the
 future, we would like to support more data structures in \R (e.g., lists and
 data frames).  While callbacks from \Scala to the original \R interpreter are
-supported, we would also like to support callbacks 
+supported, we would also like to support callbacks
 from \R to \Scala as well.  We also suspect that our client/server protocol
 could be extended to support other JVM-based languages such as Jython
 \citep{jython} and jRuby \citep{jruby}.
