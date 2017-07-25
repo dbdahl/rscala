@@ -3,7 +3,7 @@
 
 \documentclass[article]{jss}
 
-\let\hlesc\hlstd \let\hlpps\hlstd \let\hllin\hlstd \let\hlslc\hlcom 
+\let\hlesc\hlstd \let\hlpps\hlstd \let\hllin\hlstd \let\hlslc\hlcom
 
 \usepackage{lscape}
 \usepackage{multicol}
@@ -1085,7 +1085,7 @@ The difference between the two versions can be viewed here:
 package that makes frequent use of \rJava's ``low-level interface'' (e.g., the
 \code{.jcall} function) will require more changes.
 
-The 
+The
 \pkg{bamboo} package was originally implemented in \rJava.  The original \rJava code is
 commented out with equivalent \rscala code following immediately after.  See,
 for example, \url{https://github.com/dbdahl/bamboo/blob/master/R/bamboo.R}.
@@ -1201,24 +1201,28 @@ around a client/server model using local TCP/IP sockets.
 
 \subsection[Implementation of Scala code in R]{Implementation of \Scala code in \R}
 
-The \code{scala} function instantiates a \Scala interpreter using R's
-\code{system2} function to asynchronously run \Scala code which implements a
-TCP/IP server whose port is randomly selected by default, but can be fixed at a
-given value.  The server accepts only a single local connection.  While the
-server is starting up, \R repeatedly tries to connect to it as a client using
+The \code{scala} function uses \R's
+\code{system2} function to start the Java Virtual Machine running a TCP/IP server
+using a custom protocol and whose port is randomly selected by default.
+The \Scala server has an instance of
+\code{scala.tools.nsc.interpreter.IMain}, the class representing \Scala's
+read-eval-print-loop (REPL).
+
+  The server accepts only a single local connection.  While the
+the server is starting up, \R repeatedly tries to connect using
 functions from the \pkg{base} \R package.  The \Scala server has an instance of
 \code{scala.tools.nsc.interpreter.IMain}, the class representing \Scala's
 read-eval-print-loop (REPL).  The \R client accesses the functionality of the
 server's REPL class by means of a custom protocol.
 
-The \rscala package takes advantage of \Scala's REPL ability to compile and
-execute \Scala code on the fly as well as setting and getting values of
+The \rscala package takes advantage of the \Scala REPL's ability to compile and
+execute \Scala code on-the-fly as well as setting and getting values of
 identifiers.  When a \Scala function is called for the first time (or when a
 particular method of a \Scala reference is called for the first time), a
 one-time compilation occurs behind the scenes.  The compiled method is then
 cached and re-used for subsequent calls.  As an illustration, consider the code
 below and notice that the elapsed time is significantly less in the second call
-to the same method:
+to the same method.
 
 <<fasterAfterFirstTime>>=
 system.time( print(s$.sys$props("user.name")) )
@@ -1266,16 +1270,15 @@ and the \Scala server resumes its usual behavior.
 \subsection[Implementation of R code in Scala and other JVM applications]{Implementation of \R code in \Scala and other JVM applications}
 
 The functionality that allows \Scala, \Java, and other JVM-based applications
-to access an embedded \R interpreter is achieved by reusing the code
-implementing the previously-discussed callback functionality.  In this case,
+to access an embedded \R interpreter is achieved by reusing the
+previously-discussed callback functionality.  In this case,
 however, there is not an existing instance of the \R interpreter.  The class
-\code{RClient} spawns an \R instance, uses the same code to connect the \R
+\code{RClient} spawns an \R instance, connects the \R
 client to the \Scala server, and then immediately starts the embedded \R
-server.  There are actually two versions of the \code{RClient} class. The \Java
+server.  There are two versions of the \R client. The \Java
 version (\code{org.ddahl.rscala.RClient4Java}) is a thin wrapper over the
-\Scala version (\code{org.ddahl.rscala.RClient}).  The wrapper provides
-familiar Javadoc to \Java developers and also hides various \Scala-specific
-features.
+\Scala version (\code{org.ddahl.rscala.RClient}).  The wrapper hides \Scala-specific
+features and provides familiar Javadoc to \Java developers.
 
 \section{Comparisons to other software}
 \label{comparisons}
@@ -1291,7 +1294,7 @@ serves as inspiration for our \rscala package.  Indeed, we adopt \rJava's
 high-level \code{\$} convenience operator in \rscala.  The
 implementations of the two packages are, however, quite different.  The \rscala
 package uses TCP/IP sockets for communication between processes.  As a
-consequence, \R, \Scala, and/or \Java can be updated without 
+consequence, \R, \Scala, and/or \Java can be updated without
 reinstalling the package.  In contrast, \rJava uses \Java's JNI (Java native interface) to
 dynamically load the JVM shared library in \R's process space.  The versions of
 \R and \Java must be compatible (i.e., both 32-bit or both 64-bit binaries) and
@@ -1774,7 +1777,7 @@ incorporate \R and \Scala in one program, exploiting each language's respective
 strengths.  We believe that the \rscala package is stable and complete.  In the
 future, we would like to support more data structures in \R (e.g., lists and
 data frames).  While callbacks from \Scala to the original \R interpreter are
-supported, we would also like to support callbacks 
+supported, we would also like to support callbacks
 from \R to \Scala as well.  We also suspect that our client/server protocol
 could be extended to support other JVM-based languages such as Jython
 \citep{jython} and jRuby \citep{jruby}.

@@ -876,7 +876,7 @@ function referenced by \code{func} and returns the result as a \code{Double}.
 
 The \rscala package supports infinite recursion (subject
 to available resources) between \R and \Scala.  For example, the
-\code{recursive.sum} function below repeatedly calls itself from \Scala to
+\code{recursive.sum} function in \R below repeatedly calls itself from \Scala to
 compute $0+1+2+\ldots+n$.
 
 <<recursion>>=
@@ -1127,21 +1127,21 @@ around a client/server model using local TCP/IP sockets.
 
 \subsection[Implementation of Scala code in R]{Implementation of \Scala code in \R}
 
-The \code{scala} function starts a \Scala interpreter using R's
-\code{system2} function. The interpreter runs code that implements an asynchronous TCP/IP server
+The \code{scala} function uses R's
+\code{system2} function to start the Java Virtual Machine running code that implements a TCP/IP server
 and creates an instance of \code{scala.tools.nsc.interpreter.IMain} for \Scala's
 read-eval-print-loop (REPL). The TCP/IP
 server's port is randomly selected by default, but it can be fixed at a
-given value.  While the \Scala
-server is starting up, the \R component attempts to establish a connection using
+given value.  The server accepts only a single local connection.  While the \Scala
+server is starting up, the \R component repeatedly attempts to establish a connection using
 functions from the \pkg{base} \R package.  After connecting, the \R client interfaces with the
 server's REPL class by means of a custom protocol.
 
 The \rscala package takes advantage of the \Scala REPL's ability to compile and
-execute \Scala code on-the-fly as well as set/get values of
+execute \Scala code on-the-fly as well as setting and getting values of
 identifiers.  When a \Scala function is called for the first time (or when a
-particular method of a \Scala reference is called for the first time), it is
-compiled behind the scenes.  The compiled method is then
+particular method of a \Scala reference is called for the first time), a
+one-time compilation occurs behind the scenes.  The compiled method is then
 cached and re-used for subsequent calls.  As an illustration, consider the code
 below and notice that the elapsed time is significantly less in the second call
 to the same method.
@@ -1197,7 +1197,7 @@ previously-discussed callback functionality.  In this case,
 however, there is not an existing instance of the \R interpreter.  The class
 \code{RClient} spawns an \R instance, connects the \R
 client to the \Scala server, and then immediately starts the embedded \R
-server.  There are two versions of the \code{RClient} class. The \Java
+server.  There are two versions of the \R client. The \Java
 version (\code{org.ddahl.rscala.RClient4Java}) is a thin wrapper over the
 \Scala version (\code{org.ddahl.rscala.RClient}).  The wrapper hides \Scala-specific
 features and provides familiar Javadoc to \Java developers.
@@ -1421,7 +1421,7 @@ while-loop and compiles to essentially the same \Java bytecode used in
 well-known fact that for-loops in \Scala are not optimized for performance.
 
 \clearpage
-[Calling into the JVM and back into R]{Calling into the JVM and back into \R}
+\subsubsection[Calling into the JVM and back into R]{Calling into the JVM and back into \R}
 \label{benchmarksBack}
 
 To further investigate the performance of \rscala relative to other software,
@@ -1471,7 +1471,7 @@ invocation latency.  The ratios indicate that the protocol overhead is
 important for short-lived \R functions (i.e., when sleeping 0 seconds) but
 negligible for long-lived \R functions (i.e., when sleeping 1 second).
 
-[Calling into R from a JVM application]{Calling into \R from a JVM application}
+\subsubsection[Calling into R from a JVM application]{Calling into \R from a JVM application}
 \label{benchmarksJVM}
 
 We now consider the performance and simplicity of calling \R code from within a
