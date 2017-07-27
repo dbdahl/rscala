@@ -219,7 +219,7 @@ then
   tar czf deliveries/"$JARSNAME" --directory R/rscala/inst/java/ .
   if [[ -n "$FLAG_POST" ]]
   then
-    scp deliveries/"$TGZ_NAME" deliveries/"$JARSNAME" dahl.byu.edu:public
+    rsync --chmod=644 deliveries/"$TGZ_NAME" deliveries/"$JARSNAME" dahl.byu.edu:html/public
     echo -e "####\nPosted to\n  https://dahl.byu.edu/public/$TGZ_NAME\n  https://dahl.byu.edu/public/$JARSNAME\n####"
   fi
 fi
