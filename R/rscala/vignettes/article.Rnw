@@ -427,41 +427,51 @@ oneToTenReference <- s %.~% 'Array.range(1,11)'
 oneToTenReference
 @
 
-In the next example, a \Scala reference is used via string interpolation to
-call methods of \Scala objects:
-
-\clearpage
-<<evaluateScalaCodeReferenceInterpolation>>=
-s %~% '
-  @{rng}.setSeed(24234)
-  @{rng}.nextDouble()
-'
-
-s %~% '@{oneToTenReference}.sum'
-@
+% In the next example, a \Scala reference is used via string interpolation to
+% call methods of \Scala objects:
+% 
+% \clearpage
+% <<evaluateScalaCodeReferenceInterpolation>>=
+% s %~% '
+%   @{rng}.setSeed(24234)
+%   @{rng}.nextDouble()
+% '
+% 
+% s %~% '@{oneToTenReference}.sum'
+% @
 
 Taking inspiration from \rJava's ``high-level \code{\$} operator,'' \Scala
 references can be used to call methods directly using the \code{\$}
-operator as shown below.
+operator, as shown below.
 
 <<evaluateScalaCodeReference2>>=
 rng$setSeed(24234L)
-rng$nextDouble()
+rng$nextInt(10L)
 oneToTenReference$sum()
 @
 
-\subsubsection{Length-one vectors and arguments to method calls}
+If the result of method call on a \Scala reference is not a copyable type, then
+a reference to a \Scala object is returned.  If a \Scala reference is desired even
+when working with copyable types,
+add a final argument
+\code{.AS.REFERENCE=TRUE}, e.g.,
+
+<<evaluateScalaCodeReference3>>=
+intReference <- rng$nextInt(10L, .AS.REFERENCE=TRUE)
+@
+
+\subsubsection{Length-one vectors as method arguments}
 
 Arguments to \Scala methods called using the \code{\$} operator on a \Scala
 reference can be copyable types and \Scala references.  Length-one vectors in
-\R have special handling.  In the previous \R expression
-\code{rng\$setSeed(24234L)}, the value \code{24234L} is an integer vector of
+\R have special handling.  In the \R expression
+\code{rng\$nextInt(10L)}, the value \code{10L} is an integer vector of
 length one in \R, but is passed to \Scala as \code{Int}, not \code{Array[Int]}.
 This behavior is usually convenient and natural behavior.  If, however, an \R
-vector should be treated as an array by \Scala, despite the fact that it might
-be of length one, wrap the vector in a call to the \code{I} function to ensure
+vector should always be passed as an array --- despite the fact that it might
+be of length one --- wrap the vector in a call to the \code{I} function.  This ensures
 that the vector is treated ``as is''.  For example, consider an object with an
-\code{apply} method that takes an array and a value and sets every element of
+\code{apply} method that takes an array and a value, and sets every element of
 the array to that value:
 
 <<lengthOne>>=
@@ -487,8 +497,7 @@ setter$apply(I(arr), 3)
 arr$mkString("<", ",", ">")
 @
 
-
-\subsubsection{Calling Methods of Companion Objects}
+\subsubsection{Calling methods of companion objects}
 
 Methods of companions objects --- which are roughly \Scala's equivalent to
 \Java's static methods --- can be called in three ways.  For example, consider
@@ -497,9 +506,9 @@ regularly-spaced elements.  The following three statements are all functionally
 equivalent:
 
 <<evaluateScalaCodeCompanion>>=
-oneToTen <- s %~% 'Array.range(1, 11)'
-oneToTen <- s$.Array$range(1L, 11L)
-oneToTen <- s$do("Array")$range(1L, 11L)
+oneToTenReference <- s %.~% 'Array.range(1, 11)'
+oneToTenReference <- s$.Array$range(1L, 11L, .AS.REFERENCE=TRUE)
+oneToTenReference <- s$do("Array")$range(1L, 11L, .AS.REFERENCE=TRUE)
 @
 
 These three equivalent expression each have their advantages in terms of
@@ -508,21 +517,7 @@ self-evident to a \Scala developer but, as will be shown later, is the slowest.
 The second is concise, fast, and flexible in that the arguments to the method
 can be variables or literals.  The last is also fast, somewhat awkward, but has
 the added flexibility that the name of the companion object itself (as well as
-the arguments) can be variables or literals.
-
-In the previous example, the result was a copyable type and therefore was
-serialized across the TCP/IP bridge.  If a \Scala reference is desired the
-expression \code{s \%\mytilde\% 'Array.range(1,11)'} should instead use the
-\code{\%.\mytilde\%} operator.  Likewise, to obtain a \Scala reference for the
-other two expressions in the previous example, a final argument
-\code{.AS.REFERENCE=TRUE} should be used.  These are illustrated below in the
-following three functionally equivalent expressions:
-
-<<evaluateScalaCodeCompanionAsReference>>=
-oneToTenReference <- s %.~% 'Array.range(1, 11)'
-oneToTenReference <- s$.Array$range(1L, 11L, .AS.REFERENCE=TRUE)
-oneToTenReference <- s$do("Array")$range(1L, 11L, .AS.REFERENCE=TRUE)
-@
+the arguments) can be a literal or a variable.
 
 \subsubsection[The apply and update Methods]{The \code{apply} and \code{update} Methods}
 
@@ -541,28 +536,23 @@ fibSeqAsInt <- s$do("Array")$apply(0L, 1L, 1L, 2L, 3L, 5L, 8L, 13L, 21L)
 @
 
 Likewise, the \code{update} method is automatically injected by the \Scala
-compiler when appropriate, but must be explicit when using the
-\code{\$} operator.
-
-<<evaluateScalaCodeArray>>=
-s %@% 'val fibSeq = Array[Double](0, 1, 1, 2, 3, 5, 8, 13, 21)'
-fibSeqReference <- s %.~% 'fibSeq'
-@
-
-We can assign the value of $\pi$ to the second element of the array using the
-following functionally equivalent approaches:
+compiler when appropriate, but must be explicit when using the \code{\$}
+operator.  Consider, for example, assigning the value of $\pi$ to the second
+element of the array using the following (where the last four statements are functionally equivalent).
 
 <<evaluateScalaCodeUpdate>>=
+s %@% 'val fibSeq = Array[Double](0, 1, 1, 2, 3, 5, 8, 13, 21)'
+fibSeqReference <- s %.~% 'fibSeq'
 s %@% 'fibSeq(1) = math.Pi'
 s$.fibSeq$update(1L, pi)
 s$do("fibSeq")$update(1L, pi)
 fibSeqReference$update(1L, pi)
 @
 
-The previous example also illustrates that the ``\code{s\$.}'' and
-``\code{s\$do("}'' notations --- which were first introduced for companion
+The previous example also illustrates that the \code{s\$.} and
+\code{s\$do(} notations --- which were first introduced for companion
 objects --- can also be used for existing \Scala values (e.g., \code{fibSeq},
-as shown above).
+above).
 
 \subsubsection{Instantiating Objects}
 
