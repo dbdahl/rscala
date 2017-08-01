@@ -563,6 +563,7 @@ scalap <- function(interpreter,class.name) {
     return(scalap(interpreter[['interpreter']],interpreter[['type']]))
   }
   if ( ! inherits(interpreter,"ScalaInterpreter") ) stop("The first argument must be an interpreter.")
+  if ( ! identical(class(class.name),"character") || length(class.name) != 1 ) stop("The second argument must be a string.")
   cc(interpreter)
   tryCatch({
     wb(interpreter,SCALAP)

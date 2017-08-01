@@ -282,52 +282,46 @@ simultaneously.
 
 \subsection[Calling Scala code from R]{Calling \Scala code from \R}
 
-\subsubsection{Evaluation of \Scala snippets}
+\subsubsection[Evaluating Scala snippets]{Evaluating \Scala snippets}
 
-\Scala code can be compiled and executed within an \R session using several
-operators.  The most basic operator is \code{\%@\%}, which evaluates a snippet of \Scala code and returns \code{NULL}.
+Snippets of \Scala code can be compiled and executed within an \R session using several
+operators.  The most basic operator is \code{\%@\%} which evaluates \Scala code and returns \code{NULL}.
 Consider, for example,
-computing the binomial coefficient $10 \choose 3$:
+computing the binomial coefficient ${10 \choose 3} = \prod_{i=1}^3 (10-i+1)/i$.
 
 <<evaluateScalaCodeSimple>>=
-result <- s %@% '
-  val c_10_3 = (1 to 3).foldLeft(1) { (prod,i) => prod * (10-i+1)/i }
-  println(c_10_3)
+s %@% '
+  val c_10_3 = (1 to 3).map( i => (10-i+1) / i.toDouble ).product.toInt
 '
-
-result
 @
 
-Notice the side effect of printing \code{120} to the
-console even though the operator returns \code{NULL}.
-The console printing behavior depends on the
-environment and operating system in which R is run.  The arguments
-\code{serialize.output}, \code{stdout}, and \code{stderr} of the \code{scala}
-function can be used to customize console output.
-
-\Scala values defined outside of functions or methods are available in subsequent \Scala
-expressions. For example, the value \code{c_10_3} defined in the previous code snippet
-still exists in the \Scala environment, as shown here.
+This result is available in subsequent \Scala expressions by the identifier \code{c_10_3}
+as demonstrated below.
 
 <<evaluateScalaCodeSimple3>>=
-s %@% 'print(c_10_3)'
+s %@% 'print("10 choose 3 is " + c_10_3 + ".")'
 @
+
+Notice the side effect of printing \code{120} to the console.
+The behavior for console printing is controlled by the arguments
+\code{serialize.output}, \code{stdout}, and \code{stderr} of the \code{scala}
+function.  Default values depend on the operating system so that 
+console output is displayed in typical environments.
 
 \Scala code can also be evaluated with the \code{\%\mytilde\%}
-operator which returns the result of the last expression in the snippet to \R.
+operator which returns to \R the result of the last expression in the \Scala snippet.
 
 <<evaluateScalaCodeSimple2>>=
-result <- s %~% '(1 to 3).foldLeft(1) { (prod,i) => prod * (10-i+1)/i }'
-result
+tenChooseThree <- s %~% '(1 to 3).map( i => (10-i+1) / i.toDouble ).product'
+tenChooseThree == choose(10,3)
 @
-
 
 \subsubsection{String interpolation}
 
 The \rscala package features string interpolation for
 dynamic code snippets. \R code placed between ``\code{@\{}'' and ``\code{\}}''
 in a \Scala snippet is evaluated and replaced by the string representation of
-the \R code's return value before the \Scala snippet is executed. The \R code is executed in the same environment (i.e., scope) as
+the \R expression's value before the \Scala snippet is executed. The \R code is executed in the same environment (i.e., scope) as
 the evaluation request. A snippet can contain any number of \code{@\{...\}}
 expressions.  For example,
 
@@ -337,20 +331,17 @@ k <- 3
 label <- "number of threesomes among ten people"
 s %@% '
   val count = (1 to @{k}).foldLeft(1) { (prod,i) => prod * (@{n}-i+1)/i }
-  println("The @{label} is "+count+".")
+  println("The @{label} is " + count + ".")
 '
 @
 
 Care is needed when using string interpolation because it relies on
 \R's character representation on an \R expression.  One might be surprised, for
-example, that second expression below is false. This is because \code{@\{nThreesomes\^{}20\}} is replaced by a string literal
-(i.e., ``6.191736e+20''), which is slightly different than the calculated value.
+example, that the second expression below is false. This is because \code{@\{tenChooseThree\^{}20\}} is replaced by a string literal
+(i.e., \code{6.191736e+20}, which is slightly different than the calculated value.
 
 <<evaluateScalaCodeInterpolationError>>=
-nThreesomes <- s %~% '
-  val c_10_3 = (1 to @{k}).foldLeft(1) { (prod,i) => prod * (@{n}-i+1)/i }
-'
-s %~% '@{nThreesomes^20} == math.pow(c_10_3, 20)'
+s %~% 'math.pow(count, 20) == @{tenChooseThree^20}'
 @
 
 \subsubsection{Primitive and copyable types}

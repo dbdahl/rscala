@@ -998,7 +998,7 @@ object RClient {
   * should be serialized, whether matrices are row major, whether debugging output should be displayed, the `timeout` to establish a connection
   * with the R interpreter, and the port number.  Two sockets are establised using: 1. the specified port and 2. the specified port plus one.
   */
-  def apply(rCmd: String = defaultRCmd, serializeOutput: Boolean = false, rowMajor: Boolean = true, port: Int = 0, debug: Boolean = false, timeout: Int = 60): RClient = {
+  def apply(rCmd: String = defaultRCmd, serializeOutput: Boolean = true, rowMajor: Boolean = true, port: Int = 0, debug: Boolean = false, timeout: Int = 60): RClient = {
     var cmd: PrintWriter = null
     val command = rCmd +: ( defaultArguments ++ interactiveArguments )
     val processCmd = Process(command)

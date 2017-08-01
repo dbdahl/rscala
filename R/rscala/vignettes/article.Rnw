@@ -254,12 +254,16 @@ s <- scala(serialize.output=TRUE)
 s %@% 'scala.util.Random.setSeed(3242)'
 @
 
-By default, the \code{scala} function searches the system for a suitable
-\Scala installation to create the instance.  Use the \code{scalaInfo} function
-as follows to display the default \Scala installation and \rscala's search
-sequence.
+Information on the \Scala instance \code{s} is available using:
 
 <<scalaInfo,eval=FALSE>>=
+scalaInfo(s)
+@
+
+Alternatively, details on the search for a suitable \Scala installation are shown
+using:
+
+<<scalaInfo2,eval=FALSE>>=
 scalaInfo(verbose=TRUE)
 @
 
@@ -440,6 +444,8 @@ oneToTenReference
 % s %~% '@{oneToTenReference}.sum'
 % @
 
+\subsubsection[Calling Scala methods]{Calling \Scala methods}
+
 Taking inspiration from \rJava's ``high-level \code{\$} operator,'' \Scala
 references can be used to call methods directly using the \code{\$}
 operator, as shown below.
@@ -460,10 +466,71 @@ add a final argument
 intReference <- rng$nextInt(10L, .AS.REFERENCE=TRUE)
 @
 
-\subsubsection{Length-one vectors as method arguments}
+\subsubsection[Discovering Scala Methods]{Discovering \Scala Methods}
+
+\Scala provides the \code{scalap} executable to list the methods of classes and
+companion objects.  Its output is available directly in \R using the
+\code{scalap} function.  For example, \code{scalap(s, 'scala.util.Random')} and \code{scalap(rng)} both
+display the following.
+
+<<scalap1, out.lines=5>>=
+scalap(rng)
+@
+
+The \rscala package also provide rudimental tab-completion for method names of
+\Scala references.
+
+\subsubsection{Instantiating Objects}
+
+\Scala objects can be instantiated
+in three ways.
+New instances of the \code{scala.util.Random}
+class, for example, can be created in the following three ways:
+
+<<evaluateScalaCodeInstantiate>>=
+rng <- s %~% 'new scala.util.Random()'
+rng <- s$.scala.util.Random$new()
+rng <- s$do('scala.util.Random')$new()
+@
+
+These three equivalent expression each have their advantages in terms of
+flexibility, readability, and speed.  The first is mostly \Scala code and
+self-evident to a \Scala developer but is the slowest.
+The second is concise, fast, and flexible in that the arguments to the method
+can be variables or literals.  The last is also fast, somewhat awkward, but has
+the added flexibility that the name of the companion object itself (as well as
+the arguments) can be a literal or a variable.
+
+\subsubsection{Calling methods of companion objects}
+
+Methods of companions objects --- which are roughly \Scala's equivalent to
+\Java's static methods --- can be called in three ways.  For example, consider
+the companion object \code{Array}.  Its \code{range} method creates an array of
+regularly-spaced elements.  The following three statements are all functionally
+equivalent:
+
+<<evaluateScalaCodeCompanion>>=
+oneToTenReference <- s %.~% 'Array.range(1, 11)'
+oneToTenReference <- s$.Array$range(1L, 11L, .AS.REFERENCE=TRUE)
+oneToTenReference <- s$do('Array')$range(1L, 11L, .AS.REFERENCE=TRUE)
+@
+
+Again, as for instantiating objects, each way has its advantages in terms of
+flexibility, readability, and speed.
+
+\subsubsection[Method arguments, null, and length-one vectors]{Method arguments, \code{null}, and length-one vectors}
 
 Arguments to \Scala methods called using the \code{\$} operator on a \Scala
-reference can be copyable types and \Scala references.  Length-one vectors in
+reference can be copyable types and \Scala references.  To pass a null reference
+of a particular type, use the \code{scalaNull} function.  For example,
+to clear the system properties, a null reference to \code{java.util.Properties} is passed to the static \code{setProperties}
+method of the \code{java.lang.System} class.
+
+<<nullAsArgument>>=
+s$.java.lang.System$setProperties(scalaNull('java.util.Properties'))
+@
+
+Length-one vectors in
 \R have special handling.  In the \R expression
 \code{rng\$nextInt(10L)}, the value \code{10L} is an integer vector of
 length one in \R, but is passed to \Scala as \code{Int}, not \code{Array[Int]}.
@@ -497,28 +564,6 @@ setter$apply(I(arr), 3)
 arr$mkString("<", ",", ">")
 @
 
-\subsubsection{Calling methods of companion objects}
-
-Methods of companions objects --- which are roughly \Scala's equivalent to
-\Java's static methods --- can be called in three ways.  For example, consider
-the companion object \code{Array}.  Its \code{range} method creates an array of
-regularly-spaced elements.  The following three statements are all functionally
-equivalent:
-
-<<evaluateScalaCodeCompanion>>=
-oneToTenReference <- s %.~% 'Array.range(1, 11)'
-oneToTenReference <- s$.Array$range(1L, 11L, .AS.REFERENCE=TRUE)
-oneToTenReference <- s$do("Array")$range(1L, 11L, .AS.REFERENCE=TRUE)
-@
-
-These three equivalent expression each have their advantages in terms of
-flexibility, readability, and speed.  The first is mostly \Scala code and
-self-evident to a \Scala developer but, as will be shown later, is the slowest.
-The second is concise, fast, and flexible in that the arguments to the method
-can be variables or literals.  The last is also fast, somewhat awkward, but has
-the added flexibility that the name of the companion object itself (as well as
-the arguments) can be a literal or a variable.
-
 \subsubsection[The apply and update Methods]{The \code{apply} and \code{update} Methods}
 
 \Scala users are aware of the ``compiler magic'' that injects calls to the
@@ -532,7 +577,7 @@ functionally-equivalent expressions:
 fibSeqAsInt <- s %~% 'Array(0, 1, 1, 2, 3, 5, 8, 13, 21)'
 fibSeqAsInt <- s %~% 'Array.apply(0, 1, 1, 2, 3, 5, 8, 13, 21)'
 fibSeqAsInt <- s$.Array$apply(0L, 1L, 1L, 2L, 3L, 5L, 8L, 13L, 21L)
-fibSeqAsInt <- s$do("Array")$apply(0L, 1L, 1L, 2L, 3L, 5L, 8L, 13L, 21L)
+fibSeqAsInt <- s$do('Array')$apply(0L, 1L, 1L, 2L, 3L, 5L, 8L, 13L, 21L)
 @
 
 Likewise, the \code{update} method is automatically injected by the \Scala
@@ -545,7 +590,7 @@ s %@% 'val fibSeq = Array[Double](0, 1, 1, 2, 3, 5, 8, 13, 21)'
 fibSeqReference <- s %.~% 'fibSeq'
 s %@% 'fibSeq(1) = math.Pi'
 s$.fibSeq$update(1L, pi)
-s$do("fibSeq")$update(1L, pi)
+s$do('fibSeq')$update(1L, pi)
 fibSeqReference$update(1L, pi)
 @
 
@@ -553,33 +598,6 @@ The previous example also illustrates that the \code{s\$.} and
 \code{s\$do(} notations --- which were first introduced for companion
 objects --- can also be used for existing \Scala values (e.g., \code{fibSeq},
 above).
-
-\subsubsection{Instantiating Objects}
-
-Like calling methods of companion objects, \Scala objects can be instantiated
-in three ways.  For example, new instances of the \code{scala.util.Random}
-class can be created in the following three ways:
-
-<<evaluateScalaCodeInstantiate>>=
-rng <- s %~% 'new scala.util.Random()'
-rng <- s$.scala.util.Random$new()
-rng <- s$do("scala.util.Random")$new()
-@
-
-Again, as for companion objects, each way has its advantages in terms of
-flexibility, readability, and speed.
-
-\subsubsection[Interfacing with Java]{Interfacing with \Java}
-
-\Scala runs on the Java Virtual Machine and since it supports instantiating
-\Java classes and calling object and static methods, the \rscala package
-automatically provides this support as well.  For example, the example below
-finds the system's time zone through a chain of calls using the standard \Java
-library:
-
-<<javaVersion>>=
-s$.java.util.TimeZone$getDefault()$getDisplayName()
-@
 
 \subsubsection{Quoting Method Names}
 
@@ -616,6 +634,18 @@ augmentedList <- list$':+'(100L)
 paste0(augmentedList$toString(), " now contains 100.")
 @
 
+% \subsubsection[Interfacing with Java]{Interfacing with \Java}
+% 
+% \Scala runs on the Java Virtual Machine and since it supports instantiating
+% \Java classes and calling object and static methods, the \rscala package
+% automatically provides this support as well.  For example, the example below
+% finds the system's time zone through a chain of calls using the standard \Java
+% library:
+% 
+% <<javaVersion>>=
+% s$.java.util.TimeZone$getDefault()$getDisplayName()
+% @
+
 \subsubsection{Getting and Setting Values}
 
 As demonstrated previously, values of copyable types and \Scala references can
@@ -651,23 +681,6 @@ Likewise, values of copyable types and \Scala references may be set in the
 <<gettingUsingDollarSign4>>=
 s$fibSeq <- c(0, 1, 1, 2, 3, 5, 8, 13, 21)
 s$copyOfFibSeq <- fibSeqReference
-@
-
-\subsubsection{Discovering Methods}
-
-\Scala provides the \code{scalap} executable to list the methods of classes and
-companion objects.  Its output is available directly in \R using the
-\code{scalap} function.  For example:
-
-<<scalap1, out.lines=10>>=
-scalap(s, 'scala.util.Random')
-@
-
-Or, if you already have a \Scala reference (e.g., the previously-defined
-\code{rng}), you can simply use the \code{scalap} function as follows:
-
-<<scalap2, out.lines=10>>=
-scalap(rng)
 @
 
 \subsubsection[Defining Inline Scala Functions]{Defining Inline \Scala Functions}
