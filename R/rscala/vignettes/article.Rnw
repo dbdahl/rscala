@@ -444,6 +444,46 @@ oneToTenReference
 % s %~% '@{oneToTenReference}.sum'
 % @
 
+\subsubsection{Getting and Setting Variables}
+
+Values of copyable types and \Scala references can
+be obtained as the result of evaluating a \Scala expression using the
+\code{\%\mytilde\%} and \code{\%.\mytilde\%} operators.  The expression can be
+very complex or, as in the examples below, merely the name of a \Scala
+identifier, e.g.:
+
+<<gettingUsingDollarSign1>>=
+s %@% 'val fibSeq = Array[Double](0, 1, 1, 2, 3, 5, 8, 13, 21)'
+fibSeqAsDouble  <- s %~%  'fibSeq'
+fibSeqReference <- s %.~% 'fibSeq'
+@
+
+\Scala values can also be obtained using the \code{\$} operator and the identifier name.
+For example, the following both provide equivelent definitions for 
+\code{fibSeqAsDouble} above.
+
+<<gettingUsingDollarSign2>>=
+fibSeqAsDouble <- s$fibSeq
+fibSeqAsDouble <- s$val('fibSeq')
+@
+
+Likewise, an equivalent definition for \code{fibSeqReference} is:
+
+<<gettingUsingDollarSign3>>=
+fibSeqReference <- s$.val('fibSeq')
+@
+
+Note that \code{val} is a reserved word in \Scala and therefore our use here of
+\code{val} and \code{.val} are guaranteed to not conflict with any variable names in \Scala.
+
+Conversely, values of copyable types and \Scala references may be set in the
+\Scala session using assignment with the \code{\$} operator, e.g.:
+
+<<gettingUsingDollarSign4>>=
+s$fibSeq <- c(0, 1, 1, 2, 3, 5, 8, 13, 21)
+s$copyOfFibSeqReference <- fibSeqReference
+@
+
 \subsubsection{Instantiating objects}
 
 \Scala objects can be instantiated
@@ -458,13 +498,13 @@ rng <- s$do('scala.util.Random')$new()
 @
 
 These three equivalent expression each have their advantages in terms of
-flexibility, readability, and speed.  The first is mostly \Scala code and
-self-evident to a \Scala developer but is the slowest.
-The second is concise, fast, and flexible in that the arguments to the method
-can be variables or literals.  The last is also fast, somewhat awkward, but has
-the added flexibility that the name of the companion object itself (as well as
-the arguments) can be a literal or a variable.
-
+flexibility, readability, and speed.  The first is mostly \Scala code and therefore
+self-evident to a \Scala developer, but it is the slowest.
+The second (using \code{s\$.}) is concise, fast, and flexible in that the arguments to the method
+can be variables or literals.  The last method (using \code{s\$do}) is also fast but slightly awkward, however, it has
+the added flexibility that the name
+can be a literal (as in this example) or a variable.  Note that \code{do} is used here because it is a
+reserved words in \Scala and is therefore guaranteed to not conflict with a variable name.
 
 \subsubsection[Access methods and variables of Scala objects]{Access methods and variables of \Scala objects}
 
@@ -574,7 +614,7 @@ oneToTenReference <- s$do('Array')$range(1L, 11L, .AS.REFERENCE=TRUE)
 Again, as for instantiating objects, each way has its advantages in terms of
 flexibility, readability, and speed.
 
-\subsubsection[The apply and update Methods]{The \code{apply} and \code{update} Methods}
+\subsubsection[The apply and update methods]{The \code{apply} and \code{update} methods}
 
 \Scala users are aware of the ``compiler magic'' that injects calls to the
 \code{apply} method of objects when no method is specified.  In the \rscala
@@ -655,43 +695,6 @@ paste0(augmentedList$toString(), " now contains 100.")
 % <<javaVersion>>=
 % s$.java.util.TimeZone$getDefault()$getDisplayName()
 % @
-
-\subsubsection{Getting and Setting Values}
-
-As demonstrated previously, values of copyable types and \Scala references can
-be obtained as the result of evaluating a \Scala expression using the
-\code{\%\mytilde\%} and \code{\%.\mytilde\%} operators.  The expression can be
-very complex or, as in the examples below, merely the name of a \Scala
-identifier, e.g.:
-
-<<gettingUsingDollarSign1>>=
-fibSeqAsDouble  <- s %~%  'fibSeq'
-fibSeqReference <- s %.~% 'fibSeq'
-@
-
-\Scala values can also be obtained using the \code{\$} operator and the name of
-the identifier.  For example, the following both return the same result to the
-first example (involving \code{s \%\mytilde\%  'fibSeq'}):
-
-<<gettingUsingDollarSign2>>=
-fibSeqAsDouble <- s$fibSeq
-fibSeqAsDouble <- s$val('fibSeq')
-@
-
-The second example (involving \code{s \%.\mytilde\% 'fibSeq'}) yields the same
-result as:
-
-<<gettingUsingDollarSign3>>=
-fibSeqReference <- s$.val('fibSeq')
-@
-
-Likewise, values of copyable types and \Scala references may be set in the
-\Scala session using assignment with the \code{\$} operator, e.g.:
-
-<<gettingUsingDollarSign4>>=
-s$fibSeq <- c(0, 1, 1, 2, 3, 5, 8, 13, 21)
-s$copyOfFibSeq <- fibSeqReference
-@
 
 \subsubsection[Defining Inline Scala Functions]{Defining Inline \Scala Functions}
 \label{inline}
@@ -813,7 +816,7 @@ of that class.  For example, an argument to \Scala function might be \code{rng
 object of class \code{scala.util.Random} and eliminating the need to have such
 an object when the \Scala function is defined.
 
-\subsubsection[Callbacks into R from Embedded Scala]{Callbacks into \R from Embedded \Scala}
+\subsubsection[Callbacks into R from embedded Scala]{Callbacks into \R from embedded \Scala}
 
 When a \Scala instance is created with the \code{scala} function, an instance
 of the \Scala class \code{org.ddahl.rscala.RClient} is bound to the identifier
