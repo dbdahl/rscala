@@ -444,10 +444,32 @@ oneToTenReference
 % s %~% '@{oneToTenReference}.sum'
 % @
 
-\subsubsection[Calling Scala methods]{Calling \Scala methods}
+\subsubsection{Instantiating objects}
 
-Taking inspiration from \rJava's ``high-level \code{\$} operator,'' \Scala
-references can be used to call methods directly using the \code{\$}
+\Scala objects can be instantiated
+in three ways.
+New instances of the \code{scala.util.Random}
+class, for example, can be created in the following three ways:
+
+<<evaluateScalaCodeInstantiate>>=
+rng <- s %.~% 'new scala.util.Random()'
+rng <- s$.scala.util.Random$new()
+rng <- s$do('scala.util.Random')$new()
+@
+
+These three equivalent expression each have their advantages in terms of
+flexibility, readability, and speed.  The first is mostly \Scala code and
+self-evident to a \Scala developer but is the slowest.
+The second is concise, fast, and flexible in that the arguments to the method
+can be variables or literals.  The last is also fast, somewhat awkward, but has
+the added flexibility that the name of the companion object itself (as well as
+the arguments) can be a literal or a variable.
+
+
+\subsubsection[Access methods and variables of Scala objects]{Access methods and variables of \Scala objects}
+
+Taking inspiration from \rJava's ``high-level \code{\$} operator,'' methods
+associated with \Scala references can be called directly using the \code{\$}
 operator, as shown below.
 
 <<evaluateScalaCodeReference2>>=
@@ -456,7 +478,7 @@ rng$nextInt(10L)
 oneToTenReference$sum()
 @
 
-If the result of method call on a \Scala reference is not a copyable type, then
+If the result of a method call on a \Scala reference is not a copyable type, then
 a reference to a \Scala object is returned.  If a \Scala reference is desired even
 when working with copyable types,
 add a final argument
@@ -466,7 +488,14 @@ add a final argument
 intReference <- rng$nextInt(10L, .AS.REFERENCE=TRUE)
 @
 
-\subsubsection[Discovering Scala Methods]{Discovering \Scala Methods}
+The value of an instance variable may be accessed as if there was a method of the same name taking no arguments, e.g.,
+
+<<evaluateScalaCodeReference1>>=
+rng$self()
+@
+
+
+\subsubsection[Discovering methods and variables of Scala objects]{Discovering methods and variables of \Scala objects}
 
 \Scala provides the \code{scalap} executable to list the methods of classes and
 companion objects.  Its output is available directly in \R using the
@@ -480,45 +509,7 @@ scalap(rng)
 The \rscala package also provide rudimental tab-completion for method names of
 \Scala references.
 
-\subsubsection{Instantiating Objects}
-
-\Scala objects can be instantiated
-in three ways.
-New instances of the \code{scala.util.Random}
-class, for example, can be created in the following three ways:
-
-<<evaluateScalaCodeInstantiate>>=
-rng <- s %~% 'new scala.util.Random()'
-rng <- s$.scala.util.Random$new()
-rng <- s$do('scala.util.Random')$new()
-@
-
-These three equivalent expression each have their advantages in terms of
-flexibility, readability, and speed.  The first is mostly \Scala code and
-self-evident to a \Scala developer but is the slowest.
-The second is concise, fast, and flexible in that the arguments to the method
-can be variables or literals.  The last is also fast, somewhat awkward, but has
-the added flexibility that the name of the companion object itself (as well as
-the arguments) can be a literal or a variable.
-
-\subsubsection{Calling methods of companion objects}
-
-Methods of companions objects --- which are roughly \Scala's equivalent to
-\Java's static methods --- can be called in three ways.  For example, consider
-the companion object \code{Array}.  Its \code{range} method creates an array of
-regularly-spaced elements.  The following three statements are all functionally
-equivalent:
-
-<<evaluateScalaCodeCompanion>>=
-oneToTenReference <- s %.~% 'Array.range(1, 11)'
-oneToTenReference <- s$.Array$range(1L, 11L, .AS.REFERENCE=TRUE)
-oneToTenReference <- s$do('Array')$range(1L, 11L, .AS.REFERENCE=TRUE)
-@
-
-Again, as for instantiating objects, each way has its advantages in terms of
-flexibility, readability, and speed.
-
-\subsubsection[Method arguments, null, and length-one vectors]{Method arguments, \code{null}, and length-one vectors}
+\subsubsection[Method arguments, null references, and length-one vectors]{Method arguments, null references, and length-one vectors}
 
 Arguments to \Scala methods called using the \code{\$} operator on a \Scala
 reference can be copyable types and \Scala references.  To pass a null reference
@@ -534,11 +525,11 @@ Length-one vectors in
 \R have special handling.  In the \R expression
 \code{rng\$nextInt(10L)}, the value \code{10L} is an integer vector of
 length one in \R, but is passed to \Scala as \code{Int}, not \code{Array[Int]}.
-This behavior is usually convenient and natural behavior.  If, however, an \R
+This behavior is usually convenient and the natural behavior.  If, however, an \R
 vector should always be passed as an array --- despite the fact that it might
 be of length one --- wrap the vector in a call to the \code{I} function.  This ensures
 that the vector is treated ``as is''.  For example, consider an object with an
-\code{apply} method that takes an array and a value, and sets every element of
+\code{apply} method that takes an array of any arbitrary type \code{T} and a value of type \code{T}, and sets every element of
 the array to that value:
 
 <<lengthOne>>=
@@ -558,11 +549,30 @@ wrapped by \code{I}, but the second argument is a length-one double vector in
 \emph{not} wrapped by \code{I}:
 
 <<lengthOne2>>=
-arr <- s %.~% 'Array(math.Pi)'
-arr$mkString("<", ",", ">")
+arr <- s %.~% 'Array(math.Pi, math.E)'
+arr$mkString("<", ", ", ">")
 setter$apply(I(arr), 3)
-arr$mkString("<", ",", ">")
+arr$mkString("<", ", ", ">")
 @
+
+\subsubsection{Calling methods of companion objects}
+
+In constrast to \Java, \Scala classes do not have static variables or methods.
+Equivalent functionality is provided by singleton objects in \Scala.
+Companion objects are singleton objects whose name is the same as a class.
+Methods of singleton objects can be called in three ways.  For example, consider
+the companion object \code{Array} to the class \code{Array}.  Its \code{range} method creates an array of
+regularly-spaced elements.  The following three statements are all functionally
+equivalent:
+
+<<evaluateScalaCodeCompanion>>=
+oneToTenReference <- s %.~% 'Array.range(1, 11)'
+oneToTenReference <- s$.Array$range(1L, 11L, .AS.REFERENCE=TRUE)
+oneToTenReference <- s$do('Array')$range(1L, 11L, .AS.REFERENCE=TRUE)
+@
+
+Again, as for instantiating objects, each way has its advantages in terms of
+flexibility, readability, and speed.
 
 \subsubsection[The apply and update Methods]{The \code{apply} and \code{update} Methods}
 
@@ -599,13 +609,13 @@ The previous example also illustrates that the \code{s\$.} and
 objects --- can also be used for existing \Scala values (e.g., \code{fibSeq},
 above).
 
-\subsubsection{Quoting Method Names}
+\subsubsection{Quoting method names}
 
 \Scala has a type parameterization which is similar but arguably more
 advanced than generics in \Java and templates in \Cpp.  In many instances, the
 \Scala compiler infers the type parameter, but the user may need or want to
 explicitly provide it.  When using the \code{\$} operator, the method name with
-its type parameter may need to quoted to prevent parsing errors in \R.  The
+its type parameter should be quoted to prevent parsing errors in \R.  The
 following expressions are functionally equivalent:
 
 <<evaluateScalaCodeApplyWithQuote>>=
