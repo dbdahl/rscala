@@ -713,10 +713,10 @@ functions, but these functions can be helpful for implementing small tasks or
 writing dynamic code to interface with existing \Scala code.
 
 To demonstrate \Scala functions, consider computing the number of partitions
-of $n$ items (i.e., the Bell number \citep{bell}).  This
+of $n$ items (i.e., the Bell number \citep{bell} of $n$).  This
 number is often used for finite mixture models and random partition
 models (e.g., \citet{casella2014}).  First, consider this \R implementation of
-an algorithm based on the Bell triangle (also
+a computationally- and memory-efficient algorithm based on the Bell triangle (also
 known as the Aitken's array or the Peirce triangle):
 
 <<bellUsingR>>=
@@ -740,7 +740,7 @@ bell.version1 <- function(n=1, format=c("character","integer","double","log")[3]
 
 The \code{bell.version1} function performs calculations based on
 double-precision floating-point arithmetic and provides \emph{exact} answers
-for $n \le 22$, \emph{approximate} answers for $22 < n \le 218$, and
+for $n \le 22$, gives \emph{approximate} answers for $22 < n \le 218$, and
 overflows for $n > 218$.  Notice the \code{format} argument that controls how
 the results are provided.  Unfortunately, $n \le 218$ is quite limiting because
 sample sizes are often much larger in practice.  The following \Scala function,
@@ -778,8 +778,8 @@ arrays, syntactic differences between \R and \Scala, and the
 \Scala version avoids the copying found in the \R version), but the practical
 difference is that \code{bell.version2} uses infinite precision integer
 arithmetic based on \Scala's builtin \code{BigInt} class.  Overflow
-still occurs in \R when \code{format="integer"} or \code{format="double"} for small
-$n$, but there is no overflow for almost any $n$ when \code{format="log"},
+still occurs when transfering to \R using \code{format="integer"} or \code{format="double"},
+but there is no overflow for almost any $n$ when \code{format="log"},
 and the exact value is returned when \code{format="character"}.  The
 sample code below shows that the \Scala function produces exact integer calculations for
 large $n$, and that subsequent calls to the function are faster than
@@ -805,7 +805,7 @@ reference if the result is not a copyable type.  Its companion operator,
 
 The consumer of a \Scala function does not need to know that the implementation
 is written in \Scala.  There are a few considerations, however, for the
-programmer of a \Scala function.  First, the terminating expression of a \Scala
+programmer of a \Scala function.  First, the last expression of a \Scala
 function should always use \code{\%!\%} or
 \code{\%.!\%}.  Second, the arguments to \Scala functions can be
 copyable types, \Scala references, or \code{NULL}, where \code{NULL} is used to
@@ -823,7 +823,8 @@ object of class \code{scala.util.Random}.
 When a \Scala instance is created with the \code{scala} function, an instance
 of the \Scala class \code{org.ddahl.rscala.RClient} is bound to the identifier
 \code{R}.  This object provides access to the \R session from within the \Scala
-instance.  A link to the comprehensive Scaladoc for the \code{RClient} class is located on GitHub:
+instance.  The \code{RClient} class is thread-safe.  Its source code and Scaladoc
+are located on GitHub:
 \url{https://github.com/dbdahl/rscala}.
 
 To assign a value to a variable in
@@ -839,8 +840,8 @@ atLeast8
 @
 
 \R variables can be accessed in \Scala using several methods.  The
-first method is \code{get}. It returns a typle of two elements where the first member
-is the \R variable's value (statically typed as \code{Any}), and the second member is the resulting \Scala type name (a \code{String}).
+first method is \code{get}. It returns a \code{Tuple2} where the first member
+is the \R variable's value (statically typed as \code{Any}) and the second is a \code{String} identifying the resulting \Scala type.
 Consider the example below in
 which the value of the \R variable \code{T} is obtained.  Although the runtime
 type of \code{T} is \code{Boolean}, the static type is \code{Any}.  Therefore,
