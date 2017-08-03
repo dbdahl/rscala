@@ -210,7 +210,7 @@ the \rscala package.  We conclude with future work in Section \ref{conclusion}.
 \section[Accessing Scala in R]{Accessing \Scala in \R}
 \label{usage}
 
-This section provides a guide to access
+This section provides a guide to accessing
 \Scala from \R.  Those interested in the reverse --- accessing \R from \Scala
 --- will also benefit from understanding the ideas presented here.
 
@@ -223,10 +223,10 @@ and can be installed by executing the following \R expression.
 install.packages('rscala')
 @
 
-The \rscala package requires a \Scala installation of the 2.10.x, 2.11.x, or
+The \rscala package requires a \Scala installation in the 2.10.x, 2.11.x, or
 2.12.x series.  A convenience function,
 \code{rscala::scalaInstall()}, is provided to download and install \Scala in the user's
-home directory under \code{.rscala}. Because this is a user-level
+home directory under the \code{.rscala} directory. Because this is a user-level
 installation, administrator privileges are not required.
 
 Alternatively, system administrators can install \Scala using their operating
@@ -280,9 +280,8 @@ Multiple \Scala instances can be created in the same \R session.
 Each \Scala instance runs independently with its own memory, classpath,
 history, etc.
 
-The \rscala bridge is not thread-safe, so multiple \R processes/threads should not access the same \Scala
-instance simultaneously, nor should multiple \Scala threads call back to \R
-simultaneously.
+The \R to \Scala bridge is not thread-safe, so multiple \R processes/threads should not access the same \Scala
+instance simultaneously.
 
 \subsection[Calling Scala code from R]{Calling \Scala code from \R}
 
@@ -295,7 +294,9 @@ computing the binomial coefficient ${10 \choose 3} = \prod_{i=1}^3 (10-i+1)/i$.
 
 <<evaluateScalaCodeSimple>>=
 s %@% '
-  val c_10_3 = (1 to 3).map( i => (10-i+1) / i.toDouble ).product.toInt
+  val c_10_3 = (1 to 3).map( i => {
+    (10-i+1) / i.toDouble
+  }).product.toInt
 '
 @
 
@@ -313,7 +314,7 @@ function.  Default values depend on the operating system so that
 console output is displayed in typical environments.
 
 \Scala code can also be evaluated with the \code{\%\mytilde\%}
-operator which returns to \R the result of the last expression in the \Scala snippet.
+operator.  Whereas \code{\%@\%} always returns \code{NULL}, \code{\%\mytilde\%} returns the result of the last expression in the \Scala snippet.
 
 <<evaluateScalaCodeSimple2>>=
 tenChooseThree <- s %~% '(1 to 3).map( i => (10-i+1) / i.toDouble ).product'
@@ -503,7 +504,7 @@ self-evident to a \Scala developer, but it is the slowest.
 The second (using \code{s\$.}) is concise, fast, and flexible in that the arguments to the method
 can be variables or literals.  The last method (using \code{s\$do}) is also fast but slightly awkward, however, it has
 the added flexibility that the name
-can be a literal (as in this example) or a variable.  Note that \code{do} is used here because it is a
+can also be a literal (as in this example) or a variable.  Note that \code{do} is used here because it is a
 reserved words in \Scala and is therefore guaranteed to not conflict with a variable name.
 
 \subsubsection[Access methods and variables of Scala objects]{Access methods and variables of \Scala objects}
@@ -552,17 +553,20 @@ The \rscala package also provide rudimental tab-completion for method names of
 \subsubsection[Method arguments, null references, and length-one vectors]{Method arguments, null references, and length-one vectors}
 
 Arguments to \Scala methods called using the \code{\$} operator on a \Scala
-reference can be copyable types and \Scala references.  To pass a null reference
-of a particular type, use the \code{scalaNull} function.  For example,
-to clear the system properties, a null reference to \code{java.util.Properties} is passed to the static \code{setProperties}
-method of the \code{java.lang.System} class.
+reference can be copyable types and \Scala references.  To pass a null
+reference of a particular type, use the \code{scalaNull} function.  For
+example, the documentation for \Java's \code{java.lang.System} class says that
+a null reference to \code{java.util.Properties} is passed to the static
+\code{setProperties} method to clear the system properties.  This is
+accomplished as follows:
 
 <<nullAsArgument>>=
 s$.java.lang.System$setProperties(scalaNull('java.util.Properties'))
 @
 
-Length-one vectors in
-\R have special handling.  In the \R expression
+\R has no scalar types but they are often used in \Scala.  As such,
+length-one vectors have special symmatics.
+In the \R expression
 \code{rng\$nextInt(10L)}, the value \code{10L} is an integer vector of
 length one in \R, but is passed to \Scala as \code{Int}, not \code{Array[Int]}.
 This behavior is usually convenient and the natural behavior.  If, however, an \R
@@ -581,7 +585,7 @@ setter <- s %.~% '
 '
 @
 
-When calling the \code{apply} function, the first argument must be an array.
+When calling the \code{apply} method of the \code{setter} object, the first argument must be an array.
 Thus, if there is a potential that the \R vector is length-one, it should be
 wrapped by the \code{I} function.  In the example below, the first argument is
 wrapped by \code{I}, but the second argument is a length-one double vector in
@@ -599,7 +603,7 @@ arr$mkString("<", ", ", ">")
 
 In constrast to \Java, \Scala classes do not have static variables or methods.
 Equivalent functionality is provided by singleton objects in \Scala.
-Companion objects are singleton objects whose name is the same as a class.
+A companion object is a singleton object whose name is the same as a class.
 Methods of singleton objects can be called in three ways.  For example, consider
 the companion object \code{Array} to the class \code{Array}.  Its \code{range} method creates an array of
 regularly-spaced elements.  The following three statements are all functionally
@@ -611,7 +615,7 @@ oneToTenReference <- s$.Array$range(1L, 11L, .AS.REFERENCE=TRUE)
 oneToTenReference <- s$do('Array')$range(1L, 11L, .AS.REFERENCE=TRUE)
 @
 
-Again, as for instantiating objects, each way has its advantages in terms of
+Again, as for instantiating objects, each functionally equivalent way has its advantages in terms of
 flexibility, readability, and speed.
 
 \subsubsection[The apply and update methods]{The \code{apply} and \code{update} methods}
@@ -644,19 +648,19 @@ s$do('fibSeq')$update(1L, pi)
 fibSeqReference$update(1L, pi)
 @
 
-The previous example also illustrates that the \code{s\$.} and
-\code{s\$do(} notations --- which were first introduced for companion
+The previous example also illustrates that the `\code{s\$.}' and
+`\code{s\$do(}' notations --- which were first introduced for object instantiation and calling methods of singleton
 objects --- can also be used for existing \Scala values (e.g., \code{fibSeq},
 above).
 
 \subsubsection{Quoting method names}
 
-\Scala has a type parameterization which is similar but arguably more
+\Scala has type parameterization which is similar but arguably more
 advanced than generics in \Java and templates in \Cpp.  In many instances, the
 \Scala compiler infers the type parameter, but the user may need or want to
 explicitly provide it.  When using the \code{\$} operator, the method name with
 its type parameter should be quoted to prevent parsing errors in \R.  The
-following expressions are functionally equivalent:
+following expressions are functionally equivalent.
 
 <<evaluateScalaCodeApplyWithQuote>>=
 fibSeqAsDouble <- s %~% 'Array[Double](0, 1, 1, 2, 3, 5, 8, 13, 21)'
