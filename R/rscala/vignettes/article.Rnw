@@ -1,6 +1,15 @@
 %\VignetteEngine{knitr::knitr}
 %\VignetteIndexEntry{rscala: Integration of R and Scala}
 
+%% Parts to write:
+%%    * Abstract
+%%    * Introduction
+%%    * Bootstrap example
+%%    * Weather app example
+%%    * MCMC example
+%%    * Comparison to other software
+%%    * Conclusion
+
 \documentclass[article]{jss}
 
 \let\hlesc\hlstd \let\hlpps\hlstd \let\hllin\hlstd \let\hlslc\hlcom
@@ -48,7 +57,7 @@
 
 %% almost as usual
 \author{David B.\ Dahl\\Brigham Young University}
-\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.2.3,\ \ Document Date: 2017-07-24}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
+\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.3.0,\ \ Document Date: 2017-08-16}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
 
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{David B. Dahl} %% comma-separated
@@ -77,7 +86,7 @@ CRAN and requires no special installations or configurations of \R or \Scala.
 %% \Issue{9}
 %% \Month{June}
 %% \Year{2012}
-\Submitdate{2017-06-10}
+\Submitdate{2017-08-16}
 %% \Acceptdate{2012-06-04}
 
 %% The address of (at least) one author should be given
