@@ -773,7 +773,7 @@ bell.version2 <- function(n=1L, format=c("character","integer","double","log")[3
 }
 @
 
-There are a few minor differences (e.g., \Scala uses zero-based indexing of
+There are a few minor differences between the \R and \Scala versions (e.g., \Scala uses zero-based indexing of
 arrays, syntactic differences between \R and \Scala, and the
 \Scala version avoids the copying found in the \R version), but the practical
 difference is that \code{bell.version2} uses infinite precision integer
@@ -800,8 +800,8 @@ enclosing function (namely, \code{n} and \code{format}) available in the \Scala
 snippet, and ii.~it caches the on-the-fly compilation of the \Scala snippet to
 substantially improve speed for subsequent calls to \code{bell.version2}.  The \code{\%!\%}
 operator returns a copyable type or a \Scala
-reference if the result is not a copyable type.  Its companion operator,
-\code{\%.!\%}, is identical except that it always returns a \Scala reference.
+reference if the result is not a copyable type.  The \code{\%.!\%} operator
+is identical except that it always returns a \Scala reference.
 
 The consumer of a \Scala function does not need to know that the implementation
 is written in \Scala.  There are a few considerations, however, for the
@@ -809,7 +809,7 @@ programmer of a \Scala function.  First, the last expression of a \Scala
 function should always use \code{\%!\%} or
 \code{\%.!\%}.  Second, the arguments to \Scala functions can be
 copyable types, \Scala references, or \code{NULL}, where \code{NULL} is used to
-indicate arbitrary \R objects that will not be converted to \Scala values.  Third, default values must be provided for
+indicate arbitrary \R objects that will not be converted to \Scala values but can be used in \R code.  Third, default values must be provided for
 every argument, thereby indicating to \rscala the argument's type.  If the
 user passes arguments of different types than those indicated by the default
 values, they are cast to the expected type.  The \code{scalaNull} function can be
@@ -825,7 +825,7 @@ of the \Scala class \code{org.ddahl.rscala.RClient} is bound to the identifier
 \code{R}.  This object provides access to the \R session from within the \Scala
 instance.  The \code{RClient} class is thread-safe.  Its source code and Scaladoc
 are located on GitHub:
-\url{https://github.com/dbdahl/rscala}.
+\url{https://github.com/dbdahl/rscala/}.
 
 To assign a value to a variable in
 the \R session from \Scala, use the \code{set} method:
@@ -866,7 +866,7 @@ whether the result from \R should be interpreted as raw, integer, double,
 logical, or character, respectively.  The value of $Y$ indicates whether the
 result should be interpreted as a scalar, an array, or a
 rectangular array of arrays, respectively.  This example uses the \code{getL0} method
-to return the value of the \R variable \code{T} as a logical scalar value.
+to return the value of the variable \code{T} as a logical scalar value.
 
 <<getInScala2>>=
 s %@% 'if ( R.getL0("T") ) { println("Good, nobody messed with the value of T.") } '
@@ -890,12 +890,15 @@ implemented as follows.
 
 <<invokeInScala>>=
 set.seed(324)
-s %~% 'R.invokeD1("rnorm", 100, "sd" -> 3).map(math.pow(_, 2)).sum'
+s %~% '
+  val mean = 100
+  R.invokeD1("rnorm", mean, "sd" -> 3).map(math.pow(_, 2)).sum
+'
 @
 
 The example above demonstrates the use of \Scala's builtin notation for
 creating pairs (e.g., \code{"sd" -> 3}) to provide named arguments to the \R
-function invoked from \Scala.  The arguments to an \code{invoke} method can be
+function invoked from \Scala.  The arguments to an \code{invoke} method can be literals and variables of
 copyable types, \Scala references, and NULL, where \code{NULL} is used to
 indicate arbitrary \R objects.
 
@@ -1012,7 +1015,7 @@ installed, the user is asked for permission to download and install \Scala
 \code{.jpackage} function, the \code{.rscalaPackage} function adds the JAR
 files in the source package's \code{inst/java} directory to \Scala's classpath.
 Since \Scala is binary compatible only within major version, package developers
-are encouraged to support major version 2.10, 2.11, and 2.12 by placing
+are encouraged to support major versions 2.10, 2.11, and 2.12 by placing
 cross-compiled versions of \Scala JAR files in \code{inst/java/scala-2.10},
 \code{inst/java/scala-2.11}, and \code{inst/java/scala-2.12}, respectively.  If
 a package supports only specific major versions of \Scala, change the
@@ -1078,8 +1081,8 @@ Apache Commons Email to send emails from \R'' \citep{mailr}.  This package
 uses \rJava and its high-level \code{\$}
 convenience operator.  As a proof of concept, we ported the \pkg{mailR} package
 to \rscala, replacing the dependency on \rJava.  Version 0.6 of the \pkg{mailR}
-package is available on GitHub at \url{https://github.com/rpremraj/mailR} and
-our port is at \url{https://github.com/dbdahl/mailR}.  The port involved changes to
+package is available on GitHub at \url{https://github.com/rpremraj/mailR/} and
+our port is at \url{https://github.com/dbdahl/mailR/}.  The port involved changes to
 the \code{DESCRIPTION} file, the \code{NAMESPACE} file, and two script files.  We
 deleted 16 lines, added 4 lines, and modified 15 lines.  Most modifications
 were simple changes. For example,
@@ -1103,8 +1106,8 @@ The
 \pkg{bamboo} package was originally implemented in \rJava.  The original \rJava code is
 commented out with equivalent \rscala code following immediately after.  See,
 for example, \url{https://github.com/dbdahl/bamboo/blob/master/R/bamboo.R}.
-This example also illustrates the difficulty in calling \Scala from \rJava
-since \Scala provides several features that do not map directly to \Java
+This example also illustrates the difficulty in calling \Scala using \rJava
+since \rJava was designed for \Java, yet \Scala provides several features that do not map directly to \Java
 equivalents.  The \Scala compiler uses name mangling, behind-the-scenes code
 generation, and other techniques when compiling to \Java bytecode.  Using
 these \Scala features from \rJava requires, at a minimum, some
