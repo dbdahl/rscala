@@ -700,7 +700,7 @@ paste0(augmentedList$toString(), " now contains 100.")
 % s$.java.util.TimeZone$getDefault()$getDisplayName()
 % @
 
-\subsubsection[Defining Inline Scala Functions]{Defining Inline \Scala Functions}
+\subsubsection[Defining inline Scala functions]{Defining inline \Scala functions}
 \label{inline}
 
 In addition to calling previously-compiled \Scala methods, the \rscala package
@@ -1114,17 +1114,17 @@ required to write \Java-friendly wrapper methods in \Scala that hide advanced
 
 \section[Accessing R in Scala]{Accessing \R in \Scala}
 
-So far we have demonstrated calling \Scala code from \R.  Conversely, \rscala
-also allows an \R interpreter to be embedded in a \Scala application via the
+So far we have demonstrated assessing \Scala from \R.  Conversely, \rscala
+can also embed an \R interpreter in a \Scala application via the
 \code{org.ddahl.rscala.RClient} class.
-As a convenience, \rscala's JAR files are
+As a convenience, \rscala's JAR file is
 available in standard repositories for use by dependency management
 systems.  To include \code{org.ddahl.rscala.RClient} in a
 \Scala application, simply add the following line to SBT's \code{build.sbt}
 file.
 
 <<sbt, engine="scala", eval=FALSE>>=
-libraryDependencies += "org.ddahl" %% "rscala" % "2.2.3"
+libraryDependencies += "org.ddahl" %% "rscala" % "2.3.0"
 @
 
 Note that the \rscala package does \emph{not} need to be installed in \R
@@ -1135,7 +1135,7 @@ An embedded \R interpreter is instantiated as follows:
 val R = org.ddahl.rscala.RClient()
 @
 
-This assumes assume that the registry keys option was not disabled during
+This assumes that the registry keys option was not disabled during
 the \R installation on Windows.  On other operating systems, \code{R} is assumed to be
 in the search path.  If these assumptions are not met or a particular
 installation of \R is desired, the path to the \R executable may be specified
@@ -1199,7 +1199,7 @@ around a client/server model using local TCP/IP sockets.
 
 \subsection[Implementation of Scala code in R]{Implementation of \Scala code in \R}
 
-The \code{scala} function starts a \Scala interpreter using R's
+The \code{scala} function starts a \Scala interpreter on the Java Virtual Machine using \R's
 \code{system2} function. The interpreter runs code that implements an asynchronous TCP/IP server
 and creates an instance of \code{scala.tools.nsc.interpreter.IMain} for \Scala's
 read-eval-print-loop (REPL). The TCP/IP
@@ -1210,7 +1210,7 @@ functions from the \pkg{base} \R package.  After connecting, the \R client inter
 server's REPL class by means of a custom protocol.
 
 The \rscala package takes advantage of the \Scala REPL's ability to compile and
-execute \Scala code on-the-fly as well as set/get values of
+execute \Scala code on-the-fly as well as set and get values of
 identifiers.  When a \Scala function is called for the first time (or when a
 particular method of a \Scala reference is called for the first time), it is
 compiled behind the scenes.  The compiled method is then
@@ -1269,7 +1269,7 @@ previously-discussed callback functionality.  In this case,
 however, there is not an existing instance of the \R interpreter.  The class
 \code{RClient} spawns an \R instance, connects the \R
 client to the \Scala server, and then immediately starts the embedded \R
-server.  There are two versions of the \code{RClient} class. The \Java
+server.  There are two versions of the \R client. The \Java
 version (\code{org.ddahl.rscala.RClient4Java}) is a thin wrapper over the
 \Scala version (\code{org.ddahl.rscala.RClient}).  The wrapper hides \Scala-specific
 features and provides familiar Javadoc to \Java developers.
@@ -1377,6 +1377,21 @@ execution speed, especially for short-lived function calls.
 
 \subsection[Comparison to Rserve]{Comparison to \Rserve}
 \label{vsRserve}
+
+
+Those who are interesting in accessing \R from \Scala should also consider
+\Rserve \citep{rserve} which, like \rscala, is ``a TCP/IP server which allows
+other programs to use facilities of \R'' (\url{http://www.rforge.net/Rserve}).
+\Rserve clients are available for many languages including \Java and therefore
+\Scala (since \Scala can call \Java code).  \Rserve is fast and provides a much
+richer API than \rscala, but requires that \R be compiled with the option
+\code{\textemdash{}enable-R-shlib} (which is the default on Windows and Mac OS
+X, but is not for some Linux distributions).  \Rserve also has some limitations
+on Windows and the user is advised to not ``use Windows unless you really have
+to'' (\url{http://www.rforge.net/Rserve/doc.html}).
+
+Conversely, \rscala provides the same functionality on all operating systems
+and uses a standard installation of \R. 
 
 \Rserve \citep{rserve} ``is a TCP/IP server which allows other programs to use facilities of
 \R... without the need to initialize \R or link against [the] \R library''
@@ -1493,7 +1508,7 @@ while-loop and compiles to essentially the same \Java bytecode used in
 well-known fact that for-loops in \Scala are not optimized for performance.
 
 \clearpage
-[Calling into the JVM and back into R]{Calling into the JVM and back into \R}
+\subsubsection[Calling into the JVM and back into R]{Calling into the JVM and back into \R}
 \label{benchmarksBack}
 
 To further investigate the performance of \rscala relative to other software,
@@ -1543,7 +1558,7 @@ invocation latency.  The ratios indicate that the protocol overhead is
 important for short-lived \R functions (i.e., when sleeping 0 seconds) but
 negligible for long-lived \R functions (i.e., when sleeping 1 second).
 
-[Calling into R from a JVM application]{Calling into \R from a JVM application}
+\subsubsection[Calling into R from a JVM application]{Calling into \R from a JVM application}
 \label{benchmarksJVM}
 
 We now consider the performance and simplicity of calling \R code from within a
