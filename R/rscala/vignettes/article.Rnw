@@ -5,7 +5,6 @@
 %%    * Abstract
 %%    * Introduction
 %%    * Bootstrap example
-%%    * Weather app example
 %%    * MCMC example
 %%    * Comparison to other software
 %%    * Conclusion
