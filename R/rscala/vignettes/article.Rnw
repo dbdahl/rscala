@@ -1126,9 +1126,11 @@ required to write \Java-friendly wrapper methods in \Scala that hide advanced
 
 \section[Accessing R in Scala]{Accessing \R in \Scala}
 
-So far we have demonstrated assessing \Scala from \R.  Conversely, \rscala
-can also embed an \R interpreter in a \Scala application via the
-\code{org.ddahl.rscala.RClient} class.
+So far we have demonstrated assessing \Scala from \R.  Conversely, \rscala can
+also embed an \R interpreter in a \Scala application via the
+\code{org.ddahl.rscala.RClient} class.  This class is thread-safe.  Its source
+code and Scaladoc are located on GitHub:
+\url{https://github.com/dbdahl/rscala/}.
 As a convenience, \rscala's JAR file is
 available in standard repositories for use by dependency management
 systems.  To include \code{org.ddahl.rscala.RClient} in a
@@ -1139,71 +1141,85 @@ file.
 libraryDependencies += "org.ddahl" %% "rscala" % "2.3.0"
 @
 
-Note that the \rscala package does \emph{not} need to be installed in \R
-since the necessary \R code is bundled in the JAR file.
+Note that,
+since the necessary \R code is bundled in the JAR file,
+the \rscala package does \emph{not} need to be installed in \R.
 An embedded \R interpreter is instantiated as follows:
 
 <<scalaScript0,engine="scala",engine.opts=paste0('-cp "',rscala::.rscalaJar('2.12'),'"'),comment="//",eval=FALSE>>=
 val R = org.ddahl.rscala.RClient()
 @
 
-This assumes that the registry keys option was not disabled during
-the \R installation on Windows.  On other operating systems, \code{R} is assumed to be
+This assumes that the registry keys option was not disabled during the \R
+installation on Windows.  On other operating systems, \code{R} is assumed to be
 in the search path.  If these assumptions are not met or a particular
 installation of \R is desired, the path to the \R executable may be specified
-explicitly (e.g., \code{org.ddahl.rscala.RClient("/path/to/R/bin/R")}).
+explicitly (e.g., \code{org.ddahl.rscala.RClient("/path/to/R/bin/R")}).  By
+default, console output from \R is serialized back to \Scala.  The protocol
+overhead may be reduced by using \code{serializeOutput=false} when
+instantiating an \code{RClient}.
 
-We have found that embedding \R can be an easy and convenient way to facilitate
-statistical calculations, access statistical functions, manage data, and
-produce plots in a \Scala application.  This example illustrates all four tasks: i.~it finds the city in Europe that is closest on
-average to all other European cites (as given by \R's builtin dataset
-\code{eurodist}), ii.~it wraps \R's \code{qnorm} function to define a method in
-\Scala by the same name, iii.~it writes data to disk and reads it again, and
-iv.~it produces a dendrogram for hierarchical clustering as in Figure \ref{fig:dendrogram}.
+The \rscala package can be an easy and convenient way to access
+statistical functions, facilitate calculations, manage data, and produce plots
+in a \Scala application.  Consider, for example, wrapping \R's \code{qnorm}
+function to define a method in \Scala by the same name.
 
-<<scalaScript1,engine="scala",engine.opts=paste0('-cp "',rscala::.rscalaJar('2.12'),'"'),comment="//">>=
+<<scalaScript1qnorm,engine="scala",engine.opts=paste0('-cp "',rscala::.rscalaJar('2.12'),'"'),comment="//">>=
 val R = org.ddahl.rscala.RClient()
 
-// Item 1: Facilitate statistical calculations
-val distances = R.evalD2("as.matrix(eurodist)")
-val cities = R.evalS1("attr(eurodist,'Labels')")
-val centralCity = distances.map(_.sum).zip(cities).minBy(_._1)._2
-println(s"Europe's central city is $centralCity.")
-
-// Item 2: Access statistical functions
 def qnorm(x: Double, mean: Double = 0, sd: Double = 1, lowerTail: Boolean = true) = {
   R.invokeD0("qnorm", x, mean, sd, "lower.tail" -> lowerTail)
 }
 
 val alpha = 0.05
 println(s"If Z is N(0,1), P(Z >= ${qnorm(alpha, lowerTail=false)}) = $alpha.")
-
-// Item 3: Read and write data to disk
-val distancesFromDisk = R.evalD2("""
-  write.csv(as.matrix(eurodist),file='eurodist.csv',row.names=FALSE)
-  as.matrix(read.csv('eurodist.csv'))
-""")
-
-// Item 4: Produce plots
-val plotFileName = "dendrogram.pdf"
-R.eval(s"""
-  pdf("$plotFileName")
-  plot(hclust(eurodist))
-  dev.off()
-""")
-
-R.exit
 @
 
-\begin{figure}
+In the next example, the European city that is closest on average to all other
+European cites is computed using \Scala and \R's builtin dataset
+\code{eurodist}.  While this statistical computation could easily be
+implemented in \R, one can imagine a \Scala application that needs to perform a
+more taxing calculation based on data from \R's rich data-processing functions.
+
+<<scalaScript1europe,engine="scala",engine.opts=paste0('-cp "',rscala::.rscalaJar('2.12'),'"'),comment="//">>=
+val R = org.ddahl.rscala.RClient()
+val distances = R.evalD2("as.matrix(eurodist)")
+val cities = R.evalS1("attr(eurodist,'Labels')")
+val centralCity = distances.map(_.sum).zip(cities).minBy(_._1)._2
+println(s"Europe's central city is $centralCity.")
+@
+
+The \code{RClient} also enables a \Scala application to access \R's extensive
+plotting facilities.  Consider a web site developed using a \Scala-based web
+framework such as \pkg{Lift}, \pkg{Play Framework}, or
+\pkg{Scalatra}.  Suppose part of the web application requires
+plotting historical temperature data.  Rather than looking for a \Scala library
+to obtain the weather data and another library for plotting, the developer might
+leverage knowledge of the \pkg{weatherData} \citep{weather} and \pkg{ggplot2}
+\citep{ggplot22} packages in \R.  To access these packages, one could 
+set up a server using \Rserve, RApache \citep{rapache}, CGIwithR
+\citep{cgi}, or Shiny \citep{shiny}, all of which require some initial effort and ongoing maintenance
+beyond the \Scala-based web framework itself.
+In contrast, the marginal cost of incorporating \rscala is low, requiring only the declaration
+of the dependency on \rscala in the project's \code{build.sbt} file (as shown
+earlier) and a standard installation of \R with the \pkg{weatherData} and
+\pkg{ggplot2} packages.
+Figure \ref{screenshot} shows a screen shot of a \Scala web application using
+\rscala to access these \R packages.  The web application is available here:
+
 \begin{center}
-\includegraphics[width=4in]{dendrogram.pdf}
+\url{https://dahl.byu.edu/software/rscala/temperature/}
 \end{center}
-\caption{Dendrogram produced by \R embedded within a \Scala application.}
-\label{fig:dendrogram}
+
+\begin{figure}[tb]
+\begin{center}
+\includegraphics{screenshot.png}
+\caption{Screenshot of a web application implemented in a \Scala-based framework and accessing \R packages using \rscala.}
+\label{screenshot}
+\end{center}
 \end{figure}
 
-\section{Implementation}
+\section{Implementation and Comparison to Other Software}
 \label{implementation}
 
 The \rscala package is designed
@@ -1695,100 +1711,6 @@ algorithm using 1, 6, and 12 cores.}
 
 \subsection[Scala web application using R]{\Scala web application using \R}
 \label{webApp}
-
-Suppose a \Scala developer maintains a website based on the \pkg{Play
-Framework} \citep{playframework} for web development.  He is tasked with
-adding new functionality to the website which, for any airport and any year,
-displays: i.\ a graph of daily high and low temperatures and ii.\ the yearly
-high and low temperatures with their dates.  He can look for a \Scala or
-\Java library to obtain the weather data and another
-library for plotting.  If he is already familiar with \R, however,
-the data, computation, and plotting tasks are easily accomplished using the
-\pkg{weatherData} \citep{weather} and \pkg{ggplot2} \citep{ggplot22} packages:
-
-<<webappUsingR, eval=FALSE>>=
-library("weatherData")
-library("ggplot2")
-theme_set(theme_gray(base_size=18))
-
-.cache <- new.env()
-cache <- function(location, year) {
-  key <- paste0(location, "-", year)
-  if ( exists(key, envir=.cache) ) get(key, envir=.cache)
-  else {
-    d <- na.omit(getWeatherForYear(location, year))
-
-    maxT <- d[which.max(d$Max_TemperatureF), c("Max_TemperatureF", "Date")]
-    minT <- d[which.min(d$Min_TemperatureF), c("Min_TemperatureF", "Date")]
-
-    p <- ggplot(d, aes(x=Date)) + coord_cartesian(ylim = c(-10, 110))
-    p <- p + labs(x="", y=expression(paste("Temperature (", degree, "F)")))
-    p <- p + geom_line(aes(y=Max_TemperatureF))
-    p <- p + stat_smooth(se=FALSE, aes(y=Max_TemperatureF), method="loess", span=0.3)
-    p <- p + geom_line(aes(y=Min_TemperatureF))
-    p <- p + stat_smooth(se=FALSE, aes(y=Min_TemperatureF), method="loess", span=0.3)
-    p <- p + geom_ribbon(aes(ymin=Min_TemperatureF, ymax=Max_TemperatureF),
-                             fill = "tomato", alpha = 0.4)
-
-    fn <- normalizePath(paste0(tempdir(), .Platform$file.sep, key, ".svg"))
-    svg(fn, width=6, height=4)
-    print(p)
-    dev.off()
-
-    fmt <- "%B %e, %Y"
-    result <- list(filename=fn, minValue=minT[1, 1], minDate=format(minT[1, 2], fmt),
-                                maxValue=maxT[1, 1], maxDate=format(maxT[1, 2], fmt))
-    assign(key, result, envir=.cache)
-    result
-  }
-}
-@
-
-The task for the developer now becomes how to serve the plot and information
-in the \pkg{Play Framework}.  Two possible solutions are to use \Rscript or
-\Rserve, as discussed in Section \ref{benchmarksJVM}.  Moving away from the
-\pkg{Play Framework}, one might consider setting up a web server using RApache
-\citep{rapache}, CGIwithR \citep{cgi}, or Shiny \citep{shiny}.  In this case
-study, however, we assume that one has already invested resources in setting up
-and maintaining a website based on the \pkg{Play Framework}.  We demonstrate
-how easy it is to add the desired functionality to the existing
-infrastructure using \rscala.
-
-Entire books have been written on the \pkg{Play Framework} (e.g., \cite{one},
-\cite{two}), so here we only highlight issues specific to using \rscala in the
-\pkg{Play Framework}.  First, the \rscala JAR should be copied to the \code{lib}
-directory of the web application.  The location of this JAR is available from
-\R using \code{rscala::.rscalaJar(\textquotesingle{}2.12\textquotesingle{})}.  In the \emph{controller} for the
-web application, we instantiate a \Scala interpreter using
-
-\begin{Code}
-private val R = org.ddahl.rscala.callback.RClient()
-\end{Code}
-
-Note that the \pkg{Play Framework} is highly parallelized, but recall that the
-bridge between \R and \Scala is not thread-safe.  A pool of instances of the
-\code{RClient} class could be employed but, for simplicity, here we simply wrap
-any access to the single \code{R} object using the \code{R.synchronized}
-method.  The \R code listed above is evaluated in the \emph{controller} using
-the \code{eval} method of the \code{R} object.  Setting up the \emph{model},
-\emph{view}, and other aspects of the \emph{controller} are developed as usual
-in the \pkg{Play Framework}.  Figure~\ref{screenshot} shows a screenshot of the
-web application and the web application is hosted here:
-
-\begin{figure}[tb]
-\begin{center}
-\includegraphics{screenshot.png}
-\caption{Screenshot of the temperatures web application developed with the \pkg{Play Framework} using \rscala.}
-\label{screenshot}
-\end{center}
-\end{figure}
-
-\begin{center}
-\url{http://dahl.byu.edu/software/rscala/temperature/}
-\end{center}
-
-We provide the complete source and instructions for setting up the application
-in the online supplement.
 
 \section{Conclusion}
 \label{conclusion}
