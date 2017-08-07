@@ -8,9 +8,19 @@
 
 cd $(dirname $(readlink "$0" || echo "$0"))/..
 
+if [ ! -d example-temperature ]
+then
+  2>&1 echo "error: you should run: git clone git@dahl-git.byu.edu:dahl/rscala-example-temperature.git example-temperature."
+  exit
+fi
+
+cd example-temperature
+./setup-remotes
+cd ..
+
 if [[ $(git remote -v | wc -l) -gt 2 ]]
 then
-  2>&1 echo "error: more remotes found than expected."
+  2>&1 echo "note: it seems that the remotes are already set up."
   exit
 fi
 
