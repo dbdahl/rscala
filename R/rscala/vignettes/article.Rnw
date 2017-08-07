@@ -1193,26 +1193,29 @@ println(s"Europe's central city is $centralCity.")
 @
 
 The \code{RClient} also enables a \Scala application to access \R's extensive
-plotting facilities.  Consider a web site developed using a \Scala-based web
+plotting facilities and to take advantage of the many packages available in \R.  Consider a web site based on a \Scala-based web
 framework such as \pkg{Lift}, \pkg{Play Framework}, or
 \pkg{Scalatra}.  Suppose part of the web application requires
 plotting historical temperature data.  Rather than looking for a \Scala library
-to obtain the weather data and another library for plotting, the developer might
+to obtain the weather data and another library for plotting, the developer might want to
 leverage knowledge of the \pkg{weatherData} \citep{weather} and \pkg{ggplot2}
 \citep{ggplot22} packages in \R.  To access these packages, one could 
-set up a server using \Rserve, RApache \citep{rapache}, CGIwithR
+set up a server using, for example, \Rserve, RApache \citep{rapache}, CGIwithR
 \citep{cgi}, or Shiny \citep{shiny}, all of which require some initial effort and ongoing maintenance
-beyond the \Scala-based web framework itself.
+beyond the effort required for the \Scala-based web framework itself.
 In contrast, the marginal cost of incorporating \rscala is low, requiring only the declaration
 of the dependency on \rscala in the project's \code{build.sbt} file (as shown
 earlier) and a standard installation of \R with the \pkg{weatherData} and
 \pkg{ggplot2} packages.
-Figure \ref{screenshot} shows a screen shot of a \Scala web application using
-\rscala to access these \R packages.  The web application is available here:
-
+The web application is hosted here:
 \begin{center}
 \url{https://dahl.byu.edu/software/rscala/temperature/}
 \end{center}
+and the source code is available here:
+\begin{center}
+\url{https://github.com/dbdahl/rscala-example-temperature/}
+\end{center}
+Figure \ref{screenshot} shows a screen shot this application.
 
 \begin{figure}[tb]
 \begin{center}

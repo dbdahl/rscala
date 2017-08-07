@@ -221,6 +221,7 @@ then
   then
     rsync --chmod=644 deliveries/"$TGZ_NAME" deliveries/"$JARSNAME" dahl.byu.edu:html/public
     echo -e "####\nPosted to\n  https://dahl.byu.edu/public/$TGZ_NAME\n  https://dahl.byu.edu/public/$JARSNAME\n####"
+    echo -e "Install with\n  install.packages('https://dahl.byu.edu/public/$TGZ_NAME',repos=NULL,type='source')\n####"
   fi
 fi
 
