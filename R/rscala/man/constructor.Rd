@@ -99,7 +99,7 @@ David B. Dahl \email{dahl@stat.byu.edu}
 }
 \seealso{
   \code{\link{scalaSettings}},
-  \code{\link{scalap}},
+%  \code{\link{scalap}},
   \code{\link{strintrplt}},
   \code{\link{rscala-package}}
 }
@@ -142,9 +142,7 @@ s$foo
 
 # Instantiate an object
 seed <- 2349234L
-scalap(s,'scala.util.Random')
 rng <- s$.scala.util.Random$new(seed)  # Scala equivalent: new scala.util.Random(seed)
-scalap(rng)
 
 # Call method of a reference
 system.time(rng$nextInt(100L))   # Scala equivalent: rng.nextInt(100)

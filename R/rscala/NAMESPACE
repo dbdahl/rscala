@@ -15,7 +15,7 @@ export("scalaSettings")
 export("scalaInfo")
 export("scalaNull")
 export("scalaOptimize")
-export("scalap")
+# export("scalap")
 export("scala")
 
 S3method("%@%","ScalaInterpreter")
