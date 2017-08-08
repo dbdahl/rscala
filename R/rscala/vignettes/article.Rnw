@@ -512,7 +512,7 @@ is mostly \Scala code and therefore self-evident to a \Scala developer, but it
 is the slowest and akward when arguments are not easily set with string
 interpolation.  The second (using \code{s\$.}) is concise, fast, and flexible
 in the arguments.  The last method (using \code{s\$do}) is also fast and
-flexible but slightly awkward.  It has the added advanage, however, that the
+flexible but slightly awkward.  It has the added advantage, however, that the
 class name can be a literal (as in this example) or a variable.  Note that
 \code{do} is used here because it is a reserved words in \Scala and is
 therefore guaranteed to not conflict with a variable name.
@@ -1194,8 +1194,8 @@ println(s"Europe's central city is $centralCity.")
 
 The \code{RClient} also enables a \Scala application to access \R's extensive
 plotting facilities and to take advantage of the many packages available in \R.  Consider a web site based on a \Scala-based web
-framework such as \pkg{Lift}, \pkg{Play Framework}, or
-\pkg{Scalatra}.  Suppose part of the web application requires
+framework such as \pkg{Play Framework}, \pkg{Scalatra}, \pkg{Xitrum}, or \pkg{Lift}.
+Suppose part of the web application requires
 plotting historical temperature data.  Rather than looking for a \Scala library
 to obtain the weather data and another library for plotting, the developer might want to
 leverage knowledge of the \pkg{weatherData} \citep{weather} and \pkg{ggplot2}
@@ -1672,8 +1672,8 @@ Language & Seconds & Ratio & Seconds & Ratio & Seconds & Ratio \\
 Standard \R           & 15.79   & 14.11 & 3.78 & 13.15 & 2.70 & 15.08 \\
    \bottomrule
 \end{tabular}
-\caption{Breastfeeding infants example:  Wall time and relative performance of three implementations of the same
-algorithm using 1, 6, and 12 cores.}
+\caption{Wall time and relative performance of three implementations of the same
+MCMC algorithm using 1, 6, and 12 cores based on a breastfeeding dataset with 64 samples and 6 levels of the predictor.}
 \label{mcmcInfant}
 \end{table}
 
@@ -1710,8 +1710,8 @@ Language & Seconds & Ratio & Seconds & Ratio & Seconds & Ratio \\
 Standard \R           & 75.51 & 1.59 & 16.15 & 1.49 & 11.30 & 1.44 \\
    \bottomrule
 \end{tabular}
-\caption{Simulated data example:  Wall time and relative performance of three implementations of the same
-algorithm using 1, 6, and 12 cores.}
+\caption{Wall time and relative performance of three implementations of the same MCMC
+algorithm using 1, 6, and 12 cores based on a simulated dataset with 20,000 samples and 200 levels of the predictor.}
 \label{mcmcSimulated}
 \end{table}
 
