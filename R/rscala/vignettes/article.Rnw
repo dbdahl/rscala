@@ -712,7 +712,7 @@ paste0(augmentedList$toString(), " now contains 100.")
 % s$.java.util.TimeZone$getDefault()$getDisplayName()
 % @
 
-\subsubsection[Defining inline Scala functions]{Defining inline \Scala functions}
+\subsection[Defining inline Scala functions]{Defining inline \Scala functions}
 \label{inline}
 
 In addition to calling previously-compiled \Scala methods, the \rscala package
@@ -794,11 +794,12 @@ still occurs when transfering to \R using \code{format="integer"} or \code{forma
 but there is no overflow for almost any $n$ when \code{format="log"},
 and the exact value is returned when \code{format="character"}.  The
 sample code below shows that the \Scala function produces exact integer calculations for
-large $n$, and that subsequent calls to the function are faster than
-the first call.
+large $n$.  (The timings saved in \code{cpuFirstEval} will be used later in Section \ref{cpu}.)
 
 <<callBellUsingScala>>=
-system.time( bigNumber <- bell.version2(500, format="character") )
+cpuFirstEval <- system.time(
+   bigNumber <- bell.version2(500, format="character")
+)
 cat(paste(strsplit(bigNumber, "(?<=.{80})", perl = TRUE)[[1]], collapse="\n"), "\n")
 system.time( bigNumber <- bell.version2(500, format="character") )
 @
@@ -821,16 +822,16 @@ programmer of a \Scala function.  First, the last expression of a \Scala
 function should always use \code{\%!\%} or
 \code{\%.!\%}.  Second, the arguments to \Scala functions can be
 copyable types, \Scala references, or \code{NULL}, where \code{NULL} is used to
-indicate arbitrary \R objects that will not be converted to \Scala values but can be used in \R code.  Third, default values must be provided for
-every argument, thereby indicating to \rscala the argument's type.  If the
+indicate arbitrary \R objects that will not be converted to \Scala values but can be used in \R code.  Third, a default value must be provided for
+every argument, thereby indicating to \rscala that argument's type.  If the
 user passes arguments of different types than those indicated by the default
-values, they are cast to the expected type.  The \code{scalaNull} function can be
-used to specify an argument's \Scala type without instantiating an object
+values, they are cast to the expected types.  The \code{scalaNull} function can be
+used to specify an argument's \Scala type without having to instantiate an object
 of that class.  For example, an argument to a \Scala function might be \code{rng
-= scalaNull("scala.util.Random")}, indicating that the argument should be an
-object of class \code{scala.util.Random}.
+= scalaNull("scala.util.Random")}, indicating that the argument should be of
+type \code{scala.util.Random}.
 
-\subsubsection[Callbacks into R from embedded Scala]{Callbacks into \R from embedded \Scala}
+\subsection[Callbacks into R from embedded Scala]{Callbacks into \R from embedded \Scala}
 
 When a \Scala instance is created with the \code{scala} function, an instance
 of the \Scala class \code{org.ddahl.rscala.RClient} is bound to the identifier
@@ -973,7 +974,7 @@ recursive.sum <- function(n=0L) s %!% '
 recursive.sum(10)
 @
 
-\subsubsection{Memory management}
+\subsection{Memory management}
 
 The \rscala package ties into the garbage collectors of both \R and \Scala.
 As such, the user often does not need to think about memory management.
@@ -997,7 +998,21 @@ As will be shown later, functions and methods also enjoy faster execution than t
 equivalent code using the \code{\%\mytilde\%} and \code{\%.\mytilde\%}
 operators.
 
-\subsection[Developing packages depending on rscala]{Developing packages depending on \rscala}
+\subsection{Speed considerations}
+\label{cpu}
+
+We now consider execution speed.  We will not attempt to benchmark \Scala
+itself \textit{vs}. other languages.  For that, we refer readers to various
+benchmarks available on the web, including \citet{languageShootout}.  In short,
+\Scala seems to perform at speeds comparable to \Java, and \Java is found to be
+1.5 to 3 times slower than \C.
+
+Here we wish to highlight some of performance characteristics associated with
+the \rscala package.  Re
+
+
+
+\subsection[Developing packages based on rscala]{Developing packages based on \rscala}
 
 The \rscala package enables developers to use \Scala in their own \R packages.  For example,
 the \pkg{shallot} \citep{shallotSoftware} and \pkg{bamboo}
@@ -1729,6 +1744,9 @@ supported, we would also like to support callbacks
 from \R to \Scala as well.  We also suspect that our client/server protocol
 could be extended to support other JVM-based languages such as Jython
 \citep{jython} and jRuby \citep{jruby}.
+
+TCP/IP would allow \R and \Scala are run on seperate machines.
+I am open to pursuing an implementation if there is sufficient interest.
 
 %Known issues:  Incomplete lines.  Tab completion.
 
