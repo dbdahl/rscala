@@ -1,4 +1,4 @@
-2.3.0 (2017-08-XX)
+2.3.1 (2017-08-XX)
   * ref$type returns the Scala type of a Scala reference 'ref'.
   * Added s$var(x) to get the value of an R reference 'x'.
   * If a requested version of R does not exits, offer to install Scala if
@@ -10,6 +10,9 @@
   * Suppress default printing of 'scalap' results (which is chatty and are
     often unavailable).  Make 'scalap' work with Scala references.
   * Bumped default Scala version to 2.12.3.
+
+2.3.0 (2017-08-08)
+  * Never released.
 
 2.2.2 (2017-05-24)
   * Improved behavior for packages that depend on rscala, including adding

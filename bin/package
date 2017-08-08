@@ -221,8 +221,9 @@ then
   if [[ -n "$FLAG_POST" ]]
   then
     rsync --chmod=644 deliveries/"$TGZ_NAME" deliveries/"$JARSNAME" dahl.byu.edu:html/public
+    ssh dahl.byu.edu "cd html/public && ln -f -s $TGZ_NAME rscala_LATEST.tar.gz && ln -f -s $JARSNAME rscalaJars_LATEST.tar.gz"
     echo -e "####\nPosted to\n  https://dahl.byu.edu/public/$TGZ_NAME\n  https://dahl.byu.edu/public/$JARSNAME\n####"
-    echo -e "Install with\n  install.packages('https://dahl.byu.edu/public/$TGZ_NAME',repos=NULL,type='source')\n####"
+    echo -e "Install with\n  rscala:::latest()\n####"
   fi
 fi
 
