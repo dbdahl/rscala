@@ -779,11 +779,11 @@ scalaInfo <- function(scala.home=NULL,major.version=c("2.10","2.11","2.12"),verb
   if ( ! verbose ) scalaInfo(scala.home=scala.home,major.version=major.version,verbose=TRUE)
   else {
     cat("\nCannot find a suitable Scala installation.\n\n")
-    f <- file(system.file("README",package="rscala"),open="r")
-    readme <- readLines(f)
-    close(f)
-    cat(readme,sep="\n")
-    cat("\n")
+    readmePath <- system.file("README",package="rscala")
+    if ( readmePath != "" ) {
+      cat(readLines(readmePath),sep="\n")
+      cat("\n")
+    }
     if ( interactive() ){
       actual.major.version <- lastestVersion(major.version)
       if ( askToInstall(actual.major.version) ) {
@@ -825,10 +825,10 @@ findJava <- function() {  ## Mimic how the 'scala' shell script finds Java.
 
 javaVersion <- function(javaCmd) {
   response <- system2(javaCmd,"-version",stdout=TRUE,stderr=TRUE)
-  regexp <- 'java version "(.*)"'
+  regexp <- '(java|openjdk) version "(.*)"'
   line <- response[grepl(regexp,response)]
   if ( length(line) != 1 ) stop(paste0("Cannot determine Java version.\n",paste(response,collapse="\n")))
-  versionString <- gsub(regexp,"\\1",line)
+  versionString <- gsub(regexp,"\\2",line)
   versionParts <- strsplit(versionString,"\\.")[[1]]
   if ( versionParts[1] != '1' ) stop(paste0("Unexpected Java version.\n",paste(response,collapse="\n")))
   versionNumber <- as.numeric(versionParts[2])
