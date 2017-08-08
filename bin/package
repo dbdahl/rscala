@@ -136,7 +136,8 @@ echo $MAJOR | grep -q SNAPSHOT
 if [[ $? == 0 ]]
 then
   PUBLISH_LOCALLY=TRUE
-  MAJOR=$(echo $MAJOR | sed s/SNAPSHOT/0/g)
+  HEADCOUNT=$(git rev-list --first-parent --count HEAD)
+  MAJOR=$(echo $MAJOR | sed s/SNAPSHOT/$HEADCOUNT/g)
 fi
 set -e
 setversion $MAJOR $(date +'%Y-%m-%d')
