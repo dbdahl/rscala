@@ -67,9 +67,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
       val status = in.readInt()
       status == OK
     } catch {
-      case _ : Throwable =>
-        if ( rProcessInstance != null ) rProcessInstance.destroy()
-        false
+      case _ : Throwable => false
     }
   }
 
@@ -77,10 +75,16 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * 
   * Subsequent calls to the other methods will fail.
   */
-  def exit() = synchronized {
-    check4GC()
-    out.writeInt(SHUTDOWN)
-    out.flush()
+  def exit(): Unit = synchronized {
+    try {
+      check4GC()
+      out.writeInt(SHUTDOWN)
+      out.flush()
+    } catch {
+      case e : Throwable =>
+        if ( rProcessInstance != null ) rProcessInstance.destroy()
+        else throw e
+    }
   }
 
   private def check4GC() {
