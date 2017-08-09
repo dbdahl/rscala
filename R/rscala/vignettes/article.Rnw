@@ -1216,6 +1216,7 @@ required to write \Java-friendly wrapper methods in \Scala that hide advanced
 \Scala features.
 
 \section[Accessing R in Scala]{Accessing \R in \Scala}
+\label{webapp}
 
 So far we have demonstrated assessing \Scala from \R.  Conversely, \rscala can
 also embed an \R interpreter in a \Scala application via the
@@ -1298,11 +1299,19 @@ web framework itself.  In contrast, the marginal cost of incorporating \rscala
 is low, requiring only the declaration of the dependency on \rscala in the
 project's \code{build.sbt} file (as shown earlier) and a standard installation
 of \R with the \pkg{weatherData} and \pkg{ggplot2} packages.  The web
-application is hosted here: \begin{center}
-\url{https://dahl.byu.edu/software/rscala/temperature/} \end{center} and the
-source code is available here: \begin{center}
-\url{https://github.com/dbdahl/rscala-example-temperature/} \end{center} Figure
-\ref{screenshot} shows a screen shot this application.
+application is hosted here:
+
+\begin{center}
+\url{https://dahl.byu.edu/software/rscala/temperature/}
+\end{center}
+
+and the source code is available here:
+
+\begin{center}
+\url{https://github.com/dbdahl/rscala-example-temperature/}
+\end{center}
+
+and Figure \ref{screenshot} shows a screen shot this application.
 
 \begin{figure}[tb]
 \begin{center}
@@ -1311,6 +1320,16 @@ source code is available here: \begin{center}
 \label{screenshot}
 \end{center}
 \end{figure}
+
+Another example of a nontrival \Scala application that might benefit from
+access to \R is \pkg{Apache Spark}, a cluster-computing framework for massive
+datasets.  Although written in \Scala, \pkg{Spark} provides an applicaton
+programming interface (API) to \Scala, \Java, \R, and \Python.  \R users who
+are not already familar with \Scala would be best served by accessing
+\pkg{Spark} through a dedicated \R package such as \pkg{sparklyr} or
+\pkg{sparkr}.  Conversely, \Scala developers might prefer to interface directly
+with \pkg{Spark}'s Machine Learning Library (MLlib) by writting \Scala code yet
+supplementing MLlib with \R's analysis tools via a pool of \code{RClient}'s from \rscala.
 
 \section{Implementation and Comparison to Other Software}
 \label{implementation}
@@ -1508,170 +1527,6 @@ neutral with respect to choice of operating system, but \Rserve has some
 limitations on Windows and the user is advised to not ``use Windows unless you
 really have to'' (\url{http://www.rforge.net/Rserve/doc.html}).
 
-\subsection{Benchmarks}
-\label{benchmarks}
-
-In this section we explore the performance of the \rscala package relative to
-other software used to accomplish the same tasks.  All benchmarks were run in
-\R 3.2.0 compiled from source with the option \code{\textemdash{}enable-R-shlib}.
-The following packages were installed from CRAN: \rscala 1.0.6, \rJava 0.9.6,
-\Rcpp 0.11.5, \Rserve 1.7.3, and \pkg{microbenchmark} 1.4.2 \citep{micro}.  The benchmarking
-workstation runs Ubuntu 14.04.02, has 32GB of RAM, and has an Intel i7-3930K
-CPU with 6 cores and hyperthreading enabled yielding a total of 12 virtual cores.
-The workstation has \Scala 2.11.6 and \Java 1.7.0\_17.  Unless stated
-otherwise, our benchmarking functions are single-threaded.
-
-\subsubsection{Computing the mean of a sample}
-\label{benchmarksForward}
-
-Consider the simple task of computing the mean of a random sample of size $n$
-from the uniform distribution on the unit interval.  We explore several
-implementations of this task through two functions based on standard \R, one function based on
-\Rcpp, three functions based on \rJava, and five functions based on \rscala.
-For example,
-\code{standardR2}, \code{rJava1}, \code{rJava2}, \code{rscala1}, and
-\code{rscala2} all involve looping in \R instead of the compiled code.
-Other reasons for the different versions include calling inline
-functions versus precompiled code and using package-specific features such as
-\rJava's low-level and high-level interfaces.  The online supplement
-has the complete source code for functions and benchmarking.  Note that the \R
-and \Rcpp functions use the same underlying \C code to sample random uniforms.
-Likewise, \rJava and \rscala use the same code to sample random uniforms, but
-this code is different from that used by \R and \Rcpp.  We find that the \Rcpp
-function is the fastest (not listed in the table) and choose it as the
-reference from which performance ratios of the other methods are calculated.
-
-\begin{table}[tb]
-\scriptsize
-\centering
-\begin{tabular}{l|rr|rr|rr|rr|rr}
-  \toprule
-             & \multicolumn{2}{c|}{1 Sample} & \multicolumn{2}{c|}{10 Samples} & \multicolumn{2}{c|}{100 Samples} & \multicolumn{2}{c|}{1,000 Samples} & \multicolumn{2}{c}{10,000 Samples}\\
-  Function   &  Seconds &   Ratio &  Seconds &   Ratio &  Seconds &   Ratio &  Seconds &   Ratio &  Seconds &   Ratio \\
-  \midrule
-  \texttt{standardR2} &   0.0000 &       2 &   0.0000 &       4 &   0.0002 &      19 &   0.002 &      84 &   0.02 &      135 \\
-  \texttt{rJava1}     &   0.0003 &      65 &   0.0008 &     109 &   0.0054 &     481 &   0.042 &   1,864 &   0.40 &    2,685 \\
-  \texttt{rJava2}     &   0.0023 &     442 &   0.0176 &   2,275 &   0.1567 &  14,005 &   1.524 &  67,266 &  15.22 &  101,530 \\
-  \texttt{rscala1}    &   0.0017 &     336 &   0.0091 &   1,174 &   0.0643 &   5,744 &   0.455 &  20,097 &   4.47 &   29,808 \\
-  \texttt{rscala2}    &   0.0018 &     351 &   0.0083 &   1,077 &   0.0582 &   5,200 &   0.405 &  17,873 &   3.94 &   26,263 \\
-  \bottomrule
-\end{tabular}
-\caption{Benchmarks of functions whose performance relative to the \Rcpp function gets worse as the sample size $n$ increases.  The definitions of the functions are provided in the online supplement.}
-\label{benchmarkForwardWorse}
-\end{table}
-
-Using the package \pkg{microbenchmark}, we run the benchmarking
-functions 50 times for each of the following sample sizes for $n$:  1, 10, 100,
-\ldots, 10,000.  We find that as $n$ increases, the performance relative to
-\Rcpp gets worse for some functions.  Their results are displayed in
-Table~\ref{benchmarkForwardWorse}.  Each of these functions involves looping in
-\R instead of the compiled code.  Among these slow implementations, we note
-that \code{standardR2} is the fastest and that the performance of the \rscala
-implementations lies between two \rJava implementations. The only difference in
-these two \rJava implementations is that the slower version uses the high-level
-\code{\$} convenience operator.
-
-\begin{table}[tb]
-\scriptsize
-\centering
-\begin{tabular}{l|rr|rr|rr|rr|rr}
-  \toprule
-             & \multicolumn{2}{c|}{1 Sample} & \multicolumn{2}{c|}{100 Samples} & \multicolumn{2}{c|}{10,000 Samples} & \multicolumn{2}{c|}{1,000,000 Samples} & \multicolumn{2}{c}{100,000,000 Samples}\\
-  Function   &  Seconds &   Ratio &  Seconds &   Ratio &  Seconds &   Ratio &  Seconds &   Ratio &  Seconds &   Ratio \\
-  \midrule
-  \texttt{standardR1} &   0.0000 &    2.9 &   0.0000 &    2.9 &   0.0006 &    2.3 &   0.0379 &    2.31 &   3.2078 &    2.27 \\
-  \texttt{rJava3}     &   0.0001 &   18.3 &   0.0001 &   14.5 &   0.0005 &    2.1 &   0.0232 &    1.41 &   2.1679 &    1.53 \\
-  \texttt{rscala3}    &   0.0005 &  123.5 &   0.0009 &  144.0 &   0.0019 &    8.1 &   0.0436 &    2.65 &   3.4078 &    2.41 \\
-  \texttt{rscala4}    &   0.0005 &  117.5 &   0.0005 &   84.6 &   0.0013 &    5.5 &   0.0259 &    1.58 &   2.1679 &    1.53 \\
-  \texttt{rscala5}    &   0.0005 &  117.1 &   0.0005 &   84.9 &   0.0012 &    5.0 &   0.0258 &    1.57 &   2.1686 &    1.53 \\
-  \bottomrule
-\end{tabular}
-\caption{Benchmarks of functions whose performance relative to the \Rcpp function gets better as the sample size $n$ increases.  The definitions of the functions are provided in the online supplement.}
-\label{benchmarkForwardBetter}
-\end{table}
-
-We test the other functions for even larger $n$: 1, 100, \ldots, 100,000,000.
-The performance of the other functions improves with $n$ but seems to
-asymptote.  These results are displayed in Table~\ref{benchmarkForwardBetter}.
-The functions \code{rJava3} and \code{rscala5} call exactly the same \Java
-bytecode and the initial performance difference is due to the overhead for the
-TCP/IP protocol used by \rscala.  As $n$ increases, the performance difference
-virtually disappears. The function \code{rscala4} is written in \Scala using a
-while-loop and compiles to essentially the same \Java bytecode used in
-\code{rJava3} and \code{rscala5}.  The function \code{rscala3} demonstrates the
-well-known fact that for-loops in \Scala are not optimized for performance.
-
-\clearpage
-\subsubsection[Calling into the JVM and back into R]{Calling into the JVM and back into \R}
-\label{benchmarksBack}
-
-To further investigate the performance of \rscala relative to other software,
-we benchmark the performance of \Rcpp, \rJava, and \rscala in calling a very
-simple \R function:
-
-<<sleepFunction, eval=FALSE>>=
-sleep <- function(secs) {
-  Sys.sleep(secs)
-  rnorm(1)
-}
-@
-
-This function takes an argument \code{secs} and pauses the function for the
-specified time.  Although this function is of little practical utility, we use
-it to simulate functions in \R whose execution may be very fast (by sleeping 0
-seconds), somewhat computationally expensive (by sleeping 1 second), and
-something in between (by sleeping 0.01 seconds).  It is interesting to
-investigate the invocation overhead of the three methods in calling the
-functions with the different sleep times.  The online supplement has
-complete code for the functions and benchmarking.  The \rJava function uses the
-low-level interface (as opposed to the high-level \code{\$} convenience
-operator) for performance reasons.  The \Rcpp function is again the fastest and
-we use it as the reference when calculating performance ratios for the other
-methods.
-
-\begin{table}[tb]
-\scriptsize
-\centering
-\begin{tabular}{l|rr|rr|rr}
-  \toprule
-             & \multicolumn{2}{c|}{1 Second Sleep} & \multicolumn{2}{c|}{0.01 Seconds Sleep} & \multicolumn{2}{c}{0 Seconds Sleep} \\
-  Function                 & Seconds& Ratio & Seconds& Ratio &Seconds & Ratio   \\
-  \midrule
-  \texttt{callback.Rcpp}   & 1.0011 & 1.000 & 0.0101 & 1.003 & 0.0000 &   6.246 \\
-  \texttt{callback.rJava}  & 1.0013 & 1.000 & 0.0102 & 1.013 & 0.0001 &  22.559 \\
-  \texttt{callback.rscala} & 1.0031 & 1.002 & 0.0116 & 1.156 & 0.0012 & 237.130 \\
-  \bottomrule
-\end{tabular}
-\caption{Benchmarks of functions calling a simple \R function that sleeps for 1, 0.01, and 0 seconds.
-Performance ratios are relative to the \Rcpp function.  The definitions of the functions are provided in the online supplement.}
-\label{benchmarkBack}
-\end{table}
-
-We see from Table~\ref{benchmarkBack} that the \rscala function has the highest
-invocation latency.  The ratios indicate that the protocol overhead is
-important for short-lived \R functions (i.e., when sleeping 0 seconds) but
-negligible for long-lived \R functions (i.e., when sleeping 1 second).
-
-\subsubsection[Calling into R from a JVM application]{Calling into \R from a JVM application}
-\label{benchmarksJVM}
-
-We now consider the performance and simplicity of calling \R code from within a
-\Java application.  Suppose there is an array of doubles in the \Java
-application and we wish to produce a normal q-q plot of the data using \R.  We
-compare an \rscala solution against two alternatives:  i.\ spawning a separate
-\R process using the \Rscript executable, and ii.\ using the \Java client for
-\Rserve.  We measure the time needed to produce 200 plots of randomly-generated
-data.  The online supplement contains the related \Rscript and \Java source code.
-
-Spawning a separate \R process using \Rscript requires somewhat tedious coding
-to save the data to a file for \R to read and plot.  Further, since a new \R
-process is started for each plot, the performance is rather poor as well, taking
-a total of 26.7 seconds for the 200 plots.  Conversely, the \Rserve and
-\rscala solutions are both more convenient and quite similar.  The \Rserve
-solution takes only 0.6 seconds and the \rscala solution takes 1.4 seconds
-demonstrating that the protocol overhead of \Rserve is less than that of
-\rscala.
-
 \section{Case studies}
 \label{caseStudies}
 
@@ -1774,9 +1629,6 @@ Standard \R           & 75.51 & 1.59 & 16.15 & 1.49 & 11.30 & 1.44 \\
 algorithm using 1, 6, and 12 cores based on a simulated dataset with 20,000 samples and 200 levels of the predictor.}
 \label{mcmcSimulated}
 \end{table}
-
-\subsection[Scala web application using R]{\Scala web application using \R}
-\label{webApp}
 
 \section{Conclusion}
 \label{conclusion}
