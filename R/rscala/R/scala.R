@@ -891,7 +891,7 @@ wb <- function(c,v) {
 }
 
 wc <- function(c,v) {
-  bytes <- charToRaw(v)
+  bytes <- charToRaw(iconv(v, to="UTF-8"))
   wb(c,length(bytes))
   writeBin(bytes, c[['socketIn']], endian="big", useBytes=TRUE)
 }
@@ -908,7 +908,7 @@ rc <- function(c) {
   length <- rb(c,"integer")
   r <- raw(0)
   while ( length(r) != length ) r <- c(r,readBin(c[['socketOut']], "raw", length-length(r), endian="big"))
-  rawToChar(r)
+  iconv(rawToChar(r),from="UTF-8")
 }
 
 pretty <- function(header,body) {
