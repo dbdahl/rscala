@@ -92,6 +92,7 @@ do
       rm -rf R/$PKG_NAME/inst/doc
       ;;
     p)
+      TASK_SCALA=yes
       TASK_R=yes
       TASK_RCHECK=yes
       FLAG_BUILD_VIGNETTES=
