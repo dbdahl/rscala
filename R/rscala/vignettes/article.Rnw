@@ -801,7 +801,6 @@ cpuFirstEval <- system.time(
    bigNumber <- bell.version2(500, format="character")
 )
 cat(paste(strsplit(bigNumber, "(?<=.{80})", perl = TRUE)[[1]], collapse="\n"), "\n")
-system.time( bigNumber <- bell.version2(500, format="character") )
 @
 
 Taking a closer look at the definition of the \code{bell.version2} function,
@@ -1001,16 +1000,90 @@ operators.
 \subsection{Speed considerations}
 \label{cpu}
 
-We now consider execution speed.  We will not attempt to benchmark \Scala
-itself \textit{vs}. other languages.  For that, we refer readers to various
-benchmarks available on the web, including \citet{languageShootout}.  In short,
-\Scala seems to perform at speeds comparable to \Java, and \Java is found to be
-1.5 to 3 times slower than \C.
+We now consider execution speed.  We do not attempt to compare the performance
+of \Scala to that of other languages.  For that, we refer readers to benchmarks
+available on the web, including \citet{languageShootout}.  In short, \Scala
+seems to perform at speeds comparable to \Java, and \Java is found to be about
+1.5 to 3 times slower than \C.  Here we wish to highlight performance
+characteristics associated of \rscala itself.
 
-Here we wish to highlight some of performance characteristics associated with
-the \rscala package.  Re
+Every \Scala snippet associated with the \code{\%@\%}, \code{\%\mytilde\%}, and
+\code{\%.\mytilde\%} operators is compiled at every invocation.  In contrast, a
+\Scala snippet in a \Scala function (see Section \ref{inline}) is only compiled
+the first time the function is run.  Subsequent invocations use a cached
+compilation for faster invocation.  Recall that in Section \ref{inline} the
+variable \code{cpuFirstEval} saved the system time associated the first
+invocation of the \Scala function \code{bell.version2}.
 
+<<showCPUFirstEval>>=
+cpuFirstEval
+@
 
+When we run the function again, we find the system time is substantially
+reduced because the caching eliminates the need for on-the-fly compilation. 
+
+<<callBellUsingScala2>>=
+cpuSecondEval <- system.time(
+   bigNumber <- bell.version2(500, format="character")
+)
+cpuSecondEval
+cpuFirstEval['elapsed'] / cpuSecondEval['elapsed']
+@
+
+Methods of \Scala references also benefit for the same caching as \Scala functions.
+Consider, for example, two calls to the method \code{nextGaussian} of an instance
+of \code{scala.util.Random}.
+
+<<methodsAreCached>>=
+rng1 <- s$.scala.util.Random$new()
+first  <- system.time( rng1$nextGaussian() )['elapsed']
+second <- system.time( rng1$nextGaussian() )['elapsed']
+c(first=first, second=second, ratio=first/second)
+@
+
+Beyond the one time cost of compilation, calling methods of \Scala references
+still involve a reoccuring invocation cost, some of which can be eliminated as
+follows.  Call the desired method of the \Scala reference with an additional
+trailing argument \code{.EVALUATE=FALSE} and store the resulting function, e.g.:
+
+<<makeFasterNextGaussian>>=
+fasterNextGaussian <- rng1$nextGaussian(.EVALUATE=FALSE)
+@
+
+The function \code{fasterNextGaussian}
+is an optimized function with less reoccuring invocation cost than 
+directly calling the \code{nextGaussian} method of the \Scala references.
+Of course, there is still some overhead associated with the TCP/IP protocol.
+The next example and Table \ref{overhead} compare the speed of
+\code{rng1\$nextGaussian()} and \code{fasterNextGaussian()}, together with
+two ways to call the same \code{nextGaussian} method using \rJava.
+
+<<benchmarkAgainstRJava>>=
+library('rJava')
+invisible(.jinit(list.files(file.path(scalaInfo(s)$home,"lib"),full.names=TRUE)))
+rng2 <- .jnew("scala.util.Random")
+.jcallNextGaussian <- function() .jcall(rng2, "D", "nextGaussian")
+
+library('microbenchmark')
+timings <- microbenchmark(.jcallNextGaussian(), fasterNextGaussian(),
+  rng2$nextGaussian(), rng1$nextGaussian(), times=1000)
+@
+
+<<benchmarkAgainstRJavaTable, echo=FALSE, results='asis'>>=
+library(xtable)
+sumTimings <- summary(timings)
+units <- attr(sumTimings,"unit")
+reps <- sumTimings[1,"neval"]
+sumTimings <- cbind(sumTimings[,c("expr")],c("rJava","rscala"),sumTimings[,c("lq","mean","median","uq")])
+colnames(sumTimings) <- c("Expression","Package","Q1","Mean","Median","Q3")
+xtab <- xtable(sumTimings, label="overhead")
+caption(xtab) <- paste0("Comparison of execution time of various ways to call the \\code{nextGaussian} method of an instance of the \\code{scala.util.Random} class.  Since the method itself is relatively fast, the timings here give an indication of the overhead involved in the various techniques.  Each expression was evaluated ",reps," times and the results are in ",units,".")
+print(xtab,include.rownames=FALSE,booktabs=TRUE)
+@
+
+The results in Table \ref{overhead} indicate that \rJava's \code{.jcall} interface
+is much faster than the other techniques.  We recommend that \rscala users avoid
+calling \Scala code in long-running, tight inner loops where millisecond delays can add up.
 
 \subsection[Developing packages based on rscala]{Developing packages based on \rscala}
 
@@ -1271,34 +1344,7 @@ system.time( print(s$.sys$props("user.name")) )
 system.time( print(s$.sys$props("user.name")) )
 @
 
-<<benchmarkAgainstRJava>>=
-library('rJava',quietly=TRUE)
-result <- .jinit(list.files(file.path(scalaInfo(s)$home,"lib"),full.names=TRUE))
 
-rJavaReference <- .jnew("scala.util.Random")
-rJavaLowLevelFunction <- function() .jcall(rJavaReference,"D","nextGaussian")
-
-rscalaReference <- s$.scala.util.Random$new()
-rscalaOptimizedFunction <- rscalaReference$nextGaussian(.EVALUATE=FALSE)
-
-library('microbenchmark')
-timings <- microbenchmark(
-  rJavaLowLevelFunction(), rscalaOptimizedFunction(), rJavaReference$nextGaussian(),
-  rscalaReference$nextGaussian(), times=1000)
-@
-
-<<benchmarkAgainstRJavaTable, echo=FALSE, results='asis'>>=
-library(xtable)
-sumTimings <- summary(timings)
-units <- attr(sumTimings,"unit")
-reps <- sumTimings[1,"neval"]
-sumTimings <- sumTimings[,c("expr","lq","mean","median","uq")]
-sumTimings[,1] <- paste0("\\code{",sumTimings[,1],"}")
-colnames(sumTimings) <- c("Expression","Q1","Mean","Median","Q3")
-xtab <- xtable(sumTimings)
-caption(xtab) <- paste0("Comparison of execution time of various ways to call the \\code{nextGaussian} method of an instance of the \\code{scala.util.Random} class.  Since the method itself is relatively fast, the timings here give an indication of the overhead involved in the various techniques.  Each expression was evaluated ",reps," times and the results are in ",units,".")
-print(xtab,include.rownames=FALSE,booktabs=TRUE)
-@
 
 Callback functionality is implemented over the same TCP/IP sockets.
 Immediately after the \R client requests the execution of \Scala code, \R
