@@ -1059,7 +1059,7 @@ The next example and Table \ref{overhead} compare the speed of
 two ways to call the same \code{nextGaussian} method using \rJava.
 
 <<benchmarkAgainstRJava>>=
-library('rJava')
+library('rJava', verbose=FALSE)
 invisible(.jinit(list.files(file.path(scalaInfo(s)$home,"lib"),full.names=TRUE)))
 rng2 <- .jnew("scala.util.Random")
 .jcallNextGaussian <- function() .jcall(rng2, "D", "nextGaussian")
@@ -1535,105 +1535,105 @@ really have to'' (\url{http://www.rforge.net/Rserve/doc.html}).
 \section{Case studies}
 \label{caseStudies}
 
-\subsection{Bayesian logistic regression}
-\label{logisticRegression}
-
-In this section we use a custom Markov chain Monte Carlo (MCMC) algorithm to
-fit a Bayesian logistic regression model in \R.  This model can also be
-estimated in \R through a variety of other algorithms using \R packages such as
-RStan \citep{stan-manual:2014}, rbugs \citep{Rbugs}, R2jags \citep{r2jags},
-rjags \citep{Rjags}, R2WinBUGS \citep{r2winbugs}, R2OpenBUGS
-\citep{r2openbugs}, and BRugs \citep{brugs}.  Our interest here,
-however, is \emph{not} to determine the best algorithm for Bayesian model
-fitting, but rather to compare the convenience and computational speed of
-\Scala, \C, and standard \R in implementing the same commonly-used,
-computationally-expensive algorithm.
-
-Studies show that babies who breastfeed have a significantly reduced risk of
-health problems such as HIV, obesity, and neurological defects due to the
-fact that milk contains natural immune components that are not present in baby
-formula \citep{standby}.  Medical professionals have observed that premature
-babies take longer to learn how to breastfeed and many are not breastfeeding by
-the time they are ready to leave the hospital \citep{standby2}.  To quantify
-this relationship, a statistician wishes to fit a logistic regression model in
-which the probability of breastfeeding before leaving the hospital is modeled
-as a function of gestational age.  Data is available on $n=64$ infants where
-$y_i = 1$ if the baby is breastfeeding at departure and $x_i$ is the
-gestational age.  The model is
-\[
-\text{Pr}(y_i = 1) \ = \ \frac{1}{1+\exp\{-(\beta_0 + \beta_1 x_i)\}}
-\]
-where $\beta_0$ and $\beta_1$ are unknown parameters to estimate.  We assume
-independent Normal($-15$, $5$) and Normal($1$, $1$) priors on $\beta_0$ and
-$\beta_1$, respectively.
-
-Since the model is not conjugate, we obtain samples from the joint posterior
-distribution using a Metropolis sampling algorithm with a uniform random walk.
-We examine the convenience and computational speed of running a single MCMC
-chain as well as simultaneously running 6 and 12 independent chains in
-parallel.  Recall that the test machine has 6 cores and hyperthreading is enabled
-making it appear that there are 12 cores.  We run the chains for 1,001,000
-iterations using the prior means as the starting state.  We discard the first
-1,000 iterations for burn-in. This same MCMC algorithm is implemented in \Scala
-using \rscala, in \C using the \code{.C} interface, and in standard \R.  Note
-that a \C implementation using the \code{.Call} interface requires a more
-intimate knowledge of \R's \C API.  The implementations, data, and benchmarking
-code are all available in the online supplement.
-
-\begin{table}[tb]
-\centering
-\begin{tabular}{r|rr|rr|rr}
-  \toprule
- & \multicolumn{2}{c|}{1 core} & \multicolumn{2}{c|}{6 cores} & \multicolumn{2}{c}{12 cores} \\
-Language & Seconds & Ratio & Seconds & Ratio & Seconds & Ratio \\
-   \midrule
-\Scala using \rscala  & 1.12 & 1.00 & 0.29 & 1.00 & 0.18 & 1.00 \\
-\C using \code{.C}    & 1.48 & 1.32 & 0.31 & 1.09 & 0.24 & 1.36 \\
-Standard \R           & 15.79   & 14.11 & 3.78 & 13.15 & 2.70 & 15.08 \\
-   \bottomrule
-\end{tabular}
-\caption{Wall time and relative performance of three implementations of the same
-MCMC algorithm using 1, 6, and 12 cores based on a breastfeeding dataset with 64 samples and 6 levels of the predictor.}
-\label{mcmcInfant}
-\end{table}
-
-The results are in Table~\ref{mcmcInfant} along with wall times and performance
-ratios (relative to \Scala).  Surprisingly, we find that the \Scala
-implementation is slightly faster than the \C implementation.  This may be due
-to the fact that the \Scala code uses a different library for evaluating the
-log of the binomial probabilities or because the \code{.C} interface is not as
-performant as the \code{.Call} interface.  The standard \R implementation is
-about 13-15 times slower.
-
-The breastfeeding infants example involves $n=64$ observations at one of six
-unique values of the predictor.  To see how the results might change for larger
-datasets, we simulated a dataset of $n=20,000$ observations at one of 200
-unique values of the predictor.  The results are found in
-Table~\ref{mcmcSimulated}.  The most striking finding is that the standard \R
-implementation improves dramatically, now being only 1.4-1.6 times slower than
-the \Scala implementation.  The explanation is that the standard \R
-implementation, for this simulated data example, spends 72.5\% of the time in
-the function \code{dbinom}.  This function is implemented in \C using the
-\code{.Call} interface.  It is not surprising that a \C implementation
-and another implementation based mostly on \C (i.e., the standard \R
-implementation) perform similarly.
-
-\begin{table}[tb]
-\centering
-\begin{tabular}{r|rr|rr|rr}
-  \toprule
- & \multicolumn{2}{c|}{1 core} & \multicolumn{2}{c|}{6 cores} & \multicolumn{2}{c}{12 cores} \\
-Language & Seconds & Ratio & Seconds & Ratio & Seconds & Ratio \\
-   \midrule
-\Scala using \rscala  & 47.35 & 1.00 & 10.82 & 1.00 & 7.87 & 1.00 \\
-\C using \code{.C}    & 53.17 & 1.12 & 11.49 & 1.06 & 7.67 & 0.97 \\
-Standard \R           & 75.51 & 1.59 & 16.15 & 1.49 & 11.30 & 1.44 \\
-   \bottomrule
-\end{tabular}
-\caption{Wall time and relative performance of three implementations of the same MCMC
-algorithm using 1, 6, and 12 cores based on a simulated dataset with 20,000 samples and 200 levels of the predictor.}
-\label{mcmcSimulated}
-\end{table}
+% \subsection{Bayesian logistic regression}
+% \label{logisticRegression}
+% 
+% In this section we use a custom Markov chain Monte Carlo (MCMC) algorithm to
+% fit a Bayesian logistic regression model in \R.  This model can also be
+% estimated in \R through a variety of other algorithms using \R packages such as
+% RStan \citep{stan-manual:2014}, rbugs \citep{Rbugs}, R2jags \citep{r2jags},
+% rjags \citep{Rjags}, R2WinBUGS \citep{r2winbugs}, R2OpenBUGS
+% \citep{r2openbugs}, and BRugs \citep{brugs}.  Our interest here,
+% however, is \emph{not} to determine the best algorithm for Bayesian model
+% fitting, but rather to compare the convenience and computational speed of
+% \Scala, \C, and standard \R in implementing the same commonly-used,
+% computationally-expensive algorithm.
+% 
+% Studies show that babies who breastfeed have a significantly reduced risk of
+% health problems such as HIV, obesity, and neurological defects due to the
+% fact that milk contains natural immune components that are not present in baby
+% formula \citep{standby}.  Medical professionals have observed that premature
+% babies take longer to learn how to breastfeed and many are not breastfeeding by
+% the time they are ready to leave the hospital \citep{standby2}.  To quantify
+% this relationship, a statistician wishes to fit a logistic regression model in
+% which the probability of breastfeeding before leaving the hospital is modeled
+% as a function of gestational age.  Data is available on $n=64$ infants where
+% $y_i = 1$ if the baby is breastfeeding at departure and $x_i$ is the
+% gestational age.  The model is
+% \[
+% \text{Pr}(y_i = 1) \ = \ \frac{1}{1+\exp\{-(\beta_0 + \beta_1 x_i)\}}
+% \]
+% where $\beta_0$ and $\beta_1$ are unknown parameters to estimate.  We assume
+% independent Normal($-15$, $5$) and Normal($1$, $1$) priors on $\beta_0$ and
+% $\beta_1$, respectively.
+% 
+% Since the model is not conjugate, we obtain samples from the joint posterior
+% distribution using a Metropolis sampling algorithm with a uniform random walk.
+% We examine the convenience and computational speed of running a single MCMC
+% chain as well as simultaneously running 6 and 12 independent chains in
+% parallel.  Recall that the test machine has 6 cores and hyperthreading is enabled
+% making it appear that there are 12 cores.  We run the chains for 1,001,000
+% iterations using the prior means as the starting state.  We discard the first
+% 1,000 iterations for burn-in. This same MCMC algorithm is implemented in \Scala
+% using \rscala, in \C using the \code{.C} interface, and in standard \R.  Note
+% that a \C implementation using the \code{.Call} interface requires a more
+% intimate knowledge of \R's \C API.  The implementations, data, and benchmarking
+% code are all available in the online supplement.
+% 
+% \begin{table}[tb]
+% \centering
+% \begin{tabular}{r|rr|rr|rr}
+%   \toprule
+%  & \multicolumn{2}{c|}{1 core} & \multicolumn{2}{c|}{6 cores} & \multicolumn{2}{c}{12 cores} \\
+% Language & Seconds & Ratio & Seconds & Ratio & Seconds & Ratio \\
+%    \midrule
+% \Scala using \rscala  & 1.12 & 1.00 & 0.29 & 1.00 & 0.18 & 1.00 \\
+% \C using \code{.C}    & 1.48 & 1.32 & 0.31 & 1.09 & 0.24 & 1.36 \\
+% Standard \R           & 15.79   & 14.11 & 3.78 & 13.15 & 2.70 & 15.08 \\
+%    \bottomrule
+% \end{tabular}
+% \caption{Wall time and relative performance of three implementations of the same
+% MCMC algorithm using 1, 6, and 12 cores based on a breastfeeding dataset with 64 samples and 6 levels of the predictor.}
+% \label{mcmcInfant}
+% \end{table}
+% 
+% The results are in Table~\ref{mcmcInfant} along with wall times and performance
+% ratios (relative to \Scala).  Surprisingly, we find that the \Scala
+% implementation is slightly faster than the \C implementation.  This may be due
+% to the fact that the \Scala code uses a different library for evaluating the
+% log of the binomial probabilities or because the \code{.C} interface is not as
+% performant as the \code{.Call} interface.  The standard \R implementation is
+% about 13-15 times slower.
+% 
+% The breastfeeding infants example involves $n=64$ observations at one of six
+% unique values of the predictor.  To see how the results might change for larger
+% datasets, we simulated a dataset of $n=20,000$ observations at one of 200
+% unique values of the predictor.  The results are found in
+% Table~\ref{mcmcSimulated}.  The most striking finding is that the standard \R
+% implementation improves dramatically, now being only 1.4-1.6 times slower than
+% the \Scala implementation.  The explanation is that the standard \R
+% implementation, for this simulated data example, spends 72.5\% of the time in
+% the function \code{dbinom}.  This function is implemented in \C using the
+% \code{.Call} interface.  It is not surprising that a \C implementation
+% and another implementation based mostly on \C (i.e., the standard \R
+% implementation) perform similarly.
+% 
+% \begin{table}[tb]
+% \centering
+% \begin{tabular}{r|rr|rr|rr}
+%   \toprule
+%  & \multicolumn{2}{c|}{1 core} & \multicolumn{2}{c|}{6 cores} & \multicolumn{2}{c}{12 cores} \\
+% Language & Seconds & Ratio & Seconds & Ratio & Seconds & Ratio \\
+%    \midrule
+% \Scala using \rscala  & 47.35 & 1.00 & 10.82 & 1.00 & 7.87 & 1.00 \\
+% \C using \code{.C}    & 53.17 & 1.12 & 11.49 & 1.06 & 7.67 & 0.97 \\
+% Standard \R           & 75.51 & 1.59 & 16.15 & 1.49 & 11.30 & 1.44 \\
+%    \bottomrule
+% \end{tabular}
+% \caption{Wall time and relative performance of three implementations of the same MCMC
+% algorithm using 1, 6, and 12 cores based on a simulated dataset with 20,000 samples and 200 levels of the predictor.}
+% \label{mcmcSimulated}
+% \end{table}
 
 \section{Conclusion}
 \label{conclusion}
