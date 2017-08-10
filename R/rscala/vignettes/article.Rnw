@@ -1321,15 +1321,20 @@ and Figure \ref{screenshot} shows a screen shot this application.
 \end{center}
 \end{figure}
 
-Another example of a nontrival \Scala application that might benefit from
-access to \R is \pkg{Apache Spark}, a cluster-computing framework for massive
-datasets.  Although written in \Scala, \pkg{Spark} provides an applicaton
-programming interface (API) to \Scala, \Java, \R, and \Python.  \R users who
-are not already familar with \Scala would be best served by accessing
-\pkg{Spark} through a dedicated \R package such as \pkg{sparklyr} or
-\pkg{sparkr}.  Conversely, \Scala developers might prefer to interface directly
-with \pkg{Spark}'s Machine Learning Library (MLlib) by writting \Scala code yet
-supplementing MLlib with \R's analysis tools via a pool of \code{RClient}'s from \rscala.
+Another example of a \Scala application that might benefit from access to \R is
+\pkg{Apache Spark}, a cluster-computing framework for massive datasets.
+\pkg{Spark} is written in \Scala and provides an application programming
+interface to \Scala, \Java, \R, and \Python.  \R users who are not already
+familar with \Scala would be best served by accessing \pkg{Spark} through a
+dedicated \R package such as \pkg{sparklyr} or \pkg{sparkr}.  \Scala
+developers, however, might prefer to interface directly with \pkg{Spark}'s
+Machine Learning Library (MLlib) by a \Scala application supplemented with \R.
+Although we do not have firsthand experience with this, we have provided
+support to a developer using \rscala in \pkg{Spark}.  Recall that every
+\code{RClient} has its own workspace, so several instances should be used to
+overcome the single-threaded nature of \R.  Specifically, the developer is
+using \pkg{Apache Commons Pool} to manage a pool of \code{RClient}'s on each
+\pkg{Spark} worker node.
 
 \section{Implementation and Comparison to Other Software}
 \label{implementation}
