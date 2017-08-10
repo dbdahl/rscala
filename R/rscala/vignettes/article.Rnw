@@ -56,7 +56,7 @@
 
 %% almost as usual
 \author{David B.\ Dahl\\Brigham Young University}
-\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.3.0,\ \ Document Date: 2017-08-16}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
+\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.3.1,\ \ Document Date: 2017-08-10}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
 
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{David B. Dahl} %% comma-separated
@@ -1230,7 +1230,7 @@ systems.  To include \code{org.ddahl.rscala.RClient} in a
 file.
 
 <<sbt, engine="scala", eval=FALSE>>=
-libraryDependencies += "org.ddahl" %% "rscala" % "2.3.0"
+libraryDependencies += "org.ddahl" %% "rscala" % "2.3.1"
 @
 
 Note that,
