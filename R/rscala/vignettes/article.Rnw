@@ -514,12 +514,12 @@ interpolation.  The second (using \code{s\$.}) is concise, fast, and flexible
 in the arguments.  The last method (using \code{s\$do}) is also fast and
 flexible but is slightly awkward.  It has the added advantage, however, that the
 class name can be a literal (as in this example) or a variable.  Note that
-\code{do} is used here because it is a reserved word in \Scala and is
-therefore guaranteed to not conflict with a variable name.
+\code{do} is a reserved word in \Scala and is
+therefore guaranteed not to conflict with a variable name.
 
-\subsubsection[Access methods and variables of Scala objects]{Access methods and variables of \Scala objects}
+\subsubsection[Accessing methods and variables of Scala objects]{Accessing methods and variables of \Scala objects}
 
-Taking inspiration from \rJava's ``high-level \code{\$} operator,'' methods
+Taking inspiration from \rJava's high-level \code{\$} operator, methods
 associated with \Scala references can be called directly using the \code{\$}
 operator, as shown below.
 
@@ -533,13 +533,13 @@ If the result of a method call on a \Scala reference is not a copyable type, the
 a reference to a \Scala object is returned.  If a \Scala reference is desired even
 when working with copyable types,
 add a final argument
-\code{.AS.REFERENCE=TRUE}, e.g.,
+\code{.AS.REFERENCE=TRUE}. For example,
 
 <<evaluateScalaCodeReference3>>=
 intReference <- rng$nextInt(10L, .AS.REFERENCE=TRUE)
 @
 
-The value of an instance variable may be accessed as if there was a method of the same name taking no arguments, e.g.,
+The value of an instance variable may be accessed via the virtual \code{self} method:
 
 <<evaluateScalaCodeReference1>>=
 rng$self()
@@ -561,7 +561,7 @@ oneToTenReference <- s$.Array$range(1L, 11L, .AS.REFERENCE=TRUE)
 oneToTenReference <- s$do('Array')$range(1L, 11L, .AS.REFERENCE=TRUE)
 @
 
-Again, as for instantiating objects, each functionally equivalent way has its advantages in terms of
+As for instantiating objects, each approach has its advantages in terms of
 flexibility, readability, and speed.
 
 % \subsubsection[Discovering methods and variables of Scala objects]{Discovering methods and variables of \Scala objects}
@@ -594,11 +594,11 @@ s$.java.lang.System$setProperties(scalaNull('java.util.Properties'))
 @
 
 \R has no scalar types but they are often used in \Scala.  As such,
-length-one vectors have special symmatics.
+length-one vectors have special symantics.
 In the \R expression
 \code{rng\$nextInt(10L)}, the value \code{10L} is an integer vector of
 length one in \R, but is passed to \Scala as \code{Int}, not \code{Array[Int]}.
-This behavior is usually the natural and convenient behavior.  If, however, an \R
+This is the most natural and convenient behavior.  If, however, an \R
 vector should always be passed as an array --- despite the fact that it might
 be of length one --- wrap the vector in a call to the \code{I} function.  This ensures
 that the vector is treated ``as is''.  For example, consider a singleton object with an
@@ -684,7 +684,7 @@ fibSeqAsDouble <- s$do('Array')$'apply[Double]'(0L, 1L, 1L, 2L, 3L, 5L, 8L, 13L,
 Note the quotes around \code{apply[Double]} used in the last two expressions.
 Of course, since \R treats numeric literals as doubles, the simplest way to get
 the same result from the \code{apply} method of the \code{Array} companion
-object is:
+object is
 
 <<evaluateScalaCodeApplyWithQuoteSimple>>=
 fibSeqAsDouble <- s$.Array$apply(0, 1, 1, 2, 3, 5, 8, 13, 21)
@@ -692,7 +692,7 @@ fibSeqAsDouble <- s$.Array$apply(0, 1, 1, 2, 3, 5, 8, 13, 21)
 
 Likewise, names of \Scala methods may not be valid identifiers in \R and may
 also need to be quoted to avoid parsing errors in R.  For example, note that
-the method \code{:+} is quoted in the example below:
+the method \code{:+} is quoted here:
 
 <<quoteWhenNecessary>>=
 list <- s$.List$apply(1L, 2L, 3L)
