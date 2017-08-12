@@ -728,7 +728,7 @@ To demonstrate \Scala functions, consider computing the number of partitions
 of $n$ items (i.e., the Bell number \citep{bell} of $n$).  This
 number is often used for finite mixture models and random partition
 models (e.g., \citet{casella2014}).  First, consider this \R implementation of
-a computationally- and memory-efficient algorithm based on the Bell triangle (also
+an efficient algorithm based on the Bell triangle (also
 known as the Aitken's array or the Peirce triangle):
 
 <<bellUsingR>>=
@@ -753,8 +753,8 @@ bell.version1 <- function(n=1, format=c("character","integer","double","log")[3]
 The \code{bell.version1} function performs calculations based on
 double-precision floating-point arithmetic and provides \emph{exact} answers
 for $n \le 22$, gives \emph{approximate} answers for $22 < n \le 218$, and
-overflows for $n > 218$.  Notice the \code{format} argument that controls how
-the results are provided.  Unfortunately, $n \le 218$ is quite limiting because
+overflows for $n > 218$.  The \code{format} argument controls the
+function's output.  Unfortunately, $n \le 218$ is quite limiting because
 sample sizes are often much larger in practice.  The following \Scala function,
 defined within the \R session, implements the same algorithm but allows
 $n$ to be greater than $218$.
@@ -790,7 +790,7 @@ arrays, syntactic differences between \R and \Scala, and the
 \Scala version avoids the copying found in the \R version), but the practical
 difference is that \code{bell.version2} uses infinite precision integer
 arithmetic based on \Scala's builtin \code{BigInt} class.  Overflow
-still occurs when transfering to \R using \code{format="integer"} or \code{format="double"},
+still occurs when transferring to \R using \code{format="integer"} or \code{format="double"},
 but there is no overflow for almost any $n$ when \code{format="log"},
 and the exact value is returned when \code{format="character"}.  The
 sample code below shows that the \Scala function produces exact integer calculations for
@@ -817,12 +817,12 @@ is identical except that it always returns a \Scala reference.
 
 The consumer of a \Scala function does not need to know that the implementation
 is written in \Scala.  There are a few considerations, however, for the
-programmer of a \Scala function.  First, the last expression of a \Scala
+programmer of a \Scala function.  First, the final expression of a \Scala
 function should always use \code{\%!\%} or
 \code{\%.!\%}.  Second, the arguments to \Scala functions can be
 copyable types, \Scala references, or \code{NULL}, where \code{NULL} is used to
-indicate arbitrary \R objects that will not be converted to \Scala values but can be used in \R code.  Third, a default value must be provided for
-every argument, thereby indicating to \rscala that argument's type.  If the
+indicate arbitrary \R objects that will not be converted to \Scala values but will still be used in \R code.  Third, a default value must be provided for
+every argument, thereby indicating the argument's type to \rscala.  If the
 user passes arguments of different types than those indicated by the default
 values, they are cast to the expected types.  The \code{scalaNull} function can be
 used to specify an argument's \Scala type without having to instantiate an object
@@ -856,8 +856,8 @@ first method is \code{get}. It returns a \code{Tuple2} where the first member
 is the \R variable's value (statically typed as \code{Any}) and the second is a \code{String} identifying the resulting \Scala type.
 Consider the example below in
 which the value of the \R variable \code{T} is obtained.  Although the runtime
-type of \code{T} is \code{Boolean}, the static type is \code{Any}.  Therefore,
-it will likely need to be cast to be useful, as demonstrated with the call to
+type of \code{T} is \code{Boolean}, the static type is \code{Any}.  To be useful,
+it will likely need to be cast to another type as demonstrated with the call to
 \code{asInstanceOf[Boolean]} below.
 
 <<getInScala>>=
@@ -911,17 +911,17 @@ s %~% '
 The example above demonstrates the use of \Scala's builtin notation for
 creating pairs (e.g., \code{"sd" -> 3}) to provide named arguments to the \R
 function invoked from \Scala.  The arguments to an \code{invoke} method can be literals and variables of
-copyable types, \Scala references, and NULL, where \code{NULL} is used to
+copyable types, \Scala references, and \code{NULL}, where \code{NULL} is used to
 indicate arbitrary \R objects.
 
 A more interesting use case is calling a user-supplied \R function from \Scala.
 First, consider an \R function that computes $f(n,\alpha)$, the expectation of
-the Ewens($n$,$\alpha$) distribution or, equivalently, the expected number of
+the Ewens($n,\alpha$) distribution: the expected number of
 clusters when sampling $n$ observations from a discrete random measure obtained
-from the Dirichlet process with mass parameter $\alpha$:
+from the Dirichlet process with mass parameter $\alpha$.
 
 <<enc>>=
-f <- function(n,alpha) sapply(alpha, function(a) sum(a/(1:n+a-1)))
+f <- function(n,alpha) sapply(alpha, function(a) sum(a / (1:n + a - 1)))
 f(100, 1.0)
 @
 
@@ -940,25 +940,25 @@ The argument's type is set as \code{NULL} so its value can be referenced in \Sca
 bisection <- function(func=NULL, lower=1.0, upper=1.0, epsilon=0.000000001) s %!% '
   def g(x: Double) = R.invokeD0(func, x)
   val (fLower, fUpper) = (g(lower), g(upper))
-  if ( fLower*fUpper > 0 ) sys.error("lower and upper do not straddle the root.")
+  if ( fLower * fUpper > 0 ) sys.error("lower and upper do not straddle the root.")
   @scala.annotation.tailrec
   def engine(l: Double, u: Double, fLower: Double, fUpper: Double): Double = {
-    if ( math.abs(l-u) <= epsilon ) ( l + u ) / 2
+    if ( math.abs( l - u ) <= epsilon ) ( l + u ) / 2
     else {
       val c = ( l + u ) / 2
       val fCenter = g(c)
-      if ( fLower*fCenter < 0 ) engine(l,c,fLower,fCenter)
-      else engine(c,u,fCenter,fUpper)
+      if ( fLower * fCenter < 0 ) engine(l, c, fLower, fCenter)
+      else engine(c, u, fCenter, fUpper)
     }
   }
   engine(lower, upper, fLower, fUpper)
 '
 
-bisection(function(a) f(100,a) - 10, 0.1, 20)
+bisection(function(a) f(100, a) - 10, 0.1, 20)
 @
 
 The most important aspect of this example is found in the first line of the
-\Scala function.  The \code{invokeD0} method calls the \code{R}
+\Scala function where the \code{invokeD0} method calls the \code{R}
 function referenced by \code{func} and returns the result as a \code{Double}.
 
 The \rscala package supports infinite recursion (subject
@@ -968,7 +968,7 @@ compute $0+1+2+\ldots+n$.
 
 <<recursion>>=
 recursive.sum <- function(n=0L) s %!% '
-  if ( n <= 0 ) 0 else n + R.invokeI0("recursive.sum", n-1)
+  if ( n <= 0 ) 0 else n + R.invokeI0("recursive.sum", n - 1)
 '
 recursive.sum(10)
 @
@@ -1005,14 +1005,14 @@ of \Scala to that of other languages.  For that, we refer readers to benchmarks
 available on the web, including \citet{languageShootout}.  In short, \Scala
 seems to perform at speeds comparable to \Java, and \Java is found to be about
 1.5 to 3 times slower than \C.  Here we wish to highlight performance
-characteristics associated of \rscala itself.
+characteristics of \rscala only.
 
 Every \Scala snippet associated with the \code{\%@\%}, \code{\%\mytilde\%}, and
 \code{\%.\mytilde\%} operators is compiled at every invocation.  In contrast, a
 \Scala snippet in a \Scala function (see Section \ref{inline}) is only compiled
-the first time the function is run.  Subsequent invocations use a cached
-compilation for faster invocation.  Recall that in Section \ref{inline} the
-variable \code{cpuFirstEval} saved the system time associated the first
+the first time the function is run.  Subsequent invocations are faster because the compiled code is cached and re-used.
+Recall that in Section \ref{inline} the
+variable \code{cpuFirstEval} saved the system time associated with the first
 invocation of the \Scala function \code{bell.version2}.
 
 <<showCPUFirstEval>>=
@@ -1020,7 +1020,7 @@ cpuFirstEval
 @
 
 When we run the function again, we find the system time is substantially
-reduced because the caching eliminates the need for on-the-fly compilation. 
+reduced because the code does not need to be compiled.
 
 <<callBellUsingScala2>>=
 cpuSecondEval <- system.time(
@@ -1030,7 +1030,7 @@ cpuSecondEval
 cpuFirstEval['elapsed'] / cpuSecondEval['elapsed']
 @
 
-Methods of \Scala references also benefit for the same caching as \Scala functions.
+Methods of \Scala references also benefit from caching.
 Consider, for example, two calls to the method \code{nextGaussian} of an instance
 of \code{scala.util.Random}.
 
@@ -1041,8 +1041,8 @@ second <- system.time( rng1$nextGaussian() )['elapsed']
 c(first=first, second=second, ratio=first/second)
 @
 
-Beyond the one time cost of compilation, calling methods of \Scala references
-still involve a reoccuring invocation cost, some of which can be eliminated as
+Beyond the one-time cost of compiling, calling methods of \Scala references
+still involves a recurring invocation cost, some of which can be eliminated as
 follows.  Call the desired method of the \Scala reference with an additional
 trailing argument \code{.EVALUATE=FALSE} and store the resulting function, e.g.:
 
@@ -1051,18 +1051,21 @@ fasterNextGaussian <- rng1$nextGaussian(.EVALUATE=FALSE)
 @
 
 The function \code{fasterNextGaussian}
-is an optimized function with less reoccuring invocation cost than 
-directly calling the \code{nextGaussian} method of the \Scala references.
-Of course, there is still some overhead associated with the TCP/IP protocol.
+is optimized and has less overhead than
+calling the \code{nextGaussian} method of a \Scala reference.
 The next example and Table \ref{overhead} compare the speed of
 \code{rng1\$nextGaussian()} and \code{fasterNextGaussian()}, together with
 two ways to call the same \code{nextGaussian} method using \rJava.
 
 <<benchmarkAgainstRJava>>=
 library('rJava', verbose=FALSE)
-invisible(.jinit(list.files(file.path(scalaInfo(s)$home,"lib"),full.names=TRUE)))
-rng2 <- .jnew("scala.util.Random")
-.jcallNextGaussian <- function() .jcall(rng2, "D", "nextGaussian")
+invisible(
+  rJava::.jinit(
+    list.files(file.path(scalaInfo(s)$home, "lib"), full.names=TRUE)
+  )
+)
+rng2 <- rJava::.jnew("scala.util.Random")
+.jcallNextGaussian <- function() rJava::.jcall(rng2, "D", "nextGaussian")
 
 library('microbenchmark')
 timings <- microbenchmark(.jcallNextGaussian(), fasterNextGaussian(),
@@ -1077,7 +1080,7 @@ reps <- sumTimings[1,"neval"]
 sumTimings <- cbind(sumTimings[,c("expr")],c("rJava","rscala"),sumTimings[,c("lq","mean","median","uq")])
 colnames(sumTimings) <- c("Expression","Package","Q1","Mean","Median","Q3")
 xtab <- xtable(sumTimings, label="overhead")
-caption(xtab) <- paste0("Comparison of execution time of various ways to call the \\code{nextGaussian} method of an instance of the \\code{scala.util.Random} class.  Since the method itself is relatively fast, the timings here give an indication of the overhead involved in the various techniques.  Each expression was evaluated ",reps," times and the results are in ",units,".")
+caption(xtab) <- paste0("Comparison of execution time of various ways to call the \\code{nextGaussian} method of an instance of the \\code{scala.util.Random} class.  Since the method itself is relatively fast, the timings here are an indication of the overhead involved with the various techniques.  Each expression was evaluated ",reps," times and the results are in ",units,".")
 print(xtab,include.rownames=FALSE,booktabs=TRUE)
 @
 
@@ -1090,7 +1093,7 @@ calling \Scala code in long-running, tight inner loops where millisecond delays 
 The \rscala package enables developers to use \Scala in their own \R packages.  For example,
 the \pkg{shallot} \citep{shallotSoftware} and \pkg{bamboo}
 \citep{bambooSoftware} packages on CRAN use \Scala via \rscala to
-implement statistical methodology of associated journal articles
+implement statistical methodology of their associated journal articles
 \citep{shallotPaper,bambooPaper}.  Readers are invited to study those examples
 in addition to the process described here.
 
@@ -1114,9 +1117,9 @@ installed, the user is asked for permission to download and install \Scala
 (using the \code{scalaInstall} function).  Analogous to \rJava's
 \code{.jpackage} function, the \code{.rscalaPackage} function adds the JAR
 files in the source package's \code{inst/java} directory to \Scala's classpath.
-Since \Scala is binary compatible only within major version, package developers
-are encouraged to support major versions 2.10, 2.11, and 2.12 by placing
-cross-compiled versions of \Scala JAR files in \code{inst/java/scala-2.10},
+Since \Scala is binary-compatible only within major versions, package developers
+are encouraged to support versions 2.10, 2.11, and 2.12 by placing
+compatible \Scala JAR files in \code{inst/java/scala-2.10},
 \code{inst/java/scala-2.11}, and \code{inst/java/scala-2.12}, respectively.  If
 a package supports only specific major versions of \Scala, change the
 \code{major.version} argument of the
@@ -1207,11 +1210,8 @@ The
 commented out with equivalent \rscala code following immediately after.  See,
 for example, \url{https://github.com/dbdahl/bamboo/blob/master/R/bamboo.R}.
 This example also illustrates the difficulty in calling \Scala using \rJava
-since \rJava was designed for \Java, yet \Scala provides several features that do not map directly to \Java
-equivalents.  The \Scala compiler uses name mangling, behind-the-scenes code
-generation, and other techniques when compiling to \Java bytecode.  Using
-these \Scala features from \rJava requires, at a minimum, some
-understanding of \Scala's compiler.  Often, the developer is
+since \Scala has several features that do not map directly to \Java
+equivalents.  Often, the developer is
 required to write \Java-friendly wrapper methods in \Scala that hide advanced
 \Scala features.
 
