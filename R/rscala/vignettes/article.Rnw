@@ -262,14 +262,14 @@ s <- scala(serialize.output=TRUE)
 s %@% 'scala.util.Random.setSeed(3242)'
 @
 
-Information on the \Scala instance \code{s} is available using:
+Information on the \Scala instance \code{s} is available using
 
 <<scalaInfo,eval=FALSE>>=
 scalaInfo(s)
 @
 
 Alternatively, details on the search for a suitable \Scala installation are shown
-using:
+using
 
 <<scalaInfo2,eval=FALSE>>=
 scalaInfo(verbose=TRUE)
@@ -288,7 +288,7 @@ Multiple \Scala instances can be created in the same \R session.
 Each \Scala instance runs independently with its own memory, classpath,
 history, etc.
 
-The \R to \Scala bridge is not thread-safe, so multiple \R processes/threads should not access the same \Scala
+The \R to \Scala bridge is not thread-safe so multiple \R processes/threads should not access the same \Scala
 instance simultaneously.
 
 \subsection[Calling Scala code from R]{Calling \Scala code from \R}
@@ -330,7 +330,7 @@ tenChooseThree == choose(10,3)
 
 \subsubsection{String interpolation}
 
-The \rscala package has string interpolation for
+The \rscala package features string interpolation for
 dynamic code snippets. \R code placed between ``\code{@\{}'' and ``\code{\}}''
 in a \Scala snippet is evaluated and replaced by the string representation of
 the \R expression's value before the \Scala snippet is executed. The \R code is executed in the same environment (i.e., scope) as
@@ -349,8 +349,8 @@ s %@% '
 
 Care is needed when using string interpolation because it relies on
 \R's character representation on an \R expression.  One might be surprised, for
-example, that the second expression in the next example is false. This is because \code{@\{tenChooseThree\^{}20\}} is replaced by a string literal
-(i.e., \code{6.191736e+20}, which is slightly different than the calculated value.
+example, that the second expression in the next example is false. This is because \code{@\{tenChooseThree\^{}20\}} is replaced by the string literal
+\code{"6.191736e+20"} which is slightly different than the calculated value.
 
 <<evaluateScalaCodeInterpolationError>>=
 s %~% 'math.pow(count, 20) == @{tenChooseThree^20}'
@@ -458,7 +458,7 @@ Values of copyable types and \Scala references can
 be obtained as the result of evaluating a \Scala expression using the
 \code{\%\mytilde\%} and \code{\%.\mytilde\%} operators.  The expression can be
 very complex or, as in the examples below, merely the name of a \Scala
-identifier, e.g.:
+identifier.
 
 <<gettingUsingDollarSign1>>=
 s %@% 'val fibSeq = Array[Double](0, 1, 1, 2, 3, 5, 8, 13, 21)'
@@ -475,17 +475,17 @@ fibSeqAsDouble <- s$fibSeq
 fibSeqAsDouble <- s$val('fibSeq')
 @
 
-Likewise, an equivalent definition for \code{fibSeqReference} is:
+Likewise, an equivalent definition for \code{fibSeqReference} is
 
 <<gettingUsingDollarSign3>>=
 fibSeqReference <- s$.val('fibSeq')
 @
 
-Note that \code{val} is a reserved word in \Scala and therefore using
-\code{val} and \code{.val} here is guaranteed to not conflict with any variable names in \Scala.
-While somewhat more verbose, the argument to \code{val} and \code{.val} can be a literal or a variables, whereas the \code{\$} operator requires a literal.
+Note that \code{val} is a reserved word in \Scala. Therefore, using
+\code{val} and \code{.val} does not conflict with any variable names in \Scala.
+While somewhat more verbose, the argument to \code{val} and \code{.val} can be a literal or a variable, whereas the \code{\$} operator requires a literal.
 
-Conversely, values of copyable types and \Scala references may be set in the
+Values of copyable types and \Scala references can be set in the
 \Scala session using assignment with the \code{\$} operator, e.g.:
 
 <<gettingUsingDollarSign4>>=
@@ -495,10 +495,10 @@ s$copyOfFibSeqReference <- fibSeqReference
 
 \subsubsection{Instantiating objects}
 
-\Scala objects can be instantiated in three ways.  For example, the following
-are functionally equivalent ways of creating
+\Scala objects can be instantiated in three ways.  The following example demonstrates
+functionally equivalent ways of creating
 a new instance of \code{scala.util.Random}
-with the seed set at \code{123}:
+with the seed set at \code{123}.
 
 <<evaluateScalaCodeInstantiate>>=
 seed <- 123L
@@ -512,9 +512,9 @@ is mostly \Scala code and therefore self-evident to a \Scala developer, but it
 is the slowest and akward when arguments are not easily set with string
 interpolation.  The second (using \code{s\$.}) is concise, fast, and flexible
 in the arguments.  The last method (using \code{s\$do}) is also fast and
-flexible but slightly awkward.  It has the added advantage, however, that the
+flexible but is slightly awkward.  It has the added advantage, however, that the
 class name can be a literal (as in this example) or a variable.  Note that
-\code{do} is used here because it is a reserved words in \Scala and is
+\code{do} is used here because it is a reserved word in \Scala and is
 therefore guaranteed to not conflict with a variable name.
 
 \subsubsection[Access methods and variables of Scala objects]{Access methods and variables of \Scala objects}
