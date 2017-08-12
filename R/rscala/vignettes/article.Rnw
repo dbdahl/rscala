@@ -1267,11 +1267,10 @@ val alpha = 0.05
 println(s"If Z is N(0,1), P(Z >= ${qnorm(alpha, lowerTail=false)}) = $alpha.")
 @
 
-In the next example, the European city that is closest on average to all other
-European cites is computed using \Scala and \R's builtin dataset
-\code{eurodist}.  While this statistical computation could easily be
-implemented in \R, one can imagine a \Scala application that needs to perform a
-more taxing calculation based on data from \R's rich data-processing functions.
+The next example uses \R's dataset \code{eurodist} to compute the European city that is closest, on average, to all other
+European cities.  While this statistical calculation is easily implemented in \R,
+one can imagine a \Scala application that needs to perform a
+more taxing calculation that leverages \R's rich data-processing functions.
 
 <<scalaScript1europe,engine="scala",engine.opts=paste0('-cp "',rscala::.rscalaJar('2.12'),'"'),comment="//">>=
 val R = org.ddahl.rscala.RClient()
@@ -1305,13 +1304,13 @@ application is hosted here:
 \url{https://dahl.byu.edu/software/rscala/temperature/}
 \end{center}
 
-and the source code is available here:
+The source code is available here:
 
 \begin{center}
 \url{https://github.com/dbdahl/rscala-example-temperature/}
 \end{center}
 
-and Figure \ref{screenshot} shows a screen shot this application.
+Figure \ref{screenshot} shows a screen shot of the application.
 
 \begin{figure}[tb]
 \begin{center}
@@ -1321,9 +1320,9 @@ and Figure \ref{screenshot} shows a screen shot this application.
 \end{center}
 \end{figure}
 
-Another example of a \Scala application that might benefit from access to \R is
-\pkg{Apache Spark}, a cluster-computing framework for massive datasets.
-\pkg{Spark} is written in \Scala and provides an application programming
+\pkg{Apache Spark}, a cluster-computing framework for massive datasets, 
+is another example of a \Scala application that might benefit from access to \R.
+\pkg{Spark} provides an application programming
 interface to \Scala, \Java, \R, and \Python.  \R users who are not already
 familar with \Scala would be best served by accessing \pkg{Spark} through a
 dedicated \R package such as \pkg{sparklyr} or \pkg{sparkr}.  \Scala
@@ -1333,7 +1332,7 @@ Although we do not have firsthand experience with this, we have provided
 support to a developer using \rscala in \pkg{Spark}.  Recall that every
 \code{RClient} has its own workspace, so several instances should be used to
 overcome the single-threaded nature of \R.  Specifically, the developer is
-using \pkg{Apache Commons Pool} to manage a pool of \code{RClient}'s on each
+using \pkg{Apache Commons Pool} to manage a pool of \code{RClient} objects on each
 \pkg{Spark} worker node.
 
 \section{Implementation and Comparison to Other Software}
