@@ -285,8 +285,8 @@ A \Scala session
 is only valid during the \R session in which it is created and cannot be saved
 and restored through, for example, the \code{save} and \code{load} functions.
 Multiple \Scala instances can be created in the same \R session.
-Each \Scala instance runs independently with its own memory, classpath,
-history, etc.
+Each \Scala instance runs independently with its own memory and classpath.
+
 
 The \R to \Scala bridge is not thread-safe so multiple \R processes/threads should not access the same \Scala
 instance simultaneously.
@@ -298,7 +298,7 @@ instance simultaneously.
 Snippets of \Scala code can be compiled and executed within an \R session using several
 operators.  The most basic operator is \code{\%@\%} which evaluates \Scala code and returns \code{NULL}.
 Consider, for example,
-computing the binomial coefficient ${10 \choose 3} = \prod_{i=1}^3 (10-i+1)/i$.
+computing the binomial coefficient ${10 \choose 3} = \prod_{i=1}^3 (10-i+1)/i$.  The code below uses \Scala's \code{val} statement to define an immutable variable \code{c_10_3} by computing the \code{product} of applications of the higher-order \code{map} function to a range \code{1 to 3}.
 
 <<evaluateScalaCodeSimple>>=
 s %@% '
@@ -511,9 +511,9 @@ Each method differs in terms of flexibility, readability, and speed.  The first
 is mostly \Scala code and therefore self-evident to a \Scala developer, but it
 is the slowest and akward when arguments are not easily set with string
 interpolation.  The second (using \code{s\$.}) is concise, fast, and flexible
-in the arguments.  The last method (using \code{s\$do}) is also fast and
+in the arguments.  The string literal following \code{s\$.} and before the second \code{\$} (e.g., \code{scala.util.Random}) can be the name of any class in the classpath.  The last method (using \code{s\$do}) is also fast and
 flexible but is slightly awkward.  It has the added advantage, however, that the
-class name can be a literal (as in this example) or a variable.  Note that
+class name given as the argument to \code{s\$do} can be a literal (as in this example) or a variable.  Note that
 \code{do} is a reserved word in \Scala and is
 therefore guaranteed not to conflict with a variable name.
 
@@ -816,12 +816,10 @@ reference if the result is not a copyable type.  The \code{\%.!\%} operator
 is identical except that it always returns a \Scala reference.
 
 The consumer of a \Scala function does not need to know that the implementation
-is written in \Scala.  There are a few considerations, however, for the
-programmer of a \Scala function.  First, the final expression of a \Scala
-function should always use \code{\%!\%} or
-\code{\%.!\%}.  Second, the arguments to \Scala functions can be
+is written in \Scala.  There are two considerations, however, for the
+programmer of a \Scala function.  First, the arguments to \Scala functions can be
 copyable types, \Scala references, or \code{NULL}, where \code{NULL} is used to
-indicate arbitrary \R objects that will not be converted to \Scala values but will still be used in \R code.  Third, a default value must be provided for
+indicate arbitrary \R objects that will not be converted to \Scala values but will still be used in \R code.  Second, a default value must be provided for
 every argument, thereby indicating the argument's type to \rscala.  If the
 user passes arguments of different types than those indicated by the default
 values, they are cast to the expected types.  The \code{scalaNull} function can be
@@ -1035,9 +1033,9 @@ Consider, for example, two calls to the method \code{nextGaussian} of an instanc
 of \code{scala.util.Random}.
 
 <<methodsAreCached>>=
-rng1 <- s$.scala.util.Random$new()
-first  <- system.time( rng1$nextGaussian() )['elapsed']
-second <- system.time( rng1$nextGaussian() )['elapsed']
+rng <- s$.scala.util.Random$new()
+first  <- system.time( rng$nextGaussian() )['elapsed']
+second <- system.time( rng$nextGaussian() )['elapsed']
 c(first=first, second=second, ratio=first/second)
 @
 
@@ -1047,29 +1045,34 @@ follows.  Call the desired method of the \Scala reference with an additional
 trailing argument \code{.EVALUATE=FALSE} and store the resulting function, e.g.:
 
 <<makeFasterNextGaussian>>=
-fasterNextGaussian <- rng1$nextGaussian(.EVALUATE=FALSE)
+fasterNextGaussian <- rng$nextGaussian(.EVALUATE=FALSE)
 @
 
 The function \code{fasterNextGaussian}
 is optimized and has less overhead than explicitly
 calling the \code{nextGaussian} method of a \Scala reference.
-The next example and Table \ref{overhead} compare the speed of
-\code{rng1\$nextGaussian()} and \code{fasterNextGaussian()}, together with
-two ways to call the same \code{nextGaussian} method using \rJava.
+By way of comparison, \rJava also provides two means to call the \code{nextGaussian} method. 
+Suppose that \code{rngRJava} is the result of instantiating an object of class \code{scala.util.Random}
+using \rJava.  The high-level \code{\$} operator of \rJava can call this method using
+\code{rngRJava$nextGaussian()}.  Alternatively,
+the \rJava's low-level interface provides the \code{.jcall} function.
+The next example and Table \ref{overhead} compare the speed of \rscala's
+\code{rng\$nextGaussian()} and its optimized \code{fasterNextGaussian()}, together with \rJava's
+two ways of calling the same method.
 
 <<benchmarkAgainstRJava>>=
-library('rJava', verbose=FALSE)
+library('rJava', verbose=FALSE, quietly=TRUE)
 invisible(
   rJava::.jinit(
     list.files(file.path(scalaInfo(s)$home, "lib"), full.names=TRUE)
   )
 )
-rng2 <- rJava::.jnew("scala.util.Random")
-.jcallNextGaussian <- function() rJava::.jcall(rng2, "D", "nextGaussian")
+rngRJava <- rJava::.jnew("scala.util.Random")
+fasterNextGaussianRJava <- function() rJava::.jcall(rngRJava, "D", "nextGaussian")
 
 library('microbenchmark')
-timings <- microbenchmark(.jcallNextGaussian(), fasterNextGaussian(),
-  rng2$nextGaussian(), rng1$nextGaussian(), times=1000)
+timings <- microbenchmark(fasterNextGaussianRJava(), fasterNextGaussian(),
+  rngRJava$nextGaussian(), rng$nextGaussian(), times=1000)
 @
 
 <<benchmarkAgainstRJavaTable, echo=FALSE, results='asis'>>=
@@ -1117,12 +1120,12 @@ installed, the user is asked for permission to download and install \Scala
 (using the \code{scalaInstall} function).  Analogous to \rJava's
 \code{.jpackage} function, the \code{.rscalaPackage} function adds the JAR
 files in the source package's \code{inst/java} directory to \Scala's classpath.
-Since \Scala is binary-compatible only within major versions, package developers
-are encouraged to cross-compile for versions 2.10, 2.11, and 2.12 and to place
+Since \Scala is binary-compatible only within major releases, package developers
+are encouraged to cross-compile for releases 2.10, 2.11, and 2.12 and to place
 compatible \Scala JAR files in \code{inst/java/scala-2.10},
 \code{inst/java/scala-2.11}, and \code{inst/java/scala-2.12}, respectively.  If
-a package supports only specific major versions of \Scala, change the
-\code{major.version} argument of the
+a package supports only specific major releases of \Scala, change the
+\code{major.release} argument of the
 \code{.rscalaPackage} function.
 
 The \code{.rscalaPackage} function takes several optional arguments.  The
@@ -1160,7 +1163,7 @@ shows a callback to \R so that random data generation in \Scala is based on
   .rscalaPackage(pkgname,classpath.packages="commonsMath",snippet=snippet)
   ## This circumvents a bug in the class loader of Scala 2.11.x.
   sInfo <- scalaInfo()
-  if ( ( ! is.null(sInfo) ) && ( sInfo$major.version == "2.11" ) ) {
+  if ( ( ! is.null(sInfo) ) && ( sInfo$major.release == "2.11" ) ) {
     s$.org.apache.commons.math3.random.EmpiricalDistribution$new()
   }
 }

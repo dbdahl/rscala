@@ -14,7 +14,7 @@ export("scalaInstall")
 export("scalaSettings")
 export("scalaInfo")
 export("scalaNull")
-export("scalaOptimize")
+# export("scalaOptimize")
 # export("scalap")
 export("scala")
 

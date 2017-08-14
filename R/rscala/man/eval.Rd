@@ -5,7 +5,7 @@
 \alias{\%.~\%}
 \alias{\%!\%}
 \alias{\%.!\%}
-\alias{scalaOptimize}
+%\alias{scalaOptimize}
 \alias{scalaNull}
 \alias{$.ScalaInterpreter}
 \alias{$<-.ScalaInterpreter}
@@ -21,6 +21,7 @@ can be implemented in Scala.  The result of a Scala execution can be a Scala
 reference or an \R object.
 }
 %scalap(interpreter, class.name)
+%scalaOptimize(scalaFunction)
 \usage{
 interpreter \%@\% snippet
 
@@ -29,8 +30,6 @@ interpreter \%.~\% snippet
 
 interpreter \%!\% snippet
 interpreter \%.!\% snippet
-
-scalaOptimize(scalaFunction)
 
 scalaNull(type)
 
@@ -69,8 +68,8 @@ garbage collected.  Thus, heavy usage of \code{interpreter \%!\% snippet} and \c
 functions is encouraged for memory intensive applications.  Importantly, these
 functions have much less invocation latency than the equivalent code using
 \code{\link{\%~\%}} and \code{\link{\%.~\%}}.  The speed difference in
-invocation is especially noticeable for quick functions.  These Scala functions
-can be further optimized by using the \code{\link{scalaOptimize}} function.
+invocation is especially noticeable for quick functions.
+% These Scala functions can be further optimized by using the \code{\link{scalaOptimize}} function.
 
 \code{interpreter$identifier} and
 \code{interpreter$identifier <- value} get and set variables in the interpreter.

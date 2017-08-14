@@ -196,9 +196,7 @@ sampler <- function(nDraws=1L, rho=0.0, rng=scalaNull("scala.util.Random")) s \%
   result
 '
 system.time(acf(sampler(n.draws,0.5,rng),plot=FALSE))
-system.time(acf(sampler(n.draws,0.9,rng),plot=FALSE))
-sampler2 <- scalaOptimize(sampler)
-system.time(acf(sampler2(n.draws,0.9,rng),plot=FALSE))
+system.time(acf(sampler(n.draws,0.5,rng),plot=FALSE))
 close(s)
 }
 }
