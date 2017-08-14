@@ -56,7 +56,7 @@
 
 %% almost as usual
 \author{David B.\ Dahl\\Brigham Young University}
-\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.3.1,\ \ Document Date: 2017-08-10}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
+\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.3.1,\ \ Document Date: 2017-08-14}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
 
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{David B. Dahl} %% comma-separated
@@ -287,18 +287,20 @@ and restored through, for example, the \code{save} and \code{load} functions.
 Multiple \Scala instances can be created in the same \R session.
 Each \Scala instance runs independently with its own memory and classpath.
 
-
-The \R to \Scala bridge is not thread-safe so multiple \R processes/threads should not access the same \Scala
-instance simultaneously.
+The \R to \Scala bridge is not thread-safe so multiple \R processes/threads
+should not access the same \Scala instance simultaneously.
 
 \subsection[Calling Scala code from R]{Calling \Scala code from \R}
 
 \subsubsection[Evaluating Scala snippets]{Evaluating \Scala snippets}
 
-Snippets of \Scala code can be compiled and executed within an \R session using several
-operators.  The most basic operator is \code{\%@\%} which evaluates \Scala code and returns \code{NULL}.
-Consider, for example,
-computing the binomial coefficient ${10 \choose 3} = \prod_{i=1}^3 (10-i+1)/i$.  The code below uses \Scala's \code{val} statement to define an immutable variable \code{c_10_3} by computing the \code{product} of applications of the higher-order \code{map} function to a range \code{1 to 3}.
+Snippets of \Scala code can be compiled and executed within an \R session using
+several operators.  The most basic operator is \code{\%@\%} which evaluates
+\Scala code and returns \code{NULL}.  Consider, for example, computing the
+binomial coefficient ${10 \choose 3} = \prod_{i=1}^3 (10-i+1)/i$.  The code
+below uses \Scala's \code{val} statement to define an immutable variable
+\code{c_10_3} by computing the \code{product} of applications of the
+higher-order \code{map} function to a range \code{1 to 3}.
 
 <<evaluateScalaCodeSimple>>=
 s %@% '
@@ -308,20 +310,22 @@ s %@% '
 '
 @
 
-This result is available in subsequent \Scala expressions as demonstrated below.
+This result is available in subsequent \Scala expressions as demonstrated
+below.
 
 <<evaluateScalaCodeSimple3>>=
 s %@% 'print("10 choose 3 is " + c_10_3 + ".")'
 @
 
-Notice the side effect of printing \code{120} to the console.
-The behavior for console printing is controlled by the arguments
-\code{serialize.output}, \code{stdout}, and \code{stderr} of the \code{scala}
-function.  Default values depend on the operating system and are set such that
-console output is displayed in typical environments.
+Notice the side effect of printing \code{120} to the console.  The behavior for
+console printing is controlled by the arguments \code{serialize.output},
+\code{stdout}, and \code{stderr} of the \code{scala} function.  Default values
+depend on the operating system and are set such that console output is
+displayed in typical environments.
 
-\Scala snippets can also be evaluated with the \code{\%\mytilde\%}
-operator.  Whereas \code{\%@\%} always returns \code{NULL}, \code{\%\mytilde\%} returns the result of the last expression in the \Scala snippet.
+\Scala snippets can also be evaluated with the \code{\%\mytilde\%} operator.
+Whereas \code{\%@\%} always returns \code{NULL}, \code{\%\mytilde\%} returns
+the result of the last expression in the \Scala snippet.
 
 <<evaluateScalaCodeSimple2>>=
 tenChooseThree <- s %~% '(1 to 3).map( i => (10-i+1) / i.toDouble ).product'
@@ -330,12 +334,12 @@ tenChooseThree == choose(10,3)
 
 \subsubsection{String interpolation}
 
-The \rscala package features string interpolation for
-dynamic code snippets. \R code placed between ``\code{@\{}'' and ``\code{\}}''
-in a \Scala snippet is evaluated and replaced by the string representation of
-the \R expression's value before the \Scala snippet is executed. The \R code is executed in the same environment (i.e., scope) as
-the evaluation request. A snippet can contain any number of \code{@\{...\}}
-expressions.  For example,
+The \rscala package features string interpolation for dynamic code snippets. \R
+code placed between ``\code{@\{}'' and ``\code{\}}'' in a \Scala snippet is
+evaluated and replaced by the string representation of the \R expression's
+value before the \Scala snippet is executed. The \R code is executed in the
+same environment (i.e., scope) as the evaluation request. A snippet can contain
+any number of \code{@\{...\}} expressions.  For example,
 
 <<evaluateScalaCodeStringInterpolation>>=
 n <- 10
@@ -347,10 +351,12 @@ s %@% '
 '
 @
 
-Care is needed when using string interpolation because it relies on
-\R's character representation on an \R expression.  One might be surprised, for
-example, that the second expression in the next example is false. This is because \code{@\{tenChooseThree\^{}20\}} is replaced by
-\code{6.191736e+20} which, when parsed by the Scala compiler, leads to a slightly different value than the calculated value.
+Care is needed when using string interpolation because it relies on \R's
+character representation on an \R expression.  One might be surprised, for
+example, that the second expression in the next example is false. This is
+because \code{@\{tenChooseThree\^{}20\}} is replaced by \code{6.191736e+20}
+which, when parsed by the Scala compiler, leads to a slightly different value
+than the calculated value.
 
 <<evaluateScalaCodeInterpolationError>>=
 s %~% 'math.pow(count, 20) == @{tenChooseThree^20}'
@@ -366,14 +372,12 @@ arrays and rectangular arrays of arrays of the primitive types are passed to \R
 as vectors and matrices of the equivalent \R types.  We call \emph{copyable
 types} those types that are primitives, arrays of primitives, and rectangular
 arrays of arrays of the primitive types.  The name emphasizes the fact that
-these data structures are serialized and copied between
-\Scala and \R. This may be a costly exercise for large data
-structures.
+these data structures are serialized and copied between \Scala and \R. This may
+be a costly exercise for large data structures.
 
-The code below produces a 2x5 matrix in \R.
-If the \code{row.major} argument of the \code{scala} function is changed to
-\code{FALSE} when defining the \Scala instance \code{s}, the code produces a
-5x2 matrix instead.
+The code below produces a 2x5 matrix in \R.  If the \code{row.major} argument
+of the \code{scala} function is changed to \code{FALSE} when defining the
+\Scala instance \code{s}, the code produces a 5x2 matrix instead.
 
 <<evaluateScalaCodeVector>>=
 s %~% 'Array.fill(2)(Array.fill(5)(scala.util.Random.nextDouble))'
@@ -410,10 +414,10 @@ code examples.
 \caption{\Scala values of type \code{Byte}, \code{Int}, \code{Double},
 \code{Boolean}, or \code{String} (labeled \emph{primitives}), as well as arrays
 and rectangular arrays of arrays of these types are copied from \Scala to \R as
-length-one vectors, vectors, and matrices of the equivalent \R types.  These are
-called \emph{copyable types}.  Each cell in the table contains two lines: an \R
-expression (top) and the equivalent \Scala expression (bottom) with the same
-identifier.  The matrix examples assume that the \code{scala} function is
+length-one vectors, vectors, and matrices of the equivalent \R types.  These
+are called \emph{copyable types}.  Each cell in the table contains two lines:
+an \R expression (top) and the equivalent \Scala expression (bottom) with the
+same identifier.  The matrix examples assume that the \code{scala} function is
 called with \code{row.major=TRUE}.}
 \label{mappings}
 \end{table}
@@ -454,11 +458,10 @@ oneToTenReference
 
 \subsubsection{Getting and Setting Variables}
 
-Values of copyable types and \Scala references can
-be obtained as the result of evaluating a \Scala expression using the
-\code{\%\mytilde\%} and \code{\%.\mytilde\%} operators.  The expression can be
-very complex or, as in the examples below, merely the name of a \Scala
-identifier.
+Values of copyable types and \Scala references can be obtained as the result of
+evaluating a \Scala expression using the \code{\%\mytilde\%} and
+\code{\%.\mytilde\%} operators.  The expression can be very complex or, as in
+the examples below, merely the name of a \Scala identifier.
 
 <<gettingUsingDollarSign1>>=
 s %@% 'val fibSeq = Array[Double](0, 1, 1, 2, 3, 5, 8, 13, 21)'
@@ -466,9 +469,9 @@ fibSeqAsDouble  <- s %~%  'fibSeq'
 fibSeqReference <- s %.~% 'fibSeq'
 @
 
-\Scala values can also be obtained using the \code{\$} operator and the identifier name.
-For example, the following both provide equivelent definitions for 
-\code{fibSeqAsDouble} above.
+\Scala values can also be obtained using the \code{\$} operator and the
+identifier name.  For example, the following both provide equivelent
+definitions for \code{fibSeqAsDouble} above.
 
 <<gettingUsingDollarSign2>>=
 fibSeqAsDouble <- s$fibSeq
@@ -481,12 +484,13 @@ Likewise, an equivalent definition for \code{fibSeqReference} is
 fibSeqReference <- s$.val('fibSeq')
 @
 
-Note that \code{val} is a reserved word in \Scala. Therefore, using
-\code{val} and \code{.val} does not conflict with any variable names in \Scala.
-While somewhat more verbose, the argument to \code{val} and \code{.val} can be a literal or a variable, whereas the \code{\$} operator requires a literal.
+Note that \code{val} is a reserved word in \Scala. Therefore, using \code{val}
+and \code{.val} does not conflict with any variable names in \Scala.  While
+somewhat more verbose, the argument to \code{val} and \code{.val} can be a
+literal or a variable, whereas the \code{\$} operator requires a literal.
 
-Values of copyable types and \Scala references can be set in the
-\Scala session using assignment with the \code{\$} operator, e.g.:
+Values of copyable types and \Scala references can be set in the \Scala session
+using assignment with the \code{\$} operator, e.g.:
 
 <<gettingUsingDollarSign4>>=
 s$fibSeq <- c(0, 1, 1, 2, 3, 5, 8, 13, 21)
@@ -495,10 +499,9 @@ s$copyOfFibSeqReference <- fibSeqReference
 
 \subsubsection{Instantiating objects}
 
-\Scala objects can be instantiated in three ways.  The following example demonstrates
-functionally equivalent ways of creating
-a new instance of \code{scala.util.Random}
-with the seed set at \code{123}.
+\Scala objects can be instantiated in three ways.  The following example
+demonstrates functionally equivalent ways of creating a new instance of
+\code{scala.util.Random} with the seed set at \code{123}.
 
 <<evaluateScalaCodeInstantiate>>=
 seed <- 123L
@@ -511,11 +514,13 @@ Each method differs in terms of flexibility, readability, and speed.  The first
 is mostly \Scala code and therefore self-evident to a \Scala developer, but it
 is the slowest and akward when arguments are not easily set with string
 interpolation.  The second (using \code{s\$.}) is concise, fast, and flexible
-in the arguments.  The string literal following \code{s\$.} and before the second \code{\$} (e.g., \code{scala.util.Random}) can be the name of any class in the classpath.  The last method (using \code{s\$do}) is also fast and
-flexible but is slightly awkward.  It has the added advantage, however, that the
-class name given as the argument to \code{s\$do} can be a literal (as in this example) or a variable.  Note that
-\code{do} is a reserved word in \Scala and is
-therefore guaranteed not to conflict with a variable name.
+in the arguments.  The string literal following \code{s\$.} and before the
+second \code{\$} (e.g., \code{scala.util.Random}) can be the name of any class
+in the classpath.  The last method (using \code{s\$do}) is also fast and
+flexible but is slightly awkward.  It has the added advantage, however, that
+the class name given as the argument to \code{s\$do} can be a literal (as in
+this example) or a variable.  Note that \code{do} is a reserved word in \Scala
+and is therefore guaranteed not to conflict with a variable name.
 
 \subsubsection[Accessing methods and variables of Scala objects]{Accessing methods and variables of \Scala objects}
 
@@ -529,17 +534,18 @@ rng$nextInt(10L)
 oneToTenReference$sum()
 @
 
-If the result of a method call on a \Scala reference is not a copyable type, then
-a reference to a \Scala object is returned.  If a \Scala reference is desired even
-when working with copyable types,
-add a final argument
+If the result of a method call on a \Scala reference is not a copyable type,
+then a reference to a \Scala object is returned.  If a \Scala reference is
+desired even when working with copyable types, add a final argument
 \code{.AS.REFERENCE=TRUE}. For example,
 
 <<evaluateScalaCodeReference3>>=
 intReference <- rng$nextInt(10L, .AS.REFERENCE=TRUE)
 @
 
-The value of an instance variable may be accessed as if there was a method of the same name taking no arguments.  For example, the value \code{self} in an instance of \code{scala.util.Random} is access as
+The value of an instance variable may be accessed as if there was a method of
+the same name taking no arguments.  For example, the value \code{self} in an
+instance of \code{scala.util.Random} is access as
 
 <<evaluateScalaCodeReference1>>=
 rng$self()
@@ -548,12 +554,12 @@ rng$self()
 \subsubsection{Calling methods of singleton objects}
 
 In constrast to \Java, \Scala classes do not have static variables or methods.
-Equivalent functionality is provided by singleton objects in \Scala.
-A companion object is a singleton object whose name is the same as a class.
-Methods of singleton objects can be called in three ways.  For example, consider
-the companion object \code{Array} to the class \code{Array}.  Its \code{range} method creates an array of
-regularly-spaced elements.  The following three statements are all functionally
-equivalent:
+Equivalent functionality is provided by singleton objects in \Scala.  A
+companion object is a singleton object whose name is the same as a class.
+Methods of singleton objects can be called in three ways.  For example,
+consider the companion object \code{Array} to the class \code{Array}.  Its
+\code{range} method creates an array of regularly-spaced elements.  The
+following three statements are all functionally equivalent:
 
 <<evaluateScalaCodeCompanion>>=
 oneToTenReference <- s %.~% 'Array.range(1, 11)'
@@ -580,30 +586,27 @@ flexibility, readability, and speed.
 
 \subsubsection[Method arguments, null references, and length-one vectors]{Method arguments, null references, and length-one vectors}
 
-Arguments to a method of an object (as well as argument to \code{new})
-can be copyable types and \Scala references.  To pass a null
-reference of a particular type, use the \code{scalaNull} function.  For
-example, \Java's \code{java.lang.System} has a static
-\code{setProperties} method which
-takes
-a null reference to \code{java.util.Properties} 
-to clear the system properties, e.g.:
+Arguments to a method of an object (as well as argument to \code{new}) can be
+copyable types and \Scala references.  To pass a null reference of a particular
+type, use the \code{scalaNull} function.  For example, \Java's
+\code{java.lang.System} has a static \code{setProperties} method which takes a
+null reference to \code{java.util.Properties} to clear the system properties,
+e.g.:
 
 <<nullAsArgument>>=
 s$.java.lang.System$setProperties(scalaNull('java.util.Properties'))
 @
 
-\R has no scalar types but they are often used in \Scala.  As such,
-length-one vectors have special symantics.
-In the \R expression
-\code{rng\$nextInt(10L)}, the value \code{10L} is an integer vector of
-length one in \R, but is passed to \Scala as \code{Int}, not \code{Array[Int]}.
-This is the most natural and convenient behavior.  If, however, an \R
-vector should always be passed as an array --- despite the fact that it might
-be of length one --- wrap the vector in a call to the \code{I} function.  This ensures
-that the vector is treated ``as is''.  For example, consider a singleton object with an
-\code{apply} method that takes an array of any arbitrary type \code{T} and a value of type \code{T}, and sets every element of
-the array to that value:
+\R has no scalar types but they are often used in \Scala.  As such, length-one
+vectors have special symantics.  In the \R expression \code{rng\$nextInt(10L)},
+the value \code{10L} is an integer vector of length one in \R, but is passed to
+\Scala as \code{Int}, not \code{Array[Int]}.  This is the most natural and
+convenient behavior.  If, however, an \R vector should always be passed as an
+array --- despite the fact that it might be of length one --- wrap the vector
+in a call to the \code{I} function.  This ensures that the vector is treated
+``as is''.  For example, consider a singleton object with an \code{apply}
+method that takes an array of any arbitrary type \code{T} and a value of type
+\code{T}, and sets every element of the array to that value:
 
 <<lengthOne>>=
 setter <- s %.~% '
@@ -617,10 +620,10 @@ setter <- s %.~% '
 When calling the \code{apply} method of the \code{setter} object, the first
 argument must be an array.  Thus, if there is a potential that the \R vector is
 length-one, it should be wrapped by the \code{I} function.  In the example
-below, the first argument is wrapped by \code{I} and is therefore passed to \Scala as an
-array.  The second argument is a length-one double vector in \R yet is treated
-as a \code{Double} (instead of \code{Array[Double]}) because it is \emph{not}
-wrapped by \code{I}:
+below, the first argument is wrapped by \code{I} and is therefore passed to
+\Scala as an array.  The second argument is a length-one double vector in \R
+yet is treated as a \code{Double} (instead of \code{Array[Double]}) because it
+is \emph{not} wrapped by \code{I}:
 
 <<lengthOne2>>=
 arr <- s %.~% 'Array(math.Pi, math.E)'
@@ -660,19 +663,19 @@ s$do('fibSeq')$update(1L, pi)
 fibSeqReference$update(1L, pi)
 @
 
-The previous example also illustrates that the \code{s\$.} and
-\code{s\$do} notations --- which were first introduced for object
-instantiation and calling methods of singleton objects --- can also be used for
-existing \Scala values (e.g., \code{fibSeq} above).
+The previous example also illustrates that the \code{s\$.} and \code{s\$do}
+notations --- which were first introduced for object instantiation and calling
+methods of singleton objects --- can also be used for existing \Scala values
+(e.g., \code{fibSeq} above).
 
 \subsubsection{Quoting method names}
 
-\Scala has type parameterization which is similar but arguably more
-advanced than generics in \Java and templates in \Cpp.  In many instances, the
-\Scala compiler infers the type parameter, but the user may need or want to
-explicitly provide it.  When using the \code{\$} operator, the method name with
-its type parameter should be quoted to prevent parsing errors in \R.  The
-following expressions are functionally equivalent.
+\Scala has type parameterization which is similar but arguably more advanced
+than generics in \Java and templates in \Cpp.  In many instances, the \Scala
+compiler infers the type parameter, but the user may need or want to explicitly
+provide it.  When using the \code{\$} operator, the method name with its type
+parameter should be quoted to prevent parsing errors in \R.  The following
+expressions are functionally equivalent.
 
 <<evaluateScalaCodeApplyWithQuote>>=
 fibSeqAsDouble <- s %~% 'Array[Double](0, 1, 1, 2, 3, 5, 8, 13, 21)'
@@ -718,18 +721,18 @@ paste0(augmentedList$toString(), " now contains 100.")
 In addition to calling previously-compiled \Scala methods, the \rscala package
 enables \Scala functions to be defined \emph{within} an \R session.  The
 associated \Scala code is compiled on-the-fly and cached for subsequent
-evaluation in the \R session.  This feature is inspired by the 
-\Rcpp and \pkg{inline} \R packages for \C, \Cpp, and \Fortran.  We do not
-recommend that long, complicated algorithms be implemented as inline \Scala
-functions, but these functions can be helpful for implementing small tasks or
-writing dynamic code to interface with existing \Scala code.
+evaluation in the \R session.  This feature is inspired by the \Rcpp and
+\pkg{inline} \R packages for \C, \Cpp, and \Fortran.  We do not recommend that
+long, complicated algorithms be implemented as inline \Scala functions, but
+these functions can be helpful for implementing small tasks or writing dynamic
+code to interface with existing \Scala code.
 
-To demonstrate \Scala functions, consider computing the number of partitions
-of $n$ items (i.e., the Bell number \citep{bell} of $n$).  This
-number is often used for finite mixture models and random partition
-models (e.g., \citet{casella2014}).  First, consider this \R implementation of
-an efficient algorithm based on the Bell triangle (also
-known as the Aitken's array or the Peirce triangle):
+To demonstrate \Scala functions, consider computing the number of partitions of
+$n$ items (i.e., the Bell number \citep{bell} of $n$).  This number is often
+used for finite mixture models and random partition models (e.g.,
+\citet{casella2014}).  First, consider this \R implementation of an efficient
+algorithm based on the Bell triangle (also known as the Aitken's array or the
+Peirce triangle):
 
 <<bellUsingR>>=
 bell.version1 <- function(n=1, format=c("character","integer","double","log")[3]) {
@@ -753,11 +756,11 @@ bell.version1 <- function(n=1, format=c("character","integer","double","log")[3]
 The \code{bell.version1} function performs calculations based on
 double-precision floating-point arithmetic and provides \emph{exact} answers
 for $n \le 22$, gives \emph{approximate} answers for $22 < n \le 218$, and
-overflows for $n > 218$.  The \code{format} argument controls the
-function's output.  Unfortunately, $n \le 218$ is quite limiting because
-sample sizes are often much larger in practice.  The following \Scala function,
-defined within the \R session, implements the same algorithm but allows
-$n$ to be greater than $218$.
+overflows for $n > 218$.  The \code{format} argument controls the function's
+output.  Unfortunately, $n \le 218$ is quite limiting because sample sizes are
+often much larger in practice.  The following \Scala function, defined within
+the \R session, implements the same algorithm but allows $n$ to be greater than
+$218$.
 
 <<bellUsingScala>>=
 bell.version2 <- function(n=1L, format=c("character","integer","double","log")[3]) {
@@ -785,16 +788,17 @@ bell.version2 <- function(n=1L, format=c("character","integer","double","log")[3
 }
 @
 
-There are a few minor differences between the \R and \Scala versions (e.g., \Scala uses zero-based indexing of
-arrays, syntactic differences between \R and \Scala, and the
-\Scala version avoids the copying found in the \R version), but the practical
-difference is that \code{bell.version2} uses infinite precision integer
-arithmetic based on \Scala's builtin \code{BigInt} class.  Overflow
-still occurs when transferring to \R using \code{format="integer"} or \code{format="double"},
-but there is no overflow for almost any $n$ when \code{format="log"},
-and the exact value is returned when \code{format="character"}.  The
-sample code below shows that the \Scala function produces exact integer calculations for
-large $n$.  (The timings saved in \code{cpuFirstEval} will be used later in Section \ref{cpu}.)
+There are a few minor differences between the \R and \Scala versions (e.g.,
+\Scala uses zero-based indexing of arrays, syntactic differences between \R and
+\Scala, and the \Scala version avoids the copying found in the \R version), but
+the practical difference is that \code{bell.version2} uses infinite precision
+integer arithmetic based on \Scala's builtin \code{BigInt} class.  Overflow
+still occurs when transferring to \R using \code{format="integer"} or
+\code{format="double"}, but there is no overflow for almost any $n$ when
+\code{format="log"}, and the exact value is returned when
+\code{format="character"}.  The sample code below shows that the \Scala
+function produces exact integer calculations for large $n$.  (The timings saved
+in \code{cpuFirstEval} will be used later in Section \ref{cpu}.)
 
 <<callBellUsingScala>>=
 cpuFirstEval <- system.time(
@@ -805,40 +809,40 @@ cat(paste(strsplit(bigNumber, "(?<=.{80})", perl = TRUE)[[1]], collapse="\n"), "
 
 Taking a closer look at the definition of the \code{bell.version2} function,
 notice that the last expression in the function is \code{s \%!\% '...'}, where
-\code{s} is the \Scala instance and
-\code{'...'} represents the multiline \Scala snippet.  The effect of the
-\code{\%!\%} operator is two-fold: i.~it automatically makes the arguments of the
-enclosing function (namely, \code{n} and \code{format}) available in the \Scala
-snippet, and ii.~it caches the on-the-fly compilation of the \Scala snippet to
-substantially improve speed for subsequent calls to \code{bell.version2}.  The \code{\%!\%}
-operator returns a copyable type or a \Scala
-reference if the result is not a copyable type.  The \code{\%.!\%} operator
-is identical except that it always returns a \Scala reference.
+\code{s} is the \Scala instance and \code{'...'} represents the multiline
+\Scala snippet.  The effect of the \code{\%!\%} operator is two-fold: i.~it
+automatically makes the arguments of the enclosing function (namely, \code{n}
+and \code{format}) available in the \Scala snippet, and ii.~it caches the
+on-the-fly compilation of the \Scala snippet to substantially improve speed for
+subsequent calls to \code{bell.version2}.  The \code{\%!\%} operator returns a
+copyable type or a \Scala reference if the result is not a copyable type.  The
+\code{\%.!\%} operator is identical except that it always returns a \Scala
+reference.
 
 The consumer of a \Scala function does not need to know that the implementation
 is written in \Scala.  There are two considerations, however, for the
-programmer of a \Scala function.  First, the arguments to \Scala functions can be
-copyable types, \Scala references, or \code{NULL}, where \code{NULL} is used to
-indicate arbitrary \R objects that will not be converted to \Scala values but will still be used in \R code.  Second, a default value must be provided for
-every argument, thereby indicating the argument's type to \rscala.  If the
+programmer of a \Scala function.  First, the arguments to \Scala functions can
+be copyable types, \Scala references, or \code{NULL}, where \code{NULL} is used
+to indicate arbitrary \R objects that will not be converted to \Scala values
+but will still be used in \R code.  Second, a default value must be provided
+for every argument, thereby indicating the argument's type to \rscala.  If the
 user passes arguments of different types than those indicated by the default
-values, they are cast to the expected types.  The \code{scalaNull} function can be
-used to specify an argument's \Scala type without having to instantiate an object
-of that class.  For example, an argument to a \Scala function might be \code{rng
-= scalaNull("scala.util.Random")}, indicating that the argument should be of
-type \code{scala.util.Random}.
+values, they are cast to the expected types.  The \code{scalaNull} function can
+be used to specify an argument's \Scala type without having to instantiate an
+object of that class.  For example, an argument to a \Scala function might be
+\code{rng = scalaNull("scala.util.Random")}, indicating that the argument
+should be of type \code{scala.util.Random}.
 
 \subsection[Callbacks into R from embedded Scala]{Callbacks into \R from embedded \Scala}
 
 When a \Scala instance is created with the \code{scala} function, an instance
 of the \Scala class \code{org.ddahl.rscala.RClient} is bound to the identifier
 \code{R}.  This object provides access to the \R session from within the \Scala
-instance.  The \code{RClient} class is thread-safe.  Its source code and Scaladoc
-are located on GitHub:
-\url{https://github.com/dbdahl/rscala/}.
+instance.  The \code{RClient} class is thread-safe.  Its source code and
+Scaladoc are located on GitHub: \url{https://github.com/dbdahl/rscala/}.
 
-To assign a value to a variable in
-the \R session from \Scala, use the \code{set} method:
+To assign a value to a variable in the \R session from \Scala, use the
+\code{set} method:
 
 <<setInScala>>=
 s %@% '
@@ -849,14 +853,14 @@ zone
 atLeast8
 @
 
-\R variables can be accessed in \Scala using several methods.  The
-first method is \code{get}. It returns a \code{Tuple2} where the first member
-is the \R variable's value (statically typed as \code{Any}) and the second is a \code{String} identifying the resulting \Scala type.
-Consider the example below in
-which the value of the \R variable \code{T} is obtained.  Although the runtime
-type of \code{T} is \code{Boolean}, the static type is \code{Any}.  To be useful,
-it will likely need to be cast to another type as demonstrated with the call to
-\code{asInstanceOf[Boolean]} below.
+\R variables can be accessed in \Scala using several methods.  The first method
+is \code{get}. It returns a \code{Tuple2} where the first member is the \R
+variable's value (statically typed as \code{Any}) and the second is a
+\code{String} identifying the resulting \Scala type.  Consider the example
+below in which the value of the \R variable \code{T} is obtained.  Although the
+runtime type of \code{T} is \code{Boolean}, the static type is \code{Any}.  To
+be useful, it will likely need to be cast to another type as demonstrated with
+the call to \code{asInstanceOf[Boolean]} below.
 
 <<getInScala>>=
 s %@% '
@@ -869,24 +873,24 @@ s %@% '
 @
 
 Instead of casting the result from the \code{get} method, it may be more
-convenient to call a method that returns a specific type. The \code{RClient} class includes a suite of methods whose names start with \code{get} and end
-in $XY$, where $X \in \{$\code{R}, \code{I}, \code{D}, \code{L}, \code{S}$\}$
-and $Y \in \{$\code{0}, \code{1}, \code{2}$\}$.  The value of $X$ indicates
-whether the result from \R should be interpreted as raw, integer, double,
-logical, or character, respectively.  The value of $Y$ indicates whether the
-result should be interpreted as a scalar, an array, or a
-rectangular array of arrays, respectively.  This example uses the \code{getL0} method
-to return the value of the variable \code{T} as a logical scalar value.
+convenient to call a method that returns a specific type. The \code{RClient}
+class includes a suite of methods whose names start with \code{get} and end in
+$XY$, where $X \in \{$\code{R}, \code{I}, \code{D}, \code{L}, \code{S}$\}$ and
+$Y \in \{$\code{0}, \code{1}, \code{2}$\}$.  The value of $X$ indicates whether
+the result from \R should be interpreted as raw, integer, double, logical, or
+character, respectively.  The value of $Y$ indicates whether the result should
+be interpreted as a scalar, an array, or a rectangular array of arrays,
+respectively.  This example uses the \code{getL0} method to return the value of
+the variable \code{T} as a logical scalar value.
 
 <<getInScala2>>=
 s %@% 'if ( R.getL0("T") ) { println("Good, nobody messed with the value of T.") } '
 @
 
-\R expressions can be evaluated with a suite of methods whose names start
-with \code{eval} and end in $XY$, where $X$ and $Y$ have the same meaning as
-in the \code{get} methods.  In the example below, \R and \Scala are
-used together to sample from a chi-square distribution with $100$ degrees of
-freedom.
+\R expressions can be evaluated with a suite of methods whose names start with
+\code{eval} and end in $XY$, where $X$ and $Y$ have the same meaning as in the
+\code{get} methods.  In the example below, \R and \Scala are used together to
+sample from a chi-square distribution with $100$ degrees of freedom.
 
 <<evalInScala>>=
 set.seed(324)
@@ -908,15 +912,15 @@ s %~% '
 
 The example above demonstrates the use of \Scala's builtin notation for
 creating pairs (e.g., \code{"sd" -> 3}) to provide named arguments to the \R
-function invoked from \Scala.  The arguments to an \code{invoke} method can be literals and variables of
-copyable types, \Scala references, and \code{NULL}, where \code{NULL} is used to
-indicate arbitrary \R objects.
+function invoked from \Scala.  The arguments to an \code{invoke} method can be
+literals and variables of copyable types, \Scala references, and \code{NULL},
+where \code{NULL} is used to indicate arbitrary \R objects.
 
 A more interesting use case is calling a user-supplied \R function from \Scala.
 First, consider an \R function that computes $f(n,\alpha)$, the expectation of
-the Ewens($n,\alpha$) distribution, i.e., the expected number of
-clusters when sampling $n$ observations from a discrete random measure obtained
-from the Dirichlet process with mass parameter $\alpha$.
+the Ewens($n,\alpha$) distribution, i.e., the expected number of clusters when
+sampling $n$ observations from a discrete random measure obtained from the
+Dirichlet process with mass parameter $\alpha$.
 
 <<enc>>=
 f <- function(n,alpha) sapply(alpha, function(a) sum(a / (1:n + a - 1)))
@@ -929,10 +933,11 @@ elicitation process, practitioners may want to find the value of $\alpha$ that
 corresponds to the expert's anticipated number of clusters.  Thus, the task is
 to numerically solve $f(n,\alpha) = \mu$ for $\alpha$, given fixed values for
 $n$ and $\mu$.  To be specific, suppose $n=1000$ and $\mu=10$. The value
-$\alpha$ can be obtained using root finding methods.
-Here, we demonstrate the bisection method implemented as a
-\Scala function. The function's first argument, \code{func}, takes a user-defined \R function.
-The argument's type is set as \code{NULL} so its value can be referenced in \Scala without any conversion.
+$\alpha$ can be obtained using root finding methods.  Here, we demonstrate the
+bisection method implemented as a \Scala function. The function's first
+argument, \code{func}, takes a user-defined \R function.  The argument's type
+is set as \code{NULL} so its value can be referenced in \Scala without any
+conversion.
 
 <<rootFinding>>=
 bisection <- function(func=NULL, lower=1.0, upper=1.0, epsilon=0.000000001) s %!% '
@@ -956,13 +961,12 @@ bisection(function(a) f(100, a) - 10, 0.1, 20)
 @
 
 The most important aspect of this example is found in the first line of the
-\Scala function where the \code{invokeD0} method calls the \code{R}
-function referenced by \code{func} and returns the result as a \code{Double}.
+\Scala function where the \code{invokeD0} method calls the \code{R} function
+referenced by \code{func} and returns the result as a \code{Double}.
 
-The \rscala package supports infinite recursion (subject
-to available resources) between \R and \Scala.  For example, the
-\code{recursive.sum} function below repeatedly calls itself from \Scala to
-compute $0+1+2+\ldots+n$.
+The \rscala package supports infinite recursion (subject to available
+resources) between \R and \Scala.  For example, the \code{recursive.sum}
+function below repeatedly calls itself from \Scala to compute $0+1+2+\ldots+n$.
 
 <<recursion>>=
 recursive.sum <- function(n=0L) s %!% '
@@ -973,27 +977,26 @@ recursive.sum(10)
 
 \subsection{Memory management}
 
-The \rscala package ties into the garbage collectors of both \R and \Scala.
-As such, the user often does not need to think about memory management.
-There are a few important things to note, however.  First, the default
-maximum heap size set by the Java Virtual Machine may not be sufficient.
-Adjust the heap size using the \code{scala} function's \code{heap.size}
-argument, or use the global option \code{rscala.heap.maximum} (e.g.,
-\code{options(rscala.heap.maximum="4G")}). The former takes precedence over
-the latter.
+The \rscala package ties into the garbage collectors of both \R and \Scala.  As
+such, the user often does not need to think about memory management.  There are
+a few important things to note, however.  First, the default maximum heap size
+set by the Java Virtual Machine may not be sufficient.  Adjust the heap size
+using the \code{scala} function's \code{heap.size} argument, or use the global
+option \code{rscala.heap.maximum} (e.g.,
+\code{options(rscala.heap.maximum="4G")}). The former takes precedence over the
+latter.
 
 Second, there is an
 \href{https://issues.scala-lang.org/browse/SI-4331}{unresolved issue (SI-4331)}
 with the \Scala REPL (read-eval-print-loop) where allocated memory cannot be
-freed even if the same identifier is set to another value.  This issue
-prevents memory from being recovered in \rscala when using the
-\code{\%\mytilde\%} and \code{\%.\mytilde\%} operators, or when using the
-the \code{\$} assignment operator.  This issue does not affect
-\Scala functions and calls to methods on \Scala references.  Hence, we
-encourage developers to use functions and methods for memory intensive applications.
-As will be shown later, functions and methods also enjoy faster execution than the
-equivalent code using the \code{\%\mytilde\%} and \code{\%.\mytilde\%}
-operators.
+freed even if the same identifier is set to another value.  This issue prevents
+memory from being recovered in \rscala when using the \code{\%\mytilde\%} and
+\code{\%.\mytilde\%} operators, or when using the the \code{\$} assignment
+operator.  This issue does not affect \Scala functions and calls to methods on
+\Scala references.  Hence, we encourage developers to use functions and methods
+for memory intensive applications.  As will be shown later, functions and
+methods also enjoy faster execution than the equivalent code using the
+\code{\%\mytilde\%} and \code{\%.\mytilde\%} operators.
 
 \subsection{Speed considerations}
 \label{cpu}
@@ -1008,10 +1011,10 @@ characteristics of \rscala itself.
 Every \Scala snippet associated with the \code{\%@\%}, \code{\%\mytilde\%}, and
 \code{\%.\mytilde\%} operators is compiled at every invocation.  In contrast, a
 \Scala snippet in a \Scala function (see Section \ref{inline}) is only compiled
-the first time the function is run.  Subsequent invocations are faster because the compiled code is cached and re-used.
-Recall that in Section \ref{inline} the
-variable \code{cpuFirstEval} saved the system time associated with the first
-invocation of the \Scala function \code{bell.version2}.
+the first time the function is run.  Subsequent invocations are faster because
+the compiled code is cached and re-used.  Recall that in Section \ref{inline}
+the variable \code{cpuFirstEval} saved the system time associated with the
+first invocation of the \Scala function \code{bell.version2}.
 
 <<showCPUFirstEval>>=
 cpuFirstEval
@@ -1028,9 +1031,9 @@ cpuSecondEval
 cpuFirstEval['elapsed'] / cpuSecondEval['elapsed']
 @
 
-Methods of \Scala references also benefit from caching.
-Consider, for example, two calls to the method \code{nextGaussian} of an instance
-of \code{scala.util.Random}.
+Methods of \Scala references also benefit from caching.  Consider, for example,
+two calls to the method \code{nextGaussian} of an instance of
+\code{scala.util.Random}.
 
 <<methodsAreCached>>=
 rng <- s$.scala.util.Random$new()
@@ -1042,23 +1045,24 @@ c(first=first, second=second, ratio=first/second)
 Beyond the one-time cost of compiling, calling methods of \Scala references
 still involves a recurring invocation cost, some of which can be eliminated as
 follows.  Call the desired method of the \Scala reference with an additional
-trailing argument \code{.EVALUATE=FALSE} and store the resulting function, e.g.:
+trailing argument \code{.EVALUATE=FALSE} and store the resulting function,
+e.g.:
 
 <<makeFasterNextGaussian>>=
 fasterNextGaussian <- rng$nextGaussian(.EVALUATE=FALSE)
 @
 
-The function \code{fasterNextGaussian}
-is optimized and has less overhead than explicitly
-calling the \code{nextGaussian} method of a \Scala reference.
-By way of comparison, \rJava also provides two means to call the \code{nextGaussian} method. 
-Suppose that \code{rngRJava} is the result of instantiating an object of class \code{scala.util.Random}
-using \rJava.  The high-level \code{\$} operator of \rJava can call this method using
-\code{rngRJava$nextGaussian()}.  Alternatively,
-the \rJava's low-level interface provides the \code{.jcall} function.
-The next example and Table \ref{overhead} compare the speed of \rscala's
-\code{rng\$nextGaussian()} and its optimized \code{fasterNextGaussian()}, together with \rJava's
-two ways of calling the same method.
+The function \code{fasterNextGaussian} is optimized and has less overhead than
+explicitly calling the \code{nextGaussian} method of a \Scala reference.  By
+way of comparison, \rJava also provides two means to call the
+\code{nextGaussian} method.  Suppose that \code{rngRJava} is the result of
+instantiating an object of class \code{scala.util.Random} using \rJava.  The
+high-level \code{\$} operator of \rJava can call this method using
+\code{rngRJava$nextGaussian()}.  Alternatively, the \rJava's low-level
+interface provides the \code{.jcall} function.  The next example and Table
+\ref{overhead} compare the speed of \rscala's \code{rng\$nextGaussian()} and
+its optimized \code{fasterNextGaussian()}, together with \rJava's two ways of
+calling the same method.
 
 <<benchmarkAgainstRJava>>=
 library('rJava', verbose=FALSE, quietly=TRUE)
@@ -1087,22 +1091,23 @@ caption(xtab) <- paste0("Comparison of execution time of various ways to call th
 print(xtab,include.rownames=FALSE,booktabs=TRUE)
 @
 
-The results in Table \ref{overhead} indicate that \rJava's \code{.jcall} interface
-is much faster than the other techniques.  We recommend that \rscala users avoid
-calling \Scala code in long-running, tight inner loops where millisecond delays can add up.
+The results in Table \ref{overhead} indicate that \rJava's \code{.jcall}
+interface is much faster than the other techniques.  We recommend that \rscala
+users avoid calling \Scala code in long-running, tight inner loops where
+millisecond delays can add up.
 
 \subsection[Developing packages based on rscala]{Developing packages based on \rscala}
 
-The \rscala package enables developers to use \Scala in their own \R packages.  For example,
-the \pkg{shallot} \citep{shallotSoftware} and \pkg{bamboo}
-\citep{bambooSoftware} packages on CRAN use \Scala via \rscala to
-implement statistical methodology of their associated journal articles
+The \rscala package enables developers to use \Scala in their own \R packages.
+For example, the \pkg{shallot} \citep{shallotSoftware} and \pkg{bamboo}
+\citep{bambooSoftware} packages on CRAN use \Scala via \rscala to implement
+statistical methodology of their associated journal articles
 \citep{shallotPaper,bambooPaper}.  Readers are invited to study those examples
 in addition to the process described here.
 
-An \R package based on \rscala should include \code{rscala} in the \code{Imports} field of the package's
-\code{DESCRIPTION} file. Also, add \code{import(rscala)} to the \code{NAMESPACE} file.
-Define an \code{.onLoad}
+An \R package based on \rscala should include \code{rscala} in the
+\code{Imports} field of the package's \code{DESCRIPTION} file. Also, add
+\code{import(rscala)} to the \code{NAMESPACE} file.  Define an \code{.onLoad}
 function which calls \code{.rscalaPackage(pkgname)}, where \code{pkgname} is
 the package's name.  The \code{onLoad} function may be as simple as
 
@@ -1113,37 +1118,35 @@ the package's name.  The \code{onLoad} function may be as simple as
 @
 
 The \code{.rscalaPackage} function binds a \Scala instance to the identifier
-\code{s} in the package's namespace using \R's \code{delayedAssign} function. This ensures that
-the start-up cost of instantiating a \Scala instance is only incurred when
-\code{s} is first used.  At that time, if \Scala itself is not already
-installed, the user is asked for permission to download and install \Scala
-(using the \code{scalaInstall} function).  Analogous to \rJava's
+\code{s} in the package's namespace using \R's \code{delayedAssign} function.
+This ensures that the start-up cost of instantiating a \Scala instance is only
+incurred when \code{s} is first used.  At that time, if \Scala itself is not
+already installed, the user is asked for permission to download and install
+\Scala (using the \code{scalaInstall} function).  Analogous to \rJava's
 \code{.jpackage} function, the \code{.rscalaPackage} function adds the JAR
 files in the source package's \code{inst/java} directory to \Scala's classpath.
-Since \Scala is binary-compatible only within major releases, package developers
-are encouraged to cross-compile for releases 2.10, 2.11, and 2.12 and to place
-compatible \Scala JAR files in \code{inst/java/scala-2.10},
+Since \Scala is binary-compatible only within major releases, package
+developers are encouraged to cross-compile for releases 2.10, 2.11, and 2.12
+and to place compatible \Scala JAR files in \code{inst/java/scala-2.10},
 \code{inst/java/scala-2.11}, and \code{inst/java/scala-2.12}, respectively.  If
 a package supports only specific major releases of \Scala, change the
-\code{major.release} argument of the
-\code{.rscalaPackage} function.
+\code{major.release} argument of the \code{.rscalaPackage} function.
 
 The \code{.rscalaPackage} function takes several optional arguments.  The
-\code{classpath.packages} argument allows the package to use the JAR files of another
-package.  For example, the \pkg{shallot} package uses this argument to import the
-Apache Commons Mathematics Library \citep{commonsMathSoftware} JAR files distributed with the \pkg{commonsMath} package.
-The rational is
-that JAR files can be large and, by having them in a separate package,
-they do not need to be updated as frequently.
-The arguments \code{classpath.prepend} and \code{classpath.append}
-provide fine-grained control over the classpath.  The argument \code{snippet}
-provides \Scala expressions that will be evaluated when \Scala is
-instantiated.  This feature is useful for definitions and import
+\code{classpath.packages} argument allows the package to use the JAR files of
+another package.  For example, the \pkg{shallot} package uses this argument to
+import the Apache Commons Mathematics Library \citep{commonsMathSoftware} JAR
+files distributed with the \pkg{commonsMath} package.  The rational is that JAR
+files can be large and, by having them in a separate package, they do not need
+to be updated as frequently.  The arguments \code{classpath.prepend} and
+\code{classpath.append} provide fine-grained control over the classpath.  The
+argument \code{snippet} provides \Scala expressions that will be evaluated when
+\Scala is instantiated.  This feature is useful for definitions and import
 statements.  Finally, other arguments to \code{.rscalaPackage} are passed
-directly to the \code{scala} function.  This \code{.onLoad} function taken from the
-\pkg{shallot} package demonstrates several of these optional arguments and also
-shows a callback to \R so that random data generation in \Scala is based on
-\R's random number seed.
+directly to the \code{scala} function.  This \code{.onLoad} function taken from
+the \pkg{shallot} package demonstrates several of these optional arguments and
+also shows a callback to \R so that random data generation in \Scala is based
+on \R's random number seed.
 
 <<onLoad2, eval=FALSE>>=
 .onLoad <- function(libname, pkgname) {
@@ -1180,18 +1183,17 @@ unloaded by calling the \code{.rscalaPackageUnload} function in the
 @
 
 Because \rscala's syntax for calling precompiled code is very similar to
-\rJava's ``high-level \code{\$} convenience operator,'' developing a package
-based on \rscala can be very familiar to those accustomed to \rJava.
-Take, for example, CRAN's \pkg{mailR} package: ``Interface to
-Apache Commons Email to send emails from \R'' \citep{mailr}.  This package
-uses \rJava and its high-level \code{\$}
+\rJava's high-level \code{\$} operator, developing a package based on \rscala
+can be very familiar to those accustomed to \rJava.  Take, for example, CRAN's
+\pkg{mailR} package: ``Interface to Apache Commons Email to send emails from
+\R'' \citep{mailr}.  This package uses \rJava and its high-level \code{\$}
 convenience operator.  As a proof of concept, we ported the \pkg{mailR} package
 to \rscala, replacing the dependency on \rJava.  Version 0.6 of the \pkg{mailR}
 package is available on GitHub at \url{https://github.com/rpremraj/mailR/} and
-our port is at \url{https://github.com/dbdahl/mailR/}.  The port involved changes to
-the \code{DESCRIPTION} file, the \code{NAMESPACE} file, and two script files.  We
-deleted 16 lines, added 4 lines, and modified 15 lines.  Most modifications
-were simple changes. For example,
+our port is at \url{https://github.com/dbdahl/mailR/}.  The port involved
+changes to the \code{DESCRIPTION} file, the \code{NAMESPACE} file, and two
+script files.  We deleted 16 lines, added 4 lines, and modified 15 lines.  Most
+modifications were simple changes. For example,
 
 <<mailR.rJava, eval=FALSE>>=
 base_dir <- .jnew("java.io.File", normalizePath(getwd()))
@@ -1208,15 +1210,14 @@ The difference between the two versions can be viewed here:
 package that makes frequent use of \rJava's ``low-level interface'' (e.g., the
 \code{.jcall} function) will require more changes.
 
-The
-\pkg{bamboo} package was originally implemented in \rJava.  The original \rJava code is
-commented out with equivalent \rscala code following immediately after.  See,
-for example, \url{https://github.com/dbdahl/bamboo/blob/master/R/bamboo.R}.
-This example also illustrates the difficulty in calling \Scala using \rJava
-since \Scala has several features that do not map directly to \Java
-equivalents.  Often, the developer is
-required to write \Java-friendly wrapper methods in \Scala that hide advanced
-\Scala features.
+The \pkg{bamboo} package was originally implemented in \rJava.  The original
+\rJava code is commented out with equivalent \rscala code following immediately
+after.  See, for example,
+\url{https://github.com/dbdahl/bamboo/blob/master/R/bamboo.R}.  This example
+also illustrates the difficulty in calling \Scala using \rJava since \Scala has
+several features that do not map directly to \Java equivalents.  Often, the
+developer is required to write \Java-friendly wrapper methods in \Scala that
+hide advanced \Scala features.
 
 \section[Accessing R in Scala]{Accessing \R in \Scala}
 \label{webapp}
@@ -1225,21 +1226,18 @@ So far we have demonstrated assessing \Scala from \R.  Conversely, \rscala can
 also embed an \R interpreter in a \Scala application via the
 \code{org.ddahl.rscala.RClient} class.  This class is thread-safe.  Its source
 code and Scaladoc are located on GitHub:
-\url{https://github.com/dbdahl/rscala/}.
-As a convenience, \rscala's JAR file is
-available in standard repositories for use by dependency management
-systems.  To include \code{org.ddahl.rscala.RClient} in a
-\Scala application, simply add the following line to SBT's \code{build.sbt}
-file.
+\url{https://github.com/dbdahl/rscala/}.  As a convenience, \rscala's JAR file
+is available in standard repositories for use by dependency management systems.
+To include \code{org.ddahl.rscala.RClient} in a \Scala application, simply add
+the following line to SBT's \code{build.sbt} file.
 
 <<sbt, engine="scala", eval=FALSE>>=
 libraryDependencies += "org.ddahl" %% "rscala" % "2.3.1"
 @
 
-Note that,
-since the necessary \R code is bundled in the JAR file,
-the \rscala package does \emph{not} need to be installed in \R.
-An embedded \R interpreter is instantiated as follows:
+Note that, since the necessary \R code is bundled in the JAR file, the \rscala
+package does \emph{not} need to be installed in \R.  An embedded \R interpreter
+is instantiated as follows:
 
 <<scalaScript0,engine="scala",engine.opts=paste0('-cp "',rscala::.rscalaJar('2.12'),'"'),comment="//",eval=FALSE>>=
 val R = org.ddahl.rscala.RClient()
@@ -1254,10 +1252,10 @@ default, console output from \R is serialized back to \Scala.  The protocol
 overhead may be reduced by using \code{serializeOutput=false} when
 instantiating an \code{RClient}.
 
-The \rscala package can be an easy and convenient way to access
-statistical functions, facilitate calculations, manage data, and produce plots
-in a \Scala application.  Consider, for example, wrapping \R's \code{qnorm}
-function to define a method in \Scala by the same name.
+The \rscala package can be an easy and convenient way to access statistical
+functions, facilitate calculations, manage data, and produce plots in a \Scala
+application.  Consider, for example, wrapping \R's \code{qnorm} function to
+define a method in \Scala by the same name.
 
 <<scalaScript1qnorm,engine="scala",engine.opts=paste0('-cp "',rscala::.rscalaJar('2.12'),'"'),comment="//">>=
 val R = org.ddahl.rscala.RClient()
@@ -1270,10 +1268,11 @@ val alpha = 0.05
 println(s"If Z is N(0,1), P(Z >= ${qnorm(alpha, lowerTail=false)}) = $alpha.")
 @
 
-The next example uses \R's dataset \code{eurodist} to compute the European city that is closest, on average, to all other
-European cities.  While this statistical calculation is easily implemented in \R,
-one can imagine a \Scala application that needs to perform a
-more taxing calculation that leverages \R's rich data-processing functions.
+The next example uses \R's dataset \code{eurodist} to compute the European city
+that is closest, on average, to all other European cities.  While this
+statistical calculation is easily implemented in \R, one can imagine a \Scala
+application that needs to perform a more taxing calculation that leverages \R's
+rich data-processing functions.
 
 <<scalaScript1europe,engine="scala",engine.opts=paste0('-cp "',rscala::.rscalaJar('2.12'),'"'),comment="//">>=
 val R = org.ddahl.rscala.RClient()
@@ -1318,25 +1317,25 @@ Figure \ref{screenshot} shows a screen shot of the application.
 \begin{figure}[tb]
 \begin{center}
 \includegraphics{screenshot.png}
-\caption{Screenshot of a web application implemented in a \Scala-based framework and accessing \R packages using \rscala.}
+\caption{Screenshot of a web application implemented in a \Scala-based
+framework and accessing \R packages using \rscala.}
 \label{screenshot}
 \end{center}
 \end{figure}
 
-\pkg{Apache Spark}, a cluster-computing framework for massive datasets, 
-is another example of a \Scala application that might benefit from access to \R.
-\pkg{Spark} provides an application programming
-interface to \Scala, \Java, \R, and \Python.  \R users who are not already
-familar with \Scala would be best served by accessing \pkg{Spark} through a
-dedicated \R package such as \pkg{sparklyr} or \pkg{sparkr}.  \Scala
-developers, however, might prefer to interface directly with \pkg{Spark}'s
-Machine Learning Library (MLlib) by a \Scala application supplemented with \R.
-Although we do not have firsthand experience with this, we have provided
-support to a developer using \rscala in \pkg{Spark}.  Recall that every
-\code{RClient} has its own workspace, so several instances should be used to
-overcome the single-threaded nature of \R.  Specifically, the developer is
-using \pkg{Apache Commons Pool} to manage a pool of \code{RClient} objects on each
-\pkg{Spark} worker node.
+\pkg{Apache Spark}, a cluster-computing framework for massive datasets, is
+another example of a \Scala application that might benefit from access to \R.
+\pkg{Spark} provides an application programming interface to \Scala, \Java, \R,
+and \Python.  \R users who are not already familar with \Scala would be best
+served by accessing \pkg{Spark} through a dedicated \R package such as
+\pkg{sparklyr} or \pkg{sparkr}.  \Scala developers, however, might prefer to
+interface directly with \pkg{Spark}'s Machine Learning Library (MLlib) by a
+\Scala application supplemented with \R.  Although we do not have firsthand
+experience with this, we have provided support to a developer using \rscala in
+\pkg{Spark}.  Recall that every \code{RClient} has its own workspace, so
+several instances should be used to overcome the single-threaded nature of \R.
+Specifically, the developer is using \pkg{Apache Commons Pool} to manage a pool
+of \code{RClient} objects on each \pkg{Spark} worker node.
 
 \section{Implementation and Comparison to Other Software}
 \label{implementation}
