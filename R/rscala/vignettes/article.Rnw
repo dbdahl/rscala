@@ -349,8 +349,8 @@ s %@% '
 
 Care is needed when using string interpolation because it relies on
 \R's character representation on an \R expression.  One might be surprised, for
-example, that the second expression in the next example is false. This is because \code{@\{tenChooseThree\^{}20\}} is replaced by the string literal
-\code{"6.191736e+20"} which is slightly different than the calculated value.
+example, that the second expression in the next example is false. This is because \code{@\{tenChooseThree\^{}20\}} is replaced by
+\code{6.191736e+20} which, when parsed by the Scala compiler, leads to a slightly different value than the calculated value.
 
 <<evaluateScalaCodeInterpolationError>>=
 s %~% 'math.pow(count, 20) == @{tenChooseThree^20}'
@@ -539,7 +539,7 @@ add a final argument
 intReference <- rng$nextInt(10L, .AS.REFERENCE=TRUE)
 @
 
-The value of an instance variable may be accessed via the virtual \code{self} method:
+The value of an instance variable may be accessed as if there was a method of the same name taking no arguments.  For example, the value \code{self} in an instance of \code{scala.util.Random} is access as
 
 <<evaluateScalaCodeReference1>>=
 rng$self()
@@ -916,7 +916,7 @@ indicate arbitrary \R objects.
 
 A more interesting use case is calling a user-supplied \R function from \Scala.
 First, consider an \R function that computes $f(n,\alpha)$, the expectation of
-the Ewens($n,\alpha$) distribution: the expected number of
+the Ewens($n,\alpha$) distribution, i.e., the expected number of
 clusters when sampling $n$ observations from a discrete random measure obtained
 from the Dirichlet process with mass parameter $\alpha$.
 
@@ -1005,7 +1005,7 @@ of \Scala to that of other languages.  For that, we refer readers to benchmarks
 available on the web, including \citet{languageShootout}.  In short, \Scala
 seems to perform at speeds comparable to \Java, and \Java is found to be about
 1.5 to 3 times slower than \C.  Here we wish to highlight performance
-characteristics of \rscala only.
+characteristics of \rscala itself.
 
 Every \Scala snippet associated with the \code{\%@\%}, \code{\%\mytilde\%}, and
 \code{\%.\mytilde\%} operators is compiled at every invocation.  In contrast, a
@@ -1051,7 +1051,7 @@ fasterNextGaussian <- rng1$nextGaussian(.EVALUATE=FALSE)
 @
 
 The function \code{fasterNextGaussian}
-is optimized and has less overhead than
+is optimized and has less overhead than explicitly
 calling the \code{nextGaussian} method of a \Scala reference.
 The next example and Table \ref{overhead} compare the speed of
 \code{rng1\$nextGaussian()} and \code{fasterNextGaussian()}, together with
@@ -1118,7 +1118,7 @@ installed, the user is asked for permission to download and install \Scala
 \code{.jpackage} function, the \code{.rscalaPackage} function adds the JAR
 files in the source package's \code{inst/java} directory to \Scala's classpath.
 Since \Scala is binary-compatible only within major versions, package developers
-are encouraged to support versions 2.10, 2.11, and 2.12 by placing
+are encouraged to cross-compile for versions 2.10, 2.11, and 2.12 and to place
 compatible \Scala JAR files in \code{inst/java/scala-2.10},
 \code{inst/java/scala-2.11}, and \code{inst/java/scala-2.12}, respectively.  If
 a package supports only specific major versions of \Scala, change the
