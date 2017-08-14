@@ -4,7 +4,7 @@ source("common.R",print.eval=TRUE)
 tryCatch(s %~% 'new org.apache.commons.math3.random.EmpiricalDistribution()',error=function(e) e)   # Scala 2.11.x class loader is weird.  This line avoid subsequent problems.
 
 
-scalap(s,"org.apache.commons.math3.random.RandomDataGenerator")
+rscala:::scalap(s,"org.apache.commons.math3.random.RandomDataGenerator")
 s$.org.apache.commons.math3.random.RandomDataGenerator
 rdg <- s$.org.apache.commons.math3.random.RandomDataGenerator$new()
 

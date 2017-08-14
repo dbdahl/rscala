@@ -1,6 +1,6 @@
 > heap.maximum <- "64M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # rencher # TRUE # TRUE
+# R version 3.4.0 (2017-04-21) # becker # TRUE # TRUE
 > 
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 java.lang.reflect.InvocationTargetException
@@ -90,7 +90,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # rencher # TRUE # TRUE
+# R version 3.4.0 (2017-04-21) # becker # TRUE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -98,7 +98,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="64M")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # rencher # TRUE # TRUE
+# R version 3.4.0 (2017-04-21) # becker # TRUE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -106,7 +106,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="128M")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # rencher # TRUE # TRUE
+# R version 3.4.0 (2017-04-21) # becker # TRUE # TRUE
 > for ( i in 1:2000 ) {
 +   a <- s$".Array[Double]"$new(100000L)  # No memory problems
 + }
@@ -116,7 +116,14 @@ java.lang.OutOfMemoryError: Java heap space
 +   s %~% "new Array[Double](100000)"           # Memory problems
 + }
 + },error=function(e) e)
-java.lang.OutOfMemoryError: Java heap space
+java.lang.OutOfMemoryError: GC overhead limit exceeded
+	at scala.reflect.internal.Symbols$Symbol.createValueMemberSymbol(Symbols.scala:1101)
+	at scala.reflect.internal.Symbols$Symbol.newTermSymbol(Symbols.scala:1113)
+	at scala.reflect.internal.pickling.UnPickler$Scan.readSymbol(UnPickler.scala:313)
+	at scala.reflect.internal.pickling.UnPickler$Scan.run(UnPickler.scala:76)
+	at scala.reflect.internal.pickling.UnPickler.unpickle(UnPickler.scala:37)
+	at scala.reflect.runtime.JavaMirrors$JavaMirror.unpickleClass(JavaMirrors.scala:565)
+	at scala.reflect.runtime.SymbolLoaders$TopClassCompleter.complete(SymbolLoaders.scala:32)java.lang.OutOfMemoryError: Java heap space
 	at .<init>(<console>:11)
 	at .<clinit>(<console>)
 	at .<init>(<console>:7)

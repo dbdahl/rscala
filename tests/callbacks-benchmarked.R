@@ -57,7 +57,7 @@ doit3(rnorm(10))
 
 
 # Multiple callbacks in compiled code with optimization.
-doit4 <- scalaOptimize(doit3)
+doit4 <- rscala:::scalaOptimize(doit3)
 
 doit4(rnorm(10))
 

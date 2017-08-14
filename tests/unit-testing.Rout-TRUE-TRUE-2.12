@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # rencher # TRUE # TRUE
+# R version 3.4.0 (2017-04-21) # becker # TRUE # TRUE
 > 
 > 
 > test <- function(a,value,func=list()) {
@@ -97,10 +97,10 @@ java.lang.RuntimeException: There is no result.  Maybe use the %@% operator inst
 	at scala.tools.nsc.CommonRunner.runAndCatch(ObjectRunner.scala:29)
 	at scala.tools.nsc.CommonRunner.runAndCatch$(ObjectRunner.scala:28)
 	at scala.tools.nsc.ObjectRunner$.runAndCatch(ObjectRunner.scala:39)
-	at scala.tools.nsc.MainGenericRunner.runTarget$1(MainGenericRunner.scala:61)
-	at scala.tools.nsc.MainGenericRunner.run$1(MainGenericRunner.scala:88)
-	at scala.tools.nsc.MainGenericRunner.process(MainGenericRunner.scala:99)
-	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:104)
+	at scala.tools.nsc.MainGenericRunner.runTarget$1(MainGenericRunner.scala:66)
+	at scala.tools.nsc.MainGenericRunner.run$1(MainGenericRunner.scala:85)
+	at scala.tools.nsc.MainGenericRunner.process(MainGenericRunner.scala:96)
+	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:101)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 java.lang.RuntimeException: There is no result.  Maybe use the %@% operator instead?
 <simpleError in doTryCatch(return(expr), name, parentenv, handler): Exception thrown.>
@@ -151,10 +151,10 @@ java.lang.RuntimeException: There is no result.  Maybe use the %@% operator inst
 	at scala.tools.nsc.CommonRunner.runAndCatch(ObjectRunner.scala:29)
 	at scala.tools.nsc.CommonRunner.runAndCatch$(ObjectRunner.scala:28)
 	at scala.tools.nsc.ObjectRunner$.runAndCatch(ObjectRunner.scala:39)
-	at scala.tools.nsc.MainGenericRunner.runTarget$1(MainGenericRunner.scala:61)
-	at scala.tools.nsc.MainGenericRunner.run$1(MainGenericRunner.scala:88)
-	at scala.tools.nsc.MainGenericRunner.process(MainGenericRunner.scala:99)
-	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:104)
+	at scala.tools.nsc.MainGenericRunner.runTarget$1(MainGenericRunner.scala:66)
+	at scala.tools.nsc.MainGenericRunner.run$1(MainGenericRunner.scala:85)
+	at scala.tools.nsc.MainGenericRunner.process(MainGenericRunner.scala:96)
+	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:101)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 java.lang.RuntimeException: There is no result.  Maybe use the %@% operator instead?
 <simpleError in doTryCatch(return(expr), name, parentenv, handler): Exception thrown.>

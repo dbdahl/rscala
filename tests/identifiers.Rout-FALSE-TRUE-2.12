@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # rencher # FALSE # TRUE
+# R version 3.4.0 (2017-04-21) # becker # FALSE # TRUE
 > 
 > 
 > set.seed(3432585)
@@ -19,8 +19,8 @@
 > tryCatch(s$def <- 4,error = function(e) e)
 > s %~% "3+4"
 <console>:1: error: illegal start of simple pattern
-val def = value
-    ^
+       val def = value
+           ^
 [1] 7
 > 
 > x <- as.character(0:8)

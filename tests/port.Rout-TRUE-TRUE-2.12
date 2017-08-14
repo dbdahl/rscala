@@ -1,6 +1,6 @@
 > port <- as.integer(runif(1,1024,65535))
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # rencher # TRUE # TRUE
+# R version 3.4.0 (2017-04-21) # becker # TRUE # TRUE
 > 
 > tryCatch(source("common.R",print.eval=TRUE), error=function(e) e)
 java.net.BindException: Address already in use
@@ -39,10 +39,10 @@ java.net.BindException: Address already in use
 	at scala.tools.nsc.CommonRunner.runAndCatch(ObjectRunner.scala:29)
 	at scala.tools.nsc.CommonRunner.runAndCatch$(ObjectRunner.scala:28)
 	at scala.tools.nsc.ObjectRunner$.runAndCatch(ObjectRunner.scala:39)
-	at scala.tools.nsc.MainGenericRunner.runTarget$1(MainGenericRunner.scala:61)
-	at scala.tools.nsc.MainGenericRunner.run$1(MainGenericRunner.scala:88)
-	at scala.tools.nsc.MainGenericRunner.process(MainGenericRunner.scala:99)
-	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:104)
+	at scala.tools.nsc.MainGenericRunner.runTarget$1(MainGenericRunner.scala:66)
+	at scala.tools.nsc.MainGenericRunner.run$1(MainGenericRunner.scala:85)
+	at scala.tools.nsc.MainGenericRunner.process(MainGenericRunner.scala:96)
+	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:101)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 <simpleError in (function() {    delay <- 0.1    start <- proc.time()[3]    while (TRUE) {        if ((proc.time()[3] - start) > timeout)             stop("Timed out waiting for Scala to start.")        Sys.sleep(delay)        delay <- 1 * delay        if (file.exists(portsFilename)) {            line <- scan(portsFilename, n = 2, what = character(),                 quiet = TRUE)            if (length(line) > 0)                 return(as.numeric(line))        }    }})(): Timed out waiting for Scala to start.>
 > 

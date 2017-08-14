@@ -1,6 +1,6 @@
 > heap.maximum <- "64M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # rencher # FALSE # TRUE
+# R version 3.4.0 (2017-04-21) # becker # FALSE # TRUE
 > 
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 java.lang.reflect.InvocationTargetException
@@ -82,7 +82,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # rencher # FALSE # TRUE
+# R version 3.4.0 (2017-04-21) # becker # FALSE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -90,7 +90,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="64M")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # rencher # FALSE # TRUE
+# R version 3.4.0 (2017-04-21) # becker # FALSE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -98,7 +98,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="128M")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # rencher # FALSE # TRUE
+# R version 3.4.0 (2017-04-21) # becker # FALSE # TRUE
 > for ( i in 1:2000 ) {
 +   a <- s$".Array[Double]"$new(100000L)  # No memory problems
 + }
@@ -108,41 +108,9 @@ java.lang.OutOfMemoryError: Java heap space
 +   s %~% "new Array[Double](100000)"           # Memory problems
 + }
 + },error=function(e) e)
-java.lang.OutOfMemoryError: GC overhead limit exceeded
-	at scala.collection.immutable.List.$colon$colon(List.scala:112)
-	at scala.reflect.internal.Scopes$Scope.toList(Scopes.scala:352)
-	at scala.reflect.internal.Scopes$Scope.filter(Scopes.scala:380)
-	at scala.tools.nsc.transform.AddInterfaces$$anonfun$6.apply(AddInterfaces.scala:222)
-	at scala.tools.nsc.transform.AddInterfaces$$anonfun$6.apply(AddInterfaces.scala:222)
-	at scala.reflect.internal.Scopes$class.scopeTransform(Scopes.scala:453)
-	at scala.reflect.internal.SymbolTable.scopeTransform(SymbolTable.scala:16)
-	at scala.tools.nsc.transform.AddInterfaces.transformMixinInfo(AddInterfaces.scala:221)
-	at scala.tools.nsc.transform.Erasure.transformInfo(Erasure.scala:388)
-	at scala.tools.nsc.transform.InfoTransform$Phase$$anon$1.transform(InfoTransform.scala:38)
-	at scala.reflect.internal.Symbols$Symbol.rawInfo(Symbols.scala:1625)
-	at scala.reflect.internal.Symbols$Symbol.info(Symbols.scala:1545)
-	at scala.tools.nsc.backend.ScalaPrimitives.addPrimitives(ScalaPrimitives.scala:445)
-	at scala.tools.nsc.backend.ScalaPrimitives.init(ScalaPrimitives.scala:390)
-	at scala.tools.nsc.backend.icode.GenICode$ICodePhase.run(GenICode.scala:52)
-	at scala.tools.nsc.Global$Run.compileUnitsInternal(Global.scala:1528)
-	at scala.tools.nsc.Global$Run.compileUnits(Global.scala:1513)
-	at scala.tools.nsc.Global$Run.compileSources(Global.scala:1508)
-	at scala.tools.nsc.interpreter.IMain.compileSourcesKeepingRun(IMain.scala:442)
-	at scala.tools.nsc.interpreter.IMain$ReadEvalPrint.compileAndSaveRun(IMain.scala:862)
-	at scala.tools.nsc.interpreter.IMain$ReadEvalPrint.compile(IMain.scala:820)
-	at scala.tools.nsc.interpreter.IMain$Request.compile$lzycompute(IMain.scala:1009)
-	at scala.tools.nsc.interpreter.IMain$Request.compile(IMain.scala:1004)
-	at scala.tools.nsc.interpreter.IMain.compile(IMain.scala:586)
-	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:574)
-	at scala.tools.nsc.interpreter.IMain.interpretSynthetic(IMain.scala:573)
-	at scala.tools.nsc.interpreter.ExprTyper$class.asExpr$1(ExprTyper.scala:26)
-	at scala.tools.nsc.interpreter.ExprTyper$$anonfun$symbolOfLine$1.apply(ExprTyper.scala:51)
-	at scala.tools.nsc.interpreter.ExprTyper$$anonfun$symbolOfLine$1.apply(ExprTyper.scala:51)
-	at scala.tools.nsc.interpreter.IMain.beSilentDuring(IMain.scala:227)
-	at scala.tools.nsc.interpreter.ExprTyper$class.symbolOfLine(ExprTyper.scala:51)
-	at scala.tools.nsc.interpreter.IMain$exprTyper$.symbolOfLine(IMain.scala:1179)
-java.lang.OutOfMemoryError: GC overhead limit exceeded
-<simpleError in doTryCatch(return(expr), name, parentenv, handler): Exception thrown.>
+java.lang.OutOfMemoryError: Java heap space
+  ... 32 elided
+<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
 > 
 > 
 > 

@@ -68,7 +68,7 @@ system.time({
   e <- function(x=0,y=4L,name="dog") s %!% '
     name + " " + ( x + y )
   '
-  scalaOptimize(e)
+  rscala:::scalaOptimize(e)
 })
 
 # Taking advantage of caching
@@ -76,7 +76,7 @@ system.time({
   f <- function(x=0,y=4L,name="dog") s %!% '
     name + " " + ( x + y )
   '
-  scalaOptimize(f)
+  rscala:::scalaOptimize(f)
 })
 
 ####
@@ -97,9 +97,9 @@ str$length()
 
 nd0 <- rng1$nextDouble(.EVALUATE=FALSE)
 nd1 <- function() s %!% 'R.cached("@{toString(rng1)}").asInstanceOf[@{rng1[[\'type\']]}].nextDouble()'
-nd1b <- scalaOptimize(nd1)
+nd1b <- rscala:::scalaOptimize(nd1)
 nd2 <- function() s %!% '@{rng2}.nextDouble()'
-nd2b <- scalaOptimize(nd2)
+nd2b <- rscala:::scalaOptimize(nd2)
 
 library("microbenchmark")
 
@@ -127,7 +127,7 @@ f(4)
 tryCatch(f(-3), error=function(e) e)
 f(0)
 
-g <- scalaOptimize(f)
+g <- rscala:::scalaOptimize(f)
 g(4)
 g(-3)     ## Note that no error because R code as been optimized away!
 g(0)      ## And we don't get the special case when x==0.

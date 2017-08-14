@@ -1,6 +1,6 @@
 > heap.maximum <- "64M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # rencher # TRUE # TRUE
+# R version 3.4.0 (2017-04-21) # becker # TRUE # TRUE
 > 
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 java.lang.reflect.InvocationTargetException
@@ -47,14 +47,14 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.CommonRunner.runAndCatch(ObjectRunner.scala:29)
 	at scala.tools.nsc.CommonRunner.runAndCatch$(ObjectRunner.scala:28)
 	at scala.tools.nsc.ObjectRunner$.runAndCatch(ObjectRunner.scala:39)
-	at scala.tools.nsc.MainGenericRunner.runTarget$1(MainGenericRunner.scala:61)
-	at scala.tools.nsc.MainGenericRunner.run$1(MainGenericRunner.scala:88)
-	at scala.tools.nsc.MainGenericRunner.process(MainGenericRunner.scala:99)
-	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:104)
+	at scala.tools.nsc.MainGenericRunner.runTarget$1(MainGenericRunner.scala:66)
+	at scala.tools.nsc.MainGenericRunner.run$1(MainGenericRunner.scala:85)
+	at scala.tools.nsc.MainGenericRunner.process(MainGenericRunner.scala:96)
+	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:101)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.OutOfMemoryError: Java heap space
 	at $line6.$read$$iw$$iw$.$anonfun$res1$1(<console>:18)
-	at $line6.$read$$iw$$iw$$$Lambda$1014/1611221523.apply(Unknown Source)
+	at $line6.$read$$iw$$iw$$$Lambda$1031/1468393491.apply(Unknown Source)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -62,12 +62,12 @@ Caused by: java.lang.OutOfMemoryError: Java heap space
 	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:128)
 	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:512)
 	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$2(ScalaServer.scala:531)
-	at org.ddahl.rscala.server.ScalaServer$$Lambda$922/1974622245.apply$mcV$sp(Unknown Source)
+	at org.ddahl.rscala.server.ScalaServer$$Lambda$949/65894433.apply$mcV$sp(Unknown Source)
 	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withErr(Console.scala:192)
 	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$1(ScalaServer.scala:531)
-	at org.ddahl.rscala.server.ScalaServer$$Lambda$921/552674617.apply$mcV$sp(Unknown Source)
+	at org.ddahl.rscala.server.ScalaServer$$Lambda$948/1450830187.apply$mcV$sp(Unknown Source)
 	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withOut(Console.scala:163)
@@ -78,7 +78,7 @@ Caused by: java.lang.OutOfMemoryError: Java heap space
 	at scala.Function0.apply$mcV$sp$(Function0.scala:34)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
 	at scala.App.$anonfun$main$1$adapted(App.scala:76)
-	at scala.App$$Lambda$100/1694819250.apply(Unknown Source)
+	at scala.App$$Lambda$104/758529971.apply(Unknown Source)
 	at scala.collection.immutable.List.foreach(List.scala:389)
 	at scala.App.main(App.scala:76)
 	at scala.App.main$(App.scala:74)
@@ -94,7 +94,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # rencher # TRUE # TRUE
+# R version 3.4.0 (2017-04-21) # becker # TRUE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -102,7 +102,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="64M")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # rencher # TRUE # TRUE
+# R version 3.4.0 (2017-04-21) # becker # TRUE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -110,7 +110,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="128M")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # rencher # TRUE # TRUE
+# R version 3.4.0 (2017-04-21) # becker # TRUE # TRUE
 > for ( i in 1:2000 ) {
 +   a <- s$".Array[Double]"$new(100000L)  # No memory problems
 + }
@@ -120,9 +120,41 @@ java.lang.OutOfMemoryError: Java heap space
 +   s %~% "new Array[Double](100000)"           # Memory problems
 + }
 + },error=function(e) e)
-java.lang.OutOfMemoryError: Java heap space
-  ... 32 elided
-<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
+java.lang.OutOfMemoryError: GC overhead limit exceeded
+	at scala.collection.immutable.List$.newBuilder(List.scala:461)
+	at scala.collection.generic.GenericTraversableTemplate.genericBuilder(GenericTraversableTemplate.scala:70)
+	at scala.collection.generic.GenericTraversableTemplate.genericBuilder$(GenericTraversableTemplate.scala:70)
+	at scala.collection.AbstractTraversable.genericBuilder(Traversable.scala:104)
+	at scala.collection.generic.GenericTraversableTemplate.unzip(GenericTraversableTemplate.scala:94)
+	at scala.collection.generic.GenericTraversableTemplate.unzip$(GenericTraversableTemplate.scala:93)
+	at scala.collection.AbstractTraversable.unzip(Traversable.scala:104)
+	at scala.tools.nsc.transform.SpecializeTypes.scala$tools$nsc$transform$SpecializeTypes$$subst(SpecializeTypes.scala:1223)
+	at scala.tools.nsc.transform.SpecializeTypes.applyContext$1(SpecializeTypes.scala:632)
+	at scala.tools.nsc.transform.SpecializeTypes.specializedClass$1(SpecializeTypes.scala:655)
+	at scala.tools.nsc.transform.SpecializeTypes.$anonfun$specializeClass$33(SpecializeTypes.scala:863)
+	at scala.tools.nsc.transform.SpecializeTypes.specializeClass(SpecializeTypes.scala:862)
+	at scala.tools.nsc.transform.SpecializeTypes.transformInfo(SpecializeTypes.scala:1266)
+	at scala.tools.nsc.transform.InfoTransform$Phase$$anon$1.transform(InfoTransform.scala:38)
+	at scala.reflect.internal.Symbols$Symbol.rawInfo(Symbols.scala:1624)
+	at scala.reflect.internal.Symbols$Symbol.info(Symbols.scala:1541)
+	at scala.tools.nsc.transform.SpecializeTypes$SpecializationPhase.$anonfun$run$3(SpecializeTypes.scala:205)
+	at scala.tools.nsc.transform.SpecializeTypes$SpecializationPhase$$Lambda$497/1357563986.apply(Unknown Source)
+	at scala.collection.TraversableLike.$anonfun$map$1(TraversableLike.scala:234)
+	at scala.collection.TraversableLike$$Lambda$82/326549596.apply(Unknown Source)
+	at scala.collection.Iterator.foreach(Iterator.scala:929)
+	at scala.collection.Iterator.foreach$(Iterator.scala:929)
+	at scala.collection.AbstractIterator.foreach(Iterator.scala:1417)
+	at scala.collection.IterableLike.foreach(IterableLike.scala:71)
+	at scala.collection.IterableLike.foreach$(IterableLike.scala:70)
+	at scala.collection.AbstractIterable.foreach(Iterable.scala:54)
+	at scala.collection.TraversableLike.map(TraversableLike.scala:234)
+	at scala.collection.TraversableLike.map$(TraversableLike.scala:227)
+	at scala.collection.AbstractTraversable.map(Traversable.scala:104)
+	at scala.tools.nsc.transform.SpecializeTypes$SpecializationPhase.$anonfun$run$1(SpecializeTypes.scala:205)
+	at scala.tools.nsc.transform.SpecializeTypes$SpecializationPhase.run(SpecializeTypes.scala:203)
+	at scala.tools.nsc.Global$Run.compileUnitsInternal(Global.scala:1431)
+java.lang.OutOfMemoryError: GC overhead limit exceeded
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Exception thrown.>
 > 
 > 
 > 

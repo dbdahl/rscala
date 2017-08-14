@@ -1,6 +1,6 @@
 > heap.maximum <- "64M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # rencher # TRUE # FALSE
+# R version 3.4.0 (2017-04-21) # becker # TRUE # FALSE
 > 
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 java.lang.reflect.InvocationTargetException
@@ -92,7 +92,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # rencher # TRUE # FALSE
+# R version 3.4.0 (2017-04-21) # becker # TRUE # FALSE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -100,7 +100,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="64M")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # rencher # TRUE # FALSE
+# R version 3.4.0 (2017-04-21) # becker # TRUE # FALSE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -108,7 +108,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="128M")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # rencher # TRUE # FALSE
+# R version 3.4.0 (2017-04-21) # becker # TRUE # FALSE
 > for ( i in 1:2000 ) {
 +   a <- s$".Array[Double]"$new(100000L)  # No memory problems
 + }
@@ -118,9 +118,41 @@ java.lang.OutOfMemoryError: Java heap space
 +   s %~% "new Array[Double](100000)"           # Memory problems
 + }
 + },error=function(e) e)
-java.lang.OutOfMemoryError: Java heap space
-  ... 32 elided
-<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
+java.lang.OutOfMemoryError: GC overhead limit exceeded
+	at scala.reflect.internal.Scopes$class.scala$reflect$internal$Scopes$$newScopeEntry(Scopes.scala:37)
+	at scala.reflect.internal.Scopes$Scope.enter(Scopes.scala:124)
+	at scala.reflect.internal.tpe.FindMembers$FindMembers.addMemberIfNew(FindMembers.scala:214)
+	at scala.reflect.internal.tpe.FindMembers$FindMemberBase.walkBaseClasses(FindMembers.scala:98)
+	at scala.reflect.internal.tpe.FindMembers$FindMemberBase.searchConcreteThenDeferred(FindMembers.scala:56)
+	at scala.reflect.internal.tpe.FindMembers$FindMemberBase.apply(FindMembers.scala:48)
+	at scala.reflect.internal.Types$Type.scala$reflect$internal$Types$Type$$findMembersInternal$1(Types.scala:1004)
+	at scala.reflect.internal.Types$Type.findMembers(Types.scala:1005)
+	at scala.reflect.internal.Types$Type.membersBasedOnFlags(Types.scala:633)
+	at scala.reflect.internal.Types$Type.nonPrivateMembersAdmitting(Types.scala:594)
+	at scala.tools.nsc.typechecker.RefChecks$RefCheckTransformer.memberList$1(RefChecks.scala:606)
+	at scala.tools.nsc.typechecker.RefChecks$RefCheckTransformer.checkNoAbstractMembers$1(RefChecks.scala:607)
+	at scala.tools.nsc.typechecker.RefChecks$RefCheckTransformer.checkAllOverrides(RefChecks.scala:752)
+	at scala.tools.nsc.typechecker.RefChecks$RefCheckTransformer.transform(RefChecks.scala:1672)
+	at scala.tools.nsc.typechecker.RefChecks$RefCheckTransformer.transform(RefChecks.scala:111)
+	at scala.reflect.api.Trees$Transformer.transformTemplate(Trees.scala:2563)
+	at scala.reflect.internal.Trees$$anonfun$itransform$4.apply(Trees.scala:1408)
+	at scala.reflect.internal.Trees$$anonfun$itransform$4.apply(Trees.scala:1407)
+	at scala.reflect.api.Trees$Transformer.atOwner(Trees.scala:2600)
+	at scala.reflect.internal.Trees$class.itransform(Trees.scala:1406)
+	at scala.reflect.internal.SymbolTable.itransform(SymbolTable.scala:16)
+	at scala.reflect.internal.SymbolTable.itransform(SymbolTable.scala:16)
+	at scala.reflect.api.Trees$Transformer.transform(Trees.scala:2555)
+	at scala.tools.nsc.typechecker.RefChecks$RefCheckTransformer.transform(RefChecks.scala:1785)
+	at scala.tools.nsc.typechecker.RefChecks$RefCheckTransformer.transform(RefChecks.scala:111)
+	at scala.reflect.api.Trees$Transformer$$anonfun$transformTrees$1.apply(Trees.scala:2559)
+	at scala.reflect.api.Trees$Transformer$$anonfun$transformTrees$1.apply(Trees.scala:2559)
+	at scala.collection.immutable.List.loop$1(List.scala:176)
+	at scala.collection.immutable.List.mapConserve(List.scala:200)
+	at scala.reflect.api.Trees$Transformer.transformTrees(Trees.scala:2559)
+	at scala.tools.nsc.typechecker.RefChecks$RefCheckTransformer$$anonfun$eliminateModuleDefs$1.apply(RefChecks.scala:1236)
+	at scala.tools.nsc.typechecker.RefChecks$RefCheckTransformer$$anonfun$eliminateModuleDefs$1.apply(RefChecks.scala:1182)
+java.lang.OutOfMemoryError: GC overhead limit exceeded
+<simpleError in doTryCatch(return(expr), name, parentenv, handler): Exception thrown.>
 > 
 > 
 > 
