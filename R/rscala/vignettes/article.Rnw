@@ -168,9 +168,11 @@ Machine (JVM) at speeds comparable to \Java.  As such, \Scala strikes a
 pleasant compromise between execution speed and programmer productivity.
 \Scala is the language in which \pkg{Spark}, a cluster-computing framework for
 massive datasets, is written.  More generally, a number of books have recently
-published on using \Scala for data science, machine learning, and statistical
-computing.  (Citations) We believe that \Scala deserves consideration when
-looking for a general-purpose programming language to complement \R.
+published on using \Scala for data science \citep{a9781785281372}, scientific
+computing \citep{a9781785886942}, machine learning \citep{a9781783558742}, and
+probabilistic programmings \citep{a9781617292330}.  We believe that \Scala
+deserves consideration when looking for a general-purpose programming language
+to complement \R.
 
 \R \citep{r} is a scripting language and environment developed by statisticians
 for statistical computing and graphics.  \R has many contributors and a large
