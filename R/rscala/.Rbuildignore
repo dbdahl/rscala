@@ -3,3 +3,6 @@
 ^vignettes/jss-style\.zip$
 ^vignettes/jss\.bst$
 ^vignettes/jss\.cls$
+^vignettes/article\.bbl$
+^vignettes/article\.blg$
+^vignettes/figure$

@@ -50,18 +50,18 @@ scala(classpath=character(), classpath.packages=character(),
       serialize.output=.Platform$OS.type=="windows", scala.home=NULL,
       heap.maximum=NULL, command.line.options=NULL, row.major=TRUE,
       timeout=60, debug=FALSE, stdout=TRUE, stderr=TRUE, port=0,
-      scalaInfo=NULL, major.version=c("2.10","2.11","2.12"))
+      scalaInfo=NULL, major.release=c("2.10","2.11","2.12"))
 
-scalaInfo(scala.home=NULL, major.version=c("2.10","2.11","2.12"),
+scalaInfo(scala.home=NULL, major.release=c("2.10","2.11","2.12"),
           verbose=FALSE)
 
-scalaInstall(major.version=c("2.10","2.11","2.12"))
+scalaInstall(major.release=c("2.10","2.11","2.12"))
 
-.rscalaJar(major.version=c("2.10","2.11","2.12"))
+.rscalaJar(major.release=c("2.10","2.11","2.12"))
 
 .rscalaPackage(pkgname, snippet=character(), classpath.packages=character(),
                classpath.prepend=character(), classpath.append=character(),
-               major.version=c("2.10","2.11","2.12"), ...)
+               major.release=c("2.10","2.11","2.12"), ...)
 
 .rscalaPackageUnload()
 
@@ -81,7 +81,7 @@ scalaInstall(major.version=c("2.10","2.11","2.12"))
     \item{port}{If \code{0}, two random ports are selected.  Otherwise, \code{port} and \code{port+1} are used to the TCP/IP connections.}
     \item{scalaInfo}{The result of a previous call to \code{\link{scalaInfo}}.}
     \item{verbose}{A logical vector of length one indicating whether information regarding the search for the Scala installation should be displayed.}
-    \item{major.version}{The character vector giving acceptable major version numbers (e.g., c("2.10","2.11","2.12")), or \code{NA} in which case the system picks the appropriate version.}
+    \item{major.release}{The character vector giving acceptable major.release numbers (e.g., c("2.10","2.11","2.12")), or \code{NA} in which case the system picks the appropriate version.}
     \item{pkgname}{A character string giving the name of the package (as provided the second argument of the \code{.onLoad} function) that wishes to depend on this package.}
     \item{snippet}{A character vector providing Scala code that will be evaluated when the interpreter in the package namespace is first used.}
     \item{classpath.prepend}{A character vector giving the full path to JAR files to add to the \emph{beginning} of the classpath for the Scala compiler/interpreter embedded within a package via the \code{\link{.rscalaPackage}} function.  The JAR files in the package's \sQuote{java} directory are already included and do not need to be added here.}

@@ -39,7 +39,7 @@ scalaNull(type)
 \arguments{
     \item{interpreter}{An interpreter from the \code{\link{scala}} function.} %  Or, when used in the \code{\link{scalap}} function, a Scala reference or a Scala interpreter.}
     \item{snippet}{A character vector of arbitrary length to be evaluated by the interpreter.  Multiline elements are accepted.}
-    \item{scalaFunction}{A (unoptimized) Scala function created by calling \code{interpreter \%!\% snippet} and \code{interpreter \%.!\% snippet} within a function.}
+%    \item{scalaFunction}{A (unoptimized) Scala function created by calling \code{interpreter \%!\% snippet} and \code{interpreter \%.!\% snippet} within a function.}
     \item{type}{A string containing a valid Scala type, e.g., \code{"List[Double]"}.}
     \item{identifier}{A character vector of length one containing a valid Scala identifier.}
     \item{value}{Either: i. a vector or matrix of integers, doubles, logicals, characters, or raw, or ii. a Scala reference.}
@@ -84,7 +84,7 @@ invocation is especially noticeable for quick functions.
     \code{function(...) s \%!\% snippet} returns a Scala function where \code{...} should be named arguments that can be used in the Scala code given in \code{snippet}.
     \code{function(...) s \%.!\% snippet} is the same, except a Scala reference is always returned.
 
-    \code{scalaFunction(f)} returns an optimized Scala function having less invocation latency than the provided (unoptimized) Scala function \code{f}.
+%    \code{scalaOptimize(f)} returns an optimized Scala function having less invocation latency than the provided (unoptimized) Scala function \code{f}.
 
     \code{scalaNull(type)} returns a null reference whose Scala type is \code{type}.  This can be helpful in defining Scala functions.
 
