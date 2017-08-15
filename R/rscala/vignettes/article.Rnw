@@ -1,14 +1,6 @@
 %\VignetteEngine{knitr::knitr}
 %\VignetteIndexEntry{rscala: Integration of R and Scala}
 
-%% Parts to write:
-%%    * Abstract
-%%    * Introduction
-%%    * Bootstrap example
-%%    * MCMC example
-%%    * Comparison to other software
-%%    * Conclusion
-
 \documentclass[article]{jss}
 
 \let\hlesc\hlstd \let\hlpps\hlstd \let\hllin\hlstd \let\hlslc\hlcom
@@ -56,7 +48,7 @@
 
 %% almost as usual
 \author{David B.\ Dahl\\Brigham Young University}
-\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.3.1,\ \ Document Date: 2017-08-14}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
+\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.3.1,\ \ Document Date: 2017-08-15}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
 
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{David B. Dahl} %% comma-separated
@@ -66,12 +58,12 @@
 %% an abstract and keywords
 \Abstract{
 The \rscala package is a simple, two-way bridge between \R and \Scala. \Scala
-classes can be instantiated from \R, and both \Scala and \Java methods can be
-called as native \R functions.  Furthermore, arbitrary \Scala code can be
-executed on-the-fly from within \R, inline \Scala functions can be defined,
-and callbacks to \R are supported.  Finally, \rscala also enables \R code to
-be embedded within a \Scala application.  The \rscala package is available on
-CRAN and requires no special installations or configurations of \R or \Scala.
+classes can be instantiated from \R and \Scala methods can be called.
+Arbitrary \Scala code can be executed on-the-fly from within \R, inline \Scala
+functions can be defined, and callbacks to \R are supported.  \R packages can
+implement algorithms in \Scala.  Conversely, \rscala also enables \R code to be
+embedded within a \Scala application.  The \rscala package is available on CRAN
+and has no dependencies beyond the \Scala standard library and base \R.
 }
 
 \Keywords{embedded interpreter, \Java, Java Virtual Machine, JVM, \R, \Scala}
@@ -157,66 +149,128 @@ knit_hooks$set(source = function(x, options) {
 \section{Introduction}
 \label{introduction}
 
-\Scala  \citep{scala} is a general-purpose, statically-typed programming
+This paper introduces \rscala, software providing a bridge between \R and
+\Scala.  The goal of the software is to allow users to easily leverage the
+unique strengths of \Scala and \R to make them more productive.  \Scala can be
+embedded within \R using the \rscala package available on the Comprehensive R
+Archive Network (CRAN).  Callbacks from embedded \Scala into \R are supported.
+\R packages can implement computationally-intensive algorithms in \Scala.
+Conversely, \R can be embedded within a \Scala application by a one-line
+dependency declaration in \pkg{Scala Build Tool} (SBT).
+
+\Scala \citep{scala} is a general-purpose, statically-typed programming
 language that supports both object-oriented and functional programming
-paradigms.  The integration of these two paradigms allows a developer to
-choose the best paradigm for a given task.  Code is generally concise, thanks
-in part to type inference.  Martin Odersky, a professor at EPFL in Switzerland,
-is the primary architect of \Scala. Previously, Odersky worked for Sun Microsystems
-where he developed the current generation of the \Java \citep{java} compiler.
-It is said that \Scala's design is influenced by criticisms of \Java though
-a high level of interoperability between \Scala and \Java is maintained.
-Indeed, \Scala source code compiles to \Java bytecode and runs on the Java
-Virtual Machine (JVM).  Typesafe, a company co-founded by Odersky,
-provides an open source platform centered around \Scala and makes its money
-providing training, consulting, and commercial support for the platform.
+paradigms.  The integration of these two paradigms allows a developer to choose
+the best paradigm for a given task.  Code is generally concise, thanks in part
+to type inference, higher-order functions, and a large collection of libraries.
+\Scala source code compiles to \Java bytecode and runs on the Java Virtual
+Machine (JVM) at speeds comparable to \Java.  As such, \Scala strikes a
+pleasant compromise between execution speed and programmer productivity.
+\Scala is the language in which \pkg{Spark}, a cluster-computing framework for
+massive datasets, is written.  More generally, a number of books have recently
+published on using \Scala for data science, machine learning, and statistical
+computing.  (Citations) We believe that \Scala deserves consideration when
+looking for a general-purpose programming language to complement \R.
 
 \R \citep{r} is a scripting language and environment developed by statisticians
-for statistical computing and graphics.  \R
-has many contributors and a large base of statistically-oriented users.  \Scala
-and \R each have distinct strengths and weaknesses.  We believe that \Scala
-deserves consideration when looking for a general-purpose programming language
-to complement \R, but advocating \Scala for statistical computing is beyond
-the scope of this paper.  Instead, this paper introduces our \rscala
-\citep{rscala} package to those that are already somewhat familiar with \R and
-\Scala.  The package allows users to seamlessly incorporate \R and \Scala (or
-\Java) code in one program and utilize each language's respective strengths
-(including libraries, methods, speed, graphics, etc.).  Specifically, \rscala
-provides a two-way bridge between \R and \Scala, enabling \R to execute
-\Scala code and vice versa.  \Scala and \Java classes can be instantiated,
-methods of \Scala and \Java classes can be called directly, inline \Scala
-functions can be defined, and arbitrary \Scala code can be executed on-the-fly
-from within \R.  Callbacks from \Scala into the original \R interpreter are
-also supported.  Conversely, arbitrary \R code can be evaluated from within a \Scala
-application through an embedded \R interpreter.
+for statistical computing and graphics.  \R has many contributors and a large
+base of statistically-oriented users.  \R's has over actively-maintained 11,000
+packages on CRAN (whereas \Scala's statistical libraries are not nearly as
+complete).  \R code can be very concise and expressive, but may also run
+significantly slower than compiled languages.  In fact, computationally
+intensive tasks in \R are typically implemented in \C, \Cpp, and \Fortran code.
+The manual ``Writing R Extensions'' details how to write \C, \Cpp, and \Fortran
+code that can be linked and called from \R at run time.  The \Rcpp package
+seeks to make it easier to integrate \C and \Cpp code in \R.  The \rJava
+package adds \Java as a fourth language that one might use to write \R
+extensions.  The \rscala package seeks to add \Scala as a fifth language for
+writing \R extensions.  That is, \rscala is to \Scala as \rJava is to \Java and
+as \Rcpp is the \C and \Cpp.  While the level of integration between \Scala and
+\R provided by \rscala is not as deep as those available to \C, \Cpp, and \Java
+provided by \Rcpp and \rJava, \rscala is sufficient in many cases.  For
+example, the \pkg{shallot} \citep{shallotSoftware} and \pkg{bamboo}
+\citep{bambooSoftware} packages on CRAN use \Scala via \rscala to implement
+statistical methodology of associated journal articles
+\citep{shallotPaper,bambooPaper}.  Beyond writing \rscala-based packages,
+\rscala also provides a simple and convenient way to leverage \Scala in an
+existing \R workflow.  Callbacks to \R from \Scala are supported which enables
+\Scala implementations of general algorithms (e.g., root finding methods) based
+on user-supplied \R functions.  In short, \Scala and \R each have distinct
+strengths and our \rscala software allows the user to easily leverage the
+advantages of each in a single project.
 
-Thus, the \rscala package allows \R developers to reuse \Scala code and apply
-their \Scala skills to make \R extensions.  On the other hand, \rscala allows
-\Scala developers to make use of \R's broad array of data analysis and graphing
-capabilities from within a \Scala application.  The \rscala package is intended
-to provide this bridge to those who have an interest in both \Scala and \R.
-This is not unlike what has already been done with \R and other languages.
-Although largely transparent to the user, much of \R's core is implemented with
-calls to \C, \Cpp, and \Fortran code.  These low-level languages provide more
-flexibility in memory management and compile to code that executes relatively
-quickly.  The \rJava \citep{rjava} package extends this support to precompiled
-\Java code.  While results vary depending on the algorithm and testing
-methodology, it is generally recognized that well-designed \C, \Cpp, and
-\Fortran code will execute faster and use less memory than \Java.
-Nevertheless, \Java arguably has several advantages and has attracted a
-substantial developer base.  The \rJava package allows developers to use
-existing \Java code and to apply their \Java skills to make \R extensions.  The
-\rscala package aims to do for \Scala what \rJava has done for \Java.
+% Thus, the \rscala package allows \R developers to reuse \Scala code and apply
+% their \Scala skills to make \R extensions.  On the other hand, \rscala allows
+% \Scala developers to make use of \R's broad array of data analysis and graphing
+% capabilities from within a \Scala application.  The \rscala package is intended
+% to provide this bridge to those who have an interest in both \Scala and \R.
+% This is not unlike what has already been done with \R and other languages.
+% Although largely transparent to the user, much of \R's core is implemented with
+% calls to \C, \Cpp, and \Fortran code.  These low-level languages provide more
+% flexibility in memory management and compile to code that executes relatively
+% quickly.  The \rJava \citep{rjava} package extends this support to precompiled
+% \Java code.  While results vary depending on the algorithm and testing
+% methodology, it is generally recognized that well-designed \C, \Cpp, and
+% \Fortran code will execute faster and use less memory than \Java.
+% Nevertheless, \Java arguably has several advantages and has attracted a
+% substantial developer base.  The \rJava package allows developers to use
+% existing \Java code and to apply their \Java skills to make \R extensions.  The
+% \rscala package aims to do for \Scala what \rJava has done for \Java.
 
-The paper is organized as follows.  Section \ref{usage} provides a general
-usage guide to get users started quickly.  Technical details of the package
-implementation are discussed in Section \ref{implementation}.  Comparisons to
-other software, including numerical benchmarks, are provided in Section
-\ref{comparisons}.  Section \ref{caseStudies} looks at two case studies using
-the \rscala package.  We conclude with future work in Section \ref{conclusion}.
+The \rscala software has no dependences beyond the \Scala's standard library
+and base \R.  The bridge between \R and \Scala is based on a custom TCP/IP
+protocol.  This affords flexibility but it is natural to question whether
+\rscala could have been developed more easily by building on existing software.
+Since \Scala code compiles to \Java byte code and runs on the JVM, one could
+access \Scala from \R via \rJava and then benefit for the speed of shared
+memory.  In fact, an early implementation of (what is now known as) \rscala was
+indeed based on \rJava.  This implementation was abandoned for several reasons.
+First, some users struggle with installing and maintaining a working \rJava
+installation.  The \rJava issue tracker on GitHub
+(\url{https://github.com/s-u/rJava/issues}) shows a number of closed issues
+that users have with \rJava maintenance.  In fairness to \rJava, these are
+mostly user errors.  Nevertheless, the reach of package based on \rJava may be
+limited because some users lack the skills or patients to resolve technical
+issues regarding system maintenance.  Second, \rJava and \Scala's
+read-eval-print loop (REPL) are both implemented using custom class loaders
+which seem to conflict with each other.  Third, since \rJava links to a single
+instance of the JVM, there is the possibility that an \rJava-based package
+configures the JVM in a manner that is not compatible with a second
+\rJava-based package.  Finally, callbacks in \rJava are provided by the
+optional \pkg{JRI} component which is only available if \R is built as a shared
+library.  While this is the case on many platforms, it is not universal and
+therefore callbacks could not be a guaranteed feature of \rscala software if
+it were based on \rJava's \pkg{JRI}.
+
+The ability of \rscala to embed \R in a \Scala application is an offshoot the
+callback functionality and came at little marginal cost.  Those who are
+interested in accessing \R from \Scala should also consider \Rserve
+\citep{rserve} which, like \rscala, is ``a TCP/IP server which allows other
+programs to use facilities of \R'' (\url{http://www.rforge.net/Rserve}).
+\Rserve clients are available for many languages including \Java and,
+therefore, \Scala (since \Scala can call \Java code).  \Rserve is fast and
+provides a much richer API than \rscala.  Unfortunately, like \rJava, \Rserve
+requires that \R be compiled as a shared library.  \Rserve also has some
+limitations on Windows and the user is advised to not ``use Windows unless you
+really have to'' (\url{http://www.rforge.net/Rserve/doc.html}).  Conversely,
+\rscala provides the same functionality on all operating systems and does not
+require \R to be compiled as a shared library.
+
+The paper is organized as follows.  Section \ref{scalainr} describes \rscala's
+functionality to access \Scala from \R.  Some of the more important topics
+presented there include the data types supported by \rscala, embedding \Scala
+snippets in an \R script, accessing precompiled \Scala code from \R, calling
+back into \R from embedded \Scala, and developing \R packages based on \Scala.
+Section \ref{rinscala} describes \rscala's functionality to access \R from
+\Scala.  Throughout these sections, concise examples are provided to help
+describe the functionality and illustrate why one might interested in bridging
+\R and \Scala.  Section \ref{bootstrap} provides an case study to show how
+\Scala can easily be embedded in \R to significantly improved the computation
+time for a simulation study.  We conclude with future work in Section
+\ref{conclusion}.
 
 \section[Accessing Scala in R]{Accessing \Scala in \R}
-\label{usage}
+\label{scalainr}
 
 This section provides a guide to accessing
 \Scala from \R.  Those interested in the reverse --- accessing \R from \Scala
@@ -470,7 +524,7 @@ fibSeqReference <- s %.~% 'fibSeq'
 @
 
 \Scala values can also be obtained using the \code{\$} operator and the
-identifier name.  For example, the following both provide equivelent
+identifier name.  For example, the following both provide equivalent
 definitions for \code{fibSeqAsDouble} above.
 
 <<gettingUsingDollarSign2>>=
@@ -512,7 +566,7 @@ rng <- s$do('scala.util.Random')$new(seed)
 
 Each method differs in terms of flexibility, readability, and speed.  The first
 is mostly \Scala code and therefore self-evident to a \Scala developer, but it
-is the slowest and akward when arguments are not easily set with string
+is the slowest and awkward when arguments are not easily set with string
 interpolation.  The second (using \code{s\$.}) is concise, fast, and flexible
 in the arguments.  The string literal following \code{s\$.} and before the
 second \code{\$} (e.g., \code{scala.util.Random}) can be the name of any class
@@ -553,7 +607,7 @@ rng$self()
 
 \subsubsection{Calling methods of singleton objects}
 
-In constrast to \Java, \Scala classes do not have static variables or methods.
+In contrast to \Java, \Scala classes do not have static variables or methods.
 Equivalent functionality is provided by singleton objects in \Scala.  A
 companion object is a singleton object whose name is the same as a class.
 Methods of singleton objects can be called in three ways.  For example,
@@ -581,7 +635,7 @@ flexibility, readability, and speed.
 % scalap(rng)
 % @
 % 
-% The \rscala package also provide rudimental tab-completion for method names of
+% The \rscala package also provide rudimentary tab-completion for method names of
 % \Scala references.
 
 \subsubsection[Method arguments, null references, and length-one vectors]{Method arguments, null references, and length-one vectors}
@@ -598,7 +652,7 @@ s$.java.lang.System$setProperties(scalaNull('java.util.Properties'))
 @
 
 \R has no scalar types but they are often used in \Scala.  As such, length-one
-vectors have special symantics.  In the \R expression \code{rng\$nextInt(10L)},
+vectors have special semantics.  In the \R expression \code{rng\$nextInt(10L)},
 the value \code{10L} is an integer vector of length one in \R, but is passed to
 \Scala as \code{Int}, not \code{Array[Int]}.  This is the most natural and
 convenient behavior.  If, however, an \R vector should always be passed as an
@@ -1098,12 +1152,14 @@ millisecond delays can add up.
 
 \subsection[Developing packages based on rscala]{Developing packages based on \rscala}
 
-The \rscala package enables developers to use \Scala in their own \R packages.
-For example, the \pkg{shallot} \citep{shallotSoftware} and \pkg{bamboo}
-\citep{bambooSoftware} packages on CRAN use \Scala via \rscala to implement
-statistical methodology of their associated journal articles
-\citep{shallotPaper,bambooPaper}.  Readers are invited to study those examples
-in addition to the process described here.
+The \rscala package enables developers to use \Scala in their own \R packages
+to implement computationally intensive algorithms.  For example, the
+\pkg{shallot} \citep{shallotSoftware} and \pkg{bamboo} \citep{bambooSoftware}
+packages on CRAN use \Scala via \rscala to implement statistical methodology of
+their associated journal articles \citep{shallotPaper,bambooPaper}.  The
+\pkg{shallot} package takes advantage of \rscala's callback functionality to
+allow access a user-specific likelihood and sampling function.  Readers are
+invited to study those examples in addition to our description here.
 
 An \R package based on \rscala should include \code{rscala} in the
 \code{Imports} field of the package's \code{DESCRIPTION} file. Also, add
@@ -1220,16 +1276,25 @@ developer is required to write \Java-friendly wrapper methods in \Scala that
 hide advanced \Scala features.
 
 \section[Accessing R in Scala]{Accessing \R in \Scala}
-\label{webapp}
+\label{rinscala}
 
 So far we have demonstrated assessing \Scala from \R.  Conversely, \rscala can
 also embed an \R interpreter in a \Scala application via the
-\code{org.ddahl.rscala.RClient} class.  This class is thread-safe.  Its source
-code and Scaladoc are located on GitHub:
-\url{https://github.com/dbdahl/rscala/}.  As a convenience, \rscala's JAR file
-is available in standard repositories for use by dependency management systems.
-To include \code{org.ddahl.rscala.RClient} in a \Scala application, simply add
-the following line to SBT's \code{build.sbt} file.
+\code{org.ddahl.rscala.RClient} class.  This is achieved by generalizing the
+previously-discussed callback functionality.  In this case, however, there is
+not an existing instance of the \R interpreter.  The \R client spawns an \R
+instance, immediately starts the embedded \R server, and connects \R to \Scala.
+
+The \code{RClient} class is thread-safe.  Source code and Scaladoc are located
+on GitHub: \url{https://github.com/dbdahl/rscala/}.  As a convenience,
+\rscala's JAR file is available in standard repositories for use by dependency
+management systems.  To use \code{RClient} in a \Scala
+application, simply add the following line to SBT's \code{build.sbt} file.
+
+% There are two versions of the \R client. The \Java version
+% (\code{org.ddahl.rscala.RClient4Java}) is a thin wrapper over the \Scala
+% version (\code{org.ddahl.rscala.RClient}).  The wrapper hides \Scala-specific
+% features and provides familiar Javadoc to \Java developers.
 
 <<sbt, engine="scala", eval=FALSE>>=
 libraryDependencies += "org.ddahl" %% "rscala" % "2.3.1"
@@ -1326,7 +1391,7 @@ framework and accessing \R packages using \rscala.}
 \pkg{Apache Spark}, a cluster-computing framework for massive datasets, is
 another example of a \Scala application that might benefit from access to \R.
 \pkg{Spark} provides an application programming interface to \Scala, \Java, \R,
-and \Python.  \R users who are not already familar with \Scala would be best
+and \Python.  \R users who are not already familiar with \Scala would be best
 served by accessing \pkg{Spark} from \R using a dedicated package such as
 \pkg{sparklyr} or \pkg{sparkr}.  \Scala developers, however, might prefer to
 program directly with \pkg{Spark}'s Machine Learning Library (MLlib) in \Scala
@@ -1334,208 +1399,48 @@ and to supplement its functionality with \R through \rscala.  Recall that every
 \code{RClient} has its own workspace, so several instances can be used to
 overcome the single-threaded nature of \R.  One could, for example, use
 \pkg{Apache Commons Pool} to manage a pool of \code{RClient} objects on each
-worker node.
+worker node.  One potential limitation is the cost of pushing large datasets
+over the TCP/IP bridge.
 
 % We have provided support to a developer using \rscala in \pkg{Spark}.
 
-\section{Implementation and Comparison to Other Software}
-\label{implementation}
 
-The \rscala package is designed
-around a client/server model using local TCP/IP sockets.
-
-\subsection[Implementation of Scala code in R]{Implementation of \Scala code in \R}
-
-The \code{scala} function starts a \Scala interpreter on the Java Virtual Machine using \R's
-\code{system2} function. The interpreter runs code that implements an asynchronous TCP/IP server
-and creates an instance of \code{scala.tools.nsc.interpreter.IMain} for \Scala's
-read-eval-print-loop (REPL). The TCP/IP
-server's port is randomly selected by default, but it can be fixed at a
-given value.  While the \Scala
-server is starting up, the \R component attempts to establish a connection using
-functions from the \pkg{base} \R package.  After connecting, the \R client interfaces with the
-server's REPL class by means of a custom protocol.
-
-The \rscala package takes advantage of the \Scala REPL's ability to compile and
-execute \Scala code on-the-fly as well as set and get values of
-identifiers.  When a \Scala function is called for the first time (or when a
-particular method of a \Scala reference is called for the first time), it is
-compiled behind the scenes.  The compiled method is then
-cached and re-used for subsequent calls.  As an illustration, consider the code
-below and notice that the elapsed time is significantly less in the second call
-to the same method.
-
-<<fasterAfterFirstTime>>=
-system.time( print(s$.sys$props("user.name")) )
-system.time( print(s$.sys$props("user.name")) )
-@
-
-
-
-Callback functionality is implemented over the same TCP/IP sockets.
-Immediately after the \R client requests the execution of \Scala code, \R
-becomes a temporary, embedded server to allow the \Scala code to access the \R
-interpreter through the \code{R} object (an instance of the \code{RClient}
-class).  The embedded \R server interprets code and sets/gets values using the
-\code{parse}, \code{eval}, \code{assign}, and \code{get} functions.  After the
-\Scala server executes the \Scala code, it tells the embedded \R server to exit
-and the \Scala server resumes its usual behavior.
-
-\subsection[Implementation of R code in Scala and other JVM applications]{Implementation of \R code in \Scala and other JVM applications}
-
-The functionality that allows \Scala, \Java, and other JVM-based applications
-to access an embedded \R interpreter is achieved by reusing the
-previously-discussed callback functionality.  In this case,
-however, there is not an existing instance of the \R interpreter.  The class
-\code{RClient} spawns an \R instance, connects the \R
-client to the \Scala server, and then immediately starts the embedded \R
-server.  There are two versions of the \R client. The \Java
-version (\code{org.ddahl.rscala.RClient4Java}) is a thin wrapper over the
-\Scala version (\code{org.ddahl.rscala.RClient}).  The wrapper hides \Scala-specific
-features and provides familiar Javadoc to \Java developers.
-
-\section{Comparisons to other software}
-\label{comparisons}
-
-In this section we compare and contrast the \rscala package to other related
-software.
-
-\subsection[Comparison to rJava]{Comparison to \rJava}
-\label{vsRJava}
-
-The \rJava package, together with the included JRI (Java/R interface) software for callbacks,
-serves as inspiration for our \rscala package.  Indeed, we adopt \rJava's
-high-level \code{\$} convenience operator in \rscala.  The
-implementations of the two packages are, however, quite different.  The \rscala
-package uses TCP/IP sockets for communication between processes.  As a
-consequence, \R, \Scala, and/or \Java can be updated without
-reinstalling the package.  In contrast, \rJava uses \Java's JNI (Java native interface) to
-dynamically load the JVM shared library in \R's process space.  The versions of
-\R and \Java must be compatible (i.e., both 32-bit or both 64-bit binaries) and
-updates to either \R or \Java usually require reinstalling the package or
-running \code{R CMD javareconf}.  Callbacks are provided in \rJava using the
-JRI software included with the \rJava package. This requires that \R be
-compiled with the option \code{\textemdash{}enable-R-shlib}. This option is enabled by
-default on Windows and Mac OS X, but it is not enabled for most Linux
-distributions.  While installing \rJava requires a bit more care and
-maintenance, we will see in Section \ref{benchmarks} that it invokes methods
-faster than \rscala does.  JRI also provides a richer interface to \R objects
-than does \rscala.
-
-Since \Scala compiles to \Java bytecode and runs on the Java Virtual Machine,
-some of the functionality in the \rscala package can be replicated using the
-\rJava package.  Both \rscala and \rJava can call precompiled \Java bytecode.
-Features that \rJava does not support include defining inline functions
-(Section \ref{inline}), evaluating arbitrary code (Section \ref{evalCode}), and
-explicit support for \Scala.
-
-We now consider the difficulty of calling \Scala from \rJava.  After working on
-several projects using \rJava to access \Scala code in \R, we found that \Scala
-was cumbersome to use.  \Scala provides several features that do not map
-directly to \Java equivalents.  The \Scala compiler uses name mangling,
-behind-the-scenes code generation, and other techniques when compiling to \Java
-bytecode.  Calling \Scala code that makes use of these features from \rJava
-requires some understanding of \Scala's compiler at a minimum, but often the
-developer is required to write a \Java-friendly wrapper method in \Scala that
-hides advanced \Scala features.  We illustrate this scenario with a few
-examples.  Consider the following \Scala code:
-
-<<scalaScript20,engine="scala",engine.opts=paste0('-nowarn -cp "',rscala::.rscalaJar('2.12'),'"'),comment="//">>=
-// Scala code
-val a = List[String]("apples", "bananas")
-
-var b = List.empty[String]
-b = "bananas" :: b
-b = "apples"  :: b
-
-println(a == b)
-@
-
-The equivalent \R code to create the objects \code{a} and \code{b} in \Scala using the \rscala package
-is a straight-forward syntactic translation:
-
-<<rscalaEquivalent>>=
-a <- s$do('List')$apply('apples', 'bananas')
-
-b <- s$do('List')$'empty[String]'()
-b <- b$'::'('bananas')
-b <- b$'::'('apples')
-
-cat( a$'=='(b) )
-@
-
-There appears to be no translation of the \Scala code to create the object
-\code{a} using the \rJava package.  This is because the \Scala compiler uses
-internal classes to implement the \emph{varargs} in the \code{apply} method.
-One solution would be to write a \Java-friendly wrapper method that the
-developer could call using \rJava.  The object \code{b} can be created in \R
-using the \rJava package, but the developer has to know: i.\ that the \code{::}
-method gets renamed to \code{\$colon\$colon} because \code{::} does not conform
-to JVM specifications, ii.\ that the \Scala companion object \code{List} is
-represented in \Java bytecode by the class \code{List\$}, and iii.\ that
-\Scala's \code{==} method compiles to \Java's \code{equals} method.  Below is
-the equivalent \R code using the \rJava package, except one cannot translate
-the \Scala code for the object \code{a} to an \rJava equivalent:
-
-<<rJavaEquivalent>>=
-@
-
-\clearpage
-\subsection[Comparison to Rcpp]{Comparison to \Rcpp}
-\label{vsRcpp}
-
-From a user's perspective, the \rscala package is very similar to the \Rcpp
-package \citep{rcpp}, with the obvious difference that \rscala supports \Scala
-and \Rcpp supports \Cpp and \C.  Both packages allow the user to define an
-inline function within \R and return an \R function which wraps the
-newly-compiled function.  Both also support callbacks to the original \R
-interpreter and both provide a foundation for building other packages.  Whereas
-\Rcpp loads dynamically-compiled code into R's process space, \rscala uses
-TCP/IP sockets for communication between the \R and JVM processes.  The
-benchmarks in Section \ref{benchmarks} will show that \Rcpp is generally unmatched in
-execution speed, especially for short-lived function calls.
-
-\subsection[Comparison to Rserve]{Comparison to \Rserve}
-\label{vsRserve}
-
-
-Those who are interesting in accessing \R from \Scala should also consider
-\Rserve \citep{rserve} which, like \rscala, is ``a TCP/IP server which allows
-other programs to use facilities of \R'' (\url{http://www.rforge.net/Rserve}).
-\Rserve clients are available for many languages including \Java and therefore
-\Scala (since \Scala can call \Java code).  \Rserve is fast and provides a much
-richer API than \rscala, but requires that \R be compiled with the option
-\code{\textemdash{}enable-R-shlib} (which is the default on Windows and Mac OS
-X, but is not for some Linux distributions).  \Rserve also has some limitations
-on Windows and the user is advised to not ``use Windows unless you really have
-to'' (\url{http://www.rforge.net/Rserve/doc.html}).
-
-Conversely, \rscala provides the same functionality on all operating systems
-and uses a standard installation of \R. 
-
-\Rserve \citep{rserve} ``is a TCP/IP server which allows other programs to use facilities of
-\R... without the need to initialize \R or link against [the] \R library''
-(\url{http://www.rforge.net/Rserve}).  Whereas the \rscala package only
-supports \Scala, \Java, and other JVM-based applications, a client for \Rserve
-can be written in any language that supports TCP/IP sockets.  Clients are
-currently available for \Java, \Cpp, \R, \Python, \Csharp, \proglang{.Net/CLI},
-and \Ruby.  Note that \rJava's JRI links against the \R library and one of the
-benefits of the \Rserve's client/server approach is that it ``prevent[s]
-multi-threading problems that arise when linking against \R library directly''
-(\url{http://www.rforge.net/Rserve/doc.html}).  The \rscala package shares this benefit
-because it too is implemented using a client/server approach.  Like \rJava's
-JRI, however, \Rserve requires that \R be compiled with the option
-\code{\textemdash{}enable-R-shlib} which is the default on Windows and Mac OS X, but is
-not the default on most Linux distributions.  The \rscala package uses a
-standard installation of \R on all platforms.  \Rserve provides the same rich
-interface to \R objects as \rJava.  Benchmarks in Section \ref{benchmarks} will
-show that \Rserve is faster than \rscala.  Finally, we note that \rscala is
-neutral with respect to choice of operating system, but \Rserve has some
-limitations on Windows and the user is advised to not ``use Windows unless you
-really have to'' (\url{http://www.rforge.net/Rserve/doc.html}).
-
-\section{Case studies}
-\label{caseStudies}
+% \subsection[Implementation of Scala code in R]{Implementation of \Scala code in \R}
+% 
+% The \code{scala} function starts a \Scala interpreter on the Java Virtual Machine using \R's
+% \code{system2} function. The interpreter runs code that implements an asynchronous TCP/IP server
+% and creates an instance of \code{scala.tools.nsc.interpreter.IMain} for \Scala's
+% read-eval-print-loop (REPL). The TCP/IP
+% server's port is randomly selected by default, but it can be fixed at a
+% given value.  While the \Scala
+% server is starting up, the \R component attempts to establish a connection using
+% functions from the \pkg{base} \R package.  After connecting, the \R client interfaces with the
+% server's REPL class by means of a custom protocol.
+% 
+% The \rscala package takes advantage of the \Scala REPL's ability to compile and
+% execute \Scala code on-the-fly as well as set and get values of
+% identifiers.  When a \Scala function is called for the first time (or when a
+% particular method of a \Scala reference is called for the first time), it is
+% compiled behind the scenes.  The compiled method is then
+% cached and re-used for subsequent calls.  As an illustration, consider the code
+% below and notice that the elapsed time is significantly less in the second call
+% to the same method.
+% 
+% <<fasterAfterFirstTime>>=
+% system.time( print(s$.sys$props("user.name")) )
+% system.time( print(s$.sys$props("user.name")) )
+% @
+% 
+% 
+% 
+% Callback functionality is implemented over the same TCP/IP sockets.
+% Immediately after the \R client requests the execution of \Scala code, \R
+% becomes a temporary, embedded server to allow the \Scala code to access the \R
+% interpreter through the \code{R} object (an instance of the \code{RClient}
+% class).  The embedded \R server interprets code and sets/gets values using the
+% \code{parse}, \code{eval}, \code{assign}, and \code{get} functions.  After the
+% \Scala server executes the \Scala code, it tells the embedded \R server to exit
+% and the \Scala server resumes its usual behavior.
 
 % \subsection{Bayesian logistic regression}
 % \label{logisticRegression}
@@ -1637,29 +1542,31 @@ really have to'' (\url{http://www.rforge.net/Rserve/doc.html}).
 % \label{mcmcSimulated}
 % \end{table}
 
+\section[Case Study: Simulation Study Accelerated with rscala]{Case Study: Simulation Study Accelerated with \rscala}
+\label{bootstrap}
+
+This is the bootstrap example.
+
 \section{Conclusion}
 \label{conclusion}
 
-This paper introduced the \rscala package that allows users to seamlessly
-incorporate \R and \Scala in one program, exploiting each language's respective
-strengths.  We believe that the \rscala package is stable and complete.  In the
-future, we would like to support more data structures in \R (e.g., lists and
-data frames).  While callbacks from \Scala to the original \R interpreter are
-supported, we would also like to support callbacks
-from \R to \Scala as well.  We also suspect that our client/server protocol
-could be extended to support other JVM-based languages such as Jython
-\citep{jython} and jRuby \citep{jruby}.
-
-TCP/IP would allow \R and \Scala are run on seperate machines.
-I am open to pursuing an implementation if there is sufficient interest.
-
-%Known issues:  Incomplete lines.  Tab completion.
+This paper introduced the \rscala package that allows users to bridge \R and
+\Scala in one program, allowing a user to leverage their skills in both
+languages and to utilized libraries and exploit strengthens in each language.
+We are exploring two possible features to improve the package.  The first is to
+allow embedded \Scala computations to be interrupted by the \R user without
+destroying the TCP/IP bridge.  The second feature is allowing \R and \Scala to
+run on separate machines.  The invocation semantics would need to be
+generalized, but it is certainly feasible if there is sufficient interest from
+the community.
 
 \section*{Acknowledgements}
 
-The author's work on this paper is supported by NIH NIGMS R01 GM104972.  The
-author thanks the following students: Floid Gilbert, Deepthi Uppalapati, Scott
-Ferguson, and Richard Payne.
+The author's work on this paper was supported by NIH NIGMS R01 GM104972.  The
+author thanks the CRAN maintainers for the patience and excellent service.  The
+author also thanks the following students for valuable feedback on the software
+and paper: Floid Gilbert, Brandon Carter, Deepthi Uppalapati, Scott Ferguson,
+and Richard Payne.
 
 \bibliography{refs}
 
