@@ -1327,15 +1327,16 @@ framework and accessing \R packages using \rscala.}
 another example of a \Scala application that might benefit from access to \R.
 \pkg{Spark} provides an application programming interface to \Scala, \Java, \R,
 and \Python.  \R users who are not already familar with \Scala would be best
-served by accessing \pkg{Spark} through a dedicated \R package such as
+served by accessing \pkg{Spark} from \R using a dedicated package such as
 \pkg{sparklyr} or \pkg{sparkr}.  \Scala developers, however, might prefer to
-interface directly with \pkg{Spark}'s Machine Learning Library (MLlib) by a
-\Scala application supplemented with \R.  Although we do not have firsthand
-experience with this, we have provided support to a developer using \rscala in
-\pkg{Spark}.  Recall that every \code{RClient} has its own workspace, so
-several instances should be used to overcome the single-threaded nature of \R.
-Specifically, the developer is using \pkg{Apache Commons Pool} to manage a pool
-of \code{RClient} objects on each \pkg{Spark} worker node.
+program directly with \pkg{Spark}'s Machine Learning Library (MLlib) in \Scala
+and to supplement its functionality with \R through \rscala.  Recall that every
+\code{RClient} has its own workspace, so several instances can be used to
+overcome the single-threaded nature of \R.  One could, for example, use
+\pkg{Apache Commons Pool} to manage a pool of \code{RClient} objects on each
+worker node.
+
+% We have provided support to a developer using \rscala in \pkg{Spark}.
 
 \section{Implementation and Comparison to Other Software}
 \label{implementation}
