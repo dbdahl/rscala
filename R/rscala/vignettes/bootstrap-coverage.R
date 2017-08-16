@@ -9,6 +9,49 @@ makeConfidenceInterval <- function(p, n) {
 }
 
 
+#### rscala implementation
+
+library(rscala)
+s <- scala()
+
+coverage.rscala <- function(sampler=NULL, n=0L, truth=0, prob1=0.0, prob2=0.0,
+                            nSamples=1000L, alpha=0.05, nIntervals=1000L) {
+  coverage <- s %!% '
+    import scala.util.Random
+    import scala.concurrent.{Await, Future}
+    import scala.concurrent.ExecutionContext.Implicits.global
+    import scala.concurrent.duration.Duration
+
+    def quantile(sorted: Array[Double], p: Double) = {
+      val i = ((sorted.length-1)*p).asInstanceOf[Int]
+      val delta = (sorted.length-1)*p - i
+      ( 1 - delta ) * sorted(i) + delta * sorted(i+1)
+    }
+
+    def statistic(x: Array[Double]) = {
+      scala.util.Sorting.quickSort(x)
+      quantile(x,prob1) / quantile(x,prob2)
+    }
+
+    def resample(x: Array[Double], rng: Random) = Array.fill(x.length) {
+      x(rng.nextInt(x.length))
+    }
+
+    def ciContains(x: Array[Double], rng: Random) = {
+      val bs = Array.fill(nSamples) { statistic(resample(x, rng)) }
+      scala.util.Sorting.quickSort(bs)
+      ( quantile(bs, alpha/2) <= truth ) && ( truth <= quantile(bs, 1-alpha/2) )
+    }
+
+    Await.result( Future.sequence( List.fill(nIntervals) {
+      val dataset = R.invokeD1(sampler, n)
+      val rng = new Random(R.invokeI0("runif", 1, -Int.MaxValue, Int.MaxValue))
+      Future { ciContains(dataset, rng) }
+    }), Duration.Inf).count(identity) / nIntervals.toDouble
+  '
+  makeConfidenceInterval(coverage, nIntervals)
+}
+
 
 #### Pure R implementation
 
@@ -32,7 +75,6 @@ coverage.pureR <- function(sampler, n, truth, prob1, prob2, nSamples, alpha,
   }))
   makeConfidenceInterval(coverage, nIntervals)
 }
-
 
 
 #### Rcpp implementation
@@ -69,7 +111,7 @@ clusterEvalQ(cluster, { # Don't count compile timing when benchmarking Rcpp.
 
     // [[Rcpp::export]]
     bool ciContains(NumericVector data, double truth,
-          double prob1, double prob2, int nSamples, double alpha) {
+                    double prob1, double prob2, int nSamples, double alpha) {
       double *y = (double*) malloc(nSamples*sizeof(double));
       for ( int i=0; i<nSamples; i++ ) {
         int length = data.size();
@@ -97,73 +139,24 @@ coverage.Rcpp <- function(sampler, n, truth, prob1, prob2, nSamples, alpha,
 }
 
 
+#### Benchmarks
 
-#### rscala implementation
-
-library(rscala)
-s <- scala()
-
-coverage.rscala <- function(sampler=NULL, n=0L, truth=0, prob1=0.0, prob2=0.0,
-                            nSamples=1000L, alpha=0.05, nIntervals=1000L) {
-  coverage <- s %!% '
-    import scala.util.Random
-    import scala.concurrent.{Await, Future}
-    import scala.concurrent.ExecutionContext.Implicits.global
-    import scala.concurrent.duration.Duration
-
-    def quantile(sorted: Array[Double], p: Double) = {
-      val i = ((sorted.length-1)*p).asInstanceOf[Int]
-      val delta = (sorted.length-1)*p - i
-      ( 1 - delta ) * sorted(i) + delta * sorted(i+1)
-    }
-
-    def statistic(x: Array[Double]) = {
-      scala.util.Sorting.quickSort(x)
-      quantile(x,prob1) / quantile(x,prob2)
-    }
-
-    def resample(x: Array[Double], rng: Random) = {
-      Array.fill(x.length) { x(rng.nextInt(x.length)) }
-    }
-
-    def ciContains(x: Array[Double], rng: Random) = {
-      val bs = Array.fill(nSamples) { statistic(resample(x, rng)) }
-      scala.util.Sorting.quickSort(bs)
-      ( quantile(bs, alpha/2) <= truth ) && ( truth <= quantile(bs, 1-alpha/2) )
-    }
-
-    Await.result( Future.sequence( List.fill(nIntervals) {
-      val dataset = R.invokeD1(sampler, n)
-      val rng = new Random(R.invokeI0("runif", 1, -Int.MaxValue, Int.MaxValue))
-      Future { ciContains(dataset, rng) }
-    }), Duration.Inf).count(identity) / nIntervals.toDouble
-  '
-  makeConfidenceInterval(coverage, nIntervals)
-}
-
-
-
-#### Benchmarking code
-
-prob1 <- 0.75
-prob2 <- 0.35
-alpha <- 0.05
-n     <- 100
-
-sampler <- function(n) rnorm(n)
-truth   <- qnorm(prob1)/qnorm(prob2)
+prob1   <- 0.75
+prob2   <- 0.35
+alpha   <- 0.05
+n       <- 100
+truth   <- qnorm(prob1) / qnorm(prob2)
 
 library(microbenchmark)
 engine <- function(nSamples, nIntervals) {
   microbenchmark(
-    coverage.pureR.  = coverage.pureR( sampler, n, truth, prob1, prob2,
+    coverage.pureR.  = coverage.pureR( rnorm, n, truth, prob1, prob2,
         nSamples, alpha, nIntervals),
-    coverage.Rcpp.   = coverage.Rcpp(  sampler, n, truth, prob1, prob2,
+    coverage.Rcpp.   = coverage.Rcpp(  rnorm, n, truth, prob1, prob2,
         nSamples, alpha, nIntervals),
-    coverage.rscala. = coverage.rscala(sampler, n, truth, prob1, prob2,
+    coverage.rscala. = coverage.rscala(rnorm, n, truth, prob1, prob2,
         nSamples, alpha, nIntervals),
     times=30)
 }
 
-engine(nSamples =  1000L, nIntervals =  1000L)
-
+engine(nSamples = 1000L, nIntervals = 1000L)
