@@ -1,8 +1,5 @@
 #### Code for Section 4. "Case Study: Simulation Study Accelerated with rscala"
 
-library(parallel)
-cluster <- makeCluster(detectCores())
-
 makeConfidenceInterval <- function(p, n) {
   me <- qnorm(0.975) * sqrt( p * ( 1 - p ) / n )
   c(estimate = p, lower = p - me, upper = p + me)
@@ -20,7 +17,6 @@ coverage.rscala <- function(sampler=NULL, n=0L, truth=0, prob1=0.0, prob2=0.0,
     import scala.util.Random
     import scala.concurrent.{Await, Future}
     import scala.concurrent.ExecutionContext.Implicits.global
-    import scala.concurrent.duration.Duration
 
     def quantile(sorted: Array[Double], p: Double) = {
       val i = ((sorted.length-1)*p).asInstanceOf[Int]
@@ -47,16 +43,21 @@ coverage.rscala <- function(sampler=NULL, n=0L, truth=0, prob1=0.0, prob2=0.0,
       val dataset = R.invokeD1(sampler, n)
       val rng = new Random(R.invokeI0("runif", 1, -Int.MaxValue, Int.MaxValue))
       Future { ciContains(dataset, rng) }
-    }), Duration.Inf).count(identity) / nIntervals.toDouble
+    }), concurrent.duration.Duration.Inf).count(identity) / nIntervals.toDouble
   '
   makeConfidenceInterval(coverage, nIntervals)
 }
 
 
+#### The parallel package is used by the next two implementations
+
+library(parallel)
+cluster <- makeCluster(detectCores())
+
+
 #### Pure R implementation
 
-coverage.pureR <- function(sampler, n, truth, prob1, prob2, nSamples, alpha,
-                           nIntervals) {
+coverage.pureR <- function(sampler, n, truth, prob1, prob2, nSamples, alpha, nIntervals) {
   statistic <- function(x) {
     q <- quantile(x, probs = c(prob1, prob2))
     q[1] / q[2]
@@ -128,8 +129,7 @@ clusterEvalQ(cluster, { # Don't count compile timing when benchmarking Rcpp.
   ")
 })
 
-coverage.Rcpp <- function(sampler, n, truth, prob1, prob2, nSamples, alpha,
-                          nIntervals) {
+coverage.Rcpp <- function(sampler, n, truth, prob1, prob2, nSamples, alpha, nIntervals) {
   clusterExport(cluster, c("sampler","n","truth","prob1","prob2","nSamples","alpha"),
     envir=environment())
   coverage <- mean(parSapply(cluster, 1:nIntervals, function(i) {
@@ -150,12 +150,9 @@ truth   <- qnorm(prob1) / qnorm(prob2)
 library(microbenchmark)
 engine <- function(nSamples, nIntervals) {
   microbenchmark(
-    coverage.pureR.  = coverage.pureR( rnorm, n, truth, prob1, prob2,
-        nSamples, alpha, nIntervals),
-    coverage.Rcpp.   = coverage.Rcpp(  rnorm, n, truth, prob1, prob2,
-        nSamples, alpha, nIntervals),
-    coverage.rscala. = coverage.rscala(rnorm, n, truth, prob1, prob2,
-        nSamples, alpha, nIntervals),
+    pureR.  = coverage.pureR( rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
+    Rcpp.   = coverage.Rcpp(  rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
+    rscala. = coverage.rscala(rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
     times=30)
 }
 
