@@ -20,7 +20,8 @@
 \setcounter{secnumdepth}{3}
 \setcounter{tocdepth}{3}
 %\overfullrule=3mm
-\usepackage{verbatim}
+\usepackage{fancyvrb}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% declarations for jss.cls %%
@@ -1610,9 +1611,10 @@ and Richard Payne.
 \newpage
 \section{}
 
+
 {
-\small
-\verbatiminput{bootstrap-coverage.R}
+\footnotesize
+\VerbatimInput[numbers=left,xleftmargin=5mm]{bootstrap-coverage.R}
 }
 
 \end{document}
