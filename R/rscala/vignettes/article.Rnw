@@ -20,6 +20,7 @@
 \setcounter{secnumdepth}{3}
 \setcounter{tocdepth}{3}
 %\overfullrule=3mm
+\usepackage{verbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% declarations for jss.cls %%
@@ -1547,7 +1548,38 @@ over the TCP/IP bridge.
 \section[Case Study: Simulation Study Accelerated with rscala]{Case Study: Simulation Study Accelerated with \rscala}
 \label{bootstrap}
 
-This is the bootstrap example.
+In this section, we demonstrate the easy with which computationally-intensive
+statistical procedures can be implemented by embedding \Scala code within an \R
+script using the \rscala package.  By way of comparison, we impliment the
+same algorithm using pure \R and using inline \Cpp via the \Rcpp package.
+All three implimentations use multiple cores and call a user-specified sampling
+function implemented in \R.  The \R implementation is the shortest, but runs
+substantially slower than the \rscala and \Rcpp implementation.  The \rscala
+implementation is somewhat more concise than the \Rcpp implementation.
+
+Consider the population parameter $\beta_1/\beta_2$, where $\beta_1$ and
+$\beta_2$ are population quantiles associated with probabilities $p_1$ and
+$p_2$, respectively.  Based on a sample of $n$ observations, a point estimator
+of $\beta_1/\beta_2$ is the ratio of the corresponding sample quantiles and the
+following bootstrap procedure can be used when the population distribution is
+unspecified.  The sample estimate is recorded for each of \code{nSamples}
+bootstrap samples.  A bootstrap confidence interval is given by $(l, u)$, where
+$l$ and $u$ are quantiles of the bootstrap sampling distribution associated
+with $\alpha/2$ and $1-\alpha/2$, respectively.  Although the nominal coverage
+is $1-\alpha$, interest lies in computing the actual coverage probability of
+this bootstrap confidence interval procedure using a Monte Carlo simulation
+study.  \code{nIntervals} samples from the population are obtained throught a
+user-supplied \code{sampler} function.  Although the code is general, we sample
+$n=100$ observations from the standard normal distribution and set $p_1=0.75$
+and $p_2=0.35$, making $\beta_1/\beta_2 \approx -1.75$.  We consider
+\code{nSamples = 1000} and \code{nIntervals = 1000}.
+
+The three implementations of the algorithm are contained in the \R script in
+the Appendix.  The pure \R implementation loops using apply functions.  The
+\Rcpp implementation is written in a \C style.  The pure \R and \Rcpp
+implementations use the \pkg{parallel} package to harness all available cores,
+whereas the \rscala implementation uses \Scala's \code{Future} class for
+parallelism.
 
 \section{Conclusion}
 \label{conclusion}
@@ -1574,6 +1606,14 @@ and Richard Payne.
 
 \setcounter{section}{0}
 \renewcommand{\thesection}{Appendix \Alph{section}}
+
+\newpage
+\section{}
+
+{
+\small
+\verbatiminput{bootstrap-coverage.R}
+}
 
 \end{document}
 

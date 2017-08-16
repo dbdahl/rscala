@@ -162,9 +162,8 @@ engine <- function(nSamples, nIntervals) {
         nSamples, alpha, nIntervals),
     coverage.rscala. = coverage.rscala(sampler, n, truth, prob1, prob2,
         nSamples, alpha, nIntervals),
-    times=10)
+    times=30)
 }
 
 engine(nSamples =  1000L, nIntervals =  1000L)
-engine(nSamples = 10000L, nIntervals = 10000L)
 
