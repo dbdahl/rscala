@@ -50,7 +50,7 @@
 
 %% almost as usual
 \author{David B.\ Dahl\\Brigham Young University}
-\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.3.1,\ \ Document Date: 2017-08-15}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
+\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.3.1,\ \ Document Date: 2017-08-22}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
 
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{David B. Dahl} %% comma-separated
@@ -79,7 +79,7 @@ and has no dependencies beyond the \Scala standard library and base \R.
 %% \Issue{9}
 %% \Month{June}
 %% \Year{2012}
-\Submitdate{2017-08-16}
+\Submitdate{2017-08-22}
 %% \Acceptdate{2012-06-04}
 
 %% The address of (at least) one author should be given
