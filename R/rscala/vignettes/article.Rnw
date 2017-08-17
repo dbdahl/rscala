@@ -247,18 +247,17 @@ therefore callbacks could not be a guaranteed feature of \rscala software if
 it were based on \rJava's \pkg{JRI}.
 
 The ability of \rscala to embed \R in a \Scala application is an offshoot the
-callback functionality and came at little marginal cost.  Those who are
-interested in accessing \R from \Scala should also consider \Rserve
-\citep{rserve} which, like \rscala, is ``a TCP/IP server which allows other
-programs to use facilities of \R'' (\url{http://www.rforge.net/Rserve}).
-\Rserve clients are available for many languages including \Java and,
-therefore, \Scala (since \Scala can call \Java code).  \Rserve is fast and
-provides a much richer API than \rscala.  Unfortunately, like \rJava, \Rserve
-requires that \R be compiled as a shared library.  \Rserve also has some
-limitations on Windows and the user is advised to not ``use Windows unless you
-really have to'' (\url{http://www.rforge.net/Rserve/doc.html}).  Conversely,
-\rscala provides the same functionality on all operating systems and does not
-require \R to be compiled as a shared library.
+callback functionality and came at little marginal cost.  Since \Scala can call
+\Java libraries, those who are interested in accessing \R from \Scala should
+also consider the following \Java libraries for accessing \R: \Rserve
+\citep{rserve} and \pkg{RCaller} \citep{rcaller}.  Like \rscala, \Rserve ``a
+TCP/IP server which allows other programs to use facilities of \R''
+(\url{http://www.rforge.net/Rserve}).  \Rserve clients are available for many
+languages including \Java.  \Rserve is fast and provides a much richer API than
+\rscala.  Unfortunately, like \rJava, \Rserve requires that \R be compiled as a
+shared library.  \Rserve also has some limitations on Windows and the user is
+advised to not ``use Windows unless you really have to''
+(\url{http://www.rforge.net/Rserve/doc.html}).
 
 The paper is organized as follows.  Section \ref{scalainr} describes \rscala's
 functionality to access \Scala from \R.  Some of the more important topics
@@ -290,15 +289,15 @@ install.packages('rscala')
 @
 
 The \rscala package requires a \Scala installation in the 2.10.x, 2.11.x, or
-2.12.x series.  A convenience function,
-\code{rscala::scalaInstall()}, is provided to download and install \Scala in the user's
-home directory under the \code{.rscala} directory. Because this is a user-level
-installation, administrator privileges are not required.
+2.12.x series.  A convenience function, \code{rscala::scalaInstall()}, is
+provided to download and install \Scala in the user's home directory under the
+\code{.rscala} directory. Because this is a user-level installation,
+administrator privileges are not required.
 
 Alternatively, system administrators can install \Scala using their operating
 system's software management system (e.g., ``\code{sudo apt install scala}'' on
-Debian/Ubuntu based systems), or users can install \Scala manually as described on the
-\Scala webpage.
+Debian/Ubuntu based systems), or users can install \Scala manually as described
+on the \Scala webpage.
 
 \subsection[Instantiating a Scala interpreter in R]{Instantiating a \Scala interpreter in \R}
 
@@ -326,8 +325,8 @@ Information on the \Scala instance \code{s} is available using
 scalaInfo(s)
 @
 
-Alternatively, details on the search for a suitable \Scala installation are shown
-using
+Alternatively, details on the search for a suitable \Scala installation are
+shown using
 
 <<scalaInfo2,eval=FALSE>>=
 scalaInfo(verbose=TRUE)
@@ -339,11 +338,11 @@ column-major order, and several other settings. Details on this and all other
 functions are provided in the \R documentation for the package (e.g.,
 \code{help(scala)}).
 
-A \Scala session
-is only valid during the \R session in which it is created and cannot be saved
-and restored through, for example, the \code{save} and \code{load} functions.
-Multiple \Scala instances can be created in the same \R session.
-Each \Scala instance runs independently with its own memory and classpath.
+A \Scala session is only valid during the \R session in which it is created and
+cannot be saved and restored through, for example, the \code{save} and
+\code{load} functions.  Multiple \Scala instances can be created in the same \R
+session.  Each \Scala instance runs independently with its own memory and
+classpath.
 
 The \R to \Scala bridge is not thread-safe so multiple \R processes/threads
 should not access the same \Scala instance simultaneously.
@@ -1551,36 +1550,46 @@ over the TCP/IP bridge.
 
 In this section, we demonstrate the easy with which computationally-intensive
 statistical procedures can be implemented by embedding \Scala code within an \R
-script using the \rscala package.  By way of comparison, we impliment the
-same algorithm using pure \R and using inline \Cpp via the \Rcpp package.
-All three implimentations use multiple cores and call a user-specified sampling
-function implemented in \R.  The \R implementation is the shortest, but runs
-substantially slower than the \rscala and \Rcpp implementation.  The \rscala
-implementation is somewhat more concise than the \Rcpp implementation.
+script using the \rscala package.  The algorithm is embarrassingly parallel and
+we consider two means of parallelization, one using \Scala's \code{Future}
+class and the other using \R's \pkg{parallel} package.  By way of comparison,
+we implement the same algorithm using pure \R and using inline \Cpp code via
+the \Rcpp package.  All four implementations provide a function taking the same
+arguments, including a user-specified sampling function implemented in \R.
 
-Consider the population parameter $\beta_1/\beta_2$, where $\beta_1$ and
-$\beta_2$ are population quantiles associated with probabilities $p_1$ and
-$p_2$, respectively.  Based on a sample of $n$ observations, a point estimator
-of $\beta_1/\beta_2$ is the ratio of the corresponding sample quantiles and the
-following bootstrap procedure can be used when the population distribution is
+The computationally-intensive statistical procedure is a simulation study of
+the coverage of a bootstrap confidence interval procedure.  Consider a
+population parameter $\beta_1/\beta_2$, where $\beta_1$ and $\beta_2$ are
+population quantiles associated with probabilities $p_1$ and $p_2$,
+respectively.  Based on a sample of $n$ observations, a point estimator of the
+parameter is the ratio of the corresponding sample quantiles and the following
+bootstrap procedure can be used when the population distribution is
 unspecified.  The sample estimate is recorded for each of \code{nSamples}
 bootstrap samples.  A bootstrap confidence interval is given by $(l, u)$, where
 $l$ and $u$ are quantiles of the bootstrap sampling distribution associated
 with $\alpha/2$ and $1-\alpha/2$, respectively.  Although the nominal coverage
 is $1-\alpha$, interest lies in computing the actual coverage probability of
 this bootstrap confidence interval procedure using a Monte Carlo simulation
-study.  \code{nIntervals} samples from the population are obtained throught a
-user-supplied \code{sampler} function.  Although the code is general, we sample
-$n=100$ observations from the standard normal distribution and set $p_1=0.75$
-and $p_2=0.35$, making $\beta_1/\beta_2 \approx -1.75$.  We consider
-\code{nSamples = 1000} and \code{nIntervals = 1000}.
+study.  \code{nIntervals} samples from the population are obtained from a
+user-supplied function.  Although the code is general, we sample $n=100$
+observations from the standard normal distribution and set $p_1=0.75$ and
+$p_2=0.35$, making $\beta_1/\beta_2 \approx -1.75$.  We consider \code{nSamples}
+= 10,000 and \code{nIntervals} = 10,000.
 
-The three implementations of the algorithm are contained in the \R script in
-the Appendix.  The pure \R implementation loops using apply functions.  The
-\Rcpp implementation is written in a \C style.  The pure \R and \Rcpp
-implementations use the \pkg{parallel} package to harness all available cores,
-whereas the \rscala implementation uses \Scala's \code{Future} class for
-parallelism.
+The four implementations of the algorithm are contained in the \R script in the
+Appendix.  The \R implementation is the shortest and the \rscala implementation
+is somewhat more concise than the \Rcpp implementation.  The pure \R
+implementation loops using apply functions.  The \Rcpp implementation is
+written in a \C style.  The pure \R, \Rcpp, and second \rscala implementations
+use the \pkg{parallel} package to harness all available cores, whereas the
+first \rscala implementation uses \Scala's \code{Future} class for parallelism.
+In the first \rscala implementation, a single instance of \code{RClient} is
+used by multiple JVM threads to call back to the single \R instance when
+sampling the data.  In the second \rscala implementation, each CPU core has a
+separate \R instance with a corresponding \code{RClient}.
+
+We 
+The benchmarking results are found in Table \ref{benchmarks}
 
 \section{Conclusion}
 \label{conclusion}
