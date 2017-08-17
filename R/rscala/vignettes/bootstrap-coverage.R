@@ -5,6 +5,13 @@ makeConfidenceInterval <- function(p, n) {
   c(estimate = p, lower = p - me, upper = p + me)
 }
 
+prob1   <- 0.75
+prob2   <- 0.35
+truth   <- qnorm(prob1) / qnorm(prob2)
+n       <- 100
+alpha   <- 0.05
+
+
 #### rscala implementation #1
 
 library(rscala)
@@ -48,7 +55,7 @@ coverage.rscala1 <- function(sampler=NULL, n=0L, truth=0, prob1=0.0, prob2=0.0,
 }
 
 
-#### The parallel package is used by the remaining implementations
+#### All of the remaining implementation use the parallel package.
 
 library(parallel)
 cluster <- makeCluster(detectCores())
@@ -181,12 +188,6 @@ coverage.Rcpp <- function(sampler, n, truth, prob1, prob2, nSamples, alpha, nInt
 
 
 #### Benchmarks
-
-prob1   <- 0.75
-prob2   <- 0.35
-alpha   <- 0.05
-n       <- 100
-truth   <- qnorm(prob1) / qnorm(prob2)
 
 library(microbenchmark)
 engine <- function(nSamples, nIntervals) microbenchmark(
