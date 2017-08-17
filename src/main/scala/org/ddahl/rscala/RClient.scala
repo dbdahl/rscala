@@ -60,7 +60,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * Calling this method periodically on an otherwise-idle client may prevent the operating system from closing the socket.
   * Returns `true` if the ping is successful and `false` otherwise.
   */
-  def ping(): Boolean = synchronized {
+  def ping(): Boolean = this.synchronized {
     try {
       out.writeInt(PING)
       out.flush()
@@ -75,7 +75,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * 
   * Subsequent calls to the other methods will fail.
   */
-  def exit(): Unit = synchronized {
+  def exit(): Unit = this.synchronized {
     try {
       check4GC()
       out.writeInt(SHUTDOWN)
@@ -114,7 +114,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * method `evalXY` (where `X` is `I`, `D`, `B`, `S`, or `R` and `Y` is `0`, `1`, or `2`) may be more convenient (e.g.
   * [[evalD0]]).
   */
-  def eval(snippet: String, evalOnly: Boolean): Any = synchronized {
+  def eval(snippet: String, evalOnly: Boolean): Any = this.synchronized {
     check4GC()
     if ( debug ) debugger.msg("Sending EVAL request.")
     out.writeInt(if(serializeOutput) EVAL else EVALNAKED)
@@ -139,52 +139,52 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   def eval(snippet: String): Unit = eval(snippet,true)
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getReference]].  */
-  def evalReference(snippet: String) = synchronized { eval(snippet,true); getReference(".rscala.last.value") }
+  def evalReference(snippet: String) = this.synchronized { eval(snippet,true); getReference(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getI0]].  */
-  def evalI0(snippet: String) = synchronized { eval(snippet,true); getI0(".rscala.last.value") }
+  def evalI0(snippet: String) = this.synchronized { eval(snippet,true); getI0(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getD0]].  */
-  def evalD0(snippet: String) = synchronized { eval(snippet,true); getD0(".rscala.last.value") }
+  def evalD0(snippet: String) = this.synchronized { eval(snippet,true); getD0(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getL0]].  */
-  def evalL0(snippet: String) = synchronized { eval(snippet,true); getL0(".rscala.last.value") }
+  def evalL0(snippet: String) = this.synchronized { eval(snippet,true); getL0(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getS0]].  */
-  def evalS0(snippet: String) = synchronized { eval(snippet,true); getS0(".rscala.last.value") }
+  def evalS0(snippet: String) = this.synchronized { eval(snippet,true); getS0(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getR0]].  */
-  def evalR0(snippet: String) = synchronized { eval(snippet,true); getR0(".rscala.last.value") }
+  def evalR0(snippet: String) = this.synchronized { eval(snippet,true); getR0(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getI1]].  */
-  def evalI1(snippet: String) = synchronized { eval(snippet,true); getI1(".rscala.last.value") }
+  def evalI1(snippet: String) = this.synchronized { eval(snippet,true); getI1(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getD1]].  */
-  def evalD1(snippet: String) = synchronized { eval(snippet,true); getD1(".rscala.last.value") }
+  def evalD1(snippet: String) = this.synchronized { eval(snippet,true); getD1(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getL1]].  */
-  def evalL1(snippet: String) = synchronized { eval(snippet,true); getL1(".rscala.last.value") }
+  def evalL1(snippet: String) = this.synchronized { eval(snippet,true); getL1(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getS1]].  */
-  def evalS1(snippet: String) = synchronized { eval(snippet,true); getS1(".rscala.last.value") }
+  def evalS1(snippet: String) = this.synchronized { eval(snippet,true); getS1(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getR1]].  */
-  def evalR1(snippet: String) = synchronized { eval(snippet,true); getR1(".rscala.last.value") }
+  def evalR1(snippet: String) = this.synchronized { eval(snippet,true); getR1(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getI2]].  */
-  def evalI2(snippet: String) = synchronized { eval(snippet,true); getI2(".rscala.last.value") }
+  def evalI2(snippet: String) = this.synchronized { eval(snippet,true); getI2(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getD2]].  */
-  def evalD2(snippet: String) = synchronized { eval(snippet,true); getD2(".rscala.last.value") }
+  def evalD2(snippet: String) = this.synchronized { eval(snippet,true); getD2(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getL2]].  */
-  def evalL2(snippet: String) = synchronized { eval(snippet,true); getL2(".rscala.last.value") }
+  def evalL2(snippet: String) = this.synchronized { eval(snippet,true); getL2(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getS2]].  */
-  def evalS2(snippet: String) = synchronized { eval(snippet,true); getS2(".rscala.last.value") }
+  def evalS2(snippet: String) = this.synchronized { eval(snippet,true); getS2(".rscala.last.value") }
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getR2]].  */
-  def evalR2(snippet: String) = synchronized { eval(snippet,true); getR2(".rscala.last.value") }
+  def evalR2(snippet: String) = this.synchronized { eval(snippet,true); getR2(".rscala.last.value") }
 
   /** Invokes an R function with arguments.  */
   def invoke(function: Reference, args: Any*) = eval(mkSnippet(function,args))
@@ -366,7 +366,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * R.eval("print(myList)")
   * }}}
   */
-  def set(identifier: String, value: Any, index: String = "", singleBrackets: Boolean = true): Unit = synchronized {
+  def set(identifier: String, value: Any, index: String = "", singleBrackets: Boolean = true): Unit = this.synchronized {
     check4GC()
     if ( debug ) debugger.msg("Setting: "+identifier)
     val v = value
@@ -576,7 +576,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * arrays) and matrices (i.e. retangular arrays of arrays) of these types.    Using the method `getXY` (where `X` is
   * `I`, `D`, `B`, or `S` and `Y` is `0`, `1`, or `2`) may be more convenient (e.g.  [[getD0]]).
   */
-  def get(identifier: String, asReference: Boolean = false): (Any,String) = synchronized {
+  def get(identifier: String, asReference: Boolean = false): (Any,String) = this.synchronized {
     check4GC()
     if ( debug ) debugger.msg("Getting: "+identifier)
     if ( asReference ) out.writeInt(GET_REFERENCE) else out.writeInt(GET)
