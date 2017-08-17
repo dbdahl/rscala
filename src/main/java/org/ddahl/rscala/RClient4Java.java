@@ -90,9 +90,12 @@ public class RClient4Java {
   * {@link #evalD0(String) evalD0}).
   * @param snippet  The snippet to be evaluated.
   * @param evalOnly An indicator of whether the snippet should be evaluated only, or if otehr steps should be performed.
+  * @param asReference If <tt>false</tt> and the conversion is supported, the result is converted.  Otherwise, a reference is returned.
+  *e result is
+  * converted if `asReference` is `false` and the conversion is supported, otherwise a reference is returned.
   * @return   The evaluated Object.
   */
-  public Object eval(String snippet, boolean evalOnly) { return c.eval(snippet,evalOnly); }
+  public Object eval(String snippet, boolean evalOnly, boolean asReference) { return c.eval(snippet,evalOnly,asReference); }
 
   /** Calls <b><tt>eval(snippet,true)</tt></b> and returns the result using {@link #getI0(String) getI0}.  
   * @param snippet  The snippet to be evaluated.
