@@ -1,9 +1,9 @@
 > port <- as.integer(runif(1,1024,65535))
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # becker # TRUE # TRUE
+# R version 3.4.1 (2017-06-30) # carter # TRUE # TRUE
 > 
 > tryCatch(source("common.R",print.eval=TRUE), error=function(e) e)
-java.net.BindException: Address already in use
+java.net.BindException: Address already in use (Bind failed)
 	at java.net.PlainSocketImpl.socketBind(Native Method)
 	at java.net.AbstractPlainSocketImpl.bind(AbstractPlainSocketImpl.java:387)
 	at java.net.ServerSocket.bind(ServerSocket.java:375)

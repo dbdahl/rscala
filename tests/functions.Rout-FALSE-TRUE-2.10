@@ -1,6 +1,6 @@
 > jars <- c("commons-math3-3.2.jar","shallot.jar")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # becker # FALSE # TRUE
+# R version 3.4.1 (2017-06-30) # carter # FALSE # TRUE
 > 
 > tryCatch(s %~% 'new org.apache.commons.math3.random.EmpiricalDistribution()',error=function(e) e)   # Scala 2.11.x class loader is weird.  This line avoid subsequent problems.
 ScalaInterpreterReference... res1: org.apache.commons.math3.random.EmpiricalDistribution
@@ -87,19 +87,19 @@ ScalaInterpreterItem for org.apache.commons.math3.random.RandomDataGenerator
 > options(width=120)
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: microseconds
-                   expr      min       lq      mean   median       uq      max neval
- rdg$nextExponential(4) 1579.769 1789.296 2525.3474 2089.924 2977.073 70973.67  1000
-                rexp(4)  326.718  431.757  613.8252  495.217  662.998 21070.01  1000
+                   expr      min       lq     mean   median        uq       max neval
+ rdg$nextExponential(4) 1716.500 3049.053 4715.014 3351.807 3660.2620  92070.36  1000
+                rexp(4)  389.066  731.752 1553.985  866.498  963.8845 139934.54  1000
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: microseconds
-                   expr      min        lq      mean    median        uq       max neval
- rdg$nextExponential(4) 1504.702 1563.4355 1792.5143 1628.9370 1703.6030 55156.423  1000
-                rexp(4)  320.147  353.9845  419.2453  399.8785  421.3215  7067.482  1000
+                   expr      min       lq     mean   median       uq       max neval
+ rdg$nextExponential(4) 1689.105 2626.876 4009.541 3133.050 3370.075  66189.99  1000
+                rexp(4)  394.702  671.117 1217.458  814.735  904.790 101721.48  1000
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: microseconds
-                   expr      min        lq      mean    median       uq       max neval
- rdg$nextExponential(4) 1490.740 1564.6510 1800.1322 1609.4110 1694.720 53043.572  1000
-                rexp(4)  314.264  352.0145  422.7805  395.7625  411.953  8048.175  1000
+                   expr      min        lq      mean    median        uq      max neval
+ rdg$nextExponential(4) 1689.006 2716.5885 3845.8071 3152.9425 3323.1465 93437.78  1000
+                rexp(4)  406.868  683.9015  936.6054  815.3365  879.0185 27726.37  1000
 > 
 > s$.org.ddahl.shallot.parameter.Mass
 ScalaInterpreterItem for org.ddahl.shallot.parameter.Mass

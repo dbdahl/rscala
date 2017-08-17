@@ -44,8 +44,8 @@ R.eval("cat(a+8,'\n')")
 // R.eval("plot(rnorm(100))")
 
 R.eval("rnorm(10)")
-R.eval("rnorm(10)",false)
-R.eval("rnorm(10)",false).asInstanceOf[Array[Double]]
+R.eval("rnorm(10)",false,false)
+R.eval("rnorm(10)",false,false)._1.asInstanceOf[Array[Double]]
 R.evalD1("rnorm(10)")
 
 R.eval("d <- list(a=4,b=5)")
@@ -112,7 +112,7 @@ R.eval("3+8")
 2*R.evalI0("3+8")
 
 R.eval("4")
-R.eval("print(.rscala.last.value)")
+R.eval("print(.rsX)")
 
 R.eval("""
   a <- matrix(as.integer(0:11),nrow=3)

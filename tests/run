@@ -9,7 +9,7 @@ fi
 if [[ $# -eq 0 ]]
 then
   DOALL=TRUE
-  SCRIPTS="basics.R callbacks.R callbacks-benchmarked.R defs.R functions.R identifiers.R interpolate.R io.R memory.R mistakes.R protocol-speed.scala recursion.R rinscala-rowmajor.scala rinscala-columnmajor.scala threadsafe.scala unit-testing.R port.R"
+  SCRIPTS="basics.R callbacks.R callbacks-benchmarked.R defs.R functions.R identifiers.R interpolate.R io.R memory.R mistakes.R protocol-speed.scala recursion.R rinscala-rowmajor.scala rinscala-columnmajor.scala rowmajor.R threadsafe.scala unit-testing.R port.R"
 else
   DOALL=FALSE
   SCRIPTS="$*"
@@ -19,7 +19,7 @@ export VERSIONS=$(cat ../build.sbt | grep crossScalaVersions | sed 's/crossScala
 export SERIALIZES="TRUE FALSE"
 export OUTPUTS="TRUE FALSE"
 
-# export VERSIONS=2.12.1
+# export VERSIONS=2.12.3
 # export SERIALIZES=FALSE
 # export OUTPUTS=TRUE
 
@@ -37,7 +37,7 @@ for SCALA_VERSION in $VERSIONS
 do
   SCALA_VERSION_MAJOR=$(echo $SCALA_VERSION | sed 's/\.[^.]*$//')
   # echo "Running battery for $SCALA_VERSION"
-  SCALA_HOME=~/local/scala/scala/scala-$SCALA_VERSION
+  SCALA_HOME=~/.rscala/scala-$SCALA_VERSION
   for script in $SCRIPTS
   do
     # echo "  Running $script"

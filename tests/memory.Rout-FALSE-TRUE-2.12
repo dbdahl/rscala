@@ -1,6 +1,6 @@
 > heap.maximum <- "64M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # becker # FALSE # TRUE
+# R version 3.4.1 (2017-06-30) # carter # FALSE # TRUE
 > 
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 java.lang.reflect.InvocationTargetException
@@ -86,7 +86,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # becker # FALSE # TRUE
+# R version 3.4.1 (2017-06-30) # carter # FALSE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -94,7 +94,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="64M")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # becker # FALSE # TRUE
+# R version 3.4.1 (2017-06-30) # carter # FALSE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -102,7 +102,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="128M")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.0 (2017-04-21) # becker # FALSE # TRUE
+# R version 3.4.1 (2017-06-30) # carter # FALSE # TRUE
 > for ( i in 1:2000 ) {
 +   a <- s$".Array[Double]"$new(100000L)  # No memory problems
 + }
@@ -113,38 +113,38 @@ java.lang.OutOfMemoryError: Java heap space
 + }
 + },error=function(e) e)
 java.lang.OutOfMemoryError: GC overhead limit exceeded
-	at scala.tools.nsc.transform.SpecializeTypes.specializedName(SpecializeTypes.scala:387)
-	at scala.tools.nsc.transform.SpecializeTypes.specializedName(SpecializeTypes.scala:370)
-	at scala.tools.nsc.transform.SpecializeTypes.scala$tools$nsc$transform$SpecializeTypes$$specializedName(SpecializeTypes.scala:363)
-	at scala.tools.nsc.transform.SpecializeTypes.specializedOverload(SpecializeTypes.scala:1006)
-	at scala.tools.nsc.transform.SpecializeTypes.forwardToOverload$1(SpecializeTypes.scala:711)
-	at scala.tools.nsc.transform.SpecializeTypes.$anonfun$specializeClass$15(SpecializeTypes.scala:762)
-	at scala.tools.nsc.transform.SpecializeTypes$$Lambda$486/1863932867.apply(Unknown Source)
-	at scala.collection.TraversableLike$WithFilter.$anonfun$foreach$1(TraversableLike.scala:789)
-	at scala.collection.TraversableLike$WithFilter$$Lambda$241/423031029.apply(Unknown Source)
+	at scala.collection.immutable.List.$anonfun$flatMap$1(List.scala:342)
+	at scala.collection.immutable.List.$anonfun$flatMap$1$adapted(List.scala:335)
+	at scala.tools.nsc.interpreter.Imports$$Lambda$935/1604020967.apply(Unknown Source)
 	at scala.collection.immutable.List.foreach(List.scala:389)
-	at scala.collection.TraversableLike$WithFilter.foreach(TraversableLike.scala:788)
-	at scala.tools.nsc.transform.SpecializeTypes.specializedClass$1(SpecializeTypes.scala:724)
-	at scala.tools.nsc.transform.SpecializeTypes.$anonfun$specializeClass$33(SpecializeTypes.scala:863)
-	at scala.tools.nsc.transform.SpecializeTypes.specializeClass(SpecializeTypes.scala:862)
-	at scala.tools.nsc.transform.SpecializeTypes.transformInfo(SpecializeTypes.scala:1266)
-	at scala.tools.nsc.transform.InfoTransform$Phase$$anon$1.transform(InfoTransform.scala:38)
-	at scala.reflect.internal.Symbols$Symbol.rawInfo(Symbols.scala:1624)
-	at scala.reflect.internal.Symbols$Symbol.info(Symbols.scala:1541)
-	at scala.tools.nsc.transform.SpecializeTypes$SpecializationPhase.$anonfun$run$3(SpecializeTypes.scala:205)
-	at scala.tools.nsc.transform.SpecializeTypes$SpecializationPhase$$Lambda$497/1357563986.apply(Unknown Source)
-	at scala.collection.TraversableLike.$anonfun$map$1(TraversableLike.scala:234)
-	at scala.collection.TraversableLike$$Lambda$82/326549596.apply(Unknown Source)
-	at scala.collection.Iterator.foreach(Iterator.scala:929)
-	at scala.collection.Iterator.foreach$(Iterator.scala:929)
-	at scala.collection.AbstractIterator.foreach(Iterator.scala:1417)
-	at scala.collection.IterableLike.foreach(IterableLike.scala:71)
-	at scala.collection.IterableLike.foreach$(IterableLike.scala:70)
-	at scala.collection.AbstractIterable.foreach(Iterable.scala:54)
-	at scala.collection.TraversableLike.map(TraversableLike.scala:234)
-	at scala.collection.TraversableLike.map$(TraversableLike.scala:227)
-	at scala.collection.AbstractTraversable.map(Traversable.scala:104)
-	at scala.tools.nsc.transform.SpecializeTypes$SpecializationPhase.$anonfun$run$1(SpecializeTypes.scala:205)
+	at scala.tools.nsc.interpreter.Imports.allReqAndHandlers(Imports.scala:219)
+	at scala.tools.nsc.interpreter.Imports.reqsToUse$1(Imports.scala:140)
+	at scala.tools.nsc.interpreter.Imports.$anonfun$importsCode$5(Imports.scala:166)
+	at scala.tools.nsc.interpreter.Imports.importsCode(Imports.scala:156)
+	at scala.tools.nsc.interpreter.Imports.importsCode$(Imports.scala:99)
+	at scala.tools.nsc.interpreter.IMain.importsCode(IMain.scala:59)
+	at scala.tools.nsc.interpreter.IMain$Request.$anonfun$x$19$1(IMain.scala:841)
+	at scala.tools.nsc.interpreter.IMain$Request$$Lambda$740/1187972599.apply(Unknown Source)
+	at scala.tools.nsc.Global.exitingTyper(Global.scala:989)
+	at scala.tools.nsc.interpreter.IMain$Request.x$19$lzycompute(IMain.scala:841)
+	at scala.tools.nsc.interpreter.IMain$Request.x$19(IMain.scala:840)
+	at scala.tools.nsc.interpreter.IMain$Request.headerPreamble$lzycompute(IMain.scala:840)
+	at scala.tools.nsc.interpreter.IMain$Request.headerPreamble(IMain.scala:840)
+	at scala.tools.nsc.interpreter.IMain$Request$Wrapper.preamble(IMain.scala:863)
+	at scala.tools.nsc.interpreter.IMain$CodeAssembler.$anonfun$apply$4(IMain.scala:1253)
+	at scala.tools.nsc.interpreter.IMain$CodeAssembler.apply(IMain.scala:1252)
+	at scala.tools.nsc.interpreter.IMain$CodeAssembler.apply$(IMain.scala:1252)
+	at scala.tools.nsc.interpreter.IMain$Request$Wrapper.apply(IMain.scala:853)
+	at scala.tools.nsc.interpreter.IMain$Request.compile$lzycompute(IMain.scala:947)
+	at scala.tools.nsc.interpreter.IMain$Request.compile(IMain.scala:942)
+	at scala.tools.nsc.interpreter.IMain.compile(IMain.scala:600)
+	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:589)
+	at scala.tools.nsc.interpreter.IMain.interpretSynthetic(IMain.scala:562)
+	at scala.tools.nsc.interpreter.ExprTyper.doInterpret(ExprTyper.scala:20)
+	at scala.tools.nsc.interpreter.ExprTyper.asExpr$1(ExprTyper.scala:31)
+	at scala.tools.nsc.interpreter.ExprTyper.$anonfun$symbolOfLine$2(ExprTyper.scala:56)
+	at scala.tools.nsc.interpreter.ExprTyper$$Lambda$978/1788662008.apply(Unknown Source)
+	at scala.tools.nsc.interpreter.IMain.beSilentDuring(IMain.scala:213)
 java.lang.OutOfMemoryError: GC overhead limit exceeded
 <simpleError in doTryCatch(return(expr), name, parentenv, handler): Exception thrown.>
 > 

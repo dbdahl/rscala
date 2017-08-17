@@ -27,5 +27,7 @@ do
 done
 
 rm -rf ~/.rscala
-PATH=$PATH_WITHOUT_SCALA /home/dahl/local/bin/R --slave -e 'library(rscala); scalaInstall(); print(scalaInfo(verbose=TRUE)$cmd)'
+PATH=$PATH_WITHOUT_SCALA /home/dahl/local/bin/R --slave -e 'library(rscala); scalaInstall("2.10"); print(scalaInfo(verbose=TRUE)$cmd)'
+PATH=$PATH_WITHOUT_SCALA /home/dahl/local/bin/R --slave -e 'library(rscala); scalaInstall("2.11"); print(scalaInfo(verbose=TRUE)$cmd)'
+PATH=$PATH_WITHOUT_SCALA /home/dahl/local/bin/R --slave -e 'library(rscala); scalaInstall("2.12"); print(scalaInfo(verbose=TRUE)$cmd)'
 

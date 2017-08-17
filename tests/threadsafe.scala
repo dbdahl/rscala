@@ -1,43 +1,55 @@
 #!/bin/bash
 
 CMD="cat(rscala::.rscalaJar(\"$RSCALA_SCALA_VERSION\"))"
-CP=$(R --slave -e "$CMD")
+CP=RserveEngine.jar:REngine.jar:$(R --slave -e "$CMD")
 exec "$SCALA_HOME"/bin/scala -nc -cp "$CP" "$0" "$@"
+scala -nc -cp "$CP"
 
 !#
 
 println(util.Properties.versionNumberString)
 
-import org.ddahl.rscala.RClient
-val R = RClient("R", serializeOutput=sys.env("RSCALA_SERIALIZE").toUpperCase == "TRUE")
+import scala.util.Random
+import scala.concurrent.{Await, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
 
-class WorkerBee(val label: Int, val iterations: Int, val R: RClient) extends Runnable {
+val R = org.ddahl.rscala.RClient(debug=false)
 
-  def run() : Unit = {
-    for (i <- 0 until iterations) {
-      // print(label+" ")
-      R.eval("x <- x + 1")
-    }
-  }
-    
+val prob1 = 0.70
+val prob2 = 0.35
+val n = 100
+val alpha = 0.05
+val nIntervals = 1000
+val nSamples = 1000
+val truth = -1.75
+val sampler = "rnorm"
+
+def quantile(sorted: Array[Double], p: Double) = {
+  val i = ((sorted.length-1)*p).asInstanceOf[Int]
+  val delta = (sorted.length-1)*p - i
+  ( 1 - delta ) * sorted(i) + delta * sorted(i+1)
 }
 
-val nThreads = 10
-val nIterationsPerThread = 1000
+def statistic(x: Array[Double]) = {
+  scala.util.Sorting.quickSort(x)
+  quantile(x,prob1) / quantile(x,prob2)
+}
 
-R.set("x",0)
+def resample(x: Array[Double], rng: Random) = Array.fill(x.length) {
+  x(rng.nextInt(x.length))
+}
 
-val g = new ThreadGroup("WorkerBees")
-val threads = (0 until nThreads).map( i => {
-  new Thread(g, new WorkerBee(i, nIterationsPerThread, R))
-})
-threads.foreach(_.start)
-threads.foreach(_.join)
- 
-assert(R.getI0("x") == nThreads*nIterationsPerThread)
+def ciContains(x: Array[Double], rng: Random) = {
+  val bs = Array.fill(nSamples) { statistic(resample(x, rng)) }
+  scala.util.Sorting.quickSort(bs)
+  ( quantile(bs, alpha/2) <= truth ) && ( truth <= quantile(bs, 1-alpha/2) )
+}
 
-R.ping
-R.exit
-R.ping
+val coverage = Await.result( Future.sequence( List.fill(nIntervals) {
+  Future {
+    val dataset = R.invokeD1(sampler, n)
+    val rng = new Random(R.invokeI0("runif", 1, -Int.MaxValue, Int.MaxValue))
+    ciContains(dataset, rng)
+  }
+}), concurrent.duration.Duration.Inf).count(identity) / nIntervals.toDouble
 
-// LF RSCALA_SERIALIZE=TRUE scala -cp $(R --slave -e 'cat(rscala::.rscalaJar("2.12"))')
