@@ -191,10 +191,10 @@ coverage.Rcpp <- function(sampler, n, truth, prob1, prob2, nSamples, alpha, nInt
 
 library(microbenchmark)
 engine <- function(nSamples, nIntervals) microbenchmark(
-#  pureR.   = coverage.pureR(  rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
+  pureR.   = coverage.pureR(  rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
   Rcpp.    = coverage.Rcpp(   rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
   rscala1. = coverage.rscala1(rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
   rscala2. = coverage.rscala2(rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
   times=10)
 
-engine(nSamples = 1000L, nIntervals = 1000L)
+engine(nSamples = 10000L, nIntervals = 10000L)
