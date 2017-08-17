@@ -320,9 +320,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
       case r: PersistentReference => s"get('$r',envir=.rsI[['r']])"
       case _ => function.toString
     }
-    val snippet = s""".rsX <- ${functionString}(${argsStrings.mkString(",")})
-                     |if (${counter} > 0) rm(list=paste0(".rsX",1:${counter}))
-                     |.rsX""".stripMargin
+    val snippet = functionString + "(" + argsStrings.mkString(",") +")"
     if ( debug ) debugger.msg("Constructed R snippet: "+snippet)
     snippet
   }
