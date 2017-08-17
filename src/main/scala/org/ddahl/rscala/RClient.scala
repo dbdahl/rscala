@@ -60,7 +60,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * Calling this method periodically on an otherwise-idle client may prevent the operating system from closing the socket.
   * Returns `true` if the ping is successful and `false` otherwise.
   */
-  def ping(): Boolean = this.synchronized {
+  def ping(): Boolean = synchronized {
     try {
       out.writeInt(PING)
       out.flush()
@@ -75,7 +75,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * 
   * Subsequent calls to the other methods will fail.
   */
-  def exit(): Unit = this.synchronized {
+  def exit(): Unit = synchronized {
     try {
       check4GC()
       out.writeInt(SHUTDOWN)
@@ -87,7 +87,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
     }
   }
 
-  private def check4GC() {
+  private def check4GC() = {
     val first = referenceQueue.poll
     if ( first != null ) {
       out.writeInt(FREE)
@@ -108,13 +108,14 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
 
   /** Evaluates `snippet` in the R interpreter.
   *
-  * Returns `null` if `evalOnly`.  If `!evalOnly`, the last result of the R expression is converted if possible.
+  * Returns `null` if `evalOnly`.  If `!evalOnly`, the last result of the R expression is returned.  The result is
+  * converted if `asReference` is `false` and the conversion is supported, otherwise a reference is returned.
   * Conversion to integers, doubles, Booleans, and strings are supported, as are vectors (i.e. arrays) and matrices
   * (i.e. retangular arrays of arrays) of these types.  The static type of the result, however, is `Any` so using the
   * method `evalXY` (where `X` is `I`, `D`, `B`, `S`, or `R` and `Y` is `0`, `1`, or `2`) may be more convenient (e.g.
   * [[evalD0]]).
   */
-  def eval(snippet: String, evalOnly: Boolean): Any = this.synchronized {
+  def eval(snippet: String, evalOnly: Boolean, asReference: Boolean): (Any, String) = synchronized {
     check4GC()
     if ( debug ) debugger.msg("Sending EVAL request.")
     out.writeInt(if(serializeOutput) EVAL else EVALNAKED)
@@ -132,161 +133,167 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
       println(output)
     } else if ( debug ) debugger.msg("No output.")
     if ( status != OK ) throw new RuntimeException("Error in R evaluation.")
-    if ( evalOnly ) null else get(".rscala.last.value")._1
+    if ( evalOnly ) null else {
+      if ( debug ) debugger.msg("Getting EVAL result.")
+      if ( asReference ) out.writeInt(GET_REFERENCE) else out.writeInt(GET)
+      writeString(out,".rsX")
+      out.flush()
+      getInternal()
+    }
   }
 
   /** Calls '''`eval(snippet,true)`'''.  */
-  def eval(snippet: String): Unit = eval(snippet,true)
+  def eval(snippet: String): Unit = eval(snippet,true,false)
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getReference]].  */
-  def evalReference(snippet: String) = this.synchronized { eval(snippet,true); getReference(".rscala.last.value") }
+  def evalReference(snippet: String) = toReference(eval(snippet,false,true))
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getI0]].  */
-  def evalI0(snippet: String) = this.synchronized { eval(snippet,true); getI0(".rscala.last.value") }
+  def evalI0(snippet: String) = toI0(eval(snippet,false,false))
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getD0]].  */
-  def evalD0(snippet: String) = this.synchronized { eval(snippet,true); getD0(".rscala.last.value") }
+  def evalD0(snippet: String) = toD0(eval(snippet,false,false))
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getL0]].  */
-  def evalL0(snippet: String) = this.synchronized { eval(snippet,true); getL0(".rscala.last.value") }
+  def evalL0(snippet: String) = toL0(eval(snippet,false,false))
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getS0]].  */
-  def evalS0(snippet: String) = this.synchronized { eval(snippet,true); getS0(".rscala.last.value") }
+  def evalS0(snippet: String) = toS0(eval(snippet,false,false))
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getR0]].  */
-  def evalR0(snippet: String) = this.synchronized { eval(snippet,true); getR0(".rscala.last.value") }
+  def evalR0(snippet: String) = toR0(eval(snippet,false,false))
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getI1]].  */
-  def evalI1(snippet: String) = this.synchronized { eval(snippet,true); getI1(".rscala.last.value") }
+  def evalI1(snippet: String) = toI1(eval(snippet,false,false))
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getD1]].  */
-  def evalD1(snippet: String) = this.synchronized { eval(snippet,true); getD1(".rscala.last.value") }
+  def evalD1(snippet: String) = toD1(eval(snippet,false,false))
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getL1]].  */
-  def evalL1(snippet: String) = this.synchronized { eval(snippet,true); getL1(".rscala.last.value") }
+  def evalL1(snippet: String) = toL1(eval(snippet,false,false))
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getS1]].  */
-  def evalS1(snippet: String) = this.synchronized { eval(snippet,true); getS1(".rscala.last.value") }
+  def evalS1(snippet: String) = toS1(eval(snippet,false,false))
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getR1]].  */
-  def evalR1(snippet: String) = this.synchronized { eval(snippet,true); getR1(".rscala.last.value") }
+  def evalR1(snippet: String) = toR1(eval(snippet,false,false))
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getI2]].  */
-  def evalI2(snippet: String) = this.synchronized { eval(snippet,true); getI2(".rscala.last.value") }
+  def evalI2(snippet: String) = toI2(eval(snippet,false,false))
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getD2]].  */
-  def evalD2(snippet: String) = this.synchronized { eval(snippet,true); getD2(".rscala.last.value") }
+  def evalD2(snippet: String) = toD2(eval(snippet,false,false))
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getL2]].  */
-  def evalL2(snippet: String) = this.synchronized { eval(snippet,true); getL2(".rscala.last.value") }
+  def evalL2(snippet: String) = toL2(eval(snippet,false,false))
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getS2]].  */
-  def evalS2(snippet: String) = this.synchronized { eval(snippet,true); getS2(".rscala.last.value") }
+  def evalS2(snippet: String) = toS2(eval(snippet,false,false))
 
   /** Calls '''`eval(snippet,true)`''' and returns the result using [[getR2]].  */
-  def evalR2(snippet: String) = this.synchronized { eval(snippet,true); getR2(".rscala.last.value") }
+  def evalR2(snippet: String) = toR2(eval(snippet,false,false))
 
   /** Invokes an R function with arguments.  */
-  def invoke(function: Reference, args: Any*) = eval(mkSnippet(function,args))
+  def invoke(function: Reference, args: Any*): Unit = synchronized { eval(mkSnippet(function,args)) }
 
   /** Invokes an R function with arguments.  */
-  def invoke(functionName: String, args: Any*) = eval(mkSnippet(functionName,args))
+  def invoke(functionName: String, args: Any*): Unit = synchronized { eval(mkSnippet(functionName,args)) }
 
   /** Invokes an R function with arguments and returns the result using [[getReference]].  */
-  def invokeReference(function: Reference, args: Any*) = evalReference(mkSnippet(function,args))
+  def invokeReference(function: Reference, args: Any*) = synchronized { evalReference(mkSnippet(function,args)) }
 
   /** Invokes an R function with arguments and returns the result using [[getReference]].  */
-  def invokeReference(functionName: String, args: Any*) = evalReference(mkSnippet(functionName,args))
+  def invokeReference(functionName: String, args: Any*) = synchronized { evalReference(mkSnippet(functionName,args)) }
 
   /** Invokes an R function with arguments and returns the result using [[getI0]].  */
-  def invokeI0(function: Reference, args: Any*) = evalI0(mkSnippet(function,args))
+  def invokeI0(function: Reference, args: Any*) = synchronized { evalI0(mkSnippet(function,args)) }
 
   /** Invokes an R function with arguments and returns the result using [[getI0]].  */
-  def invokeI0(functionName: String, args: Any*) = evalI0(mkSnippet(functionName,args))
+  def invokeI0(functionName: String, args: Any*) = synchronized { evalI0(mkSnippet(functionName,args)) }
 
   /** Invokes an R function with arguments and returns the result using [[getD0]].  */
-  def invokeD0(function: Reference, args: Any*) = evalD0(mkSnippet(function,args))
+  def invokeD0(function: Reference, args: Any*) = synchronized { evalD0(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getD0]].  */
-  def invokeD0(functionName: String, args: Any*) = evalD0(mkSnippet(functionName,args))
+  def invokeD0(functionName: String, args: Any*) = synchronized { evalD0(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getL0]].  */
-  def invokeL0(function: Reference, args: Any*) = evalL0(mkSnippet(function,args))
+  def invokeL0(function: Reference, args: Any*) = synchronized { evalL0(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getL0]].  */
-  def invokeL0(functionName: String, args: Any*) = evalL0(mkSnippet(functionName,args))
+  def invokeL0(functionName: String, args: Any*) = synchronized { evalL0(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getS0]].  */
-  def invokeS0(function: Reference, args: Any*) = evalS0(mkSnippet(function,args))
+  def invokeS0(function: Reference, args: Any*) = synchronized { evalS0(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getS0]].  */
-  def invokeS0(functionName: String, args: Any*) = evalS0(mkSnippet(functionName,args))
+  def invokeS0(functionName: String, args: Any*) = synchronized { evalS0(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getR0]].  */
-  def invokeR0(function: Reference, args: Any*) = evalR0(mkSnippet(function,args))
+  def invokeR0(function: Reference, args: Any*) = synchronized { evalR0(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getR0]].  */
-  def invokeR0(functionName: String, args: Any*) = evalR0(mkSnippet(functionName,args))
+  def invokeR0(functionName: String, args: Any*) = synchronized { evalR0(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getI1]].  */
-  def invokeI1(function: Reference, args: Any*) = evalI1(mkSnippet(function,args))
+  def invokeI1(function: Reference, args: Any*) = synchronized { evalI1(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getI1]].  */
-  def invokeI1(functionName: String, args: Any*) = evalI1(mkSnippet(functionName,args))
+  def invokeI1(functionName: String, args: Any*) = synchronized { evalI1(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getD1]].  */
-  def invokeD1(function: Reference, args: Any*) = evalD1(mkSnippet(function,args))
+  def invokeD1(function: Reference, args: Any*) = synchronized { evalD1(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getD1]].  */
-  def invokeD1(functionName: String, args: Any*) = evalD1(mkSnippet(functionName,args))
+  def invokeD1(functionName: String, args: Any*) = synchronized { evalD1(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getL1]].  */
-  def invokeL1(function: Reference, args: Any*) = evalL1(mkSnippet(function,args))
+  def invokeL1(function: Reference, args: Any*) = synchronized { evalL1(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getL1]].  */
-  def invokeL1(functionName: String, args: Any*) = evalL1(mkSnippet(functionName,args))
+  def invokeL1(functionName: String, args: Any*) = synchronized { evalL1(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getS1]].  */
-  def invokeS1(function: Reference, args: Any*) = evalS1(mkSnippet(function,args))
+  def invokeS1(function: Reference, args: Any*) = synchronized { evalS1(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getS1]].  */
-  def invokeS1(functionName: String, args: Any*) = evalS1(mkSnippet(functionName,args))
+  def invokeS1(functionName: String, args: Any*) = synchronized { evalS1(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getR1]].  */
-  def invokeR1(function: Reference, args: Any*) = evalR1(mkSnippet(function,args))
+  def invokeR1(function: Reference, args: Any*) = synchronized { evalR1(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getR1]].  */
-  def invokeR1(functionName: String, args: Any*) = evalR1(mkSnippet(functionName,args))
+  def invokeR1(functionName: String, args: Any*) = synchronized { evalR1(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getI2]].  */
-  def invokeI2(function: Reference, args: Any*) = evalI2(mkSnippet(function,args))
+  def invokeI2(function: Reference, args: Any*) = synchronized { evalI2(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getI2]].  */
-  def invokeI2(functionName: String, args: Any*) = evalI2(mkSnippet(functionName,args))
+  def invokeI2(functionName: String, args: Any*) = synchronized { evalI2(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getD2]].  */
-  def invokeD2(function: Reference, args: Any*) = evalD2(mkSnippet(function,args))
+  def invokeD2(function: Reference, args: Any*) = synchronized { evalD2(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getD2]].  */
-  def invokeD2(functionName: String, args: Any*) = evalD2(mkSnippet(functionName,args))
+  def invokeD2(functionName: String, args: Any*) = synchronized { evalD2(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getL2]].  */
-  def invokeL2(function: Reference, args: Any*) = evalL2(mkSnippet(function,args))
+  def invokeL2(function: Reference, args: Any*) = synchronized { evalL2(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getL2]].  */
-  def invokeL2(functionName: String, args: Any*) = evalL2(mkSnippet(functionName,args))
+  def invokeL2(functionName: String, args: Any*) = synchronized { evalL2(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getS2]].  */
-  def invokeS2(function: Reference, args: Any*) = evalS2(mkSnippet(function,args))
+  def invokeS2(function: Reference, args: Any*) = synchronized { evalS2(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getS2]].  */
-  def invokeS2(functionName: String, args: Any*) = evalS2(mkSnippet(functionName,args))
+  def invokeS2(functionName: String, args: Any*) = synchronized { evalS2(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getR2]].  */
-  def invokeR2(function: Reference, args: Any*) = evalR2(mkSnippet(function,args))
+  def invokeR2(function: Reference, args: Any*) = synchronized { evalR2(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getR2]].  */
-  def invokeR2(functionName: String, args: Any*) = evalR2(mkSnippet(functionName,args))
+  def invokeR2(functionName: String, args: Any*) = synchronized { evalR2(mkSnippet(functionName,args)) }
   
   private def mkSnippet(functionName: String, args: Seq[Any]): String = mkSnippet(EphemeralReference(functionName), args)
 
@@ -313,7 +320,9 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
       case r: PersistentReference => s"get('$r',envir=.rsI[['r']])"
       case _ => function.toString
     }
-    val snippet = functionString + "(" + argsStrings.mkString(",") + ")"
+    val snippet = s""".rsX <- ${functionString}(${argsStrings.mkString(",")})
+                     |if (${counter} > 0) rm(list=paste0(".rsX",1:${counter}))
+                     |.rsX""".stripMargin
     if ( debug ) debugger.msg("Constructed R snippet: "+snippet)
     snippet
   }
@@ -366,7 +375,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * R.eval("print(myList)")
   * }}}
   */
-  def set(identifier: String, value: Any, index: String = "", singleBrackets: Boolean = true): Unit = this.synchronized {
+  def set(identifier: String, value: Any, index: String = "", singleBrackets: Boolean = true): Unit = synchronized {
     check4GC()
     if ( debug ) debugger.msg("Setting: "+identifier)
     val v = value
@@ -561,7 +570,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   }
 
   /** __For rscala developers only__:  Returns a value previously cached for the R interpreter. */
-  def cached(identifier: String): Any = {
+  def cached(identifier: String): Any = synchronized {
     if ( identifier.startsWith(".") ) {
       scalaServer.cacheMap(identifier)._1
     } else {
@@ -576,12 +585,17 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * arrays) and matrices (i.e. retangular arrays of arrays) of these types.    Using the method `getXY` (where `X` is
   * `I`, `D`, `B`, or `S` and `Y` is `0`, `1`, or `2`) may be more convenient (e.g.  [[getD0]]).
   */
-  def get(identifier: String, asReference: Boolean = false): (Any,String) = this.synchronized {
+  def get(identifier: String, asReference: Boolean = false): (Any, String) = synchronized {
     check4GC()
     if ( debug ) debugger.msg("Getting: "+identifier)
     if ( asReference ) out.writeInt(GET_REFERENCE) else out.writeInt(GET)
     writeString(out,identifier)
     out.flush()
+    getInternal()
+  }
+
+  private def getInternal(): (Any, String) = {
+    if ( debug ) debugger.msg("Getting internal.")
     in.readInt match {
       case NULLTYPE =>
         if ( debug ) debugger.msg("Getting null.")
@@ -627,24 +641,28 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
         val phantomReference = new PhantomReference(reference, referenceQueue)
         referenceMap(phantomReference) = reference.name
         (reference, "org.ddahl.rscala.PersistentReference")
-      case UNDEFINED_IDENTIFIER => throw new RuntimeException("Undefined identifier: "+identifier)
-      case UNSUPPORTED_STRUCTURE => throw new RuntimeException("Unsupported data type: "+identifier)
+      case UNDEFINED_IDENTIFIER => throw new RuntimeException("Undefined identifier.")
+      case UNSUPPORTED_STRUCTURE => throw new RuntimeException("Unsupported data type.")
       case e => throw new RuntimeException("Protocol error: Unknown type: "+e)
     }
   }
 
   /** Obtains a persistent R reference to the named object so that it can be accessed outside of the current environment. */
-  def getReference(identifier: String): PersistentReference = get(identifier,true)._1.asInstanceOf[PersistentReference]
+  def getReference(identifier: String): PersistentReference = toReference(get(identifier,true))
 
   /** Converts an ephemeral R reference to a persistent R reference so that it can be accessed outside of the current environment. */
   def getReference(reference: EphemeralReference): PersistentReference = getReference(reference.name)
+
+  private def toReference(x: (Any, String)): PersistentReference = x._1.asInstanceOf[PersistentReference]
 
   /** Calls '''`get(identifier,false)`''' and converts the result to an `Int`.
   *
   * Integers, doubles, Booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
   * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
   */
-  def getI0(identifier: String): Int = get(identifier) match {
+  def getI0(identifier: String): Int = toI0(get(identifier))
+
+  private def toI0(x: (Any, String)): Int = x match {
     case (a,"Int") => a.asInstanceOf[Int]
     case (a,"Double") => a.asInstanceOf[Double].toInt
     case (a,"Boolean") => if (a.asInstanceOf[Boolean]) 1 else 0
@@ -663,7 +681,9 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * Integers, doubles, Booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
   * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
   */
-  def getD0(identifier: String): Double = get(identifier) match {
+  def getD0(identifier: String): Double = toD0(get(identifier))
+
+  private def toD0(x: (Any, String)): Double = x match {
     case (a,"Int") => a.asInstanceOf[Int].toDouble
     case (a,"Double") => a.asInstanceOf[Double]
     case (a,"Boolean") => if (a.asInstanceOf[Boolean]) 1.0 else 0.0
@@ -682,7 +702,9 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * Integers, doubles, Booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
   * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
   */
-  def getL0(identifier: String): Boolean = get(identifier) match {
+  def getL0(identifier: String): Boolean = toL0(get(identifier))
+
+  private def toL0(x: (Any, String)): Boolean = x match {
     case (a,"Int") => a.asInstanceOf[Int] != 0
     case (a,"Double") => a.asInstanceOf[Double] != 0.0
     case (a,"Boolean") => a.asInstanceOf[Boolean]
@@ -701,7 +723,9 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * Integers, doubles, Booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
   * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
   */
-  def getS0(identifier: String): String = get(identifier) match {
+  def getS0(identifier: String): String = toS0(get(identifier))
+
+  private def toS0(x: (Any, String)): String = x match {
     case (a,"Int") => a.asInstanceOf[Int].toString
     case (a,"Double") => a.asInstanceOf[Double].toString
     case (a,"Boolean") => a.asInstanceOf[Boolean].toString
@@ -720,7 +744,9 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * Integers, doubles, Booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
   * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
   */
-  def getR0(identifier: String): Byte = get(identifier) match {
+  def getR0(identifier: String): Byte = toR0(get(identifier))
+
+  private def toR0(x: (Any, String)): Byte = x match {
     case (a,"Int") => a.asInstanceOf[Int].toByte
     case (a,"Double") => a.asInstanceOf[Double].toByte
     case (a,"Boolean") => if (a.asInstanceOf[Boolean]) 1.toByte else 0.toByte
@@ -739,7 +765,9 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * Integers, doubles, Booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
   * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
   */
-  def getI1(identifier: String): Array[Int] = get(identifier) match {
+  def getI1(identifier: String): Array[Int] = toI1(get(identifier))
+
+  private def toI1(x: (Any, String)): Array[Int] = x match {
     case (a,"Int") => Array(a.asInstanceOf[Int])
     case (a,"Double") => Array(a.asInstanceOf[Double].toInt)
     case (a,"Boolean") => Array(if (a.asInstanceOf[Boolean]) 1 else 0)
@@ -758,7 +786,9 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * Integers, doubles, Booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
   * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
   */
-  def getD1(identifier: String): Array[Double] = get(identifier) match {
+  def getD1(identifier: String): Array[Double] = toD1(get(identifier))
+
+  private def toD1(x: (Any, String)): Array[Double] = x match {
     case (a,"Int") => Array(a.asInstanceOf[Int].toDouble)
     case (a,"Double") => Array(a.asInstanceOf[Double])
     case (a,"Boolean") => Array(if (a.asInstanceOf[Boolean]) 1.0 else 0.0)
@@ -777,7 +807,9 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * Integers, doubles, Booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
   * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
   */
-  def getL1(identifier: String): Array[Boolean] = get(identifier) match {
+  def getL1(identifier: String): Array[Boolean] = toL1(get(identifier))
+
+  private def toL1(x: (Any, String)): Array[Boolean] = x match {
     case (a,"Int") => Array(a.asInstanceOf[Int] != 0)
     case (a,"Double") => Array(a.asInstanceOf[Double] != 0.0)
     case (a,"Boolean") => Array(a.asInstanceOf[Boolean])
@@ -796,7 +828,9 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * Integers, doubles, Booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
   * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
   */
-  def getS1(identifier: String): Array[String] = get(identifier) match {
+  def getS1(identifier: String): Array[String] = toS1(get(identifier))
+
+  private def toS1(x: (Any, String)): Array[String] = x match {
     case (a,"Int") => Array(a.asInstanceOf[Int].toString)
     case (a,"Double") => Array(a.asInstanceOf[Double].toString)
     case (a,"Boolean") => Array(a.asInstanceOf[Boolean].toString)
@@ -815,7 +849,9 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * Integers, doubles, Booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
   * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
   */
-  def getR1(identifier: String): Array[Byte] = get(identifier) match {
+  def getR1(identifier: String): Array[Byte] = toR1(get(identifier))
+
+  private def toR1(x: (Any, String)): Array[Byte] = x match {
     case (a,"Int") => Array(a.asInstanceOf[Int].toByte)
     case (a,"Double") => Array(a.asInstanceOf[Double].toByte)
     case (a,"Boolean") => Array(if (a.asInstanceOf[Boolean]) 1.toByte else 0.toByte)
@@ -835,7 +871,9 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * Booleans, and strings themselves are not supported.  Vectors (i.e. arrays) of these
   * types are also not supported.
   */
-  def getI2(identifier: String): Array[Array[Int]] = get(identifier) match {
+  def getI2(identifier: String): Array[Array[Int]] = toI2(get(identifier))
+
+  private def toI2(x: (Any, String)): Array[Array[Int]] = x match {
     case (a,"Array[Array[Int]]") => a.asInstanceOf[Array[Array[Int]]]
     case (a,"Array[Array[Double]]") => a.asInstanceOf[Array[Array[Double]]].map(_.map(_.toInt))
     case (a,"Array[Array[Boolean]]") => a.asInstanceOf[Array[Array[Boolean]]].map(_.map(x => if (x) 1 else 0))
@@ -850,7 +888,9 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * Booleans, and strings themselves are not supported.  Vectors (i.e. arrays) of these
   * types are also not supported.
   */
-  def getD2(identifier: String): Array[Array[Double]] = get(identifier) match {
+  def getD2(identifier: String): Array[Array[Double]] = toD2(get(identifier))
+
+  private def toD2(x: (Any, String)): Array[Array[Double]] = x match {
     case (a,"Array[Array[Int]]") => a.asInstanceOf[Array[Array[Int]]].map(_.map(_.toDouble))
     case (a,"Array[Array[Double]]") => a.asInstanceOf[Array[Array[Double]]]
     case (a,"Array[Array[Boolean]]") => a.asInstanceOf[Array[Array[Boolean]]].map(_.map(x => if (x) 1.0 else 0.0))
@@ -865,7 +905,9 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * Booleans, and strings themselves are not supported.  Vectors (i.e. arrays) of these
   * types are also not supported.
   */
-  def getL2(identifier: String): Array[Array[Boolean]] = get(identifier) match {
+  def getL2(identifier: String): Array[Array[Boolean]] = toL2(get(identifier))
+
+  private def toL2(x: (Any, String)): Array[Array[Boolean]] = x match {
     case (a,"Array[Array[Int]]") => a.asInstanceOf[Array[Array[Int]]].map(_.map(_ != 0))
     case (a,"Array[Array[Double]]") => a.asInstanceOf[Array[Array[Double]]].map(_.map(_ != 0.0))
     case (a,"Array[Array[Boolean]]") => a.asInstanceOf[Array[Array[Boolean]]]
@@ -880,7 +922,9 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * Booleans, and strings themselves are not supported.  Vectors (i.e. arrays) of these
   * types are also not supported.
   */
-  def getS2(identifier: String): Array[Array[String]] = get(identifier) match {
+  def getS2(identifier: String): Array[Array[String]] = toS2(get(identifier))
+
+  private def toS2(x: (Any, String)): Array[Array[String]] = x match {
     case (a,"Array[Array[Int]]") => a.asInstanceOf[Array[Array[Int]]].map(_.map(_.toString))
     case (a,"Array[Array[Double]]") => a.asInstanceOf[Array[Array[Double]]].map(_.map(_.toString))
     case (a,"Array[Array[Boolean]]") => a.asInstanceOf[Array[Array[Boolean]]].map(_.map(_.toString))
@@ -895,7 +939,9 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * Booleans, and strings themselves are not supported.  Vectors (i.e. arrays) of these
   * types are also not supported.
   */
-  def getR2(identifier: String): Array[Array[Byte]] = get(identifier) match {
+  def getR2(identifier: String): Array[Array[Byte]] = toR2(get(identifier))
+
+  private def toR2(x: (Any, String)): Array[Array[Byte]] = x match {
     case (a,"Array[Array[Int]]") => a.asInstanceOf[Array[Array[Int]]].map(_.map(_.toByte))
     case (a,"Array[Array[Double]]") => a.asInstanceOf[Array[Array[Double]]].map(_.map(_.toByte))
     case (a,"Array[Array[Boolean]]") => a.asInstanceOf[Array[Array[Boolean]]].map(_.map(x => if (x) 1.toByte else 0.toByte))

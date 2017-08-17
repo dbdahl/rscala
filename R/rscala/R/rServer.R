@@ -30,7 +30,7 @@ rServe <- function(sockets,with.callbacks,workspace=.GlobalEnv) {
         output <- paste(output,collapse="\n")
         wc(sockets,output)
       }
-      assign(".rscala.last.value",result,envir=workspace)
+      assign(".rsX",result,envir=workspace)
     } else if ( cmd %in% c(SET,SET_SINGLE,SET_DOUBLE) ) {
       if ( debug ) msg("Got SET")
       if ( cmd != SET ) index <- rc(sockets)
