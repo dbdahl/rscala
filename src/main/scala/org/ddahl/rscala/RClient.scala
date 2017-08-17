@@ -60,7 +60,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * Calling this method periodically on an otherwise-idle client may prevent the operating system from closing the socket.
   * Returns `true` if the ping is successful and `false` otherwise.
   */
-  def ping(): Boolean = this.synchronized {
+  def ping(): Boolean = synchronized {
     try {
       out.writeInt(PING)
       out.flush()
@@ -75,7 +75,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * 
   * Subsequent calls to the other methods will fail.
   */
-  def exit(): Unit = this.synchronized {
+  def exit(): Unit = synchronized {
     try {
       check4GC()
       out.writeInt(SHUTDOWN)
@@ -115,7 +115,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * method `evalXY` (where `X` is `I`, `D`, `B`, `S`, or `R` and `Y` is `0`, `1`, or `2`) may be more convenient (e.g.
   * [[evalD0]]).
   */
-  def eval(snippet: String, evalOnly: Boolean, asReference: Boolean): (Any, String) = this.synchronized {
+  def eval(snippet: String, evalOnly: Boolean, asReference: Boolean): (Any, String) = synchronized {
     check4GC()
     if ( debug ) debugger.msg("Sending EVAL request.")
     out.writeInt(if(serializeOutput) EVAL else EVALNAKED)
@@ -136,7 +136,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
     if ( evalOnly ) null else {
       if ( debug ) debugger.msg("Getting EVAL result.")
       if ( asReference ) out.writeInt(GET_REFERENCE) else out.writeInt(GET)
-      writeString(out,".rscala.last.value")
+      writeString(out,".rsX")
       out.flush()
       getInternal()
     }
@@ -194,106 +194,106 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   def evalR2(snippet: String) = toR2(eval(snippet,false,false))
 
   /** Invokes an R function with arguments.  */
-  def invoke(function: Reference, args: Any*): Unit = eval(mkSnippet(function,args))
+  def invoke(function: Reference, args: Any*): Unit = synchronized { eval(mkSnippet(function,args)) }
 
   /** Invokes an R function with arguments.  */
-  def invoke(functionName: String, args: Any*): Unit = eval(mkSnippet(functionName,args))
+  def invoke(functionName: String, args: Any*): Unit = synchronized { eval(mkSnippet(functionName,args)) }
 
   /** Invokes an R function with arguments and returns the result using [[getReference]].  */
-  def invokeReference(function: Reference, args: Any*) = evalReference(mkSnippet(function,args))
+  def invokeReference(function: Reference, args: Any*) = synchronized { evalReference(mkSnippet(function,args)) }
 
   /** Invokes an R function with arguments and returns the result using [[getReference]].  */
-  def invokeReference(functionName: String, args: Any*) = evalReference(mkSnippet(functionName,args))
+  def invokeReference(functionName: String, args: Any*) = synchronized { evalReference(mkSnippet(functionName,args)) }
 
   /** Invokes an R function with arguments and returns the result using [[getI0]].  */
-  def invokeI0(function: Reference, args: Any*) = evalI0(mkSnippet(function,args))
+  def invokeI0(function: Reference, args: Any*) = synchronized { evalI0(mkSnippet(function,args)) }
 
   /** Invokes an R function with arguments and returns the result using [[getI0]].  */
-  def invokeI0(functionName: String, args: Any*) = evalI0(mkSnippet(functionName,args))
+  def invokeI0(functionName: String, args: Any*) = synchronized { evalI0(mkSnippet(functionName,args)) }
 
   /** Invokes an R function with arguments and returns the result using [[getD0]].  */
-  def invokeD0(function: Reference, args: Any*) = evalD0(mkSnippet(function,args))
+  def invokeD0(function: Reference, args: Any*) = synchronized { evalD0(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getD0]].  */
-  def invokeD0(functionName: String, args: Any*) = evalD0(mkSnippet(functionName,args))
+  def invokeD0(functionName: String, args: Any*) = synchronized { evalD0(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getL0]].  */
-  def invokeL0(function: Reference, args: Any*) = evalL0(mkSnippet(function,args))
+  def invokeL0(function: Reference, args: Any*) = synchronized { evalL0(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getL0]].  */
-  def invokeL0(functionName: String, args: Any*) = evalL0(mkSnippet(functionName,args))
+  def invokeL0(functionName: String, args: Any*) = synchronized { evalL0(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getS0]].  */
-  def invokeS0(function: Reference, args: Any*) = evalS0(mkSnippet(function,args))
+  def invokeS0(function: Reference, args: Any*) = synchronized { evalS0(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getS0]].  */
-  def invokeS0(functionName: String, args: Any*) = evalS0(mkSnippet(functionName,args))
+  def invokeS0(functionName: String, args: Any*) = synchronized { evalS0(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getR0]].  */
-  def invokeR0(function: Reference, args: Any*) = evalR0(mkSnippet(function,args))
+  def invokeR0(function: Reference, args: Any*) = synchronized { evalR0(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getR0]].  */
-  def invokeR0(functionName: String, args: Any*) = evalR0(mkSnippet(functionName,args))
+  def invokeR0(functionName: String, args: Any*) = synchronized { evalR0(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getI1]].  */
-  def invokeI1(function: Reference, args: Any*) = evalI1(mkSnippet(function,args))
+  def invokeI1(function: Reference, args: Any*) = synchronized { evalI1(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getI1]].  */
-  def invokeI1(functionName: String, args: Any*) = evalI1(mkSnippet(functionName,args))
+  def invokeI1(functionName: String, args: Any*) = synchronized { evalI1(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getD1]].  */
-  def invokeD1(function: Reference, args: Any*) = evalD1(mkSnippet(function,args))
+  def invokeD1(function: Reference, args: Any*) = synchronized { evalD1(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getD1]].  */
-  def invokeD1(functionName: String, args: Any*) = evalD1(mkSnippet(functionName,args))
+  def invokeD1(functionName: String, args: Any*) = synchronized { evalD1(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getL1]].  */
-  def invokeL1(function: Reference, args: Any*) = evalL1(mkSnippet(function,args))
+  def invokeL1(function: Reference, args: Any*) = synchronized { evalL1(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getL1]].  */
-  def invokeL1(functionName: String, args: Any*) = evalL1(mkSnippet(functionName,args))
+  def invokeL1(functionName: String, args: Any*) = synchronized { evalL1(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getS1]].  */
-  def invokeS1(function: Reference, args: Any*) = evalS1(mkSnippet(function,args))
+  def invokeS1(function: Reference, args: Any*) = synchronized { evalS1(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getS1]].  */
-  def invokeS1(functionName: String, args: Any*) = evalS1(mkSnippet(functionName,args))
+  def invokeS1(functionName: String, args: Any*) = synchronized { evalS1(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getR1]].  */
-  def invokeR1(function: Reference, args: Any*) = evalR1(mkSnippet(function,args))
+  def invokeR1(function: Reference, args: Any*) = synchronized { evalR1(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getR1]].  */
-  def invokeR1(functionName: String, args: Any*) = evalR1(mkSnippet(functionName,args))
+  def invokeR1(functionName: String, args: Any*) = synchronized { evalR1(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getI2]].  */
-  def invokeI2(function: Reference, args: Any*) = evalI2(mkSnippet(function,args))
+  def invokeI2(function: Reference, args: Any*) = synchronized { evalI2(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getI2]].  */
-  def invokeI2(functionName: String, args: Any*) = evalI2(mkSnippet(functionName,args))
+  def invokeI2(functionName: String, args: Any*) = synchronized { evalI2(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getD2]].  */
-  def invokeD2(function: Reference, args: Any*) = evalD2(mkSnippet(function,args))
+  def invokeD2(function: Reference, args: Any*) = synchronized { evalD2(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getD2]].  */
-  def invokeD2(functionName: String, args: Any*) = evalD2(mkSnippet(functionName,args))
+  def invokeD2(functionName: String, args: Any*) = synchronized { evalD2(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getL2]].  */
-  def invokeL2(function: Reference, args: Any*) = evalL2(mkSnippet(function,args))
+  def invokeL2(function: Reference, args: Any*) = synchronized { evalL2(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getL2]].  */
-  def invokeL2(functionName: String, args: Any*) = evalL2(mkSnippet(functionName,args))
+  def invokeL2(functionName: String, args: Any*) = synchronized { evalL2(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getS2]].  */
-  def invokeS2(function: Reference, args: Any*) = evalS2(mkSnippet(function,args))
+  def invokeS2(function: Reference, args: Any*) = synchronized { evalS2(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getS2]].  */
-  def invokeS2(functionName: String, args: Any*) = evalS2(mkSnippet(functionName,args))
+  def invokeS2(functionName: String, args: Any*) = synchronized { evalS2(mkSnippet(functionName,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getR2]].  */
-  def invokeR2(function: Reference, args: Any*) = evalR2(mkSnippet(function,args))
+  def invokeR2(function: Reference, args: Any*) = synchronized { evalR2(mkSnippet(function,args)) }
   
   /** Invokes an R function with arguments and returns the result using [[getR2]].  */
-  def invokeR2(functionName: String, args: Any*) = evalR2(mkSnippet(functionName,args))
+  def invokeR2(functionName: String, args: Any*) = synchronized { evalR2(mkSnippet(functionName,args)) }
   
   private def mkSnippet(functionName: String, args: Seq[Any]): String = mkSnippet(EphemeralReference(functionName), args)
 
@@ -320,7 +320,9 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
       case r: PersistentReference => s"get('$r',envir=.rsI[['r']])"
       case _ => function.toString
     }
-    val snippet = functionString + "(" + argsStrings.mkString(",") + ")"
+    val snippet = s""".rsX <- ${functionString}(${argsStrings.mkString(",")})
+                     |if (${counter} > 0) rm(list=paste0(".rsX",1:${counter}))
+                     |.rsX""".stripMargin
     if ( debug ) debugger.msg("Constructed R snippet: "+snippet)
     snippet
   }
@@ -373,7 +375,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * R.eval("print(myList)")
   * }}}
   */
-  def set(identifier: String, value: Any, index: String = "", singleBrackets: Boolean = true): Unit = this.synchronized {
+  def set(identifier: String, value: Any, index: String = "", singleBrackets: Boolean = true): Unit = synchronized {
     check4GC()
     if ( debug ) debugger.msg("Setting: "+identifier)
     val v = value
@@ -568,7 +570,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   }
 
   /** __For rscala developers only__:  Returns a value previously cached for the R interpreter. */
-  def cached(identifier: String): Any = this.synchronized {
+  def cached(identifier: String): Any = synchronized {
     if ( identifier.startsWith(".") ) {
       scalaServer.cacheMap(identifier)._1
     } else {
@@ -583,7 +585,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   * arrays) and matrices (i.e. retangular arrays of arrays) of these types.    Using the method `getXY` (where `X` is
   * `I`, `D`, `B`, or `S` and `Y` is `0`, `1`, or `2`) may be more convenient (e.g.  [[getD0]]).
   */
-  def get(identifier: String, asReference: Boolean = false): (Any, String) = this.synchronized {
+  def get(identifier: String, asReference: Boolean = false): (Any, String) = synchronized {
     check4GC()
     if ( debug ) debugger.msg("Getting: "+identifier)
     if ( asReference ) out.writeInt(GET_REFERENCE) else out.writeInt(GET)
