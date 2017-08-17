@@ -1,0 +1,403 @@
+# These results were obtained using a pre-release version of rscala 2.3.1 on my
+# "SURCL 5" test machine.  It is a Mac mini (Late 2012) with a 2.6 GHz Intel
+# Core i7 processor and 16 GB (1600 Mhz DDR3) memory.  R was installed from
+# CRAN's binary.  Scala 2.12.3 and Java 8 were used.  The machine was otherwise
+# idle during the run.
+
+R version 3.4.1 (2017-06-30) -- "Single Candle"
+Copyright (C) 2017 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> #### Code for Section 4. "Case Study: Simulation Study Accelerated with rscala"
+> 
+> makeConfidenceInterval <- function(p, n) {
++   me <- qnorm(0.975) * sqrt( p * ( 1 - p ) / n )
++   c(estimate = p, lower = p - me, upper = p + me)
++ }
+> 
+> prob1   <- 0.75
+> prob2   <- 0.35
+> truth   <- qnorm(prob1) / qnorm(prob2)
+> n       <- 100
+> alpha   <- 0.05
+> 
+> 
+> #### rscala implementation #1
+> 
+> library(rscala)
+> s <- scala()
+> 
+> coverage.rscala1 <- function(sampler=NULL, n=0L, truth=0, prob1=0.0, prob2=0.0,
++                              nSamples=1000L, alpha=0.05, nIntervals=1000L) {
++   coverage <- s %!% '
++     import scala.util.Random
++     import scala.concurrent.{Await, Future}
++     import scala.concurrent.ExecutionContext.Implicits.global
++ 
++     def quantile(sorted: Array[Double], p: Double) = {
++       val i = ((sorted.length-1)*p).asInstanceOf[Int]
++       val delta = (sorted.length-1)*p - i
++       ( 1 - delta ) * sorted(i) + delta * sorted(i+1)
++     }
++ 
++     def statistic(x: Array[Double]) = {
++       scala.util.Sorting.quickSort(x)
++       quantile(x,prob1) / quantile(x,prob2)
++     }
++ 
++     def resample(x: Array[Double], rng: Random) = Array.fill(x.length) {
++       x(rng.nextInt(x.length))
++     }
++ 
++     def ciContains(x: Array[Double], rng: Random) = {
++       val bs = Array.fill(nSamples) { statistic(resample(x, rng)) }
++       scala.util.Sorting.quickSort(bs)
++       ( quantile(bs, alpha/2) <= truth ) && ( truth <= quantile(bs, 1-alpha/2) )
++     }
++ 
++     Await.result( Future.sequence( List.fill(nIntervals) {
++       val dataset = R.invokeD1(sampler, n)
++       val rng = new Random(R.invokeI0("runif", 1, -Int.MaxValue, Int.MaxValue))
++       Future { ciContains(dataset, rng) }
++     }), concurrent.duration.Duration.Inf).count(identity) / nIntervals.toDouble
++   '
++   makeConfidenceInterval(coverage, nIntervals)
++ }
+> 
+> 
+> #### All of the remaining implementation use the parallel package.
+> 
+> library(parallel)
+> cluster <- makeCluster(detectCores())
+> 
+> 
+> #### rscala implementation #2
+> 
+> clusterEvalQ(cluster, {
++   library(rscala)
++   s <- scala()
++   ciContains.rscala2 <- function(sampler=NULL, n=0L, truth=0, prob1=0.0, prob2=0.0,
++                                  nSamples=1000L, alpha=0.05) {
++     s %!% '
++       def quantile(sorted: Array[Double], p: Double) = {
++         val i = ((sorted.length-1)*p).asInstanceOf[Int]
++         val delta = (sorted.length-1)*p - i
++         ( 1 - delta ) * sorted(i) + delta * sorted(i+1)
++       }
++ 
++       def statistic(x: Array[Double]) = {
++         scala.util.Sorting.quickSort(x)
++         quantile(x,prob1) / quantile(x,prob2)
++       }
++ 
++       def resample(x: Array[Double], rng: scala.util.Random) = Array.fill(x.length) {
++         x(rng.nextInt(x.length))
++       }
++ 
++       val x = R.invokeD1(sampler, n)
++       val rng = new scala.util.Random(R.invokeI0("runif", 1, -Int.MaxValue, Int.MaxValue))
++       val bs = Array.fill(nSamples) { statistic(resample(x, rng)) }
++       scala.util.Sorting.quickSort(bs)
++       ( quantile(bs, alpha/2) <= truth ) && ( truth <= quantile(bs, 1-alpha/2) )
++     '
++   }
++ })
+[[1]]
+function (sampler = NULL, n = 0L, truth = 0, prob1 = 0, prob2 = 0, 
+    nSamples = 1000L, alpha = 0.05) 
+{
+    s %!% "\\n      def quantile(sorted: Array[Double], p: Double) = {\\n        val i = ((sorted.length-1)*p).asInstanceOf[Int]\\n        val delta = (sorted.length-1)*p - i\\n        ( 1 - delta ) * sorted(i) + delta * sorted(i+1)\\n      }\\n\\n      def statistic(x: Array[Double]) = {\\n        scala.util.Sorting.quickSort(x)\\n        quantile(x,prob1) / quantile(x,prob2)\\n      }\\n\\n      def resample(x: Array[Double], rng: scala.util.Random) = Array.fill(x.length) {\\n        x(rng.nextInt(x.length))\\n      }\\n\\n      val x = R.invokeD1(sampler, n)\\n      val rng = new scala.util.Random(R.invokeI0(\\"runif\\", 1, -Int.MaxValue, Int.MaxValue))\\n      val bs = Array.fill(nSamples) { statistic(resample(x, rng)) }\\n      scala.util.Sorting.quickSort(bs)\\n      ( quantile(bs, alpha/2) <= truth ) && ( truth <= quantile(bs, 1-alpha/2) )\\n    "
+}
+
+[[2]]
+function (sampler = NULL, n = 0L, truth = 0, prob1 = 0, prob2 = 0, 
+    nSamples = 1000L, alpha = 0.05) 
+{
+    s %!% "\\n      def quantile(sorted: Array[Double], p: Double) = {\\n        val i = ((sorted.length-1)*p).asInstanceOf[Int]\\n        val delta = (sorted.length-1)*p - i\\n        ( 1 - delta ) * sorted(i) + delta * sorted(i+1)\\n      }\\n\\n      def statistic(x: Array[Double]) = {\\n        scala.util.Sorting.quickSort(x)\\n        quantile(x,prob1) / quantile(x,prob2)\\n      }\\n\\n      def resample(x: Array[Double], rng: scala.util.Random) = Array.fill(x.length) {\\n        x(rng.nextInt(x.length))\\n      }\\n\\n      val x = R.invokeD1(sampler, n)\\n      val rng = new scala.util.Random(R.invokeI0(\\"runif\\", 1, -Int.MaxValue, Int.MaxValue))\\n      val bs = Array.fill(nSamples) { statistic(resample(x, rng)) }\\n      scala.util.Sorting.quickSort(bs)\\n      ( quantile(bs, alpha/2) <= truth ) && ( truth <= quantile(bs, 1-alpha/2) )\\n    "
+}
+
+[[3]]
+function (sampler = NULL, n = 0L, truth = 0, prob1 = 0, prob2 = 0, 
+    nSamples = 1000L, alpha = 0.05) 
+{
+    s %!% "\\n      def quantile(sorted: Array[Double], p: Double) = {\\n        val i = ((sorted.length-1)*p).asInstanceOf[Int]\\n        val delta = (sorted.length-1)*p - i\\n        ( 1 - delta ) * sorted(i) + delta * sorted(i+1)\\n      }\\n\\n      def statistic(x: Array[Double]) = {\\n        scala.util.Sorting.quickSort(x)\\n        quantile(x,prob1) / quantile(x,prob2)\\n      }\\n\\n      def resample(x: Array[Double], rng: scala.util.Random) = Array.fill(x.length) {\\n        x(rng.nextInt(x.length))\\n      }\\n\\n      val x = R.invokeD1(sampler, n)\\n      val rng = new scala.util.Random(R.invokeI0(\\"runif\\", 1, -Int.MaxValue, Int.MaxValue))\\n      val bs = Array.fill(nSamples) { statistic(resample(x, rng)) }\\n      scala.util.Sorting.quickSort(bs)\\n      ( quantile(bs, alpha/2) <= truth ) && ( truth <= quantile(bs, 1-alpha/2) )\\n    "
+}
+
+[[4]]
+function (sampler = NULL, n = 0L, truth = 0, prob1 = 0, prob2 = 0, 
+    nSamples = 1000L, alpha = 0.05) 
+{
+    s %!% "\\n      def quantile(sorted: Array[Double], p: Double) = {\\n        val i = ((sorted.length-1)*p).asInstanceOf[Int]\\n        val delta = (sorted.length-1)*p - i\\n        ( 1 - delta ) * sorted(i) + delta * sorted(i+1)\\n      }\\n\\n      def statistic(x: Array[Double]) = {\\n        scala.util.Sorting.quickSort(x)\\n        quantile(x,prob1) / quantile(x,prob2)\\n      }\\n\\n      def resample(x: Array[Double], rng: scala.util.Random) = Array.fill(x.length) {\\n        x(rng.nextInt(x.length))\\n      }\\n\\n      val x = R.invokeD1(sampler, n)\\n      val rng = new scala.util.Random(R.invokeI0(\\"runif\\", 1, -Int.MaxValue, Int.MaxValue))\\n      val bs = Array.fill(nSamples) { statistic(resample(x, rng)) }\\n      scala.util.Sorting.quickSort(bs)\\n      ( quantile(bs, alpha/2) <= truth ) && ( truth <= quantile(bs, 1-alpha/2) )\\n    "
+}
+
+[[5]]
+function (sampler = NULL, n = 0L, truth = 0, prob1 = 0, prob2 = 0, 
+    nSamples = 1000L, alpha = 0.05) 
+{
+    s %!% "\\n      def quantile(sorted: Array[Double], p: Double) = {\\n        val i = ((sorted.length-1)*p).asInstanceOf[Int]\\n        val delta = (sorted.length-1)*p - i\\n        ( 1 - delta ) * sorted(i) + delta * sorted(i+1)\\n      }\\n\\n      def statistic(x: Array[Double]) = {\\n        scala.util.Sorting.quickSort(x)\\n        quantile(x,prob1) / quantile(x,prob2)\\n      }\\n\\n      def resample(x: Array[Double], rng: scala.util.Random) = Array.fill(x.length) {\\n        x(rng.nextInt(x.length))\\n      }\\n\\n      val x = R.invokeD1(sampler, n)\\n      val rng = new scala.util.Random(R.invokeI0(\\"runif\\", 1, -Int.MaxValue, Int.MaxValue))\\n      val bs = Array.fill(nSamples) { statistic(resample(x, rng)) }\\n      scala.util.Sorting.quickSort(bs)\\n      ( quantile(bs, alpha/2) <= truth ) && ( truth <= quantile(bs, 1-alpha/2) )\\n    "
+}
+
+[[6]]
+function (sampler = NULL, n = 0L, truth = 0, prob1 = 0, prob2 = 0, 
+    nSamples = 1000L, alpha = 0.05) 
+{
+    s %!% "\\n      def quantile(sorted: Array[Double], p: Double) = {\\n        val i = ((sorted.length-1)*p).asInstanceOf[Int]\\n        val delta = (sorted.length-1)*p - i\\n        ( 1 - delta ) * sorted(i) + delta * sorted(i+1)\\n      }\\n\\n      def statistic(x: Array[Double]) = {\\n        scala.util.Sorting.quickSort(x)\\n        quantile(x,prob1) / quantile(x,prob2)\\n      }\\n\\n      def resample(x: Array[Double], rng: scala.util.Random) = Array.fill(x.length) {\\n        x(rng.nextInt(x.length))\\n      }\\n\\n      val x = R.invokeD1(sampler, n)\\n      val rng = new scala.util.Random(R.invokeI0(\\"runif\\", 1, -Int.MaxValue, Int.MaxValue))\\n      val bs = Array.fill(nSamples) { statistic(resample(x, rng)) }\\n      scala.util.Sorting.quickSort(bs)\\n      ( quantile(bs, alpha/2) <= truth ) && ( truth <= quantile(bs, 1-alpha/2) )\\n    "
+}
+
+[[7]]
+function (sampler = NULL, n = 0L, truth = 0, prob1 = 0, prob2 = 0, 
+    nSamples = 1000L, alpha = 0.05) 
+{
+    s %!% "\\n      def quantile(sorted: Array[Double], p: Double) = {\\n        val i = ((sorted.length-1)*p).asInstanceOf[Int]\\n        val delta = (sorted.length-1)*p - i\\n        ( 1 - delta ) * sorted(i) + delta * sorted(i+1)\\n      }\\n\\n      def statistic(x: Array[Double]) = {\\n        scala.util.Sorting.quickSort(x)\\n        quantile(x,prob1) / quantile(x,prob2)\\n      }\\n\\n      def resample(x: Array[Double], rng: scala.util.Random) = Array.fill(x.length) {\\n        x(rng.nextInt(x.length))\\n      }\\n\\n      val x = R.invokeD1(sampler, n)\\n      val rng = new scala.util.Random(R.invokeI0(\\"runif\\", 1, -Int.MaxValue, Int.MaxValue))\\n      val bs = Array.fill(nSamples) { statistic(resample(x, rng)) }\\n      scala.util.Sorting.quickSort(bs)\\n      ( quantile(bs, alpha/2) <= truth ) && ( truth <= quantile(bs, 1-alpha/2) )\\n    "
+}
+
+[[8]]
+function (sampler = NULL, n = 0L, truth = 0, prob1 = 0, prob2 = 0, 
+    nSamples = 1000L, alpha = 0.05) 
+{
+    s %!% "\\n      def quantile(sorted: Array[Double], p: Double) = {\\n        val i = ((sorted.length-1)*p).asInstanceOf[Int]\\n        val delta = (sorted.length-1)*p - i\\n        ( 1 - delta ) * sorted(i) + delta * sorted(i+1)\\n      }\\n\\n      def statistic(x: Array[Double]) = {\\n        scala.util.Sorting.quickSort(x)\\n        quantile(x,prob1) / quantile(x,prob2)\\n      }\\n\\n      def resample(x: Array[Double], rng: scala.util.Random) = Array.fill(x.length) {\\n        x(rng.nextInt(x.length))\\n      }\\n\\n      val x = R.invokeD1(sampler, n)\\n      val rng = new scala.util.Random(R.invokeI0(\\"runif\\", 1, -Int.MaxValue, Int.MaxValue))\\n      val bs = Array.fill(nSamples) { statistic(resample(x, rng)) }\\n      scala.util.Sorting.quickSort(bs)\\n      ( quantile(bs, alpha/2) <= truth ) && ( truth <= quantile(bs, 1-alpha/2) )\\n    "
+}
+
+> 
+> coverage.rscala2 <- function(sampler, n, truth, prob1, prob2, nSamples, alpha, nIntervals) {
++   clusterExport(cluster, c("sampler","n","truth","prob1","prob2","nSamples","alpha"),
++     envir=environment())
++   coverage <- mean(parSapply(cluster, 1:nIntervals, function(i) {
++     ciContains.rscala2(sampler, n, truth, prob1, prob2, nSamples, alpha)
++   }))
++   makeConfidenceInterval(coverage, nIntervals)
++ }
+> 
+> 
+> #### Pure R implementation
+> 
+> coverage.pureR <- function(sampler, n, truth, prob1, prob2, nSamples, alpha, nIntervals) {
++   statistic <- function(x) {
++     q <- quantile(x, probs = c(prob1, prob2))
++     q[1] / q[2]
++   }
++   ciContains.pureR <- function(x) {
++     samples <- sapply(1:nSamples, function(i) {
++       statistic(sample(x, replace=TRUE))
++     })
++     ci <- quantile(samples, probs = c(alpha/2, 1-alpha/2))
++     ( ci[1] <= truth ) && ( truth <= ci[2] )
++   }
++   clusterExport(cluster, c("sampler","n","truth","prob1","prob2","nSamples","alpha"),
++     envir = environment())
++   coverage <- mean(parSapply(cluster, 1:nIntervals, function(i) {
++     ciContains.pureR(sampler(n))
++   }))
++   makeConfidenceInterval(coverage, nIntervals)
++ }
+> 
+> 
+> #### Rcpp implementation
+> 
+> clusterEvalQ(cluster, { # Don't count compile timing when benchmarking Rcpp.
++   library(Rcpp)
++   sourceCpp(code="
++     #include <Rcpp.h>
++     using namespace Rcpp;
++ 
++     double quantile(double *sorted, int length, double p) {
++       int i = (int) ((length-1)*p);
++       double delta = (length-1)*p - i;
++       return ( 1 - delta ) * sorted[i] + delta * sorted[i+1];
++     }
++ 
++     int compare_double(const void* a, const void* b) {
++       double aa = *(double*)a;
++       double bb = *(double*)b;
++       if ( aa == bb ) return 0;
++       return aa < bb ? -1 : 1;
++     }
++ 
++     double statistic(double *x, int length, double prob1, double prob2) {
++       qsort(x, length, sizeof(double), compare_double);
++       return quantile(x, length, prob1) / quantile(x, length, prob2);
++     }
++ 
++     double *resample(double *x, int length) {
++       double *y = (double*) malloc(length*sizeof(double));
++       for ( int i=0; i<length; i++ ) y[i] = x[(int)(Rf_runif(0,1)*length)];
++       return y;
++     }
++ 
++     // [[Rcpp::export]]
++     bool ciContains(NumericVector data, double truth,
++                     double prob1, double prob2, int nSamples, double alpha) {
++       double *y = (double*) malloc(nSamples*sizeof(double));
++       for ( int i=0; i<nSamples; i++ ) {
++         int length = data.size();
++         double *z = resample(data.begin(), length);
++         y[i] = statistic(z, length, prob1, prob2);
++         free(z);
++       }
++       qsort(y, nSamples, sizeof(double), compare_double);
++       bool result =  ( quantile(y, nSamples,   alpha/2) <= truth ) &&
++                      ( quantile(y, nSamples, 1-alpha/2) >= truth );
++       free(y);
++       return result;
++     }
++   ")
++ })
+[[1]]
+[[1]]$functions
+[1] "ciContains"
+
+[[1]]$modules
+character(0)
+
+[[1]]$cppSourcePath
+[1] "/private/var/folders/gf/qgfqfyx51rjdn7w2l7x6ff3h0000gp/T/RtmpcUD6Qf/sourceCpp-x86_64-apple-darwin15.6.0-0.12.12/file53a6231b37.cpp"
+
+[[1]]$buildDirectory
+[1] "/private/var/folders/gf/qgfqfyx51rjdn7w2l7x6ff3h0000gp/T/RtmpcUD6Qf/sourceCpp-x86_64-apple-darwin15.6.0-0.12.12/sourcecpp_53a6acfbb06"
+
+
+[[2]]
+[[2]]$functions
+[1] "ciContains"
+
+[[2]]$modules
+character(0)
+
+[[2]]$cppSourcePath
+[1] "/private/var/folders/gf/qgfqfyx51rjdn7w2l7x6ff3h0000gp/T/RtmpI2NuHg/sourceCpp-x86_64-apple-darwin15.6.0-0.12.12/file5421b3287d0.cpp"
+
+[[2]]$buildDirectory
+[1] "/private/var/folders/gf/qgfqfyx51rjdn7w2l7x6ff3h0000gp/T/RtmpI2NuHg/sourceCpp-x86_64-apple-darwin15.6.0-0.12.12/sourcecpp_542127276a3"
+
+
+[[3]]
+[[3]]$functions
+[1] "ciContains"
+
+[[3]]$modules
+character(0)
+
+[[3]]$cppSourcePath
+[1] "/private/var/folders/gf/qgfqfyx51rjdn7w2l7x6ff3h0000gp/T/RtmpaZHDRd/sourceCpp-x86_64-apple-darwin15.6.0-0.12.12/file54a47e39afd.cpp"
+
+[[3]]$buildDirectory
+[1] "/private/var/folders/gf/qgfqfyx51rjdn7w2l7x6ff3h0000gp/T/RtmpaZHDRd/sourceCpp-x86_64-apple-darwin15.6.0-0.12.12/sourcecpp_54a2fd47cea"
+
+
+[[4]]
+[[4]]$functions
+[1] "ciContains"
+
+[[4]]$modules
+character(0)
+
+[[4]]$cppSourcePath
+[1] "/private/var/folders/gf/qgfqfyx51rjdn7w2l7x6ff3h0000gp/T/Rtmpbgc1Vj/sourceCpp-x86_64-apple-darwin15.6.0-0.12.12/file5527b1e2312.cpp"
+
+[[4]]$buildDirectory
+[1] "/private/var/folders/gf/qgfqfyx51rjdn7w2l7x6ff3h0000gp/T/Rtmpbgc1Vj/sourceCpp-x86_64-apple-darwin15.6.0-0.12.12/sourcecpp_5527790b1e3"
+
+
+[[5]]
+[[5]]$functions
+[1] "ciContains"
+
+[[5]]$modules
+character(0)
+
+[[5]]$cppSourcePath
+[1] "/private/var/folders/gf/qgfqfyx51rjdn7w2l7x6ff3h0000gp/T/RtmpKX18e8/sourceCpp-x86_64-apple-darwin15.6.0-0.12.12/file55a4586cb16.cpp"
+
+[[5]]$buildDirectory
+[1] "/private/var/folders/gf/qgfqfyx51rjdn7w2l7x6ff3h0000gp/T/RtmpKX18e8/sourceCpp-x86_64-apple-darwin15.6.0-0.12.12/sourcecpp_55a147f3503"
+
+
+[[6]]
+[[6]]$functions
+[1] "ciContains"
+
+[[6]]$modules
+character(0)
+
+[[6]]$cppSourcePath
+[1] "/private/var/folders/gf/qgfqfyx51rjdn7w2l7x6ff3h0000gp/T/RtmpJIpeQn/sourceCpp-x86_64-apple-darwin15.6.0-0.12.12/file56210abc43.cpp"
+
+[[6]]$buildDirectory
+[1] "/private/var/folders/gf/qgfqfyx51rjdn7w2l7x6ff3h0000gp/T/RtmpJIpeQn/sourceCpp-x86_64-apple-darwin15.6.0-0.12.12/sourcecpp_56267cdd33d"
+
+
+[[7]]
+[[7]]$functions
+[1] "ciContains"
+
+[[7]]$modules
+character(0)
+
+[[7]]$cppSourcePath
+[1] "/private/var/folders/gf/qgfqfyx51rjdn7w2l7x6ff3h0000gp/T/RtmpkMtt3I/sourceCpp-x86_64-apple-darwin15.6.0-0.12.12/file56a4608919f.cpp"
+
+[[7]]$buildDirectory
+[1] "/private/var/folders/gf/qgfqfyx51rjdn7w2l7x6ff3h0000gp/T/RtmpkMtt3I/sourceCpp-x86_64-apple-darwin15.6.0-0.12.12/sourcecpp_56a5c9081a4"
+
+
+[[8]]
+[[8]]$functions
+[1] "ciContains"
+
+[[8]]$modules
+character(0)
+
+[[8]]$cppSourcePath
+[1] "/private/var/folders/gf/qgfqfyx51rjdn7w2l7x6ff3h0000gp/T/RtmpXFojDW/sourceCpp-x86_64-apple-darwin15.6.0-0.12.12/file5722e27d441.cpp"
+
+[[8]]$buildDirectory
+[1] "/private/var/folders/gf/qgfqfyx51rjdn7w2l7x6ff3h0000gp/T/RtmpXFojDW/sourceCpp-x86_64-apple-darwin15.6.0-0.12.12/sourcecpp_57238e00f13"
+
+
+> 
+> coverage.Rcpp <- function(sampler, n, truth, prob1, prob2, nSamples, alpha, nIntervals) {
++   clusterExport(cluster, c("sampler","n","truth","prob1","prob2","nSamples","alpha"),
++     envir=environment())
++   coverage <- mean(parSapply(cluster, 1:nIntervals, function(i) {
++     ciContains(sampler(n), truth, prob1, prob2, nSamples, alpha)
++   }))
++   makeConfidenceInterval(coverage, nIntervals)
++ }
+> 
+> 
+> #### Benchmarks
+> 
+> library(microbenchmark)
+> engine <- function(nSamples, nIntervals) microbenchmark(
++ #  pureR.   = coverage.pureR(  rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
++   Rcpp.    = coverage.Rcpp(   rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
++   rscala1. = coverage.rscala1(rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
++   rscala2. = coverage.rscala2(rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
++   times=10)
+> 
+> engine(nSamples = 10000L, nIntervals = 10000L)
+Unit: seconds
+     expr       min        lq      mean    median        uq       max neval
+    Rcpp. 136.93681 137.06900 139.25344 139.80610 140.68031 141.81910    10
+ rscala1.  93.49168  94.23758  94.71033  94.89444  95.27719  95.84402    10
+ rscala2.  91.21384  92.50686  93.40456  92.61769  92.70650 101.80254    10
+> 
+> proc.time()
+    user   system  elapsed 
+ 117.746   21.879 3300.176 
