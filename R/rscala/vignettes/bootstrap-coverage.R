@@ -5,14 +5,13 @@ makeConfidenceInterval <- function(p, n) {
   c(estimate = p, lower = p - me, upper = p + me)
 }
 
-
-#### rscala implementation
+#### rscala implementation #1
 
 library(rscala)
 s <- scala()
 
-coverage.rscala <- function(sampler=NULL, n=0L, truth=0, prob1=0.0, prob2=0.0,
-                            nSamples=1000L, alpha=0.05, nIntervals=1000L) {
+coverage.rscala1 <- function(sampler=NULL, n=0L, truth=0, prob1=0.0, prob2=0.0,
+                             nSamples=1000L, alpha=0.05, nIntervals=1000L) {
   coverage <- s %!% '
     import scala.util.Random
     import scala.concurrent.{Await, Future}
@@ -49,10 +48,52 @@ coverage.rscala <- function(sampler=NULL, n=0L, truth=0, prob1=0.0, prob2=0.0,
 }
 
 
-#### The parallel package is used by the next two implementations
+#### The parallel package is used by the remaining implementations
 
 library(parallel)
 cluster <- makeCluster(detectCores())
+
+
+#### rscala implementation #2
+
+clusterEvalQ(cluster, {
+  library(rscala)
+  s <- scala()
+  ciContains.rscala2 <- function(sampler=NULL, n=0L, truth=0, prob1=0.0, prob2=0.0,
+                                 nSamples=1000L, alpha=0.05) {
+    s %!% '
+      def quantile(sorted: Array[Double], p: Double) = {
+        val i = ((sorted.length-1)*p).asInstanceOf[Int]
+        val delta = (sorted.length-1)*p - i
+        ( 1 - delta ) * sorted(i) + delta * sorted(i+1)
+      }
+
+      def statistic(x: Array[Double]) = {
+        scala.util.Sorting.quickSort(x)
+        quantile(x,prob1) / quantile(x,prob2)
+      }
+
+      def resample(x: Array[Double], rng: scala.util.Random) = Array.fill(x.length) {
+        x(rng.nextInt(x.length))
+      }
+
+      val x = R.invokeD1(sampler, n)
+      val rng = new scala.util.Random(R.invokeI0("runif", 1, -Int.MaxValue, Int.MaxValue))
+      val bs = Array.fill(nSamples) { statistic(resample(x, rng)) }
+      scala.util.Sorting.quickSort(bs)
+      ( quantile(bs, alpha/2) <= truth ) && ( truth <= quantile(bs, 1-alpha/2) )
+    '
+  }
+})
+
+coverage.rscala2 <- function(sampler, n, truth, prob1, prob2, nSamples, alpha, nIntervals) {
+  clusterExport(cluster, c("sampler","n","truth","prob1","prob2","nSamples","alpha"),
+    envir=environment())
+  coverage <- mean(parSapply(cluster, 1:nIntervals, function(i) {
+    ciContains.rscala2(sampler, n, truth, prob1, prob2, nSamples, alpha)
+  }))
+  makeConfidenceInterval(coverage, nIntervals)
+}
 
 
 #### Pure R implementation
@@ -148,12 +189,11 @@ n       <- 100
 truth   <- qnorm(prob1) / qnorm(prob2)
 
 library(microbenchmark)
-engine <- function(nSamples, nIntervals) {
-  microbenchmark(
-    pureR.  = coverage.pureR( rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
-    Rcpp.   = coverage.Rcpp(  rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
-    rscala. = coverage.rscala(rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
-    times=30)
-}
+engine <- function(nSamples, nIntervals) microbenchmark(
+#  pureR.   = coverage.pureR(  rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
+  Rcpp.    = coverage.Rcpp(   rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
+  rscala1. = coverage.rscala1(rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
+  rscala2. = coverage.rscala2(rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
+  times=10)
 
 engine(nSamples = 1000L, nIntervals = 1000L)
