@@ -58,11 +58,13 @@
 
 %% an abstract and keywords
 \Abstract{
-The \rscala package is a simple, two-way bridge between \R and \Scala. \Scala
-classes can be instantiated from \R and \Scala methods can be called.
+The \rscala software is a simple, two-way bridge between \R and \Scala.
+The goal of \rscala is to allow users to easily leverage the
+unique strengths of \Scala and \R to make them more productive.
+\Scala classes can be instantiated from \R and \Scala methods can be called.
 Arbitrary \Scala code can be executed on-the-fly from within \R, inline \Scala
 functions can be defined, and callbacks to \R are supported.  \R packages can
-implement algorithms in \Scala.  Conversely, \rscala also enables \R code to be
+developed using \Scala.  Conversely, \rscala also enables \R code to be
 embedded within a \Scala application.  The \rscala package is available on CRAN
 and has no dependencies beyond the \Scala standard library and base \R.
 }
@@ -261,8 +263,10 @@ advised to not ``use Windows unless you really have to''
 The paper is organized as follows.  Section \ref{scalainr} describes \rscala's
 functionality to access \Scala from \R.  Some of the more important topics
 presented there include the data types supported by \rscala, embedding \Scala
-snippets in an \R script, accessing precompiled \Scala code from \R, calling
-back into \R from embedded \Scala, and developing \R packages based on \Scala.
+snippets in an \R script, accessing precompiled \Scala code from \R, and calling
+back into \R from embedded \Scala.
+We also discuss how to develop \R packages based on \Scala and refer readers
+to two example packages.
 Section \ref{rinscala} describes \rscala's functionality to access \R from
 \Scala.  Throughout these sections, concise examples are provided to help
 describe the functionality and illustrate why one might interested in bridging
@@ -1547,22 +1551,24 @@ over the TCP/IP bridge.
 \section[Case Study: Simulation Study Accelerated with rscala]{Case Study: Simulation Study Accelerated with \rscala}
 \label{bootstrap}
 
-In this section, we demonstrate the easy with which computationally-intensive
-statistical procedures can be implemented by embedding \Scala code within an \R
-script using the \rscala package.  The algorithm is embarrassingly parallel and
-we consider two means of parallelization, one using \Scala's \code{Future}
-class and the other using \R's \pkg{parallel} package.  By way of comparison,
-we implement the same algorithm using pure \R and using inline \Cpp code via
-the \Rcpp package.  All four implementations provide a function taking the same
-arguments, including a user-specified sampling function implemented in \R.
+While the previously mentioned \pkg{shallot} and \pkg{bamboo} demonstrate the
+ability to develop packages based on \rscala, we demonstrate in this section
+the easy with which computationally-intensive statistical procedures can be
+implemented by embedding \Scala code in an \R script.  The algorithm is
+embarrassingly parallel and we consider two means of parallelization, one using
+\Scala's \code{Future} class and the other using \R's \pkg{parallel} package.
+By way of comparison, we implement the same algorithm using pure \R and using
+inline \Cpp code via the \Rcpp package.  All four implementations provide a
+function taking the same arguments, including a user-specified \R
+function for sampling.
 
-The computationally-intensive statistical procedure is a simulation study of
-the coverage of a bootstrap confidence interval procedure.  Consider a
-population parameter $\beta_1/\beta_2$, where $\beta_1$ and $\beta_2$ are
-population quantiles associated with probabilities $p_1$ and $p_2$,
-respectively.  Based on a sample of $n$ observations, a point estimator of the
-parameter is the ratio of the corresponding sample quantiles and the following
-bootstrap procedure can be used when the population distribution is
+We consider a
+simulation study of the coverage of a bootstrap confidence interval procedure.
+Consider a population parameter $\beta_1/\beta_2$, where $\beta_1$ and
+$\beta_2$ are population quantiles associated with probabilities $p_1$ and
+$p_2$, respectively.  Based on a sample of $n$ observations, a point estimator
+of the parameter is the ratio of the corresponding sample quantiles and the
+following bootstrap procedure can be used when the population distribution is
 unspecified.  The sample estimate is recorded for each of \code{nSamples}
 bootstrap samples.  A bootstrap confidence interval is given by $(l, u)$, where
 $l$ and $u$ are quantiles of the bootstrap sampling distribution associated
@@ -1570,10 +1576,11 @@ with $\alpha/2$ and $1-\alpha/2$, respectively.  Although the nominal coverage
 is $1-\alpha$, interest lies in computing the actual coverage probability of
 this bootstrap confidence interval procedure using a Monte Carlo simulation
 study.  \code{nIntervals} samples from the population are obtained from a
-user-supplied function.  Although the code is general, we sample $n=100$
+user-supplied sampling function.  Although the code is general, we sample $n=100$
 observations from the standard normal distribution and set $p_1=0.75$ and
-$p_2=0.35$, making $\beta_1/\beta_2 \approx -1.75$.  We consider
-\code{nSamples} = 10,000 and \code{nIntervals} = 10,000.
+$p_2=0.35$, making $\beta_1/\beta_2 \approx -1.75$.
+We use \code{nIntervals} = 10,000 Monte Carlo replicates, each having
+\code{nSamples} = 10,000 bootstrap samples.
 
 The four implementations of the algorithm are contained in the \R script in the
 Appendix.  The \R implementation is the shortest and the \rscala implementation
@@ -1584,10 +1591,29 @@ use the \pkg{parallel} package to harness all available cores, whereas the
 first \rscala implementation uses \Scala's \code{Future} class for parallelism.
 In the first \rscala implementation, a single instance of \code{RClient} is
 used by multiple JVM threads to call back to the single \R instance when
-sampling the data.  In the second \rscala implementation, each CPU core has a
-separate \R instance with a corresponding \code{RClient}.
+sampling the data.  On machines with many cores, each thread having to wait its
+turn to access the \R instance will likely slow down the execution.  In the
+second \rscala implementation, each CPU core has a separate \R instance with a
+corresponding \code{RClient}.
 
-The benchmarking results are found in Table \ref{benchmarks}
+We tested on four machines running Ubuntu 16.04 with 8 cores, Ubuntu 16.04 with
+56 cores, Mac Sierra with 8 cores, and Windows 10 with 8 cores.  \R was
+compiled from source for the Ubuntu machines and was installed from binaries
+downloaded from CRAN for the Mac and Windows machines.  All machines ran \R
+3.4.1, \Scala 2.12.3, \Java 8, \Rcpp 0.12.12, and a prelease version of \rscala
+2.3.1.
+
+Executions times (in seconds) for 10 replications of the simulation study are
+found in Table \ref{benchmarks}.  For the sake of expediency, the pure \R
+implementation was only run on the Ubuntu machines.  The pure \R implementation
+ran more than 26 times slower than the fastest implementation.  The second
+\rscala implementation (which uses the \pkg{parallel} package) was the overall
+the fastest.  The first \rscala implementation was close behind, expect on the
+Ubuntu machine with 56 cores, which illustrates the difficulty of sharing an
+single \R instances for all the cores.  The \Rcpp implementation is generally
+slower than the \rscala implementations, but within the same order of magnitude
+relative to the pure \R implementation.  We are not experts in \Cpp and it is
+possible the \Rcpp implementation could be improved.
 
 \begin{table}
 \begin{center}
@@ -1621,7 +1647,9 @@ Machine & Implementation&  Min.& $Q_1$&  Mean&Median& $Q_3$&   Max.\\
 \bottomrule
 \end{tabular}
 \end{center}
-\caption{Description.}
+\caption{Elapsed time (in seconds) for the four implementations of the
+bootstrap simulation study executed on four different machines.  Overall, the
+second \rscala implementation had the fastest execution times.}
 \label{benchmarks}
 \end{table}
 
@@ -1629,14 +1657,12 @@ Machine & Implementation&  Min.& $Q_1$&  Mean&Median& $Q_3$&   Max.\\
 \label{conclusion}
 
 This paper introduced the \rscala package that allows users to bridge \R and
-\Scala in one program, allowing a user to leverage their skills in both
-languages and to utilized libraries and exploit strengthens in each language.
-We are exploring two possible features to improve the package.  The first is to
-allow embedded \Scala computations to be interrupted by the \R user without
-destroying the TCP/IP bridge.  The second feature is allowing \R and \Scala to
-run on separate machines.  The invocation semantics would need to be
-generalized, but it is certainly feasible if there is sufficient interest from
-the community.
+\Scala in one program or package, allowing a user to leverage their skills in
+both languages and to utilized libraries and exploit strengthens in each
+language.  We are exploring two possible features to improve the package.  The
+first is to allow embedded \Scala computations to be interrupted by the \R user
+without destroying the TCP/IP bridge.  The second feature is allowing \R and
+\Scala to run on separate machines.
 
 \section*{Acknowledgements}
 
