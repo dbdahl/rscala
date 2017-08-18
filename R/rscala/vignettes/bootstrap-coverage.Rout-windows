@@ -1,0 +1,6 @@
+# These results were obtained using a pre-release version of rscala 2.3.1 on
+# the a podium computer in 203 TMCB.  It is a Dell OptiPlex 9020 computer
+# running Windows 10 Enterprise with a Intel Core i5-4590 @ 3.30GHz processor
+# (with 4 cores) and 8 GB of RAM.  R was installed from CRAN's binary.  Scala
+# 2.12.3 and Java 8 were used.  The machine was otherwise idle during the run.
+

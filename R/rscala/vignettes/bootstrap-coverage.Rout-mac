@@ -1,8 +1,8 @@
 # These results were obtained using a pre-release version of rscala 2.3.1 on my
-# "SURCL 5" test machine.  It is a Mac mini (Late 2012) with a 2.6 GHz Intel
-# Core i7 processor and 16 GB (1600 Mhz DDR3) memory.  R was installed from
-# CRAN's binary.  Scala 2.12.3 and Java 8 were used.  The machine was otherwise
-# idle during the run.
+# "SURCL 5" test machine.  It is a Mac mini (Late 2012) running Sierra with a
+# 2.6 GHz Intel Core i7 processor and 16 GB (1600 Mhz DDR3) of RAM.  R was
+# installed from CRAN's binary.  Scala 2.12.3 and Java 8 were used.  The
+# machine was otherwise idle during the run.
 
 R version 3.4.1 (2017-06-30) -- "Single Candle"
 Copyright (C) 2017 The R Foundation for Statistical Computing

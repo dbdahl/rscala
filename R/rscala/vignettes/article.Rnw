@@ -22,7 +22,6 @@
 %\overfullrule=3mm
 \usepackage{fancyvrb}
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% declarations for jss.cls %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1573,8 +1572,8 @@ this bootstrap confidence interval procedure using a Monte Carlo simulation
 study.  \code{nIntervals} samples from the population are obtained from a
 user-supplied function.  Although the code is general, we sample $n=100$
 observations from the standard normal distribution and set $p_1=0.75$ and
-$p_2=0.35$, making $\beta_1/\beta_2 \approx -1.75$.  We consider \code{nSamples}
-= 10,000 and \code{nIntervals} = 10,000.
+$p_2=0.35$, making $\beta_1/\beta_2 \approx -1.75$.  We consider
+\code{nSamples} = 10,000 and \code{nIntervals} = 10,000.
 
 The four implementations of the algorithm are contained in the \R script in the
 Appendix.  The \R implementation is the shortest and the \rscala implementation
@@ -1588,8 +1587,43 @@ used by multiple JVM threads to call back to the single \R instance when
 sampling the data.  In the second \rscala implementation, each CPU core has a
 separate \R instance with a corresponding \code{RClient}.
 
-We 
 The benchmarking results are found in Table \ref{benchmarks}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{c|lrrrrrr}
+\toprule
+Machine & Implementation&  Min.& $Q_1$&  Mean&Median& $Q_3$&   Max.\\
+\midrule
+\parbox[t]{4ex}{\multirow{4}{*}{\rotatebox[origin=c]{90}{\parbox{10ex}{\centering Ubuntu\\ 8 cores}}}}
+  & Pure \R     &       &       &       &       &       &       \\
+  & \Rcpp       &       &       &       &       &       &       \\
+  & \rscala \#1 &       &       &       &       &       &       \\
+  & \rscala \#2 &       &       &       &       &       &       \\
+\midrule
+\parbox[t]{4ex}{\multirow{4}{*}{\rotatebox[origin=c]{90}{\parbox{10ex}{\centering Ubuntu\\ 56 cores}}}}
+  & Pure \R     & 444.1 & 449.8 & 450.8 & 451.3 & 452.4 & 456.1 \\
+  & \Rcpp       &  19.7 &  19.6 &  19.7 &  19.8 &  19.8 &  20.0 \\
+  & \rscala \#1 &  46.9 &  47.7 &  48.0 &  48.0 &  48.6 &  49.0 \\
+  & \rscala \#2 &  14.5 &  14.6 &  16.6 &  14.8 &  15.0 &  32.2 \\
+\midrule
+\parbox[t]{4ex}{\multirow{4}{*}{\rotatebox[origin=c]{90}{\parbox{10ex}{\centering Mac\\ 8 cores}}}}
+  & Pure \R     &       &       &       &       &       &       \\
+  & \Rcpp       & 136.9 & 137.1 & 139.3 & 139.8 & 140.7 & 141.8 \\
+  & \rscala \#1 &  93.4 & 94.2  &  94.7 &  94.9 &  95.3 &  95.8 \\
+  & \rscala \#2 &  91.2 & 92.5  &  93.4 &  92.6 &  92.7 & 101.8 \\
+\midrule
+\parbox[t]{4ex}{\multirow{4}{*}{\rotatebox[origin=c]{90}{\parbox{10ex}{\centering Windows\\ 8 cores}}}}
+  & Pure \R     &       &       &       &       &       &       \\
+  & \Rcpp       &       &       &       &       &       &       \\
+  & \rscala \#1 &       &       &       &       &       &       \\
+  & \rscala \#2 &       &       &       &       &       &       \\
+\bottomrule
+\end{tabular}
+\end{center}
+\caption{Description.}
+\label{benchmarks}
+\end{table}
 
 \section{Conclusion}
 \label{conclusion}
