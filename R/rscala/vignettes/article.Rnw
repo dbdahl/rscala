@@ -1615,9 +1615,9 @@ Machine & Implementation&  Min.& $Q_1$&  Mean&Median& $Q_3$&   Max.\\
 \midrule
 \parbox[t]{4ex}{\multirow{4}{*}{\rotatebox[origin=c]{90}{\parbox{10ex}{\centering Windows\\ 8 cores}}}}
   & Pure \R      &        &        &        &        &        &        \\
-  & \Rcpp        &        &        &        &        &        &        \\
-  & \rscala \#1  &        &        &        &        &        &        \\
-  & \rscala \#2  &        &        &        &        &        &        \\
+  & \Rcpp        &  184.8 &  185.0 &  187.6 &  185.3 &  186.1 &  201.8 \\
+  & \rscala \#1  &  108.9 &  109.1 &  109.3 &  109.1 &  109.5 &  110.1 \\
+  & \rscala \#2  &  106.7 &  107.3 &  107.8 &  107.9 &  108.0 &  109.9 \\
 \bottomrule
 \end{tabular}
 \end{center}
