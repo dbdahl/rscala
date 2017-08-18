@@ -63,7 +63,7 @@ The goal of \rscala is to allow users to easily leverage the
 unique strengths of \Scala and \R to make them more productive.
 \Scala classes can be instantiated from \R and \Scala methods can be called.
 Arbitrary \Scala code can be executed on-the-fly from within \R, inline \Scala
-functions can be defined, and callbacks to \R are supported.  \R packages can
+functions can be defined, and callbacks to \R are supported.  \R packages can be
 developed using \Scala.  Conversely, \rscala also enables \R code to be
 embedded within a \Scala application.  The \rscala package is available on CRAN
 and has no dependencies beyond the \Scala standard library and base \R.
@@ -222,12 +222,12 @@ advantages of each in a single project.
 % existing \Java code and to apply their \Java skills to make \R extensions.  The
 % \rscala package aims to do for \Scala what \rJava has done for \Java.
 
-The \rscala software has no dependences beyond the \Scala's standard library
+The \rscala software has no dependencies beyond \Scala's standard library
 and base \R.  The bridge between \R and \Scala is based on a custom TCP/IP
 protocol.  This affords flexibility but it is natural to question whether
 \rscala could have been developed more easily by building on existing software.
 Since \Scala code compiles to \Java byte code and runs on the JVM, one could
-access \Scala from \R via \rJava and then benefit for the speed of shared
+access \Scala from \R via \rJava and then benefit from the speed of shared
 memory.  In fact, an early implementation of (what is now known as) \rscala was
 indeed based on \rJava.  This implementation was abandoned for several reasons.
 First, some users struggle with installing and maintaining a working \rJava
@@ -235,7 +235,7 @@ installation.  The \rJava issue tracker on GitHub
 (\url{https://github.com/s-u/rJava/issues}) shows a number of closed issues
 that users have with \rJava maintenance.  In fairness to \rJava, these are
 mostly user errors.  Nevertheless, the reach of package based on \rJava may be
-limited because some users lack the skills or patients to resolve technical
+limited because some users lack the skills or patience to resolve technical
 issues regarding system maintenance.  Second, \rJava and \Scala's
 read-eval-print loop (REPL) are both implemented using custom class loaders
 which seem to conflict with each other.  Third, since \rJava links to a single
@@ -271,7 +271,7 @@ Section \ref{rinscala} describes \rscala's functionality to access \R from
 \Scala.  Throughout these sections, concise examples are provided to help
 describe the functionality and illustrate why one might interested in bridging
 \R and \Scala.  Section \ref{bootstrap} provides an case study to show how
-\Scala can easily be embedded in \R to significantly improved the computation
+\Scala can easily be embedded in \R to significantly improve the computation
 time for a simulation study.  We conclude with future work in Section
 \ref{conclusion}.
 
