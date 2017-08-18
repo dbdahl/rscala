@@ -216,7 +216,7 @@ fi
 if [[ -n "$TASK_R" ]]
 then
   mkdir -p deliveries
-  cp R/$TGZ_NAME deliveries
+  mv R/$TGZ_NAME deliveries
   JARSNAME=rscalaJars_$MAJOR.tar.gz
   tar czf deliveries/"$JARSNAME" --directory R/rscala/inst/java/ .
   if [[ -n "$FLAG_POST" ]]

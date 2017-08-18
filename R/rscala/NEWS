@@ -1,14 +1,20 @@
-2.3.1 (2017-08-XX)
-  * ref$type returns the Scala type of a Scala reference 'ref'.
-  * Added s$var(x) to get the value of an R reference 'x'.
-  * If a requested version of R does not exits, offer to install Scala if
+2.3.1 (2017-08-22)
+  * Version associated with resubmission of paper to Journal of Statistical
+    Software.
+  * If a requested version of Scala does not exits, offer to install it if
     R is interactive.
   * By default, set serialize.output to TRUE on Windows and FALSE otherwise
     so that Windows users also see stack traces and output be default.
   * Added rudimentary support for tab completion for methods on Scala
     references.
-  * Suppress default printing of 'scalap' results (which is chatty and are
-    often unavailable).  Make 'scalap' work with Scala references.
+  * RClient is now thread safe.
+  * RClient has a 'ping' method to check the vitality of the connection.
+  * No longer export 'scalap' function which can be problematic.
+  * No longer export the 'scalaOptimize' function.
+  * Added the private method 'rscala:::latest()' to install the latest
+    development build from my website.
+  * ref$type returns the Scala type of a Scala reference 'ref'.
+  * Added s$var(x) to get the value of an R reference 'x'.
   * Bumped default Scala version to 2.12.3.
 
 2.3.0 (2017-08-08)

@@ -5,4 +5,10 @@
 ^vignettes/jss\.cls$
 ^vignettes/article\.bbl$
 ^vignettes/article\.blg$
+^vignettes/article\.aux$
+^vignettes/article\.tex$
+^vignettes/article\.out$
+^vignettes/article\.log$
+^vignettes/cache$
 ^vignettes/figure$
+^vignettes/eurodist.csv$
