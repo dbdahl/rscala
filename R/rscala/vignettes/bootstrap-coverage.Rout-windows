@@ -3,4 +3,481 @@
 # running Windows 10 Enterprise with a Intel Core i5-4590 @ 3.30GHz processor
 # (with 4 cores) and 8 GB of RAM.  R was installed from CRAN's binary.  Scala
 # 2.12.3 and Java 8 were used.  The machine was otherwise idle during the run.
+# As the transcript shows, I had to use trial-and-error to install Rtools, set
+# the PATH, etc.
 
+R version 3.4.1 (2017-06-30) -- "Single Candle"
+Copyright (C) 2017 The R Foundation for Statistical Computing
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(Rcpp)
+> cppFunction('int add(int x, int y, int z) {
++   int sum = x + y + z;
++   return sum;
++ }')
+Warning message:
+running command 'make -f "C:/Users/dbd3/DOCUME~1/R/R-34~1.1/etc/x64/Makeconf" -f "C:/Users/dbd3/DOCUME~1/R/R-34~1.1/share/make/winshlib.mk" SHLIB_LDFLAGS='$(SHLIB_CXXLDFLAGS)' SHLIB_LD='$(SHLIB_CXXLD)' SHLIB="sourceCpp_2.dll" WIN=64 TCLBIN=64 OBJECTS="file213c6860740d.o"' had status 127 
+Error in sourceCpp(code = code, env = env, rebuild = rebuild, cacheDir = cacheDir,  : 
+  Error 1 occurred building shared library.
+
+WARNING: The tools required to build C++ code for R were not found.
+
+Please download and install the appropriate version of Rtools:
+
+http://cran.r-project.org/bin/windows/Rtools/
+
+> 
+> 
+> Sys.which("make")
+make 
+  "" 
+> setwd("c:/Users/dbd3/Rtools")
+> list.files()
+ [1] "bin"          "COPYING"      "mingw_32"     "mingw_64"     "mingw_libs"  
+ [6] "README.txt"   "Rtools.txt"   "texinfo5"     "unins000.dat" "unins000.exe"
+[11] "VERSION.txt" 
+> setwd("bin")
+> Sys.which("make")
+                                    make 
+"c:\\Users\\dbd3\\Rtools\\bin\\make.exe" 
+> cppFunction('int add(int x, int y, int z) {
++   int sum = x + y + z;
++   return sum;
++ }')
+Warning message:
+running command 'make -f "C:/Users/dbd3/DOCUME~1/R/R-34~1.1/etc/x64/Makeconf" -f "C:/Users/dbd3/DOCUME~1/R/R-34~1.1/share/make/winshlib.mk" SHLIB_LDFLAGS='$(SHLIB_CXXLDFLAGS)' SHLIB_LD='$(SHLIB_CXXLD)' SHLIB="sourceCpp_3.dll" WIN=64 TCLBIN=64 OBJECTS="file213c6860740d.o"' had status 127 
+Error in sourceCpp(code = code, env = env, rebuild = rebuild, cacheDir = cacheDir,  : 
+  Error 1 occurred building shared library.
+
+WARNING: The tools required to build C++ code for R were not found.
+
+Please download and install the appropriate version of Rtools:
+
+http://cran.r-project.org/bin/windows/Rtools/
+
+> Sys.which("make")
+                                    make 
+"c:\\Users\\dbd3\\Rtools\\bin\\make.exe" 
+> Sys.getenv("PATH")
+[1] "C:\\ProgramData\\Oracle\\Java\\javapath;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\Windows\\CCM;C:\\Program Files (x86)\\Skype\\Phone\\;C:\\Users\\dbd3\\AppData\\Local\\Microsoft\\WindowsApps;"
+> PP <- Sys.getenv("PATH")
+> Sys.setenv(PATH=paste0(getwd
++ )
+
++ > 
+> 
+> ?path.expand
+starting httpd help server ... done
+> Sys.setenv(PATH=paste0(getwd(),PP,sep=";")
++ )
+> Sys.getenv()
+ALLUSERSPROFILE         C:\ProgramData
+APPDATA                 C:\Users\dbd3\AppData\Roaming
+CommonProgramFiles      C:\Program Files\Common Files
+CommonProgramFiles(x86)
+                        C:\Program Files (x86)\Common Files
+CommonProgramW6432      C:\Program Files\Common Files
+COMPUTERNAME            TEC-TMCB-203
+ComSpec                 C:\WINDOWS\system32\cmd.exe
+GFORTRAN_STDERR_UNIT    -1
+GFORTRAN_STDOUT_UNIT    -1
+HOME                    C:\Users\dbd3\Documents
+HOMEDRIVE               C:
+HOMEPATH                \Users\dbd3
+LOCALAPPDATA            C:\Users\dbd3\AppData\Local
+LOGONSERVER             \\CAD7
+NUMBER_OF_PROCESSORS    4
+OneDrive                C:\Users\dbd3\OneDrive
+OS                      Windows_NT
+PATH                    c:/Users/dbd3/Rtools/binC:\ProgramData\Oracle\Java\javapath;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Windows\CCM;C:\Program
+                        Files
+                        (x86)\Skype\Phone\;C:\Users\dbd3\AppData\Local\Microsoft\WindowsApps;;
+PATHEXT                 .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC
+PROCESSOR_ARCHITECTURE
+                        AMD64
+PROCESSOR_IDENTIFIER    Intel64 Family 6 Model 60 Stepping 3,
+                        GenuineIntel
+PROCESSOR_LEVEL         6
+PROCESSOR_REVISION      3c03
+ProgramData             C:\ProgramData
+ProgramFiles            C:\Program Files
+ProgramFiles(x86)       C:\Program Files (x86)
+ProgramW6432            C:\Program Files
+PSModulePath            C:\Program
+                        Files\WindowsPowerShell\Modules;C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules
+PUBLIC                  C:\Users\Public
+R_ARCH                  /x64
+R_COMPILED_BY           gcc 4.9.3
+R_HOME                  C:/Users/dbd3/Documents/R/R-3.4.1
+R_LIBS_USER             C:\Users\dbd3\Documents/R/win-library/3.4
+R_USER                  C:\Users\dbd3\Documents
+SESSIONNAME             Console
+SystemDrive             C:
+SystemRoot              C:\WINDOWS
+TEMP                    C:\Users\dbd3\AppData\Local\Temp
+TMP                     C:\Users\dbd3\AppData\Local\Temp
+UATDATA                 C:\Windows\CCM\UATData\D9F8C395-CAB8-491d-B8AC-179A1FE1BE77
+USERDNSDOMAIN           BYU.LOCAL
+USERDOMAIN              BYU
+USERDOMAIN_ROAMINGPROFILE
+                        BYU
+USERNAME                dbd3
+USERPROFILE             C:\Users\dbd3
+windir                  C:\WINDOWS
+> 
+> Sys.setenv(PATH=paste(getwd(),PP,sep=";"))
+> Sys.getenv("PATH")
+[1] "c:/Users/dbd3/Rtools/bin;C:\\ProgramData\\Oracle\\Java\\javapath;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\Windows\\CCM;C:\\Program Files (x86)\\Skype\\Phone\\;C:\\Users\\dbd3\\AppData\\Local\\Microsoft\\WindowsApps;"
+> 
+> 
+> cppFunction('int add(int x, int y, int z) {
++   int sum = x + y + z;
++   return sum;
++ }')
+> #### Code for Section 4. "Case Study: Simulation Study Accelerated with rscala"
+> 
+> makeConfidenceInterval <- function(p, n) {
++   me <- qnorm(0.975) * sqrt( p * ( 1 - p ) / n )
++   c(estimate = p, lower = p - me, upper = p + me)
++ }
+> 
+> prob1   <- 0.75
+> prob2   <- 0.35
+> truth   <- qnorm(prob1) / qnorm(prob2)
+> n       <- 100
+> alpha   <- 0.05
+> 
+> 
+> #### rscala implementation #1
+> 
+> library(rscala)
+> s <- scala()
+
+Searching for a suitable Scala installation.
+  * FAILURE: 'scala.home' argument is NULL
+  * FAILURE: 'rscala.scala.home' (<UNSET>) global option
+  * FAILURE: SCALA_HOME () environment variable
+  * FAILURE: 'scala' in the shell's search path
+
+Cannot find a suitable Scala installation.
+
+Scala is not distributed with the rscala package.  Individuals can install
+Scala using "rscala::scalaInstall()" which places Scala in "~/.rscala" in the
+user's home directory.  System administrators should install Scala globally as
+described here: http://www.scala-lang.org/download/install.html.  In short,
+simply download the archive, unpack it, and add the "scala" script to the path.
+Note that Scala itself requires Java.  The rscala package tries various
+techniques to find a suitable Scala installation, including searching the path.
+Details on the search are available using "rscala::scalaInfo(verbose=TRUE)".
+
+Would you like to install Scala 2.12 now? [Y/n] 
+trying URL 'http://downloads.lightbend.com/scala/2.12.3/scala-2.12.3.tgz'
+Content type 'application/octet-stream' length 19760624 bytes (18.8 MB)
+downloaded 18.8 MB
+
+Successfully installed Scala in C:\Users\dbd3\Documents\.rscala/scala-2.12.3
+
+> coverage.rscala1 <- function(sampler=NULL, n=0L, truth=0, prob1=0.0, prob2=0.0,
++                              nSamples=1000L, alpha=0.05, nIntervals=1000L) {
++   coverage <- s %!% '
++     import scala.util.Random
++     import scala.concurrent.{Await, Future}
++     import scala.concurrent.ExecutionContext.Implicits.global
++ 
++     def quantile(sorted: Array[Double], p: Double) = {
++       val i = ((sorted.length-1)*p).asInstanceOf[Int]
++       val delta = (sorted.length-1)*p - i
++       ( 1 - delta ) * sorted(i) + delta * sorted(i+1)
++     }
++ 
++     def statistic(x: Array[Double]) = {
++       scala.util.Sorting.quickSort(x)
++       quantile(x,prob1) / quantile(x,prob2)
++     }
++ 
++     def resample(x: Array[Double], rng: Random) = Array.fill(x.length) {
++       x(rng.nextInt(x.length))
++     }
++ 
++     def ciContains(x: Array[Double], rng: Random) = {
++       val bs = Array.fill(nSamples) { statistic(resample(x, rng)) }
++       scala.util.Sorting.quickSort(bs)
++       ( quantile(bs, alpha/2) <= truth ) && ( truth <= quantile(bs, 1-alpha/2) )
++     }
++ 
++     Await.result( Future.sequence( List.fill(nIntervals) {
++       val dataset = R.invokeD1(sampler, n)
++       val rng = new Random(R.invokeI0("runif", 1, -Int.MaxValue, Int.MaxValue))
++       Future { ciContains(dataset, rng) }
++     }), concurrent.duration.Duration.Inf).count(identity) / nIntervals.toDouble
++   '
++   makeConfidenceInterval(coverage, nIntervals)
++ }
+> 
+> 
+> #### All of the remaining implementation use the parallel package.
+> 
+> library(parallel)
+> cluster <- makeCluster(detectCores())
+> 
+> 
+> #### rscala implementation #2
+> 
+> clusterEvalQ(cluster, {
++   library(rscala)
++   s <- scala()
++   ciContains.rscala2 <- function(sampler=NULL, n=0L, truth=0, prob1=0.0, prob2=0.0,
++                                  nSamples=1000L, alpha=0.05) {
++     s %!% '
++       def quantile(sorted: Array[Double], p: Double) = {
++         val i = ((sorted.length-1)*p).asInstanceOf[Int]
++         val delta = (sorted.length-1)*p - i
++         ( 1 - delta ) * sorted(i) + delta * sorted(i+1)
++       }
++ 
++       def statistic(x: Array[Double]) = {
++         scala.util.Sorting.quickSort(x)
++         quantile(x,prob1) / quantile(x,prob2)
++       }
++ 
++       def resample(x: Array[Double], rng: scala.util.Random) = Array.fill(x.length) {
++         x(rng.nextInt(x.length))
++       }
++ 
++       val x = R.invokeD1(sampler, n)
++       val rng = new scala.util.Random(R.invokeI0("runif", 1, -Int.MaxValue, Int.MaxValue))
++       val bs = Array.fill(nSamples) { statistic(resample(x, rng)) }
++       scala.util.Sorting.quickSort(bs)
++       ( quantile(bs, alpha/2) <= truth ) && ( truth <= quantile(bs, 1-alpha/2) )
++     '
++   }
++ })
+[[1]]
+function (sampler = NULL, n = 0L, truth = 0, prob1 = 0, prob2 = 0, 
+    nSamples = 1000L, alpha = 0.05) 
+{
+    s %!% "\\n      def quantile(sorted: Array[Double], p: Double) = {\\n        val i = ((sorted.length-1)*p).asInstanceOf[Int]\\n        val delta = (sorted.length-1)*p - i\\n        ( 1 - delta ) * sorted(i) + delta * sorted(i+1)\\n      }\\n\\n      def statistic(x: Array[Double]) = {\\n        scala.util.Sorting.quickSort(x)\\n        quantile(x,prob1) / quantile(x,prob2)\\n      }\\n\\n      def resample(x: Array[Double], rng: scala.util.Random) = Array.fill(x.length) {\\n        x(rng.nextInt(x.length))\\n      }\\n\\n      val x = R.invokeD1(sampler, n)\\n      val rng = new scala.util.Random(R.invokeI0(\\"runif\\", 1, -Int.MaxValue, Int.MaxValue))\\n      val bs = Array.fill(nSamples) { statistic(resample(x, rng)) }\\n      scala.util.Sorting.quickSort(bs)\\n      ( quantile(bs, alpha/2) <= truth ) && ( truth <= quantile(bs, 1-alpha/2) )\\n    "
+}
+
+[[2]]
+function (sampler = NULL, n = 0L, truth = 0, prob1 = 0, prob2 = 0, 
+    nSamples = 1000L, alpha = 0.05) 
+{
+    s %!% "\\n      def quantile(sorted: Array[Double], p: Double) = {\\n        val i = ((sorted.length-1)*p).asInstanceOf[Int]\\n        val delta = (sorted.length-1)*p - i\\n        ( 1 - delta ) * sorted(i) + delta * sorted(i+1)\\n      }\\n\\n      def statistic(x: Array[Double]) = {\\n        scala.util.Sorting.quickSort(x)\\n        quantile(x,prob1) / quantile(x,prob2)\\n      }\\n\\n      def resample(x: Array[Double], rng: scala.util.Random) = Array.fill(x.length) {\\n        x(rng.nextInt(x.length))\\n      }\\n\\n      val x = R.invokeD1(sampler, n)\\n      val rng = new scala.util.Random(R.invokeI0(\\"runif\\", 1, -Int.MaxValue, Int.MaxValue))\\n      val bs = Array.fill(nSamples) { statistic(resample(x, rng)) }\\n      scala.util.Sorting.quickSort(bs)\\n      ( quantile(bs, alpha/2) <= truth ) && ( truth <= quantile(bs, 1-alpha/2) )\\n    "
+}
+
+[[3]]
+function (sampler = NULL, n = 0L, truth = 0, prob1 = 0, prob2 = 0, 
+    nSamples = 1000L, alpha = 0.05) 
+{
+    s %!% "\\n      def quantile(sorted: Array[Double], p: Double) = {\\n        val i = ((sorted.length-1)*p).asInstanceOf[Int]\\n        val delta = (sorted.length-1)*p - i\\n        ( 1 - delta ) * sorted(i) + delta * sorted(i+1)\\n      }\\n\\n      def statistic(x: Array[Double]) = {\\n        scala.util.Sorting.quickSort(x)\\n        quantile(x,prob1) / quantile(x,prob2)\\n      }\\n\\n      def resample(x: Array[Double], rng: scala.util.Random) = Array.fill(x.length) {\\n        x(rng.nextInt(x.length))\\n      }\\n\\n      val x = R.invokeD1(sampler, n)\\n      val rng = new scala.util.Random(R.invokeI0(\\"runif\\", 1, -Int.MaxValue, Int.MaxValue))\\n      val bs = Array.fill(nSamples) { statistic(resample(x, rng)) }\\n      scala.util.Sorting.quickSort(bs)\\n      ( quantile(bs, alpha/2) <= truth ) && ( truth <= quantile(bs, 1-alpha/2) )\\n    "
+}
+
+[[4]]
+function (sampler = NULL, n = 0L, truth = 0, prob1 = 0, prob2 = 0, 
+    nSamples = 1000L, alpha = 0.05) 
+{
+    s %!% "\\n      def quantile(sorted: Array[Double], p: Double) = {\\n        val i = ((sorted.length-1)*p).asInstanceOf[Int]\\n        val delta = (sorted.length-1)*p - i\\n        ( 1 - delta ) * sorted(i) + delta * sorted(i+1)\\n      }\\n\\n      def statistic(x: Array[Double]) = {\\n        scala.util.Sorting.quickSort(x)\\n        quantile(x,prob1) / quantile(x,prob2)\\n      }\\n\\n      def resample(x: Array[Double], rng: scala.util.Random) = Array.fill(x.length) {\\n        x(rng.nextInt(x.length))\\n      }\\n\\n      val x = R.invokeD1(sampler, n)\\n      val rng = new scala.util.Random(R.invokeI0(\\"runif\\", 1, -Int.MaxValue, Int.MaxValue))\\n      val bs = Array.fill(nSamples) { statistic(resample(x, rng)) }\\n      scala.util.Sorting.quickSort(bs)\\n      ( quantile(bs, alpha/2) <= truth ) && ( truth <= quantile(bs, 1-alpha/2) )\\n    "
+}
+
+> 
+> coverage.rscala2 <- function(sampler, n, truth, prob1, prob2, nSamples, alpha, nIntervals) {
++   clusterExport(cluster, c("sampler","n","truth","prob1","prob2","nSamples","alpha"),
++     envir=environment())
++   coverage <- mean(parSapply(cluster, 1:nIntervals, function(i) {
++     ciContains.rscala2(sampler, n, truth, prob1, prob2, nSamples, alpha)
++   }))
++   makeConfidenceInterval(coverage, nIntervals)
++ }
+> 
+> 
+> #### Pure R implementation
+> 
+> coverage.pureR <- function(sampler, n, truth, prob1, prob2, nSamples, alpha, nIntervals) {
++   statistic <- function(x) {
++     q <- quantile(x, probs = c(prob1, prob2))
++     q[1] / q[2]
++   }
++   ciContains.pureR <- function(x) {
++     samples <- sapply(1:nSamples, function(i) {
++       statistic(sample(x, replace=TRUE))
++     })
++     ci <- quantile(samples, probs = c(alpha/2, 1-alpha/2))
++     ( ci[1] <= truth ) && ( truth <= ci[2] )
++   }
++   clusterExport(cluster, c("sampler","n","truth","prob1","prob2","nSamples","alpha"),
++     envir = environment())
++   coverage <- mean(parSapply(cluster, 1:nIntervals, function(i) {
++     ciContains.pureR(sampler(n))
++   }))
++   makeConfidenceInterval(coverage, nIntervals)
++ }
+> 
+> 
+> #### Rcpp implementation
+> 
+> clusterEvalQ(cluster, { # Don't count compile timing when benchmarking Rcpp.
++   library(Rcpp)
++   sourceCpp(code="
++     #include <Rcpp.h>
++     using namespace Rcpp;
++ 
++     double quantile(double *sorted, int length, double p) {
++       int i = (int) ((length-1)*p);
++       double delta = (length-1)*p - i;
++       return ( 1 - delta ) * sorted[i] + delta * sorted[i+1];
++     }
++ 
++     int compare_double(const void* a, const void* b) {
++       double aa = *(double*)a;
++       double bb = *(double*)b;
++       if ( aa == bb ) return 0;
++       return aa < bb ? -1 : 1;
++     }
++ 
++     double statistic(double *x, int length, double prob1, double prob2) {
++       qsort(x, length, sizeof(double), compare_double);
++       return quantile(x, length, prob1) / quantile(x, length, prob2);
++     }
++ 
++     double *resample(double *x, int length) {
++       double *y = (double*) malloc(length*sizeof(double));
++       for ( int i=0; i<length; i++ ) y[i] = x[(int)(Rf_runif(0,1)*length)];
++       return y;
++     }
++ 
++     // [[Rcpp::export]]
++     bool ciContains(NumericVector data, double truth,
++                     double prob1, double prob2, int nSamples, double alpha) {
++       double *y = (double*) malloc(nSamples*sizeof(double));
++       for ( int i=0; i<nSamples; i++ ) {
++         int length = data.size();
++         double *z = resample(data.begin(), length);
++         y[i] = statistic(z, length, prob1, prob2);
++         free(z);
++       }
++       qsort(y, nSamples, sizeof(double), compare_double);
++       bool result =  ( quantile(y, nSamples,   alpha/2) <= truth ) &&
++                      ( quantile(y, nSamples, 1-alpha/2) >= truth );
++       free(y);
++       return result;
++     }
++   ")
++ })
+[[1]]
+[[1]]$functions
+[1] "ciContains"
+
+[[1]]$modules
+character(0)
+
+[[1]]$cppSourcePath
+[1] "C:/Users/dbd3/AppData/Local/Temp/RtmpsJ3L3r/sourceCpp-x86_64-w64-mingw32-0.12.12/file1c1037a443b4.cpp"
+
+[[1]]$buildDirectory
+[1] "C:/Users/dbd3/AppData/Local/Temp/RtmpsJ3L3r/sourceCpp-x86_64-w64-mingw32-0.12.12/sourcecpp_1c10421d7ca6"
+
+
+[[2]]
+[[2]]$functions
+[1] "ciContains"
+
+[[2]]$modules
+character(0)
+
+[[2]]$cppSourcePath
+[1] "C:/Users/dbd3/AppData/Local/Temp/RtmpCSNXsp/sourceCpp-x86_64-w64-mingw32-0.12.12/file1fd866bf12ab.cpp"
+
+[[2]]$buildDirectory
+[1] "C:/Users/dbd3/AppData/Local/Temp/RtmpCSNXsp/sourceCpp-x86_64-w64-mingw32-0.12.12/sourcecpp_1fd862101b55"
+
+
+[[3]]
+[[3]]$functions
+[1] "ciContains"
+
+[[3]]$modules
+character(0)
+
+[[3]]$cppSourcePath
+[1] "C:/Users/dbd3/AppData/Local/Temp/RtmpeGHja9/sourceCpp-x86_64-w64-mingw32-0.12.12/file20605927609b.cpp"
+
+[[3]]$buildDirectory
+[1] "C:/Users/dbd3/AppData/Local/Temp/RtmpeGHja9/sourceCpp-x86_64-w64-mingw32-0.12.12/sourcecpp_20603a3a24b"
+
+
+[[4]]
+[[4]]$functions
+[1] "ciContains"
+
+[[4]]$modules
+character(0)
+
+[[4]]$cppSourcePath
+[1] "C:/Users/dbd3/AppData/Local/Temp/RtmpeWI1aQ/sourceCpp-x86_64-w64-mingw32-0.12.12/file25c47ea7541b.cpp"
+
+[[4]]$buildDirectory
+[1] "C:/Users/dbd3/AppData/Local/Temp/RtmpeWI1aQ/sourceCpp-x86_64-w64-mingw32-0.12.12/sourcecpp_25c4bba11cb"
+
+
+> 
+> coverage.Rcpp <- function(sampler, n, truth, prob1, prob2, nSamples, alpha, nIntervals) {
++   clusterExport(cluster, c("sampler","n","truth","prob1","prob2","nSamples","alpha"),
++     envir=environment())
++   coverage <- mean(parSapply(cluster, 1:nIntervals, function(i) {
++     ciContains(sampler(n), truth, prob1, prob2, nSamples, alpha)
++   }))
++   makeConfidenceInterval(coverage, nIntervals)
++ }
+> 
+> 
+> #### Benchmarks
+> 
+> library(microbenchmark)
+> engine <- function(nSamples, nIntervals) microbenchmark(
++   pureR.   = coverage.pureR(  rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
++   Rcpp.    = coverage.Rcpp(   rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
++   rscala1. = coverage.rscala1(rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
++   rscala2. = coverage.rscala2(rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
++   times=1)
+> 
+> engine(nSamples = 100L, nIntervals = 100L)
+Unit: milliseconds
+     expr        min         lq       mean     median         uq        max
+   pureR.  390.45783  390.45783  390.45783  390.45783  390.45783  390.45783
+    Rcpp.   33.17095   33.17095   33.17095   33.17095   33.17095   33.17095
+ rscala1. 1212.85460 1212.85460 1212.85460 1212.85460 1212.85460 1212.85460
+ rscala2. 5178.24020 5178.24020 5178.24020 5178.24020 5178.24020 5178.24020
+ neval
+     1
+     1
+     1
+     1
+> engine <- function(nSamples, nIntervals) microbenchmark(
++ #  pureR.   = coverage.pureR(  rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
++   Rcpp.    = coverage.Rcpp(   rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
++   rscala1. = coverage.rscala1(rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
++   rscala2. = coverage.rscala2(rnorm, n, truth, prob1, prob2, nSamples, alpha, nIntervals),
++   times=10)
+> 
+> engine(nSamples = 10000L, nIntervals = 10000L)
+Unit: seconds
+     expr      min       lq     mean   median       uq      max neval
+    Rcpp. 184.8024 185.0232 187.5581 185.3487 186.0530 201.8138    10
+ rscala1. 108.9317 109.0984 109.3054 109.1482 109.5173 110.1309    10
+ rscala2. 106.7287 107.2672 107.8478 107.8643 108.0381 109.8946    10
+> 
