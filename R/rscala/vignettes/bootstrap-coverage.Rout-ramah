@@ -1,3 +1,9 @@
+# These results were obtained using a pre-release version of rscala 2.3.1 on my
+# "ramah" workstation.  It was running Ubuntu 16.04.3 LTS (GNU/Linux
+# 4.4.0-89-generic x86_64) with an Intel(R) processor (with 4 physical cores
+# and two virtual cores per physical core) and 64 GB of RAM.  R was compiled
+# from source.  Scala 2.12.3 and Java 8 were used.  The machine was otherwise
+# idle during the run.
 
 R version 3.4.1 (2017-06-30) -- "Single Candle"
 Copyright (C) 2017 The R Foundation for Statistical Computing
