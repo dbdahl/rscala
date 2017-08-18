@@ -1600,20 +1600,8 @@ We tested on four machines running Ubuntu 16.04 with 8 cores, Ubuntu 16.04 with
 56 cores, Mac Sierra with 8 cores, and Windows 10 with 8 cores.  \R was
 compiled from source for the Ubuntu machines and was installed from binaries
 downloaded from CRAN for the Mac and Windows machines.  All machines ran \R
-3.4.1, \Scala 2.12.3, \Java 8, \Rcpp 0.12.12, and a prelease version of \rscala
+3.4.1, \Scala 2.12.3, \Java 8, \Rcpp 0.12.12, and a prerelease version of \rscala
 2.3.1.
-
-Executions times (in seconds) for 10 replications of the simulation study are
-found in Table \ref{benchmarks}.  For the sake of expediency, the pure \R
-implementation was only run on the Ubuntu machines.  The pure \R implementation
-ran more than 26 times slower than the fastest implementation.  The second
-\rscala implementation (which uses the \pkg{parallel} package) was the overall
-the fastest.  The first \rscala implementation was close behind, expect on the
-Ubuntu machine with 56 cores, which illustrates the difficulty of sharing an
-single \R instances for all the cores.  The \Rcpp implementation is generally
-slower than the \rscala implementations, but within the same order of magnitude
-relative to the pure \R implementation.  We are not experts in \Cpp and it is
-possible the \Rcpp implementation could be improved.
 
 \begin{table}
 \begin{center}
@@ -1652,6 +1640,19 @@ bootstrap simulation study executed on four different machines.  Overall, the
 second \rscala implementation had the fastest execution times.}
 \label{benchmarks}
 \end{table}
+
+Executions times (in seconds) for 10 replications of the simulation study are
+found in Table \ref{benchmarks}.  For the sake of expediency, the pure \R
+implementation was only run on the Ubuntu machines.  The pure \R implementation
+ran more than 26 times slower than the fastest implementation.  The second
+\rscala implementation (which uses the \pkg{parallel} package) was the overall
+the fastest.  The first \rscala implementation was close behind, expect on the
+Ubuntu machine with 56 cores, which illustrates the difficulty of sharing an
+single \R instances for all the cores.  The \Rcpp implementation is generally
+slower than the \rscala implementations, but within the same order of magnitude
+relative to the pure \R implementation.  We are not experts in \Cpp and it is
+possible the \Rcpp implementation could be improved.
+
 
 \section{Conclusion}
 \label{conclusion}
