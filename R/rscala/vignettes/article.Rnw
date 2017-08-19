@@ -1657,13 +1657,18 @@ possible the \Rcpp implementation could be improved.
 \section{Conclusion}
 \label{conclusion}
 
-This paper introduced the \rscala package that allows users to bridge \R and
-\Scala in one program or package, allowing a user to leverage their skills in
-both languages and to utilized libraries and exploit strengthens in each
-language.  We are exploring two possible features to improve the package.  The
-first is to allow embedded \Scala computations to be interrupted by the \R user
-without destroying the TCP/IP bridge.  The second feature is allowing \R and
-\Scala to run on separate machines.
+This paper introduced the \rscala software to bridge \R and \Scala.  The
+software allows a user to leverage their skills in both languages and to
+utilized libraries and exploit strengthens in each language.  For example, \R
+users can implement computationally intensive algorithms in \Scala, write \R
+packages based on \Scala, and can access \Scala libraries from \R.  \Scala
+programmers can take advantage of \R's tools for data analysis and graphics
+from within a \Scala application. 
+
+We are exploring two possible features to improve the package.  The first is to
+allow embedded \Scala computations to be interrupted by the \R user without
+destroying the TCP/IP bridge.  The second feature is allowing \R and \Scala to
+run on separate machines.
 
 \section*{Acknowledgements}
 

@@ -63,8 +63,8 @@ The goal of \rscala is to allow users to easily leverage the
 unique strengths of \Scala and \R to make them more productive.
 \Scala classes can be instantiated from \R and \Scala methods can be called.
 Arbitrary \Scala code can be executed on-the-fly from within \R, inline \Scala
-functions can be defined, and callbacks to \R are supported.  \R packages can
-be developed using \Scala.  Conversely, \rscala also enables \R code to be
+functions can be defined, and callbacks to \R are supported.  \R packages can be
+developed using \Scala.  Conversely, \rscala also enables \R code to be
 embedded within a \Scala application.  The \rscala package is available on CRAN
 and has no dependencies beyond the \Scala standard library and base \R.
 }
@@ -517,14 +517,14 @@ oneToTenReference
 
 % In the next example, a \Scala reference is used via string interpolation to
 % call methods of \Scala objects:
-%
+% 
 % \clearpage
 % <<evaluateScalaCodeReferenceInterpolation>>=
 % s %~% '
 %   @{rng}.setSeed(24234)
 %   @{rng}.nextDouble()
 % '
-%
+% 
 % s %~% '@{oneToTenReference}.sum'
 % @
 
@@ -643,16 +643,16 @@ As for instantiating objects, each approach has its advantages in terms of
 flexibility, readability, and speed.
 
 % \subsubsection[Discovering methods and variables of Scala objects]{Discovering methods and variables of \Scala objects}
-%
+% 
 % \Scala provides the \code{scalap} executable to list the methods of classes and
 % companion objects.  Its output is available directly in \R using the
 % \code{scalap} function.  For example, \code{scalap(s, 'scala.util.Random')} and \code{scalap(rng)} both
 % display the following.
-%
+% 
 % <<scalap1, out.lines=5>>=
 % scalap(rng)
 % @
-%
+% 
 % The \rscala package also provide rudimentary tab-completion for method names of
 % \Scala references.
 
@@ -776,13 +776,13 @@ paste0(augmentedList$toString(), " now contains 100.")
 @
 
 % \subsubsection[Interfacing with Java]{Interfacing with \Java}
-%
+% 
 % \Scala runs on the Java Virtual Machine and since it supports instantiating
 % \Java classes and calling object and static methods, the \rscala package
 % automatically provides this support as well.  For example, the example below
 % finds the system's time zone through a chain of calls using the standard \Java
 % library:
-%
+% 
 % <<javaVersion>>=
 % s$.java.util.TimeZone$getDefault()$getDisplayName()
 % @
@@ -1424,7 +1424,7 @@ over the TCP/IP bridge.
 
 
 % \subsection[Implementation of Scala code in R]{Implementation of \Scala code in \R}
-%
+% 
 % The \code{scala} function starts a \Scala interpreter on the Java Virtual Machine using \R's
 % \code{system2} function. The interpreter runs code that implements an asynchronous TCP/IP server
 % and creates an instance of \code{scala.tools.nsc.interpreter.IMain} for \Scala's
@@ -1434,7 +1434,7 @@ over the TCP/IP bridge.
 % server is starting up, the \R component attempts to establish a connection using
 % functions from the \pkg{base} \R package.  After connecting, the \R client interfaces with the
 % server's REPL class by means of a custom protocol.
-%
+% 
 % The \rscala package takes advantage of the \Scala REPL's ability to compile and
 % execute \Scala code on-the-fly as well as set and get values of
 % identifiers.  When a \Scala function is called for the first time (or when a
@@ -1443,14 +1443,14 @@ over the TCP/IP bridge.
 % cached and re-used for subsequent calls.  As an illustration, consider the code
 % below and notice that the elapsed time is significantly less in the second call
 % to the same method.
-%
+% 
 % <<fasterAfterFirstTime>>=
 % system.time( print(s$.sys$props("user.name")) )
 % system.time( print(s$.sys$props("user.name")) )
 % @
-%
-%
-%
+% 
+% 
+% 
 % Callback functionality is implemented over the same TCP/IP sockets.
 % Immediately after the \R client requests the execution of \Scala code, \R
 % becomes a temporary, embedded server to allow the \Scala code to access the \R
@@ -1462,7 +1462,7 @@ over the TCP/IP bridge.
 
 % \subsection{Bayesian logistic regression}
 % \label{logisticRegression}
-%
+% 
 % In this section we use a custom Markov chain Monte Carlo (MCMC) algorithm to
 % fit a Bayesian logistic regression model in \R.  This model can also be
 % estimated in \R through a variety of other algorithms using \R packages such as
@@ -1473,7 +1473,7 @@ over the TCP/IP bridge.
 % fitting, but rather to compare the convenience and computational speed of
 % \Scala, \C, and standard \R in implementing the same commonly-used,
 % computationally-expensive algorithm.
-%
+% 
 % Studies show that babies who breastfeed have a significantly reduced risk of
 % health problems such as HIV, obesity, and neurological defects due to the
 % fact that milk contains natural immune components that are not present in baby
@@ -1491,7 +1491,7 @@ over the TCP/IP bridge.
 % where $\beta_0$ and $\beta_1$ are unknown parameters to estimate.  We assume
 % independent Normal($-15$, $5$) and Normal($1$, $1$) priors on $\beta_0$ and
 % $\beta_1$, respectively.
-%
+% 
 % Since the model is not conjugate, we obtain samples from the joint posterior
 % distribution using a Metropolis sampling algorithm with a uniform random walk.
 % We examine the convenience and computational speed of running a single MCMC
@@ -1504,7 +1504,7 @@ over the TCP/IP bridge.
 % that a \C implementation using the \code{.Call} interface requires a more
 % intimate knowledge of \R's \C API.  The implementations, data, and benchmarking
 % code are all available in the online supplement.
-%
+% 
 % \begin{table}[tb]
 % \centering
 % \begin{tabular}{r|rr|rr|rr}
@@ -1521,7 +1521,7 @@ over the TCP/IP bridge.
 % MCMC algorithm using 1, 6, and 12 cores based on a breastfeeding dataset with 64 samples and 6 levels of the predictor.}
 % \label{mcmcInfant}
 % \end{table}
-%
+% 
 % The results are in Table~\ref{mcmcInfant} along with wall times and performance
 % ratios (relative to \Scala).  Surprisingly, we find that the \Scala
 % implementation is slightly faster than the \C implementation.  This may be due
@@ -1529,7 +1529,7 @@ over the TCP/IP bridge.
 % log of the binomial probabilities or because the \code{.C} interface is not as
 % performant as the \code{.Call} interface.  The standard \R implementation is
 % about 13-15 times slower.
-%
+% 
 % The breastfeeding infants example involves $n=64$ observations at one of six
 % unique values of the predictor.  To see how the results might change for larger
 % datasets, we simulated a dataset of $n=20,000$ observations at one of 200
@@ -1542,7 +1542,7 @@ over the TCP/IP bridge.
 % \code{.Call} interface.  It is not surprising that a \C implementation
 % and another implementation based mostly on \C (i.e., the standard \R
 % implementation) perform similarly.
-%
+% 
 % \begin{table}[tb]
 % \centering
 % \begin{tabular}{r|rr|rr|rr}
@@ -1669,15 +1669,18 @@ possible the \Rcpp implementation could be improved.
 \section{Conclusion}
 \label{conclusion}
 
-///Revise the intro sentence. Uses "allow" twice and has several grammatical issues. Consider breaking it up.
+This paper introduced the \rscala software to bridge \R and \Scala.  The
+software allows a user to leverage their skills in both languages and to
+utilized libraries and exploit strengthens in each language.  For example, \R
+users can implement computationally intensive algorithms in \Scala, write \R
+packages based on \Scala, and can access \Scala libraries from \R.  \Scala
+programmers can take advantage of \R's tools for data analysis and graphics
+from within a \Scala application. 
 
-This paper introduced the \rscala package that allows users to bridge \R and
-\Scala in one program or package, allowing a user to leverage their skills in
-both languages and to utilized libraries and exploit strengthens in each
-language.  We are exploring two possible features to improve the package.  The
-first is to allow embedded \Scala computations to be interrupted by the \R user
-without destroying the TCP/IP bridge.  The second feature is allowing \R and
-\Scala to run on separate machines.
+We are exploring two possible features to improve the package.  The first is to
+allow embedded \Scala computations to be interrupted by the \R user without
+destroying the TCP/IP bridge.  The second feature is allowing \R and \Scala to
+run on separate machines.
 
 \section*{Acknowledgements}
 
