@@ -152,26 +152,24 @@ knit_hooks$set(source = function(x, options) {
 \section{Introduction}
 \label{introduction}
 
-///After thinking it over, I believe the details of callbacks and SBT can be sacrificed in the intro paragraph to get at the overall idea.
+This paper introduces \rscala, software that provides a bridge between \R and
+\Scala.  The goal of \rscala is to allow users to leverage the unique strengths
+of \Scala and \R in a single program.  For example, \R packages can implement
+computationally-intensive algorithms in \Scala, and conversely, \Scala
+applications can take advantage of the vast array of statistical libraries in
+\R.  Callbacks from embedded \Scala into \R are supported.  The \rscala package
+is available on the Comprehensive \R Archive Network (CRAN) and its only
+dependencies are the \Scala standard library and base \R.  Conversely, \R can
+be embedded within a \Scala application by a one-line dependency declaration in
+\pkg{Scala Build Tool} (SBT).
 
-This paper introduces \rscala, a software package that provides a bridge between \R and
-\Scala.  The goal of \rscala is to allow users to leverage the
-unique strengths of \Scala and \R in a single solution.  For example, \R packages can
-implement computationally-intensive algorithms in \Scala, and conversely,
-\Scala applications can take advantage of the vast array of statistical
-libraries in \R. The \rscala package is available on the Comprehensive \R
-Archive Network (CRAN) and its only dependencies are the \Scala standard
-library and base \R.
-
-///Does Spark need a citation?.
-
-\Scala \citep{scala} is a mature, general-purpose programming language that has been used for enterprise-level
-solutions such as \pkg{Spark}, the popular cluster-computing framework for
+\Scala \citep{scala} is a general-purpose programming, statically-typed language that has been used for enterprise-level
+solutions such as \pkg{Spark} (CITATION), the popular cluster-computing framework for
 massive datasets.  Several books have been published recently on the utility
 of \Scala in the areas of data science \citep{a9781785281372}, scientific
 computing \citep{a9781785886942}, machine learning \citep{a9781783558742}, and
 probabilistic programmings \citep{a9781617292330}.  Hence, we believe that \Scala
-deserves consideration when looking for an effecient programming language
+deserves consideration when looking for an efficient, general-purpose programming language
 to complement \R.
 
 ///This next paragraphs are the most important in the paper. I suggest going into more depth to justify Scala. For example, the https://www.quora.com/How-does-Scala-compare-to-Java-8 points to an interesting conversation on the topic. There are several others, some more formal... Moreover, some short code examples or definitions could be helpful to explain features such as higher-order functions.
@@ -281,7 +279,8 @@ back into \R from embedded \Scala.
 We also discuss how to develop \R packages based on \Scala and refer readers
 to two example packages.
 Section \ref{rinscala} describes using \R from
-\Scala.
+\Scala.  In both Sections\ \ref{scalainr} and \ref{rinscala}, concise examples are provided to help
+describe the software's functionality.
 Section \ref{bootstrap} provides an case study to show how
 \Scala can easily be embedded in \R to significantly reduce computation
 time for a simulation study.  We conclude with future work in Section
