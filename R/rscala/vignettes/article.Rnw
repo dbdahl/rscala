@@ -152,10 +152,10 @@ knit_hooks$set(source = function(x, options) {
 \section{Introduction}
 \label{introduction}
 
-This paper introduces \rscala, software that provides a bridge between \R and
-\Scala.  The goal of \rscala is to allow users to leverage the unique strengths
+This paper introduces \rscala \citep{rscala}, software that provides a bridge between \R \citep{r} and
+\Scala \citep{scala}.  The goal of \rscala is to allow users to leverage the unique strengths
 of \Scala and \R in a single program.  For example, \R packages can implement
-computationally-intensive algorithms in \Scala, and conversely, \Scala
+computationally-intensive algorithms in \Scala and, conversely, \Scala
 applications can take advantage of the vast array of statistical libraries in
 \R.  Callbacks from embedded \Scala into \R are supported.  The \rscala package
 is available on the Comprehensive \R Archive Network (CRAN) and its only
@@ -163,52 +163,59 @@ dependencies are the \Scala standard library and base \R.  Conversely, \R can
 be embedded within a \Scala application by a one-line dependency declaration in
 \pkg{Scala Build Tool} (SBT).
 
-\Scala \citep{scala} is a general-purpose, statically-typed programming language that can be used for enterprise-level
-solutions such as \pkg{Spark} (CITATION), a popular cluster-computing framework for
-massive datasets.
+\Scala is a general-purpose, statically-typed programming language that
+supports object-oriented, functional programming, and imperative programming
+paradigms, which provides flexibility to accomplish a given task.  Many books
+on \Scala are available to particular audiences, but an excellent general
+reference is \citet{scalabook}.  \Scala code can be concise, thanks in part to
+type inference, higher-order functions, multiple inheritance through traits,
+and a large collection of libraries.  \Scala also supports pattern matching,
+operator overloading, optional and named parameters, and string interpolation.
+With its encouragement of immutable data types and pure functions (i.e.,
+functions without side-effect), testing and concurrrent processing on multicore
+processors can be simplified.  \Scala is designed to strike a balance between
+execution speed and programmer productivity.  Source code compiles to \Java
+bytecode and runs on the Java Virtual Machine (JVM) at speeds comparable to
+\Java.  \Scala is the language in which \pkg{Spark} (CITATION), a
+cluster-computing framework for massive datasets, is written.  More generally,
+a number of books have recently published on using \Scala for data science
+\citep{a9781785281372}, scientific computing \citep{a9781785886942}, machine
+learning \citep{a9781783558742}, and probabilistic programmings
+\citep{a9781617292330}.  We believe that \Scala deserves consideration when
+looking for an efficient and convenient general-purpose programming language to
+complement \R.
 
+\R is a scripting language and environment developed by statisticians for
+statistical computing and graphics.  Like \Scala, \R supports a functional
+programming style and provides immutable data types.  \Scala programmers who
+learn \R (and vice versa) will find many familar concepts, despite the
+syntatical differences.  \R has many contributors and a massive user base of
+formally and informally trained statisticians.  Whereas \Scala's statistical
+libraries are in their infancy, \R's has over actively-maintained 11,000
+packages on CRAN.
 
-that supports both object-oriented and functional programming
-paradigms.  The integration of these two paradigms allows a developer to choose
-the best paradigm for a given task.  Code is generally concise, thanks in part
-to type inference, higher-order functions, and a large collection of libraries.
-\Scala source code compiles to \Java bytecode and runs on the Java Virtual
-Machine (JVM) at speeds comparable to \Java.  As such, \Scala strikes a
-pleasant compromise between execution speed and programmer productivity.
-\Scala is the language in which \pkg{Spark}, a cluster-computing framework for
-massive datasets, is written.  More generally, a number of books have recently
-published on using \Scala for data science \citep{a9781785281372}, scientific
-computing \citep{a9781785886942}, machine learning \citep{a9781783558742}, and
-probabilistic programmings \citep{a9781617292330}.  Hence, we believe that \Scala
-deserves consideration when looking for an efficient, general-purpose programming language
-to complement \R.
-
-\R \citep{r} is a scripting language and environment developed by statisticians
-for statistical computing and graphics.  \R has many contributors and a large
-base of statistically-oriented users.  \R's has over actively-maintained 11,000
-packages on CRAN (whereas \Scala's statistical libraries are not nearly as
-complete).  \R code can be very concise and expressive, but may also run
-significantly slower than compiled languages.  In fact, computationally
-intensive tasks in \R are typically implemented in \C, \Cpp, and \Fortran code.
-The manual ``Writing R Extensions'' details how to write \C, \Cpp, and \Fortran
-code that can be linked and called from \R at run time.  The \Rcpp package
-seeks to make it easier to integrate \C and \Cpp code in \R.  The \rJava
-package adds \Java as a fourth language that one might use to write \R
-extensions.  The \rscala package seeks to add \Scala as a fifth language for
-writing \R extensions.  That is, \rscala is to \Scala as \rJava is to \Java and
-as \Rcpp is the \C and \Cpp.  While the level of integration between \Scala and
-\R provided by \rscala is not as deep as those available to \C, \Cpp, and \Java
-provided by \Rcpp and \rJava, \rscala is sufficient in many cases.  For
-example, the \pkg{shallot} \citep{shallotSoftware} and \pkg{bamboo}
-\citep{bambooSoftware} packages on CRAN use \Scala via \rscala to implement
-statistical methodology of associated journal articles
-\citep{shallotPaper,bambooPaper}.  Beyond writing \rscala-based packages,
-\rscala also provides a simple and convenient way to leverage \Scala in an
-existing \R workflow.  Callbacks to \R from \Scala are supported which enables
-\Scala implementations of general algorithms (e.g., root finding methods) based
-on user-supplied \R functions.  In short, \Scala and \R each have distinct
-strengths and our \rscala software allows the user to easily leverage the
-advantages of each in a single project.
+\R code can be very concise and expressive, but may run significantly slower
+than compiled languages.  In fact, computationally intensive tasks in \R are
+typically implemented in \C, \Cpp, and \Fortran code.  The \Rcpp package tries
+to make it easier to integrate \C and \Cpp code in \R than traditional linking
+methods.  The \rJava package adds \Java as a fourth language to write \R
+extensions.  The \rscala package seeks to add \Scala as another language for
+writing \R extensions.  Roughly, \rscala is to \Scala, as \rJava is to \Java
+and as \Rcpp is the \C and \Cpp.  The level of integration between \Scala and
+\R provided by \rscala is not as deep as those available to \C, \Cpp, \Fortran,
+and \Java.  Still, rscala is sufficient in many cases to allow \Scala
+developers to make their software available in \R and thus to a much wider
+audience.  For example, \rscala supports callbacks to \R from \Scala, which
+enables \Scala implementations of general algorithms (e.g., root finding
+methods) based on user-supplied \R functions.  The \pkg{shallot}
+\citep{shallotSoftware} and \pkg{bamboo} \citep{bambooSoftware} packages on
+CRAN are two examples of software implementing statistical methodology of
+associated journal articles \citep{shallotPaper,bambooPaper} that was
+originally developed in \Scala, but made available to the broader \R community
+using \rscala.  Beyond writing \Scala-based packages, \rscala also provides a
+simple and convenient way to leverage \Scala in an existing \R workflow.  In
+short, \Scala and \R each have distinct strengths and our \rscala software
+allows the user to easily leverage the advantages of each in a single project.
 
 % Thus, the \rscala package allows \R developers to reuse \Scala code and apply
 % their \Scala skills to make \R extensions.  On the other hand, \rscala allows
@@ -1067,9 +1074,9 @@ methods also enjoy faster execution than the equivalent code using the
 \subsection{Speed considerations}
 \label{cpu}
 
-Section \ref{bootstrap} considers the easy and execution speed of implementing
+Section \ref{bootstrap} considers the easy of implementing and the execution speed of 
 a simulation study in \R, \Cpp via \Rcpp, and \Scala via \rscala.  It is not a
-comprehensive comparison of the speed of these languages.  For that, we refer
+comprehensive comparison of the performance of these languages.  For that, we refer
 readers to benchmarks available on the web, including \citet{languageShootout}.
 Here we wish to highlight performance characteristics of \rscala itself.
 
