@@ -160,7 +160,7 @@ For example, \R packages can implement computationally-intensive algorithms in
 array of statistical packages in \R.  Callbacks from embedded \Scala into \R
 are supported.  The \rscala package is available on the Comprehensive \R
 Archive Network (CRAN).  Conversely, \R can be embedded within a \Scala
-application by a one-line dependency declaration in \pkg{Scala Build Tool}
+application by a one-line dependency declaration in Scala Build Tool
 (SBT).
 
 \Scala is a general-purpose, statically-typed programming language that
@@ -236,10 +236,10 @@ with a second \rJava-based package.  The current \rscala package creates a new
 instance of the JVM for each \Scala instance to avoid such conflicts.  Third,
 the simplicity of no dependencies beyond \Scala's standard library and base \R
 is appealing from a users' perspective.  Finally, callbacks in \rJava are
-provided by the optional \pkg{JRI} component which is only available if \R is
+provided by the optional JRI component which is only available if \R is
 built as a shared library.  While this is the case on many platforms, it is not
 universal and therefore callbacks could not be a guaranteed feature of \rscala
-software if it were based on \rJava's \pkg{JRI}.
+software if it were based on \rJava's JRI.
 
 The discussion so far has focused on accessing \Scala from \R.  The \rscala
 software also supports accessing \R from \Scala.  The ability is an offshoot
@@ -772,8 +772,8 @@ paste0(augmentedList$toString(), " now contains 100.")
 In addition to calling previously-compiled \Scala methods, the \rscala package
 enables \Scala functions to be defined \emph{within} an \R session.  The
 associated \Scala code is compiled on-the-fly and cached for subsequent
-evaluation in the \R session.  This feature is inspired by the \Rcpp and
-\pkg{inline} \R packages for \C, \Cpp, and \Fortran.  We do not recommend that
+evaluation in the \R session.  This feature is inspired by the \R packages \Rcpp and
+\pkg{inline} \citep{inline} for \C, \Cpp, and \Fortran.  We do not recommend that
 long, complicated algorithms be implemented as inline \Scala functions, but
 these functions can be helpful for implementing small tasks or writing dynamic
 code to interface with existing \Scala code.
