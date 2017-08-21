@@ -157,13 +157,11 @@ between \R \citep{r} and \Scala \citep{scala}.  The goal of \rscala is to allow
 users to leverage the unique strengths of \Scala and \R in a single program.
 For example, \R packages can implement computationally-intensive algorithms in
 \Scala and, conversely, \Scala applications can take advantage of the vast
-array of statistical libraries in \R.  Callbacks from embedded \Scala into \R
+array of statistical packages in \R.  Callbacks from embedded \Scala into \R
 are supported.  The \rscala package is available on the Comprehensive \R
-Archive Network (CRAN) and its only dependencies are the \Scala standard
-library and base \R.  Conversely, \R can be embedded within a \Scala
+Archive Network (CRAN).  Conversely, \R can be embedded within a \Scala
 application by a one-line dependency declaration in \pkg{Scala Build Tool}
-(SBT).  The \rscala software has no dependencies beyond \Scala's standard library
-and base \R.
+(SBT).
 
 \Scala is a general-purpose, statically-typed programming language that
 supports object-oriented, functional programming, and imperative programming
@@ -197,15 +195,15 @@ libraries are in their relative infancy, \R's has over 11,000
 actively-maintained packages on CRAN.
 
 \R code can be very concise and expressive, but may run significantly slower
-than compiled languages.  In fact, computationally intensive tasks in \R are
+than compiled languages.  In fact, computationally intensive algorithms in \R are
 typically implemented in \C, \Cpp, and \Fortran code.  The \Rcpp \citep{rcpp} package
 makes it easy to integrate \C and \Cpp code in \R.
 The \rJava \citep{rJava} package adds \Java as a fourth language for writing \R
-extensions.  The \rscala software seeks to add \Scala as another language for
+extensions.  The \rscala software adds \Scala as another language for
 writing computationally-intensive algorithms accessible from \R.  Roughly,
 \rscala is to \Scala, as \rJava is to \Java and as \Rcpp is the \C and \Cpp.
 The level of integration between \Scala and \R provided by \rscala is not as
-deep as those available to \C, \Cpp, \Fortran, and \Java.  Still, rscala is
+deep as those available to \C, \Cpp, \Fortran, and \Java.  Still, \rscala is
 sufficient in many cases to allow \Scala developers to make their software
 available in \R and thus to a much wider audience.  For example, \rscala
 supports callbacks to \R from \Scala, which enables \Scala implementations of
@@ -213,7 +211,7 @@ general algorithms (e.g., root finding methods) based on user-supplied \R
 functions.  The \pkg{shallot} \citep{shallotSoftware} and \pkg{bamboo}
 \citep{bambooSoftware} packages on CRAN are two examples of software
 implementing statistical methodology of associated journal articles
-\citep{shallotPaper,bambooPaper} that was originally developed in \Scala, but
+\citep{shallotPaper,bambooPaper} that were originally developed in \Scala, but
 made available to the broader \R community using \rscala.
 
 Beyond writing \Scala-based packages, \rscala also provides a simple and
@@ -243,33 +241,30 @@ built as a shared library.  While this is the case on many platforms, it is not
 universal and therefore callbacks could not be a guaranteed feature of \rscala
 software if it were based on \rJava's \pkg{JRI}.
 
-The ability of \rscala to embed \R in a \Scala application is an offshoot the
-callback functionality.  Since \Scala can call
-\Java libraries, those who are interested in accessing \R from \Scala should
-also consider the \Java libraries \Rserve
-\citep{rserve} and \pkg{RCaller} \citep{rcaller}.  Like \rscala, \Rserve is ``a
-TCP/IP server which allows other programs to use facilities of \R''
-(\url{http://www.rforge.net/Rserve}).  \Rserve clients are available for many
-languages including \Java.  \Rserve is fast and provides a much richer API than
-\rscala.  Unfortunately, like \rJava, \Rserve requires that \R be compiled as a
-shared library.  \Rserve also has some limitations on Windows and the user is
-advised to not ``use Windows unless you really have to''
+The discussion so far has focused on accessing \Scala from \R.  The \rscala
+software also supports accessing \R from \Scala.  The ability is an offshoot
+the callback functionality.  Since \Scala can call \Java libraries, those who
+are interested in accessing \R from \Scala should also consider the \Java
+libraries \Rserve \citep{rserve} and \pkg{RCaller} \citep{rcaller}.  Like
+\rscala, \Rserve is ``a TCP/IP server which allows other programs to use
+facilities of \R'' (\url{http://www.rforge.net/Rserve}).  \Rserve clients are
+available for many languages including \Java.  \Rserve is fast and provides a
+much richer API than \rscala.  Like \rJava, \Rserve also requires that \R be
+compiled as a shared library.  Also, Windows has some limitations such that
+\Rserve users are advised to not ``use Windows unless you really have to''
 (\url{http://www.rforge.net/Rserve/doc.html}).
 
-The paper is organized as follows.  Section \ref{scalainr} describes
-using \Scala from \R.  Some of the more important topics
-presented there include the data types supported by \rscala, embedding \Scala
-snippets in an \R script, accessing precompiled \Scala code from \R, and calling
-back into \R from embedded \Scala.
-We also discuss how to develop \R packages based on \Scala and refer readers
-to two example packages.
-Section \ref{rinscala} describes using \R from
-\Scala.  In both Sections\ \ref{scalainr} and \ref{rinscala}, concise examples are provided to help
-describe the software's functionality.
-Section \ref{bootstrap} provides an case study to show how
-\Scala can easily be embedded in \R to significantly reduce computation
-time for a simulation study.  We conclude with future work in Section
-\ref{conclusion}.
+The paper is organized as follows.  Section \ref{scalainr} describes using
+\Scala from \R.  Some of the more important topics presented there include the
+data types supported by \rscala, embedding \Scala snippets in an \R script,
+accessing precompiled \Scala code from \R, defining inline \Scala functions,
+and calling back into \R from embedded \Scala.  We also discuss how to develop
+\R packages based on \Scala.  Section \ref{rinscala} describes using \R from
+\Scala.  In both Sections\ \ref{scalainr} and \ref{rinscala}, concise examples
+are provided to help describe the software's functionality.  Section
+\ref{bootstrap} provides a case study to show how \Scala can easily be embedded
+in \R to significantly reduce computation time for a simulation study.  We
+conclude in Section \ref{conclusion} with future work.
 
 \section[Accessing Scala in R]{Accessing \Scala in \R}
 \label{scalainr}
