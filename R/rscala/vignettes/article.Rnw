@@ -162,7 +162,8 @@ are supported.  The \rscala package is available on the Comprehensive \R
 Archive Network (CRAN) and its only dependencies are the \Scala standard
 library and base \R.  Conversely, \R can be embedded within a \Scala
 application by a one-line dependency declaration in \pkg{Scala Build Tool}
-(SBT).
+(SBT).  The \rscala software has no dependencies beyond \Scala's standard library
+and base \R.
 
 \Scala is a general-purpose, statically-typed programming language that
 supports object-oriented, functional programming, and imperative programming
@@ -197,9 +198,9 @@ actively-maintained packages on CRAN.
 
 \R code can be very concise and expressive, but may run significantly slower
 than compiled languages.  In fact, computationally intensive tasks in \R are
-typically implemented in \C, \Cpp, and \Fortran code.  The \Rcpp package tries
-to make it easier to integrate \C and \Cpp code in \R than traditional linking
-methods.  The \rJava package adds \Java as a fourth language for writing \R
+typically implemented in \C, \Cpp, and \Fortran code.  The \Rcpp \citep{rcpp} package
+makes it easy to integrate \C and \Cpp code in \R.
+The \rJava \citep{rJava} package adds \Java as a fourth language for writing \R
 extensions.  The \rscala software seeks to add \Scala as another language for
 writing computationally-intensive algorithms accessible from \R.  Roughly,
 \rscala is to \Scala, as \rJava is to \Java and as \Rcpp is the \C and \Cpp.
@@ -213,54 +214,34 @@ functions.  The \pkg{shallot} \citep{shallotSoftware} and \pkg{bamboo}
 \citep{bambooSoftware} packages on CRAN are two examples of software
 implementing statistical methodology of associated journal articles
 \citep{shallotPaper,bambooPaper} that was originally developed in \Scala, but
-made available to the broader \R community using \rscala.  Beyond writing
-\Scala-based packages, \rscala also provides a simple and convenient way to
-leverage \Scala in an existing \R workflow.  In short, \Scala and \R each have
-distinct strengths and our \rscala software allows the user to easily leverage
-the advantages of each in a single project.
+made available to the broader \R community using \rscala.
 
-% Thus, the \rscala package allows \R developers to reuse \Scala code and apply
-% their \Scala skills to make \R extensions.  On the other hand, \rscala allows
-% \Scala developers to make use of \R's broad array of data analysis and graphing
-% capabilities from within a \Scala application.  The \rscala package is intended
-% to provide this bridge to those who have an interest in both \Scala and \R.
-% This is not unlike what has already been done with \R and other languages.
-% Although largely transparent to the user, much of \R's core is implemented with
-% calls to \C, \Cpp, and \Fortran code.  These low-level languages provide more
-% flexibility in memory management and compile to code that executes relatively
-% quickly.  The \rJava \citep{rjava} package extends this support to precompiled
-% \Java code.  While results vary depending on the algorithm and testing
-% methodology, it is generally recognized that well-designed \C, \Cpp, and
-% \Fortran code will execute faster and use less memory than \Java.
-% Nevertheless, \Java arguably has several advantages and has attracted a
-% substantial developer base.  The \rJava package allows developers to use
-% existing \Java code and to apply their \Java skills to make \R extensions.  The
-% \rscala package aims to do for \Scala what \rJava has done for \Java.
+Beyond writing \Scala-based packages, \rscala also provides a simple and
+convenient way to leverage \Scala in an existing \R workflow.  For example,
+arbitrary \Scala snippets can be included within an \R script and inline \Scala
+functions allow the user to implement \R functions using \Scala.  Also, \rscala
+supports callbacks to \R from \Scala, which enables \Scala implementations of
+general algorithms (e.g., root finding methods) based on user-supplied \R
+functions.  In short, \Scala and \R each have distinct strengths and our
+\rscala software allows the user to easily leverage the advantages of each in a
+single project.
 
-The \rscala software has no dependencies beyond \Scala's standard library
-and base \R.  The bridge between \R and \Scala is based on a custom TCP/IP
-protocol.  This affords flexibility but it is natural to question whether
-\rscala could have been developed more easily by building on existing software.
 Since \Scala code compiles to \Java byte code and runs on the JVM, one could
 access \Scala from \R via \rJava and then benefit from the speed of shared
-memory.  In fact, an early implementation of (what is now known as) \rscala was
-indeed based on \rJava.  This implementation was abandoned for several reasons.
-First, some users struggle with installing and maintaining a working \rJava
-installation.  The \rJava issue tracker on GitHub
-(\url{https://github.com/s-u/rJava/issues}) shows a number of closed issues
-that users have with \rJava maintenance.  In fairness to \rJava, these are
-mostly user errors.  Nevertheless, the reach of package based on \rJava may be
-limited because some users lack the skills or patience to resolve technical
-issues regarding system maintenance.  Second, \rJava and \Scala's
-read-eval-print loop (REPL) are both implemented using custom class loaders
-which seem to conflict with each other.  Third, since \rJava links to a single
-instance of the JVM, there is the possibility that an \rJava-based package
-configures the JVM in a manner that is not compatible with a second
-\rJava-based package.  Finally, callbacks in \rJava are provided by the
-optional \pkg{JRI} component which is only available if \R is built as a shared
-library.  While this is the case on many platforms, it is not universal and
-therefore callbacks could not be a guaranteed feature of \rscala software if
-it were based on \rJava's \pkg{JRI}.
+memory.  We originally implemented our \rscala bridge using this technique, but
+later moved to a custom TCP/IP protocol for the following reasons.  First,
+\rJava and \Scala's read-eval-print loop (REPL) are both implemented using
+custom class loaders which, in our experience, conflict with each other in some
+cases.  Second, since \rJava links to a single instance of the JVM, one
+\rJava-based package can configure the JVM in a manner that is not compatible
+with a second \rJava-based package.  The current \rscala package creates a new
+instance of the JVM for each \Scala instance to avoid such conflicts.  Third,
+the simplicity of no dependencies beyond \Scala's standard library and base \R
+is appealing from a users' perspective.  Finally, callbacks in \rJava are
+provided by the optional \pkg{JRI} component which is only available if \R is
+built as a shared library.  While this is the case on many platforms, it is not
+universal and therefore callbacks could not be a guaranteed feature of \rscala
+software if it were based on \rJava's \pkg{JRI}.
 
 The ability of \rscala to embed \R in a \Scala application is an offshoot the
 callback functionality.  Since \Scala can call
