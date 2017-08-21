@@ -172,7 +172,7 @@ type inference, higher-order functions, multiple inheritance through traits,
 and a large collection of libraries.  \Scala also supports pattern matching,
 operator overloading, optional and named parameters, and string interpolation.
 With its encouragement of immutable data types and pure functions (i.e.,
-functions without side-effect), concurrrent processing on multicore processors
+functions without side-effect), concurrent processing on multicore processors
 and unit testing can be simplified.  \Scala is designed to strike a balance
 between execution speed and programmer productivity.  Source code compiles to
 \Java bytecode and runs on the Java Virtual Machine (JVM) at speeds comparable
@@ -188,8 +188,8 @@ complement \R.
 \R is a scripting language and environment developed by statisticians for
 statistical computing and graphics.  Like \Scala, \R supports a functional
 programming style and provides immutable data types.  \Scala programmers who
-learn \R (and vice versa) will find many familar concepts, despite the
-syntatical differences.  \R has many contributors and a massive user base of
+learn \R (and vice versa) will find many familiar concepts, despite the
+syntactical differences.  \R has many contributors and a massive user base of
 formally and informally trained statisticians.  Whereas \Scala's statistical
 libraries are in their relative infancy, \R's has over 11,000
 actively-maintained packages on CRAN.
@@ -215,7 +215,7 @@ implementing statistical methodology of associated journal articles
 made available to the broader \R community using \rscala.
 
 Beyond writing \Scala-based packages, \rscala also provides a simple and
-convenient way to leverage \Scala in an existing \R workflow.  For example,
+convenient way to leverage \Scala in an existing \R work flow.  For example,
 arbitrary \Scala snippets can be included within an \R script and inline \Scala
 functions allow the user to implement \R functions using \Scala.  Also, \rscala
 supports callbacks to \R from \Scala, which enables \Scala implementations of
@@ -1345,7 +1345,7 @@ println(s"Europe's central city is $centralCity.")
 
 The \code{RClient} also enables a \Scala application to access \R's extensive
 plotting facilities and to take advantage of the many packages available in \R.
-As an example of a nontrival \Scala application, consider a web site based on a
+As an example of a nontrivial \Scala application, consider a web site based on a
 \Scala-based web framework such as \pkg{Play Framework}, \pkg{Scalatra},
 \pkg{Xitrum}, or \pkg{Lift}.  Suppose part of the web application requires
 plotting historical temperature data.  Rather than looking for a \Scala library
