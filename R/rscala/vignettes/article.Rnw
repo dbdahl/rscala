@@ -507,7 +507,7 @@ oneToTenReference
 % s %~% '@{oneToTenReference}.sum'
 % @
 
-\subsubsection{Getting and Setting Variables}
+\subsubsection{Getting and setting variables}
 
 Values of copyable types and \Scala references can be obtained as the result of
 evaluating a \Scala expression using the \code{\%\mytilde\%} and
@@ -1538,7 +1538,7 @@ over the TCP/IP bridge.
 % \label{mcmcSimulated}
 % \end{table}
 
-\section[Case Study: Simulation Study Accelerated with rscala]{Case Study: Simulation Study Accelerated with \rscala}
+\section[Case study: Simulation study accelerated with rscala]{Case study: Simulation study accelerated with \rscala}
 \label{bootstrap}
 
 While the previously mentioned \pkg{shallot} and \pkg{bamboo} demonstrate the
