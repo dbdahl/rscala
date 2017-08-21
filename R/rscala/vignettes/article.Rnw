@@ -58,19 +58,19 @@
 
 %% an abstract and keywords
 \Abstract{
-The \rscala software is a simple, two-way bridge between \R and \Scala.
-The goal of \rscala is to allow users to easily leverage the
-unique strengths of \Scala and \R to make them more productive.
-\Scala classes can be instantiated from \R and \Scala methods can be called.
-Arbitrary \Scala code can be executed on-the-fly from within \R, inline \Scala
-functions can be defined, and callbacks to \R are supported.  \R packages can be
-developed using \Scala.  Conversely, \rscala also enables \R code to be
-embedded within a \Scala application.  The \rscala package is available on CRAN
-and has no dependencies beyond the \Scala standard library and base \R.
+The \rscala software is a simple, two-way bridge between \R and \Scala that
+allows users to easily leverage the unique strengths of \Scala and \R in a
+single project.  \Scala classes can be instantiated from \R and \Scala methods
+can be called.  Arbitrary \Scala code can be executed on-the-fly from within
+\R, inline \Scala functions can be defined, and callbacks to \R are supported.
+\R packages can be developed using \Scala.  Conversely, \rscala also enables \R
+code to be embedded within a \Scala application.  The \rscala package is
+available on CRAN and has no dependencies beyond base \R and the \Scala
+standard library.
 }
 
-\Keywords{embedded interpreter, \Java, Java Virtual Machine, JVM, \R, \Scala}
-\Plainkeywords{embedded interpreter, Java, Java Virtual Machine, JVM, R, Scala} %% without formatting
+\Keywords{Java Virtual Machine, JVM, language bridges, \R, \Scala}
+\Plainkeywords{Java Virtual Machine, JVM, language bridges, R, Scala} %% without formatting
 
 %% at least one keyword must be supplied
 
@@ -1549,27 +1549,26 @@ embarrassingly parallel and we consider two means of parallelization, one using
 \Scala's \code{Future} class and the other using \R's \pkg{parallel} package.
 By way of comparison, we implement the same algorithm using pure \R and using
 inline \Cpp code via the \Rcpp package.  All four implementations provide a
-function taking the same arguments, including a user-specified \R
-function for sampling.
+function taking the same arguments, including a user-specified \R function for
+sampling.
 
-We consider a
-simulation study of the coverage of a bootstrap confidence interval procedure.
-Consider a population parameter $\beta_1/\beta_2$, where $\beta_1$ and
-$\beta_2$ are population quantiles associated with probabilities $p_1$ and
-$p_2$, respectively.  Based on a sample of $n$ observations, a point estimator
-of the parameter is the ratio of the corresponding sample quantiles and the
-following bootstrap procedure can be used when the population distribution is
-unspecified.  The sample estimate is recorded for each of \code{nSamples}
-bootstrap samples.  A bootstrap confidence interval is given by $(l, u)$, where
-$l$ and $u$ are quantiles of the bootstrap sampling distribution associated
-with $\alpha/2$ and $1-\alpha/2$, respectively.  Although the nominal coverage
-is $1-\alpha$, interest lies in computing the actual coverage probability of
-this bootstrap confidence interval procedure using a Monte Carlo simulation
-study.  \code{nIntervals} samples from the population are obtained from a
-user-supplied sampling function.  Although the code is general, we sample $n=100$
-observations from the standard normal distribution and set $p_1=0.75$ and
-$p_2=0.35$, making $\beta_1/\beta_2 \approx -1.75$.
-We use \code{nIntervals} = 10,000 Monte Carlo replicates, each having
+We investigate a simulation study of the coverage probability of a bootstrap
+confidence interval procedure.  Consider a population parameter
+$\beta_1/\beta_2$, where $\beta_1$ and $\beta_2$ are population quantiles
+associated with probabilities $p_1$ and $p_2$, respectively.  Based on a sample
+of $n$ observations, a point estimator of the parameter is the ratio of the
+corresponding sample quantiles and the following bootstrap procedure can be
+used when the population distribution is unspecified.  The sample estimate is
+recorded for each of \code{nSamples} bootstrap samples.  A bootstrap confidence
+interval is given by $(l, u)$, where $l$ and $u$ are quantiles of the bootstrap
+sampling distribution associated with $\alpha/2$ and $1-\alpha/2$,
+respectively.  Although the nominal coverage is $1-\alpha$, interest lies in
+computing the actual coverage probability of this bootstrap confidence interval
+procedure using a Monte Carlo simulation study.  \code{nIntervals} samples from
+the population are obtained from a user-supplied sampling function.  Although
+the code is general, we sample $n=100$ observations from the standard normal
+distribution and set $p_1=0.75$ and $p_2=0.35$, making $\beta_1/\beta_2 \approx
+-1.75$.  We use \code{nIntervals} = 10,000 Monte Carlo replicates, each having
 \code{nSamples} = 10,000 bootstrap samples.
 
 The four implementations of the algorithm are contained in the \R script in the
@@ -1581,7 +1580,7 @@ use the \pkg{parallel} package to harness all available cores, whereas the
 first \rscala implementation uses \Scala's \code{Future} class for parallelism.
 In the first \rscala implementation, a single instance of \code{RClient} is
 used by multiple JVM threads to call back to the single \R instance when
-sampling the data.  On machines with many cores, each thread having to wait its
+sampling the data.  On machines with many cores, having each thread wait its
 turn to access the \R instance will likely slow down the execution.  In the
 second \rscala implementation, each CPU core has a separate \R instance with a
 corresponding \code{RClient}.
@@ -1590,8 +1589,8 @@ We tested on four machines running Ubuntu 16.04 with 8 cores, Ubuntu 16.04 with
 56 cores, Mac Sierra with 8 cores, and Windows 10 with 8 cores.  \R was
 compiled from source for the Ubuntu machines and was installed from binaries
 downloaded from CRAN for the Mac and Windows machines.  All machines ran \R
-3.4.1, \Scala 2.12.3, \Java 8, \Rcpp 0.12.12, and a prerelease version of \rscala
-2.3.1.
+3.4.1, \Scala 2.12.3, \Java 8, \Rcpp 0.12.12, and a prerelease version of
+\rscala 2.3.1.
 
 \begin{table}
 \begin{center}
@@ -1635,14 +1634,12 @@ Executions times (in seconds) for 10 replications of the simulation study are
 found in Table \ref{benchmarks}.  For the sake of expediency, the pure \R
 implementation was only run on the Ubuntu machines.  The pure \R implementation
 ran more than 26 times slower than the fastest implementation.  The second
-\rscala implementation (which uses the \pkg{parallel} package) was the overall
-the fastest.  The first \rscala implementation was close behind, expect on the
+\rscala implementation (which uses the \pkg{parallel} package) was the faster
+overall.  The first \rscala implementation was close behind, expect on the
 Ubuntu machine with 56 cores, which illustrates the difficulty of sharing an
 single \R instances for all the cores.  The \Rcpp implementation is generally
 slower than the \rscala implementations, but within the same order of magnitude
-relative to the pure \R implementation.  We are not experts in \Cpp and it is
-possible the \Rcpp implementation could be improved.
-
+relative to the pure \R implementation.
 
 \section{Conclusion}
 \label{conclusion}
@@ -1663,10 +1660,10 @@ run on separate machines.
 \section*{Acknowledgements}
 
 The author's work on this paper was supported by NIH NIGMS R01 GM104972.  The
-author thanks the CRAN maintainers for the patience and excellent service.  The
-author also thanks the following students for valuable feedback on the software
-and paper: Floid Gilbert, Brandon Carter, Deepthi Uppalapati, Scott Ferguson,
-and Richard Payne.
+author thanks the CRAN maintainers for their excellent service.  The author
+also thanks the following students for valuable feedback on the software and
+paper: Floid Gilbert, Brandon Carter, Deepthi Uppalapati, Scott Ferguson, and
+Richard Payne.
 
 \bibliography{refs}
 
