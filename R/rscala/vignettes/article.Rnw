@@ -1061,12 +1061,11 @@ methods also enjoy faster execution than the equivalent code using the
 \subsection{Speed considerations}
 \label{cpu}
 
-We now consider execution speed.  We do not attempt to compare the performance
-of \Scala to that of other languages.  For that, we refer readers to benchmarks
-available on the web, including \citet{languageShootout}.  In short, \Scala
-seems to perform at speeds comparable to \Java, and \Java is found to be about
-1.5 to 3 times slower than \C.  Here we wish to highlight performance
-characteristics of \rscala itself.
+Section \ref{bootstrap} considers the easy and execution speed of implementing
+a simulation study in \R, \Cpp via \Rcpp, and \Scala via \rscala.  It is not a
+comprehensive comparison of the speed of these languages.  For that, we refer
+readers to benchmarks available on the web, including \citet{languageShootout}.
+Here we wish to highlight performance characteristics of \rscala itself.
 
 Every \Scala snippet associated with the \code{\%@\%}, \code{\%\mytilde\%}, and
 \code{\%.\mytilde\%} operators is compiled at every invocation.  In contrast, a
