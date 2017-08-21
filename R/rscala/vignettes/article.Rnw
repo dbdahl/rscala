@@ -1373,7 +1373,7 @@ The source code is available here:
 \url{https://github.com/dbdahl/rscala-example-temperature/}
 \end{center}
 
-Figure \ref{screenshot} shows a screen shot of the application.
+Figure \ref{screenshot} shows a screenshot of the application.
 
 \begin{figure}[tb]
 \begin{center}
