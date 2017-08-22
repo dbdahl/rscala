@@ -26,19 +26,17 @@ install the package. Simply add the following line to the your SBT build.sbt
 file:
 
 ```scala
-libraryDependencies += "org.ddahl" %% "rscala" % "2.2.2"
+libraryDependencies += "org.ddahl" %% "rscala" % "2.3.1"
 ```
 
 Paper:
 
-* [Paper submitted to Journal of Statistical Software](https://dahl.byu.edu/software/rscala/rscala-jss.pdf). Note the paper pertains to version 1.0.6 of the package.
-* [Code for all examples](https://dahl.byu.edu/software/rscala/replication-code.tar.gz) in paper.
-* [Temperatures webapp](https://dahl.byu.edu/software/rscala/temperature/) from Section 5.2 from the paper.
+* [Paper submitted to Journal of Statistical Software](https://dahl.byu.edu/software/rscala/rscala-jss.pdf). Note the paper pertains to version 2.3.1 of the package.
+* [Temperatures webapp](https://dahl.byu.edu/software/rscala/temperature/) from Section 3 from the paper.
 
 Resources:
 
 * [Git repository](https://github.com/dbdahl/rscala) containing source code and build & test scripts.
 * [Package](https://cran.r-project.org/package=rscala) on [Comprehensive R Archive Network (CRAN)](http://cran.r-project.org/).
 * [Scaladoc](https://dahl.byu.edu/software/rscala/scaladoc/org/ddahl/rscala/RClient.html) for embedding R in Scala.
-* [Javadoc](https://dahl.byu.edu/software/rscala/javadoc/org/ddahl/rscala/RClient4Java.html) for embedding R in Java.
 

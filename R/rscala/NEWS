@@ -1,4 +1,4 @@
-2.3.1 (2017-08-22)
+2.3.1 (2017-08-21)
   * Version associated with resubmission of paper to Journal of Statistical
     Software.
   * If a requested version of Scala does not exits, offer to install it if
