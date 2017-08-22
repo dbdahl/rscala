@@ -3,6 +3,7 @@ Bump version number in build.sbt, constructor.Rd, README.md
 Update R/rscala/NEWS detailing changes
 ./bin/package -p
 test on Linux, Mac OS, and Windows!
+test packages: shallot, bamboo, commonsMath
 Tag in Git the version.
 sbt +publishSigned
 https://oss.sonatype.org/
