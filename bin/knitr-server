@@ -20,16 +20,16 @@ while ( TRUE ) {
   if ( cmd == "n" ) {
     system2("rm",c("-rf","cache"))
     system2("clean-tex")
-    knit("Integration_of_R_and_Scala_using_rscala.Rnw")
-    system2("pdflatex","Integration_of_R_and_Scala_using_rscala.tex")
-    system2("bibtex","Integration_of_R_and_Scala_using_rscala.aux")
-    system2("pdflatex","Integration_of_R_and_Scala_using_rscala.tex")
-    system2("pdflatex","Integration_of_R_and_Scala_using_rscala.tex")
-    system2("pdflatex","Integration_of_R_and_Scala_using_rscala.tex")
+    knit("Integration_of_R_and_Scala_Using_rscala.Rnw")
+    system2("pdflatex","Integration_of_R_and_Scala_Using_rscala.tex")
+    system2("bibtex","Integration_of_R_and_Scala_Using_rscala.aux")
+    system2("pdflatex","Integration_of_R_and_Scala_Using_rscala.tex")
+    system2("pdflatex","Integration_of_R_and_Scala_Using_rscala.tex")
+    system2("pdflatex","Integration_of_R_and_Scala_Using_rscala.tex")
   }
   else if ( cmd == "r" ) {
-    knit("Integration_of_R_and_Scala_using_rscala.Rnw")
-    system2("pdflatex","Integration_of_R_and_Scala_using_rscala.tex")
+    knit("Integration_of_R_and_Scala_Using_rscala.Rnw")
+    system2("pdflatex","Integration_of_R_and_Scala_Using_rscala.tex")
   }
   else if ( cmd == "h" ) {
     cat("Hi.\n")
