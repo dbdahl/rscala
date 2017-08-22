@@ -190,8 +190,8 @@ complement \R.
 \R is a scripting language and environment developed by statisticians for
 statistical computing and graphics.  Like \Scala, \R supports a functional
 programming style and provides immutable data types.  \Scala programmers who
-learn \R (and vice versa) will find many familar concepts, despite the
-syntatical differences.  \R has a massive user base of statisticians and over
+learn \R (and vice versa) will find many familiar concepts, despite the
+syntactical differences.  \R has a massive user base of statisticians and over
 11,000 actively-maintained packages on CRAN. Hence, the \Scala community has a
 lot to gain from an integration with \R.
 
@@ -212,7 +212,7 @@ implement general, high-performance algorithms in \Scala (e.g., root finding
 methods) based on user-supplied \R functions.  Third, \rscala supports
 developing \R packages based on \Scala which allows \Scala developers to make
 their work available to the \R community.  Finally, the \rscala software makes
-it easy to incoporate \R in a \Scala application without even having to install
+it easy to incorporate \R in a \Scala application without even having to install
 the \R package.  In sum, \rscala's feature-set makes it easy to exploit the
 strengths of \R and \Scala in a single project.
 
