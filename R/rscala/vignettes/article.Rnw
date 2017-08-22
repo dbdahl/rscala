@@ -1535,16 +1535,16 @@ over the TCP/IP bridge.
 \section[Case study: Simulation study accelerated with rscala]{Case study: Simulation study accelerated with \rscala}
 \label{bootstrap}
 
-While the previously mentioned \pkg{shallot} and \pkg{bamboo} demonstrate the
+While the previously mentioned \pkg{shallot} and \pkg{bamboo} packages demonstrate the
 ability to develop packages based on \rscala, we demonstrate in this section
-the easy with which computationally-intensive statistical procedures can be
+the ease with which computationally-intensive statistical procedures can be
 implemented by embedding \Scala code in an \R script.  The algorithm is
-embarrassingly parallel and we consider two means of parallelization, one using
+embarrassingly parallel and we consider two means of parallelization: one using
 \Scala's \code{Future} class and the other using \R's \pkg{parallel} package.
-By way of comparison, we implement the same algorithm using pure \R and using
-inline \Cpp code via the \Rcpp package.  All four implementations provide a
-function taking the same arguments, including a user-specified \R function for
-sampling.
+By way of comparison, we include a pure \R implementation of the same algorithm, 
+and also an implementation that uses inline \Cpp code via the \Rcpp package. 
+All four implementations define a
+function that takes an \R sampling function as an argument.
 
 We investigate a simulation study of the coverage probability of a bootstrap
 confidence interval procedure.  Consider a population parameter
@@ -1565,11 +1565,11 @@ distribution and set $p_1=0.75$ and $p_2=0.35$, making $\beta_1/\beta_2 \approx
 -1.75$.  We use \code{nIntervals} = 10,000 Monte Carlo replicates, each having
 \code{nSamples} = 10,000 bootstrap samples.
 
-The four implementations of the algorithm are contained in the \R script in the
+The four implementations of the algorithm are included in the
 Appendix.  The \R implementation is the shortest and the \rscala implementation
 is somewhat more concise than the \Rcpp implementation.  The pure \R
-implementation loops using apply functions.  The \Rcpp implementation is
-written in a \C style.  The pure \R, \Rcpp, and second \rscala implementations
+iterates using apply functions.  The \Rcpp implementation is
+written in \C style.  The pure \R, \Rcpp, and second \rscala implementations
 use the \pkg{parallel} package to harness all available cores, whereas the
 first \rscala implementation uses \Scala's \code{Future} class for parallelism.
 In the first \rscala implementation, a single instance of \code{RClient} is
@@ -1628,10 +1628,10 @@ Executions times (in seconds) for 10 replications of the simulation study are
 found in Table \ref{benchmarks}.  For the sake of expediency, the pure \R
 implementation was only run on the Ubuntu machines.  The pure \R implementation
 ran more than 26 times slower than the fastest implementation.  The second
-\rscala implementation (which uses the \pkg{parallel} package) was the faster
-overall.  The first \rscala implementation was close behind, expect on the
-Ubuntu machine with 56 cores, which illustrates the difficulty of sharing an
-single \R instances for all the cores.  The \Rcpp implementation is generally
+\rscala implementation (which uses the \pkg{parallel} package) was the fastest
+overall.  The first \rscala implementation was close behind, except on the
+Ubuntu machine with 56 cores, which illustrates the difficulty of sharing a
+single \R instance across all of the cores.  The \Rcpp implementation is generally
 slower than the \rscala implementations, but within the same order of magnitude
 relative to the pure \R implementation.
 
@@ -1640,15 +1640,15 @@ relative to the pure \R implementation.
 
 This paper introduced the \rscala software to bridge \R and \Scala.  The
 software allows a user to leverage their skills in both languages and to
-utilized libraries and exploit strengthens in each language.  For example, \R
+utilize libraries and exploit strengths in each language.  For example, \R
 users can implement computationally intensive algorithms in \Scala, write \R
-packages based on \Scala, and can access \Scala libraries from \R.  \Scala
+packages based on \Scala, and access \Scala libraries from \R.  \Scala
 programmers can take advantage of \R's tools for data analysis and graphics
 from within a \Scala application. 
 
-We are exploring two possible features to improve the package.  The first is to
+We are exploring two possible features to improve the package.  The first would
 allow embedded \Scala computations to be interrupted by the \R user without
-destroying the TCP/IP bridge.  The second feature is allowing \R and \Scala to
+destroying the TCP/IP bridge.  The second feature would permit \R and \Scala to
 run on separate machines.
 
 \section*{Acknowledgements}
