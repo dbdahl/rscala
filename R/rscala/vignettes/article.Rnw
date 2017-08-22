@@ -1625,7 +1625,7 @@ second \rscala implementation had the fastest execution times.}
 \label{benchmarks}
 \end{table}
 
-Execution times (in seconds) for 10 replications of the simulation study are
+Elapsed times (in seconds) for 10 replications of the simulation study are
 found in Table \ref{benchmarks}.  For the sake of expediency, the pure \R
 implementation was only run on the Ubuntu machines.  The pure \R implementation
 ran more than 26 times slower than the fastest implementation.  The second
