@@ -32,8 +32,6 @@
 > mySort(runif(12),FALSE)
  [1] 0.964528786 0.931479614 0.915030151 0.760027263 0.748870265 0.689618096
  [7] 0.631741739 0.619262272 0.486731296 0.346336568 0.234644646 0.009991797
-Warning message:
-In rm(list = paste0(".rsX", 1:1)) : object '.rsX1' not found
 > 
 > #### Get: Unsupported type
 > 
@@ -386,8 +384,8 @@ Error in parse(text = snippet) : <text>:4:16: unexpected symbol
 4:     a <- "3+9" asfd
                   ^
 java.lang.RuntimeException: Error in R evaluation.
-	at org.ddahl.rscala.RClient.eval(RClient.scala:135)
-	at org.ddahl.rscala.RClient.eval(RClient.scala:146)
+	at org.ddahl.rscala.RClient.eval(RClient.scala:137)
+	at org.ddahl.rscala.RClient.eval(RClient.scala:148)
 	at .<init>(<console>:14)
 	at .<clinit>(<console>)
 	at .<init>(<console>:7)
@@ -506,16 +504,16 @@ java.lang.reflect.InvocationTargetException
 Caused by: java.lang.RuntimeException: Unsupported array type.
 	at org.ddahl.rscala.RClient.set(RClient.scala:560)
 	at org.ddahl.rscala.RClient.set(RClient.scala:353)
-	at org.ddahl.rscala.RClient$$anonfun$1.apply(RClient.scala:316)
-	at org.ddahl.rscala.RClient$$anonfun$1.apply(RClient.scala:302)
+	at org.ddahl.rscala.RClient$$anonfun$1.apply(RClient.scala:318)
+	at org.ddahl.rscala.RClient$$anonfun$1.apply(RClient.scala:304)
 	at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:244)
 	at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:244)
 	at scala.collection.IndexedSeqOptimized$class.foreach(IndexedSeqOptimized.scala:33)
 	at scala.collection.mutable.WrappedArray.foreach(WrappedArray.scala:34)
 	at scala.collection.TraversableLike$class.map(TraversableLike.scala:244)
 	at scala.collection.AbstractTraversable.map(Traversable.scala:105)
-	at org.ddahl.rscala.RClient.mkSnippet(RClient.scala:302)
-	at org.ddahl.rscala.RClient.invokeD1(RClient.scala:245)
+	at org.ddahl.rscala.RClient.mkSnippet(RClient.scala:304)
+	at org.ddahl.rscala.RClient.invokeD1(RClient.scala:247)
 	at $line341.$read$$iw$$iw$$anonfun$1.apply(<console>:17)
 	at $line341.$read$$iw$$iw$$anonfun$1.apply(<console>:12)
 	... 43 more
@@ -532,14 +530,12 @@ java.lang.RuntimeException: Unsupported array type.
 > callRFunction(myMean,y=0,x=1:100)
 Here is am.
 [1] 101
-Warning message:
-In rm(list = paste0(".rsX", 1:1)) : object '.rsX1' not found
 > 
 > callRFunction0D2 <- function(func=NULL) s %!% 'R.invokeD2(func)'
 > callRFunction0D2(gc)
        [,1] [,2]    [,3] [,4]    [,5] [,6]
-[1,] 354264   19  750400 40.1  592000 31.7
-[2,] 649016    5 1231581  9.4 1044782  8.0
+[1,] 353238 18.9  750400 40.1  592000 31.7
+[2,] 647421  5.0 1231580  9.4 1044781  8.0
 > 
 > tryCatch(callRFunction(1:100),error = function(e) {})
 Error in func(.rsX0, y) : could not find function "func"
@@ -589,9 +585,9 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:105)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.RuntimeException: Error in R evaluation.
-	at org.ddahl.rscala.RClient.eval(RClient.scala:135)
-	at org.ddahl.rscala.RClient.evalD1(RClient.scala:170)
-	at org.ddahl.rscala.RClient.invokeD1(RClient.scala:245)
+	at org.ddahl.rscala.RClient.eval(RClient.scala:137)
+	at org.ddahl.rscala.RClient.evalD1(RClient.scala:172)
+	at org.ddahl.rscala.RClient.invokeD1(RClient.scala:247)
 	at $line345.$read$$iw$$iw$$anonfun$1.apply(<console>:17)
 	at $line345.$read$$iw$$iw$$anonfun$1.apply(<console>:12)
 	... 43 more
@@ -604,8 +600,8 @@ NULL
 Error in library(asdf) : there is no package called ‘asdf’
 there is no package called ‘asdf’
 java.lang.RuntimeException: Error in R evaluation.
-	at org.ddahl.rscala.RClient.eval(RClient.scala:135)
-	at org.ddahl.rscala.RClient.eval(RClient.scala:146)
+	at org.ddahl.rscala.RClient.eval(RClient.scala:137)
+	at org.ddahl.rscala.RClient.eval(RClient.scala:148)
 	at .<init>(<console>:12)
 	at .<clinit>(<console>)
 	at .<init>(<console>:7)

@@ -32,8 +32,6 @@
 > mySort(runif(12),FALSE)
  [1] 0.964528786 0.931479614 0.915030151 0.760027263 0.748870265 0.689618096
  [7] 0.631741739 0.619262272 0.486731296 0.346336568 0.234644646 0.009991797
-Warning message:
-In rm(list = paste0(".rsX", 1:1)) : object '.rsX1' not found
 > 
 > #### Get: Unsupported type
 > 
@@ -166,14 +164,12 @@ Error in parse(text = snippet) : <text>:4:16: unexpected symbol
 > callRFunction(myMean,y=0,x=1:100)
 Here is am.
 [1] 101
-Warning message:
-In rm(list = paste0(".rsX", 1:1)) : object '.rsX1' not found
 > 
 > callRFunction0D2 <- function(func=NULL) s %!% 'R.invokeD2(func)'
 > callRFunction0D2(gc)
        [,1] [,2]    [,3] [,4]    [,5] [,6]
-[1,] 354122   19  750400 40.1  467677 25.0
-[2,] 648209    5 1228797  9.4 1053024  8.1
+[1,] 353096 18.9  750400 40.1  463688 24.8
+[2,] 646614  5.0 1228796  9.4 1053020  8.1
 > 
 > tryCatch(callRFunction(1:100),error = function(e) {})
 Error in func(.rsX0, y) : could not find function "func"
