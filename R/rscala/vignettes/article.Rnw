@@ -1552,7 +1552,8 @@ $\beta_1/\beta_2$, where $\beta_1$ and $\beta_2$ are population quantiles
 associated with probabilities $p_1$ and $p_2$, respectively.  Based on a sample
 of $n$ observations, a point estimator of the parameter is the ratio of the
 corresponding sample quantiles and the following bootstrap procedure can be
-used when the population distribution is unspecified.  The sample estimate is
+used to find a confidence interval
+when the population distribution is unspecified. The sample estimate is
 recorded for each of \code{nSamples} bootstrap samples.  A bootstrap confidence
 interval is given by $(l, u)$, where $l$ and $u$ are quantiles of the bootstrap
 sampling distribution associated with $\alpha/2$ and $1-\alpha/2$,
@@ -1624,7 +1625,7 @@ second \rscala implementation had the fastest execution times.}
 \label{benchmarks}
 \end{table}
 
-Executions times (in seconds) for 10 replications of the simulation study are
+Execution times (in seconds) for 10 replications of the simulation study are
 found in Table \ref{benchmarks}.  For the sake of expediency, the pure \R
 implementation was only run on the Ubuntu machines.  The pure \R implementation
 ran more than 26 times slower than the fastest implementation.  The second
