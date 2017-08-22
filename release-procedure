@@ -1,7 +1,7 @@
 install-R --devel
 Bump version number in build.sbt, constructor.Rd, README.md
 Update R/rscala/NEWS detailing changes
-./bin/package -s -f
+./bin/package -p
 test on Linux, Mac OS, and Windows!
 Tag in Git the version.
 sbt +publishSigned
