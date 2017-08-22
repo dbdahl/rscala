@@ -1570,8 +1570,11 @@ distribution and set $p_1=0.75$ and $p_2=0.35$, making $\beta_1/\beta_2 \approx
 -1.75$.  We use \code{nIntervals} = 10,000 Monte Carlo replicates, each having
 \code{nSamples} = 10,000 bootstrap samples.
 
-The four implementations of the algorithm are included in the
-Appendix.  The \R implementation is the shortest and the \rscala implementation
+The four implementations are available in the
+Appendix, in the package, and at
+{\footnotesize
+\url{https://raw.githubusercontent.com/dbdahl/rscala/master/R/rscala/inst/doc/bootstrap-coverage.R}}.
+The \R implementation is the shortest and the \rscala implementation
 is somewhat more concise than the \Rcpp implementation.  The pure \R
 iterates using apply functions.  The \Rcpp implementation is
 written in \C style.  The pure \R, \Rcpp, and second \rscala implementations
