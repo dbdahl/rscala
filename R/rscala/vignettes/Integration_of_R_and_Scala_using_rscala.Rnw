@@ -342,10 +342,11 @@ should not access the same \Scala instance simultaneously.
 Snippets of \Scala code can be compiled and executed within an \R session using
 several operators.  The most basic operator is \code{\%@\%} which evaluates
 \Scala code and returns \code{NULL}.  Consider, for example, computing the
-binomial coefficient ${10 \choose 3} = \prod_{i=1}^3 (10-i+1)/i$.  The code
-below uses \Scala's \code{val} statement to define an immutable variable
-\code{c_10_3} by computing the \code{product} of applications of the
-higher-order \code{map} function to a range \code{1 to 3}.
+binomial coefficient ${10 \choose 3} = \prod_{i=1}^3 (10-i+1)/i$.  The code below
+uses \Scala's \code{val} statement to define an immutable variable
+\code{c_10_3}.  The expression \code{1 to 3} creates a range and the higher-order \code{map} method of the
+range applies the function \code{(10-i+1) / i.toDouble} to each element \code{i} in the range.
+Finally, the results are multiplied together by the \code{product} method.
 
 <<evaluateScalaCodeSimple>>=
 s %@% '
@@ -561,7 +562,9 @@ is the slowest and awkward when arguments are not easily set with string
 interpolation.  The second (using \code{s\$.}) is concise, fast, and flexible
 in the arguments.  The string literal following \code{s\$.} and before the
 second \code{\$} (e.g., \code{scala.util.Random}) can be the name of any class
-in the classpath.  The last method (using \code{s\$do}) is also fast and
+in the classpath.
+(The period in \code{s\$.} is used to differentiate class names from variables names.)
+The last method (using \code{s\$do}) is also fast and
 flexible but is slightly awkward.  It has the added advantage, however, that
 the class name given as the argument to \code{s\$do} can be a literal (as in
 this example) or a variable.  Note that \code{do} is a reserved word in \Scala
