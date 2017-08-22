@@ -159,28 +159,27 @@ For example, \R packages can implement computationally-intensive algorithms in
 \Scala and, conversely, \Scala applications can take advantage of the vast
 array of statistical packages in \R.  Callbacks from embedded \Scala into \R
 are supported.  The \rscala package is available on the Comprehensive \R
-Archive Network (CRAN).  Also, \R can be embedded within a \Scala
-application by adding a one-line dependency declaration in \pkg{Scala Build Tool}
-(SBT).
+Archive Network (CRAN).  Also, \R can be embedded within a \Scala application
+by adding a one-line dependency declaration in \pkg{Scala Build Tool} (SBT).
 
 \Scala is a general-purpose programming language that is designed to strike a
-balance between execution speed and programmer productivity.  \Scala programs run on
-the Java Virtual Machine (JVM) at speeds comparable to \Java.  \Scala features
-object-oriented, functional, and imperative programming paradigms, affording
-developers flexibility in application design.  \Scala code can be concise,
-thanks in part to type inference, higher-order functions, multiple inheritance
-through traits, and a large collection of libraries.  \Scala also supports
-pattern matching, operator overloading, optional and named parameters, and
-string interpolation. \Scala encourages immutable data types and pure
+balance between execution speed and programmer productivity.  \Scala programs
+run on the Java Virtual Machine (JVM) at speeds comparable to \Java.  \Scala
+features object-oriented, functional, and imperative programming paradigms,
+affording developers flexibility in application design.  \Scala code can be
+concise, thanks in part to type inference, higher-order functions, multiple
+inheritance through traits, and a large collection of libraries.  \Scala also
+supports pattern matching, operator overloading, optional and named parameters,
+and string interpolation. \Scala encourages immutable data types and pure
 functions (i.e., functions without side-effects) to simplify parallel
-processing and unit testing. In short, the \Scala language implements many of the most
-productive ideas in modern computing. To learn more about \Scala,
-we suggest \emph{Programming in Scala} \citep{scalabook} as an excellent
-general reference.
+processing and unit testing. In short, the \Scala language implements many of
+the most productive ideas in modern computing. To learn more about \Scala, we
+suggest \emph{Programming in Scala} \citep{scalabook} as an excellent general
+reference.
 
-Because \Scala is flexible, concise, and quick to execute, it is emerging as an important tool for scientific computing. For example, 
-\pkg{Spark} \citep{spark} is a
-cluster-computing framework for massive datasets written in \Scala.
+Because \Scala is flexible, concise, and quick to execute, it is emerging as an
+important tool for scientific computing. For example, \pkg{Spark} \citep{spark}
+is a cluster-computing framework for massive datasets written in \Scala.
 Several books have been published recently on using \Scala for data science
 \citep{a9781785281372}, scientific computing \citep{a9781785886942}, machine
 learning \citep{a9781783558742}, and probabilistic programmings
@@ -193,27 +192,29 @@ statistical computing and graphics.  Like \Scala, \R supports a functional
 programming style and provides immutable data types.  \Scala programmers who
 learn \R (and vice versa) will find many familar concepts, despite the
 syntatical differences.  \R has a massive user base of statisticians and over
-11,000 actively-maintained packages on CRAN. Hence, the \Scala community has a lot to gain from 
-an integration with \R.
+11,000 actively-maintained packages on CRAN. Hence, the \Scala community has a
+lot to gain from an integration with \R.
 
 \R code can be very concise and expressive, but may run significantly slower
 than compiled languages.  In fact, computationally intensive algorithms in \R
-are typically implemented in compiled languages such as \C, \Cpp, \Fortran,
-and \Java. The \rscala package adds \Scala to this list of high-performance
+are typically implemented in compiled languages such as \C, \Cpp, \Fortran, and
+\Java. The \rscala package adds \Scala to this list of high-performance
 languages that can be used to write \R extensions. The \rscala package is
 similar in concept to \Rcpp \citep{rcpp}, an \R integration for \C and \Cpp,
 and \rJava \citep{rJava}, an \R integration for \Java. Though the \rscala
-integration is not as comprehensive as \Rcpp and \rJava, it
-provides the following important features to blend \R and \Scala.  First,
-\rscala allows arbitrary \Scala snippets to be included within an \R script and
-\Scala objects can be created and referenced directly within \R code. These
-features allow users to integrate \Scala solutions in an existing \R workflow.
-Second, \rscala supports callbacks to \R from \Scala, which allows developers to implement general, high-performance algorithms in \Scala (e.g., root finding methods) based on user-supplied \R functions.
-Third, \rscala supports developing \R packages based on \Scala which allows \Scala developers to make
-their work available to the \R community.  Finally, the \rscala software makes it easy to incoporate \R in a \Scala application
-without even having to install the \R package.
-In sum, \rscala's feature-set makes it easy to 
-exploit the strengths of \R and \Scala in a single project.
+integration is not as comprehensive as \Rcpp and \rJava, it provides the
+following important features to blend \R and \Scala.  First, \rscala allows
+arbitrary \Scala snippets to be included within an \R script and \Scala objects
+can be created and referenced directly within \R code. These features allow
+users to integrate \Scala solutions in an existing \R workflow.  Second,
+\rscala supports callbacks to \R from \Scala, which allows developers to
+implement general, high-performance algorithms in \Scala (e.g., root finding
+methods) based on user-supplied \R functions.  Third, \rscala supports
+developing \R packages based on \Scala which allows \Scala developers to make
+their work available to the \R community.  Finally, the \rscala software makes
+it easy to incoporate \R in a \Scala application without even having to install
+the \R package.  In sum, \rscala's feature-set makes it easy to exploit the
+strengths of \R and \Scala in a single project.
 
 We now discuss the implementation of \rscala and some relevant existing work.
 Since \Scala code compiles to \Java byte code and runs on the JVM, one could
@@ -228,22 +229,23 @@ with a second \rJava-based package.  The current \rscala package creates a new
 instance of the JVM for each \Scala instance to avoid such conflicts.  Third,
 the simplicity of no dependencies beyond \Scala's standard library and base \R
 is appealing from a user's perspective.  Finally, callbacks in \rJava are
-provided by the optional JRI component, which is only available if \R is
-built as a shared library.  While this is the case on many platforms, it is not
+provided by the optional JRI component, which is only available if \R is built
+as a shared library.  While this is the case on many platforms, it is not
 universal and therefore callbacks could not be a guaranteed feature of \rscala
 software if it were based on \rJava's JRI.
 
-The discussion of the design of \rscala has so far focused on accessing \Scala from \R.  The \rscala
-software also supports accessing \R from \Scala using the same TCP/IP protocol.  This ability is an offshoot of
-the callback functionality.  Since \Scala can call \Java libraries, those who
-are interested in accessing \R from \Scala should also consider the \Java
-libraries \Rserve \citep{rserve} and \pkg{RCaller} \citep{rcaller}.
-\Rserve is also ``a TCP/IP server which allows other programs to use
-facilities of \R'' (\url{http://www.rforge.net/Rserve}).  \Rserve clients are
-available for many languages including \Java.  \Rserve is fast and provides a
-much richer API than \rscala.  Like \rJava, however, \Rserve also requires that \R be
-compiled as a shared library.  Also, Windows has some limitations such that
-\Rserve users are advised not to ``use Windows unless you really have to''
+The discussion of the design of \rscala has so far focused on accessing \Scala
+from \R.  The \rscala software also supports accessing \R from \Scala using the
+same TCP/IP protocol.  This ability is an offshoot of the callback
+functionality.  Since \Scala can call \Java libraries, those who are interested
+in accessing \R from \Scala should also consider the \Java libraries \Rserve
+\citep{rserve} and \pkg{RCaller} \citep{rcaller}.  \Rserve is also ``a TCP/IP
+server which allows other programs to use facilities of \R''
+(\url{http://www.rforge.net/Rserve}).  \Rserve clients are available for many
+languages including \Java.  \Rserve is fast and provides a much richer API than
+\rscala.  Like \rJava, however, \Rserve also requires that \R be compiled as a
+shared library.  Also, Windows has some limitations such that \Rserve users are
+advised not to ``use Windows unless you really have to''
 (\url{http://www.rforge.net/Rserve/doc.html}).
 
 The paper is organized as follows.  Section \ref{scalainr} describes using
