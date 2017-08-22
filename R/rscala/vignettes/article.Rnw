@@ -182,7 +182,7 @@ important tool for scientific computing. For example, \pkg{Spark} \citep{spark}
 is a cluster-computing framework for massive datasets written in \Scala.
 Several books have been published recently on using \Scala for data science
 \citep{a9781785281372}, scientific computing \citep{a9781785886942}, machine
-learning \citep{a9781783558742}, and probabilistic programmings
+learning \citep{a9781783558742}, and probabilistic programming
 \citep{a9781617292330}.  We believe that \Scala deserves consideration when
 looking for an efficient and convenient general-purpose programming language to
 complement \R.
@@ -207,7 +207,7 @@ following important features to blend \R and \Scala.  First, \rscala allows
 arbitrary \Scala snippets to be included within an \R script and \Scala objects
 can be created and referenced directly within \R code. These features allow
 users to integrate \Scala solutions in an existing \R workflow.  Second,
-\rscala supports callbacks to \R from \Scala, which allows developers to
+\rscala supports callbacks to \R from \Scala, which allow developers to
 implement general, high-performance algorithms in \Scala (e.g., root finding
 methods) based on user-supplied \R functions.  Third, \rscala supports
 developing \R packages based on \Scala which allows \Scala developers to make
