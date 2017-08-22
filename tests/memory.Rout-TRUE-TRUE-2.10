@@ -124,9 +124,6 @@ java.lang.OutOfMemoryError: GC overhead limit exceeded
 	at scala.reflect.internal.pickling.UnPickler.unpickle(UnPickler.scala:37)
 	at scala.reflect.runtime.JavaMirrors$JavaMirror.unpickleClass(JavaMirrors.scala:565)
 	at scala.reflect.runtime.SymbolLoaders$TopClassCompleter.complete(SymbolLoaders.scala:32)
-	at scala.reflect.internal.Symbols$Symbol.info(Symbols.scala:1231)
-	at scala.reflect.internal.SymbolTable.openPackageModule(SymbolTable.scala:244)
-	at scala.reflect.internal.SymbolTable.openPackageModule(SymbolTable.scala:300)
 java.lang.OutOfMemoryError: Java heap space
 	at .<init>(<console>:11)
 	at .<clinit>(<console>)

@@ -87,19 +87,19 @@ ScalaInterpreterItem for org.apache.commons.math3.random.RandomDataGenerator
 > options(width=120)
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: microseconds
+                   expr      min       lq     mean   median        uq      max neval
+ rdg$nextExponential(4) 1729.617 2669.516 4467.158 3265.037 3544.9380 95318.37  1000
+                rexp(4)  423.266  566.741 1204.379  785.072  897.0935 81673.67  1000
+> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
+Unit: microseconds
+                   expr      min        lq     mean   median        uq       max neval
+ rdg$nextExponential(4) 1676.793 1893.5140 3146.392 2649.922 3157.7585  36637.26  1000
+                rexp(4)  406.462  451.1125 1016.131  674.945  796.1755 162351.70  1000
+> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
+Unit: microseconds
                    expr      min       lq     mean   median        uq       max neval
- rdg$nextExponential(4) 1716.500 3049.053 4715.014 3351.807 3660.2620  92070.36  1000
-                rexp(4)  389.066  731.752 1553.985  866.498  963.8845 139934.54  1000
-> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
-Unit: microseconds
-                   expr      min       lq     mean   median       uq       max neval
- rdg$nextExponential(4) 1689.105 2626.876 4009.541 3133.050 3370.075  66189.99  1000
-                rexp(4)  394.702  671.117 1217.458  814.735  904.790 101721.48  1000
-> microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
-Unit: microseconds
-                   expr      min        lq      mean    median        uq      max neval
- rdg$nextExponential(4) 1689.006 2716.5885 3845.8071 3152.9425 3323.1465 93437.78  1000
-                rexp(4)  406.868  683.9015  936.6054  815.3365  879.0185 27726.37  1000
+ rdg$nextExponential(4) 1653.158 2828.105 4067.540 3147.613 3356.2180 164245.52  1000
+                rexp(4)  412.647  664.123 1203.198  808.596  877.5885  51514.58  1000
 > 
 > s$.org.ddahl.shallot.parameter.Mass
 ScalaInterpreterItem for org.ddahl.shallot.parameter.Mass
