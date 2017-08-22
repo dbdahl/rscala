@@ -28,8 +28,8 @@ while ( TRUE ) {
     system2("pdflatex","Integration_of_R_and_Scala_using_rscala.tex")
   }
   else if ( cmd == "r" ) {
-    knit("Integration of R and Scala using rscala.Rnw")
-    system2("pdflatex","Integration of R and Scala using rscala.tex")
+    knit("Integration_of_R_and_Scala_using_rscala.Rnw")
+    system2("pdflatex","Integration_of_R_and_Scala_using_rscala.tex")
   }
   else if ( cmd == "h" ) {
     cat("Hi.\n")

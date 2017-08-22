@@ -80,7 +80,7 @@ do
       FLAG_BUILD_VIGNETTES=
       FLAG_CHECK_EXAMPLES=
       FLAG_CHECK_VIGNETTES=
-      rm -rf R/$PKG_NAME/inst/doc
+      #rm -rf R/$PKG_NAME/inst/doc
       ;;
     f)
       TASK_R=yes
@@ -89,7 +89,7 @@ do
       FLAG_CHECK_EXAMPLES=
       FLAG_CHECK_VIGNETTES=
       FLAG_CHECK_CRAN="--as-cran --run-dontrun --run-donttest"
-      rm -rf R/$PKG_NAME/inst/doc
+      #rm -rf R/$PKG_NAME/inst/doc
       ;;
     p)
       TASK_SCALA=yes
@@ -99,7 +99,7 @@ do
       FLAG_CHECK_EXAMPLES=
       FLAG_CHECK_VIGNETTES=
       FLAG_CHECK_CRAN="--as-cran --run-dontrun --run-donttest"
-      rm -rf R/$PKG_NAME/inst/doc
+      #rm -rf R/$PKG_NAME/inst/doc
       FLAG_POST=yes
       ;;
     *)

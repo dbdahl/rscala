@@ -1,5 +1,5 @@
 %\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{rscala: Integration of R and Scala}
+%\VignetteIndexEntry{Integration of R and Scala Using rscala}
 
 \documentclass[article]{jss}
 
@@ -49,12 +49,12 @@
 
 %% almost as usual
 \author{David B.\ Dahl\\Brigham Young University}
-\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.3.1,\ \ Document Date: 2017-08-22}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
+\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.3.1,\ \ Document ID: 2017-08-22(b)}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
 
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{David B. Dahl} %% comma-separated
-\Plaintitle{rscala: Integration of R and Scala} %% without formatting
-\Shorttitle{\rscala: Integration of \R and \Scala} %% a short title (if necessary)
+\Plaintitle{Integration of R and Scala Using rscala} %% without formatting
+\Shorttitle{Integration of \R and \Scala Using \rscala} %% a short title (if necessary)
 
 %% an abstract and keywords
 \Abstract{
@@ -1675,7 +1675,7 @@ Richard Payne.
 
 {
 \footnotesize
-\VerbatimInput[numbers=left,xleftmargin=5mm]{bootstrap-coverage.R}
+\VerbatimInput[numbers=left,xleftmargin=5mm]{../inst/doc/bootstrap-coverage.R}
 }
 
 \end{document}
