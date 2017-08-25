@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -e
+
+MAJOR=$(cat build.sbt | grep "^version := " | cut -d '"' -f 2)
+
+if [[ "$(git status --porcelain | wc -l)" ]]
+then
+  2>&1 echo "The repository is not clean."
+  exit 1
+fi
+
+git pull
+git push
+
+git tag -a v$MAJOR -m "Version $MAJOR"
+git push origin --tags
+
