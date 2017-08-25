@@ -13,8 +13,6 @@ fi
 git pull
 git push
 
-exit
-
 git tag -a v$MAJOR -m "Version $MAJOR"
 git push origin --tags
 
