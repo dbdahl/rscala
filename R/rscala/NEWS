@@ -1,5 +1,6 @@
-2.3.2 (2017-XX-XX)
-  * Tweeks to vignette (e.g., make it build on Windows).
+2.3.2 (2017-08-25)
+  * Bug fix for depending packages on some platforms.
+  * Tweeks to vignette build process to make it more robust.
 
 2.3.1 (2017-08-21)
   * Version associated with resubmission of paper to Journal of Statistical

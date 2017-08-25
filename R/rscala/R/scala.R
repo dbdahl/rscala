@@ -588,10 +588,11 @@ close.ScalaInterpreter <- function(con,...) {
 }
 
 jarsOfPackage <- function(pkgname, major.release) {
-  if ( ! ( pkgname %in% installed.packages() )  ) stop(paste0("Package ",pkgname," is not installed, but its JARs were requested."))
   jarsMajor <- list.files(file.path(system.file("java",package=pkgname),paste0("scala-",major.release)),pattern=".*\\.jar$",full.names=TRUE,recursive=FALSE)
   jarsAny <- list.files(system.file("java",package=pkgname),pattern=".*\\.jar$",full.names=TRUE,recursive=FALSE)
-  c(jarsMajor,jarsAny)
+  result <- c(jarsMajor,jarsAny)
+  if ( length(result) == 0 ) stop(paste0("JAR files of package '",pkgname,"' were requested, but no JARs were found."))
+  result
 }
 
 .rscalaPackage <- function(pkgname, snippet=character(), classpath.packages=character(), classpath.prepend=character(), classpath.append=character(), major.release=c("2.10","2.11","2.12"), ...) {

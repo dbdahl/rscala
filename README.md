@@ -26,12 +26,12 @@ install the package. Simply add the following line to the your SBT build.sbt
 file:
 
 ```scala
-libraryDependencies += "org.ddahl" %% "rscala" % "2.3.1"
+libraryDependencies += "org.ddahl" %% "rscala" % "2.3.2"
 ```
 
 Paper:
 
-* [Paper submitted to Journal of Statistical Software](https://dahl.byu.edu/software/rscala/Integration_of_R_and_Scala_Using_rscala.pdf). Note the paper pertains to version 2.3.1 of the package.
+* [Paper submitted to Journal of Statistical Software](https://dahl.byu.edu/software/rscala/article.pdf).
 * [Temperatures webapp](https://dahl.byu.edu/software/rscala/temperature/) from Section 3 from the paper.
 
 Resources:

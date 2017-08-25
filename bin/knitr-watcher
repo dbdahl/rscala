@@ -17,7 +17,7 @@ sleep 2
 $CWD/knitr-compile n
 
 # Watch for chances.
-vulture "Integration_of_R_and_Scala_Using_rscala.Rnw" bash -c "$CWD/knitr-compile r"
+vulture article.Rnw bash -c "$CWD/knitr-compile r"
 
 # Kill the server.
 kill $PID

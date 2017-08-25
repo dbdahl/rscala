@@ -1,9 +1,9 @@
 install-R --devel
 Bump version number in build.sbt, constructor.Rd, README.md
-Update R/rscala/NEWS detailing changes
+Update R/rscala/NEWS detailing changes (including the date)
 ./bin/package -p
 test on Linux, Mac OS, and Windows!
-test packages: shallot, bamboo, commonsMath
+test depending packages: shallot, bamboo, commonsMath
 Tag in Git the version.
 sbt +publishSigned
 https://oss.sonatype.org/

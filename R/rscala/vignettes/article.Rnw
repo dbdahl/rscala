@@ -49,7 +49,7 @@
 
 %% almost as usual
 \author{David B.\ Dahl\\Brigham Young University}
-\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.3.1,\ \ Document ID: 2017-08-22(b)}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
+\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.3.2,\ \ Document ID: 2017-08-25}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
 
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{David B. Dahl} %% comma-separated
@@ -1290,7 +1290,7 @@ application, simply add the following line to SBT's \code{build.sbt} file.
 % features and provides familiar Javadoc to \Java developers.
 
 <<sbt, engine="scala",eval=FALSE>>=
-libraryDependencies += "org.ddahl" %% "rscala" % "2.3.1"
+libraryDependencies += "org.ddahl" %% "rscala" % "2.3.2"
 @
 
 Note that, since the necessary \R code is bundled in the JAR file, the \rscala
