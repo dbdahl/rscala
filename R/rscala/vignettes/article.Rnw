@@ -49,7 +49,7 @@
 
 %% almost as usual
 \author{David B.\ Dahl\\Brigham Young University}
-\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.3.2,\ \ Document ID: 2017-08-25}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
+\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.3.3,\ \ Document ID: 2017-08-28}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
 
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{David B. Dahl} %% comma-separated
@@ -1290,7 +1290,7 @@ application, simply add the following line to SBT's \code{build.sbt} file.
 % features and provides familiar Javadoc to \Java developers.
 
 <<sbt, engine="scala",eval=FALSE>>=
-libraryDependencies += "org.ddahl" %% "rscala" % "2.3.2"
+libraryDependencies += "org.ddahl" %% "rscala" % "2.3.3"
 @
 
 Note that, since the necessary \R code is bundled in the JAR file, the \rscala
@@ -1315,7 +1315,7 @@ functions, facilitate calculations, manage data, and produce plots in a \Scala
 application.  Consider, for example, wrapping \R's \code{qnorm} function to
 define a method in \Scala by the same name.
 
-<<scalaScript1qnorm,engine="scala",engine.path=scalaInfo(s)$cmd,engine.opts=paste0('-cp ',scalaInfo(s)$classpath),comment="//">>=
+<<scalaScript1qnorm,engine="scala",engine.path=scalaInfo(s)$cmd,engine.opts=paste0('-nc -cp ',scalaInfo(s)$classpath),comment="//">>=
 val R = org.ddahl.rscala.RClient()
 
 def qnorm(x: Double, mean: Double = 0, sd: Double = 1, lowerTail: Boolean = true) = {
@@ -1332,7 +1332,7 @@ statistical calculation is easily implemented in \R, one can imagine a \Scala
 application that needs to perform a more taxing calculation that leverages \R's
 rich data-processing functions.
 
-<<scalaScript1europe,engine="scala",engine.path=scalaInfo(s)$cmd,engine.opts=paste0('-cp ',scalaInfo(s)$classpath),comment="//">>=
+<<scalaScript1europe,engine="scala",engine.path=scalaInfo(s)$cmd,engine.opts=paste0('-nc -cp ',scalaInfo(s)$classpath),comment="//">>=
 val R = org.ddahl.rscala.RClient()
 val distances = R.evalD2("as.matrix(eurodist)")
 val cities = R.evalS1("attr(eurodist,'Labels')")
