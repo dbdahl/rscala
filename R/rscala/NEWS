@@ -1,3 +1,7 @@
+2.3.3 (2017-08-28)
+  * Make vignette robust to missing microbenchmark package.
+  * Make vignette avoid Scala's compiler daemon.
+
 2.3.2 (2017-08-25)
   * Bug fix for depending packages on some platforms.
   * Tweeks to vignette build process to make it more robust.
