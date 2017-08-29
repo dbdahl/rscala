@@ -1,3 +1,6 @@
+2.3.4 (2017-08-29)
+  * Fixed issue with vignette building on Windows.
+
 2.3.3 (2017-08-28)
   * Make vignette robust to missing microbenchmark package.
   * Make vignette avoid Scala's compiler daemon.
