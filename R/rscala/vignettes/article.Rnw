@@ -1683,3 +1683,7 @@ Richard Payne.
 
 \end{document}
 
+<<closeScala,eval=TRUE,include=FALSE>>=
+close(s)
+@
+
