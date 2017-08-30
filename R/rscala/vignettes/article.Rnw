@@ -1289,7 +1289,7 @@ application, simply add the following line to SBT's \code{build.sbt} file.
 % version (\code{org.ddahl.rscala.RClient}).  The wrapper hides \Scala-specific
 % features and provides familiar Javadoc to \Java developers.
 
-<<sbt, engine="scala",eval=FALSE,highlight=(.Platform$OS.type != "windows")>>=
+<<sbt, engine="scala",eval=FALSE>>=
 libraryDependencies += "org.ddahl" %% "rscala" % "2.3.4"
 @
 
@@ -1297,7 +1297,7 @@ Note that, since the necessary \R code is bundled in the JAR file, the \rscala
 package does \emph{not} need to be installed in \R.  An embedded \R interpreter
 is instantiated as follows:
 
-<<scalaScript0,engine="scala",eval=FALSE,highlight=(.Platform$OS.type != "windows")>>=
+<<scalaScript0,engine="scala",eval=FALSE>>=
 val R = org.ddahl.rscala.RClient()
 @
 
@@ -1315,7 +1315,7 @@ functions, facilitate calculations, manage data, and produce plots in a \Scala
 application.  Consider, for example, wrapping \R's \code{qnorm} function to
 define a method in \Scala by the same name.
 
-<<scalaScript1qnorm,engine="scala",engine.path=scalaInfo(s)$cmd,engine.opts=paste0('-nc -cp ',scalaInfo(s)$classpath),comment="//",eval=(.Platform$OS.type != "windows"),highlight=(.Platform$OS.type != "windows")>>=
+<<scalaScript1qnorm,engine="scala",engine.path=scalaInfo(s)$cmd,engine.opts=paste0('-nc -cp ',scalaInfo(s)$classpath),comment="//",eval=(.Platform$OS.type != "windows")>>=
 val R = org.ddahl.rscala.RClient()
 
 def qnorm(x: Double, mean: Double = 0, sd: Double = 1, lowerTail: Boolean = true) = {
@@ -1332,7 +1332,7 @@ statistical calculation is easily implemented in \R, one can imagine a \Scala
 application that needs to perform a more taxing calculation that leverages \R's
 rich data-processing functions.
 
-<<scalaScript1europe,engine="scala",engine.path=scalaInfo(s)$cmd,engine.opts=paste0('-nc -cp ',scalaInfo(s)$classpath),comment="//",eval=(.Platform$OS.type != "windows"),highlight=(.Platform$OS.type != "windows")>>=
+<<scalaScript1europe,engine="scala",engine.path=scalaInfo(s)$cmd,engine.opts=paste0('-nc -cp ',scalaInfo(s)$classpath),comment="//",eval=(.Platform$OS.type != "windows")>>=
 val R = org.ddahl.rscala.RClient()
 val distances = R.evalD2("as.matrix(eurodist)")
 val cities = R.evalS1("attr(eurodist,'Labels')")
