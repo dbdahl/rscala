@@ -31,7 +31,7 @@ libraryDependencies += "org.ddahl" %% "rscala" % "2.3.5"
 
 Paper:
 
-* [Paper submitted to Journal of Statistical Software](https://dahl.byu.edu/software/rscala/article.pdf).
+* [Paper submitted to *Journal of Statistical Software*](https://dahl.byu.edu/software/rscala/article.pdf).
 * [Temperatures webapp](https://dahl.byu.edu/software/rscala/temperature/) from Section 3 from the paper.
 
 Resources:
