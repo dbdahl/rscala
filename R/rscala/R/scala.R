@@ -795,7 +795,8 @@ scalaInfo <- function(scala.home=NULL,major.release=c("2.10","2.11","2.12"),verb
     if ( interactive() ){
       actual.major.release <- latestVersion(major.release)
       if ( askToInstall(actual.major.release) ) {
-        scalaInstall(actual.major.release)
+        global <- askWhereToInstall()
+        scalaInstall(actual.major.release, global=global)
         scalaInfo(scala.home=scala.home,major.release=actual.major.release)
       } else invisible()
     } else invisible()
@@ -807,6 +808,18 @@ askToInstall <- function(major.release) {
     response <- readline(prompt=paste("Would you like to install Scala",major.release,"now? [Y/n] "))
     response <- toupper(trimws(response))
     if ( response == "" ) response <- "Y"
+    if ( response == "Y" ) return(TRUE)
+    if ( response == "N" ) return(FALSE)
+  }
+}
+
+askWhereToInstall <- function() {
+#  cat("The installation can be in the package's directory or your home directory.\n")
+#  cat("System administrators should install in the package's directory.\n")
+  while ( TRUE ) {
+    response <- readline(prompt=paste("Install in the package's directory? [y/N] "))
+    response <- toupper(trimws(response))
+    if ( response == "" ) response <- "N"
     if ( response == "Y" ) return(TRUE)
     if ( response == "N" ) return(FALSE)
   }

@@ -49,7 +49,7 @@
 
 %% almost as usual
 \author{David B.\ Dahl\\Brigham Young University}
-\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.3.4,\ \ Document ID: 2017-08-29}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
+\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.3.5-SNAPSHOT,\ \ Document ID: 2017-09-08}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
 
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{David B. Dahl} %% comma-separated
@@ -281,11 +281,13 @@ The \rscala package requires a \Scala installation in the 2.10.x, 2.11.x, or
 provided to download and install \Scala in the user's home directory under the
 \code{.rscala} directory. Because this is a user-level installation,
 administrator privileges are not required.
-
-Alternatively, system administrators can install \Scala using their operating
-system's software management system (e.g., ``\code{sudo apt install scala}'' on
-Debian/Ubuntu based systems), or users can install \Scala manually as described
-on the \Scala webpage.
+System administrators can execute \code{rscala::scalaInstall(global=TRUE)},
+which places Scala in the package's directory but requires a new installation
+every time the package is updated.  To avoid this, system administrators can
+install \Scala using their operating system's software management system (e.g.,
+``\code{sudo apt install scala}'' on Debian/Ubuntu based systems).  Finally,
+both administrators and users can use a manual installation as described on the
+\Scala webpage.
 
 \subsection[Instantiating a Scala interpreter in R]{Instantiating a \Scala interpreter in \R}
 
