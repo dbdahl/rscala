@@ -737,11 +737,11 @@ scalaInfo <- function(scala.home=NULL,major.release=c("2.10","2.11","2.12"),verb
     successMsg <- "SUCCESS: "
     failureMsg <- "FAILURE: "
   }
+  # Attempt 1
   if ( verbose ) techniqueMsg <- "'scala.home' argument"
   if ( is.null(scala.home) ) {
     if ( verbose ) cat(tab,failureMsg,techniqueMsg," is NULL","\n",sep="")
   } else {
-    # Attempt 1
     info <- scalaInfoEngine(file.path(scala.home,"bin","scala"),major.release,verbose)
     if ( verbose ) techniqueMsg <- sprintf("'scala.home' (%s) argument",scala.home)
     if ( ! is.null(info) ) { if ( verbose ) cat(tab,successMsg,techniqueMsg,"\n\n",sep=""); return(info) }
@@ -770,7 +770,10 @@ scalaInfo <- function(scala.home=NULL,major.release=c("2.10","2.11","2.12"),verb
   if ( ! is.null(info) ) { if ( verbose ) cat(tab,successMsg,techniqueMsg,"\n\n",sep=""); return(info) }
   else if ( verbose ) cat(tab,failureMsg,techniqueMsg,"\n",sep="")
   # Attempt 5
-  candidates <- list.dirs(normalizePath(file.path("~",".rscala"),mustWork=FALSE),recursive=FALSE)
+  candidates <- normalizePath(c(
+      list.files(system.file(package="rscala"),pattern="^scala-.*",full.names=TRUE),
+      list.dirs(file.path("~",".rscala"),full.names=TRUE,recursive=FALSE)
+    ),mustWork=FALSE)
   details <- file.info(candidates)
   details <- details[order(as.POSIXct(details$mtime),decreasing=TRUE), ]
   candidates <- rownames(details)
@@ -790,7 +793,7 @@ scalaInfo <- function(scala.home=NULL,major.release=c("2.10","2.11","2.12"),verb
       cat("\n")
     }
     if ( interactive() ){
-      actual.major.release <- lastestVersion(major.release)
+      actual.major.release <- latestVersion(major.release)
       if ( askToInstall(actual.major.release) ) {
         scalaInstall(actual.major.release)
         scalaInfo(scala.home=scala.home,major.release=actual.major.release)
@@ -807,38 +810,6 @@ askToInstall <- function(major.release) {
     if ( response == "Y" ) return(TRUE)
     if ( response == "N" ) return(FALSE)
   }
-}
-
-findJava <- function() {  ## Mimic how the 'scala' shell script finds Java.
-  javaName <- if ( .Platform$OS.type == "windows" ) "java.exe" else "java"
-  fromPath <- function() {
-    candidate <- Sys.which(javaName)[[javaName]]
-    if ( ! file.exists(candidate) ) stop("Cannot find Java.  Is it installed?")
-    candidate
-  }
-  candidate <- Sys.getenv("JAVACMD",NA)
-  if ( ! is.na(candidate) && file.exists(candidate) ) normalizePath(candidate)
-  else {
-    javaHome <- Sys.getenv("JAVA_HOME",NA)
-    if ( ! is.na(javaHome) ) {
-      candidate <- file.path(javaHome,"bin",javaName)
-      if ( file.exists(candidate) ) normalizePath(candidate)
-      else fromPath()
-    } else fromPath()
-  }
-}
-
-javaVersion <- function(javaCmd) {
-  response <- system2(javaCmd,"-version",stdout=TRUE,stderr=TRUE)
-  regexp <- '(java|openjdk) version "(.*)"'
-  line <- response[grepl(regexp,response)]
-  if ( length(line) != 1 ) stop(paste0("Cannot determine Java version.\n",paste(response,collapse="\n")))
-  versionString <- gsub(regexp,"\\2",line)
-  versionParts <- strsplit(versionString,"\\.")[[1]]
-  if ( versionParts[1] != '1' ) stop(paste0("Unexpected Java version.\n",paste(response,collapse="\n")))
-  versionNumber <- as.numeric(versionParts[2])
-  if ( ! ( versionNumber %in% c(6,7,8) ) ) stop(paste0("Unsupported Java version.\n",paste(response,collapse="\n")))
-  versionNumber
 }
 
 evalAndGet <- function(interpreter,snippet,as.reference,workspace) {
@@ -922,37 +893,5 @@ pretty <- function(header,body) {
   headerWithPadding <- if ( length(header) > 0 ) paste0('  ',header) else NULL
   bodyWithPadding <- paste0('  ',substring(splitBody,originalPadding+1))
   paste0(paste(c(headerWithPadding,bodyWithPadding),collapse='\n'),'\n')
-}
-
-lastestVersion <- function(major.release) {
-  max <- major.release[1]
-  for ( i in major.release[-1] ) {
-    if ( compareVersion(max,i) < 0 ) max <- i
-  }
-  max
-}
-
-scalaInstall <- function(major.release=c("2.10","2.11","2.12")) {
-  if ( length(major.release) > 1 ) return(scalaInstall(lastestVersion(major.release)))
-  if ( length(major.release) == 0 ) stop("At least one major release must be supplied.")
-  javaVersion <- javaVersion(findJava())
-  if ( ( javaVersion <= 7 ) && ( compareVersion("2.11",major.release) < 0 ) ) {
-    cat("It appears you are using an old version of Java, so Scala 2.11 will be installed.\n")
-    return(scalaInstall("2.11"))
-  }
-  if ( major.release == "2.12" ) version <- SCALA_212_VERSION
-  else if ( major.release == "2.11" ) version <- SCALA_211_VERSION
-  else if ( major.release == "2.10" ) version <- SCALA_210_VERSION
-  else stop("Unsupported major release.")
-  installPath <- normalizePath(file.path("~",".rscala"),mustWork=FALSE)
-  url <- sprintf("https://downloads.lightbend.com/scala/%s/scala-%s.tgz",version,version)
-  dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
-  destfile <- file.path(installPath,basename(url))
-  result <- download.file(url,destfile)
-  if ( result != 0 ) return(invisible(result))
-  result <- untar(destfile,exdir=installPath,tar="internal")    # Use internal to avoid problems on a Mac.
-  unlink(destfile)
-  if ( result == 0 ) cat("Successfully installed Scala in ",file.path(installPath,sprintf("scala-%s",version)),"\n\n",sep="")
-  invisible(result)
 }
 
