@@ -43,12 +43,12 @@ javaVersion <- function(javaCmd) {
 }
 
 scalaInstall <- function(major.release=c("2.10","2.11","2.12"), global=FALSE) {
-  if ( length(major.release) > 1 ) return(scalaInstall(latestVersion(major.release), prefix=prefix))
+  if ( length(major.release) > 1 ) return(scalaInstall(latestVersion(major.release), global=global))
   if ( length(major.release) == 0 ) stop("At least one major release must be supplied.")
   javaVersion <- javaVersion(findJava())
   if ( ( javaVersion <= 7 ) && ( compareVersion("2.11",major.release) < 0 ) ) {
     cat("It appears you are using an old version of Java, so Scala 2.11 will be installed.\n")
-    return(scalaInstall("2.11", prefix=prefix))
+    return(scalaInstall("2.11", global=global))
   }
   if ( major.release == "2.12" ) version <- SCALA_212_VERSION
   else if ( major.release == "2.11" ) version <- SCALA_211_VERSION
