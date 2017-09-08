@@ -945,7 +945,7 @@ scalaInstall <- function(major.release=c("2.10","2.11","2.12")) {
   else if ( major.release == "2.10" ) version <- SCALA_210_VERSION
   else stop("Unsupported major release.")
   installPath <- normalizePath(file.path("~",".rscala"),mustWork=FALSE)
-  url <- sprintf("http://downloads.lightbend.com/scala/%s/scala-%s.tgz",version,version)
+  url <- sprintf("https://downloads.lightbend.com/scala/%s/scala-%s.tgz",version,version)
   dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
   destfile <- file.path(installPath,basename(url))
   result <- download.file(url,destfile)
