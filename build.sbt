@@ -22,7 +22,7 @@ publishTo := {
 publishArtifact in Test := false
 
 pomExtra := (
-  <url>https://dahl.byu.edu/software/rscala</url>
+  <url>https://github.com/dbdahl/rscala/</url>
   <licenses>
     <license>
         <name>GNU General Public License, Version 2</name>
@@ -42,7 +42,7 @@ pomExtra := (
   </licenses>
   <scm>
     <url>https://dahl-git.byu.edu/dahl/rscala/</url>
-    <connection>scm:git:https://dahl-git.byu.edu/dahl/rscala.git</connection>
+    <connection>scm:git:https://github.com/dbdahl/rscala.git</connection>
   </scm>
   <developers>
     <developer>
