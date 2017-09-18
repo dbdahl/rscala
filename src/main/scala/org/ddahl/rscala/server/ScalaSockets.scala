@@ -1,30 +1,36 @@
 package org.ddahl.rscala.server
 
-import java.net._
-import java.io._
+import java.io.File
+import java.io.PrintWriter
+import java.nio.ByteBuffer
+import java.nio.channels.ServerSocketChannel
+import java.net.InetSocketAddress
 
 import Protocol._
 
-private[rscala] class ScalaSockets(portsFilename: String, port: Int, debugger: Debugger) {
+private[rscala] class ScalaSockets(portFilename: String, port: Int, bufferSize: Int, debugger: Debugger) {
 
-  val serverIn  = new ServerSocket(port,1,InetAddress.getByName(null))
-  val serverOut = new ServerSocket(if ( port == 0 ) 0 else port+1,1,InetAddress.getByName(null))
+  require(bufferSize >= 1024, "Buffer size should be at least 1024.")
 
-  if ( debugger.value ) debugger.msg("Trying to open ports filename: "+portsFilename)
+  val ssc = ServerSocketChannel.open()
+  ssc.socket.bind(new InetSocketAddress(port))
+
+  if ( debugger.value ) debugger.msg("Trying to open port filename: "+portFilename)
   locally {
-    val portNumberFile = new File(portsFilename)
+    val portNumberFile = new File(portFilename)
     val p = new PrintWriter(portNumberFile)
-    p.println(serverIn.getLocalPort+" "+serverOut.getLocalPort)
+    p.println(ssc.socket.getLocalPort)
     p.close()
   }
-  if ( debugger.value ) debugger.msg("Servers are running on port "+serverIn.getLocalPort+" "+serverOut.getLocalPort)
+  if ( debugger.value ) debugger.msg("Server is running on port "+ssc.socket.getLocalPort)
 
-  val socketIn = serverIn.accept
-  socketIn.setTcpNoDelay(true)
-  val in = new DataInputStream(new BufferedInputStream(socketIn.getInputStream))
-  val socketOut = serverOut.accept
-  socketOut.setTcpNoDelay(true)
-  val out = new DataOutputStream(new BufferedOutputStream(socketOut.getOutputStream))
+  val sc = ssc.accept()
+  sc.configureBlocking(true)
+  sc.socket.setTcpNoDelay(true)
+
+  val bytesPerInt = java.lang.Integer.BYTES
+  val bytesPerDouble = java.lang.Double.BYTES
+  val buffer = ByteBuffer.allocate(bufferSize*bytesPerInt)
 
 }
 

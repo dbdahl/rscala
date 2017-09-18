@@ -1,0 +1,69 @@
+#!/bin/bash
+
+exec scala -nc -J-Xmx8g "$0" "$@"
+
+!#
+
+import java.io._
+import java.nio._
+import java.net._
+import java.nio.channels.ServerSocketChannel
+
+class Ping(val port: Int) {
+
+  val debug = false
+
+  private val ssc = ServerSocketChannel.open()
+  ssc.socket.bind(new InetSocketAddress(port))
+  val sc = ssc.accept()
+  sc.configureBlocking(true)
+  // sc.socket.setTcpNoDelay(true)
+
+  val I = java.lang.Integer.BYTES
+  val bb = ByteBuffer.allocate(10000000*I)
+
+  private def fill(): Unit = {
+    while ( bb.hasRemaining ) {
+      val n = sc.read(bb)
+      if ( n == -1 ) throw new RuntimeException("Protocol eror: Socket is closed.")
+    }
+    bb.flip()
+  }
+
+  def run(): Unit = {
+    var counter = 0
+    while ( true ) {
+      bb.clear()
+      bb.limit(1*I)
+      fill()
+      val x = bb.getInt()
+      x match {
+        case 0 =>
+          counter = 0
+        case 1 =>
+          bb.rewind()
+          fill()
+          val size = bb.getInt()
+          bb.clear()
+          for ( i <- 1 to size ) {
+            bb.putInt(i)
+            if ( ( ! bb.hasRemaining ) || ( i == size ) ) {
+              bb.flip()
+              sc.write(bb)
+              bb.clear()
+            }
+          }
+        case _ =>
+          counter += 1
+          bb.clear()
+          bb.putInt(counter)
+          bb.flip()
+          sc.write(bb)
+      }
+    }
+  }
+
+}
+
+new Ping(args(0).toInt).run()
+

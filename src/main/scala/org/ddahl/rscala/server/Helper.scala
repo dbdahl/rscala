@@ -1,21 +1,28 @@
 package org.ddahl.rscala.server
 
-import java.io._
+import java.nio.channels.SocketChannel
+import java.nio.ByteBuffer
 
 object Helper {
 
-  def writeString(out: DataOutputStream, string: String): Unit = {
+  def writeString(buffer: ByteBuffer, string: String): Unit = {
     val bytes = string.getBytes("UTF-8")
-    val length = bytes.length
-    out.writeInt(length)
-    out.write(bytes,0,length)
+    buffer.putInt(bytes.length)
+    buffer.put(bytes)
   }
 
-  def readString(in: DataInputStream): String = {
-    val length = in.readInt()
-    val bytes = new Array[Byte](length)
-    in.readFully(bytes)
-    new String(bytes,"UTF-8")
+  def readString(sc: SocketChannel, buffer: ByteBuffer): String = {
+    buffer.clear()
+    buffer.limit(java.lang.Integer.BYTES)
+    sc.read(buffer)
+    val neededCapacity = buffer.getInt()*java.lang.Integer.BYTES
+    if ( neededCapacity > buffer.capacity ) {
+      throw new RuntimeException("Expanding string capacity is not currently supported.")
+    }
+    buffer.clear()
+    buffer.limit(neededCapacity)
+    sc.read(buffer)
+    new String(buffer.array,0,neededCapacity,"UTF-8")
   }
 
   def isMatrix[T](x: Array[Array[T]]): Boolean = {

@@ -1,7 +1,8 @@
 package org.ddahl.rscala
 
-import java.net._
-import java.io._
+import java.io.{File, FileWriter, PrintWriter, BufferedReader, InputStreamReader, InputStream}
+import java.nio.channels.SocketChannel
+import java.nio.ByteBuffer
 import scala.language.dynamics
 import java.lang.ref.{Reference => JavaReference, PhantomReference, ReferenceQueue}
 import scala.sys.process.Process
@@ -47,7 +48,7 @@ import Protocol._
 *
 * @author David B. Dahl
 */
-class RClient private (private val scalaServer: ScalaServer, private val rProcessInstance: Process, private val in: DataInputStream, private val out: DataOutputStream, private val debugger: Debugger, val serializeOutput: Boolean, val rowMajor: Boolean) extends Dynamic {
+class RClient private (private val scalaServer: ScalaServer, private val rProcessInstance: Process, private val sc: SocketChannel, private val buffer: ByteBuffer, private val debugger: Debugger, val serializeOutput: Boolean, val rowMajor: Boolean) extends Dynamic {
 
   import Helper.{readString, writeString, isMatrix, transposeIfNot}
 
@@ -64,9 +65,10 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   */
   def ping(): Boolean = synchronized {
     try {
-      out.writeInt(PING)
-      out.flush()
-      val status = in.readInt()
+      buffer.putInt(PING)
+      buffer.flip()
+      sc.write(buffer)
+      val status = buffer.getInt()
       status == OK
     } catch {
       case _ : Throwable => false
@@ -80,8 +82,9 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   def exit(): Unit = synchronized {
     try {
       check4GC()
-      out.writeInt(SHUTDOWN)
-      out.flush()
+      buffer.putInt(SHUTDOWN)
+      buffer.flip()
+      sc.write(buffer)
     } catch {
       case e : Throwable =>
         if ( rProcessInstance != null ) rProcessInstance.destroy()
@@ -92,19 +95,20 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   private def check4GC() = {
     val first = referenceQueue.poll
     if ( first != null ) {
-      out.writeInt(FREE)
+      buffer.putInt(FREE)
       var list = List[JavaReference[_ <: PersistentReference]](first)
       while ( list.head != null ) {
         list = referenceQueue.poll :: list
       }
       list = list.tail
-      out.writeInt(list.size)
+      buffer.putInt(list.size)
       list.foreach( x => {
         val id = referenceMap(x)
         referenceMap.remove(x)
-        writeString(out,id)
+        writeString(buffer,id)
       })
-      out.flush()
+      buffer.flip()
+      sc.write(buffer)
     }
   }
 
@@ -120,26 +124,28 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   def eval(snippet: String, evalOnly: Boolean, asReference: Boolean): (Any, String) = synchronized {
     check4GC()
     if ( debug ) debugger.msg("Sending EVAL request.")
-    out.writeInt(if(serializeOutput) EVAL else EVALNAKED)
-    writeString(out,if ( RClient.isWindows ) snippet.replaceAll("\r\n","\n") else snippet)
-    out.flush()
+    buffer.putInt(if(serializeOutput) EVAL else EVALNAKED)
+    writeString(buffer,if ( RClient.isWindows ) snippet.replaceAll("\r\n","\n") else snippet)
+    buffer.flip()
+    sc.write(buffer)
     if ( scalaServer != null ) {
       if ( debug ) debugger.msg("Spinning up Scala server.")
       scalaServer.run()
       if ( debug ) debugger.msg("Spinning down Scala server.")
     }
-    val status = in.readInt()
+    val status = buffer.getInt()
     if ( debug ) debugger.msg("Status is: "+status)
-    val output = readString(in)
+    val output = readString(sc,buffer)
     if ( output != "" ) {
       println(output)
     } else if ( debug ) debugger.msg("No output.")
     if ( status != OK ) throw new RuntimeException("Error in R evaluation.")
     if ( evalOnly ) null else {
       if ( debug ) debugger.msg("Getting EVAL result.")
-      if ( asReference ) out.writeInt(GET_REFERENCE) else out.writeInt(GET)
-      writeString(out,".rsX")
-      out.flush()
+      if ( asReference ) buffer.putInt(GET_REFERENCE) else buffer.putInt(GET)
+      writeString(buffer,".rsX")
+      buffer.flip()
+      sc.write(buffer)
       getInternal()
     }
   }
@@ -379,19 +385,19 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
     check4GC()
     if ( debug ) debugger.msg("Setting: "+identifier)
     val v = value
-    if ( index == "" ) out.writeInt(SET)
+    if ( index == "" ) buffer.putInt(SET)
     else if ( singleBrackets ) {
-      out.writeInt(SET_SINGLE)
-      writeString(out,index)
+      buffer.putInt(SET_SINGLE)
+      writeString(buffer,index)
     } else {
-      out.writeInt(SET_DOUBLE)
-      writeString(out,index)
+      buffer.putInt(SET_DOUBLE)
+      writeString(buffer,index)
     }
-    writeString(out,identifier)
+    writeString(buffer,identifier)
     var errorNote: Option[String] = None
     if ( v == null || v.isInstanceOf[Unit] ) {
       if ( debug ) debugger.msg("... which is null")
-      out.writeInt(NULLTYPE)
+      buffer.putInt(NULLTYPE)
     } else {
       val c = v.getClass
       if ( debug ) debugger.msg("... whose class is: "+c)
@@ -400,169 +406,168 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
         c.getName match {
           case "[I" =>
             val vv = v.asInstanceOf[Array[Int]]
-            out.writeInt(VECTOR)
-            out.writeInt(vv.length)
-            out.writeInt(INTEGER)
-            for ( i <- 0 until vv.length ) out.writeInt(vv(i))
+            buffer.putInt(VECTOR)
+            buffer.putInt(vv.length)
+            buffer.putInt(INTEGER)
+            for ( i <- 0 until vv.length ) buffer.putInt(vv(i))
           case "[D" =>
             val vv = v.asInstanceOf[Array[Double]]
-            out.writeInt(VECTOR)
-            out.writeInt(vv.length)
-            out.writeInt(DOUBLE)
-            for ( i <- 0 until vv.length ) out.writeDouble(vv(i))
+            buffer.putInt(VECTOR)
+            buffer.putInt(vv.length)
+            buffer.putInt(DOUBLE)
+            for ( i <- 0 until vv.length ) buffer.putDouble(vv(i))
           case "[Z" =>
             val vv = v.asInstanceOf[Array[Boolean]]
-            out.writeInt(VECTOR)
-            out.writeInt(vv.length)
-            out.writeInt(BOOLEAN)
-            for ( i <- 0 until vv.length ) out.writeInt(if ( vv(i) ) 1 else 0)
+            buffer.putInt(VECTOR)
+            buffer.putInt(vv.length)
+            buffer.putInt(BOOLEAN)
+            for ( i <- 0 until vv.length ) buffer.putInt(if ( vv(i) ) 1 else 0)
           case "[Ljava.lang.String;" =>
             val vv = v.asInstanceOf[Array[String]]
-            out.writeInt(VECTOR)
-            out.writeInt(vv.length)
-            out.writeInt(STRING)
-            for ( i <- 0 until vv.length ) writeString(out,vv(i))
+            buffer.putInt(VECTOR)
+            buffer.putInt(vv.length)
+            buffer.putInt(STRING)
+            for ( i <- 0 until vv.length ) writeString(buffer,vv(i))
           case "[B" =>
             val vv = v.asInstanceOf[Array[Byte]]
-            out.writeInt(VECTOR)
-            out.writeInt(vv.length)
-            out.writeInt(BYTE)
-            for ( i <- 0 until vv.length ) out.writeByte(vv(i))
+            buffer.putInt(VECTOR)
+            buffer.putInt(vv.length)
+            buffer.putInt(BYTE)
+            buffer.put(vv)
           case "[[I" =>
             val vv1 = v.asInstanceOf[Array[Array[Int]]]
             if ( isMatrix(vv1) ) {
               val vv = transposeIfNot(vv1, rowMajor)
-              out.writeInt(MATRIX)
-              out.writeInt(vv.length)
-              if ( vv.length > 0 ) out.writeInt(vv(0).length)
-              else out.writeInt(0)
-              out.writeInt(INTEGER)
+              buffer.putInt(MATRIX)
+              buffer.putInt(vv.length)
+              if ( vv.length > 0 ) buffer.putInt(vv(0).length)
+              else buffer.putInt(0)
+              buffer.putInt(INTEGER)
               for ( i <- 0 until vv.length ) {
                 val vvv = vv(i)
                 for ( j <- 0 until vvv.length ) {
-                  out.writeInt(vvv(j))
+                  buffer.putInt(vvv(j))
                 }
               }
             } else {
               errorNote = Some("Ragged arrays are not supported.")
-              out.writeInt(UNSUPPORTED_STRUCTURE)
+              buffer.putInt(UNSUPPORTED_STRUCTURE)
             }
           case "[[D" =>
             val vv1 = v.asInstanceOf[Array[Array[Double]]]
             if ( isMatrix(vv1) ) {
               val vv = transposeIfNot(vv1, rowMajor)
-              out.writeInt(MATRIX)
-              out.writeInt(vv.length)
-              if ( vv.length > 0 ) out.writeInt(vv(0).length)
-              else out.writeInt(0)
-              out.writeInt(DOUBLE)
+              buffer.putInt(MATRIX)
+              buffer.putInt(vv.length)
+              if ( vv.length > 0 ) buffer.putInt(vv(0).length)
+              else buffer.putInt(0)
+              buffer.putInt(DOUBLE)
               for ( i <- 0 until vv.length ) {
                 val vvv = vv(i)
                 for ( j <- 0 until vvv.length ) {
-                  out.writeDouble(vvv(j))
+                  buffer.putDouble(vvv(j))
                 }
               }
             } else {
               errorNote = Some("Ragged arrays are not supported.")
-              out.writeInt(UNSUPPORTED_STRUCTURE)
+              buffer.putInt(UNSUPPORTED_STRUCTURE)
             }
           case "[[Z" =>
             val vv1 = v.asInstanceOf[Array[Array[Boolean]]]
             if ( isMatrix(vv1) ) {
               val vv = transposeIfNot(vv1, rowMajor)
-              out.writeInt(MATRIX)
-              out.writeInt(vv.length)
-              if ( vv.length > 0 ) out.writeInt(vv(0).length)
-              else out.writeInt(0)
-              out.writeInt(BOOLEAN)
+              buffer.putInt(MATRIX)
+              buffer.putInt(vv.length)
+              if ( vv.length > 0 ) buffer.putInt(vv(0).length)
+              else buffer.putInt(0)
+              buffer.putInt(BOOLEAN)
               for ( i <- 0 until vv.length ) {
                 val vvv = vv(i)
                 for ( j <- 0 until vv(i).length ) {
-                  out.writeInt(if ( vvv(j) ) 1 else 0)
+                  buffer.putInt(if ( vvv(j) ) 1 else 0)
                 }
               }
             } else {
               errorNote = Some("Ragged arrays are not supported.")
-              out.writeInt(UNSUPPORTED_STRUCTURE)
+              buffer.putInt(UNSUPPORTED_STRUCTURE)
             }
           case "[[Ljava.lang.String;" =>
             val vv1 = v.asInstanceOf[Array[Array[String]]]
             if ( isMatrix(vv1) ) {
               val vv = transposeIfNot(vv1, rowMajor)
-              out.writeInt(MATRIX)
-              out.writeInt(vv.length)
-              if ( vv.length > 0 ) out.writeInt(vv(0).length)
-              else out.writeInt(0)
-              out.writeInt(STRING)
+              buffer.putInt(MATRIX)
+              buffer.putInt(vv.length)
+              if ( vv.length > 0 ) buffer.putInt(vv(0).length)
+              else buffer.putInt(0)
+              buffer.putInt(STRING)
               for ( i <- 0 until vv.length ) {
                 val vvv = vv(i)
                 for ( j <- 0 until vv(i).length ) {
-                  writeString(out,vvv(j))
+                  writeString(buffer,vvv(j))
                 }
               }
             } else {
               errorNote = Some("Ragged arrays are not supported.")
-              out.writeInt(UNSUPPORTED_STRUCTURE)
+              buffer.putInt(UNSUPPORTED_STRUCTURE)
             }
           case "[[B" =>
             val vv1 = v.asInstanceOf[Array[Array[Byte]]]
             if ( isMatrix(vv1) ) {
               val vv = transposeIfNot(vv1, rowMajor)
-              out.writeInt(MATRIX)
-              out.writeInt(vv.length)
-              if ( vv.length > 0 ) out.writeInt(vv(0).length)
-              else out.writeInt(0)
-              out.writeInt(BYTE)
+              buffer.putInt(MATRIX)
+              buffer.putInt(vv.length)
+              if ( vv.length > 0 ) buffer.putInt(vv(0).length)
+              else buffer.putInt(0)
+              buffer.putInt(BYTE)
               for ( i <- 0 until vv.length ) {
                 val vvv = vv(i)
-                for ( j <- 0 until vvv.length ) {
-                  out.writeByte(vvv(j))
-                }
+                buffer.put(vvv)
               }
             } else {
               errorNote = Some("Ragged arrays are not supported.")
-              out.writeInt(UNSUPPORTED_STRUCTURE)
+              buffer.putInt(UNSUPPORTED_STRUCTURE)
             }
           case _ =>
             errorNote = Some("Unsupported array type.")
-            out.writeInt(UNSUPPORTED_STRUCTURE)
+            buffer.putInt(UNSUPPORTED_STRUCTURE)
         }
       } else {
         c.getName match {
           case "java.lang.Integer" =>
-            out.writeInt(SCALAR)
-            out.writeInt(INTEGER)
-            out.writeInt(v.asInstanceOf[Int])
+            buffer.putInt(SCALAR)
+            buffer.putInt(INTEGER)
+            buffer.putInt(v.asInstanceOf[Int])
           case "java.lang.Double" =>
-            out.writeInt(SCALAR)
-            out.writeInt(DOUBLE)
-            out.writeDouble(v.asInstanceOf[Double])
+            buffer.putInt(SCALAR)
+            buffer.putInt(DOUBLE)
+            buffer.putDouble(v.asInstanceOf[Double])
           case "java.lang.Boolean" =>
-            out.writeInt(SCALAR)
-            out.writeInt(BOOLEAN)
-            out.writeInt(if (v.asInstanceOf[Boolean]) 1 else 0)
+            buffer.putInt(SCALAR)
+            buffer.putInt(BOOLEAN)
+            buffer.putInt(if (v.asInstanceOf[Boolean]) 1 else 0)
           case "java.lang.String" =>
-            out.writeInt(SCALAR)
-            out.writeInt(STRING)
-            writeString(out,v.asInstanceOf[String])
+            buffer.putInt(SCALAR)
+            buffer.putInt(STRING)
+            writeString(buffer,v.asInstanceOf[String])
           case "java.lang.Byte" =>
-            out.writeInt(SCALAR)
-            out.writeInt(BYTE)
-            out.writeByte(v.asInstanceOf[Byte])
+            buffer.putInt(SCALAR)
+            buffer.putInt(BYTE)
+            buffer.put(v.asInstanceOf[Byte])
           case _ =>
             errorNote = Some("Unsupported non-array type.")
-            out.writeInt(UNSUPPORTED_STRUCTURE)
+            buffer.putInt(UNSUPPORTED_STRUCTURE)
         }
       }
     }
-    out.flush()
+    buffer.flip()
+    sc.write(buffer)
     if ( errorNote.isDefined ) {
       throw new RuntimeException(errorNote.get)
     }
     if ( index != "" ) {
-      val status = in.readInt()
+      val status = buffer.getInt()
       if ( status != OK ) {
-        val output = readString(in)
+        val output = readString(sc,buffer)
         if ( output != "" ) println(output)
         throw new RuntimeException("Error in R evaluation.")
       }
@@ -588,56 +593,57 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   def get(identifier: String, asReference: Boolean = false): (Any, String) = synchronized {
     check4GC()
     if ( debug ) debugger.msg("Getting: "+identifier)
-    if ( asReference ) out.writeInt(GET_REFERENCE) else out.writeInt(GET)
-    writeString(out,identifier)
-    out.flush()
+    if ( asReference ) buffer.putInt(GET_REFERENCE) else buffer.putInt(GET)
+    writeString(buffer,identifier)
+    buffer.flip()
+    sc.write(buffer)
     getInternal()
   }
 
   private def getInternal(): (Any, String) = {
     if ( debug ) debugger.msg("Getting internal.")
-    in.readInt match {
+    buffer.getInt match {
       case NULLTYPE =>
         if ( debug ) debugger.msg("Getting null.")
         (null,"Null")
       case SCALAR =>
         if ( debug ) debugger.msg("Getting atomic.")
-        in.readInt() match {
-          case INTEGER => (in.readInt(),"Int")
-          case DOUBLE => (in.readDouble(),"Double")
-          case BOOLEAN => (( in.readInt() != 0 ),"Boolean")
-          case STRING => (readString(in),"String")
-          case BYTE => (in.readByte(),"Byte")
+        buffer.getInt() match {
+          case INTEGER => (buffer.getInt(),"Int")
+          case DOUBLE => (buffer.getDouble(),"Double")
+          case BOOLEAN => (( buffer.getInt() != 0 ),"Boolean")
+          case STRING => (readString(sc,buffer),"String")
+          case BYTE => (buffer.get(),"Byte")
           case _ => throw new RuntimeException("Protocol error")
         }
       case VECTOR =>
         if ( debug ) debugger.msg("Getting vector...")
-        val length = in.readInt()
+        val length = buffer.getInt()
         if ( debug ) debugger.msg("... of length: "+length)
-        in.readInt() match {
-          case INTEGER => (Array.fill(length) { in.readInt() },"Array[Int]")
-          case DOUBLE => (Array.fill(length) { in.readDouble() },"Array[Double]")
-          case BOOLEAN => (Array.fill(length) { ( in.readInt() != 0 ) },"Array[Boolean]")
-          case STRING => (Array.fill(length) { readString(in) },"Array[String]")
-          case BYTE => (Array.fill(length) { in.readByte() },"Array[Byte]")
+        buffer.getInt() match {
+          case INTEGER => (Array.fill(length) { buffer.getInt() },"Array[Int]")
+          case DOUBLE => (Array.fill(length) { buffer.getDouble() },"Array[Double]")
+          case BOOLEAN => (Array.fill(length) { ( buffer.getInt() != 0 ) },"Array[Boolean]")
+          case STRING => (Array.fill(length) { readString(sc,buffer) },"Array[String]")
+          case BYTE => ( { val bytes = new Array[Byte](length); buffer.get(bytes); bytes },"Array[Byte]")
           case _ => throw new RuntimeException("Protocol error")
         }
       case MATRIX =>
         if ( debug ) debugger.msg("Getting matrix...")
-        val nrow = in.readInt()
-        val ncol = in.readInt()
+        val nrow = buffer.getInt()
+        val ncol = buffer.getInt()
         if ( debug ) debugger.msg("... of dimensions: "+nrow+","+ncol)
-        in.readInt() match {
-          case INTEGER => ( transposeIfNot(Array.fill(nrow) { Array.fill(ncol) { in.readInt() } }, rowMajor),"Array[Array[Int]]")
-          case DOUBLE => ( transposeIfNot(Array.fill(nrow) { Array.fill(ncol) { in.readDouble() } }, rowMajor),"Array[Array[Double]]")
-          case BOOLEAN => ( transposeIfNot(Array.fill(nrow) { Array.fill(ncol) { ( in.readInt() != 0 ) } }, rowMajor),"Array[Array[Boolean]]")
-          case STRING => ( transposeIfNot(Array.fill(nrow) { Array.fill(ncol) { readString(in) } }, rowMajor),"Array[Array[String]]")
-          case BYTE => ( transposeIfNot(Array.fill(nrow) { Array.fill(ncol) { in.readByte() } }, rowMajor),"Array[Array[Byte]]")
+        buffer.getInt() match {
+          case INTEGER => ( transposeIfNot(Array.fill(nrow) { Array.fill(ncol) { buffer.getInt() } }, rowMajor),"Array[Array[Int]]")
+          case DOUBLE => ( transposeIfNot(Array.fill(nrow) { Array.fill(ncol) { buffer.getDouble() } }, rowMajor),"Array[Array[Double]]")
+          case BOOLEAN => ( transposeIfNot(Array.fill(nrow) { Array.fill(ncol) { ( buffer.getInt() != 0 ) } }, rowMajor),"Array[Array[Boolean]]")
+          case STRING => ( transposeIfNot(Array.fill(nrow) { Array.fill(ncol) { readString(sc,buffer) } }, rowMajor),"Array[Array[String]]")
+          case BYTE => ( transposeIfNot(Array.fill(nrow) { val bytes = new Array[Byte](ncol); buffer.get(bytes); bytes }, rowMajor),"Array[Array[Byte]]")
           case _ => throw new RuntimeException("Protocol error")
         }
       case REFERENCE =>
         if ( debug ) debugger.msg("Getting reference.")
-        val reference = PersistentReference(readString(in))
+        val reference = PersistentReference(readString(sc,buffer))
         val phantomReference = new PhantomReference(reference, referenceQueue)
         referenceMap(phantomReference) = reference.name
         (reference, "org.ddahl.rscala.PersistentReference")
@@ -1085,14 +1091,15 @@ object RClient {
     while ( cmd == null ) Thread.sleep(100)
     cmd.println(snippet)
     cmd.flush()
-    val sockets = new ScalaSockets(portsFile.getAbsolutePath,port,debugger)
-    sockets.out.writeInt(OK)
-    sockets.out.flush()
-    apply(null,rProcessInstance,sockets.in,sockets.out,debugger,serializeOutput,rowMajor)
+    val sockets = new ScalaSockets(portsFile.getAbsolutePath,port,64*1024*1024,debugger)
+    sockets.buffer.putInt(OK)
+    sockets.buffer.flip()
+    sockets.sc.write(sockets.buffer)
+    apply(null,rProcessInstance,sockets.sc,sockets.buffer,debugger,serializeOutput,rowMajor)
   }
 
   /** __For rscala developers only__: Returns an instance of the [[RClient]] class.  */
-  def apply(scalaServer: ScalaServer, rProcessInstance: Process, in: DataInputStream, out: DataOutputStream, debugger: Debugger, serializeOutput: Boolean, rowMajor: Boolean): RClient = new RClient(scalaServer,rProcessInstance,in,out,debugger,serializeOutput,rowMajor)
+  def apply(scalaServer: ScalaServer, rProcessInstance: Process, sc: SocketChannel, buffer: ByteBuffer, debugger: Debugger, serializeOutput: Boolean, rowMajor: Boolean): RClient = new RClient(scalaServer,rProcessInstance,sc,buffer,debugger,serializeOutput,rowMajor)
 
 }
 
