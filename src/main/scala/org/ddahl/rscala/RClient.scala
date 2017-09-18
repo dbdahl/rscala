@@ -49,7 +49,7 @@ import Protocol._
 */
 class RClient private (private val scalaServer: ScalaServer, private val rProcessInstance: Process, private val in: DataInputStream, private val out: DataOutputStream, private val debugger: Debugger, val serializeOutput: Boolean, val rowMajor: Boolean) extends Dynamic {
 
-  import Helper.{readString, writeString, isMatrix, transposeIf}
+  import Helper.{readString, writeString, isMatrix, transposeIfNot}
 
   private val referenceQueue = new ReferenceQueue[PersistentReference]()
   private val referenceMap = new scala.collection.mutable.HashMap[JavaReference[_ <: PersistentReference],String]()
@@ -431,7 +431,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
           case "[[I" =>
             val vv1 = v.asInstanceOf[Array[Array[Int]]]
             if ( isMatrix(vv1) ) {
-              val vv = transposeIf(vv1, rowMajor)
+              val vv = transposeIfNot(vv1, rowMajor)
               out.writeInt(MATRIX)
               out.writeInt(vv.length)
               if ( vv.length > 0 ) out.writeInt(vv(0).length)
@@ -450,7 +450,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
           case "[[D" =>
             val vv1 = v.asInstanceOf[Array[Array[Double]]]
             if ( isMatrix(vv1) ) {
-              val vv = transposeIf(vv1, rowMajor)
+              val vv = transposeIfNot(vv1, rowMajor)
               out.writeInt(MATRIX)
               out.writeInt(vv.length)
               if ( vv.length > 0 ) out.writeInt(vv(0).length)
@@ -469,7 +469,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
           case "[[Z" =>
             val vv1 = v.asInstanceOf[Array[Array[Boolean]]]
             if ( isMatrix(vv1) ) {
-              val vv = transposeIf(vv1, rowMajor)
+              val vv = transposeIfNot(vv1, rowMajor)
               out.writeInt(MATRIX)
               out.writeInt(vv.length)
               if ( vv.length > 0 ) out.writeInt(vv(0).length)
@@ -488,7 +488,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
           case "[[Ljava.lang.String;" =>
             val vv1 = v.asInstanceOf[Array[Array[String]]]
             if ( isMatrix(vv1) ) {
-              val vv = transposeIf(vv1, rowMajor)
+              val vv = transposeIfNot(vv1, rowMajor)
               out.writeInt(MATRIX)
               out.writeInt(vv.length)
               if ( vv.length > 0 ) out.writeInt(vv(0).length)
@@ -507,7 +507,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
           case "[[B" =>
             val vv1 = v.asInstanceOf[Array[Array[Byte]]]
             if ( isMatrix(vv1) ) {
-              val vv = transposeIf(vv1, rowMajor)
+              val vv = transposeIfNot(vv1, rowMajor)
               out.writeInt(MATRIX)
               out.writeInt(vv.length)
               if ( vv.length > 0 ) out.writeInt(vv(0).length)
@@ -628,11 +628,11 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
         val ncol = in.readInt()
         if ( debug ) debugger.msg("... of dimensions: "+nrow+","+ncol)
         in.readInt() match {
-          case INTEGER => ( transposeIf(Array.fill(nrow) { Array.fill(ncol) { in.readInt() } }, rowMajor),"Array[Array[Int]]")
-          case DOUBLE => ( transposeIf(Array.fill(nrow) { Array.fill(ncol) { in.readDouble() } }, rowMajor),"Array[Array[Double]]")
-          case BOOLEAN => ( transposeIf(Array.fill(nrow) { Array.fill(ncol) { ( in.readInt() != 0 ) } }, rowMajor),"Array[Array[Boolean]]")
-          case STRING => ( transposeIf(Array.fill(nrow) { Array.fill(ncol) { readString(in) } }, rowMajor),"Array[Array[String]]")
-          case BYTE => ( transposeIf(Array.fill(nrow) { Array.fill(ncol) { in.readByte() } }, rowMajor),"Array[Array[Byte]]")
+          case INTEGER => ( transposeIfNot(Array.fill(nrow) { Array.fill(ncol) { in.readInt() } }, rowMajor),"Array[Array[Int]]")
+          case DOUBLE => ( transposeIfNot(Array.fill(nrow) { Array.fill(ncol) { in.readDouble() } }, rowMajor),"Array[Array[Double]]")
+          case BOOLEAN => ( transposeIfNot(Array.fill(nrow) { Array.fill(ncol) { ( in.readInt() != 0 ) } }, rowMajor),"Array[Array[Boolean]]")
+          case STRING => ( transposeIfNot(Array.fill(nrow) { Array.fill(ncol) { readString(in) } }, rowMajor),"Array[Array[String]]")
+          case BYTE => ( transposeIfNot(Array.fill(nrow) { Array.fill(ncol) { in.readByte() } }, rowMajor),"Array[Array[Byte]]")
           case _ => throw new RuntimeException("Protocol error")
         }
       case REFERENCE =>

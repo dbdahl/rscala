@@ -28,8 +28,8 @@ object Helper {
     true
   }
 
-  def transposeIf[D](x: Array[Array[D]], noChange: Boolean)(implicit tag: scala.reflect.ClassTag[D]): Array[Array[D]] = {
-    if ( noChange ) x
+  def transposeIfNot[D](x: Array[Array[D]], rowMajor: Boolean)(implicit tag: scala.reflect.ClassTag[D]): Array[Array[D]] = {
+    if ( rowMajor ) x
     else {
       val r = x.length
       if ( r == 0 ) return(new Array[Array[D]](0))

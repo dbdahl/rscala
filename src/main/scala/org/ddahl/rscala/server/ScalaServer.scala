@@ -14,7 +14,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
 
   private val sockets = new ScalaSockets(portsFilename,port,debugger)
   import sockets.{in, out, socketIn, socketOut}
-  import Helper.{isMatrix, transposeIf}
+  import Helper.{isMatrix, transposeIfNot}
 
   out.writeInt(OK)
   out.flush
@@ -221,11 +221,11 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
         val ncol = in.readInt()
         if ( debugger.value ) debugger.msg("... of dimensions: "+nrow+","+ncol)
         val (v, t): (Any,String) = in.readInt() match {
-          case INTEGER => ( transposeIf( Array.fill(nrow) { Array.fill(ncol) { in.readInt() } }, rowMajor),"Array[Array[Int]]")
-          case DOUBLE => ( transposeIf( Array.fill(nrow) { Array.fill(ncol) { in.readDouble() } }, rowMajor),"Array[Array[Double]]")
-          case BOOLEAN => ( transposeIf( Array.fill(nrow) { Array.fill(ncol) { ( in.readInt() != 0 ) } }, rowMajor),"Array[Array[Boolean]]")
-          case STRING => ( transposeIf( Array.fill(nrow) { Array.fill(ncol) { readString() } }, rowMajor),"Array[Array[String]]")
-          case BYTE => ( transposeIf( Array.fill(nrow) { Array.fill(ncol) { in.readByte() } }, rowMajor),"Array[Array[Byte]]")
+          case INTEGER => ( transposeIfNot( Array.fill(nrow) { Array.fill(ncol) { in.readInt() } }, rowMajor),"Array[Array[Int]]")
+          case DOUBLE => ( transposeIfNot( Array.fill(nrow) { Array.fill(ncol) { in.readDouble() } }, rowMajor),"Array[Array[Double]]")
+          case BOOLEAN => ( transposeIfNot( Array.fill(nrow) { Array.fill(ncol) { ( in.readInt() != 0 ) } }, rowMajor),"Array[Array[Boolean]]")
+          case STRING => ( transposeIfNot( Array.fill(nrow) { Array.fill(ncol) { readString() } }, rowMajor),"Array[Array[String]]")
+          case BYTE => ( transposeIfNot( Array.fill(nrow) { Array.fill(ncol) { in.readByte() } }, rowMajor),"Array[Array[Byte]]")
           case _ => throw new RuntimeException("Protocol error")
         }
         setAVM(identifier,t,v)
@@ -340,7 +340,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
       case "Array[Array[Int]]" =>
         val vv1 = v.asInstanceOf[Array[Array[Int]]]
         if ( isMatrix(vv1) ) {
-          val vv = transposeIf(vv1, rowMajor)
+          val vv = transposeIfNot(vv1, rowMajor)
           out.writeInt(MATRIX)
           out.writeInt(vv.length)
           if ( vv.length > 0 ) out.writeInt(vv(0).length)
@@ -356,7 +356,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
       case "Array[Array[Double]]" =>
         val vv1 = v.asInstanceOf[Array[Array[Double]]]
         if ( isMatrix(vv1) ) {
-          val vv = transposeIf(vv1, rowMajor)
+          val vv = transposeIfNot(vv1, rowMajor)
           out.writeInt(MATRIX)
           out.writeInt(vv.length)
           if ( vv.length > 0 ) out.writeInt(vv(0).length)
@@ -372,7 +372,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
       case "Array[Array[Boolean]]" =>
         val vv1 = v.asInstanceOf[Array[Array[Boolean]]]
         if ( isMatrix(vv1) ) {
-          val vv = transposeIf(vv1, rowMajor)
+          val vv = transposeIfNot(vv1, rowMajor)
           out.writeInt(MATRIX)
           out.writeInt(vv.length)
           if ( vv.length > 0 ) out.writeInt(vv(0).length)
@@ -388,7 +388,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
       case "Array[Array[String]]" =>
         val vv1 = v.asInstanceOf[Array[Array[String]]]
         if ( isMatrix(vv1) ) {
-          val vv = transposeIf(vv1, rowMajor)
+          val vv = transposeIfNot(vv1, rowMajor)
           out.writeInt(MATRIX)
           out.writeInt(vv.length)
           if ( vv.length > 0 ) out.writeInt(vv(0).length)
@@ -404,7 +404,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
       case "Array[Array[Byte]]" =>
         val vv1 = v.asInstanceOf[Array[Array[Byte]]]
         if ( isMatrix(vv1) ) {
-          val vv = transposeIf(vv1, rowMajor)
+          val vv = transposeIfNot(vv1, rowMajor)
           out.writeInt(MATRIX)
           out.writeInt(vv.length)
           if ( vv.length > 0 ) out.writeInt(vv(0).length)
