@@ -1,0 +1,65 @@
+
+R Under development (unstable) (2017-08-27 r73146) -- "Unsuffered Consequences"
+Copyright (C) 2017 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> heap.maximum <- "4G"
+> source("common.R",print.eval=TRUE)
+# R Under development (unstable) (2017-08-27 r73146) # ramah # FALSE # TRUE
+> 
+> func1a <- function(x=matrix(0.0,nrow=100000,ncol=300)) {  # 228 MB
++   s %!% 'x'
++ }
+> 
+> func1b <- function(x=matrix(0.0,nrow=1000,ncol=300)) {  # 2.28 MB
++   s %!% 'x'
++ }
+> 
+> func2a <- function(x=integer(60000000)) {  # 228 MB
++   s %!% 'x'
++ }
+> 
+> func2b <- function(x=integer(600000)) {  # 2.28 MB
++   s %!% 'x'
++ }
+> 
+> 
+> library(microbenchmark)
+> set.seed(13124)
+> 
+> microbenchmark(
++   func1a(),
++   func1b(),
++   func2a(),
++   func2b(),
++   times=5)
+Unit: milliseconds
+     expr        min         lq       mean     median         uq         max
+ func1a() 2151.24157 2218.30615 2294.95032 2231.50810 2393.76912  2479.92667
+ func1b()   19.88108   23.67491   74.48114   24.17735   25.18419   279.48820
+ func2a() 9259.98261 9287.28704 9474.60702 9293.59827 9361.21770 10170.94947
+ func2b()   93.39693   93.61175   94.90646   94.39944   94.90193    98.22225
+ neval
+     5
+     5
+     5
+     5
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  8.552   2.308  63.020 
