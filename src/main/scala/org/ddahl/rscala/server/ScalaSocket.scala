@@ -33,9 +33,9 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
 
   private var _buffer = ByteBuffer.allocateDirect(initialBufferSize)
 
-  def buffer = _buffer
+  private def buffer = _buffer
 
-  def inFill(nBytes: Int): Unit = {
+  private def inFill(nBytes: Int): Unit = {
     if ( nBytes > buffer.capacity ) {
       _buffer = ByteBuffer.allocateDirect(nBytes)
     } else {
@@ -46,7 +46,7 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
     buffer.flip()
   }
 
-  def outFill(nBytes: Int): Unit = {
+  private def outFill(nBytes: Int): Unit = {
     if ( nBytes < buffer.remaining ) {
       flush()
       if ( nBytes > buffer.limit ) {
@@ -57,37 +57,84 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
 
   // Helpers
 
-  private def int2boolean(x: Int): Boolean = { x != 0 }
-  private def boolean2int(x: Boolean): Int = { if (x) 1 else 0 }
+  def int2boolean(x: Int): Boolean = { x != 0 }
+  def boolean2int(x: Boolean): Int = { if (x) 1 else 0 }
+  def double2boolean(x: Double): Boolean = { x != 0.0 }
+  def boolean2double(x: Boolean): Double = { if (x) 1.0 else 0.0 }
+  def string2boolean(x: String): Boolean = { x.toBoolean }
+  def boolean2string(x: Boolean): String = { x.toString }
+  def byte2boolean(x: Byte): Boolean = { x != 0.toByte }
+  def boolean2byte(x: Boolean): Byte = { if (x) 1.toByte else 0.toByte }
+
+  def rowsColumns[T](x: Array[Array[T]], rowMajor: Boolean): (Int,Int) = {
+    if ( rowMajor ) ( x.length, if ( x.length == 0 ) 0 else x(0).length )
+    else ( if ( x.length == 0 ) 0 else x(0).length, x.length )
+  }
+
+  def isMatrix[T](x: Array[Array[T]]): Boolean = {
+    if ( x.length != 0 ) {
+      val len = x(0).length
+      for ( i <- 1 until x.length ) {
+        if ( x(i).length != len ) return false
+      }
+    }
+    true
+  }
 
   // Primitives
 
-  def putInt(x: Int) = buffer.putInt(x)
+  private def putInt(x: Int) = buffer.putInt(x)
 
-  def getInt(): Int = buffer.getInt()
+  private def getInt(): Int = buffer.getInt()
 
-  def putDouble(x: Double) = buffer.putDouble(x)
+  private def putDouble(x: Double) = buffer.putDouble(x)
 
-  def getDouble(): Double = buffer.getDouble()
+  private def getDouble(): Double = buffer.getDouble()
 
-  def putBoolean(x: Boolean) = buffer.putInt(boolean2int(x))
+  private def putBoolean(x: Boolean) = buffer.putInt(boolean2int(x))
 
-  def getBoolean(): Boolean = int2boolean(buffer.getInt())
+  private def getBoolean(): Boolean = int2boolean(buffer.getInt())
 
-  def putByte(x: Byte) = buffer.put(x)
+  private def putByte(x: Byte) = buffer.put(x)
 
-  def getByte(): Byte = buffer.get()
+  private def getByte(): Byte = buffer.get()
 
   // Tuples
+
+  def putTuple2Int(x: Int, y: Int): Unit = {
+    outFill(2*bytesPerInt)
+    putInt(x)
+    putInt(y)
+  }
 
   def getTuple2Int(): (Int,Int) = {
     inFill(2*bytesPerInt)
     (getInt(),getInt())
   }
 
-  def getTuple3Int(): (Int,Int) = {
+  def putTuple3Int(x: Int, y: Int, z: Int): Unit = {
+    outFill(3*bytesPerInt)
+    putInt(x)
+    putInt(y)
+    putInt(z)
+  }
+
+  def getTuple3Int(): (Int,Int,Int) = {
     inFill(3*bytesPerInt)
     (getInt(),getInt(),getInt())
+  }
+
+  def putTuple4Int(x: Int, y: Int, z: Int, a: Int): Unit = {
+    outFill(4*bytesPerInt)
+    putInt(x)
+    putInt(y)
+    putInt(z)
+    putInt(a)
+  }
+
+  def getTuple4Int(): (Int,Int,Int,Int) = {
+    inFill(4*bytesPerInt)
+    (getInt(),getInt(),getInt(),getInt())
   }
 
   // Scalars
@@ -207,18 +254,13 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
 
   // Matrices
 
-  def putMatrixInt(x: ArrayInt, ncol: Int, rowMajor: Boolean): Array[Array[Int]] = {
-    val nrow =
-    inFill(nrow*ncol*bytesPerInt)
-    val buffer2 = buffer.asIntBuffer()
-    if ( rowMajor ) Array.tabulate(nrow) { i =>
-      Array.tabulate(ncol) { j =>
-        buffer2.get(j*nrow + i)
+  def putMatrixInt(x: Array[Array[Int]], rowMajor: Boolean): Unit = {
+    val (nrow, ncol) = rowsColumns(x)
+    outFill(nrow*ncol*bytesPerInt)
+    for ( j <- 0 until ncol ) {
+      for ( i <- 0 until nrow ) {
+        putInt(if ( rowMajor ) x(i)(j) else x(j)(i))
       }
-    } else Array.fill(ncol) {
-      val array = new Array[Int](nrow)
-      buffer2.get(array)
-      array
     }
   }
 
@@ -236,6 +278,16 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
     }
   }
 
+  def putMatrixDouble(x: Array[Array[Double]], rowMajor: Boolean): Unit = {
+    val (nrow, ncol) = rowsColumns(x)
+    outFill(nrow*ncol*bytesPerDouble)
+    for ( j <- 0 until ncol ) {
+      for ( i <- 0 until nrow ) {
+        putDouble(if ( rowMajor ) x(i)(j) else x(j)(i))
+      }
+    }
+  }
+
   def getMatrixDouble(nrow: Int, ncol: Int, rowMajor: Boolean): Array[Array[Double]] = {
     inFill(nrow*ncol*bytesPerDouble)
     val buffer2 = buffer.asDoubleBuffer()
@@ -247,6 +299,16 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
       val array = new Array[Double](nrow)
       buffer2.get(array)
       array
+    }
+  }
+
+  def putMatrixBoolean(x: Array[Array[Boolean]], rowMajor: Boolean): Unit = {
+    val (nrow, ncol) = rowsColumns(x)
+    outFill(nrow*ncol*bytesPerInt)
+    for ( j <- 0 until ncol ) {
+      for ( i <- 0 until nrow ) {
+        putBoolean(if ( rowMajor ) x(i)(j) else x(j)(i))
+      }
     }
   }
 
@@ -264,6 +326,15 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
     }
   }
 
+  def putMatrixString(x: Array[Array[String]], rowMajor: Boolean): Unit = {
+    val (nrow, ncol) = rowsColumns(x)
+    for ( j <- 0 until ncol ) {
+      for ( i <- 0 until nrow ) {
+        putScalarString(if ( rowMajor ) x(i)(j) else x(j)(i))
+      }
+    }
+  }
+
   def getMatrixString(nrow: Int, ncol: Int, rowMajor: Boolean): Array[Array[String]] = {
     val array = Array.fill(ncol) {
       Array.fill(nrow) {
@@ -273,6 +344,16 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
     if ( rowMajor ) {
       Array.tabulate(nrow)( i => Array.tabulate(ncol) ( j => array(j)(i) ) )
     } else array
+  }
+
+  def putMatrixByte(x: Array[Array[Byte]], rowMajor: Boolean): Unit = {
+    val (nrow, ncol) = rowsColumns(x)
+    outFill(nrow*ncol)
+    for ( j <- 0 until ncol ) {
+      for ( i <- 0 until nrow ) {
+        putByte(if ( rowMajor ) x(i)(j) else x(j)(i))
+      }
+    }
   }
 
   def getMatrixByte(nrow: Int, ncol: Int, rowMajor: Boolean): Array[Array[Byte]] = {

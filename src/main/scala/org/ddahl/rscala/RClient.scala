@@ -1,8 +1,6 @@
 package org.ddahl.rscala
 
 import java.io.{File, FileWriter, PrintWriter, BufferedReader, InputStreamReader, InputStream}
-import java.nio.channels.SocketChannel
-import java.nio.ByteBuffer
 import scala.language.dynamics
 import java.lang.ref.{Reference => JavaReference, PhantomReference, ReferenceQueue}
 import scala.sys.process.Process
@@ -50,8 +48,6 @@ import Protocol._
 */
 class RClient private (private val scalaServer: ScalaServer, private val rProcessInstance: Process, private val socket: ScalaSocket, private val debugger: Debugger, val serializeOutput: Boolean, val rowMajor: Boolean) extends Dynamic {
 
-  import Helper.{isMatrix, transposeIfNot}
-
   private val referenceQueue = new ReferenceQueue[PersistentReference]()
   private val referenceMap = new scala.collection.mutable.HashMap[JavaReference[_ <: PersistentReference],String]()
 
@@ -65,11 +61,9 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   */
   def ping(): Boolean = synchronized {
     try {
-      socket.outFill(socket.bytesPerInt)
-      socket.putInt(PING)
+      socket.putScalarInt(PING)
       socket.flush()
-      socket.inFill(socket.bytePerInt)
-      val status = socket.getInt()
+      val status = socket.getScalarInt()
       status == OK
     } catch {
       case _ : Throwable => false
@@ -83,9 +77,8 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   def exit(): Unit = synchronized {
     try {
       check4GC()
-      socket.outFile(socket.bytesPerInt)
-      socket.putInt(SHUTDOWN)
-      flush()
+      socket.putScalarInt(SHUTDOWN)
+      socket.flush()
     } catch {
       case e : Throwable =>
         if ( rProcessInstance != null ) rProcessInstance.destroy()
@@ -96,14 +89,12 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   private def check4GC() = {
     val first = referenceQueue.poll
     if ( first != null ) {
-      socket.outFill(2*socket.bytesPerInt)
-      socket.putInt(FREE)
       var list = List[JavaReference[_ <: PersistentReference]](first)
       while ( list.head != null ) {
         list = referenceQueue.poll :: list
       }
       list = list.tail
-      socket.putInt(list.size)
+      socket.putTuple2Int(FREE,list.size)
       list.foreach( x => {
         val id = referenceMap(x)
         referenceMap.remove(x)
@@ -125,8 +116,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   def eval(snippet: String, evalOnly: Boolean, asReference: Boolean): (Any, String) = synchronized {
     check4GC()
     if ( debug ) debugger.msg("Sending EVAL request.")
-    socket.outFill(socket.bytesPerInt)
-    socket.putInt(if(serializeOutput) EVAL else EVALNAKED)
+    socket.putScalarInt(if(serializeOutput) EVAL else EVALNAKED)
     socket.putScalarString(if ( RClient.isWindows ) snippet.replaceAll("\r\n","\n") else snippet)
     socket.flush()
     if ( scalaServer != null ) {
@@ -134,7 +124,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
       scalaServer.run()
       if ( debug ) debugger.msg("Spinning down Scala server.")
     }
-    val status = buffer.getInt()
+    val status = socket.getScalarInt()
     if ( debug ) debugger.msg("Status is: "+status)
     val output = socket.getScalarString()
     if ( output != "" ) {
@@ -143,10 +133,9 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
     if ( status != OK ) throw new RuntimeException("Error in R evaluation.")
     if ( evalOnly ) null else {
       if ( debug ) debugger.msg("Getting EVAL result.")
-      if ( asReference ) buffer.putInt(GET_REFERENCE) else buffer.putInt(GET)
-      writeString(".rsX")
-      buffer.flip()
-      sc.write(buffer)
+      if ( asReference ) socket.putScalarInt(GET_REFERENCE) else socket.putScalarInt(GET)
+      socket.putScalarString(".rsX")
+      socket.flush()
       getInternal()
     }
   }
@@ -386,187 +375,130 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
     check4GC()
     if ( debug ) debugger.msg("Setting: "+identifier)
     val v = value
-    if ( index == "" ) buffer.putInt(SET)
+    if ( index == "" ) socket.putScalarInt(SET)
     else if ( singleBrackets ) {
-      buffer.putInt(SET_SINGLE)
-      writeString(index)
+      socket.putScalarInt(SET_SINGLE)
+      socket.putScalarString(index)
     } else {
-      buffer.putInt(SET_DOUBLE)
-      writeString(index)
+      socket.putScalarInt(SET_DOUBLE)
+      socket.putScalarString(index)
     }
-    writeString(identifier)
+    socket.putScalarString(identifier)
     var errorNote: Option[String] = None
     if ( v == null || v.isInstanceOf[Unit] ) {
       if ( debug ) debugger.msg("... which is null")
-      buffer.putInt(NULLTYPE)
+      socket.putScalarInt(NULLTYPE)
     } else {
       val c = v.getClass
-      if ( debug ) debugger.msg("... whose class is: "+c)
-      if ( debug ) debugger.msg("... and whose value is: "+v)
+      if ( debug ) {
+        debugger.msg("... whose class is: " + c)
+        debugger.msg("... and whose value is: " + v)
+      }
       if ( c.isArray ) {
         c.getName match {
           case "[I" =>
             val vv = v.asInstanceOf[Array[Int]]
-            buffer.putInt(VECTOR)
-            buffer.putInt(vv.length)
-            buffer.putInt(INTEGER)
-            for ( i <- 0 until vv.length ) buffer.putInt(vv(i))
+            socket.putTuple3Int(VECTOR,vv.length,INTEGER)
+            socket.putVectorInt(vv)
           case "[D" =>
             val vv = v.asInstanceOf[Array[Double]]
-            buffer.putInt(VECTOR)
-            buffer.putInt(vv.length)
-            buffer.putInt(DOUBLE)
-            for ( i <- 0 until vv.length ) buffer.putDouble(vv(i))
+            socket.putTuple3Int(VECTOR,vv.length,DOUBLE)
+            socket.putVectorDouble(vv)
           case "[Z" =>
             val vv = v.asInstanceOf[Array[Boolean]]
-            buffer.putInt(VECTOR)
-            buffer.putInt(vv.length)
-            buffer.putInt(BOOLEAN)
-            for ( i <- 0 until vv.length ) buffer.putInt(if ( vv(i) ) 1 else 0)
+            socket.putTuple3Int(VECTOR,vv.length,BOOLEAN)
+            socket.putVectorBoolean(vv)
           case "[Ljava.lang.String;" =>
             val vv = v.asInstanceOf[Array[String]]
-            buffer.putInt(VECTOR)
-            buffer.putInt(vv.length)
-            buffer.putInt(STRING)
-            for ( i <- 0 until vv.length ) writeString(vv(i))
+            socket.putTuple3Int(VECTOR,vv.length,STRING)
+            socket.putVectorString(vv)
           case "[B" =>
             val vv = v.asInstanceOf[Array[Byte]]
-            buffer.putInt(VECTOR)
-            buffer.putInt(vv.length)
-            buffer.putInt(BYTE)
-            buffer.put(vv)
+            socket.putTuple3Int(VECTOR,vv.length,BYTE)
+            socket.putVectorByte(vv)
           case "[[I" =>
-            val vv1 = v.asInstanceOf[Array[Array[Int]]]
-            if ( isMatrix(vv1) ) {
-              val vv = transposeIfNot(vv1, rowMajor)
-              buffer.putInt(MATRIX)
-              buffer.putInt(vv.length)
-              if ( vv.length > 0 ) buffer.putInt(vv(0).length)
-              else buffer.putInt(0)
-              buffer.putInt(INTEGER)
-              for ( i <- 0 until vv.length ) {
-                val vvv = vv(i)
-                for ( j <- 0 until vvv.length ) {
-                  buffer.putInt(vvv(j))
-                }
-              }
+            val vv = v.asInstanceOf[Array[Array[Int]]]
+            if ( socket.isMatrix(vv) ) {
+              val (nrow,ncol) = socket.rowsColumns(vv,rowMajor)
+              socket.putTuple4Int(MATRIX,nrow,ncol,INTEGER)
+              socket.putMatrixInt(vv,rowMajor)
             } else {
               errorNote = Some("Ragged arrays are not supported.")
-              buffer.putInt(UNSUPPORTED_STRUCTURE)
+              socket.putScalarInt(UNSUPPORTED_STRUCTURE)
             }
           case "[[D" =>
-            val vv1 = v.asInstanceOf[Array[Array[Double]]]
-            if ( isMatrix(vv1) ) {
-              val vv = transposeIfNot(vv1, rowMajor)
-              buffer.putInt(MATRIX)
-              buffer.putInt(vv.length)
-              if ( vv.length > 0 ) buffer.putInt(vv(0).length)
-              else buffer.putInt(0)
-              buffer.putInt(DOUBLE)
-              for ( i <- 0 until vv.length ) {
-                val vvv = vv(i)
-                for ( j <- 0 until vvv.length ) {
-                  buffer.putDouble(vvv(j))
-                }
-              }
+            val vv = v.asInstanceOf[Array[Array[Double]]]
+            if ( socket.isMatrix(vv) ) {
+              val (nrow,ncol) = socket.rowsColumns(vv,rowMajor)
+              socket.putTuple4Int(MATRIX,nrow,ncol,DOUBLE)
+              socket.putMatrixDouble(vv,rowMajor)
             } else {
               errorNote = Some("Ragged arrays are not supported.")
-              buffer.putInt(UNSUPPORTED_STRUCTURE)
+              socket.putScalarInt(UNSUPPORTED_STRUCTURE)
             }
           case "[[Z" =>
-            val vv1 = v.asInstanceOf[Array[Array[Boolean]]]
-            if ( isMatrix(vv1) ) {
-              val vv = transposeIfNot(vv1, rowMajor)
-              buffer.putInt(MATRIX)
-              buffer.putInt(vv.length)
-              if ( vv.length > 0 ) buffer.putInt(vv(0).length)
-              else buffer.putInt(0)
-              buffer.putInt(BOOLEAN)
-              for ( i <- 0 until vv.length ) {
-                val vvv = vv(i)
-                for ( j <- 0 until vv(i).length ) {
-                  buffer.putInt(if ( vvv(j) ) 1 else 0)
-                }
-              }
+            val vv = v.asInstanceOf[Array[Array[Boolean]]]
+            if ( socket.isMatrix(vv) ) {
+              val (nrow,ncol) = socket.rowsColumns(vv,rowMajor)
+              socket.putTuple4Int(MATRIX,nrow,ncol,BOOLEAN)
+              socket.putMatrixBoolean(vv,rowMajor)
             } else {
               errorNote = Some("Ragged arrays are not supported.")
-              buffer.putInt(UNSUPPORTED_STRUCTURE)
+              socket.putScalarInt(UNSUPPORTED_STRUCTURE)
             }
           case "[[Ljava.lang.String;" =>
-            val vv1 = v.asInstanceOf[Array[Array[String]]]
-            if ( isMatrix(vv1) ) {
-              val vv = transposeIfNot(vv1, rowMajor)
-              buffer.putInt(MATRIX)
-              buffer.putInt(vv.length)
-              if ( vv.length > 0 ) buffer.putInt(vv(0).length)
-              else buffer.putInt(0)
-              buffer.putInt(STRING)
-              for ( i <- 0 until vv.length ) {
-                val vvv = vv(i)
-                for ( j <- 0 until vv(i).length ) {
-                  writeString(vvv(j))
-                }
-              }
+            val vv = v.asInstanceOf[Array[Array[String]]]
+            if ( socket.isMatrix(vv) ) {
+              val (nrow,ncol) = socket.rowsColumns(vv,rowMajor)
+              socket.putTuple4Int(MATRIX,nrow,ncol,STRING)
+              socket.putMatrixString(vv,rowMajor)
             } else {
               errorNote = Some("Ragged arrays are not supported.")
-              buffer.putInt(UNSUPPORTED_STRUCTURE)
+              socket.putScalarInt(UNSUPPORTED_STRUCTURE)
             }
           case "[[B" =>
-            val vv1 = v.asInstanceOf[Array[Array[Byte]]]
-            if ( isMatrix(vv1) ) {
-              val vv = transposeIfNot(vv1, rowMajor)
-              buffer.putInt(MATRIX)
-              buffer.putInt(vv.length)
-              if ( vv.length > 0 ) buffer.putInt(vv(0).length)
-              else buffer.putInt(0)
-              buffer.putInt(BYTE)
-              for ( i <- 0 until vv.length ) {
-                val vvv = vv(i)
-                buffer.put(vvv)
-              }
+            val vv = v.asInstanceOf[Array[Array[Byte]]]
+            if ( socket.isMatrix(vv) ) {
+              val (nrow,ncol) = socket.rowsColumns(vv,rowMajor)
+              socket.putTuple4Int(MATRIX,nrow,ncol,BYTE)
+              socket.putMatrixByte(vv,rowMajor)
             } else {
               errorNote = Some("Ragged arrays are not supported.")
-              buffer.putInt(UNSUPPORTED_STRUCTURE)
+              socket.putScalarInt(UNSUPPORTED_STRUCTURE)
             }
           case _ =>
             errorNote = Some("Unsupported array type.")
-            buffer.putInt(UNSUPPORTED_STRUCTURE)
+            socket.putScalarInt(UNSUPPORTED_STRUCTURE)
         }
       } else {
         c.getName match {
           case "java.lang.Integer" =>
-            buffer.putInt(SCALAR)
-            buffer.putInt(INTEGER)
-            buffer.putInt(v.asInstanceOf[Int])
+            socket.putTuple2Int(SCALAR,INTEGER)
+            socket.putScalarInt(v.asInstanceOf[Int])
           case "java.lang.Double" =>
-            buffer.putInt(SCALAR)
-            buffer.putInt(DOUBLE)
-            buffer.putDouble(v.asInstanceOf[Double])
+            socket.putTuple2Int(SCALAR,DOUBLE)
+            socket.putScalarDouble(v.asInstanceOf[Double])
           case "java.lang.Boolean" =>
-            buffer.putInt(SCALAR)
-            buffer.putInt(BOOLEAN)
-            buffer.putInt(if (v.asInstanceOf[Boolean]) 1 else 0)
+            socket.putTuple2Int(SCALAR,BOOLEAN)
+            socket.putScalarBoolean(v.asInstanceOf[Boolean])
           case "java.lang.String" =>
-            buffer.putInt(SCALAR)
-            buffer.putInt(STRING)
-            writeString(v.asInstanceOf[String])
+            socket.putTuple2Int(SCALAR,STRING)
+            socket.putScalarString(v.asInstanceOf[String])
           case "java.lang.Byte" =>
-            buffer.putInt(SCALAR)
-            buffer.putInt(BYTE)
-            buffer.put(v.asInstanceOf[Byte])
+            socket.putTuple2Int(SCALAR,BYTE)
+            socket.putScalarByte(v.asInstanceOf[Byte])
           case _ =>
             errorNote = Some("Unsupported non-array type.")
-            buffer.putInt(UNSUPPORTED_STRUCTURE)
+            socket.putScalarInt(UNSUPPORTED_STRUCTURE)
         }
       }
     }
-    buffer.flip()
-    sc.write(buffer)
+    socket.flush()
     if ( errorNote.isDefined ) {
       throw new RuntimeException(errorNote.get)
     }
     if ( index != "" ) {
-      val status = buffer.getInt()
+      val status = socket.getScalarInt()
       if ( status != OK ) {
         val output = socket.getScalarString()
         if ( output != "" ) println(output)
@@ -594,52 +526,48 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   def get(identifier: String, asReference: Boolean = false): (Any, String) = synchronized {
     check4GC()
     if ( debug ) debugger.msg("Getting: "+identifier)
-    if ( asReference ) buffer.putInt(GET_REFERENCE) else buffer.putInt(GET)
-    writeString(identifier)
-    buffer.flip()
-    sc.write(buffer)
+    if ( asReference ) socket.putScalarInt(GET_REFERENCE) else socket.putScalarInt(GET)
+    socket.putScalarString(identifier)
+    socket.flush()
     getInternal()
   }
 
   private def getInternal(): (Any, String) = {
     if ( debug ) debugger.msg("Getting internal.")
-    buffer.getInt match {
+    socket.getScalarInt() match {
       case NULLTYPE =>
         if ( debug ) debugger.msg("Getting null.")
         (null,"Null")
       case SCALAR =>
-        if ( debug ) debugger.msg("Getting atomic.")
-        buffer.getInt() match {
-          case INTEGER => (buffer.getInt(),"Int")
-          case DOUBLE => (buffer.getDouble(),"Double")
-          case BOOLEAN => (( buffer.getInt() != 0 ),"Boolean")
-          case STRING => (socket.getScalarString(),"String")
-          case BYTE => (buffer.get(),"Byte")
+        if ( debug ) debugger.msg("Getting scalar.")
+        socket.getScalarInt() match {
+          case INTEGER => (socket.getScalarInt(),    "Int")
+          case DOUBLE =>  (socket.getScalarDouble(), "Double")
+          case BOOLEAN => (socket.getScalarBoolean(),"Boolean")
+          case STRING =>  (socket.getScalarString(), "String")
+          case BYTE =>    (socket.getScalarByte(),   "Byte")
           case _ => throw new RuntimeException("Protocol error")
         }
       case VECTOR =>
-        if ( debug ) debugger.msg("Getting vector...")
-        val length = buffer.getInt()
-        if ( debug ) debugger.msg("... of length: "+length)
-        buffer.getInt() match {
-          case INTEGER => (Array.fill(length) { buffer.getInt() },"Array[Int]")
-          case DOUBLE => (Array.fill(length) { buffer.getDouble() },"Array[Double]")
-          case BOOLEAN => (Array.fill(length) { ( buffer.getInt() != 0 ) },"Array[Boolean]")
-          case STRING => (Array.fill(length) { socket.getScalarString() },"Array[String]")
-          case BYTE => ( { val bytes = new Array[Byte](length); buffer.get(bytes); bytes },"Array[Byte]")
+        val (length, tipe) = socket.getTuple2Int()
+        if ( debug ) debugger.msg("Getting vector of length: "+length)
+        tipe match {
+          case INTEGER => (socket.getVectorInt(length),"Array[Int]")
+          case DOUBLE =>  (socket.getVectorDouble(length),"Array[Double]")
+          case BOOLEAN => (socket.getVectorBoolean(length),"Array[Boolean]")
+          case STRING =>  (socket.getVectorString(length),"Array[String]")
+          case BYTE =>    (socket.getVectorByte(length),"Array[Byte]")
           case _ => throw new RuntimeException("Protocol error")
         }
       case MATRIX =>
-        if ( debug ) debugger.msg("Getting matrix...")
-        val nrow = buffer.getInt()
-        val ncol = buffer.getInt()
-        if ( debug ) debugger.msg("... of dimensions: "+nrow+","+ncol)
-        buffer.getInt() match {
-          case INTEGER => ( transposeIfNot(Array.fill(nrow) { Array.fill(ncol) { buffer.getInt() } }, rowMajor),"Array[Array[Int]]")
-          case DOUBLE => ( transposeIfNot(Array.fill(nrow) { Array.fill(ncol) { buffer.getDouble() } }, rowMajor),"Array[Array[Double]]")
-          case BOOLEAN => ( transposeIfNot(Array.fill(nrow) { Array.fill(ncol) { ( buffer.getInt() != 0 ) } }, rowMajor),"Array[Array[Boolean]]")
-          case STRING => ( transposeIfNot(Array.fill(nrow) { Array.fill(ncol) { socket.getScalarString() } }, rowMajor),"Array[Array[String]]")
-          case BYTE => ( transposeIfNot(Array.fill(nrow) { val bytes = new Array[Byte](ncol); buffer.get(bytes); bytes }, rowMajor),"Array[Array[Byte]]")
+        val (nrow, ncol, tipe) = socket.getTuple3Int()
+        if ( debug ) debugger.msg("Getting matrix of dimensions: "+nrow+" x "+ncol)
+        tipe match {
+          case INTEGER => (socket.getMatrixInt(nrow,ncol,rowMajor),    "Array[Array[Int]]")
+          case DOUBLE =>  (socket.getMatrixDouble(nrow,ncol,rowMajor), "Array[Array[Double]]")
+          case BOOLEAN => (socket.getMatrixBoolean(nrow,ncol,rowMajor),"Array[Array[Boolean]]")
+          case STRING =>  (socket.getMatrixString(nrow,ncol,rowMajor), "Array[Array[String]]")
+          case BYTE =>    (socket.getMatrixByte(nrow,ncol,rowMajor),   "Array[Array[Byte]]")
           case _ => throw new RuntimeException("Protocol error")
         }
       case REFERENCE =>
@@ -663,304 +591,278 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   private def toReference(x: (Any, String)): PersistentReference = x._1.asInstanceOf[PersistentReference]
 
   /** Calls '''`get(identifier,false)`''' and converts the result to an `Int`.
-  *
-  * Integers, doubles, Booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
-  * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
   */
   def getI0(identifier: String): Int = toI0(get(identifier))
 
   private def toI0(x: (Any, String)): Int = x match {
-    case (a,"Int") => a.asInstanceOf[Int]
-    case (a,"Double") => a.asInstanceOf[Double].toInt
-    case (a,"Boolean") => if (a.asInstanceOf[Boolean]) 1 else 0
-    case (a,"String") => a.asInstanceOf[String].toInt
-    case (a,"Byte") => a.asInstanceOf[Byte].toInt
-    case (a,"Array[Int]") => a.asInstanceOf[Array[Int]](0)
-    case (a,"Array[Double]") => a.asInstanceOf[Array[Double]](0).toInt
-    case (a,"Array[Boolean]") => if ( a.asInstanceOf[Array[Boolean]](0) ) 1 else 0
-    case (a,"Array[String]") => a.asInstanceOf[Array[String]](0).toInt
-    case (a,"Array[Byte]") => a.asInstanceOf[Array[Byte]](0).toInt
+    case (a,"Int")     => a.asInstanceOf[Int]
+    case (a,"Double")  => a.asInstanceOf[Double].toInt
+    case (a,"Boolean") => socket.boolean2int(a.asInstanceOf[Boolean])
+    case (a,"String")  => a.asInstanceOf[String].toInt
+    case (a,"Byte")    => a.asInstanceOf[Byte].toInt
+    case (a,"Array[Int]")     => a.asInstanceOf[Array[Int]](0)
+    case (a,"Array[Double]")  => a.asInstanceOf[Array[Double]](0).toInt
+    case (a,"Array[Boolean]") => socket.boolean2int(a.asInstanceOf[Array[Boolean]](0))
+    case (a,"Array[String]")  => a.asInstanceOf[Array[String]](0).toInt
+    case (a,"Array[Byte]")    => a.asInstanceOf[Array[Byte]](0).toInt
+    case (a,"Array[Array[Int]]")     => a.asInstanceOf[Array[Array[Int]](0)(0)
+    case (a,"Array[Array[Double]]")  => a.asInstanceOf[Array[Array[Double]]](0)(0).toInt
+    case (a,"Array[Array[Boolean]]") => socket.boolean2int(a.asInstanceOf[Array[Array[Boolean]]](0)(0))
+    case (a,"Array[Array[String]]")  => a.asInstanceOf[Array[Array[String]]](0)(0).toInt
+    case (a,"Array[Array[Byte]]")    => a.asInstanceOf[Array[Array[Byte]]](0)(0).toInt
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Int")
   }
 
   /** Calls '''`get(identifier,false)`''' and converts the result to a `Double`.
-  *
-  * Integers, doubles, Booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
-  * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
   */
   def getD0(identifier: String): Double = toD0(get(identifier))
 
   private def toD0(x: (Any, String)): Double = x match {
-    case (a,"Int") => a.asInstanceOf[Int].toDouble
-    case (a,"Double") => a.asInstanceOf[Double]
-    case (a,"Boolean") => if (a.asInstanceOf[Boolean]) 1.0 else 0.0
-    case (a,"String") => a.asInstanceOf[String].toDouble
-    case (a,"Byte") => a.asInstanceOf[Byte].toDouble
-    case (a,"Array[Int]") => a.asInstanceOf[Array[Int]](0).toDouble
-    case (a,"Array[Double]") => a.asInstanceOf[Array[Double]](0)
-    case (a,"Array[Boolean]") => if ( a.asInstanceOf[Array[Boolean]](0) ) 1.0 else 0.0
-    case (a,"Array[String]") => a.asInstanceOf[Array[String]](0).toDouble
-    case (a,"Array[Byte]") => a.asInstanceOf[Array[Byte]](0).toDouble
+    case (a,"Int")     => a.asInstanceOf[Int].toDouble
+    case (a,"Double")  => a.asInstanceOf[Double]
+    case (a,"Boolean") => socket.boolean2double(a.asInstanceOf[Boolean])
+    case (a,"String")  => a.asInstanceOf[String].toDouble
+    case (a,"Byte")    => a.asInstanceOf[Byte].toDouble
+    case (a,"Array[Int]")     => a.asInstanceOf[Array[Int]](0).toDouble
+    case (a,"Array[Double]")  => a.asInstanceOf[Array[Double]](0)
+    case (a,"Array[Boolean]") => socket.boolean2double(a.asInstanceOf[Array[Boolean]](0))
+    case (a,"Array[String]")  => a.asInstanceOf[Array[String]](0).toDouble
+    case (a,"Array[Byte]")    => a.asInstanceOf[Array[Byte]](0).toDouble
+    case (a,"Array[Array[Int]]")     => a.asInstanceOf[Array[Array[Int]]](0)(0).toDouble
+    case (a,"Array[Array[Double]]")  => a.asInstanceOf[Array[Array[Double]]](0)(0)
+    case (a,"Array[Array[Boolean]]") => socket.boolean2double(a.asInstanceOf[Array[Array[Boolean]]](0)(0))
+    case (a,"Array[Array[String]]")  => a.asInstanceOf[Array[Array[String]]](0)(0).toDouble
+    case (a,"Array[Array[Byte]]")    => a.asInstanceOf[Array[Array[Byte]]](0)(0).toDouble
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Double")
   }
 
   /** Calls '''`get(identifier,false)`''' and converts the result to a `Boolean`.
-  *
-  * Integers, doubles, Booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
-  * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
   */
   def getL0(identifier: String): Boolean = toL0(get(identifier))
 
   private def toL0(x: (Any, String)): Boolean = x match {
-    case (a,"Int") => a.asInstanceOf[Int] != 0
-    case (a,"Double") => a.asInstanceOf[Double] != 0.0
+    case (a,"Int")     => socket.int2boolean(a.asInstanceOf[Int])
+    case (a,"Double")  => socket.double2boolean(a.asInstanceOf[Double])
     case (a,"Boolean") => a.asInstanceOf[Boolean]
-    case (a,"String") => a.asInstanceOf[String].toLowerCase != "false"
-    case (a,"Byte") => a.asInstanceOf[Byte] != 0.toByte
-    case (a,"Array[Int]") => a.asInstanceOf[Array[Int]](0) != 0
-    case (a,"Array[Double]") => a.asInstanceOf[Array[Double]](0) != 0.0
+    case (a,"String")  => a.asInstanceOf[String].toLowerCase != "false"
+    case (a,"Byte")    => a.asInstanceOf[Byte] != 0.toByte
+    case (a,"Array[Int]")     => socket.int2boolean(a.asInstanceOf[Array[Int]](0))
+    case (a,"Array[Double]")  => socket.double2boolean(a.asInstanceOf[Array[Double]](0))
     case (a,"Array[Boolean]") => a.asInstanceOf[Array[Boolean]](0)
-    case (a,"Array[String]") => a.asInstanceOf[Array[String]](0).toLowerCase != "false"
-    case (a,"Array[Byte]") => a.asInstanceOf[Array[Byte]](0) != 0.toByte
+    case (a,"Array[String]")  => socket.string2boolean(a.asInstanceOf[Array[String]](0))
+    case (a,"Array[Byte]")    => socket.byte2boolean(a.asInstanceOf[Array[Byte]](0))
+    case (a,"Array[Array[Int]]")     => socket.int2boolean(a.asInstanceOf[Array[Array[Int]](0)(0)
+    case (a,"Array[Array[Double]]")  => socket.double2boolean(a.asInstanceOf[Array[Array[Double]](0)(0)
+    case (a,"Array[Array[Boolean]]") => a.asInstanceOf[Array[Boolean]](0)(0)
+    case (a,"Array[Array[String]]")  => socket.string2boolean(a.asInstanceOf[Array[Array[String]](0)(0)
+    case (a,"Array[Array[Byte]]")    => socket.byte2boolean(a.asInstanceOf[Array[Array[Byte]](0)(0)
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Boolean")
   }
 
-  /** Calls '''`get(identifier,false)`''' and converts the result to a `string`.
-  *
-  * Integers, doubles, Booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
-  * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
+  /** Calls '''`get(identifier,false)`''' and converts the result to a `String`.
   */
   def getS0(identifier: String): String = toS0(get(identifier))
 
   private def toS0(x: (Any, String)): String = x match {
-    case (a,"Int") => a.asInstanceOf[Int].toString
-    case (a,"Double") => a.asInstanceOf[Double].toString
+    case (a,"Int")     => a.asInstanceOf[Int].toString
+    case (a,"Double")  => a.asInstanceOf[Double].toString
     case (a,"Boolean") => a.asInstanceOf[Boolean].toString
-    case (a,"String") => a.asInstanceOf[String]
-    case (a,"Byte") => a.asInstanceOf[Byte].toString
-    case (a,"Array[Int]") => a.asInstanceOf[Array[Int]](0).toString
-    case (a,"Array[Double]") => a.asInstanceOf[Array[Double]](0).toString
+    case (a,"String")  => a.asInstanceOf[String]
+    case (a,"Byte")    => a.asInstanceOf[Byte].toString
+    case (a,"Array[Int]")     => a.asInstanceOf[Array[Int]](0).toString
+    case (a,"Array[Double]")  => a.asInstanceOf[Array[Double]](0).toString
     case (a,"Array[Boolean]") => a.asInstanceOf[Array[Boolean]](0).toString
-    case (a,"Array[String]") => a.asInstanceOf[Array[String]](0)
-    case (a,"Array[Byte]") => a.asInstanceOf[Array[Byte]](0).toString
+    case (a,"Array[String]")  => a.asInstanceOf[Array[String]](0)
+    case (a,"Array[Byte]")    => a.asInstanceOf[Array[Byte]](0).toString
+    case (a,"Array[Array[Int]]")     => a.asInstanceOf[Array[Array[Int]]](0)(0).toString
+    case (a,"Array[Array[Double]]")  => a.asInstanceOf[Array[Array[Double]]](0)(0).toString
+    case (a,"Array[Array[Boolean]]") => a.asInstanceOf[Array[Array[Boolean]]](0)(0).toString
+    case (a,"Array[Array[String]]")  => a.asInstanceOf[Array[Array[String]]](0)(0)
+    case (a,"Array[Array[Byte]]")    => a.asInstanceOf[Array[Array[Byte]]](0)(0).toString
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to String")
   }
 
   /** Calls '''`get(identifier,false)`''' and converts the result to a `Byte`.
-  *
-  * Integers, doubles, Booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
-  * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
   */
   def getR0(identifier: String): Byte = toR0(get(identifier))
 
   private def toR0(x: (Any, String)): Byte = x match {
-    case (a,"Int") => a.asInstanceOf[Int].toByte
-    case (a,"Double") => a.asInstanceOf[Double].toByte
-    case (a,"Boolean") => if (a.asInstanceOf[Boolean]) 1.toByte else 0.toByte
-    case (a,"String") => a.asInstanceOf[String].toByte
-    case (a,"Byte") => a.asInstanceOf[Byte]
-    case (a,"Array[Int]") => a.asInstanceOf[Array[Int]](0).toByte
-    case (a,"Array[Double]") => a.asInstanceOf[Array[Double]](0).toByte
-    case (a,"Array[Boolean]") => if ( a.asInstanceOf[Array[Boolean]](0) ) 1.toByte else 0.toByte
-    case (a,"Array[String]") => a.asInstanceOf[Array[String]](0).toByte
-    case (a,"Array[Byte]") => a.asInstanceOf[Array[Byte]](0)
+    case (a,"Int")     => a.asInstanceOf[Int].toByte
+    case (a,"Double")  => a.asInstanceOf[Double].toByte
+    case (a,"Boolean") => socket.boolean2byte(a.asInstanceOf[Boolean])
+    case (a,"String")  => a.asInstanceOf[String].toByte
+    case (a,"Byte")    => a.asInstanceOf[Byte]
+    case (a,"Array[Int]")     => a.asInstanceOf[Array[Int]](0).toByte
+    case (a,"Array[Double]")  => a.asInstanceOf[Array[Double]](0).toByte
+    case (a,"Array[Boolean]") => socket.boolean2byte(a.asInstanceOf[Array[Boolean]](0))
+    case (a,"Array[String]")  => a.asInstanceOf[Array[String]](0).toByte
+    case (a,"Array[Byte]")    => a.asInstanceOf[Array[Byte]](0)
+    case (a,"Array[Array[Int]]")     => a.asInstanceOf[Array[Array[Int]]](0)(0).toByte
+    case (a,"Array[Array[Double]]")  => a.asInstanceOf[Array[Array[Double]]](0)(0).toByte
+    case (a,"Array[Array[Boolean]]") => socket.boolean2byte(a.asInstanceOf[Array[Array[Boolean]]](0)(0))
+    case (a,"Array[Array[String]]")  => a.asInstanceOf[Array[Array[String]]](0)(0).toByte
+    case (a,"Array[Array[Byte]]")    => a.asInstanceOf[Array[Array[Byte]]](0)(0)
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Byte")
   }
 
   /** Calls '''`get(identifier,false)`''' and converts the result to an `Array[Int]`.
-  *
-  * Integers, doubles, Booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
-  * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
   */
   def getI1(identifier: String): Array[Int] = toI1(get(identifier))
 
   private def toI1(x: (Any, String)): Array[Int] = x match {
-    case (a,"Int") => Array(a.asInstanceOf[Int])
-    case (a,"Double") => Array(a.asInstanceOf[Double].toInt)
-    case (a,"Boolean") => Array(if (a.asInstanceOf[Boolean]) 1 else 0)
-    case (a,"String") => Array(a.asInstanceOf[String].toInt)
-    case (a,"Byte") => Array(a.asInstanceOf[Byte].toInt)
-    case (a,"Array[Int]") => a.asInstanceOf[Array[Int]]
-    case (a,"Array[Double]") => a.asInstanceOf[Array[Double]].map(_.toInt)
-    case (a,"Array[Boolean]") => a.asInstanceOf[Array[Boolean]].map(x => if (x) 1 else 0)
-    case (a,"Array[String]") => a.asInstanceOf[Array[String]].map(_.toInt)
-    case (a,"Array[Byte]") => a.asInstanceOf[Array[Byte]].map(_.toInt)
+    case (a,"Int")      => Array(a.asInstanceOf[Int])
+    case (a,"Double")   => Array(a.asInstanceOf[Double].toInt)
+    case (a,"Boolean")  => Array(socket.boolean2int(a.asInstanceOf[Boolean]))
+    case (a,"String")   => Array(a.asInstanceOf[String].toInt)
+    case (a,"Byte")     => Array(a.asInstanceOf[Byte].toInt)
+    case (a,"Array[Int]")     => a.asInstanceOf[Array[Int]]
+    case (a,"Array[Double]")  => a.asInstanceOf[Array[Double]].map(_.toInt)
+    case (a,"Array[Boolean]") => a.asInstanceOf[Array[Boolean]].map(socket.boolean2int)
+    case (a,"Array[String]")  => a.asInstanceOf[Array[String]].map(_.toInt)
+    case (a,"Array[Byte]")    => a.asInstanceOf[Array[Byte]].map(_.toInt)
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Array[Int]")
   }
 
   /** Calls '''`get(identifier,false)`''' and converts the result to an `Array[Double]`.
-  *
-  * Integers, doubles, Booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
-  * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
   */
   def getD1(identifier: String): Array[Double] = toD1(get(identifier))
 
   private def toD1(x: (Any, String)): Array[Double] = x match {
-    case (a,"Int") => Array(a.asInstanceOf[Int].toDouble)
-    case (a,"Double") => Array(a.asInstanceOf[Double])
-    case (a,"Boolean") => Array(if (a.asInstanceOf[Boolean]) 1.0 else 0.0)
-    case (a,"String") => Array(a.asInstanceOf[String].toDouble)
-    case (a,"Byte") => Array(a.asInstanceOf[Byte].toDouble)
-    case (a,"Array[Int]") => a.asInstanceOf[Array[Int]].map(_.toDouble)
-    case (a,"Array[Double]") => a.asInstanceOf[Array[Double]]
-    case (a,"Array[Boolean]") => a.asInstanceOf[Array[Boolean]].map(x => if (x) 1.0 else 0.0)
-    case (a,"Array[String]") => a.asInstanceOf[Array[String]].map(_.toDouble)
-    case (a,"Array[Byte]") => a.asInstanceOf[Array[Byte]].map(_.toDouble)
+    case (a,"Int")     => Array(a.asInstanceOf[Int].toDouble)
+    case (a,"Double")  => Array(a.asInstanceOf[Double])
+    case (a,"Boolean") => Array(socket.boolean2double(a.asInstanceOf[Boolean]))
+    case (a,"String")  => Array(a.asInstanceOf[String].toDouble)
+    case (a,"Byte")    => Array(a.asInstanceOf[Byte].toDouble)
+    case (a,"Array[Int]")     => a.asInstanceOf[Array[Int]].map(_.toDouble)
+    case (a,"Array[Double]")  => a.asInstanceOf[Array[Double]]
+    case (a,"Array[Boolean]") => a.asInstanceOf[Array[Boolean]].map(socket.boolean2double)
+    case (a,"Array[String]")  => a.asInstanceOf[Array[String]].map(_.toDouble)
+    case (a,"Array[Byte]")    => a.asInstanceOf[Array[Byte]].map(_.toDouble)
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Array[Double]")
   }
 
   /** Calls '''`get(identifier,false)`''' and converts the result to an `Array[Boolean]`.
-  *
-  * Integers, doubles, Booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
-  * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
   */
   def getL1(identifier: String): Array[Boolean] = toL1(get(identifier))
 
   private def toL1(x: (Any, String)): Array[Boolean] = x match {
-    case (a,"Int") => Array(a.asInstanceOf[Int] != 0)
-    case (a,"Double") => Array(a.asInstanceOf[Double] != 0.0)
+    case (a,"Int")     => Array(socket.int2boolean(a.asInstanceOf[Int])
+    case (a,"Double")  => Array(socket.double2boolean(a.asInstanceOf[Double])
     case (a,"Boolean") => Array(a.asInstanceOf[Boolean])
-    case (a,"String") => Array(a.asInstanceOf[String].toLowerCase != "false")
-    case (a,"Byte") => Array(a.asInstanceOf[Byte] != 0.toByte)
-    case (a,"Array[Int]") => a.asInstanceOf[Array[Int]].map(_ != 0)
-    case (a,"Array[Double]") => a.asInstanceOf[Array[Double]].map(_ != 0.0)
+    case (a,"String")  => Array(socket.string2boolean(a.asInstanceOf[String])
+    case (a,"Byte")    => Array(socket.byte2boolean(a.asInstanceOf[Byte])
+    case (a,"Array[Int]")     => a.asInstanceOf[Array[Int]].map(socket.int2boolean)
+    case (a,"Array[Double]")  => a.asInstanceOf[Array[Double]].map(socket.double2boolean)
     case (a,"Array[Boolean]") => a.asInstanceOf[Array[Boolean]]
-    case (a,"Array[String]") => a.asInstanceOf[Array[String]].map(_.toLowerCase != "false")
-    case (a,"Array[Byte]") => a.asInstanceOf[Array[Byte]].map(_ != 0.toByte)
+    case (a,"Array[String]")  => a.asInstanceOf[Array[String]].map(socket.string2boolean)
+    case (a,"Array[Byte]")    => a.asInstanceOf[Array[Byte]].map(socket.byte2boolean)
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Array[Boolean]")
   }
 
-  /** Calls '''`get(identifier,false)`''' and converts the result to an `Array[string]`.
-  *
-  * Integers, doubles, Booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
-  * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
+  /** Calls '''`get(identifier,false)`''' and converts the result to an `Array[String]`.
   */
   def getS1(identifier: String): Array[String] = toS1(get(identifier))
 
   private def toS1(x: (Any, String)): Array[String] = x match {
-    case (a,"Int") => Array(a.asInstanceOf[Int].toString)
-    case (a,"Double") => Array(a.asInstanceOf[Double].toString)
-    case (a,"Boolean") => Array(a.asInstanceOf[Boolean].toString)
-    case (a,"String") => Array(a.asInstanceOf[String])
-    case (a,"Byte") => Array(a.asInstanceOf[Byte].toString)
-    case (a,"Array[Int]") => a.asInstanceOf[Array[Int]].map(_.toString)
-    case (a,"Array[Double]") => a.asInstanceOf[Array[Double]].map(_.toString)
-    case (a,"Array[Boolean]") => a.asInstanceOf[Array[Boolean]].map(_.toString)
-    case (a,"Array[String]") => a.asInstanceOf[Array[String]]
-    case (a,"Array[Byte]") => a.asInstanceOf[Array[Byte]].map(_.toString)
+    case (a,"Int")      => Array(a.asInstanceOf[Int].toString)
+    case (a,"Double")   => Array(a.asInstanceOf[Double].toString)
+    case (a,"Boolean")  => Array(socket.boolean2string(a.asInstanceOf[Boolean])
+    case (a,"String")   => Array(a.asInstanceOf[String])
+    case (a,"Byte")     => Array(a.asInstanceOf[Byte].toString)
+    case (a,"Array[Int]")     => a.asInstanceOf[Array[Int]].map(_.toString)
+    case (a,"Array[Double]")  => a.asInstanceOf[Array[Double]].map(_.toString)
+    case (a,"Array[Boolean]") => a.asInstanceOf[Array[Boolean]].map(socket.boolean2string)
+    case (a,"Array[String]")  => a.asInstanceOf[Array[String]]
+    case (a,"Array[Byte]")    => a.asInstanceOf[Array[Byte]].map(_.toString)
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Array[String]")
   }
 
   /** Calls '''`get(identifier,false)`''' and converts the result to an `Array[Byte]`.
-  *
-  * Integers, doubles, Booleans, and strings are supported.  Vectors (i.e. arrays) of these types are also supported by
-  * converting the first element.  Matrices (i.e. rectangular arrays of arrays) are not supported.
   */
   def getR1(identifier: String): Array[Byte] = toR1(get(identifier))
 
   private def toR1(x: (Any, String)): Array[Byte] = x match {
-    case (a,"Int") => Array(a.asInstanceOf[Int].toByte)
-    case (a,"Double") => Array(a.asInstanceOf[Double].toByte)
-    case (a,"Boolean") => Array(if (a.asInstanceOf[Boolean]) 1.toByte else 0.toByte)
-    case (a,"String") => Array(a.asInstanceOf[String].toByte)
-    case (a,"Byte") => Array(a.asInstanceOf[Byte])
-    case (a,"Array[Int]") => a.asInstanceOf[Array[Int]].map(_.toByte)
-    case (a,"Array[Double]") => a.asInstanceOf[Array[Double]].map(_.toByte)
-    case (a,"Array[Boolean]") => a.asInstanceOf[Array[Boolean]].map(x => if (x) 1.toByte else 0.toByte)
-    case (a,"Array[String]") => a.asInstanceOf[Array[String]].map(_.toByte)
-    case (a,"Array[Byte]") => a.asInstanceOf[Array[Byte]]
+    case (a,"Int")     => Array(a.asInstanceOf[Int].toByte)
+    case (a,"Double")  => Array(a.asInstanceOf[Double].toByte)
+    case (a,"Boolean") => Array(socket.boolean2byte(a.asInstanceOf[Boolean]))
+    case (a,"String")  => Array(a.asInstanceOf[String].toByte)
+    case (a,"Byte")    => Array(a.asInstanceOf[Byte])
+    case (a,"Array[Int]")     => a.asInstanceOf[Array[Int]].map(_.toByte)
+    case (a,"Array[Double]")  => a.asInstanceOf[Array[Double]].map(_.toByte)
+    case (a,"Array[Boolean]") => a.asInstanceOf[Array[Boolean]].map(socket.boolean2byte)
+    case (a,"Array[String]")  => a.asInstanceOf[Array[String]].map(_.toByte)
+    case (a,"Array[Byte]")    => a.asInstanceOf[Array[Byte]]
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Array[Byte]")
   }
 
   /** Calls '''`get(identifier,false)`''' and converts the result to an `Array[Array[Int]]`.
-  *
-  * Matrices (i.e. rectangular arrays of arrays) of integers, doubles, Booleans, and strings are supported.  Integers, doubles,
-  * Booleans, and strings themselves are not supported.  Vectors (i.e. arrays) of these
-  * types are also not supported.
   */
   def getI2(identifier: String): Array[Array[Int]] = toI2(get(identifier))
 
   private def toI2(x: (Any, String)): Array[Array[Int]] = x match {
-    case (a,"Array[Array[Int]]") => a.asInstanceOf[Array[Array[Int]]]
-    case (a,"Array[Array[Double]]") => a.asInstanceOf[Array[Array[Double]]].map(_.map(_.toInt))
-    case (a,"Array[Array[Boolean]]") => a.asInstanceOf[Array[Array[Boolean]]].map(_.map(x => if (x) 1 else 0))
-    case (a,"Array[Array[String]]") => a.asInstanceOf[Array[Array[String]]].map(_.map(_.toInt))
-    case (a,"Array[Array[Byte]]") => a.asInstanceOf[Array[Array[Byte]]].map(_.map(_.toInt))
+    case (a,"Array[Array[Int]]")     => a.asInstanceOf[Array[Array[Int]]]
+    case (a,"Array[Array[Double]]")  => a.asInstanceOf[Array[Array[Double]]].map(_.map(_.toInt))
+    case (a,"Array[Array[Boolean]]") => a.asInstanceOf[Array[Array[Boolean]]].map(_.map(socket.boolean2int))
+    case (a,"Array[Array[String]]")  => a.asInstanceOf[Array[Array[String]]].map(_.map(_.toInt))
+    case (a,"Array[Array[Byte]]")    => a.asInstanceOf[Array[Array[Byte]]].map(_.map(_.toInt))
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Array[Array[Int]]")
   }
 
   /** Calls '''`get(identifier,false)`''' and converts the result to an `Array[Array[Double]]`.
-  *
-  * Matrices (i.e. rectangular arrays of arrays) of integers, doubles, Booleans, and strings are supported.  Integers, doubles,
-  * Booleans, and strings themselves are not supported.  Vectors (i.e. arrays) of these
-  * types are also not supported.
   */
   def getD2(identifier: String): Array[Array[Double]] = toD2(get(identifier))
 
   private def toD2(x: (Any, String)): Array[Array[Double]] = x match {
-    case (a,"Array[Array[Int]]") => a.asInstanceOf[Array[Array[Int]]].map(_.map(_.toDouble))
-    case (a,"Array[Array[Double]]") => a.asInstanceOf[Array[Array[Double]]]
-    case (a,"Array[Array[Boolean]]") => a.asInstanceOf[Array[Array[Boolean]]].map(_.map(x => if (x) 1.0 else 0.0))
-    case (a,"Array[Array[String]]") => a.asInstanceOf[Array[Array[String]]].map(_.map(_.toDouble))
-    case (a,"Array[Array[Byte]]") => a.asInstanceOf[Array[Array[Byte]]].map(_.map(_.toDouble))
+    case (a,"Array[Array[Int]]")     => a.asInstanceOf[Array[Array[Int]]].map(_.map(_.toDouble))
+    case (a,"Array[Array[Double]]")  => a.asInstanceOf[Array[Array[Double]]]
+    case (a,"Array[Array[Boolean]]") => a.asInstanceOf[Array[Array[Boolean]]].map(_.map(socket.boolean2double))
+    case (a,"Array[Array[String]]")  => a.asInstanceOf[Array[Array[String]]].map(_.map(_.toDouble))
+    case (a,"Array[Array[Byte]]")    => a.asInstanceOf[Array[Array[Byte]]].map(_.map(_.toDouble))
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Array[Array[Double]]")
   }
 
   /** Calls '''`get(identifier,false)`''' and converts the result to an `Array[Array[Boolean]]`.
-  *
-  * Matrices (i.e. rectangular arrays of arrays) of integers, doubles, Booleans, and strings are supported.  Integers, doubles,
-  * Booleans, and strings themselves are not supported.  Vectors (i.e. arrays) of these
-  * types are also not supported.
   */
   def getL2(identifier: String): Array[Array[Boolean]] = toL2(get(identifier))
 
   private def toL2(x: (Any, String)): Array[Array[Boolean]] = x match {
-    case (a,"Array[Array[Int]]") => a.asInstanceOf[Array[Array[Int]]].map(_.map(_ != 0))
-    case (a,"Array[Array[Double]]") => a.asInstanceOf[Array[Array[Double]]].map(_.map(_ != 0.0))
+    case (a,"Array[Array[Int]]")     => a.asInstanceOf[Array[Array[Int]]].map(_.map(socket.int2boolean))
+    case (a,"Array[Array[Double]]")  => a.asInstanceOf[Array[Array[Double]]].map(_.map(socket.double2boolean))
     case (a,"Array[Array[Boolean]]") => a.asInstanceOf[Array[Array[Boolean]]]
-    case (a,"Array[Array[String]]") => a.asInstanceOf[Array[Array[String]]].map(_.map(_.toLowerCase != "false"))
-    case (a,"Array[Array[Byte]]") => a.asInstanceOf[Array[Array[Byte]]].map(_.map(_ != 0.toByte))
+    case (a,"Array[Array[String]]")  => a.asInstanceOf[Array[Array[String]]].map(_.map(socket.string2boolean))
+    case (a,"Array[Array[Byte]]")    => a.asInstanceOf[Array[Array[Byte]]].map(_.map(socket.byte2boolean))
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Array[Array[Boolean]]")
   }
 
   /** Calls '''`get(identifier,false)`''' and converts the result to an `Array[Array[string]]`.
-  *
-  * Matrices (i.e. rectangular arrays of arrays) of integers, doubles, Booleans, and strings are supported.  Integers, doubles,
-  * Booleans, and strings themselves are not supported.  Vectors (i.e. arrays) of these
-  * types are also not supported.
   */
   def getS2(identifier: String): Array[Array[String]] = toS2(get(identifier))
 
   private def toS2(x: (Any, String)): Array[Array[String]] = x match {
-    case (a,"Array[Array[Int]]") => a.asInstanceOf[Array[Array[Int]]].map(_.map(_.toString))
-    case (a,"Array[Array[Double]]") => a.asInstanceOf[Array[Array[Double]]].map(_.map(_.toString))
-    case (a,"Array[Array[Boolean]]") => a.asInstanceOf[Array[Array[Boolean]]].map(_.map(_.toString))
-    case (a,"Array[Array[String]]") => a.asInstanceOf[Array[Array[String]]]
-    case (a,"Array[Array[Byte]]") => a.asInstanceOf[Array[Array[Byte]]].map(_.map(_.toString))
+    case (a,"Array[Array[Int]]")     => a.asInstanceOf[Array[Array[Int]]].map(_.map(_.toString))
+    case (a,"Array[Array[Double]]")  => a.asInstanceOf[Array[Array[Double]]].map(_.map(_.toString))
+    case (a,"Array[Array[Boolean]]") => a.asInstanceOf[Array[Array[Boolean]]].map(_.map(socket.boolean2string))
+    case (a,"Array[Array[String]]")  => a.asInstanceOf[Array[Array[String]]]
+    case (a,"Array[Array[Byte]]")    => a.asInstanceOf[Array[Array[Byte]]].map(_.map(_.toString))
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Array[Array[String]]")
   }
 
   /** Calls '''`get(identifier,false)`''' and converts the result to an `Array[Array[Byte]]`.
-  *
-  * Matrices (i.e. rectangular arrays of arrays) of integers, doubles, Booleans, and strings are supported.  Integers, doubles,
-  * Booleans, and strings themselves are not supported.  Vectors (i.e. arrays) of these
-  * types are also not supported.
   */
   def getR2(identifier: String): Array[Array[Byte]] = toR2(get(identifier))
 
   private def toR2(x: (Any, String)): Array[Array[Byte]] = x match {
-    case (a,"Array[Array[Int]]") => a.asInstanceOf[Array[Array[Int]]].map(_.map(_.toByte))
-    case (a,"Array[Array[Double]]") => a.asInstanceOf[Array[Array[Double]]].map(_.map(_.toByte))
-    case (a,"Array[Array[Boolean]]") => a.asInstanceOf[Array[Array[Boolean]]].map(_.map(x => if (x) 1.toByte else 0.toByte))
-    case (a,"Array[Array[String]]") => a.asInstanceOf[Array[Array[String]]].map(_.map(_.toByte))
-    case (a,"Array[Array[Byte]]") => a.asInstanceOf[Array[Array[String]]].map(_.map(_.toByte))
+    case (a,"Array[Array[Int]]")     => a.asInstanceOf[Array[Array[Int]]].map(_.map(_.toByte))
+    case (a,"Array[Array[Double]]")  => a.asInstanceOf[Array[Array[Double]]].map(_.map(_.toByte))
+    case (a,"Array[Array[Boolean]]") => a.asInstanceOf[Array[Array[Boolean]]].map(_.map(socket.boolean2byte))
+    case (a,"Array[Array[String]]")  => a.asInstanceOf[Array[Array[String]]].map(_.map(_.toByte))
+    case (a,"Array[Array[Byte]]")    => a.asInstanceOf[Array[Array[String]]].map(_.map(_.toByte))
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Array[Array[Byte]]")
   }
 
 }
 
-/** The companion object to the [[RClient]] class used to create an instance of the [[RClient]] class in a JVM-based
- * application.
+/** The companion object to the [[RClient]] class used to create an instance of the [[RClient]] class in a Scala application.
 *
 * An object `R` is an [[RClient]] instance available in a Scala interpreter created by calling the function
 * `scala` from the package [[http://cran.r-project.org/package=rscala rscala]].  It is through this instance
@@ -1093,9 +995,8 @@ object RClient {
     cmd.println(snippet)
     cmd.flush()
     val socket = new ScalaSocket(portsFile.getAbsolutePath,port,64*1024*1024,debugger)
-    socket.buffer.putInt(OK)
-    socket.buffer.flip()
-    socket.sc.write(socket.buffer)
+    socket.putScalarInt(OK)
+    socket.flush()
     apply(null,rProcessInstance,socket,debugger,serializeOutput,rowMajor)
   }
 
