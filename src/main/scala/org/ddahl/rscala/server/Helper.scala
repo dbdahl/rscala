@@ -11,20 +11,6 @@ object Helper {
     buffer.put(bytes)
   }
 
-  def readString(sc: SocketChannel, buffer: ByteBuffer): String = {
-    buffer.clear()
-    buffer.limit(java.lang.Integer.BYTES)
-    sc.read(buffer)
-    val neededCapacity = buffer.getInt()*java.lang.Integer.BYTES
-    if ( neededCapacity > buffer.capacity ) {
-      throw new RuntimeException("Expanding string capacity is not currently supported.")
-    }
-    buffer.clear()
-    buffer.limit(neededCapacity)
-    sc.read(buffer)
-    new String(buffer.array,0,neededCapacity,"UTF-8")
-  }
-
   def isMatrix[T](x: Array[Array[T]]): Boolean = {
     if ( x.length != 0 ) {
       val len = x(0).length

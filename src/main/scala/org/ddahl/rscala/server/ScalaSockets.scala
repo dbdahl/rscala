@@ -8,9 +8,9 @@ import java.net.InetSocketAddress
 
 import Protocol._
 
-private[rscala] class ScalaSockets(portFilename: String, port: Int, bufferSize: Int, debugger: Debugger) {
+private[rscala] class ScalaSockets(portFilename: String, port: Int, initialBufferSize: Int, debugger: Debugger) {
 
-  require(bufferSize >= 1024, "Buffer size should be at least 1024.")
+  require(initialBufferSize >= 1024, "Buffer size should be at least 1024.")
 
   val ssc = ServerSocketChannel.open()
   ssc.socket.bind(new InetSocketAddress(port))
@@ -30,7 +30,50 @@ private[rscala] class ScalaSockets(portFilename: String, port: Int, bufferSize: 
 
   val bytesPerInt = java.lang.Integer.BYTES
   val bytesPerDouble = java.lang.Double.BYTES
-  val buffer = ByteBuffer.allocate(bufferSize*bytesPerInt)
+
+  private var _buffer = ByteBuffer.allocateDirect(initialBufferSize)
+
+  def buffer = _buffer
+
+  def inFill(nBytes: Int): Unit = {
+    if ( nBytes > buffer.capacity ) {
+      _buffer = ByteBuffer.allocateDirect(nBytes)
+    } else {
+      buffer.clear()
+      buffer.limit(nBytes)
+    }
+    sc.read(buffer)
+    buffer.flip()
+  }
+
+  def readString(): String = {
+    inFill(bytesPerInt)
+    inFill(buffer.getInt()*bytesPerInt)
+    sc.read(buffer)
+    val array = new Array[Byte](buffer.remaining)
+    buffer.get(array)
+    new String(array,"UTF-8")
+  }
+
+  def outFill(nBytes: Int): Unit = {
+    if ( buffer.remaining + nBytes.toLong > buffer.limit ) {
+      buffer.flip()
+      sc.write(buffer)
+      if ( nBytes > buffer.capacity ) {
+        _buffer = ByteBuffer.allocateDirect(nBytes)
+      } else {
+        buffer.clear()
+      }
+    }
+  }
+
+  def writeString(string: String): Unit = {
+    val bytes = string.getBytes("UTF-8")
+    outFill(bytesPerInt)
+    buffer.putInt(bytes.length)
+    outFill(bytes.length)
+    buffer.put(bytes)
+  }
 
 }
 

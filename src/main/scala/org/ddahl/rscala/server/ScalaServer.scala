@@ -15,13 +15,13 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
 
   private val sockets = new ScalaSockets(portsFilename,port,bufferSize,debugger)
 
-  import sockets.{sc, buffer, bytesPerInt, bytesPerDouble}
+  import sockets.{sc, buffer, inFill, outFill, bytesPerInt, bytesPerDouble, readString, writeString}
   import Helper.{isMatrix, transposeIfNot}
 
   buffer.putInt(OK)
   buffer.flip()
   sc.write(buffer)
-  private val R = RClient(this,null,sc,buffer,debugger,serializeOutput,rowMajor)
+  private val R = RClient(this,null,sockets,debugger,serializeOutput,rowMajor)
   if ( repl.bind("R","org.ddahl.rscala.RClient",R) != Success ) sys.error("Problem binding R.")
   if ( repl.interpret("import org.ddahl.rscala.{EphemeralReference, PersistentReference}") != Success ) sys.error("Problem interpreting import statement.")
   if ( serializeOutput ) {
@@ -64,9 +64,6 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
     r
   }
 
-  private def readString() = {
-    Helper.readString(sc,buffer)
-  }
   private def writeString(string: String): Unit = {
     if ( debugger.value ) debugger.msg("Writing string: <"+string+">")
     Helper.writeString(buffer,string)
@@ -173,19 +170,9 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
     buffer.putInt(OK)
   }
 
-  private def ensure(neededCapacity: Int): Unit = {
-    if ( neededCapacity > buffer.capacity ) {
-      throw new RuntimeException("Expanding buffer capacity is not currently supported.")
-    }
-    buffer.clear()
-    buffer.limit(neededCapacity)
-    sc.read(buffer)
-    buffer.flip()
-  }
-
   private def doSet(): Unit = {
     val identifier = readString()
-    buffer.clear(); buffer.limit(bytesPerInt); sc.read(buffer)
+    inFill(bytesPerInt)
     buffer.getInt() match {
       case NULLTYPE =>
         if ( debugger.value ) debugger.msg("Setting null.")
@@ -209,46 +196,42 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
         }
       case SCALAR =>
         if ( debugger.value ) debugger.msg("Setting atomic.")
-        buffer.clear()
-        buffer.limit(bytesPerInt)
-        sc.read(buffer)
+        inFill(bytesPerInt)
         val (v: Any, t: String) = buffer.getInt() match {
           case INTEGER =>
-            ensure(bytesPerInt)
+            inFill(bytesPerInt)
             (buffer.getInt(),"Int")
           case DOUBLE =>
-            ensure(bytesPerDouble)
+            inFill(bytesPerDouble)
             (buffer.getDouble(),"Double")
           case BOOLEAN =>
-            ensure(bytesPerInt)
+            inFill(bytesPerInt)
             (( buffer.getInt() != 0 ),"Boolean")
           case STRING => (readString(),"String")
           case BYTE =>
-            ensure(1)
+            inFill(1)
             (buffer.get(),"Byte")
           case _ => throw new RuntimeException("Protocol error")
         }
         setAVM(identifier,t,v)
       case VECTOR =>
         if ( debugger.value ) debugger.msg("Setting vector...")
-        buffer.clear()
-        buffer.limit(2*bytesPerInt)
-        sc.read(buffer)
+        inFill(2*bytesPerInt)
         val length = buffer.getInt()
         if ( debugger.value ) debugger.msg("... of length: "+length)
         val (v, t): (Any,String) = buffer.getInt() match {
           case INTEGER =>
-            ensure(length*bytesPerInt)
+            inFill(length*bytesPerInt)
             val array = new Array[Int](length)
             buffer.asIntBuffer.get(array)
             (array,"Array[Int]")
           case DOUBLE =>
-            ensure(length*bytesPerDouble)
+            inFill(length*bytesPerDouble)
             val array = new Array[Double](length)
             buffer.asDoubleBuffer.get(array)
             (array,"Array[Double]")
           case BOOLEAN =>
-            ensure(length*bytesPerInt)
+            inFill(length*bytesPerInt)
             (Array.fill(length) { ( buffer.getInt() != 0 ) },"Array[Boolean]")
           case STRING => (Array.fill(length) { readString() },"Array[String]")
           case BYTE =>
@@ -260,32 +243,38 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
         setAVM(identifier,t,v)
       case MATRIX =>
         if ( debugger.value ) debugger.msg("Setting matrix...")
-        buffer.clear()
-        buffer.limit(3*bytesPerInt)
-        sc.read(buffer)
+        inFill(3*bytesPerInt)
         val nrow = buffer.getInt()
         val ncol = buffer.getInt()
         if ( debugger.value ) debugger.msg("... of dimensions: "+nrow+","+ncol)
         val (v, t): (Any,String) = buffer.getInt() match {
           case INTEGER =>
-            ensure(nrow*ncol*bytesPerInt)
-            val array = Array.fill(nrow) { Array.fill(ncol) { buffer.getInt() } }
+            inFill(nrow*ncol*bytesPerInt)
+            val array = Array.fill(nrow) {
+              val array = new Array[Int](ncol)
+              buffer.asIntBuffer.get(array)
+              array
+            }
             (transposeIfNot(array,rowMajor),"Array[Array[Int]]")
           case DOUBLE =>
-            ensure(nrow*ncol*bytesPerDouble)
-            val array = Array.fill(nrow) { Array.fill(ncol) { buffer.getDouble() } }
+            inFill(nrow*ncol*bytesPerDouble)
+            val array = Array.fill(nrow) {
+              val array = new Array[Double](ncol)
+              buffer.asDoubleBuffer.get(array)
+              array
+            }
             ( transposeIfNot(array, rowMajor),"Array[Array[Double]]")
           case BOOLEAN =>
-            ensure(nrow*ncol*bytesPerInt)
+            inFill(nrow*ncol*bytesPerInt)
             val array =  Array.fill(nrow) { Array.fill(ncol) { ( buffer.getInt() != 0 ) } }
             ( transposeIfNot(array, rowMajor),"Array[Array[Boolean]]")
           case STRING => ( transposeIfNot( Array.fill(nrow) { Array.fill(ncol) { readString() } }, rowMajor),"Array[Array[String]]")
           case BYTE =>
-            ensure(nrow*ncol)
+            inFill(nrow*ncol)
             ( transposeIfNot( Array.fill(nrow) {
-              val array = new Array[Byte](ncol)
-              buffer.get(array)
-              array
+              val buffer2 = ByteBuffer.allocate(ncol)
+              sc.read(buffer2)
+              buffer2.array
             }, rowMajor),"Array[Array[Byte]]")
           case _ => throw new RuntimeException("Protocol error")
         }
