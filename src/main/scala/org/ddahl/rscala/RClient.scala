@@ -605,7 +605,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
     case (a,"Array[Boolean]") => socket.boolean2int(a.asInstanceOf[Array[Boolean]](0))
     case (a,"Array[String]")  => a.asInstanceOf[Array[String]](0).toInt
     case (a,"Array[Byte]")    => a.asInstanceOf[Array[Byte]](0).toInt
-    case (a,"Array[Array[Int]]")     => a.asInstanceOf[Array[Array[Int]](0)(0)
+    case (a,"Array[Array[Int]]")     => a.asInstanceOf[Array[Array[Int]]](0)(0)
     case (a,"Array[Array[Double]]")  => a.asInstanceOf[Array[Array[Double]]](0)(0).toInt
     case (a,"Array[Array[Boolean]]") => socket.boolean2int(a.asInstanceOf[Array[Array[Boolean]]](0)(0))
     case (a,"Array[Array[String]]")  => a.asInstanceOf[Array[Array[String]]](0)(0).toInt
@@ -651,11 +651,11 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
     case (a,"Array[Boolean]") => a.asInstanceOf[Array[Boolean]](0)
     case (a,"Array[String]")  => socket.string2boolean(a.asInstanceOf[Array[String]](0))
     case (a,"Array[Byte]")    => socket.byte2boolean(a.asInstanceOf[Array[Byte]](0))
-    case (a,"Array[Array[Int]]")     => socket.int2boolean(a.asInstanceOf[Array[Array[Int]](0)(0)
-    case (a,"Array[Array[Double]]")  => socket.double2boolean(a.asInstanceOf[Array[Array[Double]](0)(0)
-    case (a,"Array[Array[Boolean]]") => a.asInstanceOf[Array[Boolean]](0)(0)
-    case (a,"Array[Array[String]]")  => socket.string2boolean(a.asInstanceOf[Array[Array[String]](0)(0)
-    case (a,"Array[Array[Byte]]")    => socket.byte2boolean(a.asInstanceOf[Array[Array[Byte]](0)(0)
+    case (a,"Array[Array[Int]]")     => socket.int2boolean(a.asInstanceOf[Array[Array[Int]]](0)(0))
+    case (a,"Array[Array[Double]]")  => socket.double2boolean(a.asInstanceOf[Array[Array[Double]]](0)(0))
+    case (a,"Array[Array[Boolean]]") => a.asInstanceOf[Array[Array[Boolean]]](0)(0)
+    case (a,"Array[Array[String]]")  => socket.string2boolean(a.asInstanceOf[Array[Array[String]]](0)(0))
+    case (a,"Array[Array[Byte]]")    => socket.byte2boolean(a.asInstanceOf[Array[Array[Byte]]](0)(0))
     case (_,tp) => throw new RuntimeException(s"Unable to cast ${tp} to Boolean")
   }
 
@@ -746,11 +746,11 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   def getL1(identifier: String): Array[Boolean] = toL1(get(identifier))
 
   private def toL1(x: (Any, String)): Array[Boolean] = x match {
-    case (a,"Int")     => Array(socket.int2boolean(a.asInstanceOf[Int])
-    case (a,"Double")  => Array(socket.double2boolean(a.asInstanceOf[Double])
+    case (a,"Int")     => Array(socket.int2boolean(a.asInstanceOf[Int]))
+    case (a,"Double")  => Array(socket.double2boolean(a.asInstanceOf[Double]))
     case (a,"Boolean") => Array(a.asInstanceOf[Boolean])
-    case (a,"String")  => Array(socket.string2boolean(a.asInstanceOf[String])
-    case (a,"Byte")    => Array(socket.byte2boolean(a.asInstanceOf[Byte])
+    case (a,"String")  => Array(socket.string2boolean(a.asInstanceOf[String]))
+    case (a,"Byte")    => Array(socket.byte2boolean(a.asInstanceOf[Byte]))
     case (a,"Array[Int]")     => a.asInstanceOf[Array[Int]].map(socket.int2boolean)
     case (a,"Array[Double]")  => a.asInstanceOf[Array[Double]].map(socket.double2boolean)
     case (a,"Array[Boolean]") => a.asInstanceOf[Array[Boolean]]
@@ -766,7 +766,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   private def toS1(x: (Any, String)): Array[String] = x match {
     case (a,"Int")      => Array(a.asInstanceOf[Int].toString)
     case (a,"Double")   => Array(a.asInstanceOf[Double].toString)
-    case (a,"Boolean")  => Array(socket.boolean2string(a.asInstanceOf[Boolean])
+    case (a,"Boolean")  => Array(socket.boolean2string(a.asInstanceOf[Boolean]))
     case (a,"String")   => Array(a.asInstanceOf[String])
     case (a,"Byte")     => Array(a.asInstanceOf[Byte].toString)
     case (a,"Array[Int]")     => a.asInstanceOf[Array[Int]].map(_.toString)

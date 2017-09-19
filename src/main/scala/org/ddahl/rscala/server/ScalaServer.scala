@@ -225,8 +225,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
     val v = optionWithType._1.get
     if ( v == null || v.isInstanceOf[Unit] ) {
       if ( debugger.value ) debugger.msg("... which is null")
-      socket.outFill(socket.bytesPerInt)
-      socket.putInt(NULLTYPE)
+      socket.putScalarInt(NULLTYPE)
       return
     }
     val t = if ( optionWithType._2 == "Any" ) {

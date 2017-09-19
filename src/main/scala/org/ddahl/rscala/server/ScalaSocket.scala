@@ -255,7 +255,7 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
   // Matrices
 
   def putMatrixInt(x: Array[Array[Int]], rowMajor: Boolean): Unit = {
-    val (nrow, ncol) = rowsColumns(x)
+    val (nrow, ncol) = rowsColumns(x,rowMajor)
     outFill(nrow*ncol*bytesPerInt)
     for ( j <- 0 until ncol ) {
       for ( i <- 0 until nrow ) {
@@ -279,7 +279,7 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
   }
 
   def putMatrixDouble(x: Array[Array[Double]], rowMajor: Boolean): Unit = {
-    val (nrow, ncol) = rowsColumns(x)
+    val (nrow, ncol) = rowsColumns(x,rowMajor)
     outFill(nrow*ncol*bytesPerDouble)
     for ( j <- 0 until ncol ) {
       for ( i <- 0 until nrow ) {
@@ -303,7 +303,7 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
   }
 
   def putMatrixBoolean(x: Array[Array[Boolean]], rowMajor: Boolean): Unit = {
-    val (nrow, ncol) = rowsColumns(x)
+    val (nrow, ncol) = rowsColumns(x,rowMajor)
     outFill(nrow*ncol*bytesPerInt)
     for ( j <- 0 until ncol ) {
       for ( i <- 0 until nrow ) {
@@ -327,7 +327,7 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
   }
 
   def putMatrixString(x: Array[Array[String]], rowMajor: Boolean): Unit = {
-    val (nrow, ncol) = rowsColumns(x)
+    val (nrow, ncol) = rowsColumns(x,rowMajor)
     for ( j <- 0 until ncol ) {
       for ( i <- 0 until nrow ) {
         putScalarString(if ( rowMajor ) x(i)(j) else x(j)(i))
@@ -347,7 +347,7 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
   }
 
   def putMatrixByte(x: Array[Array[Byte]], rowMajor: Boolean): Unit = {
-    val (nrow, ncol) = rowsColumns(x)
+    val (nrow, ncol) = rowsColumns(x,rowMajor)
     outFill(nrow*ncol)
     for ( j <- 0 until ncol ) {
       for ( i <- 0 until nrow ) {
