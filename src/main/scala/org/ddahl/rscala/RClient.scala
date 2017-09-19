@@ -48,9 +48,8 @@ import Protocol._
 *
 * @author David B. Dahl
 */
-class RClient private (private val scalaServer: ScalaServer, private val rProcessInstance: Process, private val sockets: ScalaSockets, private val debugger: Debugger, val serializeOutput: Boolean, val rowMajor: Boolean) extends Dynamic {
+class RClient private (private val scalaServer: ScalaServer, private val rProcessInstance: Process, private val socket: ScalaSocket, private val debugger: Debugger, val serializeOutput: Boolean, val rowMajor: Boolean) extends Dynamic {
 
-  import sockets.{buffer, sc, readString, writeString}
   import Helper.{isMatrix, transposeIfNot}
 
   private val referenceQueue = new ReferenceQueue[PersistentReference]()
@@ -66,11 +65,11 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   */
   def ping(): Boolean = synchronized {
     try {
-      buffer.clear()
-      buffer.putInt(PING)
-      buffer.flip()
-      sc.write(buffer)
-      val status = buffer.getInt()
+      socket.outFill(socket.bytesPerInt)
+      socket.putInt(PING)
+      socket.flush()
+      socket.inFill(socket.bytePerInt)
+      val status = socket.getInt()
       status == OK
     } catch {
       case _ : Throwable => false
@@ -84,10 +83,9 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   def exit(): Unit = synchronized {
     try {
       check4GC()
-      buffer.clear()
-      buffer.putInt(SHUTDOWN)
-      buffer.flip()
-      sc.write(buffer)
+      socket.outFile(socket.bytesPerInt)
+      socket.putInt(SHUTDOWN)
+      flush()
     } catch {
       case e : Throwable =>
         if ( rProcessInstance != null ) rProcessInstance.destroy()
@@ -98,21 +96,20 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   private def check4GC() = {
     val first = referenceQueue.poll
     if ( first != null ) {
-      buffer.clear()
-      buffer.putInt(FREE)
+      socket.outFill(2*socket.bytesPerInt)
+      socket.putInt(FREE)
       var list = List[JavaReference[_ <: PersistentReference]](first)
       while ( list.head != null ) {
         list = referenceQueue.poll :: list
       }
       list = list.tail
-      buffer.putInt(list.size)
+      socket.putInt(list.size)
       list.foreach( x => {
         val id = referenceMap(x)
         referenceMap.remove(x)
-        writeString(id)
+        socket.putScalarString(id)
       })
-      buffer.flip()
-      sc.write(buffer)
+      socket.flush()
     }
   }
 
@@ -128,10 +125,10 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
   def eval(snippet: String, evalOnly: Boolean, asReference: Boolean): (Any, String) = synchronized {
     check4GC()
     if ( debug ) debugger.msg("Sending EVAL request.")
-    buffer.putInt(if(serializeOutput) EVAL else EVALNAKED)
-    writeString(if ( RClient.isWindows ) snippet.replaceAll("\r\n","\n") else snippet)
-    buffer.flip()
-    sc.write(buffer)
+    socket.outFill(socket.bytesPerInt)
+    socket.putInt(if(serializeOutput) EVAL else EVALNAKED)
+    socket.putScalarString(if ( RClient.isWindows ) snippet.replaceAll("\r\n","\n") else snippet)
+    socket.flush()
     if ( scalaServer != null ) {
       if ( debug ) debugger.msg("Spinning up Scala server.")
       scalaServer.run()
@@ -139,7 +136,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
     }
     val status = buffer.getInt()
     if ( debug ) debugger.msg("Status is: "+status)
-    val output = readString()
+    val output = socket.getScalarString()
     if ( output != "" ) {
       println(output)
     } else if ( debug ) debugger.msg("No output.")
@@ -571,7 +568,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
     if ( index != "" ) {
       val status = buffer.getInt()
       if ( status != OK ) {
-        val output = readString()
+        val output = socket.getScalarString()
         if ( output != "" ) println(output)
         throw new RuntimeException("Error in R evaluation.")
       }
@@ -616,7 +613,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
           case INTEGER => (buffer.getInt(),"Int")
           case DOUBLE => (buffer.getDouble(),"Double")
           case BOOLEAN => (( buffer.getInt() != 0 ),"Boolean")
-          case STRING => (readString(),"String")
+          case STRING => (socket.getScalarString(),"String")
           case BYTE => (buffer.get(),"Byte")
           case _ => throw new RuntimeException("Protocol error")
         }
@@ -628,7 +625,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
           case INTEGER => (Array.fill(length) { buffer.getInt() },"Array[Int]")
           case DOUBLE => (Array.fill(length) { buffer.getDouble() },"Array[Double]")
           case BOOLEAN => (Array.fill(length) { ( buffer.getInt() != 0 ) },"Array[Boolean]")
-          case STRING => (Array.fill(length) { readString() },"Array[String]")
+          case STRING => (Array.fill(length) { socket.getScalarString() },"Array[String]")
           case BYTE => ( { val bytes = new Array[Byte](length); buffer.get(bytes); bytes },"Array[Byte]")
           case _ => throw new RuntimeException("Protocol error")
         }
@@ -641,13 +638,13 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
           case INTEGER => ( transposeIfNot(Array.fill(nrow) { Array.fill(ncol) { buffer.getInt() } }, rowMajor),"Array[Array[Int]]")
           case DOUBLE => ( transposeIfNot(Array.fill(nrow) { Array.fill(ncol) { buffer.getDouble() } }, rowMajor),"Array[Array[Double]]")
           case BOOLEAN => ( transposeIfNot(Array.fill(nrow) { Array.fill(ncol) { ( buffer.getInt() != 0 ) } }, rowMajor),"Array[Array[Boolean]]")
-          case STRING => ( transposeIfNot(Array.fill(nrow) { Array.fill(ncol) { readString() } }, rowMajor),"Array[Array[String]]")
+          case STRING => ( transposeIfNot(Array.fill(nrow) { Array.fill(ncol) { socket.getScalarString() } }, rowMajor),"Array[Array[String]]")
           case BYTE => ( transposeIfNot(Array.fill(nrow) { val bytes = new Array[Byte](ncol); buffer.get(bytes); bytes }, rowMajor),"Array[Array[Byte]]")
           case _ => throw new RuntimeException("Protocol error")
         }
       case REFERENCE =>
         if ( debug ) debugger.msg("Getting reference.")
-        val reference = PersistentReference(readString())
+        val reference = PersistentReference(socket.getScalarString())
         val phantomReference = new PhantomReference(reference, referenceQueue)
         referenceMap(phantomReference) = reference.name
         (reference, "org.ddahl.rscala.PersistentReference")
@@ -1095,15 +1092,15 @@ object RClient {
     while ( cmd == null ) Thread.sleep(100)
     cmd.println(snippet)
     cmd.flush()
-    val sockets = new ScalaSockets(portsFile.getAbsolutePath,port,64*1024*1024,debugger)
-    sockets.buffer.putInt(OK)
-    sockets.buffer.flip()
-    sockets.sc.write(sockets.buffer)
-    apply(null,rProcessInstance,sockets,debugger,serializeOutput,rowMajor)
+    val socket = new ScalaSocket(portsFile.getAbsolutePath,port,64*1024*1024,debugger)
+    socket.buffer.putInt(OK)
+    socket.buffer.flip()
+    socket.sc.write(socket.buffer)
+    apply(null,rProcessInstance,socket,debugger,serializeOutput,rowMajor)
   }
 
   /** __For rscala developers only__: Returns an instance of the [[RClient]] class.  */
-  def apply(scalaServer: ScalaServer, rProcessInstance: Process, sockets: ScalaSockets, debugger: Debugger, serializeOutput: Boolean, rowMajor: Boolean): RClient = new RClient(scalaServer,rProcessInstance,sockets,debugger,serializeOutput,rowMajor)
+  def apply(scalaServer: ScalaServer, rProcessInstance: Process, socket: ScalaSocket, debugger: Debugger, serializeOutput: Boolean, rowMajor: Boolean): RClient = new RClient(scalaServer,rProcessInstance,socket,debugger,serializeOutput,rowMajor)
 
 }
 

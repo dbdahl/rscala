@@ -8,14 +8,14 @@ import java.net.InetSocketAddress
 
 import Protocol._
 
-private[rscala] class ScalaSockets(portFilename: String, port: Int, initialBufferSize: Int, debugger: Debugger) {
+private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBufferSize: Int, debugger: Debugger) {
 
   require(initialBufferSize >= 1024, "Buffer size should be at least 1024.")
 
-  val ssc = ServerSocketChannel.open()
+  private val ssc = ServerSocketChannel.open()
   ssc.socket.bind(new InetSocketAddress(port))
 
-  if ( debugger.value ) debugger.msg("Trying to open port filename: "+portFilename)
+  if ( debugger.value ) debugger.msg("Writing to port file: "+portFilename)
   locally {
     val portNumberFile = new File(portFilename)
     val p = new PrintWriter(portNumberFile)
@@ -24,7 +24,7 @@ private[rscala] class ScalaSockets(portFilename: String, port: Int, initialBuffe
   }
   if ( debugger.value ) debugger.msg("Server is running on port "+ssc.socket.getLocalPort)
 
-  val sc = ssc.accept()
+  private val sc = ssc.accept()
   sc.configureBlocking(true)
   sc.socket.setTcpNoDelay(true)
 
@@ -46,34 +46,44 @@ private[rscala] class ScalaSockets(portFilename: String, port: Int, initialBuffe
     buffer.flip()
   }
 
-  def readString(): String = {
-    inFill(bytesPerInt)
-    inFill(buffer.getInt()*bytesPerInt)
-    sc.read(buffer)
-    val array = new Array[Byte](buffer.remaining)
-    buffer.get(array)
-    new String(array,"UTF-8")
-  }
-
   def outFill(nBytes: Int): Unit = {
     if ( buffer.remaining + nBytes.toLong > buffer.limit ) {
-      buffer.flip()
-      sc.write(buffer)
+      flush()
       if ( nBytes > buffer.capacity ) {
         _buffer = ByteBuffer.allocateDirect(nBytes)
-      } else {
-        buffer.clear()
       }
     }
   }
 
-  def writeString(string: String): Unit = {
+  def putString(string: String): Unit = {
     val bytes = string.getBytes("UTF-8")
     outFill(bytesPerInt)
     buffer.putInt(bytes.length)
     outFill(bytes.length)
     buffer.put(bytes)
   }
+
+  def getString(): String = {
+    inFill(bytesPerInt)
+    inFill(buffer.getInt()*bytesPerInt)
+    val array = new Array[Byte](buffer.remaining)
+    buffer.get(array)
+    new String(array,"UTF-8")
+  }
+
+  def putInt(x: Int) = buffer.putInt(x)
+
+  def getInt() = buffer.getInt()
+
+  def read(x: ByteBuffer) = sc.read(x)
+
+  def flush(): Unit = {
+    buffer.flip()
+    sc.write(buffer)
+    buffer.clear()
+  }
+
+  def close() = sc.close()
 
 }
 
