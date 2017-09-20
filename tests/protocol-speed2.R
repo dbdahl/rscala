@@ -1,11 +1,17 @@
 heap.maximum <- "32G"
 source("common.R",print.eval=TRUE)
 
-func1a <- function(x=matrix(0.0,nrow=100000,ncol=300)) {  # 228 MB
+library(help="rscala")
+
+func0a <- function(x=matrix(0.0,nrow=100000,ncol=300)) {  # 228 MB
   s %!% 'x'
 }
 
-func1b <- function(x=matrix(0.0,nrow=1000,ncol=300)) {  # 2.28 MB
+func1a <- function(x=matrix(0L,nrow=200000,ncol=300)) {  # 228 MB
+  s %!% 'x'
+}
+
+func1b <- function(x=matrix(0L,nrow=2000,ncol=300)) {  # 2.28 MB
   s %!% 'x'
 }
 
@@ -33,6 +39,7 @@ library(microbenchmark)
 set.seed(13124)
 
 microbenchmark(
+  func0a(),
   func1a(),
   func1b(),
   func2a(),

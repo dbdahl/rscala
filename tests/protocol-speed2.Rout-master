@@ -17,15 +17,76 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
-> heap.maximum <- "4G"
+> heap.maximum <- "32G"
 > source("common.R",print.eval=TRUE)
 # R Under development (unstable) (2017-08-27 r73146) # ramah # FALSE # TRUE
 > 
-> func1a <- function(x=matrix(0.0,nrow=100000,ncol=300)) {  # 228 MB
+> library(help="rscala")
+
+		Information on package ‘rscala’
+
+Description:
+
+Package:              rscala
+Type:                 Package
+Title:                Bi-Directional Interface Between 'R' and 'Scala'
+                      with Callbacks
+Version:              2.3.5
+Date:                 2017-08-30
+Authors@R:            person(given="David
+                      B.",family="Dahl",role=c("aut","cre"),email="dahl@stat.byu.edu")
+URL:                  https://github.com/dbdahl/rscala
+BugReports:           https://github.com/dbdahl/rscala/issues
+Imports:              utils
+SystemRequirements:   Scala (>= 2.10)
+Description:          The 'Scala' <http://www.scala-lang.org/>
+                      interpreter is embedded in 'R' and callbacks to
+                      'R' from the embedded interpreter are supported.
+                      Conversely, the 'R' interpreter is embedded in
+                      'Scala'. 'Scala' versions in the 2.10.x, 2.11.x,
+                      and 2.12.x series are supported.
+License:              GPL (>= 2) | BSD_3_clause + file LICENSE
+VignetteBuilder:      knitr
+Suggests:             knitr, microbenchmark, rJava, xtable
+NeedsCompilation:     no
+Packaged:             2017-08-30 16:25:52 UTC; dahl
+Author:               David B. Dahl [aut, cre]
+Maintainer:           David B. Dahl <dahl@stat.byu.edu>
+Repository:           CRAN
+Date/Publication:     2017-08-30 20:25:55 UTC
+Built:                R 3.5.0; ; 2017-09-20 14:41:56 UTC; unix
+
+Index:
+
+%~%                     Execute Code, Set Values, and Get Values in a
+                        Scala Interpreter
+close.ScalaInterpreter
+                        Closes the Resources of a Scala Interpreter
+print.ScalaInterpreter
+                        String Representation of a Scala Interpreter,
+                        Reference, or Function
+rscala-package          Bi-Directional Interface Between R and Scala
+                        with Callbacks
+scala                   Create an Instance of an Embedded Scala
+                        Interpreter
+scalaSettings           Settings of the Scala Interpreter
+strintrplt              String Interpolation with Arbitrary R Code
+
+Further information is available in the following vignettes in
+directory ‘/home/dahl/local/R/devel/lib/R/library/rscala/doc’:
+
+article: Integration of R and Scala Using rscala (source, pdf)
+
+> 
+> func0a <- function(x=matrix(0.0,nrow=100000,ncol=300)) {  # 228 MB
 +   s %!% 'x'
 + }
 > 
-> func1b <- function(x=matrix(0.0,nrow=1000,ncol=300)) {  # 2.28 MB
+> func1a <- function(x=matrix(0L,nrow=200000,ncol=300)) {  # 228 MB
++   s %!% 'x'
++ }
+> 
+> func1b <- function(x=matrix(0L,nrow=2000,ncol=300)) {  # 2.28 MB
 +   s %!% 'x'
 + }
 > 
@@ -37,29 +98,55 @@ Type 'q()' to quit R.
 +   s %!% 'x'
 + }
 > 
+> func3a <- function(x=integer(60000000)) {  # 228 MB
++   s %!% 'x.length'
++ }
+> 
+> func4a <- function(x=integer(0)) {  # 228 MB
++   s %!% 'new Array[Int](60000000)'
++ }
+> 
+> 
+> s$a <- 1:60000000
+> invisible(s$a)
 > 
 > library(microbenchmark)
 > set.seed(13124)
 > 
 > microbenchmark(
++   func0a(),
 +   func1a(),
 +   func1b(),
 +   func2a(),
 +   func2b(),
++   func3a(),
++   func4a(),
++   s$a <- 1:60000000,
++   s$a,
 +   times=5)
 Unit: milliseconds
-     expr         min         lq       mean      median          uq        max
- func1a()  3441.49236  3459.7483  3736.5202  3766.35078  3878.14661  4136.8629
- func1b()    42.42491    42.9860   181.6207    47.22947    83.94619   691.5167
- func2a() 12615.91657 12676.4310 12940.1111 12788.24392 13183.80697 13436.1571
- func2b()   123.63997   126.4072   179.9031   127.60680   146.28421   375.5773
- neval
-     5
-     5
-     5
-     5
+           expr        min         lq       mean     median         uq
+       func0a()  5578.1896  5580.5683  6719.3795  6853.8095  6876.7581
+       func1a() 16166.7941 17002.6063 17335.8947 17741.9002 17779.3933
+       func1b()   152.6721   162.6048   470.1004   172.1912   267.0946
+       func2a() 14823.0284 15256.2027 15389.1252 15388.0412 15409.0655
+       func2b()   139.9297   148.3822   595.2647   210.6923   236.1430
+       func3a()  8368.0972  8938.3067  9128.8090  9217.7353  9408.8514
+       func4a()  6899.1293  7251.8265  7537.5544  7528.4969  7791.3436
+ s$a <- 1:6e+07  8282.9838  8513.0158  9244.9172  8702.1439  9410.0450
+            s$a  7517.3712  8035.1681  8582.6394  8931.0428  9014.5433
+       max neval
+  8707.572     5
+ 17988.780     5
+  1595.939     5
+ 16069.288     5
+  2241.176     5
+  9711.054     5
+  8216.975     5
+ 11316.397     5
+  9415.072     5
 > 
 > 
 > proc.time()
    user  system elapsed 
- 11.468   2.512  92.747 
+ 30.444   6.408 408.344 
