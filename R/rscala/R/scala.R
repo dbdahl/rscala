@@ -227,14 +227,14 @@ scalaGet <- function(interpreter,identifier,as.reference) {
       dataType <- rb(interpreter,"integer")
       if ( dataType == STRING ) {
         v <- matrix("",nrow=dim[1],ncol=dim[2])
-        if ( dim[1] > 0 ) for ( i in seq_len(dim[1]) ) {
-          if ( dim[2] > 0 ) for ( j in seq_len(dim[2]) ) {
+        if ( dim[2] > 0 ) for ( j in seq_len(dim[2]) ) {
+          if ( dim[1] > 0 ) for ( i in seq_len(dim[1]) ) {
             v[i,j] <- rc(interpreter)
           }
         }
         v
       } else {
-        v <- matrix(rb(interpreter,typeMap[[dataType]],dim[1]*dim[2]),nrow=dim[1],byrow=TRUE)
+        v <- matrix(rb(interpreter,typeMap[[dataType]],dim[1]*dim[2]),nrow=dim[1],byrow=FALSE)
         if ( dataType == BOOLEAN ) mode(v) <- "logical"
         v
       }
@@ -348,13 +348,11 @@ scalaSet <- function(interpreter,identifier,value) {
         wb(interpreter,MATRIX)
         wb(interpreter,dim(value))
         wb(interpreter,type)
-        if ( nrow(value) > 0 ) for ( i in seq_len(nrow(value)) ) {
-          if ( type == STRING ) {
-            if ( ncol(value) > 0 ) for ( j in seq_len(ncol(value)) ) wc(interpreter,value[i,j])
-          }
-          else if ( type == BOOLEAN ) wb(interpreter,as.integer(value[i,]))
-          else wb(interpreter,value[i,])
-        }
+        dim(value) <- NULL
+        if ( type == STRING ) {
+          if ( length(value) > 0 ) for ( i in seq_len(length(value)) ) wc(interpreter,value[i])
+        } else if ( type == BOOLEAN ) wb(interpreter,as.integer(value))
+        else wb(interpreter,value)
       } else if ( is.null(value) ) {
         if ( get("debug",envir=interpreter[['env']]) ) msg("Sending SET request.")
         wb(interpreter,SET)
