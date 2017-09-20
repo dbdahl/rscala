@@ -1,0 +1,165 @@
+
+R Under development (unstable) (2017-08-27 r73146) -- "Unsuffered Consequences"
+Copyright (C) 2017 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> heap.maximum <- "32G"
+> source("common.R",print.eval=TRUE)
+# R Under development (unstable) (2017-08-27 r73146) # ramah # FALSE # TRUE
+> 
+> library(help="rscala")
+
+		Information on package ‘rscala’
+
+Description:
+
+Package:              rscala
+Type:                 Package
+Title:                Bi-Directional Interface Between 'R' and 'Scala'
+                      with Callbacks
+Version:              2.3.5
+Date:                 2017-08-30
+Authors@R:            person(given="David
+                      B.",family="Dahl",role=c("aut","cre"),email="dahl@stat.byu.edu")
+URL:                  https://github.com/dbdahl/rscala
+BugReports:           https://github.com/dbdahl/rscala/issues
+Imports:              utils
+SystemRequirements:   Scala (>= 2.10)
+Description:          The 'Scala' <http://www.scala-lang.org/>
+                      interpreter is embedded in 'R' and callbacks to
+                      'R' from the embedded interpreter are supported.
+                      Conversely, the 'R' interpreter is embedded in
+                      'Scala'. 'Scala' versions in the 2.10.x, 2.11.x,
+                      and 2.12.x series are supported.
+License:              GPL (>= 2) | BSD_3_clause + file LICENSE
+VignetteBuilder:      knitr
+Suggests:             knitr, microbenchmark, rJava, xtable
+NeedsCompilation:     no
+Packaged:             2017-08-30 16:25:52 UTC; dahl
+Author:               David B. Dahl [aut, cre]
+Maintainer:           David B. Dahl <dahl@stat.byu.edu>
+Repository:           CRAN
+Date/Publication:     2017-08-30 20:25:55 UTC
+Built:                R 3.5.0; ; 2017-09-20 17:26:03 UTC; unix
+
+Index:
+
+%~%                     Execute Code, Set Values, and Get Values in a
+                        Scala Interpreter
+close.ScalaInterpreter
+                        Closes the Resources of a Scala Interpreter
+print.ScalaInterpreter
+                        String Representation of a Scala Interpreter,
+                        Reference, or Function
+rscala-package          Bi-Directional Interface Between R and Scala
+                        with Callbacks
+scala                   Create an Instance of an Embedded Scala
+                        Interpreter
+scalaSettings           Settings of the Scala Interpreter
+strintrplt              String Interpolation with Arbitrary R Code
+
+Further information is available in the following vignettes in
+directory ‘/home/dahl/local/R/devel/lib/R/library/rscala/doc’:
+
+article: Integration of R and Scala Using rscala (source, pdf)
+
+> 
+> func0a <- function(x=matrix(0.0,nrow=10000,ncol=300)) {  # 22.8 MB
++   s %!% 'x'
++ }
+> 
+> func1a <- function(x=matrix(0L,nrow=20000,ncol=300)) {  # 22.8 MB
++   s %!% 'x'
++ }
+> 
+> func1b <- function(x=matrix(0L,nrow=200,ncol=300)) {  # 0.228 MB
++   s %!% 'x'
++ }
+> 
+> func2a <- function(x=integer(6000000)) {  # 22.8 MB
++   s %!% 'x'
++ }
+> 
+> func2b <- function(x=integer(60000)) {  # 0.228 MB
++   s %!% 'x'
++ }
+> 
+> func3a <- function(x=integer(6000000)) {  # 22.8 MB
++   s %!% 'x.length'
++ }
+> 
+> func4a <- function(x=integer(0)) {  # 0.228 MB
++   s %!% 'new Array[Int](6000000)'
++ }
+> 
+> s$a <- 1:6000000
+> invisible(s$a)
+> rng <- s$.scala.util.Random$new()
+> invisible(sapply(1:1000,function(i) rng$nextGaussian()))   # Burn-in
+> 
+> library(microbenchmark)
+> set.seed(13124)
+> 
+> microbenchmark(
++   rng$nextGaussian(),
++   unit="us",
++   times=2500)
+Unit: microseconds
+               expr     min     lq     mean   median       uq      max neval
+ rng$nextGaussian() 876.193 933.89 990.5471 943.2515 970.7675 5531.422  2500
+> 
+> microbenchmark(
++   rng$nextGaussian(),
++   func0a(),
++   func1a(),
++   func1b(),
++   func2a(),
++   func2b(),
++   func3a(),
++   func4a(),
++   s$a <- 1:6000000,
++   s$a,
++   unit="ms",
++   times=25)
+Unit: milliseconds
+               expr        min        lq      mean     median          uq
+ rng$nextGaussian()   0.925132   1.07708  31.85663   1.154248    1.452811
+           func0a() 235.836608 249.34688 312.39419 277.785578  305.320370
+           func1a() 935.214648 963.16087 994.06553 970.984260 1000.872635
+           func1b()  10.579502  10.96478  75.04961  11.064164   11.652746
+           func2a() 948.512314 952.62146 990.05672 955.852607  990.498279
+           func2b()  10.361342  10.59619  29.74654  10.667425   10.980939
+           func3a() 475.502777 485.37657 520.67224 487.024503  524.806994
+           func4a() 466.804830 469.23327 490.98694 469.796999  473.581374
+     s$a <- 1:6e+06 284.546613 312.23914 364.00099 324.297129  337.119875
+                s$a 513.294078 520.83766 573.61243 529.855127  542.612972
+       max neval
+  262.8685    25
+  559.9076    25
+ 1205.0491    25
+  302.9656    25
+ 1325.6743    25
+  266.6365    25
+  771.1506    25
+  946.8575    25
+  622.2579    25
+  978.7500    25
+> 
+> 
+> proc.time()
+   user  system elapsed 
+ 19.048   3.108 118.769 
