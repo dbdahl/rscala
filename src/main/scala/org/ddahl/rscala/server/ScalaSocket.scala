@@ -14,7 +14,7 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
   sscIn.socket.bind(new InetSocketAddress(port))
 
   private val sscOut = ServerSocketChannel.open()
-  sscOut.socket.bind(new InetSocketAddress(port))
+  sscOut.socket.bind(new InetSocketAddress(if ( port == 0 ) 0 else port+1))
 
   if ( debugger.value ) debugger.msg("Writing to port file: "+portFilename)
   locally {
@@ -50,7 +50,9 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
       bufferIn.clear()
       bufferIn.limit(nBytes)
     }
-    while ( bufferIn.hasRemaining ) scIn.read(bufferIn)
+    while ( bufferIn.hasRemaining ) {
+      if ( scIn.read(bufferIn) == -1 ) throw new IllegalStateException("Socket is unexpectedly closed.")
+    }
     bufferIn.flip()
   }
 
@@ -256,7 +258,9 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
 
   def getVectorByte(length: Int): Array[Byte] = {
     val buffer2 = ByteBuffer.allocate(length)
-    scIn.read(buffer2)
+    while ( buffer2.hasRemaining ) {
+      if ( scIn.read(buffer2) == -1 ) throw new IllegalStateException("Socket is unexpectedly closed.")
+    }
     buffer2.array
   }
 
@@ -367,7 +371,9 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
   def getMatrixByte(nrow: Int, ncol: Int, rowMajor: Boolean): Array[Array[Byte]] = {
     val array = Array.fill(ncol) {
       val buffer2 = ByteBuffer.allocate(nrow)
-      scIn.read(buffer2)
+      while ( buffer2.hasRemaining ) {
+        if ( scIn.read(buffer2) == -1 ) throw new IllegalStateException("Socket is unexpectedly closed.")
+      }
       buffer2.array
     }
     if ( rowMajor ) {

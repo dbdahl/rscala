@@ -1,25 +1,48 @@
-source("common.R",print.eval=TRUE)
-
-assert <- function(xx) {
+assert <- function(xx,label) {
+  cat(label)
+  # if ( is.raw(xx) && ( label == 5 ) ) browser()
   if ( ! identical(( s %~% 'R.get("xx")._1' ), xx) ) stop("Not identical (test 1)")
   if ( ! identical(( s %~% 'R.xx._1' ), xx) ) stop("Not identical (test 2)")
   s$xx <- xx
   s %@% 'R.a = xx'
-  if ( ! identical(a, xx) ) stop("Not identical (test 3)")
+  if ( ! identical(a, xx) ) {
+    stop("Not identical (test 3)")
+  }
   if ( ! identical(s$.R$get("xx")$"_1"(), xx) ) stop("Not identical (test 4)")
   m <- function() s %!% 'R.get("xx")._1'
   if ( ! identical(m(), xx) ) stop("Not identical (test 5)")
 }
 
+row.major <- FALSE
+source("common.R",print.eval=TRUE)
+
 y <- c(0,1,2,3,4,5,6,8)
 for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y),as.raw(y)) ) {
-  assert(x[1])
-  assert(x[2])
-  assert(x)
-  assert(matrix(x,nrow=1))
-  assert(matrix(x,nrow=2))
-  assert(matrix(x,nrow=4))
+  cat("Class is",class(x),"\n")
+  assert(x[1],1)
+  assert(x[2],2)
+  assert(x,3)
+  assert(matrix(x,nrow=1),4)
+  assert(matrix(x,nrow=2),5)
+  assert(matrix(x,nrow=4),6)
+  cat("\n")
 }
+
+row.major <- TRUE
+source("common.R",print.eval=TRUE)
+
+y <- c(0,1,2,3,4,5,6,8)
+for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y),as.raw(y)) ) {
+  cat("Class is",class(x),"\n")
+  assert(x[1],1)
+  assert(x[2],2)
+  assert(x,3)
+  assert(matrix(x,nrow=1),4)
+  assert(matrix(x,nrow=2),5)
+  assert(matrix(x,nrow=4),6)
+  cat("\n")
+}
+
 
 #### Callbacks with named arguments
 

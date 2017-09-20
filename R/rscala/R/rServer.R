@@ -65,11 +65,11 @@ rServe <- function(sockets,with.callbacks,workspace=.GlobalEnv) {
         dataNCol <- rb(sockets,"integer")
         dataLength <- dataNRow * dataNCol
         dataType <- rb(sockets,"integer")
-        if ( dataType == INTEGER ) value <- matrix(rb(sockets,"integer",n=dataLength),nrow=dataNRow,byrow=TRUE)
-        else if ( dataType == DOUBLE ) value <- matrix(rb(sockets,"double",n=dataLength),nrow=dataNRow,byrow=TRUE)
-        else if ( dataType == BOOLEAN ) value <- matrix(rb(sockets,"integer",n=dataLength),nrow=dataNRow,byrow=TRUE) != 0
-        else if ( dataType == STRING ) value <- matrix(sapply(seq_len(dataLength),function(i) rc(sockets)),nrow=dataNRow,byrow=TRUE)
-        else if ( dataType == BYTE ) value <- matrix(rb(sockets,"raw",n=dataLength),nrow=dataNRow,byrow=TRUE)
+        if ( dataType == INTEGER ) value <- matrix(rb(sockets,"integer",n=dataLength),nrow=dataNRow,byrow=FALSE)
+        else if ( dataType == DOUBLE ) value <- matrix(rb(sockets,"double",n=dataLength),nrow=dataNRow,byrow=FALSE)
+        else if ( dataType == BOOLEAN ) value <- matrix(rb(sockets,"integer",n=dataLength),nrow=dataNRow,byrow=FALSE) != 0
+        else if ( dataType == STRING ) value <- matrix(sapply(seq_len(dataLength),function(i) rc(sockets)),nrow=dataNRow,byrow=FALSE)
+        else if ( dataType == BYTE ) value <- matrix(rb(sockets,"raw",n=dataLength),nrow=dataNRow,byrow=FALSE)
         else stop(paste("Unknown data type:",dataType))
         if ( cmd == SET ) assign(identifier,value,envir=workspace)
         else subassign(sockets,identifier,index,value,cmd==SET_SINGLE,workspace)
@@ -111,13 +111,11 @@ rServe <- function(sockets,with.callbacks,workspace=.GlobalEnv) {
           wb(sockets,MATRIX)
           wb(sockets,dim(value))
           wb(sockets,type)
-          if ( nrow(value) > 0 ) for ( i in seq_len(nrow(value)) ) {
-            if ( type == STRING ) {
-              if ( ncol(value) > 0 ) for ( j in seq_len(ncol(value)) ) wc(sockets,value[i,j])
-            }
-            else if ( type == BOOLEAN ) wb(sockets,as.integer(value[i,]))
-            else wb(sockets,value[i,])
-          }
+          dim(value) <- NULL
+          if ( type == STRING ) {
+            if ( length(value) > 0 ) for ( i in seq_len(length(value)) ) wc(sockets,value[i])
+          } else if ( type == BOOLEAN ) wb(sockets,as.integer(value))
+          else wb(sockets,value)
         } else {
           wb(sockets,UNSUPPORTED_STRUCTURE)
         }

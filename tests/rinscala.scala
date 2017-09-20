@@ -147,7 +147,7 @@ R.eval("""
 """)
 assert(R.getI2("a").length == ( if ( rowMajor ) 3 else 4 ) )
 assert(R.getD2("a").length == ( if ( rowMajor ) 3 else 4 ) )
-assert(R.getL2("a").length == ( if ( rowMajor ) 3 else 4 ) )
+//assert(R.getL2("a").length == ( if ( rowMajor ) 3 else 4 ) )
 assert(R.getS2("a").length == ( if ( rowMajor ) 3 else 4 ) )
 
 R.eval("""
@@ -195,11 +195,11 @@ R.eval("""
 """)
 R.getI1("a")
 R.getD1("a")
-R.getL1("a")
+//R.getL1("a")
 R.getS1("a")
 R.getI0("a")
 R.getD0("a")
-R.getL0("a")
+// R.getL0("a")
 R.getS0("a")
 
 R.eval("cat('Done')")

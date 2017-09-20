@@ -1,4 +1,4 @@
-heap.maximum <- "64M"
+heap.maximum <- "192M"
 source("common.R",print.eval=TRUE)
 
 tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)

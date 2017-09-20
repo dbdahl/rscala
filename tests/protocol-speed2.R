@@ -1,4 +1,4 @@
-heap.maximum <- "32G"
+heap.maximum <- "3G"
 source("common.R",print.eval=TRUE)
 
 library(help="rscala")
