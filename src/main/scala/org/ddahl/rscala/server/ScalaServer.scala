@@ -9,9 +9,9 @@ import java.nio.ByteBuffer
 import org.ddahl.rscala._
 import Protocol._
  
-class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutputStream, baosErr: ByteArrayOutputStream, portsFilename: String, debugger: Debugger, serializeOutput: Boolean, rowMajor: Boolean, port: Int, bufferSize: Int) {
+class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutputStream, baosErr: ByteArrayOutputStream, portFilename: String, debugger: Debugger, serializeOutput: Boolean, rowMajor: Boolean, port: Int, bufferSize: Int) {
 
-  private val socket = new ScalaSocket(portsFilename,port,bufferSize,debugger)
+  private val socket = new ScalaSocket(portFilename,port,bufferSize,debugger)
 
   socket.putScalarInt(OK)
   socket.flush()
@@ -56,8 +56,9 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
     try {
       val result = repl.interpret(snippet)
       if ( result == Success ) {
-        if ( debugger.value ) debugger.msg("Eval is okay.")
+        if ( debugger.value ) debugger.msg("Evaluation is okay.")
         R.exit()
+        if ( debugger.value ) debugger.msg("Exited from R.")
         socket.putScalarInt(OK)
       } else {
         if ( debugger.value ) debugger.msg("Eval had a parse error.")
@@ -435,7 +436,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
 
 object ScalaServer {
 
-  def apply(portsFilename: String, debug: Boolean = false, serializeOutput: Boolean = false, rowMajor: Boolean = true, port: Int = 0): ScalaServer = {
+  def apply(portFilename: String, debug: Boolean = false, serializeOutput: Boolean = false, rowMajor: Boolean = true, port: Int = 0): ScalaServer = {
     // Set classpath
     val settings = new Settings()
     settings.embeddedDefaults[RClient]
@@ -484,7 +485,7 @@ object ScalaServer {
     // iloop.intp = intp
     // iloop.verbosity()
     // Return the server
-    new ScalaServer(intp, prntWrtr, baosOut, baosErr, portsFilename, debugger, serializeOutput, rowMajor, port, 64*1024*1024)
+    new ScalaServer(intp, prntWrtr, baosOut, baosErr, portFilename, debugger, serializeOutput, rowMajor, port, 64*1024*1024)
   }
 
 }

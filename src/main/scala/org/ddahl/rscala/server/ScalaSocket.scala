@@ -31,26 +31,29 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
   val bytesPerInt = java.lang.Integer.BYTES
   val bytesPerDouble = java.lang.Double.BYTES
 
-  private var _buffer = ByteBuffer.allocateDirect(initialBufferSize)
+  private var _bufferIn  = ByteBuffer.allocateDirect(initialBufferSize)
+  private var _bufferOut = ByteBuffer.allocateDirect(initialBufferSize)
 
-  private def buffer = _buffer
+  private def bufferIn  = _bufferIn
+  private def bufferOut = _bufferOut
 
   private def inFill(nBytes: Int): Unit = {
-    if ( nBytes > buffer.capacity ) {
-      _buffer = ByteBuffer.allocateDirect(nBytes)
+    if ( debugger.value ) debugger.msg("Reading "+nBytes+" bytes.")
+    if ( nBytes > bufferIn.capacity ) {
+      _bufferIn = ByteBuffer.allocateDirect(nBytes)
     } else {
-      buffer.clear()
-      buffer.limit(nBytes)
+      bufferIn.clear()
+      bufferIn.limit(nBytes)
     }
-    sc.read(buffer)
-    buffer.flip()
+    while ( bufferIn.hasRemaining ) sc.read(bufferIn)
+    bufferIn.flip()
   }
 
   private def outFill(nBytes: Int): Unit = {
-    if ( nBytes < buffer.remaining ) {
+    if ( nBytes > bufferOut.remaining ) {
       flush()
-      if ( nBytes > buffer.limit ) {
-        _buffer = ByteBuffer.allocateDirect(nBytes)
+      if ( nBytes > bufferOut.limit ) {
+        _bufferOut = ByteBuffer.allocateDirect(nBytes)
       }
     }
   }
@@ -83,21 +86,21 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
 
   // Primitives
 
-  private def putInt(x: Int) = buffer.putInt(x)
+  private def putInt(x: Int) = bufferOut.putInt(x)
 
-  private def getInt(): Int = buffer.getInt()
+  private def getInt(): Int = bufferIn.getInt()
 
-  private def putDouble(x: Double) = buffer.putDouble(x)
+  private def putDouble(x: Double) = bufferOut.putDouble(x)
 
-  private def getDouble(): Double = buffer.getDouble()
+  private def getDouble(): Double = bufferIn.getDouble()
 
-  private def putBoolean(x: Boolean) = buffer.putInt(boolean2int(x))
+  private def putBoolean(x: Boolean) = bufferOut.putInt(boolean2int(x))
 
-  private def getBoolean(): Boolean = int2boolean(buffer.getInt())
+  private def getBoolean(): Boolean = int2boolean(bufferIn.getInt())
 
-  private def putByte(x: Byte) = buffer.put(x)
+  private def putByte(x: Byte) = bufferOut.put(x)
 
-  private def getByte(): Byte = buffer.get()
+  private def getByte(): Byte = bufferIn.get()
 
   // Tuples
 
@@ -174,15 +177,15 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
     outFill(bytesPerInt)
     putInt(bytes.length)
     outFill(bytes.length)
-    buffer.put(bytes)
+    bufferOut.put(bytes)
   }
 
   def getScalarString(): String = {
     inFill(bytesPerInt)
-    val nBytes = getInt()*bytesPerInt
+    val nBytes = getInt()
     inFill(nBytes)
     val array = new Array[Byte](nBytes)
-    buffer.get(array)
+    bufferIn.get(array)
     new String(array,"UTF-8")
   }
 
@@ -206,7 +209,7 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
   def getVectorInt(length: Int): Array[Int] = {
     inFill(length*bytesPerInt)
     val array = new Array[Int](length)
-    buffer.asIntBuffer.get(array)
+    bufferIn.asIntBuffer.get(array)
     array
   }
 
@@ -218,7 +221,7 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
   def getVectorDouble(length: Int): Array[Double] = {
     inFill(length*bytesPerDouble)
     val array = new Array[Double](length)
-    buffer.asDoubleBuffer.get(array)
+    bufferIn.asDoubleBuffer.get(array)
     array
   }
 
@@ -266,7 +269,7 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
 
   def getMatrixInt(nrow: Int, ncol: Int, rowMajor: Boolean): Array[Array[Int]] = {
     inFill(nrow*ncol*bytesPerInt)
-    val buffer2 = buffer.asIntBuffer()
+    val buffer2 = bufferIn.asIntBuffer()
     if ( rowMajor ) Array.tabulate(nrow) { i =>
       Array.tabulate(ncol) { j =>
         buffer2.get(j*nrow + i)
@@ -290,7 +293,7 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
 
   def getMatrixDouble(nrow: Int, ncol: Int, rowMajor: Boolean): Array[Array[Double]] = {
     inFill(nrow*ncol*bytesPerDouble)
-    val buffer2 = buffer.asDoubleBuffer()
+    val buffer2 = bufferIn.asDoubleBuffer()
     if ( rowMajor ) Array.tabulate(nrow) { i =>
       Array.tabulate(ncol) { j =>
         buffer2.get(j*nrow + i)
@@ -314,7 +317,7 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
 
   def getMatrixBoolean(nrow: Int, ncol: Int, rowMajor: Boolean): Array[Array[Boolean]] = {
     inFill(nrow*ncol*bytesPerInt)
-    val buffer2 = buffer.asIntBuffer()
+    val buffer2 = bufferIn.asIntBuffer()
     if ( rowMajor ) Array.tabulate(nrow) { i =>
       Array.tabulate(ncol) { j =>
         int2boolean(buffer2.get(j*nrow + i))
@@ -368,9 +371,9 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
   }
 
   def flush(): Unit = {
-    buffer.flip()
-    sc.write(buffer)
-    buffer.clear()
+    bufferOut.flip()
+    while ( bufferOut.hasRemaining() ) sc.write(bufferOut)
+    bufferOut.clear()
   }
 
   def close() = sc.close()

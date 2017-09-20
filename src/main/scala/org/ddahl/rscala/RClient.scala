@@ -94,6 +94,7 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
         list = referenceQueue.poll :: list
       }
       list = list.tail
+      if ( debug ) debugger.msg("Garbage collection on Scala side.")
       socket.putTuple2Int(FREE,list.size)
       list.foreach( x => {
         val id = referenceMap(x)
