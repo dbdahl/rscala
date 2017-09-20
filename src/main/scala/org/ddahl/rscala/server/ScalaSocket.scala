@@ -6,27 +6,32 @@ import java.nio.ByteBuffer
 import java.nio.channels.ServerSocketChannel
 import java.net.InetSocketAddress
 
-import Protocol._
-
 private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBufferSize: Int, debugger: Debugger) {
 
   require(initialBufferSize >= 1024, "Buffer size should be at least 1024.")
 
-  private val ssc = ServerSocketChannel.open()
-  ssc.socket.bind(new InetSocketAddress(port))
+  private val sscIn = ServerSocketChannel.open()
+  sscIn.socket.bind(new InetSocketAddress(port))
+
+  private val sscOut = ServerSocketChannel.open()
+  sscOut.socket.bind(new InetSocketAddress(port))
 
   if ( debugger.value ) debugger.msg("Writing to port file: "+portFilename)
   locally {
     val portNumberFile = new File(portFilename)
     val p = new PrintWriter(portNumberFile)
-    p.println(ssc.socket.getLocalPort)
+    p.println(sscIn.socket.getLocalPort+" "+sscOut.socket.getLocalPort)
     p.close()
   }
-  if ( debugger.value ) debugger.msg("Server is running on port "+ssc.socket.getLocalPort)
+  if ( debugger.value ) debugger.msg("Server is running on ports " + sscIn.socket.getLocalPort +" and " + sscOut.socket.getLocalPort)
 
-  private val sc = ssc.accept()
-  sc.configureBlocking(true)
-  sc.socket.setTcpNoDelay(true)
+  private val scIn = sscIn.accept()
+  scIn.configureBlocking(true)
+  scIn.socket.setTcpNoDelay(true)
+
+  private val scOut = sscOut.accept()
+  scOut.configureBlocking(true)
+  scOut.socket.setTcpNoDelay(true)
 
   val bytesPerInt = java.lang.Integer.BYTES
   val bytesPerDouble = java.lang.Double.BYTES
@@ -45,7 +50,7 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
       bufferIn.clear()
       bufferIn.limit(nBytes)
     }
-    while ( bufferIn.hasRemaining ) sc.read(bufferIn)
+    while ( bufferIn.hasRemaining ) scIn.read(bufferIn)
     bufferIn.flip()
   }
 
@@ -246,12 +251,12 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
   def putVectorByte(x: Array[Byte]): Unit = {
     val buffer2 = ByteBuffer.wrap(x)
     flush()
-    sc.write(buffer2)
+    scOut.write(buffer2)
   }
 
   def getVectorByte(length: Int): Array[Byte] = {
     val buffer2 = ByteBuffer.allocate(length)
-    sc.read(buffer2)
+    scIn.read(buffer2)
     buffer2.array
   }
 
@@ -362,7 +367,7 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
   def getMatrixByte(nrow: Int, ncol: Int, rowMajor: Boolean): Array[Array[Byte]] = {
     val array = Array.fill(ncol) {
       val buffer2 = ByteBuffer.allocate(nrow)
-      sc.read(buffer2)
+      scIn.read(buffer2)
       buffer2.array
     }
     if ( rowMajor ) {
@@ -372,11 +377,16 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
 
   def flush(): Unit = {
     bufferOut.flip()
-    while ( bufferOut.hasRemaining() ) sc.write(bufferOut)
+    while ( bufferOut.hasRemaining() ) scOut.write(bufferOut)
     bufferOut.clear()
   }
 
-  def close() = sc.close()
+  def close() = {
+    scIn.close()
+    scOut.close()
+    sscIn.close()
+    sscOut.close()
+  }
 
 }
 

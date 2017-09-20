@@ -27,19 +27,19 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
   rsJar <- .rscalaJar(sInfo$version)
   rsClasspath <- shQuote(paste(c(rsJar,userJars),collapse=.Platform$path.sep))
   command.line.options <- shQuote(command.line.options)
-  portFilename <- tempfile("rscala-")
-  args <- c(command.line.options,paste0("-Drscala.classpath=",rsClasspath),"-classpath",rsClasspath,"org.ddahl.rscala.server.Main",portFilename,debug,serialize.output,row.major,port)
+  portsFilename <- tempfile("rscala-")
+  args <- c(command.line.options,paste0("-Drscala.classpath=",rsClasspath),"-classpath",rsClasspath,"org.ddahl.rscala.server.Main",portsFilename,debug,serialize.output,row.major,port)
   if ( debug ) msg("\n",sInfo$cmd)
   if ( debug ) msg("\n",paste0("<",args,">",collapse="\n"))
   system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
-  sockets <- newSockets(portFilename,debug,serialize.output,row.major,timeout)
+  sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
   sInfo$classpath <- rsClasspath
   sInfo$command.line.options <- command.line.options
   scalaSettings(sockets,interpolate=TRUE,info=sInfo)
   sockets
 }
 
-newSockets <- function(portFilename,debug,serialize.output,row.major,timeout) {
+newSockets <- function(portsFilename,debug,serialize.output,row.major,timeout) {
   env <- new.env(parent=emptyenv())
   assign("open",TRUE,envir=env)
   assign("debug",debug,envir=env)
@@ -48,23 +48,23 @@ newSockets <- function(portFilename,debug,serialize.output,row.major,timeout) {
   functionCache <- new.env(parent=emptyenv())
   references <- new.env(parent=emptyenv())
   garbage <- new.env(parent=emptyenv())
-  port <- local({
+  ports <- local({
     delay <- 0.1
     start <- proc.time()[3]
     while ( TRUE ) {
       if ( ( proc.time()[3] - start ) > timeout ) stop("Timed out waiting for Scala to start.")
       Sys.sleep(delay)
       delay <- 1.0*delay
-      if ( file.exists(portFilename) ) {
-        line <- scan(portFilename,n=1,what=character(),quiet=TRUE)
+      if ( file.exists(portsFilename) ) {
+        line <- scan(portsFilename,n=2,what=character(),quiet=TRUE)
         if ( length(line) > 0 ) return(as.numeric(line))
       }
     }
   })
-  file.remove(portFilename)
-  if ( debug ) msg("Trying to connect to port ",paste(port,collapse=" "))
-  socketConnectionIn  <- socketConnection(port=port,blocking=TRUE,open="r+b",timeout=2678400)
-  socketConnectionOut <- socketConnectionIn
+  file.remove(portsFilename)
+  if ( debug ) msg("Trying to connect to port ",paste(ports,collapse=" "))
+  socketConnectionIn  <- socketConnection(port=ports[1],blocking=TRUE,open="ab",timeout=2678400)
+  socketConnectionOut <- socketConnection(port=ports[2],blocking=TRUE,open="rb",timeout=2678400)
   if ( debug ) msg("Connected")
   result <- list(socketIn=socketConnectionIn,socketOut=socketConnectionOut,env=env,
                  functionCache=functionCache,r=references,garbage=garbage,
