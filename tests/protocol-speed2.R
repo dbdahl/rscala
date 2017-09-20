@@ -1,4 +1,4 @@
-heap.maximum <- "4G"
+heap.maximum <- "32G"
 source("common.R",print.eval=TRUE)
 
 func1a <- function(x=matrix(0.0,nrow=100000,ncol=300)) {  # 228 MB
@@ -17,6 +17,17 @@ func2b <- function(x=integer(600000)) {  # 2.28 MB
   s %!% 'x'
 }
 
+func3a <- function(x=integer(60000000)) {  # 228 MB
+  s %!% 'x.length'
+}
+
+func4a <- function(x=integer(0)) {  # 228 MB
+  s %!% 'new Array[Int](60000000)'
+}
+
+
+s$a <- 1:60000000
+invisible(s$a)
 
 library(microbenchmark)
 set.seed(13124)
@@ -26,5 +37,9 @@ microbenchmark(
   func1b(),
   func2a(),
   func2b(),
+  func3a(),
+  func4a(),
+  s$a <- 1:60000000,
+  s$a,
   times=5)
 
