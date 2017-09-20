@@ -54,7 +54,7 @@ Author:               David B. Dahl [aut, cre]
 Maintainer:           David B. Dahl <dahl@stat.byu.edu>
 Repository:           CRAN
 Date/Publication:     2017-08-30 20:25:55 UTC
-Built:                R 3.5.0; ; 2017-09-20 14:41:56 UTC; unix
+Built:                R 3.5.0; ; 2017-09-20 17:26:03 UTC; unix
 
 Index:
 
@@ -78,42 +78,52 @@ directory ‘/home/dahl/local/R/devel/lib/R/library/rscala/doc’:
 article: Integration of R and Scala Using rscala (source, pdf)
 
 > 
-> func0a <- function(x=matrix(0.0,nrow=100000,ncol=300)) {  # 228 MB
+> func0a <- function(x=matrix(0.0,nrow=10000,ncol=300)) {  # 22.8 MB
 +   s %!% 'x'
 + }
 > 
-> func1a <- function(x=matrix(0L,nrow=200000,ncol=300)) {  # 228 MB
+> func1a <- function(x=matrix(0L,nrow=20000,ncol=300)) {  # 22.8 MB
 +   s %!% 'x'
 + }
 > 
-> func1b <- function(x=matrix(0L,nrow=2000,ncol=300)) {  # 2.28 MB
+> func1b <- function(x=matrix(0L,nrow=200,ncol=300)) {  # 0.228 MB
 +   s %!% 'x'
 + }
 > 
-> func2a <- function(x=integer(60000000)) {  # 228 MB
+> func2a <- function(x=integer(6000000)) {  # 22.8 MB
 +   s %!% 'x'
 + }
 > 
-> func2b <- function(x=integer(600000)) {  # 2.28 MB
+> func2b <- function(x=integer(60000)) {  # 0.228 MB
 +   s %!% 'x'
 + }
 > 
-> func3a <- function(x=integer(60000000)) {  # 228 MB
+> func3a <- function(x=integer(6000000)) {  # 22.8 MB
 +   s %!% 'x.length'
 + }
 > 
-> func4a <- function(x=integer(0)) {  # 228 MB
-+   s %!% 'new Array[Int](60000000)'
+> func4a <- function(x=integer(0)) {  # 0.228 MB
++   s %!% 'new Array[Int](6000000)'
 + }
 > 
-> 
-> s$a <- 1:60000000
+> s$a <- 1:6000000
 > invisible(s$a)
+> rng <- s$.scala.util.Random$new()
+> invisible(sapply(1:1000,function(i) rng$nextGaussian()))   # Burn-in
 > 
 > library(microbenchmark)
 > set.seed(13124)
 > 
 > microbenchmark(
++   rng$nextGaussian(),
++   unit="us",
++   times=2500)
+Unit: microseconds
+               expr     min      lq     mean  median      uq      max neval
+ rng$nextGaussian() 869.805 920.215 980.0184 935.901 961.826 5231.479  2500
+> 
+> microbenchmark(
++   rng$nextGaussian(),
 +   func0a(),
 +   func1a(),
 +   func1b(),
@@ -121,32 +131,35 @@ article: Integration of R and Scala Using rscala (source, pdf)
 +   func2b(),
 +   func3a(),
 +   func4a(),
-+   s$a <- 1:60000000,
++   s$a <- 1:6000000,
 +   s$a,
-+   times=5)
++   unit="ms",
++   times=25)
 Unit: milliseconds
-           expr        min         lq       mean     median         uq
-       func0a()  4972.8511  5328.2769  5940.9701  5849.4757  6134.4706
-       func1a() 15631.1678 16222.0603 16629.5759 16600.1123 16600.9482
-       func1b()   147.9114   155.9436   503.8878   190.6455   212.3493
-       func2a() 12261.0518 12625.9634 12824.9277 12712.4996 13117.6295
-       func2b()   124.4884   125.7949   371.9424   128.9217   145.2229
-       func3a()  6280.6318  6376.8872  7077.4939  7276.1114  7331.8444
-       func4a()  6382.7583  6496.4744  6675.7899  6507.9188  6632.7696
- s$a <- 1:6e+07  6325.7488  6640.6798  7093.5257  7291.6181  7333.3671
-            s$a  6740.5366  6878.7841  6999.1396  6901.9354  7215.0232
+               expr        min         lq      mean     median         uq
+ rng$nextGaussian()   0.925966   1.093174  37.53213   1.151014   1.252606
+           func0a() 233.039448 258.217191 318.28619 290.914468 306.069420
+           func1a() 941.774406 965.439112 994.85882 974.604050 998.869397
+           func1b()  10.477770  10.849446  74.46504  11.030556  11.286746
+           func2a() 950.024984 954.021356 987.22848 956.531445 992.805973
+           func2b()  10.403726  10.614368  28.14545  10.698857  10.821304
+           func3a() 475.279704 487.212290 518.64814 493.776185 523.046399
+           func4a() 467.160982 468.590424 491.49126 469.550597 471.390342
+     s$a <- 1:6e+06 290.359763 313.299249 364.84849 321.229441 355.678734
+                s$a 511.671650 517.586609 559.28511 521.602599 535.513467
        max neval
-  7419.776     5
- 18093.591     5
-  1812.589     5
- 13407.494     5
-  1335.284     5
-  8121.995     5
-  7359.028     5
-  7876.215     5
-  7259.419     5
+  392.5963    25
+  565.1865    25
+ 1261.2877    25
+  313.7032    25
+ 1218.0865    25
+  263.3637    25
+  785.9554    25
+  985.7504    25
+  585.0612    25
+  845.6524    25
 > 
 > 
 > proc.time()
    user  system elapsed 
- 30.432   6.572 351.084 
+ 18.660   2.892 118.542 
