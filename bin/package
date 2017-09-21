@@ -153,10 +153,10 @@ then
     echo "$output" | grep 'info.*Packaging .*\.jar ...' | awk '{print $3}'
   }
   JARBIN=$(package +package)
-  JARSRC=$(package +package-src)
+  JARSRC=$(package +packageSrc)
   if [[ "$PUBLISH_LOCALLY" == TRUE ]]
   then
-    $SBT +publish-local
+    $SBT +publishLocal
   fi
 
   # Copy jar file to R package
