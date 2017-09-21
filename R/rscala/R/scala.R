@@ -292,6 +292,12 @@ scalaNull <- function(type) {
   } else if ( identifier == ".val" ) function(x) {
     # warning(paste0("Syntax \"s$.val()\" is deprecated and will be removed."))
     scalaGet(interpreter,x,TRUE)
+  } else if ( substr(identifier,1,2) == ".." ) {
+    structure(list(interpreter=interpreter,snippet=substring(identifier,3)),class="ScalaInterpreterItem2")
+    #identifier <- substring(identifier,3)
+    #result <- list(interpreter=interpreter,snippet=identifier)
+    #class(result) <- "ScalaInterpreterItem2"
+    #result
   } else if ( substr(identifier,1,1) == "." ) {
     identifier <- substring(identifier,2)
     result <- list(interpreter=interpreter,snippet=identifier)
@@ -554,6 +560,123 @@ scalaUnboxReference <- function(x) {
 '$.ScalaCachedReference' <- scalaAutoMkFunction
 '$.ScalaInterpreterReference' <- scalaAutoMkFunction
 '$.ScalaInterpreterItem' <- scalaAutoMkFunction
+
+scalaAutoMkFunction2 <- function(reference,method) {
+  if ( method == "type" ) {
+    if ( inherits(reference,"ScalaInterpreterItem2") ) return(reference[['snippet']])
+    else return(reference[['type']])
+  }
+  interpreter <- reference[['interpreter']]
+  function(..., .AS.REFERENCE = NA) {
+    args <- list(...)
+    if ( ! is.null(names(args)) ) stop("Arguments should not have names.")
+    wb(interpreter,INVOKE2)
+    wc(interpreter,reference[['snippet']])
+    if ( inherits(reference,"ScalaInterpreterReference") ) wb(interpreter,0L)
+    else if ( inherits(reference,"ScalaCachedReference") ) wb(interpreter,1L)
+    else if ( inherits(reference,"ScalaInterpreterItem2") ) wb(interpreter,2L)
+    else stop('Unrecognized reference type.')
+    wc(interpreter,method)
+    # Push arguments
+    wb(interpreter,length(args))
+    flush(interpreter[['socketIn']])
+    rServe(interpreter,TRUE,environment())
+    if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
+    status <- rb(interpreter,"integer")
+    if ( status != OK ) {
+      stop("Problem invoking function.")
+    }
+    result <- scalaGet(interpreter,"?",.AS.REFERENCE)
+    if ( is.null(result) ) invisible(result)
+    else result
+  }
+}
+
+'$.ScalaInterpreterItem2' <- scalaAutoMkFunction2
+
+    ## DBD
+#     names <- paste0(rep('x',length(args)),seq_along(args))
+#     argsString <- paste0(names,collapse=',')
+# 
+#     if ( nchar(argsString) > 0 ) argsString <- paste0("(",argsString,")")
+#     snippet <- if ( inherits(reference,"ScalaInterpreterReference") ) {
+#       '@{reference}.@{method}@{argsString}'
+#     } else if ( inherits(reference,"ScalaCachedReference") ) {
+#       'R.cached("@{toString(reference)}").asInstanceOf[@{reference[[\'type\']]}].@{method}@{argsString}'
+#     } else if ( inherits(reference,"ScalaInterpreterItem") ) {
+#       if ( method == 'new' ) {
+#         "new @{reference[['snippet']]}@{argsString}"
+#       } else {
+#         "@{reference[['snippet']]}.@{method}@{argsString}"
+#       }
+#     } else stop('Unrecognized reference type.')
+#     snippet <- strintrplt(snippet)
+#     f <- scalaMkFunction(scalaFunctionArgs(.INTERPRETER=interpreter,...),snippet,as.reference=.AS.REFERENCE,parent.frame())
+#     if ( .EVALUATE ) f(...)
+#     else f
+# 
+# 
+# 
+#   interpreter <- func$interpreter
+#   body <- paste(body,collapse="\n")
+#   fullBody <- paste0(c(func$header,body),collapse='\n')
+#   if ( ! exists(fullBody,envir=interpreter[['functionCache']]) ) {
+#     snippet <- paste0('() => {\n',fullBody,'}')
+#     function0 <- evalAndGet(interpreter,snippet,TRUE,workspace)
+#     functionIdentifier <- function0[["identifier"]] 
+#     functionReturnType <- substring(function0[['type']],7)  # Drop off the leading '() => '.
+#     wb(interpreter,DEF)
+#     wc(interpreter,functionIdentifier)
+#     wc(interpreter,functionReturnType)
+#     flush(interpreter[['socketIn']])
+#     status <- rb(interpreter,"integer")
+#     if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
+#     if ( status != OK ) {
+#       stop("Problem caching function.")
+#     }
+#     assign(fullBody,list(functionIdentifier=functionIdentifier,functionReturnType=functionReturnType),envir=func$interpreter[['functionCache']])
+#   }
+#   funcList <- get(fullBody,envir=func$interpreter[['functionCache']])
+#   interpreterName <- uniqueName(interpreter, workspace, ".rsW")
+#   functionSnippet <- strintrplt('
+#     function(@{paste(func$identifiers,collapse=", ")}) {
+#       .rsI <- @{interpreterName}
+#       tryCatch({
+#         .rsWorkspace <- environment()
+#         @{ifelse(get("debug",envir=interpreter[["env"]]),\'rscala:::msg(paste("Evaluating Scala function from environment",capture.output(print(.rsWorkspace))))\',"")}
+#         rscala:::wb(.rsI,rscala:::INVOKE)
+#         rscala:::wc(.rsI,"@{funcList$functionIdentifier}")
+#         flush(.rsI[["socketIn"]])
+#         rscala:::rServe(.rsI,TRUE,.rsWorkspace)
+#         .rsStatus <- rscala:::rb(.rsI,"integer")
+#         @{ifelse(get("serializeOutput",envir=interpreter[["env"]]),"rscala:::echoResponseScala(.rsI)","")}
+#         if ( .rsStatus == rscala:::ERROR ) {
+#           stop("Invocation error.")
+#         } else {
+#           .rsResult <- rscala:::scalaGet(.rsI,"?",@{as.reference})
+#           if ( is.null(.rsResult) ) invisible(.rsResult)
+#           else .rsResult
+#         }
+#       }, interrupt = function(x) {
+#         assign("open",FALSE,envir=.rsI[["env"]])
+#         stop("## Interpreter closed by interrupt. ##")
+#       })
+#     }
+#   ')
+#   functionDefinition <- eval(parse(text=functionSnippet),envir=workspace)
+#   attr(functionDefinition,"identifiers") <- func$identifiers
+#   attr(functionDefinition,"scalaHeader") <- func$header
+#   attr(functionDefinition,"scalaBody") <- body
+#   attr(functionDefinition,"returnType") <- funcList$functionReturnType
+#   attr(functionDefinition,"asReference") <- as.reference
+#   class(functionDefinition) <- "ScalaFunction"
+#   functionDefinition
+# 
+# 
+# 
+# 
+#  }
+#}
 
 scalap <- function(interpreter,class.name) {
   if ( inherits(interpreter,"ScalaInterpreterReference") || inherits(interpreter,"ScalaCachedReference") ) {

@@ -31,6 +31,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
   private val nullary = Class.forName("scala.Function0").getMethod("apply")
   nullary.setAccessible(true)
   private val functionMap = new scala.collection.mutable.HashMap[String,(Any,String)]()
+  private val functionMap2 = new scala.collection.mutable.HashMap[String,(Any,String)]()
 
   private def typeOfTerm(id: String) = repl.symbolOfLine(id).info.toString
 
@@ -100,6 +101,45 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
       functionResult = (nullary.invoke(f), returnType)
       R.exit()
       if ( debugger.value ) debugger.msg("Invoke is okay")
+      socket.putScalarInt(OK)
+    } catch {
+      case e: Throwable =>
+        R.exit()
+        socket.putScalarInt(ERROR)
+        e.printStackTrace(pw)
+        pw.println(e + ( if ( e.getCause != null ) System.lineSeparator + e.getCause else "" ) )
+    }
+  }
+
+  private def doInvoke2(): Unit = {
+    val objName = socket.getScalarString()
+    val objType = socket.getScalarInt()
+    val methodName = socket.getScalarString()
+    val nArgs = socket.getScalarInt()
+    if ( nArgs != 0 ) throw new RuntimeException("Arguments are not yet implemented.")
+    val snippet = objType match {
+      case 2 =>
+        if ( methodName == "new" ) {
+          "new " + objName + "()"
+        } else objName + "." + methodName + "()"
+    }
+    val headers = Seq[String]()
+    val body = "() => {\n" + headers.mkString("\n") + snippet + "\n}"
+    try {
+      if ( ! functionMap2.contains(body) ) {
+        val result = repl.interpret(body)
+        // Check that result is okay
+        val mrv = repl.mostRecentVar
+        val f = repl.valueOfTerm(mrv).get
+        val returnType = repl.symbolOfLine(mrv).info.toString.substring(6)
+        functionMap2(body) = (f, returnType)
+      }
+      val (f, returnType) = functionMap2(body)
+      functionResult = (nullary.invoke(f), returnType)
+      R.exit()
+      // println("At INVOKE2: "+Seq(objName,objType,methodName,nArgs).mkString(", "))
+      // println("            "+typeOfResult)
+      if ( debugger.value ) debugger.msg("Invoke2 is okay")
       socket.putScalarInt(OK)
     } catch {
       case e: Throwable =>
@@ -400,6 +440,8 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
         doDef()
       case INVOKE =>
         doInvoke()
+      case INVOKE2 =>
+        doInvoke2()
       case SCALAP =>
         doScalap()
     }
