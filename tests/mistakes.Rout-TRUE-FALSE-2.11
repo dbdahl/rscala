@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # carter # TRUE # FALSE
+# R version 3.4.1 (2017-06-30) # becker # TRUE # FALSE
 > 
 > if ( substr(Sys.getenv("RSCALA_SCALA_VERSION"),1,4) != "2.10" ) {
 +   a <- s %.~% "null"
@@ -69,7 +69,7 @@ ScalaInterpreterReference... xaa: Double
 > identical(  withNA,  withNaN)
 [1] FALSE
 > identical(s$withNA,s$withNaN)
-[1] TRUE
+[1] FALSE
 > 
 > withMax <- c(1,.Machine$double.xmax,.Machine$double.xmin)
 > s$withMax <- withMax

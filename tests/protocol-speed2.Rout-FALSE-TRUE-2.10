@@ -1,0 +1,141 @@
+> heap.maximum <- "3G"
+> source("common.R",print.eval=TRUE)
+# R version 3.4.1 (2017-06-30) # becker # FALSE # TRUE
+> 
+> library(help="rscala")
+
+		Information on package ‘rscala’
+
+Description:
+
+Package:              rscala
+Type:                 Package
+Title:                Bi-Directional Interface Between 'R' and 'Scala'
+                      with Callbacks
+Version:              2.3.5-525
+Date:                 2017-09-20
+Authors@R:            person(given="David
+                      B.",family="Dahl",role=c("aut","cre"),email="dahl@stat.byu.edu")
+URL:                  https://github.com/dbdahl/rscala
+BugReports:           https://github.com/dbdahl/rscala/issues
+Imports:              utils
+SystemRequirements:   Scala (>= 2.10)
+Description:          The 'Scala' <http://www.scala-lang.org/>
+                      interpreter is embedded in 'R' and callbacks to
+                      'R' from the embedded interpreter are supported.
+                      Conversely, the 'R' interpreter is embedded in
+                      'Scala'. 'Scala' versions in the 2.10.x, 2.11.x,
+                      and 2.12.x series are supported.
+License:              GPL (>= 2) | BSD_3_clause + file LICENSE
+VignetteBuilder:      knitr
+Suggests:             knitr, microbenchmark, rJava, xtable
+NeedsCompilation:     no
+Packaged:             2017-09-21 00:17:07 UTC; dahl
+Author:               David B. Dahl [aut, cre]
+Maintainer:           David B. Dahl <dahl@stat.byu.edu>
+Built:                R 3.4.1; ; 2017-09-21 00:17:08 UTC; unix
+
+Index:
+
+%~%                     Execute Code, Set Values, and Get Values in a
+                        Scala Interpreter
+close.ScalaInterpreter
+                        Closes the Resources of a Scala Interpreter
+print.ScalaInterpreter
+                        String Representation of a Scala Interpreter,
+                        Reference, or Function
+rscala-package          Bi-Directional Interface Between R and Scala
+                        with Callbacks
+scala                   Create an Instance of an Embedded Scala
+                        Interpreter
+scalaSettings           Settings of the Scala Interpreter
+strintrplt              String Interpolation with Arbitrary R Code
+
+Further information is available in the following vignettes in
+directory ‘/UShare/dahl/local/R/packages/rscala/doc’:
+
+article: Integration of R and Scala Using rscala (source)
+
+> 
+> func0a <- function(x=matrix(0.0,nrow=10000,ncol=300)) {  # 22.8 MB
++   s %!% 'x'
++ }
+> 
+> func1a <- function(x=matrix(0L,nrow=20000,ncol=300)) {  # 22.8 MB
++   s %!% 'x'
++ }
+> 
+> func1b <- function(x=matrix(0L,nrow=200,ncol=300)) {  # 0.228 MB
++   s %!% 'x'
++ }
+> 
+> func2a <- function(x=integer(6000000)) {  # 22.8 MB
++   s %!% 'x'
++ }
+> 
+> func2b <- function(x=integer(60000)) {  # 0.228 MB
++   s %!% 'x'
++ }
+> 
+> func3a <- function(x=integer(6000000)) {  # 22.8 MB
++   s %!% 'x.length'
++ }
+> 
+> func4a <- function(x=integer(0)) {  # 0.228 MB
++   s %!% 'new Array[Int](6000000)'
++ }
+> 
+> s$a <- 1:6000000
+> invisible(s$a)
+> rng <- s$.scala.util.Random$new()
+> invisible(sapply(1:1000,function(i) rng$nextGaussian()))   # Burn-in
+> 
+> library(microbenchmark)
+> set.seed(13124)
+> 
+> microbenchmark(
++   rng$nextGaussian(),
++   unit="us",
++   times=2500)
+Unit: microseconds
+               expr      min       lq     mean  median       uq     max neval
+ rng$nextGaussian() 1552.079 2628.621 3133.891 2846.11 2971.506 59933.4  2500
+> 
+> microbenchmark(
++   rng$nextGaussian(),
++   func0a(),
++   func1a(),
++   func1b(),
++   func2a(),
++   func2b(),
++   func3a(),
++   func4a(),
++   s$a <- 1:6000000,
++   s$a,
++   unit="ms",
++   times=25)
+Unit: milliseconds
+               expr        min         lq      mean     median         uq
+ rng$nextGaussian()   1.972007   2.748549  24.57078   2.964700   3.267782
+           func0a() 390.395261 495.445559 607.22383 601.220446 734.582478
+           func1a() 375.047838 535.702908 757.17772 628.429629 951.668747
+           func1b()   3.386726   5.833937  49.37104   9.408729  63.891336
+           func2a() 160.308352 226.257060 283.07139 263.244422 334.810452
+           func2b()   3.189212   4.204524  26.45813   4.899077   7.914950
+           func3a()  62.774927  78.618486 139.68418  97.815693 164.995556
+           func4a()  89.302198 110.259953 212.21928 158.939433 232.687747
+     s$a <- 1:6e+06  46.079528  68.812389 122.77442 109.990410 126.430818
+                s$a 104.677184 153.882096 221.53987 215.998234 258.417176
+       max neval
+  344.1035    25
+  812.9523    25
+ 1187.2110    25
+  301.8735    25
+  514.2123    25
+  317.6147    25
+  532.6130    25
+ 1025.5414    25
+  332.4494    25
+  459.4859    25
+> 
+> 

@@ -6,7 +6,7 @@
 > 
 > row.major <- TRUE
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # carter # FALSE # FALSE
+# R version 3.4.1 (2017-06-30) # becker # FALSE # FALSE
 > s$a <- a
 > s %@% 'a.foreach(x => println(x.mkString(" ")))'
 > s$a
@@ -27,7 +27,7 @@
 > 
 > row.major <- FALSE
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # carter # FALSE # FALSE
+# R version 3.4.1 (2017-06-30) # becker # FALSE # FALSE
 > s$a <- a
 > s %@% 'a.foreach(x => println(x.mkString(" ")))'
 > s$a

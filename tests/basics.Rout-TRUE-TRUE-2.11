@@ -1,14 +1,13 @@
 > row.major <- FALSE
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # carter # TRUE # TRUE
-> 
+# R version 3.4.1 (2017-06-30) # becker # TRUE # TRUE
 > 
 > setget <- function(value) {
 +   s$tt <- value
 +   value2 <- s$tt
 +   if ( class(value)[1] == "AsIs" ) value <- as.vector(value)
 +   if ( length(value) != length(value2) ) stop(paste("Value not equal:\n",paste(value,collapse=","),"\n",paste(value2,collapse=",")))
-+   if ( any(value != value2) ) stop(paste("Value not equal:\n",paste(value,collapse=","),"\n",paste(value2,collapse=",")))
++   if ( ! identical(value,value2) ) stop(paste("Value not equal:\n",paste(value,collapse=","),"\n",paste(value2,collapse=",")))
 +   if ( class(value) != class(value2) ) stop(paste("Class not equal:\n",class(value),"\n",class(value2)))
 +   if ( mode(value) != mode(value2) ) stop(paste("Mode not equal:\n",mode(value),"\n",mode(value2)))
 + }
@@ -17,33 +16,44 @@
 > setget(double(0))
 > setget(logical(0))
 > setget(character(0))
+> setget(raw(0))
 > 
 > setget(4L)
 > setget(5)
 > setget(TRUE)
 > setget(FALSE)
 > setget("David")
+> setget(as.raw(5))
 > 
 > setget(I(4L))
 > setget(I(5))
 > setget(I(TRUE))
-> setget(I(FALSE))
 > setget(I("David"))
+> setget(I(as.raw(5)))
 > 
 > setget(c(4L,3L))
 > setget(c(5,6))
 > setget(c(TRUE,FALSE))
 > setget(c("David","Dahl"))
+> setget(as.raw(c(1,2,3)))
 > 
 > setget(matrix(c(1L,2L,3L,4L,5L,6L),nrow=1))
 > setget(matrix(c(1,2,3,4,5,6,7,8),nrow=1))
 > setget(matrix(c(TRUE,FALSE,TRUE,TRUE,FALSE,FALSE),nrow=1))
 > setget(matrix(c("1","2","3","4","5","6","7","8"),nrow=1))
+> setget(matrix(as.raw(c(1,2,3,4,5,6,7,8)),nrow=1))
 > 
 > setget(matrix(c(1L,2L,3L,4L,5L,6L),nrow=2))
 > setget(matrix(c(1,2,3,4,5,6,7,8),nrow=2))
 > setget(matrix(c(TRUE,FALSE,TRUE,TRUE,FALSE,FALSE),nrow=2))
 > setget(matrix(c("1","2","3","4","5","6","7","8"),nrow=2))
+> setget(matrix(as.raw(c(1,2,3,4,5,6,7,8)),nrow=2))
+> 
+> setget(matrix(integer(),nrow=0))
+> setget(matrix(double(),nrow=0))
+> setget(matrix(logical(),nrow=0))
+> setget(matrix(character(),nrow=0))
+> setget(matrix(raw(),nrow=0))
 > 
 > a <- matrix(1:6,nrow=2)
 > setget(a[,-c(1,2)])
