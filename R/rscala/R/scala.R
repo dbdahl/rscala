@@ -572,8 +572,8 @@ scalaAutoMkFunction2 <- function(reference,method) {
     if ( ! is.null(names(args)) ) stop("Arguments should not have names.")
     wb(interpreter,INVOKE2)
     wc(interpreter,reference[['snippet']])
-    if ( inherits(reference,"ScalaInterpreterReference") ) wb(interpreter,0L)
-    else if ( inherits(reference,"ScalaCachedReference") ) wb(interpreter,1L)
+    if ( inherits(reference,"ScalaInterpreterReference") )  wb(interpreter,0L)
+    else if ( inherits(reference,"ScalaCachedReference") )  wb(interpreter,1L)
     else if ( inherits(reference,"ScalaInterpreterItem2") ) wb(interpreter,2L)
     else stop('Unrecognized reference type.')
     wc(interpreter,method)
@@ -583,9 +583,7 @@ scalaAutoMkFunction2 <- function(reference,method) {
     rServe(interpreter,TRUE,environment())
     if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
     status <- rb(interpreter,"integer")
-    if ( status != OK ) {
-      stop("Problem invoking function.")
-    }
+    if ( status != OK ) stop("Problem invoking function.")
     result <- scalaGet(interpreter,"?",.AS.REFERENCE)
     if ( is.null(result) ) invisible(result)
     else result

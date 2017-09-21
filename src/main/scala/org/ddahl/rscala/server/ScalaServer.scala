@@ -126,15 +126,20 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
     val headers = Seq[String]()
     val body = "() => {\n" + headers.mkString("\n") + snippet + "\n}"
     try {
-      if ( ! functionMap2.contains(body) ) {
+      val (f, returnType) = if ( ! functionMap2.contains(body) ) {
         val result = repl.interpret(body)
-        // Check that result is okay
+        if ( result != Success ) {
+          if ( debugger.value ) debugger.msg("Error in defining function.")
+          R.exit()
+          socket.putScalarInt(ERROR)
+          return
+        }
         val mrv = repl.mostRecentVar
         val f = repl.valueOfTerm(mrv).get
-        val returnType = repl.symbolOfLine(mrv).info.toString.substring(6)
+        val returnType = repl.symbolOfLine(mrv).info.toString.substring(6)  // Drop "() => " in the return type.
         functionMap2(body) = (f, returnType)
-      }
-      val (f, returnType) = functionMap2(body)
+        (f, returnType)
+      } else functionMap2(body)
       functionResult = (nullary.invoke(f), returnType)
       R.exit()
       // println("At INVOKE2: "+Seq(objName,objType,methodName,nArgs).mkString(", "))

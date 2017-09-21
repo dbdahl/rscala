@@ -23,3 +23,6 @@ microbenchmark(
   times=1000)
 
 
+rng3 <- s$..scala.util.dRandom$new()
+s %~% "3+5"
+
