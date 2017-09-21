@@ -16,6 +16,8 @@ microbenchmark(
   s$.scala.util.Random$new(),
   s$..scala.util.Random$new(),
   rng1$nextGaussian(),
+  rng2$nextGaussian(),
+  rng3$nextGaussian(),
   s$.scala.util.Random$nextGaussian(),
   s$..scala.util.Random$nextGaussian(),
   times=1000)
