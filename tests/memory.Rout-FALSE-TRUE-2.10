@@ -1,6 +1,6 @@
 > heap.maximum <- "192M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # becker # FALSE # TRUE
+# R version 3.4.1 (2017-06-30) # cochran # FALSE # TRUE
 > 
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 java.lang.reflect.InvocationTargetException
@@ -8,9 +8,9 @@ java.lang.reflect.InvocationTargetException
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:100)
-	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:402)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:429)
+	at org.ddahl.rscala.server.ScalaServer.doInvoke2(ScalaServer.scala:138)
+	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:442)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:469)
 	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:5)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
@@ -39,15 +39,15 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:105)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.OutOfMemoryError: Java heap space
-	at $line6.$read$$iw$$iw$$anonfun$1.apply(<console>:14)
 	at $line6.$read$$iw$$iw$$anonfun$1.apply(<console>:12)
+	at $line6.$read$$iw$$iw$$anonfun$1.apply(<console>:10)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:100)
-	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:402)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:429)
+	at org.ddahl.rscala.server.ScalaServer.doInvoke2(ScalaServer.scala:138)
+	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:442)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:469)
 	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:5)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
@@ -73,14 +73,14 @@ Caused by: java.lang.OutOfMemoryError: Java heap space
 	at scala.tools.nsc.ObjectRunner$.runAndCatch(ObjectRunner.scala:45)
 java.lang.reflect.InvocationTargetException
 java.lang.OutOfMemoryError: Java heap space
-<simpleError in doTryCatch(return(expr), name, parentenv, handler): Invocation error.>
+<simpleError in s$".Array[Double]"$new(20000000L): Problem invoking function.>
 > close(s)
 > cat("----\n")
 ----
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # becker # FALSE # TRUE
+# R version 3.4.1 (2017-06-30) # cochran # FALSE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -88,7 +88,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="64M")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # becker # FALSE # TRUE
+# R version 3.4.1 (2017-06-30) # cochran # FALSE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -96,7 +96,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="128M")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # becker # FALSE # TRUE
+# R version 3.4.1 (2017-06-30) # cochran # FALSE # TRUE
 > for ( i in 1:2000 ) {
 +   a <- s$".Array[Double]"$new(100000L)  # No memory problems
 + }
@@ -121,9 +121,9 @@ java.lang.OutOfMemoryError: Java heap space
 	at scala.tools.nsc.interpreter.IMain.loadAndRunReq$1(IMain.scala:573)
 	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:604)
 	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:568)
-	at org.ddahl.rscala.server.ScalaServer.doEval(ScalaServer.scala:57)
-	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:392)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:429)
+	at org.ddahl.rscala.server.ScalaServer.doEval(ScalaServer.scala:58)
+	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:430)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:469)
 	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:5)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)

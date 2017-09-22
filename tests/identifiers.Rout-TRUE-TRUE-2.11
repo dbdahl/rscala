@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # becker # TRUE # TRUE
+# R version 3.4.1 (2017-06-30) # cochran # TRUE # TRUE
 > 
 > 
 > set.seed(3432585)

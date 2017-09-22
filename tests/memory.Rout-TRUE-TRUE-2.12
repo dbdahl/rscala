@@ -1,6 +1,6 @@
 > heap.maximum <- "192M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # becker # TRUE # TRUE
+# R version 3.4.1 (2017-06-30) # cochran # TRUE # TRUE
 > 
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 java.lang.reflect.InvocationTargetException
@@ -8,17 +8,17 @@ java.lang.reflect.InvocationTargetException
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:100)
-	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:402)
-	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$2(ScalaServer.scala:421)
+	at org.ddahl.rscala.server.ScalaServer.doInvoke2(ScalaServer.scala:138)
+	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:442)
+	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$2(ScalaServer.scala:461)
 	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withErr(Console.scala:192)
-	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$1(ScalaServer.scala:421)
+	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$1(ScalaServer.scala:461)
 	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withOut(Console.scala:163)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:420)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:460)
 	at org.ddahl.rscala.server.Main$.delayedEndpoint$org$ddahl$rscala$server$Main$1(Main.scala:5)
 	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0.apply$mcV$sp(Function0.scala:34)
@@ -53,32 +53,32 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:101)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.OutOfMemoryError: Java heap space
-	at $line6.$read$$iw$$iw$.$anonfun$res1$1(<console>:18)
-	at $line6.$read$$iw$$iw$$$Lambda$1033/1244394767.apply(Unknown Source)
+	at $line6.$read$$iw$$iw$.$anonfun$res1$1(<console>:16)
+	at $line6.$read$$iw$$iw$$$Lambda$1035/1211627902.apply(Unknown Source)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:100)
-	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:402)
-	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$2(ScalaServer.scala:421)
-	at org.ddahl.rscala.server.ScalaServer$$Lambda$951/1583020257.apply$mcV$sp(Unknown Source)
+	at org.ddahl.rscala.server.ScalaServer.doInvoke2(ScalaServer.scala:138)
+	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:442)
+	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$2(ScalaServer.scala:461)
+	at org.ddahl.rscala.server.ScalaServer$$Lambda$951/690287064.apply$mcV$sp(Unknown Source)
 	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withErr(Console.scala:192)
-	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$1(ScalaServer.scala:421)
-	at org.ddahl.rscala.server.ScalaServer$$Lambda$950/1302779492.apply$mcV$sp(Unknown Source)
+	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$1(ScalaServer.scala:461)
+	at org.ddahl.rscala.server.ScalaServer$$Lambda$950/816918962.apply$mcV$sp(Unknown Source)
 	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withOut(Console.scala:163)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:420)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:460)
 	at org.ddahl.rscala.server.Main$.delayedEndpoint$org$ddahl$rscala$server$Main$1(Main.scala:5)
 	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0.apply$mcV$sp(Function0.scala:34)
 	at scala.Function0.apply$mcV$sp$(Function0.scala:34)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
 	at scala.App.$anonfun$main$1$adapted(App.scala:76)
-	at scala.App$$Lambda$104/758529971.apply(Unknown Source)
+	at scala.App$$Lambda$104/1521118594.apply(Unknown Source)
 	at scala.collection.immutable.List.foreach(List.scala:389)
 	at scala.App.main(App.scala:76)
 	at scala.App.main$(App.scala:74)
@@ -87,14 +87,14 @@ Caused by: java.lang.OutOfMemoryError: Java heap space
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 java.lang.reflect.InvocationTargetException
 java.lang.OutOfMemoryError: Java heap space
-<simpleError in doTryCatch(return(expr), name, parentenv, handler): Invocation error.>
+<simpleError in s$".Array[Double]"$new(20000000L): Problem invoking function.>
 > close(s)
 > cat("----\n")
 ----
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # becker # TRUE # TRUE
+# R version 3.4.1 (2017-06-30) # cochran # TRUE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -102,7 +102,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="64M")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # becker # TRUE # TRUE
+# R version 3.4.1 (2017-06-30) # cochran # TRUE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -110,7 +110,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="128M")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # becker # TRUE # TRUE
+# R version 3.4.1 (2017-06-30) # cochran # TRUE # TRUE
 > for ( i in 1:2000 ) {
 +   a <- s$".Array[Double]"$new(100000L)  # No memory problems
 + }

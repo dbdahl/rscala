@@ -1,21 +1,27 @@
 > assert <- function(xx,label) {
 +   cat(label)
 +   # if ( is.raw(xx) && ( label == 5 ) ) browser()
++   cat("a")
 +   if ( ! identical(( s %~% 'R.get("xx")._1' ), xx) ) stop("Not identical (test 1)")
++   cat("b")
 +   if ( ! identical(( s %~% 'R.xx._1' ), xx) ) stop("Not identical (test 2)")
++   cat("c")
 +   s$xx <- xx
 +   s %@% 'R.a = xx'
 +   if ( ! identical(a, xx) ) {
 +     stop("Not identical (test 3)")
 +   }
++   cat("d")
 +   if ( ! identical(s$.R$get("xx")$"_1"(), xx) ) stop("Not identical (test 4)")
++   cat("e")
 +   m <- function() s %!% 'R.get("xx")._1'
 +   if ( ! identical(m(), xx) ) stop("Not identical (test 5)")
++   cat(" ")
 + }
 > 
 > row.major <- FALSE
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # becker # FALSE # FALSE
+# R version 3.4.1 (2017-06-30) # cochran # FALSE # FALSE
 > 
 > y <- c(0,1,2,3,4,5,6,8)
 > for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y),as.raw(y)) ) {
@@ -29,19 +35,19 @@
 +   cat("\n")
 + }
 Class is integer 
-123456
+1abcde 2abcde 3abcde 4abcde 5abcde 6abcde 
 Class is numeric 
-123456
+1abcde 2abcde 3abcde 4abcde 5abcde 6abcde 
 Class is logical 
-123456
+1abcde 2abcde 3abcde 4abcde 5abcde 6abcde 
 Class is character 
-123456
+1abcde 2abcde 3abcde 4abcde 5abcde 6abcde 
 Class is raw 
-123456
+1abcde 2abcde 3abcde 4abcde 5abcde 6abcde 
 > 
 > row.major <- TRUE
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # becker # FALSE # FALSE
+# R version 3.4.1 (2017-06-30) # cochran # FALSE # FALSE
 > 
 > y <- c(0,1,2,3,4,5,6,8)
 > for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y),as.raw(y)) ) {
@@ -55,15 +61,15 @@ Class is raw
 +   cat("\n")
 + }
 Class is integer 
-123456
+1abcde 2abcde 3abcde 4abcde 5abcde 6abcde 
 Class is numeric 
-123456
+1abcde 2abcde 3abcde 4abcde 5abcde 6abcde 
 Class is logical 
-123456
+1abcde 2abcde 3abcde 4abcde 5abcde 6abcde 
 Class is character 
-123456
+1abcde 2abcde 3abcde 4abcde 5abcde 6abcde 
 Class is raw 
-123456
+1abcde 2abcde 3abcde 4abcde 5abcde 6abcde 
 > 
 > 
 > #### Callbacks with named arguments
@@ -212,13 +218,13 @@ Here is am.
 > callRFunction0D2 <- function(func=NULL) s %!% 'R.invokeD2(func)'
 > callRFunction0D2(gc)
        [,1] [,2]    [,3] [,4]    [,5] [,6]
-[1,] 342434 18.3  592000 31.7  460000 24.6
-[2,] 651014  5.0 1211530  9.3 1043149  8.0
+[1,] 341909 18.3  592000 31.7  460000 24.6
+[2,] 652538  5.0 1211548  9.3 1065384  8.2
 Warning messages:
 1: In .Internal(gc(verbose, reset)) :
-  closing unused connection 4 (->localhost:45690)
+  closing unused connection 4 (->localhost:40187)
 2: In .Internal(gc(verbose, reset)) :
-  closing unused connection 3 (->localhost:42250)
+  closing unused connection 3 (->localhost:44974)
 > 
 > tryCatch(callRFunction(1:100),error = function(e) {})
 Error in func(.rsX0, y) : could not find function "func"

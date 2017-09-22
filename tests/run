@@ -19,9 +19,9 @@ export VERSIONS=$(cat ../build.sbt | grep crossScalaVersions | sed 's/crossScala
 export SERIALIZES="TRUE FALSE"
 export OUTPUTS="TRUE FALSE"
 
-export VERSIONS=2.12.3
-export SERIALIZES=FALSE
-export OUTPUTS=TRUE
+# export VERSIONS=2.12.3
+# export SERIALIZES=FALSE
+# export OUTPUTS=TRUE
 
 if [[ "$DOINSTALL" == TRUE ]]
 then
