@@ -1,16 +1,22 @@
 assert <- function(xx,label) {
   cat(label)
   # if ( is.raw(xx) && ( label == 5 ) ) browser()
+  cat("a")
   if ( ! identical(( s %~% 'R.get("xx")._1' ), xx) ) stop("Not identical (test 1)")
+  cat("b")
   if ( ! identical(( s %~% 'R.xx._1' ), xx) ) stop("Not identical (test 2)")
+  cat("c")
   s$xx <- xx
   s %@% 'R.a = xx'
   if ( ! identical(a, xx) ) {
     stop("Not identical (test 3)")
   }
+  cat("d")
   if ( ! identical(s$.R$get("xx")$"_1"(), xx) ) stop("Not identical (test 4)")
+  cat("e")
   m <- function() s %!% 'R.get("xx")._1'
   if ( ! identical(m(), xx) ) stop("Not identical (test 5)")
+  cat(" ")
 }
 
 row.major <- FALSE

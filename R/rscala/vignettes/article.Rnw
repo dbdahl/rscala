@@ -1098,7 +1098,7 @@ trailing argument \code{.EVALUATE=FALSE} and store the resulting function,
 e.g.:
 
 <<makeFasterNextGaussian>>=
-fasterNextGaussian <- rng$nextGaussian(.EVALUATE=FALSE)
+fasterNextGaussian <- function() rng$nextGaussian()
 @
 
 The function \code{fasterNextGaussian} is optimized and has less overhead than

@@ -9,13 +9,12 @@ s$.org.apache.commons.math3.random.RandomDataGenerator
 rdg <- s$.org.apache.commons.math3.random.RandomDataGenerator$new()
 
 rdg$reSeed(39234L)
-rexp <- rdg$nextExponential(2,.EVALUATE=FALSE)
 
 library(microbenchmark)
 options(width=120)
-microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
-microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
-microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
+microbenchmark(rdg$nextExponential(4),times=1000L)
+microbenchmark(rdg$nextExponential(4),times=1000L)
+microbenchmark(rdg$nextExponential(4),times=1000L)
 
 s$.org.ddahl.shallot.parameter.Mass
 massFactory3 <- s$.org.ddahl.shallot.parameter.Mass$factory(1.0,3.0,rdg)
@@ -50,8 +49,5 @@ d[['type']] <- "Bob"     # Cast it to be 'Bob'
 d$b()                    # Now it does
 
 d$sum(4L)
-m <- d$sum(5L,.EVALUATE=FALSE)
-
-m(3)                                                   # Casting is not necessary here
-d$sum(as.integer(3))                                   # But it is here
+d$sum(as.integer(4))                                   # Casting is needed here.
 

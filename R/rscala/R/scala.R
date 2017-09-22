@@ -561,9 +561,9 @@ scalaAutoMkFunction2 <- function(reference,method) {
     headers <- character(length(args))
     for ( i in seq_len(length(args))) {
       value <- args[[i]]
-      assign(paste0('x',i),value,envir=workspace)
+      assign(paste0('$',i),value,envir=workspace)
       if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") || inherits(value,"ScalaNullReference")) {
-        headers[i] <- paste0('R.cached(R.evalS0("toString(x',i,')")).asInstanceOf[',args[[i]][['type']],']')
+        headers[i] <- paste0('R.cached(R.evalS0("toString(get(\'$',i,'\'))")).asInstanceOf[',args[[i]][['type']],']')
       } else {
         if ( ( ! is.atomic(value) ) || is.null(value) ) stop(paste0('Type of argument ',i,' is not supported.'))
         type <- if ( is.integer(value) ) "I"
@@ -577,7 +577,7 @@ scalaAutoMkFunction2 <- function(reference,method) {
           if ( length(value) == 1 ) 0 else 1
         } else if ( is.matrix(value) ) 2
         else stop(paste0('Type of argument ',i,' is not supported.'))
-        headers[i] <- paste0('R.get',type,len,'("x',i,'")')
+        headers[i] <- paste0('R.get',type,len,'("$',i,'")')
       }
     }
     wb(interpreter,INVOKE2)
@@ -593,8 +593,8 @@ scalaAutoMkFunction2 <- function(reference,method) {
     sapply(headers, function(x) wc(interpreter,x))
     flush(interpreter[['socketIn']])
     rServe(interpreter,TRUE,workspace)
-    if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
     status <- rb(interpreter,"integer")
+    if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
     if ( status != OK ) stop("Problem invoking function.")
     result <- scalaGet(interpreter,"?",.AS.REFERENCE)
     if ( is.null(result) ) invisible(result)

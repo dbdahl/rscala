@@ -18,8 +18,6 @@ s$r3 <- rng3
 rng4 <- s$r3
 rng4$nextDouble()
 
-f <- rng4$nextDouble(.EVALUATE=FALSE)
-f()
 
 
 ####
@@ -95,7 +93,6 @@ rng2$nextInt(10L)
 str <- rng1$toString(.AS.REFERENCE=TRUE)
 str$length()
 
-nd0 <- rng1$nextDouble(.EVALUATE=FALSE)
 nd1 <- function() s %!% 'R.cached("@{toString(rng1)}").asInstanceOf[@{rng1[[\'type\']]}].nextDouble()'
 nd1b <- rscala:::scalaOptimize(nd1)
 nd2 <- function() s %!% '@{rng2}.nextDouble()'
@@ -107,7 +104,6 @@ microbenchmark(
   runif(1),
   rng1$nextDouble(),
   rng2$nextDouble(),
-  nd0(),
   nd1(),
   nd1b(),
   nd2(),
@@ -159,17 +155,6 @@ microbenchmark(
 ####
 
 s$.scala.util.Random$nextDouble()
-m <- s$.scala.util.Random$new(342L,.EVALUATE=FALSE)
-m(23436)$nextDouble()
-m(63502)$nextDouble()
-m(93222)$nextDouble()
-m(93222)$nextDouble()
-
-n <- m(5)$nextDouble(.EVALUATE=FALSE)
-n()
-n()
-n()
-
 s$'.Array[Int]'$new(5L)
 
 ####
