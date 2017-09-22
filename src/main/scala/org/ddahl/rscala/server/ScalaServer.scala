@@ -118,7 +118,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
     val headers = Array.tabulate(nArgs) { i => "val x" + (i+1) + " = " + socket.getScalarString() }
     val snippet = if ( methodName == "new" ) "new " + objName
     else objName + "." + methodName
-    val argsList = "(" + Array.tabulate(nArgs)(i => "x" + (i+1)).mkString(",") + ")"
+    val argsList = if ( nArgs == 0 ) "" else { "(" + Array.tabulate(nArgs)(i => "x" + (i+1)).mkString(",") + ")" }
     val body = "() => {\n" + headers.mkString("\n") + ( if ( headers.length > 0 ) "\n" else "" ) + snippet + argsList + "\n}"
     try {
       val (f, returnType) = if ( ! functionMap2.contains(body) ) {

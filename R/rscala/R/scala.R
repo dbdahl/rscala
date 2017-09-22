@@ -557,7 +557,7 @@ scalaAutoMkFunction2 <- function(reference,method) {
   function(..., .AS.REFERENCE = NA) {
     args <- list(...)
     if ( ! is.null(names(args)) ) stop("Arguments should not have names.")
-    workspace <- environment()
+    workspace <- new.env(parent=parent.frame())
     headers <- character(length(args))
     for ( i in seq_len(length(args))) {
       value <- args[[i]]
@@ -592,7 +592,7 @@ scalaAutoMkFunction2 <- function(reference,method) {
     wb(interpreter,length(args))
     sapply(headers, function(x) wc(interpreter,x))
     flush(interpreter[['socketIn']])
-    rServe(interpreter,TRUE,environment())
+    rServe(interpreter,TRUE,workspace)
     if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
     status <- rb(interpreter,"integer")
     if ( status != OK ) stop("Problem invoking function.")
