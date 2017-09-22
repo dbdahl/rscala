@@ -292,17 +292,8 @@ scalaNull <- function(type) {
   } else if ( identifier == ".val" ) function(x) {
     # warning(paste0("Syntax \"s$.val()\" is deprecated and will be removed."))
     scalaGet(interpreter,x,TRUE)
-  } else if ( substr(identifier,1,2) == ".." ) {
-    structure(list(interpreter=interpreter,snippet=substring(identifier,3)),class="ScalaInterpreterItem2")
-    #identifier <- substring(identifier,3)
-    #result <- list(interpreter=interpreter,snippet=identifier)
-    #class(result) <- "ScalaInterpreterItem2"
-    #result
   } else if ( substr(identifier,1,1) == "." ) {
-    identifier <- substring(identifier,2)
-    result <- list(interpreter=interpreter,snippet=identifier)
-    class(result) <- "ScalaInterpreterItem"
-    result
+    structure(list(interpreter=interpreter,snippet=substring(identifier,2)),class="ScalaInterpreterItem")
   } else {
     scalaGet(interpreter,identifier,NA)
   }
@@ -557,13 +548,9 @@ scalaUnboxReference <- function(x) {
   get(x$name(),envir=x[['interpreter']][['r']])
 }
 
-'$.ScalaCachedReference' <- scalaAutoMkFunction
-'$.ScalaInterpreterReference' <- scalaAutoMkFunction
-'$.ScalaInterpreterItem' <- scalaAutoMkFunction
-
 scalaAutoMkFunction2 <- function(reference,method) {
   if ( method == "type" ) {
-    if ( inherits(reference,"ScalaInterpreterItem2") ) return(reference[['snippet']])
+    if ( inherits(reference,"ScalaInterpreterItem") ) return(reference[['snippet']])
     else return(reference[['type']])
   }
   interpreter <- reference[['interpreter']]
@@ -580,10 +567,10 @@ scalaAutoMkFunction2 <- function(reference,method) {
       } else {
         if ( ( ! is.atomic(value) ) || is.null(value) ) stop(paste0('Type of argument ',i,' is not supported.'))
         type <- if ( is.integer(value) ) "I"
-        else if ( is.double(x) ) "D"
-        else if ( is.logical(x) ) "L"
-        else if ( is.character(x) ) "S"
-        else if ( is.raw(x) ) "R"
+        else if ( is.double(value) ) "D"
+        else if ( is.logical(value) ) "L"
+        else if ( is.character(value) ) "S"
+        else if ( is.raw(value) ) "R"
         else stop(paste0('Type of argument ',i,' is not supported.'))
         len <- if ( inherits(value,"AsIs") ) 1
         else if ( is.vector(value) ) {
@@ -598,7 +585,7 @@ scalaAutoMkFunction2 <- function(reference,method) {
       wc(interpreter,reference[['identifier']])
     else if ( inherits(reference,"ScalaCachedReference") )
       wc(interpreter,paste0('R.cached("',reference[['identifier']],'").asInstanceOf[',reference[['type']],']'))
-    else if ( inherits(reference,"ScalaInterpreterItem2") )
+    else if ( inherits(reference,"ScalaInterpreterItem") )
       wc(interpreter,reference[['snippet']])
     else stop('Unrecognized reference type.')
     wc(interpreter,method)
@@ -615,91 +602,9 @@ scalaAutoMkFunction2 <- function(reference,method) {
   }
 }
 
-'$.ScalaInterpreterItem2' <- scalaAutoMkFunction2
-
-    ## DBD
-#     names <- paste0(rep('x',length(args)),seq_along(args))
-#     argsString <- paste0(names,collapse=',')
-# 
-#     if ( nchar(argsString) > 0 ) argsString <- paste0("(",argsString,")")
-#     snippet <- if ( inherits(reference,"ScalaInterpreterReference") ) {
-#       '@{reference}.@{method}@{argsString}'
-#     } else if ( inherits(reference,"ScalaCachedReference") ) {
-#       'R.cached("@{toString(reference)}").asInstanceOf[@{reference[[\'type\']]}].@{method}@{argsString}'
-#     } else if ( inherits(reference,"ScalaInterpreterItem") ) {
-#       if ( method == 'new' ) {
-#         "new @{reference[['snippet']]}@{argsString}"
-#       } else {
-#         "@{reference[['snippet']]}.@{method}@{argsString}"
-#       }
-#     } else stop('Unrecognized reference type.')
-#     snippet <- strintrplt(snippet)
-#     f <- scalaMkFunction(scalaFunctionArgs(.INTERPRETER=interpreter,...),snippet,as.reference=.AS.REFERENCE,parent.frame())
-#     if ( .EVALUATE ) f(...)
-#     else f
-# 
-# 
-# 
-#   interpreter <- func$interpreter
-#   body <- paste(body,collapse="\n")
-#   fullBody <- paste0(c(func$header,body),collapse='\n')
-#   if ( ! exists(fullBody,envir=interpreter[['functionCache']]) ) {
-#     snippet <- paste0('() => {\n',fullBody,'}')
-#     function0 <- evalAndGet(interpreter,snippet,TRUE,workspace)
-#     functionIdentifier <- function0[["identifier"]] 
-#     functionReturnType <- substring(function0[['type']],7)  # Drop off the leading '() => '.
-#     wb(interpreter,DEF)
-#     wc(interpreter,functionIdentifier)
-#     wc(interpreter,functionReturnType)
-#     flush(interpreter[['socketIn']])
-#     status <- rb(interpreter,"integer")
-#     if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
-#     if ( status != OK ) {
-#       stop("Problem caching function.")
-#     }
-#     assign(fullBody,list(functionIdentifier=functionIdentifier,functionReturnType=functionReturnType),envir=func$interpreter[['functionCache']])
-#   }
-#   funcList <- get(fullBody,envir=func$interpreter[['functionCache']])
-#   interpreterName <- uniqueName(interpreter, workspace, ".rsW")
-#   functionSnippet <- strintrplt('
-#     function(@{paste(func$identifiers,collapse=", ")}) {
-#       .rsI <- @{interpreterName}
-#       tryCatch({
-#         .rsWorkspace <- environment()
-#         @{ifelse(get("debug",envir=interpreter[["env"]]),\'rscala:::msg(paste("Evaluating Scala function from environment",capture.output(print(.rsWorkspace))))\',"")}
-#         rscala:::wb(.rsI,rscala:::INVOKE)
-#         rscala:::wc(.rsI,"@{funcList$functionIdentifier}")
-#         flush(.rsI[["socketIn"]])
-#         rscala:::rServe(.rsI,TRUE,.rsWorkspace)
-#         .rsStatus <- rscala:::rb(.rsI,"integer")
-#         @{ifelse(get("serializeOutput",envir=interpreter[["env"]]),"rscala:::echoResponseScala(.rsI)","")}
-#         if ( .rsStatus == rscala:::ERROR ) {
-#           stop("Invocation error.")
-#         } else {
-#           .rsResult <- rscala:::scalaGet(.rsI,"?",@{as.reference})
-#           if ( is.null(.rsResult) ) invisible(.rsResult)
-#           else .rsResult
-#         }
-#       }, interrupt = function(x) {
-#         assign("open",FALSE,envir=.rsI[["env"]])
-#         stop("## Interpreter closed by interrupt. ##")
-#       })
-#     }
-#   ')
-#   functionDefinition <- eval(parse(text=functionSnippet),envir=workspace)
-#   attr(functionDefinition,"identifiers") <- func$identifiers
-#   attr(functionDefinition,"scalaHeader") <- func$header
-#   attr(functionDefinition,"scalaBody") <- body
-#   attr(functionDefinition,"returnType") <- funcList$functionReturnType
-#   attr(functionDefinition,"asReference") <- as.reference
-#   class(functionDefinition) <- "ScalaFunction"
-#   functionDefinition
-# 
-# 
-# 
-# 
-#  }
-#}
+'$.ScalaCachedReference' <- scalaAutoMkFunction2
+'$.ScalaInterpreterReference' <- scalaAutoMkFunction2
+'$.ScalaInterpreterItem' <- scalaAutoMkFunction2
 
 scalap <- function(interpreter,class.name) {
   if ( inherits(interpreter,"ScalaInterpreterReference") || inherits(interpreter,"ScalaCachedReference") ) {

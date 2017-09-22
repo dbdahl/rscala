@@ -33,8 +33,6 @@ S3method("$","ScalaInterpreterItem")
 S3method("print","ScalaInterpreterItem")
 S3method("toString","ScalaInterpreterItem")
 
-S3method("$","ScalaInterpreterItem2")
-
 S3method("$","ScalaInterpreterReference")
 S3method("print","ScalaInterpreterReference")
 S3method("toString","ScalaInterpreterReference")

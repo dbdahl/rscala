@@ -120,8 +120,6 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
     else objName + "." + methodName
     val argsList = "(" + Array.tabulate(nArgs)(i => "x" + (i+1)).mkString(",") + ")"
     val body = "() => {\n" + headers.mkString("\n") + ( if ( headers.length > 0 ) "\n" else "" ) + snippet + argsList + "\n}"
-    println("BODY:")
-    println(body)
     try {
       val (f, returnType) = if ( ! functionMap2.contains(body) ) {
         val result = repl.interpret(body)
