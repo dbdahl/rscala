@@ -9,6 +9,7 @@ library(rJava)
 rng1 <- .jnew("scala.util.Random")
 rng2 <- s$.scala.util.Random$new()
 rng3 <- s$..scala.util.Random$new()
+rng3 <- s$..scala.util.Random$new(5L)
 
 library(microbenchmark)
 microbenchmark(

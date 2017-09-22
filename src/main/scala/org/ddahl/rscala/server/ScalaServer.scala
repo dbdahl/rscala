@@ -113,18 +113,15 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
 
   private def doInvoke2(): Unit = {
     val objName = socket.getScalarString()
-    val objType = socket.getScalarInt()
     val methodName = socket.getScalarString()
     val nArgs = socket.getScalarInt()
-    if ( nArgs != 0 ) throw new RuntimeException("Arguments are not yet implemented.")
-    val snippet = objType match {
-      case 2 =>
-        if ( methodName == "new" ) {
-          "new " + objName + "()"
-        } else objName + "." + methodName + "()"
-    }
-    val headers = Seq[String]()
-    val body = "() => {\n" + headers.mkString("\n") + snippet + "\n}"
+    val headers = Array.tabulate(nArgs) { i => "val x" + (i+1) + " = " + socket.getScalarString() }
+    val snippet = if ( methodName == "new" ) "new " + objName
+    else objName + "." + methodName
+    val argsList = "(" + Array.tabulate(nArgs)(i => "x" + (i+1)).mkString(",") + ")"
+    val body = "() => {\n" + headers.mkString("\n") + ( if ( headers.length > 0 ) "\n" else "" ) + snippet + argsList + "\n}"
+    println("BODY:")
+    println(body)
     try {
       val (f, returnType) = if ( ! functionMap2.contains(body) ) {
         val result = repl.interpret(body)
@@ -142,8 +139,6 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
       } else functionMap2(body)
       functionResult = (nullary.invoke(f), returnType)
       R.exit()
-      // println("At INVOKE2: "+Seq(objName,objType,methodName,nArgs).mkString(", "))
-      // println("            "+typeOfResult)
       if ( debugger.value ) debugger.msg("Invoke2 is okay")
       socket.putScalarInt(OK)
     } catch {

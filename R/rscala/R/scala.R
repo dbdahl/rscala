@@ -570,15 +570,40 @@ scalaAutoMkFunction2 <- function(reference,method) {
   function(..., .AS.REFERENCE = NA) {
     args <- list(...)
     if ( ! is.null(names(args)) ) stop("Arguments should not have names.")
+    workspace <- environment()
+    headers <- character(length(args))
+    for ( i in seq_len(length(args))) {
+      value <- args[[i]]
+      assign(paste0('x',i),value,envir=workspace)
+      if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") || inherits(value,"ScalaNullReference")) {
+        headers[i] <- paste0('R.cached(R.evalS0("toString(x',i,')")).asInstanceOf[',args[[i]][['type']],']')
+      } else {
+        if ( ( ! is.atomic(value) ) || is.null(value) ) stop(paste0('Type of argument ',i,' is not supported.'))
+        type <- if ( is.integer(value) ) "I"
+        else if ( is.double(x) ) "D"
+        else if ( is.logical(x) ) "L"
+        else if ( is.character(x) ) "S"
+        else if ( is.raw(x) ) "R"
+        else stop(paste0('Type of argument ',i,' is not supported.'))
+        len <- if ( inherits(value,"AsIs") ) 1
+        else if ( is.vector(value) ) {
+          if ( length(value) == 1 ) 0 else 1
+        } else if ( is.matrix(value) ) 2
+        else stop(paste0('Type of argument ',i,' is not supported.'))
+        headers[i] <- paste0('R.get',type,len,'("x',i,'")')
+      }
+    }
     wb(interpreter,INVOKE2)
-    wc(interpreter,reference[['snippet']])
-    if ( inherits(reference,"ScalaInterpreterReference") )  wb(interpreter,0L)
-    else if ( inherits(reference,"ScalaCachedReference") )  wb(interpreter,1L)
-    else if ( inherits(reference,"ScalaInterpreterItem2") ) wb(interpreter,2L)
+    if ( inherits(reference,"ScalaInterpreterReference") )
+      wc(interpreter,reference[['identifier']])
+    else if ( inherits(reference,"ScalaCachedReference") )
+      wc(interpreter,paste0('R.cached("',reference[['identifier']],'").asInstanceOf[',reference[['type']],']'))
+    else if ( inherits(reference,"ScalaInterpreterItem2") )
+      wc(interpreter,reference[['snippet']])
     else stop('Unrecognized reference type.')
     wc(interpreter,method)
-    # Push arguments
     wb(interpreter,length(args))
+    sapply(headers, function(x) wc(interpreter,x))
     flush(interpreter[['socketIn']])
     rServe(interpreter,TRUE,environment())
     if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
