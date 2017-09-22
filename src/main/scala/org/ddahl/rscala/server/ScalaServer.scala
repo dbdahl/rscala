@@ -162,6 +162,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
         socket.putScalarInt(ERROR)
         e.printStackTrace(pw)
         pw.println(e + ( if ( e.getCause != null ) System.lineSeparator + e.getCause else "" ) )
+        pw.println("Function name: "+functionName)
     }
   }
 
