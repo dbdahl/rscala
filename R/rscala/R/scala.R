@@ -554,14 +554,12 @@ scalaAutoMkFunction2 <- function(reference,method) {
     else return(reference[['type']])
   }
   interpreter <- reference[['interpreter']]
-  function(..., .AS.REFERENCE = NA) {
+  function(..., .AS.REFERENCE = NA, .EVALUATE = TRUE) {
     args <- list(...)
     if ( ! is.null(names(args)) ) stop("Arguments should not have names.")
-    workspace <- new.env(parent=parent.frame())
     headers <- character(length(args))
     for ( i in seq_len(length(args))) {
       value <- args[[i]]
-      assign(paste0('$',i),value,envir=workspace)
       if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") || inherits(value,"ScalaNullReference")) {
         headers[i] <- paste0('R.cached(R.evalS0("toString(get(\'$',i,'\'))")).asInstanceOf[',args[[i]][['type']],']')
       } else {
@@ -580,7 +578,7 @@ scalaAutoMkFunction2 <- function(reference,method) {
         headers[i] <- paste0('R.get',type,len,'("$',i,'")')
       }
     }
-    wb(interpreter,INVOKE2)
+    wb(interpreter,DEF2)
     if ( inherits(reference,"ScalaInterpreterReference") )
       wc(interpreter,reference[['identifier']])
     else if ( inherits(reference,"ScalaCachedReference") )
@@ -592,13 +590,28 @@ scalaAutoMkFunction2 <- function(reference,method) {
     wb(interpreter,length(args))
     sapply(headers, function(x) wc(interpreter,x))
     flush(interpreter[['socketIn']])
-    rServe(interpreter,TRUE,workspace)
     status <- rb(interpreter,"integer")
     if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
-    if ( status != OK ) stop("Problem invoking function.")
-    result <- scalaGet(interpreter,"?",.AS.REFERENCE)
-    if ( is.null(result) ) invisible(result)
-    else result
+    if ( status != OK ) stop("Problem defining function.")
+    functionName <- rc(interpreter)
+    f <- function(..., .NBACK=1) {
+      args <- list(...)
+      if ( ! is.null(names(args)) ) stop("Arguments should not have names.")
+      workspace <- new.env(parent=parent.frame(.NBACK))
+      for ( i in seq_len(length(args))) assign(paste0('$',i),args[[i]],envir=workspace)
+      wb(interpreter,INVOKE2)
+      wc(interpreter,functionName)
+      flush(interpreter[['socketIn']])
+      rServe(interpreter,TRUE,workspace)
+      status <- rb(interpreter,"integer")
+      if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
+      if ( status != OK ) stop("Problem invoking function.")
+      result <- scalaGet(interpreter,"?",.AS.REFERENCE)
+      if ( is.null(result) ) invisible(result)
+      else result
+    }
+    if ( .EVALUATE ) f(...,.NBACK=2)
+    else f
   }
 }
 
