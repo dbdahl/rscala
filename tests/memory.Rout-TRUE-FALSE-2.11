@@ -1,6 +1,6 @@
 > heap.maximum <- "192M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # becker # TRUE # FALSE
+# R version 3.4.1 (2017-06-30) # cochran # TRUE # FALSE
 > 
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 java.lang.reflect.InvocationTargetException
@@ -8,19 +8,19 @@ java.lang.reflect.InvocationTargetException
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:100)
-	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:402)
-	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:421)
-	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:421)
-	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:421)
+	at org.ddahl.rscala.server.ScalaServer.doInvoke2(ScalaServer.scala:138)
+	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:442)
+	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:461)
+	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:461)
+	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:461)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withErr(Console.scala:92)
-	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:420)
-	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:420)
-	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:420)
+	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:460)
+	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:460)
+	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:460)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withOut(Console.scala:65)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:419)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:459)
 	at org.ddahl.rscala.server.Main$.delayedEndpoint$org$ddahl$rscala$server$Main$1(Main.scala:5)
 	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:34)
@@ -51,25 +51,25 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:103)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.OutOfMemoryError: Java heap space
-	at $line6.$read$$iw$$iw$$anonfun$1.apply(<console>:18)
 	at $line6.$read$$iw$$iw$$anonfun$1.apply(<console>:16)
+	at $line6.$read$$iw$$iw$$anonfun$1.apply(<console>:14)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:100)
-	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:402)
-	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:421)
-	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:421)
-	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:421)
+	at org.ddahl.rscala.server.ScalaServer.doInvoke2(ScalaServer.scala:138)
+	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:442)
+	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply$mcV$sp(ScalaServer.scala:461)
+	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:461)
+	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1$$anonfun$apply$mcV$sp$1.apply(ScalaServer.scala:461)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withErr(Console.scala:92)
-	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:420)
-	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:420)
-	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:420)
+	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1.apply$mcV$sp(ScalaServer.scala:460)
+	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:460)
+	at org.ddahl.rscala.server.ScalaServer$$anonfun$run$1.apply(ScalaServer.scala:460)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withOut(Console.scala:65)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:419)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:459)
 	at org.ddahl.rscala.server.Main$.delayedEndpoint$org$ddahl$rscala$server$Main$1(Main.scala:5)
 	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:34)
@@ -85,14 +85,14 @@ Caused by: java.lang.OutOfMemoryError: Java heap space
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 java.lang.reflect.InvocationTargetException
 java.lang.OutOfMemoryError: Java heap space
-<simpleError in doTryCatch(return(expr), name, parentenv, handler): Invocation error.>
+<simpleError in s$".Array[Double]"$new(20000000L): Problem invoking function.>
 > close(s)
 > cat("----\n")
 ----
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # becker # TRUE # FALSE
+# R version 3.4.1 (2017-06-30) # cochran # TRUE # FALSE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -100,7 +100,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="64M")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # becker # TRUE # FALSE
+# R version 3.4.1 (2017-06-30) # cochran # TRUE # FALSE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -108,7 +108,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > options(rscala.heap.maximum="128M")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # becker # TRUE # FALSE
+# R version 3.4.1 (2017-06-30) # cochran # TRUE # FALSE
 > for ( i in 1:2000 ) {
 +   a <- s$".Array[Double]"$new(100000L)  # No memory problems
 + }
@@ -118,41 +118,7 @@ java.lang.OutOfMemoryError: Java heap space
 +   s %~% "new Array[Double](100000)"           # Memory problems
 + }
 + },error=function(e) e)
-java.lang.OutOfMemoryError: GC overhead limit exceeded
-	at scala.reflect.internal.Scopes$class.scala$reflect$internal$Scopes$$newScopeEntry(Scopes.scala:37)
-	at scala.reflect.internal.Scopes$Scope.enter(Scopes.scala:124)
-	at scala.tools.nsc.transform.Flatten$$anon$1$$anonfun$1$$anonfun$apply$1$$anonfun$apply$mcV$sp$3.apply(Flatten.scala:69)
-	at scala.tools.nsc.transform.Flatten$$anon$1$$anonfun$1$$anonfun$apply$1$$anonfun$apply$mcV$sp$3.apply(Flatten.scala:69)
-	at scala.reflect.internal.Scopes$Scope.foreach(Scopes.scala:373)
-	at scala.tools.nsc.transform.Flatten$$anon$1$$anonfun$1$$anonfun$apply$1.apply$mcV$sp(Flatten.scala:69)
-	at scala.tools.nsc.transform.Flatten$$anon$1$$anonfun$1$$anonfun$apply$1.apply(Flatten.scala:69)
-	at scala.tools.nsc.transform.Flatten$$anon$1$$anonfun$1$$anonfun$apply$1.apply(Flatten.scala:69)
-	at scala.reflect.internal.SymbolTable.enteringPhase(SymbolTable.scala:235)
-	at scala.reflect.internal.SymbolTable.exitingPhase(SymbolTable.scala:256)
-	at scala.tools.nsc.transform.Flatten$$anon$1$$anonfun$1.apply(Flatten.scala:69)
-	at scala.tools.nsc.transform.Flatten$$anon$1$$anonfun$1.apply(Flatten.scala:66)
-	at scala.reflect.internal.Scopes$class.scopeTransform(Scopes.scala:453)
-	at scala.reflect.internal.SymbolTable.scopeTransform(SymbolTable.scala:16)
-	at scala.tools.nsc.transform.Flatten$$anon$1.apply(Flatten.scala:66)
-	at scala.tools.nsc.transform.Flatten.transformInfo(Flatten.scala:111)
-	at scala.tools.nsc.transform.InfoTransform$Phase$$anon$1.transform(InfoTransform.scala:38)
-	at scala.reflect.internal.Symbols$Symbol.rawInfo(Symbols.scala:1625)
-	at scala.reflect.internal.Symbols$Symbol.flatOwnerInfo(Symbols.scala:2304)
-	at scala.reflect.internal.Symbols$ClassSymbol.companionModule0(Symbols.scala:3292)
-	at scala.reflect.internal.Symbols$ClassSymbol.companionModule(Symbols.scala:3294)
-	at scala.reflect.internal.Symbols$PackageClassSymbol.sourceModule(Symbols.scala:3465)
-	at scala.reflect.internal.TreeGen.mkAttributedQualifier(TreeGen.scala:84)
-	at scala.reflect.internal.TreeGen.mkAttributedQualifier(TreeGen.scala:62)
-	at scala.reflect.internal.TreeGen.mkAttributedRef(TreeGen.scala:122)
-	at scala.reflect.internal.TreeGen.mkAttributedRef(TreeGen.scala:132)
-	at scala.tools.nsc.transform.Flatten$Flattener$$anonfun$2.apply(Flatten.scala:154)
-	at scala.tools.nsc.transform.Flatten$Flattener$$anonfun$2.apply(Flatten.scala:153)
-	at scala.reflect.internal.SymbolTable.enteringPhase(SymbolTable.scala:235)
-	at scala.reflect.internal.SymbolTable.exitingPhase(SymbolTable.scala:256)
-	at scala.tools.nsc.transform.Flatten$Flattener.postTransform(Flatten.scala:152)
-	at scala.tools.nsc.transform.Flatten$Flattener.transform(Flatten.scala:119)
-java.lang.OutOfMemoryError: GC overhead limit exceeded
-<simpleError in doTryCatch(return(expr), name, parentenv, handler): Exception thrown.>
+<simpleError: evaluation nested too deeply: infinite recursion / options(expressions=)?>
 > 
 > 
 > 

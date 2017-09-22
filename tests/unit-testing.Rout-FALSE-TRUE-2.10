@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # becker # FALSE # TRUE
+# R version 3.4.1 (2017-06-30) # cochran # FALSE # TRUE
 > 
 > 
 > test <- function(a,value,func=list()) {
@@ -57,10 +57,10 @@ true
 > # What about when there is no result?
 > tryCatch(s %~% 'import scala.util._', error=function(e) e)
 java.lang.RuntimeException: There is no result.  Maybe use the %@% operator instead?
-	at org.ddahl.rscala.server.ScalaServer.mostRecentVar(ScalaServer.scala:39)
-	at org.ddahl.rscala.server.ScalaServer.doGet(ScalaServer.scala:195)
-	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:396)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:429)
+	at org.ddahl.rscala.server.ScalaServer.mostRecentVar(ScalaServer.scala:40)
+	at org.ddahl.rscala.server.ScalaServer.doGet(ScalaServer.scala:233)
+	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:434)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:469)
 	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:5)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
@@ -96,11 +96,11 @@ java.lang.RuntimeException: There is no result.  Maybe use the %@% operator inst
 > 
 > tryCatch(s %.~% 'import scala.util._', error=function(e) e)
 java.lang.RuntimeException: There is no result.  Maybe use the %@% operator instead?
-	at org.ddahl.rscala.server.ScalaServer.mostRecentVar(ScalaServer.scala:39)
-	at org.ddahl.rscala.server.ScalaServer.liftedTree1$1(ScalaServer.scala:359)
-	at org.ddahl.rscala.server.ScalaServer.doGetReference(ScalaServer.scala:358)
-	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:398)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:429)
+	at org.ddahl.rscala.server.ScalaServer.mostRecentVar(ScalaServer.scala:40)
+	at org.ddahl.rscala.server.ScalaServer.liftedTree1$1(ScalaServer.scala:397)
+	at org.ddahl.rscala.server.ScalaServer.doGetReference(ScalaServer.scala:396)
+	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:436)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:469)
 	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:5)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
