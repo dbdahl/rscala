@@ -20,12 +20,12 @@ cat("----\n")
 options(rscala.heap.maximum="128M")
 source("common.R",print.eval=TRUE)
 for ( i in 1:2000 ) {
-  a <- s$".Array[Double]"$new(100000L)  # No memory problems
+  a <- s$".Array[Double]"$new(200000L)  # No memory problems
 }
 
 tryCatch({
 for ( i in 1:2000 ) {
-  s %~% "new Array[Double](100000)"           # Memory problems
+  s %~% "new Array[Double](200000)"           # Memory problems
 }
 },error=function(e) e)
 
