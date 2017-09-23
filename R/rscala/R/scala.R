@@ -591,9 +591,12 @@ scalaAutoMkFunction2 <- function(reference,method) {
     sapply(headers, function(x) wc(interpreter,x))
     flush(interpreter[['socketIn']])
     status <- rb(interpreter,"integer")
-    if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
-    if ( status != OK ) stop("Problem defining function.")
+    if ( status != OK ) {
+      if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
+      stop("Problem defining function.")
+    }
     functionName <- rc(interpreter)
+    if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
     f <- function(..., .NBACK=1) {
       args <- list(...)
       if ( ! is.null(names(args)) ) stop("Arguments should not have names.")

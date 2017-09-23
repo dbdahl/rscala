@@ -1,5 +1,5 @@
 library(rscala)
-s <- scala(debug=FALSE)
+s <- scala(debug=FALSE,serialize.output=TRUE)
 
 mkRNG <- s$.scala.util.Random$new(.EVALUATE=FALSE)
 rng2 <- mkRNG()
