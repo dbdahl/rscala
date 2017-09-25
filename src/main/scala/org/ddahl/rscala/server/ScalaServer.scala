@@ -77,41 +77,6 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
     }
   }
 
-  private def doDef(): Unit = {
-    try {
-      val functionName = socket.getScalarString()
-      val functionReturnType = socket.getScalarString()
-      functionMap(functionName) = (repl.valueOfTerm(functionName).get, functionReturnType)
-      socket.putScalarInt(OK)
-    } catch {
-      case e: Throwable =>
-        socket.putScalarInt(ERROR)
-        e.printStackTrace(pw)
-        pw.println(e + ( if ( e.getCause != null ) System.lineSeparator + e.getCause else "" ) )
-    }
-  }
-
-  private def doInvoke(): Unit = {
-    try {
-      val functionName = socket.getScalarString()
-      val (f, returnType) = functionMap(functionName)
-      if ( debugger.value ) {
-        debugger.msg("Function is: "+functionName)
-        debugger.msg("... with return type: "+returnType)
-      }
-      functionResult = (nullary.invoke(f), returnType)
-      R.exit()
-      if ( debugger.value ) debugger.msg("Invoke is okay")
-      socket.putScalarInt(OK)
-    } catch {
-      case e: Throwable =>
-        R.exit()
-        socket.putScalarInt(ERROR)
-        e.printStackTrace(pw)
-        pw.println(e + ( if ( e.getCause != null ) System.lineSeparator + e.getCause else "" ) )
-    }
-  }
-
   private def doDef2(): Unit = {
     val body = "() => {\n" + socket.getScalarString() + "\n}"
     try {
@@ -444,10 +409,6 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
         doGet()
       case GET_REFERENCE =>
         doGetReference()
-      case DEF =>
-        doDef()
-      case INVOKE =>
-        doInvoke()
       case DEF2 =>
         doDef2()
       case INVOKE2 =>

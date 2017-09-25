@@ -15,7 +15,6 @@ export("scalaSettings")
 export("scalaInfo")
 export("scalaNull")
 export("II")
-# export("scalaOptimize")
 # export("scalap")
 export("scala")
 
@@ -41,11 +40,6 @@ S3method("toString","ScalaInterpreterReference")
 S3method("$","ScalaCachedReference")
 S3method("print","ScalaCachedReference")
 S3method("toString","ScalaCachedReference")
-
-S3method("print","ScalaFunction")
-
-S3method("%~%","ScalaFunctionArgs")
-S3method("%.~%","ScalaFunctionArgs")
 
 S3method(".DollarNames", "ScalaInterpreter")
 S3method(".DollarNames", "ScalaInterpreterItem")
