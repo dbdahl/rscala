@@ -411,32 +411,17 @@ scalaDef2 <- function(interpreter,snippet,as.reference) {
   }
   functionName <- rc(interpreter)
   if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
-  f <- function(..., .NBACK=2) {
-    args <- list(...)
-    if ( length(args) != length(argsNames) ) stop('Incorrect arguments.')
-    workspace <- new.env(parent=parent.frame(.NBACK))
-    assign(".rsI",interpreter,envir=workspace)
-    for ( i in seq_len(length(args))) assign(argsNames[i],args[[i]],envir=workspace)
-    cc(interpreter)
-    wb(interpreter,INVOKE2)
-    wc(interpreter,functionName)
-    flush(interpreter[['socketIn']])
-    rServe(interpreter,TRUE,workspace)
-    status <- rb(interpreter,"integer")
-    if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
-    if ( status != OK ) stop("Problem invoking function.")
-    result <- scalaGet(interpreter,"?",as.reference)
-    if ( is.null(result) ) invisible(result)
-    else result
-  }
-  .EVALUATE <- ! exists(".SCALA.OPTIMIZE", envir = parent.frame(3))
-  if ( .EVALUATE ) do.call(f,c(argsValues,.NBACK=3))
-  else f
-}
-
-scalaOptimize <- function(scalaFunction) {
-  .SCALA.OPTIMIZE <- TRUE
-  scalaFunction()
+  wb(interpreter,INVOKE2)
+  wc(interpreter,functionName)
+  flush(interpreter[['socketIn']])
+  assign(".rsI",interpreter,envir=parent.frame(2))
+  rServe(interpreter,TRUE,parent.frame(2))
+  status <- rb(interpreter,"integer")
+  if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
+  if ( status != OK ) stop("Problem invoking function.")
+  result <- scalaGet(interpreter,"?",as.reference)
+  if ( is.null(result) ) invisible(result)
+  else result
 }
 
 '$<-.ScalaInterpreter' <- function(interpreter,identifier,value) {
