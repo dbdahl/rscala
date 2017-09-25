@@ -579,7 +579,7 @@ mkHeader <- function(args,names) {
   else result
 }
 
-scalaAutoMkFunction2 <- function(reference,method) {
+scalaDollarSignMethod <- function(reference,method) {
   if ( method == "type" ) {
     if ( inherits(reference,"ScalaInterpreterItem") ) return(reference[['snippet']])
     else return(reference[['type']])
@@ -630,9 +630,9 @@ scalaAutoMkFunction2 <- function(reference,method) {
   }
 }
 
-'$.ScalaCachedReference' <- scalaAutoMkFunction2
-'$.ScalaInterpreterReference' <- scalaAutoMkFunction2
-'$.ScalaInterpreterItem' <- scalaAutoMkFunction2
+'$.ScalaCachedReference' <- scalaDollarSignMethod
+'$.ScalaInterpreterReference' <- scalaDollarSignMethod
+'$.ScalaInterpreterItem' <- scalaDollarSignMethod
 
 scalap <- function(interpreter,class.name) {
   if ( inherits(interpreter,"ScalaInterpreterReference") || inherits(interpreter,"ScalaCachedReference") ) {
