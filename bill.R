@@ -3,8 +3,8 @@ library(rscala)
 s <- scala()
 
 rng <- s$.scala.util.Random$new()
-#fasterNextGaussian <- rng$nextGaussian(.EVALUATE=FALSE)
-fasterNextGaussian <- function() rng$nextGaussian()
+fasterNextGaussian <- rng$nextGaussian(.EVALUATE=FALSE)
+#fasterNextGaussian <- function() rng$nextGaussian()
 
 library('rJava', verbose=FALSE, quietly=TRUE)
 rJava::.jinit(
@@ -20,5 +20,5 @@ fasterNextGaussianRJava(),
 fasterNextGaussian(),
 rngRJava$nextGaussian(),
 rng$nextGaussian(),
-times=30000)
+times=50000)
 
