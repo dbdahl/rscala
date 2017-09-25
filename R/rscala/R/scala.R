@@ -548,6 +548,37 @@ scalaUnboxReference <- function(x) {
   get(x$name(),envir=x[['interpreter']][['r']])
 }
 
+mkHeader <- function(args,names) {
+  headers <- character(length(args))
+  for ( i in seq_len(length(args))) {
+    value <- args[[i]]
+    name <- names[i]
+    if ( identical(value,identity) ) {
+      headers[i] <- paste0('val ',name,' = EphemeralReference("',name,'")')
+    } else if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") || inherits(value,"ScalaNullReference")) {
+      headers[i] <- paste0('val ',name,' = R.cached(R.evalS0("toString(get(\'',name,'\'))")).asInstanceOf[',args[[i]][['type']],']')
+    } else {
+      if ( ! is.atomic(value) ) stop(paste0('Type of argument ',name,' is not supported.'))
+      if ( is.null(value) ) stop(paste0('Argument ',name," is NULL.  To pass a null reference, use the 'scalaNull' function."))
+      type <- if ( is.integer(value) ) "I"
+      else if ( is.double(value) ) "D"
+      else if ( is.logical(value) ) "L"
+      else if ( is.character(value) ) "S"
+      else if ( is.raw(value) ) "R"
+      else stop(paste0('Type of argument ',name,' is not supported.'))
+      len <- if ( inherits(value,"AsIs") ) 1
+      else if ( is.vector(value) ) {
+        if ( length(value) == 1 ) 0 else 1
+      } else if ( is.matrix(value) ) 2
+      else stop(paste0('Type of argument ',name,' is not supported.'))
+       headers[i] <- paste0('val ',name,' = R.get',type,len,'("',name,'")')
+    }
+  }
+  result <- paste(headers,collapse="\n")
+  if ( nchar(result) > 0 ) paste0(result,"\n")
+  else result
+}
+
 scalaAutoMkFunction2 <- function(reference,method) {
   if ( method == "type" ) {
     if ( inherits(reference,"ScalaInterpreterItem") ) return(reference[['snippet']])
@@ -557,38 +588,19 @@ scalaAutoMkFunction2 <- function(reference,method) {
   function(..., .AS.REFERENCE = NA, .EVALUATE = TRUE) {
     args <- list(...)
     if ( ! is.null(names(args)) ) stop("Arguments should not have names.")
-    headers <- character(length(args))
-    for ( i in seq_len(length(args))) {
-      value <- args[[i]]
-      if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") || inherits(value,"ScalaNullReference")) {
-        headers[i] <- paste0('R.cached(R.evalS0("toString(get(\'$',i,'\'))")).asInstanceOf[',args[[i]][['type']],']')
-      } else {
-        if ( ( ! is.atomic(value) ) || is.null(value) ) stop(paste0('Type of argument ',i,' is not supported.'))
-        type <- if ( is.integer(value) ) "I"
-        else if ( is.double(value) ) "D"
-        else if ( is.logical(value) ) "L"
-        else if ( is.character(value) ) "S"
-        else if ( is.raw(value) ) "R"
-        else stop(paste0('Type of argument ',i,' is not supported.'))
-        len <- if ( inherits(value,"AsIs") ) 1
-        else if ( is.vector(value) ) {
-          if ( length(value) == 1 ) 0 else 1
-        } else if ( is.matrix(value) ) 2
-        else stop(paste0('Type of argument ',i,' is not supported.'))
-        headers[i] <- paste0('R.get',type,len,'("$',i,'")')
-      }
-    }
+    names <- paste0(rep('$',length(args)),seq_len(length(args)))
+    header <- mkHeader(args,names)
+    body <- if ( inherits(reference,"ScalaInterpreterReference") ) paste0(reference[['identifier']],'.',method)
+    else if ( inherits(reference,"ScalaCachedReference") ) paste0('R.cached("',reference[['identifier']],'").asInstanceOf[',reference[['type']],'].',method)
+    else if ( inherits(reference,"ScalaInterpreterItem") ) {
+      if ( method == "new") paste0("new ",reference[['snippet']])
+      else paste0(reference[['snippet']],'.',method)
+    } else stop('Unrecognized reference type.')
+    argsList <- paste0(names,collapse=",")
+    if ( nchar(argsList) > 0 ) argsList <- paste0('(',argsList,')')
+    snippet <- paste0(header,paste0(body,argsList))
     wb(interpreter,DEF2)
-    if ( inherits(reference,"ScalaInterpreterReference") )
-      wc(interpreter,reference[['identifier']])
-    else if ( inherits(reference,"ScalaCachedReference") )
-      wc(interpreter,paste0('R.cached("',reference[['identifier']],'").asInstanceOf[',reference[['type']],']'))
-    else if ( inherits(reference,"ScalaInterpreterItem") )
-      wc(interpreter,reference[['snippet']])
-    else stop('Unrecognized reference type.')
-    wc(interpreter,method)
-    wb(interpreter,length(args))
-    sapply(headers, function(x) wc(interpreter,x))
+    wc(interpreter,snippet)
     flush(interpreter[['socketIn']])
     status <- rb(interpreter,"integer")
     if ( status != OK ) {
