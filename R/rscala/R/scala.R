@@ -366,10 +366,11 @@ scalaSet <- function(interpreter,identifier,value) {
   invisible()
 }
 
-'%!%.ScalaInterpreter'  <- function(interpreter,snippet) scalaDef(interpreter,snippet,NA)
-'%.!%.ScalaInterpreter' <- function(interpreter,snippet) scalaDef(interpreter,snippet,TRUE)
+'%!%.ScalaInterpreter'  <- function(interpreter,snippet) scalaDef2(interpreter,snippet,NA)
+'%.!%.ScalaInterpreter' <- function(interpreter,snippet) scalaDef2(interpreter,snippet,TRUE)
 
 scalaDef <- function(interpreter,snippet,as.reference) {
+  stop("Temporarily disabled.")
   pf <- parent.frame(2)
   snippet <- strintrpltIf(snippet,pf,interpreter)
   argsFormals <- as.list(formals(sys.function(-3)))
@@ -379,12 +380,58 @@ scalaDef <- function(interpreter,snippet,as.reference) {
   } else {
     list()
   }
-  if ( length(argsFormals) != length(argsValues) ) stop('A Scala function cannot have R code that defines new variables.')
-  evaluate <- ! exists(".SCALA.OPTIMIZE", envir = parent.frame(3))
+  header <- mkHeader(argsValues)
+  print(header)
   func1 <- do.call(scalaFunctionArgs,c(list(.INTERPRETER=interpreter),argsFormals))
   func2 <- scalaMkFunction(func1,snippet,as.reference=as.reference,pf)
+  evaluate <- ! exists(".SCALA.OPTIMIZE", envir = parent.frame(3))
   if ( evaluate ) do.call(func2,argsValues)
   else func2
+}
+
+scalaDef2 <- function(interpreter,snippet,as.reference) {
+  pf <- parent.frame(2)
+  snippet <- strintrpltIf(snippet,pf,interpreter)
+  argsNames <- intersect(names(formals(sys.function(-3))),ls(envir=pf))
+  argsValues <- if ( length(argsNames) > 0 ) {
+    mget(argsNames,envir=pf)
+  } else {
+    list()
+  }
+  header <- mkHeader(argsValues,names(argsValues))
+  snippet <- paste0(header,snippet)
+  cc(interpreter)
+  wb(interpreter,DEF2)
+  wc(interpreter,snippet)
+  flush(interpreter[['socketIn']])
+  status <- rb(interpreter,"integer")
+  if ( status != OK ) {
+    if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
+    stop("Problem defining function.")
+  }
+  functionName <- rc(interpreter)
+  if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
+  f <- function(..., .NBACK=2) {
+    args <- list(...)
+    if ( length(args) != length(argsNames) ) stop('Incorrect arguments.')
+    workspace <- new.env(parent=parent.frame(.NBACK))
+    assign(".rsI",interpreter,envir=workspace)
+    for ( i in seq_len(length(args))) assign(argsNames[i],args[[i]],envir=workspace)
+    cc(interpreter)
+    wb(interpreter,INVOKE2)
+    wc(interpreter,functionName)
+    flush(interpreter[['socketIn']])
+    rServe(interpreter,TRUE,workspace)
+    status <- rb(interpreter,"integer")
+    if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
+    if ( status != OK ) stop("Problem invoking function.")
+    result <- scalaGet(interpreter,"?",as.reference)
+    if ( is.null(result) ) invisible(result)
+    else result
+  }
+  .EVALUATE <- ! exists(".SCALA.OPTIMIZE", envir = parent.frame(3))
+  if ( .EVALUATE ) do.call(f,c(argsValues,.NBACK=3))
+  else f
 }
 
 scalaOptimize <- function(scalaFunction) {
@@ -548,29 +595,34 @@ scalaUnboxReference <- function(x) {
   get(x$name(),envir=x[['interpreter']][['r']])
 }
 
+II <- function(x) {
+  structure(x, class=unique(c("ScalaAsIs", oldClass(x))))
+}
+
 mkHeader <- function(args,names) {
   headers <- character(length(args))
   for ( i in seq_len(length(args))) {
     value <- args[[i]]
     name <- names[i]
-    if ( identical(value,identity) ) {
+    if ( missing(value) ) stop(paste0('Argument "',name,'" is missing, with no default.'))
+    if ( inherits(value,"ScalaAsIs") ) {
       headers[i] <- paste0('val ',name,' = EphemeralReference("',name,'")')
     } else if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") || inherits(value,"ScalaNullReference")) {
       headers[i] <- paste0('val ',name,' = R.cached(R.evalS0("toString(get(\'',name,'\'))")).asInstanceOf[',args[[i]][['type']],']')
     } else {
-      if ( ! is.atomic(value) ) stop(paste0('Type of argument ',name,' is not supported.'))
-      if ( is.null(value) ) stop(paste0('Argument ',name," is NULL.  To pass a null reference, use the 'scalaNull' function."))
+      if ( ! is.atomic(value) ) stop(paste0('Type of argument ',name,' is not supported.  Consider wrapping it in a call to the "scalaAsIs" function.'))
+      if ( is.null(value) ) stop(paste0('Argument "',name,'" is NULL.  To pass a null reference, use the "scalaNull" function.'))
       type <- if ( is.integer(value) ) "I"
       else if ( is.double(value) ) "D"
       else if ( is.logical(value) ) "L"
       else if ( is.character(value) ) "S"
       else if ( is.raw(value) ) "R"
-      else stop(paste0('Type of argument ',name,' is not supported.'))
+      else stop(paste0('Type of argument "',name,'" is not supported.  Consider wrapping it in a call to the "scalaAsIs" function.'))
       len <- if ( inherits(value,"AsIs") ) 1
       else if ( is.vector(value) ) {
         if ( length(value) == 1 ) 0 else 1
       } else if ( is.matrix(value) ) 2
-      else stop(paste0('Type of argument ',name,' is not supported.'))
+      else stop(paste0('Type of argument "',name,'" is not supported.  Consider wrapping it in a call to the "scalaAsIs" function.'))
        headers[i] <- paste0('val ',name,' = R.get',type,len,'("',name,'")')
     }
   }
@@ -612,9 +664,11 @@ scalaDollarSignMethod <- function(reference,method) {
     if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
     f <- function(..., .NBACK=1) {
       args <- list(...)
+      if ( length(args) != length(names) ) stop('Incorrect number of arguments.')
       if ( ! is.null(names(args)) ) stop("Arguments should not have names.")
       workspace <- new.env(parent=parent.frame(.NBACK))
-      for ( i in seq_len(length(args))) assign(paste0('$',i),args[[i]],envir=workspace)
+      assign(".rsI",interpreter,envir=workspace)
+      for ( i in seq_len(length(args))) assign(names[i],args[[i]],envir=workspace)
       cc(interpreter)
       wb(interpreter,INVOKE2)
       wc(interpreter,functionName)

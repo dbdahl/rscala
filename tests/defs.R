@@ -202,19 +202,19 @@ microbenchmark(
 
 ####
 
-f <- function(x=NULL, wantNull=TRUE) s %.!% '
+f <- function(x, wantNull=TRUE) s %.!% '
   val r = R.getReference(x)
   if ( wantNull ) null else r
 '
 
-a <- f(1:10, FALSE)
+a <- f(II(1:10), FALSE)
 a$name()
 
-g <- function(func=NULL,y=scalaNull("PersistentReference")) s %!% '
+g <- function(func, y=scalaNull("PersistentReference")) s %!% '
   R.invoke(func,y)
 '
 
-g(print, a)
+g(II(print), a)
 
 
 ####

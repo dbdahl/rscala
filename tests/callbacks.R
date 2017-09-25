@@ -52,12 +52,12 @@ for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y),as.raw(
 
 #### Callbacks with named arguments
 
-mySort <- function(x=NULL,ascending=TRUE) s %!% '
+mySort <- function(x, ascending=TRUE) s %!% '
   R.invokeD1( EphemeralReference("sort"), x, "decreasing" -> ! ascending )
 '
 
 set.seed(13242)
-mySort(runif(12),FALSE)
+mySort(II(runif(12)),FALSE)
 
 #### Get: Unsupported type
 
@@ -150,21 +150,21 @@ myMean <- function(data,offset) {
   mean(data+offset)
 }
 
-callRFunction <- function(func=NULL, x=numeric(), y=NULL) s %!% '
+callRFunction <- function(func, x, y) s %!% '
   R.invokeD1(func,x.map(2*_).map(_.getClass),y)
 '
 
-tryCatch(callRFunction(myMean,1:4,5), error=function(e) e)
+tryCatch(callRFunction(II(myMean),1:4,II(5)), error=function(e) e)
 s %~% "3+4"
 
-callRFunction <- function(func=NULL, x=numeric(), y=NULL) s %!% '
+callRFunction <- function(func, x, y) s %!% '
   R.invokeD1(func,x.map(2*_),y)
 '
 
-callRFunction(myMean,y=0,x=1:100)
+callRFunction(II(myMean),y=II(0),x=1:100)
 
-callRFunction0D2 <- function(func=NULL) s %!% 'R.invokeD2(func)'
-callRFunction0D2(gc)
+callRFunction0D2 <- function(func) s %!% 'R.invokeD2(func)'
+callRFunction0D2(II(gc))
 
 tryCatch(callRFunction(1:100),error = function(e) {})
 
