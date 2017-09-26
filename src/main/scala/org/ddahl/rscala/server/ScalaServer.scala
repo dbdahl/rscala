@@ -31,8 +31,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
   private val nullary = Class.forName("scala.Function0").getMethod("apply")
   nullary.setAccessible(true)
   private val functionMap = new scala.collection.mutable.HashMap[String,(Any,String)]()
-  private val functionMap2 = new scala.collection.mutable.HashMap[String,(Any,String)]()
-  private val functionMap3 = new scala.collection.mutable.HashMap[String,String]()
+  private val functionMap2 = new scala.collection.mutable.HashMap[String,String]()
 
   private def typeOfTerm(id: String) = repl.symbolOfLine(id).info.toString
 
@@ -81,7 +80,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
     val body = "() => {\n" + socket.getScalarString() + "\n}"
     try {
       if ( debugger.value ) debugger.msg("Function is: "+body)
-      val (f, returnType) = if ( ! functionMap3.contains(body) ) {
+      val (f, returnType) = if ( ! functionMap2.contains(body) ) {
         val result = repl.interpret(body)
         if ( result != Success ) {
           if ( debugger.value ) debugger.msg("Error in defining function.")
@@ -91,13 +90,13 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
         val functionName = repl.mostRecentVar
         val f = repl.valueOfTerm(functionName).get
         val returnType = repl.symbolOfLine(functionName).info.toString.substring(6)  // Drop "() => " in the return type.
-        functionMap3(body) = functionName
-        functionMap2(functionName) = (f, returnType)
+        functionMap2(body) = functionName
+        functionMap(functionName) = (f, returnType)
         if ( debugger.value ) debugger.msg("Function definition is okay.")
         (f, returnType)
-      } else functionMap2(functionMap3(body))
+      } else functionMap(functionMap2(body))
       socket.putScalarInt(OK)
-      socket.putScalarString(functionMap3(body))
+      socket.putScalarString(functionMap2(body))
     } catch {
       case e: Throwable =>
         socket.putScalarInt(ERROR)
@@ -109,7 +108,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
   private def doInvoke(): Unit = {
     val functionName = socket.getScalarString()
     try {
-      val (f, returnType) = functionMap2(functionName)
+      val (f, returnType) = functionMap(functionName)
       functionResult = (nullary.invoke(f), returnType)
       R.exit()
       if ( debugger.value ) debugger.msg("Function invocation is okay.")
