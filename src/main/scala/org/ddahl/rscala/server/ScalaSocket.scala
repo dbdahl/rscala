@@ -43,7 +43,6 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
   private def bufferOut = _bufferOut
 
   private def inFill(nBytes: Int): Unit = {
-    if ( debugger.value ) debugger.msg("Reading "+nBytes+" bytes.")
     if ( nBytes > bufferIn.capacity ) {
       _bufferIn = ByteBuffer.allocateDirect(nBytes)
     } else {

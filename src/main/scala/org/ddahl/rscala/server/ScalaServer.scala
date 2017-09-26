@@ -77,7 +77,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
     }
   }
 
-  private def doDef2(): Unit = {
+  private def doDef(): Unit = {
     val body = "() => {\n" + socket.getScalarString() + "\n}"
     try {
       if ( debugger.value ) debugger.msg("Function is: "+body)
@@ -106,7 +106,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
     }
   }
 
-  private def doInvoke2(): Unit = {
+  private def doInvoke(): Unit = {
     val functionName = socket.getScalarString()
     try {
       val (f, returnType) = functionMap2(functionName)
@@ -409,10 +409,10 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
         doGet()
       case GET_REFERENCE =>
         doGetReference()
-      case DEF2 =>
-        doDef2()
-      case INVOKE2 =>
-        doInvoke2()
+      case DEF =>
+        doDef()
+      case INVOKE =>
+        doInvoke()
       case SCALAP =>
         doScalap()
     }

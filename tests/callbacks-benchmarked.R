@@ -56,12 +56,6 @@ doit3(rnorm(10))
 
 
 
-# Multiple callbacks in compiled code with optimization.
-doit4 <- rscala:::scalaOptimize(doit3)
-
-doit4(rnorm(10))
-
-
 
 # Benchmarks
 
@@ -73,7 +67,6 @@ microbenchmark(
   doit1(rnorm(10)),
   doit2(rnorm(10)),
   doit3(rnorm(10)),
-  doit4(rnorm(10)),
   times=10
 )
 microbenchmark(
@@ -81,7 +74,6 @@ microbenchmark(
   #doit1(rnorm(10)),
   #doit2(rnorm(10)),
   doit3(rnorm(10)),
-  doit4(rnorm(10)),
   times=1000
 )
 
@@ -92,7 +84,6 @@ microbenchmark(
   doit1(rnorm(10)),
   doit2(rnorm(10)),
   doit3(rnorm(10)),
-  doit4(rnorm(10)),
   times=5
 )
 

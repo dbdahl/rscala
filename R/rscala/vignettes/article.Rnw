@@ -785,7 +785,8 @@ algorithm based on the Bell triangle (also known as the Aitken's array or the
 Peirce triangle):
 
 <<bellUsingR>>=
-bell.version1 <- function(n=1, format=c("character","integer","double","log")[3]) {
+bell.version1 <- function(n, format=c("character","integer","double","log")[3]) {
+  n <- as.integer(n[1])
   if ( n <= 0 ) stop("'n' must be at least 1.")
   if ( n == 1 ) return(1)
   r1 <- r2 <- numeric(n)
@@ -813,7 +814,8 @@ the \R session, implements the same algorithm but allows $n$ to be greater than
 $218$.
 
 <<bellUsingScala>>=
-bell.version2 <- function(n=1L, format=c("character","integer","double","log")[3]) {
+bell.version2 <- function(n, format=c("character","integer","double","log")[3]) {
+  n <- as.integer(n[1])
   if ( n <= 0 ) stop("'n' must be at least 1.")
   s %!% '
     var r1 = new Array[BigInt](n)
@@ -870,18 +872,21 @@ copyable type or a \Scala reference if the result is not a copyable type.  The
 reference.
 
 The consumer of a \Scala function does not need to know that the implementation
-is written in \Scala.  There are two considerations, however, for the
-programmer of a \Scala function.  First, the arguments to \Scala functions can
-be copyable types, \Scala references, or \code{NULL}, where \code{NULL} is used
-to indicate arbitrary \R objects that will not be converted to \Scala values
-but will still be used in \R code.  Second, a default value must be provided
-for every argument, thereby indicating the argument's type to \rscala.  If the
-user passes arguments of different types than those indicated by the default
-values, they are cast to the expected types.  The \code{scalaNull} function can
-be used to specify an argument's \Scala type without having to instantiate an
-object of that class.  For example, an argument to a \Scala function might be
-\code{rng = scalaNull("scala.util.Random")}, indicating that the argument
-should be of type \code{scala.util.Random}.
+is written in \Scala, but the programmer of a \Scala function should bear in
+mind a few items.  If an argument to a \Scala function is not a copyable
+type or a \Scala references, it will become a \code{EphemeralReference} object that
+can still be used in \R code executed by the \Scala function.  (This functionality is
+demonstrated later.)  If an argument
+is not needed in the \Scala implementation (because, for example, it has
+already been processed in the \R code), the conversion can be avoided by
+deleting the object with \R's \code{rm} function before the \code{s \%!\%
+'...'} snippet.  The automatically generated \Scala code for the conversion of
+arguments can be displayed (for debugging purposes) by setting the
+\code{show.header} option, e.g., \code{scalaSettings(s, show.header=TRUE)}.
+The \code{scalaNull} function can be used to pass a null reference of a particular
+type.  For example, an argument to a \Scala function might be \code{rng =
+scalaNull("scala.util.Random")}, indicating a null reference to
+\code{scala.util.Random}.
 
 \subsection[Callbacks into R from embedded Scala]{Callbacks into \R from embedded \Scala}
 
@@ -963,8 +968,9 @@ s %~% '
 The example above demonstrates the use of \Scala's builtin notation for
 creating pairs (e.g., \code{"sd" -> 3}) to provide named arguments to the \R
 function invoked from \Scala.  The arguments to an \code{invoke} method can be
-literals and variables of copyable types, \Scala references, and \code{NULL},
-where \code{NULL} is used to indicate arbitrary \R objects.
+copyable types, \Scala references, and \code{EphemeralReference}
+objects, the last being automatically generated in \Scala functions for all arguments that are
+wrapped by the \code{II} function or that are not copyable types and not \Scala references.
 
 A more interesting use case is calling a user-supplied \R function from \Scala.
 First, consider an \R function that computes $f(n,\alpha)$, the expectation of
@@ -985,12 +991,13 @@ to numerically solve $f(n,\alpha) = \mu$ for $\alpha$, given fixed values for
 $n$ and $\mu$.  To be specific, suppose $n=1000$ and $\mu=10$. The value
 $\alpha$ can be obtained using root finding methods.  Here, we demonstrate the
 bisection method implemented as a \Scala function. The function's first
-argument, \code{func}, takes a user-defined \R function.  The argument's type
-is set as \code{NULL} so its value can be referenced in \Scala without any
-conversion.
+argument, \code{func}, takes a user-defined \R function.  Since this argument
+is not a copyable type or a \Scala reference, it is passed to \Scala as an
+\code{EphemeralReference}, which is subsequently used in the expression
+\code{R.invokeD0(func, x)} to call the \R function.
 
 <<rootFinding>>=
-bisection <- function(func=NULL, lower=1.0, upper=1.0, epsilon=0.000000001) s %!% '
+bisection <- function(func, lower=1.0, upper=1.0, epsilon=0.000000001) s %!% '
   def g(x: Double) = R.invokeD0(func, x)
   val (fLower, fUpper) = (g(lower), g(upper))
   if ( fLower * fUpper > 0 ) sys.error("lower and upper do not straddle the root.")
@@ -1098,7 +1105,7 @@ trailing argument \code{.EVALUATE=FALSE} and store the resulting function,
 e.g.:
 
 <<makeFasterNextGaussian>>=
-fasterNextGaussian <- function() rng$nextGaussian()
+fasterNextGaussian <- rng$nextGaussian(.EVALUATE=FALSE)
 @
 
 The function \code{fasterNextGaussian} is optimized and has less overhead than

@@ -68,7 +68,6 @@ system.time({
   e <- function(x=0,y=4L,name="dog") s %!% '
     name + " " + ( x + y )
   '
-  rscala:::scalaOptimize(e)
 })
 
 # Taking advantage of caching
@@ -76,7 +75,6 @@ system.time({
   f <- function(x=0,y=4L,name="dog") s %!% '
     name + " " + ( x + y )
   '
-  rscala:::scalaOptimize(f)
 })
 
 ####
@@ -97,9 +95,7 @@ str$length()
 
 nd0 <- rng1$nextDouble(.EVALUATE=FALSE)
 nd1 <- function() s %!% 'R.cached("@{toString(rng1)}").asInstanceOf[@{rng1[[\'type\']]}].nextDouble()'
-nd1b <- rscala:::scalaOptimize(nd1)
 nd2 <- function() s %!% '@{rng2}.nextDouble()'
-nd2b <- rscala:::scalaOptimize(nd2)
 
 library("microbenchmark")
 
@@ -109,9 +105,7 @@ microbenchmark(
   rng2$nextDouble(),
   nd0(),
   nd1(),
-  nd1b(),
   nd2(),
-  nd2b(),
   times=500
 )
 
@@ -127,11 +121,6 @@ f(4)
 tryCatch(f(-3), error=function(e) e)
 f(0)
 
-g <- rscala:::scalaOptimize(f)
-g(4)
-g(-3)     ## Note that no error because R code as been optimized away!
-g(0)      ## And we don't get the special case when x==0.
-
 h <- function(x=4) {
   if ( x < 0 ) stop("'x' must be positive")
   if ( x == 0 ) x <- 10
@@ -144,14 +133,8 @@ h(0)
 
 microbenchmark(
   f(4),
-  g(4),
   h(4),        # h is *slow* and it has the memory leak inherent in Scala's REPL.
   times=100)
-
-microbenchmark(
-  f(4),        
-  g(4),        # g is faster, but you lose the checking and special behavior.
-  times=1000)
 
 
 
