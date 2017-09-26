@@ -1,6 +1,6 @@
 > heap.maximum <- "192M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # carter # FALSE # FALSE
+# R version 3.4.1 (2017-06-30) # becker # FALSE # FALSE
 > 
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 <simpleError in f(..., .NBACK = 2): Problem invoking function.>
@@ -10,7 +10,7 @@
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # carter # FALSE # FALSE
+# R version 3.4.1 (2017-06-30) # becker # FALSE # FALSE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -18,7 +18,7 @@
 > 
 > options(rscala.heap.maximum="64M")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # carter # FALSE # FALSE
+# R version 3.4.1 (2017-06-30) # becker # FALSE # FALSE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -26,7 +26,7 @@
 > 
 > options(rscala.heap.maximum="128M")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # carter # FALSE # FALSE
+# R version 3.4.1 (2017-06-30) # becker # FALSE # FALSE
 > for ( i in 1:2000 ) {
 +   a <- s$".Array[Double]"$new(200000L)  # No memory problems
 + }
@@ -36,7 +36,7 @@
 +   s %~% "new Array[Double](200000)"           # Memory problems
 + }
 + },error=function(e) e)
-<simpleError: evaluation nested too deeply: infinite recursion / options(expressions=)?>
+<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
 > 
 > 
 > 

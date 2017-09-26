@@ -1,6 +1,6 @@
 > port <- as.integer(runif(1,1024,65535))
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # carter # FALSE # TRUE
+# R version 3.4.1 (2017-06-30) # becker # FALSE # TRUE
 > 
 > tryCatch(source("common.R",print.eval=TRUE), error=function(e) e)
 java.net.BindException: Address already in use
@@ -12,7 +12,7 @@ java.net.BindException: Address already in use
 	at sun.nio.ch.ServerSocketAdaptor.bind(ServerSocketAdaptor.java:67)
 	at org.ddahl.rscala.server.ScalaSocket.<init>(ScalaSocket.scala:14)
 	at org.ddahl.rscala.server.ScalaServer.<init>(ScalaServer.scala:14)
-	at org.ddahl.rscala.server.ScalaServer$.apply(ScalaServer.scala:501)
+	at org.ddahl.rscala.server.ScalaServer$.apply(ScalaServer.scala:500)
 	at org.ddahl.rscala.server.Main$.delayedEndpoint$org$ddahl$rscala$server$Main$1(Main.scala:5)
 	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0.apply$mcV$sp(Function0.scala:34)

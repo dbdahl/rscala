@@ -1,6 +1,6 @@
 > row.major <- FALSE
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # carter # TRUE # FALSE
+# R version 3.4.1 (2017-06-30) # becker # TRUE # FALSE
 > 
 > setget <- function(value) {
 +   s$tt <- value

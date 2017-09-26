@@ -1,6 +1,6 @@
 > heap.maximum <- "3G"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # carter # TRUE # TRUE
+# R version 3.4.1 (2017-06-30) # becker # TRUE # TRUE
 > 
 > library(help="rscala")
 
@@ -12,7 +12,7 @@ Package:              rscala
 Type:                 Package
 Title:                Bi-Directional Interface Between 'R' and 'Scala'
                       with Callbacks
-Version:              2.3.5-551
+Version:              2.3.5-554
 Date:                 2017-09-26
 Authors@R:            person(given="David
                       B.",family="Dahl",role=c("aut","cre"),email="dahl@stat.byu.edu")
@@ -30,10 +30,10 @@ License:              GPL (>= 2) | BSD_3_clause + file LICENSE
 VignetteBuilder:      knitr
 Suggests:             knitr, microbenchmark, rJava, xtable
 NeedsCompilation:     no
-Packaged:             2017-09-26 15:06:32 UTC; dahl
+Packaged:             2017-09-26 16:52:18 UTC; dahl
 Author:               David B. Dahl [aut, cre]
 Maintainer:           David B. Dahl <dahl@stat.byu.edu>
-Built:                R 3.4.1; ; 2017-09-26 15:06:33 UTC; unix
+Built:                R 3.4.1; ; 2017-09-26 17:35:39 UTC; unix
 
 Index:
 
@@ -54,7 +54,7 @@ strintrplt              String Interpolation with Arbitrary R Code
 Further information is available in the following vignettes in
 directory ‘/UShare/dahl/local/R/packages/rscala/doc’:
 
-article: Integration of R and Scala Using rscala (source)
+article: Integration of R and Scala Using rscala (source, pdf)
 
 > 
 > func0a <- function(x=matrix(0.0,nrow=10000,ncol=300)) {  # 22.8 MB
@@ -98,8 +98,8 @@ article: Integration of R and Scala Using rscala (source)
 +   unit="us",
 +   times=2500)
 Unit: microseconds
-               expr     min      lq     mean  median       uq      max neval
- rng$nextGaussian() 411.922 831.324 1269.704 981.762 1049.111 59508.86  2500
+               expr     min       lq     mean   median       uq      max neval
+ rng$nextGaussian() 489.835 853.3245 1486.378 1019.285 1133.032 59337.95  2500
 > 
 > microbenchmark(
 +   rng$nextGaussian(),
@@ -115,27 +115,27 @@ Unit: microseconds
 +   unit="ms",
 +   times=25)
 Unit: milliseconds
-               expr        min         lq       mean     median         uq
- rng$nextGaussian()   0.617531   1.086463   2.805039   1.257851   1.392783
-           func0a() 274.618056 489.808319 603.839071 561.181525 732.655561
-           func1a() 293.694581 432.999086 701.839250 691.421130 808.541719
-           func1b()   2.535353   4.006829   5.808353   4.427482   4.944297
-           func2a() 115.152956 202.506401 332.556121 272.805412 352.623738
-           func2b()   1.791508   2.836913  46.876906   3.195046   6.500422
-           func3a()  54.064692  67.121345 175.410310  79.616428 120.951519
-           func4a()  77.204867 111.935975 219.723375 141.666360 178.737836
-     s$a <- 1:6e+06 200.650085 370.528633 503.568359 495.537388 575.497068
-                s$a 144.982600 220.841552 403.141147 329.354783 549.362172
+               expr       min         lq       mean     median         uq
+ rng$nextGaussian()   0.54881   0.960035   3.210931   1.249831   1.776460
+           func0a() 207.94784 294.615341 454.525124 381.044396 548.240766
+           func1a() 226.28714 360.806991 569.895259 487.196067 701.227191
+           func1b()   2.69520   3.390414   5.907282   4.151899   5.661484
+           func2a() 124.59235 188.479615 293.624579 256.816682 354.477097
+           func2b()   2.02395   2.919896  41.032645   3.354820   3.834041
+           func3a()  48.71188  66.380312 161.643057  84.437327 120.614042
+           func4a()  87.47881 121.026093 199.509519 151.188356 175.725799
+     s$a <- 1:6e+06 148.80226 202.893668 359.617341 314.470704 452.748268
+                s$a 148.57671 221.270115 321.584741 301.014036 400.665446
         max neval
-   15.64794    25
- 1366.21570    25
- 2241.03927    25
-   18.77607    25
-  867.95314    25
- 1030.47179    25
- 1860.89201    25
- 1812.19677    25
- 1128.22761    25
-  954.80066    25
+   20.04922    25
+ 1007.03305    25
+ 1795.09623    25
+   30.48260    25
+  736.27771    25
+  930.47725    25
+ 1736.08662    25
+ 1014.09010    25
+  850.91975    25
+  712.78203    25
 > 
 > 
