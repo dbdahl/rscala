@@ -197,7 +197,7 @@ g <- function(func, y=scalaNull("PersistentReference")) s %!% '
   R.invoke(func,y)
 '
 
-g(II(print), a)
+g(print, a)
 
 
 ####

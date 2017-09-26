@@ -57,7 +57,7 @@ mySort <- function(x, ascending=TRUE) s %!% '
 '
 
 set.seed(13242)
-mySort(II(runif(12)),FALSE)
+mySort(runif(12),FALSE)
 
 #### Get: Unsupported type
 
@@ -154,17 +154,17 @@ callRFunction <- function(func, x, y) s %!% '
   R.invokeD1(func,x.map(2*_).map(_.getClass),y)
 '
 
-tryCatch(callRFunction(II(myMean),1:4,II(5)), error=function(e) e)
+tryCatch(callRFunction(myMean,1:4,II(5)), error=function(e) e)
 s %~% "3+4"
 
 callRFunction <- function(func, x, y) s %!% '
   R.invokeD1(func,x.map(2*_),y)
 '
 
-callRFunction(II(myMean),y=II(0),x=1:100)
+callRFunction(myMean,y=0,x=1:100)
 
 callRFunction0D2 <- function(func) s %!% 'R.invokeD2(func)'
-callRFunction0D2(II(gc))
+callRFunction0D2(gc)
 
 tryCatch(callRFunction(1:100),error = function(e) {})
 
