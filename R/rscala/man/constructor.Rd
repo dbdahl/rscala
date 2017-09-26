@@ -5,7 +5,6 @@
 \alias{.rscalaJar}
 \alias{.rscalaPackage}
 \alias{.rscalaPackageUnload}
-\alias{.rscalaDelay}
 \docType{methods}
 \title{
 Create an Instance of an Embedded Scala Interpreter
@@ -64,8 +63,6 @@ scalaInstall(major.release=c("2.10","2.11","2.12"), global=FALSE)
                major.release=c("2.10","2.11","2.12"), ...)
 
 .rscalaPackageUnload()
-
-.rscalaDelay(expression)
 }
 \arguments{
     \item{classpath}{A character vector whose elements are paths to JAR files or directories which specify the classpath for the Scala compiler/interpreter.}
@@ -88,7 +85,6 @@ scalaInstall(major.release=c("2.10","2.11","2.12"), global=FALSE)
     \item{classpath.prepend}{A character vector giving the full path to JAR files to add to the \emph{beginning} of the classpath for the Scala compiler/interpreter embedded within a package via the \code{\link{.rscalaPackage}} function.  The JAR files in the package's \sQuote{java} directory are already included and do not need to be added here.}
     \item{classpath.append}{A character vector giving the full path to JAR files to add to the \emph{end} of the classpath for the Scala compiler/interpreter embedded within a package via the \code{\link{.rscalaPackage}} function.  The JAR files in the package's \sQuote{java} directory are already included and do not need to be added here.}
     \item{...}{These arguments are passed by the \code{\link{.rscalaPackage}} function to the \code{\link{scala}} function.}
-    \item{expression}{(\code{\link{.rscalaDelay}} is deprecated.)  An expression that will be evaluated when the \code{\link{.rscalaPackage}} function runs.}.
 }
 \value{
     \code{\link{scala}} returns an \R object representing an embedded Scala interpreter.
@@ -175,7 +171,7 @@ drawGaussian <- function(mean=0.0, sd=1.0, rng=scalaNull("scala.util.Random")) s
   mean+sd*rng.nextDouble
 '
 drawGaussian(3,0.1,rng)  # No scalar protection or casting is needed.
-n.draws <- 100
+n.draws <- 100L
 s$random <- rng
 system.time({
   draws <- s \%~\% '
@@ -188,7 +184,7 @@ system.time({
   '
   acf(draws,plot=FALSE)
 })
-sampler <- function(nDraws=1L, rho=0.0, rng=scalaNull("scala.util.Random")) s \%!\% '
+sampler <- function(nDraws, rho=0.0, rng=scalaNull("scala.util.Random")) s \%!\% '
   val result = new Array[Double](nDraws)
   result(0) = rng.nextGaussian
   for ( i <- 1 until nDraws ) {

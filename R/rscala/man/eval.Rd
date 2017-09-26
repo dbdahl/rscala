@@ -5,10 +5,10 @@
 \alias{\%.~\%}
 \alias{\%!\%}
 \alias{\%.!\%}
-%\alias{scalaOptimize}
 \alias{scalaNull}
 \alias{$.ScalaInterpreter}
 \alias{$<-.ScalaInterpreter}
+\alias{II}
 \docType{methods}
 \title{
 Execute Code, Set Values, and Get Values in a Scala Interpreter
@@ -21,7 +21,6 @@ can be implemented in Scala.  The result of a Scala execution can be a Scala
 reference or an \R object.
 }
 %scalap(interpreter, class.name)
-%scalaOptimize(scalaFunction)
 \usage{
 interpreter \%@\% snippet
 
@@ -32,6 +31,7 @@ interpreter \%!\% snippet
 interpreter \%.!\% snippet
 
 scalaNull(type)
+II(x)
 
 \method{$}{ScalaInterpreter}(interpreter, identifier)
 \method{$}{ScalaInterpreter}(interpreter, identifier) <- value
@@ -39,8 +39,8 @@ scalaNull(type)
 \arguments{
     \item{interpreter}{An interpreter from the \code{\link{scala}} function.} %  Or, when used in the \code{\link{scalap}} function, a Scala reference or a Scala interpreter.}
     \item{snippet}{A character vector of arbitrary length to be evaluated by the interpreter.  Multiline elements are accepted.}
-%    \item{scalaFunction}{A (unoptimized) Scala function created by calling \code{interpreter \%!\% snippet} and \code{interpreter \%.!\% snippet} within a function.}
     \item{type}{A string containing a valid Scala type, e.g., \code{"List[Double]"}.}
+    \item{x}{A expression whose value will be passed to a Scala function as an \code{EphemeralReference} even if it is a copyable type.}
     \item{identifier}{A character vector of length one containing a valid Scala identifier.}
     \item{value}{Either: i. a vector or matrix of integers, doubles, logicals, characters, or raw, or ii. a Scala reference.}
 %    \item{class.name}{A character vector of length one containing a full-qualified class name.  This should not be provided if the first argument to the \code{\link{scalap}} function is a Scala reference.}
@@ -69,7 +69,6 @@ functions is encouraged for memory intensive applications.  Importantly, these
 functions have much less invocation latency than the equivalent code using
 \code{\link{\%~\%}} and \code{\link{\%.~\%}}.  The speed difference in
 invocation is especially noticeable for quick functions.
-% These Scala functions can be further optimized by using the \code{\link{scalaOptimize}} function.
 
 \code{interpreter$identifier} and
 \code{interpreter$identifier <- value} get and set variables in the interpreter.
@@ -81,10 +80,8 @@ invocation is especially noticeable for quick functions.
 
     \code{s$x <- value} always returns \code{value} after having set the Scala variable \code{x} to it.
 
-    \code{function(...) s \%!\% snippet} returns a Scala function where \code{...} should be named arguments that can be used in the Scala code given in \code{snippet}.
+    \code{function(...) s \%!\% snippet} returns a Scala function where \code{...} are arguments that can be used in the Scala code given in \code{snippet}.
     \code{function(...) s \%.!\% snippet} is the same, except a Scala reference is always returned.
-
-%    \code{scalaOptimize(f)} returns an optimized Scala function having less invocation latency than the provided (unoptimized) Scala function \code{f}.
 
     \code{scalaNull(type)} returns a null reference whose Scala type is \code{type}.  This can be helpful in defining Scala functions.
 

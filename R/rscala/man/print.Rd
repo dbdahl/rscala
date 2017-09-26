@@ -7,7 +7,6 @@
 \alias{toString.ScalaInterpreterReference}
 \alias{print.ScalaCachedReference}
 \alias{toString.ScalaCachedReference}
-\alias{print.ScalaFunction}
 \docType{methods}
 \title{
 String Representation of a Scala Interpreter, Reference, or Function
