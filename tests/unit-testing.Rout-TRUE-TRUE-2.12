@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # cochran # TRUE # TRUE
+# R version 3.4.1 (2017-06-30) # carter # TRUE # TRUE
 > 
 > 
 > test <- function(a,value,func=list()) {
@@ -57,18 +57,18 @@ true
 > # What about when there is no result?
 > tryCatch(s %~% 'import scala.util._', error=function(e) e)
 java.lang.RuntimeException: There is no result.  Maybe use the %@% operator instead?
-	at org.ddahl.rscala.server.ScalaServer.mostRecentVar(ScalaServer.scala:40)
-	at org.ddahl.rscala.server.ScalaServer.doGet(ScalaServer.scala:233)
-	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:434)
-	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$2(ScalaServer.scala:461)
+	at org.ddahl.rscala.server.ScalaServer.mostRecentVar(ScalaServer.scala:41)
+	at org.ddahl.rscala.server.ScalaServer.doGet(ScalaServer.scala:208)
+	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:409)
+	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$2(ScalaServer.scala:434)
 	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withErr(Console.scala:192)
-	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$1(ScalaServer.scala:461)
+	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$1(ScalaServer.scala:434)
 	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withOut(Console.scala:163)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:460)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:433)
 	at org.ddahl.rscala.server.Main$.delayedEndpoint$org$ddahl$rscala$server$Main$1(Main.scala:5)
 	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0.apply$mcV$sp(Function0.scala:34)
@@ -110,19 +110,19 @@ java.lang.RuntimeException: There is no result.  Maybe use the %@% operator inst
 > 
 > tryCatch(s %.~% 'import scala.util._', error=function(e) e)
 java.lang.RuntimeException: There is no result.  Maybe use the %@% operator instead?
-	at org.ddahl.rscala.server.ScalaServer.mostRecentVar(ScalaServer.scala:40)
-	at org.ddahl.rscala.server.ScalaServer.liftedTree1$1(ScalaServer.scala:397)
-	at org.ddahl.rscala.server.ScalaServer.doGetReference(ScalaServer.scala:396)
-	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:436)
-	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$2(ScalaServer.scala:461)
+	at org.ddahl.rscala.server.ScalaServer.mostRecentVar(ScalaServer.scala:41)
+	at org.ddahl.rscala.server.ScalaServer.liftedTree1$1(ScalaServer.scala:372)
+	at org.ddahl.rscala.server.ScalaServer.doGetReference(ScalaServer.scala:371)
+	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:411)
+	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$2(ScalaServer.scala:434)
 	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withErr(Console.scala:192)
-	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$1(ScalaServer.scala:461)
+	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$1(ScalaServer.scala:434)
 	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withOut(Console.scala:163)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:460)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:433)
 	at org.ddahl.rscala.server.Main$.delayedEndpoint$org$ddahl$rscala$server$Main$1(Main.scala:5)
 	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0.apply$mcV$sp(Function0.scala:34)

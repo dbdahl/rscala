@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # cochran # FALSE # FALSE
+# R version 3.4.1 (2017-06-30) # carter # FALSE # FALSE
 > set.seed(924234)
 > 
 > 
@@ -61,13 +61,6 @@
 > 
 > 
 > 
-> # Multiple callbacks in compiled code with optimization.
-> doit4 <- rscala:::scalaOptimize(doit3)
-> 
-> doit4(rnorm(10))
-[1] -0.05390445  2.16063425
-> 
-> 
 > 
 > # Benchmarks
 > 
@@ -79,37 +72,31 @@
 +   doit1(rnorm(10)),
 +   doit2(rnorm(10)),
 +   doit3(rnorm(10)),
-+   doit4(rnorm(10)),
 +   times=10
 + )
 Unit: microseconds
-             expr        min         lq        mean     median          uq
- doit0(rnorm(10))     62.976     76.389    552.2184    135.975     210.102
- doit1(rnorm(10)) 471537.221 671585.356 932234.7030 944341.746 1172460.935
- doit2(rnorm(10)) 264010.912 337174.992 560210.0191 482110.235  789510.402
- doit3(rnorm(10))   3436.780   4642.029   7098.9402   5692.759    7107.299
- doit4(rnorm(10))   1463.420   2219.088   3795.4577   3078.342    5254.556
-         max neval
-    4330.557    10
- 1322037.436    10
- 1044983.732    10
-   18750.849    10
-    8467.618    10
+             expr        min         lq        mean       median          uq
+ doit0(rnorm(10))     75.560     87.658    1996.968     165.3425     204.268
+ doit1(rnorm(10)) 645877.039 896635.474 1262892.003 1350593.4650 1611654.742
+ doit2(rnorm(10)) 527832.791 598154.930  842876.306  669477.7195 1075776.338
+ doit3(rnorm(10))   3882.736   4370.936   24384.535    5831.0495   15878.446
+        max neval
+   18652.51    10
+ 1695268.94    10
+ 1696147.51    10
+  169435.75    10
 > microbenchmark(
 +   doit0(rnorm(10)),
 +   #doit1(rnorm(10)),
 +   #doit2(rnorm(10)),
 +   doit3(rnorm(10)),
-+   doit4(rnorm(10)),
 +   times=1000
 + )
 Unit: microseconds
-             expr      min        lq       mean   median        uq        max
- doit0(rnorm(10))   29.517   61.9795   81.54032   76.402  102.6305    185.967
- doit3(rnorm(10)) 2167.163 3096.3935 4365.34752 3922.954 4301.1315  73094.901
- doit4(rnorm(10)) 1060.687 1573.0915 2862.62239 2170.383 2451.9885 398524.858
+             expr      min        lq       mean   median       uq         max
+ doit0(rnorm(10))   30.882   61.2875   89.64734   74.985   95.229    4233.975
+ doit3(rnorm(10)) 1316.913 2191.0735 4670.91095 2719.384 3195.222 1012144.677
  neval
-  1000
   1000
   1000
 > 
@@ -120,18 +107,15 @@ Unit: microseconds
 +   doit1(rnorm(10)),
 +   doit2(rnorm(10)),
 +   doit3(rnorm(10)),
-+   doit4(rnorm(10)),
 +   times=5
 + )
 Unit: milliseconds
-             expr      min       lq      mean   median        uq       max
- doit0(rnorm(10)) 200.4254 200.4514  200.4868 200.4655  200.4925  200.5994
- doit1(rnorm(10)) 928.5372 983.2606 1069.8231 986.1939 1125.6365 1325.4873
- doit2(rnorm(10)) 612.9865 691.6359  769.6506 760.7985  883.7306  899.1013
- doit3(rnorm(10)) 204.8812 205.1594  208.0775 206.8603  211.3472  212.1396
- doit4(rnorm(10)) 203.1146 203.1213  203.6473 203.2676  203.5955  205.1378
+             expr       min        lq      mean    median        uq       max
+ doit0(rnorm(10))  200.4498  200.4521  200.7721  200.4898  200.5698  201.8991
+ doit1(rnorm(10)) 1147.1761 1199.7083 1408.0856 1357.6673 1544.5397 1791.3369
+ doit2(rnorm(10))  624.8595  658.8366  845.8948  832.5827  920.8303 1192.3648
+ doit3(rnorm(10))  203.4721  203.5076  213.6408  206.1333  209.1752  245.9158
  neval
-     5
      5
      5
      5

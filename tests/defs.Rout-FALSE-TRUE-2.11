@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # cochran # FALSE # TRUE
+# R version 3.4.1 (2017-06-30) # carter # FALSE # TRUE
 > 
 > 
 > ####
@@ -7,22 +7,25 @@
 > 
 > rng1 <- s %.~% "new scala.util.Random"
 > rng1$nextDouble()
-[1] 0.6924581
+[1] 0.1934958
 > 
 > s$r1 <- rng1
 > rng2 <- s$r1
 > rng2$nextDouble()
-[1] 0.3207886
+[1] 0.5125921
 > 
 > rng3 <- s$.scala.util.Random$new()
 > rng3$nextDouble()
-[1] 0.7496603
+[1] 0.9111741
 > 
 > s$r3 <- rng3
 > rng4 <- s$r3
 > rng4$nextDouble()
-[1] 0.1626831
+[1] 0.8923104
 > 
+> f <- rng4$nextDouble(.EVALUATE=FALSE)
+> f()
+[1] 0.2061703
 > 
 > 
 > ####
@@ -39,7 +42,7 @@
 +   r
 + }
 > y1 <- mkFunc1()
-<environment: 0x414b580>
+<environment: 0x3b87b48>
 > identical(y1("Lisa","Dahl"),"Lisa Dahl B.")
 [1] TRUE
 > 
@@ -57,8 +60,8 @@
 [1] TRUE
 > gc()
          used (Mb) gc trigger (Mb) max used (Mb)
-Ncells 336511 18.0     592000 31.7   460000 24.6
-Vcells 625397  4.8    1214044  9.3  1043743  8.0
+Ncells 335634 18.0     592000 31.7   460000 24.6
+Vcells 625985  4.8    1213949  9.3  1043666  8.0
 > 
 > 
 > 
@@ -78,20 +81,18 @@ Vcells 625397  4.8    1214044  9.3  1043743  8.0
 +   e <- function(x=0,y=4L,name="dog") s %!% '
 +     name + " " + ( x + y )
 +   '
-+   rscala:::scalaOptimize(e)
 + })
    user  system elapsed 
-  0.004   0.000   0.252 
+      0       0       0 
 > 
 > # Taking advantage of caching
 > system.time({
 +   f <- function(x=0,y=4L,name="dog") s %!% '
 +     name + " " + ( x + y )
 +   '
-+   rscala:::scalaOptimize(f)
 + })
    user  system elapsed 
-  0.000   0.000   0.002 
+      0       0       0 
 > 
 > ####
 > 
@@ -106,16 +107,15 @@ Vcells 625397  4.8    1214044  9.3  1043743  8.0
 > rng1$nextInt(10L)
 [1] 4
 > rng2$nextInt(10L)
-[1] 8
+[1] 7
 > 
 > str <- rng1$toString(.AS.REFERENCE=TRUE)
 > str$length()
-[1] 26
+[1] 25
 > 
+> nd0 <- rng1$nextDouble(.EVALUATE=FALSE)
 > nd1 <- function() s %!% 'R.cached("@{toString(rng1)}").asInstanceOf[@{rng1[[\'type\']]}].nextDouble()'
-> nd1b <- rscala:::scalaOptimize(nd1)
 > nd2 <- function() s %!% '@{rng2}.nextDouble()'
-> nd2b <- rscala:::scalaOptimize(nd2)
 > 
 > library("microbenchmark")
 > 
@@ -123,23 +123,20 @@ Vcells 625397  4.8    1214044  9.3  1043743  8.0
 +   runif(1),
 +   rng1$nextDouble(),
 +   rng2$nextDouble(),
++   nd0(),
 +   nd1(),
-+   nd1b(),
 +   nd2(),
-+   nd2b(),
 +   times=500
 + )
 Unit: microseconds
-              expr      min        lq       mean    median        uq        max
-          runif(1)    1.389    7.8740   10.39432   11.0325   12.7760    122.576
- rng1$nextDouble()  293.836  429.7400  954.34925  580.4180  727.0250 142163.608
- rng2$nextDouble()  253.787  398.6700  854.58881  562.7115  686.6825 136956.566
-             nd1() 1314.436 1671.9875 2340.45840 2412.2235 2676.8170  10972.392
-            nd1b()  233.602  359.0390  685.27222  503.6280  601.8410  53986.527
-             nd2() 1197.230 1660.8470 2258.74096 2203.3835 2458.1625  28306.800
-            nd2b()  225.567  363.8175  578.62677  503.1275  597.4620  26699.613
+              expr     min       lq       mean    median        uq        max
+          runif(1)   1.784   6.7515   11.41789   11.1820   15.2950     90.727
+ rng1$nextDouble() 405.910 666.9020 1256.99547  802.7385  940.2335  35273.546
+ rng2$nextDouble() 395.396 646.3650 1631.09139  784.6440  919.1720 265632.115
+             nd0() 241.589 397.3225  757.79341  488.0055  569.7930  21483.188
+             nd1() 594.324 921.4590 2069.61003 1138.1935 1389.2525 274620.451
+             nd2() 503.324 797.1260 1909.00094  973.5745 1183.3920 219795.785
  neval
-   500
    500
    500
    500
@@ -162,14 +159,6 @@ Unit: microseconds
 > f(0)
 [1] 20
 > 
-> g <- rscala:::scalaOptimize(f)
-> g(4)
-[1] 8
-> g(-3)     ## Note that no error because R code as been optimized away!
-[1] -6
-> g(0)      ## And we don't get the special case when x==0.
-[1] 0
-> 
 > h <- function(x=4) {
 +   if ( x < 0 ) stop("'x' must be positive")
 +   if ( x == 0 ) x <- 10
@@ -185,23 +174,12 @@ Unit: microseconds
 > 
 > microbenchmark(
 +   f(4),
-+   g(4),
 +   h(4),        # h is *slow* and it has the memory leak inherent in Scala's REPL.
 +   times=100)
 Unit: microseconds
- expr       min          lq       mean      median         uq       max neval
- f(4)  1640.184   2277.9330   3585.072   2711.4050   3126.597  17375.64   100
- g(4)   462.530    668.8095   1661.483    794.5835   1029.205  17218.44   100
- h(4) 98187.407 156392.3170 208449.280 187999.8335 226964.443 719899.99   100
-> 
-> microbenchmark(
-+   f(4),        
-+   g(4),        # g is faster, but you lose the checking and special behavior.
-+   times=1000)
-Unit: microseconds
- expr      min       lq     mean   median       uq       max neval
- f(4) 1376.778 2344.803 4103.369 2592.861 2807.474 133081.53  1000
- g(4)  416.802  692.777 1351.359  781.545  856.870  84676.45  1000
+ expr        min         lq       mean     median         uq        max neval
+ f(4)    861.323   1096.693   2999.519   1197.419   1419.174   34054.89   100
+ h(4) 123288.074 200940.980 296169.318 262076.970 362322.780 1485406.55   100
 > 
 > 
 > 
@@ -209,7 +187,25 @@ Unit: microseconds
 > ####
 > 
 > s$.scala.util.Random$nextDouble()
-[1] 0.3068739
+[1] 0.1613449
+> m <- s$.scala.util.Random$new(342L,.EVALUATE=FALSE)
+> m(23436)$nextDouble()
+[1] 0.8011135
+> m(63502)$nextDouble()
+[1] 0.1435077
+> m(93222)$nextDouble()
+[1] 0.4889048
+> m(93222)$nextDouble()
+[1] 0.4889048
+> 
+> n <- m(5)$nextDouble(.EVALUATE=FALSE)
+> n()
+[1] 0.7305199
+> n()
+[1] 0.08825841
+> n()
+[1] 0.4889045
+> 
 > s$'.Array[Int]'$new(5L)
 [1] 0 0 0 0 0
 > 
@@ -221,25 +217,25 @@ Unit: microseconds
 [1] 4
 > 
 > s$.scala.util.Random$nextDouble()
-[1] 0.1639936
+[1] 0.4119108
 > s$.scala.util.Random$nextDouble()
-[1] 0.5822818
+[1] 0.9706417
 > 
 > s %@% 'import scala.util.Random'
 > s$.Random$nextDouble()
-[1] 0.6033732
+[1] 0.181536
 > 
 > a <- function() s %!% 'Random.nextDouble'
 > a()
-[1] 0.498573
+[1] 0.7739837
 > 
 > a <- s$.scala.util.Random
 > a$nextDouble()
-[1] 0.5046131
+[1] 0.3319361
 > 
 > b <- ( function() s %!% 'scala.util.Random' )()
 > b$nextDouble()
-[1] 0.347879
+[1] 0.8927247
 > 
 > microbenchmark(
 +   a$nextDouble(),
@@ -247,28 +243,30 @@ Unit: microseconds
 +   times=1000
 +   )
 Unit: microseconds
-           expr     min       lq     mean   median       uq      max neval
- a$nextDouble() 301.429 565.2210 1075.251 619.3775 670.0490 31793.41  1000
- b$nextDouble() 339.003 590.6685 1144.940 643.8440 699.7075 33066.30  1000
+           expr     min      lq     mean   median       uq      max neval
+ a$nextDouble() 394.765 700.347 1217.395 801.7895 858.0965 36615.59  1000
+ b$nextDouble() 354.968 705.325 1503.155 818.7625 875.8180 58862.56  1000
 >   
 > 
 > ####
 > 
-> f <- function(x=NULL, wantNull=TRUE) s %.!% '
+> f <- function(x, wantNull=TRUE) s %.!% '
 +   val r = R.getReference(x)
 +   if ( wantNull ) null else r
 + '
 > 
-> a <- f(1:10, FALSE)
+> a <- f(II(1:10), FALSE)
 > a$name()
-[1] "LX41QB2e"
+[1] "EZYBfrkF"
 > 
-> g <- function(func=NULL,y=scalaNull("PersistentReference")) s %!% '
+> g <- function(func, y=scalaNull("PersistentReference")) s %!% '
 +   R.invoke(func,y)
 + '
 > 
-> g(print, a)
+> g(II(print), a)
  [1]  1  2  3  4  5  6  7  8  9 10
+attr(,"class")
+[1] "ScalaAsIs"
 > 
 > 
 > ####
@@ -308,30 +306,30 @@ Yes
 > ####
 > 
 > tryCatch((function() s %!% 'a+b')(),error = function(e) e)
-<console>:18: error: not found: value b
-       a+b}
+<console>:16: error: not found: value b
+       a+b
          ^
-<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
+<simpleError in scalaDef(interpreter, snippet, NA): Problem defining function.>
 > tryCatch((function() s %!% 'a+')(),error = function(e) e)
-<console>:18: error: missing argument list for method + in class any2stringadd
+<console>:16: error: missing argument list for method + in class any2stringadd
 Unapplied methods are only converted to functions when a function type is expected.
 You can make this conversion explicit by writing `$plus _` or `$plus(_)` instead of `$plus`.
-       a+}
+       a+
         ^
-<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
+<simpleError in scalaDef(interpreter, snippet, NA): Problem defining function.>
 > tryCatch((function() s %!% 'import org.asdfad')(),error = function(e) {e})
-<console>:17: error: object asdfad is not a member of package org
-       import org.asdfad}
+<console>:15: error: object asdfad is not a member of package org
+       import org.asdfad
               ^
-<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
+<simpleError in scalaDef(interpreter, snippet, NA): Problem defining function.>
 > tryCatch((function() s %!% 'throw new RuntimeException()')(),error = function(e) {e})
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:101)
-	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:440)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:469)
+	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:113)
+	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:415)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:442)
 	at org.ddahl.rscala.server.Main$.delayedEndpoint$org$ddahl$rscala$server$Main$1(Main.scala:5)
 	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:34)
@@ -362,12 +360,12 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:103)
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.RuntimeException
-	at $line312.$read$$iw$$iw$$anonfun$1.apply(<console>:17)
-	at $line312.$read$$iw$$iw$$anonfun$1.apply(<console>:16)
+	at $line320.$read$$iw$$iw$$anonfun$1.apply(<console>:15)
+	at $line320.$read$$iw$$iw$$anonfun$1.apply(<console>:14)
 	... 35 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException
-<simpleError in doTryCatch(return(expr), name, parentenv, handler): Invocation error.>
+<simpleError in scalaDef(interpreter, snippet, NA): Problem invoking function.>
 > s %~% "5+6"   # Everything's still okay!
 [1] 11
 > 

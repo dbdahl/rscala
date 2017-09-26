@@ -21,7 +21,7 @@
 > 
 > row.major <- FALSE
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # cochran # FALSE # FALSE
+# R version 3.4.1 (2017-06-30) # carter # FALSE # FALSE
 > 
 > y <- c(0,1,2,3,4,5,6,8)
 > for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y),as.raw(y)) ) {
@@ -47,7 +47,7 @@ Class is raw
 > 
 > row.major <- TRUE
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # cochran # FALSE # FALSE
+# R version 3.4.1 (2017-06-30) # carter # FALSE # FALSE
 > 
 > y <- c(0,1,2,3,4,5,6,8)
 > for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y),as.raw(y)) ) {
@@ -74,12 +74,12 @@ Class is raw
 > 
 > #### Callbacks with named arguments
 > 
-> mySort <- function(x=NULL,ascending=TRUE) s %!% '
+> mySort <- function(x, ascending=TRUE) s %!% '
 +   R.invokeD1( EphemeralReference("sort"), x, "decreasing" -> ! ascending )
 + '
 > 
 > set.seed(13242)
-> mySort(runif(12),FALSE)
+> mySort(II(runif(12)),FALSE)
  [1] 0.964528786 0.931479614 0.915030151 0.760027263 0.748870265 0.689618096
  [7] 0.631741739 0.619262272 0.486731296 0.346336568 0.234644646 0.009991797
 > 
@@ -198,36 +198,35 @@ Error in parse(text = snippet) : <text>:4:16: unexpected symbol
 +   mean(data+offset)
 + }
 > 
-> callRFunction <- function(func=NULL, x=numeric(), y=NULL) s %!% '
+> callRFunction <- function(func, x, y) s %!% '
 +   R.invokeD1(func,x.map(2*_).map(_.getClass),y)
 + '
 > 
-> tryCatch(callRFunction(myMean,1:4,5), error=function(e) e)
-<simpleError in doTryCatch(return(expr), name, parentenv, handler): Invocation error.>
+> tryCatch(callRFunction(II(myMean),1:4,II(5)), error=function(e) e)
+<simpleError in scalaDef(interpreter, snippet, NA): Problem invoking function.>
 > s %~% "3+4"
 [1] 7
 > 
-> callRFunction <- function(func=NULL, x=numeric(), y=NULL) s %!% '
+> callRFunction <- function(func, x, y) s %!% '
 +   R.invokeD1(func,x.map(2*_),y)
 + '
 > 
-> callRFunction(myMean,y=0,x=1:100)
+> callRFunction(II(myMean),y=II(0),x=1:100)
 Here is am.
 [1] 101
 > 
-> callRFunction0D2 <- function(func=NULL) s %!% 'R.invokeD2(func)'
-> callRFunction0D2(gc)
+> callRFunction0D2 <- function(func) s %!% 'R.invokeD2(func)'
+> callRFunction0D2(II(gc))
        [,1] [,2]    [,3] [,4]    [,5] [,6]
-[1,] 341882 18.3  592000 31.7  460000 24.6
-[2,] 650486  5.0 1211434  9.3 1065291  8.2
+[1,] 340882 18.3  592000 31.7  460000 24.6
+[2,] 648608  5.0 1211339  9.3 1065243  8.2
 Warning messages:
 1: In .Internal(gc(verbose, reset)) :
-  closing unused connection 4 (->localhost:45954)
+  closing unused connection 4 (->localhost:42942)
 2: In .Internal(gc(verbose, reset)) :
-  closing unused connection 3 (->localhost:43636)
+  closing unused connection 3 (->localhost:45200)
 > 
 > tryCatch(callRFunction(1:100),error = function(e) {})
-Error in func(.rsX0, y) : could not find function "func"
 NULL
 > 
 > # Should be an R evaluation error because 'asfd' is not a package.

@@ -1,6 +1,6 @@
 > heap.maximum <- "3G"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # cochran # TRUE # FALSE
+# R version 3.4.1 (2017-06-30) # carter # TRUE # FALSE
 > 
 > library(help="rscala")
 
@@ -12,8 +12,8 @@ Package:              rscala
 Type:                 Package
 Title:                Bi-Directional Interface Between 'R' and 'Scala'
                       with Callbacks
-Version:              2.3.5-537
-Date:                 2017-09-22
+Version:              2.3.5-551
+Date:                 2017-09-26
 Authors@R:            person(given="David
                       B.",family="Dahl",role=c("aut","cre"),email="dahl@stat.byu.edu")
 URL:                  https://github.com/dbdahl/rscala
@@ -30,10 +30,10 @@ License:              GPL (>= 2) | BSD_3_clause + file LICENSE
 VignetteBuilder:      knitr
 Suggests:             knitr, microbenchmark, rJava, xtable
 NeedsCompilation:     no
-Packaged:             2017-09-22 16:14:09 UTC; dahl
+Packaged:             2017-09-26 15:06:32 UTC; dahl
 Author:               David B. Dahl [aut, cre]
 Maintainer:           David B. Dahl <dahl@stat.byu.edu>
-Built:                R 3.4.1; ; 2017-09-22 16:14:10 UTC; unix
+Built:                R 3.4.1; ; 2017-09-26 15:06:33 UTC; unix
 
 Index:
 
@@ -99,7 +99,7 @@ article: Integration of R and Scala Using rscala (source)
 +   times=2500)
 Unit: microseconds
                expr     min       lq     mean   median       uq      max neval
- rng$nextGaussian() 406.414 663.8105 1165.598 794.2495 875.9615 35012.12  2500
+ rng$nextGaussian() 401.042 760.1195 1467.273 919.3075 1055.505 92322.67  2500
 > 
 > microbenchmark(
 +   rng$nextGaussian(),
@@ -116,26 +116,26 @@ Unit: microseconds
 +   times=25)
 Unit: milliseconds
                expr        min         lq       mean     median         uq
- rng$nextGaussian()   0.645263   0.944925   3.268152   1.235029   1.538572
-           func0a() 321.258948 476.577898 644.668527 629.461034 706.444433
-           func1a() 479.965397 658.661315 848.089500 817.020639 997.905030
-           func1b()   3.647955   5.967101   8.464308   6.717597   7.828019
-           func2a() 191.553642 296.188634 327.924473 324.029344 331.703381
-           func2b()   4.209433   5.116663  53.764660   5.781348   8.514927
-           func3a()  60.787009  78.624454 146.699116  92.453550 111.137866
-           func4a() 119.591324 148.767933 211.956649 177.833192 224.155287
-     s$a <- 1:6e+06 230.884374 327.768671 441.100749 378.652948 452.965280
-                s$a 231.004811 281.658432 393.142895 385.540913 413.251112
+ rng$nextGaussian()   0.501342   1.081686   3.986335   1.272210   1.543216
+           func0a() 249.221573 392.518038 599.664011 560.932449 671.947924
+           func1a() 307.350948 420.577418 738.603000 693.396454 990.511821
+           func1b()   2.993552   3.924494   8.382362   4.875019  12.264086
+           func2a() 111.916610 184.874291 280.687090 239.650910 345.986363
+           func2b()   1.943813   2.359415  57.023676   3.232876  11.640894
+           func3a()  50.278251  67.915195 214.819944  90.836848 162.742975
+           func4a()  85.686438 122.890987 204.083273 138.758876 219.063962
+     s$a <- 1:6e+06 174.968019 332.456068 458.142042 454.795234 531.534754
+                s$a 149.107747 238.332842 448.377939 380.900266 549.679567
         max neval
-   23.25803    25
- 1308.15050    25
- 1334.52040    25
-   32.78220    25
-  632.12227    25
- 1134.03217    25
- 1197.47325    25
-  677.82424    25
- 1433.18303    25
-  933.19399    25
+   46.84636    25
+ 1353.40045    25
+ 1480.11350    25
+   25.27799    25
+  770.45691    25
+ 1221.19683    25
+ 1965.47935    25
+ 1049.49781    25
+  859.41592    25
+ 1774.31795    25
 > 
 > 

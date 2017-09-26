@@ -73,7 +73,7 @@ Searching for a suitable Scala installation.
 
 [1] "/UShare/dahl/local/scala/scala/scala-2.12.3/bin/scala"
 --------
-trying URL 'http://downloads.lightbend.com/scala/2.10.6/scala-2.10.6.tgz'
+trying URL 'https://downloads.lightbend.com/scala/2.10.6/scala-2.10.6.tgz'
 Content type 'application/octet-stream' length 29928531 bytes (28.5 MB)
 ==================================================
 downloaded 28.5 MB
@@ -90,7 +90,7 @@ Searching for a suitable Scala installation.
   * SUCCESS: special installation directory (/UShare/dahl/.rscala/scala-2.10.6)
 
 [1] "/UShare/dahl/.rscala/scala-2.10.6/bin/scala"
-trying URL 'http://downloads.lightbend.com/scala/2.11.11/scala-2.11.11.tgz'
+trying URL 'https://downloads.lightbend.com/scala/2.11.11/scala-2.11.11.tgz'
 Content type 'application/octet-stream' length 29086055 bytes (27.7 MB)
 ==================================================
 downloaded 27.7 MB
@@ -107,7 +107,7 @@ Searching for a suitable Scala installation.
   * SUCCESS: special installation directory (/UShare/dahl/.rscala/scala-2.11.11)
 
 [1] "/UShare/dahl/.rscala/scala-2.11.11/bin/scala"
-trying URL 'http://downloads.lightbend.com/scala/2.12.3/scala-2.12.3.tgz'
+trying URL 'https://downloads.lightbend.com/scala/2.12.3/scala-2.12.3.tgz'
 Content type 'application/octet-stream' length 19760624 bytes (18.8 MB)
 ==================================================
 downloaded 18.8 MB

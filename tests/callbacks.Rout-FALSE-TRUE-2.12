@@ -21,7 +21,7 @@
 > 
 > row.major <- FALSE
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # cochran # FALSE # TRUE
+# R version 3.4.1 (2017-06-30) # carter # FALSE # TRUE
 > 
 > y <- c(0,1,2,3,4,5,6,8)
 > for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y),as.raw(y)) ) {
@@ -47,7 +47,7 @@ Class is raw
 > 
 > row.major <- TRUE
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # cochran # FALSE # TRUE
+# R version 3.4.1 (2017-06-30) # carter # FALSE # TRUE
 > 
 > y <- c(0,1,2,3,4,5,6,8)
 > for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y),as.raw(y)) ) {
@@ -74,12 +74,12 @@ Class is raw
 > 
 > #### Callbacks with named arguments
 > 
-> mySort <- function(x=NULL,ascending=TRUE) s %!% '
+> mySort <- function(x, ascending=TRUE) s %!% '
 +   R.invokeD1( EphemeralReference("sort"), x, "decreasing" -> ! ascending )
 + '
 > 
 > set.seed(13242)
-> mySort(runif(12),FALSE)
+> mySort(II(runif(12)),FALSE)
  [1] 0.964528786 0.931479614 0.915030151 0.760027263 0.748870265 0.689618096
  [7] 0.631741739 0.619262272 0.486731296 0.346336568 0.234644646 0.009991797
 > 
@@ -247,18 +247,18 @@ java.lang.RuntimeException: Error in R evaluation.
 +   mean(data+offset)
 + }
 > 
-> callRFunction <- function(func=NULL, x=numeric(), y=NULL) s %!% '
+> callRFunction <- function(func, x, y) s %!% '
 +   R.invokeD1(func,x.map(2*_).map(_.getClass),y)
 + '
 > 
-> tryCatch(callRFunction(myMean,1:4,5), error=function(e) e)
+> tryCatch(callRFunction(II(myMean),1:4,II(5)), error=function(e) e)
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:101)
-	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:440)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:469)
+	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:113)
+	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:415)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:442)
 	at org.ddahl.rscala.server.Main$.delayedEndpoint$org$ddahl$rscala$server$Main$1(Main.scala:5)
 	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0.apply$mcV$sp(Function0.scala:34)
@@ -305,84 +305,34 @@ Caused by: java.lang.RuntimeException: Unsupported array type.
 	at scala.collection.AbstractTraversable.map(Traversable.scala:104)
 	at org.ddahl.rscala.RClient.mkSnippet(RClient.scala:301)
 	at org.ddahl.rscala.RClient.invokeD1(RClient.scala:244)
-	at $line347.$read$$iw$$iw$.$anonfun$res122$1(<console>:21)
+	at $line347.$read$$iw$$iw$.$anonfun$res122$1(<console>:19)
 	... 39 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Unsupported array type.
-<simpleError in doTryCatch(return(expr), name, parentenv, handler): Invocation error.>
+<simpleError in scalaDef(interpreter, snippet, NA): Problem invoking function.>
 > s %~% "3+4"
 [1] 7
 > 
-> callRFunction <- function(func=NULL, x=numeric(), y=NULL) s %!% '
+> callRFunction <- function(func, x, y) s %!% '
 +   R.invokeD1(func,x.map(2*_),y)
 + '
 > 
-> callRFunction(myMean,y=0,x=1:100)
+> callRFunction(II(myMean),y=II(0),x=1:100)
 Here is am.
 [1] 101
 > 
-> callRFunction0D2 <- function(func=NULL) s %!% 'R.invokeD2(func)'
-> callRFunction0D2(gc)
+> callRFunction0D2 <- function(func) s %!% 'R.invokeD2(func)'
+> callRFunction0D2(II(gc))
        [,1] [,2]    [,3] [,4]    [,5] [,6]
-[1,] 341909 18.3  592000 31.7  460000 24.6
-[2,] 652538  5.0 1211548  9.3 1065384  8.2
+[1,] 340910 18.3  592000 31.7  460000 24.6
+[2,] 650662  5.0 1211453  9.3 1065307  8.2
 Warning messages:
 1: In .Internal(gc(verbose, reset)) :
-  closing unused connection 4 (->localhost:34714)
+  closing unused connection 4 (->localhost:40844)
 2: In .Internal(gc(verbose, reset)) :
-  closing unused connection 3 (->localhost:40747)
+  closing unused connection 3 (->localhost:42502)
 > 
 > tryCatch(callRFunction(1:100),error = function(e) {})
-Error in func(.rsX0, y) : could not find function "func"
-could not find function "func"
-java.lang.reflect.InvocationTargetException
-	at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
-	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:101)
-	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:440)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:469)
-	at org.ddahl.rscala.server.Main$.delayedEndpoint$org$ddahl$rscala$server$Main$1(Main.scala:5)
-	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:3)
-	at scala.Function0.apply$mcV$sp(Function0.scala:34)
-	at scala.Function0.apply$mcV$sp$(Function0.scala:34)
-	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
-	at scala.App.$anonfun$main$1$adapted(App.scala:76)
-	at scala.collection.immutable.List.foreach(List.scala:389)
-	at scala.App.main(App.scala:76)
-	at scala.App.main$(App.scala:74)
-	at org.ddahl.rscala.server.Main$.main(Main.scala:3)
-	at org.ddahl.rscala.server.Main.main(Main.scala)
-	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.lang.reflect.Method.invoke(Method.java:498)
-	at scala.reflect.internal.util.ScalaClassLoader.$anonfun$run$2(ScalaClassLoader.scala:98)
-	at scala.reflect.internal.util.ScalaClassLoader.asContext(ScalaClassLoader.scala:32)
-	at scala.reflect.internal.util.ScalaClassLoader.asContext$(ScalaClassLoader.scala:30)
-	at scala.reflect.internal.util.ScalaClassLoader$URLClassLoader.asContext(ScalaClassLoader.scala:129)
-	at scala.reflect.internal.util.ScalaClassLoader.run(ScalaClassLoader.scala:98)
-	at scala.reflect.internal.util.ScalaClassLoader.run$(ScalaClassLoader.scala:90)
-	at scala.reflect.internal.util.ScalaClassLoader$URLClassLoader.run(ScalaClassLoader.scala:129)
-	at scala.tools.nsc.CommonRunner.run(ObjectRunner.scala:22)
-	at scala.tools.nsc.CommonRunner.run$(ObjectRunner.scala:21)
-	at scala.tools.nsc.ObjectRunner$.run(ObjectRunner.scala:39)
-	at scala.tools.nsc.CommonRunner.runAndCatch(ObjectRunner.scala:29)
-	at scala.tools.nsc.CommonRunner.runAndCatch$(ObjectRunner.scala:28)
-	at scala.tools.nsc.ObjectRunner$.runAndCatch(ObjectRunner.scala:39)
-	at scala.tools.nsc.MainGenericRunner.runTarget$1(MainGenericRunner.scala:66)
-	at scala.tools.nsc.MainGenericRunner.run$1(MainGenericRunner.scala:85)
-	at scala.tools.nsc.MainGenericRunner.process(MainGenericRunner.scala:96)
-	at scala.tools.nsc.MainGenericRunner$.main(MainGenericRunner.scala:101)
-	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
-Caused by: java.lang.RuntimeException: Error in R evaluation.
-	at org.ddahl.rscala.RClient.eval(RClient.scala:134)
-	at org.ddahl.rscala.RClient.evalD1(RClient.scala:169)
-	at org.ddahl.rscala.RClient.invokeD1(RClient.scala:244)
-	at $line351.$read$$iw$$iw$.$anonfun$res124$1(<console>:21)
-	... 39 more
-java.lang.reflect.InvocationTargetException
-java.lang.RuntimeException: Error in R evaluation.
 NULL
 > 
 > # Should be an R evaluation error because 'asfd' is not a package.

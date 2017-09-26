@@ -1,16 +1,16 @@
 > heap.maximum <- "192M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # cochran # FALSE # FALSE
+# R version 3.4.1 (2017-06-30) # carter # FALSE # FALSE
 > 
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
-<simpleError in s$".Array[Double]"$new(20000000L): Problem invoking function.>
+<simpleError in f(..., .NBACK = 2): Problem invoking function.>
 > close(s)
 > cat("----\n")
 ----
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # cochran # FALSE # FALSE
+# R version 3.4.1 (2017-06-30) # carter # FALSE # FALSE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -18,7 +18,7 @@
 > 
 > options(rscala.heap.maximum="64M")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # cochran # FALSE # FALSE
+# R version 3.4.1 (2017-06-30) # carter # FALSE # FALSE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -26,14 +26,14 @@
 > 
 > options(rscala.heap.maximum="128M")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # cochran # FALSE # FALSE
+# R version 3.4.1 (2017-06-30) # carter # FALSE # FALSE
 > for ( i in 1:2000 ) {
-+   a <- s$".Array[Double]"$new(100000L)  # No memory problems
++   a <- s$".Array[Double]"$new(200000L)  # No memory problems
 + }
 > 
 > tryCatch({
 + for ( i in 1:2000 ) {
-+   s %~% "new Array[Double](100000)"           # Memory problems
++   s %~% "new Array[Double](200000)"           # Memory problems
 + }
 + },error=function(e) e)
 <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
