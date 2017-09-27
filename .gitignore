@@ -2,3 +2,4 @@ target
 *.Rcheck
 /example-temperature
 /issues
+/.idea
