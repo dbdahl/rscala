@@ -408,6 +408,7 @@ scalaUnboxReference <- function(x) {
 }
 
 II <- function(x) {
+  if ( is.null(x) ) return(x)
   structure(x, class=unique(c("ScalaAsIs", oldClass(x))))
 }
 
@@ -427,8 +428,7 @@ mkHeader <- function(args,names,show.header) {
       if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") || inherits(value,"ScalaNullReference")) {
         return(paste0('val ',name,' = R.cached(R.evalS0("toString(get(\'',name,'\'))")).asInstanceOf[',args[[i]][['type']],']'))
       }
-      if ( ! is.atomic(value) ) return(mkEphemeralReferenceSnippet(name))
-      if ( is.null(value) ) stop(paste0('Argument "',name,'" is NULL.  To pass a null reference, use the "scalaNull" function.'))
+      if ( ( ! is.atomic(value) ) || is.null(value) ) return(mkEphemeralReferenceSnippet(name))
       type <- if ( is.integer(value) ) "I"
       else if ( is.double(value) ) "D"
       else if ( is.logical(value) ) "L"
