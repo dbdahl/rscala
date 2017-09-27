@@ -1,5 +1,13 @@
-2.4.0 (2017-09-XX)
-  * Improved input/output performance for bridge.
+2.4.0 (2017-09-27)
+  * Improved input/output performance for large transfers over TCP/IP bridge.
+  * Substantially lower protocol overhead when calling Scala methods (e.g.,
+    's$scala.util.Random$nextGaussian()') and Scala
+    functions (e.g., function(x) s %!% '2+x').
+  * Scala functions no longer require default arguments and type signatures are
+    now inferred by argument values (instead of being inferred form the default
+    arguments).
+  * Fixed broken temperature web app in vignette by replacing defunct
+    'weatherData' package with 'darksky' package.
 
 2.3.5 (2017-08-30)
   * Quote 'Scala' and 'R' in title and description as per CRAN request.
