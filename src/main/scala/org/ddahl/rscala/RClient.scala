@@ -995,7 +995,7 @@ object RClient {
     while ( cmd == null ) Thread.sleep(100)
     cmd.println(snippet)
     cmd.flush()
-    val socket = new ScalaSocket(portsFile.getAbsolutePath,port,64*1024*1024,debugger)
+    val socket = new ScalaSocket(portsFile.getAbsolutePath,port,1*1024*1024,debugger)
     socket.putScalarInt(OK)
     socket.flush()
     apply(null,rProcessInstance,socket,debugger,serializeOutput,rowMajor)

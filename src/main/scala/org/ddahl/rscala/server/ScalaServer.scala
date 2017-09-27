@@ -497,7 +497,7 @@ object ScalaServer {
     // iloop.intp = intp
     // iloop.verbosity()
     // Return the server
-    new ScalaServer(intp, prntWrtr, baosOut, baosErr, portFilename, debugger, serializeOutput, rowMajor, port, 64*1024*1024)
+    new ScalaServer(intp, prntWrtr, baosOut, baosErr, portFilename, debugger, serializeOutput, rowMajor, port, 1*1024*1024)
   }
 
 }
