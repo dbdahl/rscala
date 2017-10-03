@@ -563,17 +563,6 @@ jarsOfPackage <- function(pkgname, major.release) {
     if ( length(snippet) > 0 ) s %@% snippet
     s
   }, assign.env=env)
-  # Deprecated and will be removed.
-  if ( exists(".rscalaDelayed",envir=env) ) {
-    delayedEnv <- get(".rscalaDelayed",envir=env)
-    lapply(
-      ls(envir=delayedEnv), function(x) {
-        expression <- get(x,envir=delayedEnv)
-        eval(expression,envir=env)
-      }
-    )
-    rm(".rscalaDelayed",envir=env)
-  }
   invisible()
 }
 
