@@ -32,9 +32,9 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
   if ( debug ) msg("\n",sInfo$cmd)
   if ( debug ) msg("\n",paste0("<",args,">",collapse="\n"))
   system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
-  sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
   sInfo$classpath <- rsClasspath
   sInfo$command.line.options <- command.line.options
+  sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
   scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
   sockets
 }
@@ -49,16 +49,16 @@ newSockets <- function(portsFilename,debug,serialize.output,row.major,timeout) {
   references <- new.env(parent=emptyenv())
   garbage <- new.env(parent=emptyenv())
   ports <- local({
-    delay <- 0.1
+    delay <- 0.05
     start <- proc.time()[3]
     while ( TRUE ) {
       if ( ( proc.time()[3] - start ) > timeout ) stop("Timed out waiting for Scala to start.")
-      Sys.sleep(delay)
-      delay <- 1.0*delay
       if ( file.exists(portsFilename) ) {
         line <- scan(portsFilename,n=2,what=character(),quiet=TRUE)
         if ( length(line) > 0 ) return(as.numeric(line))
       }
+      Sys.sleep(delay)
+      delay <- 1.0*delay
     }
   })
   file.remove(portsFilename)
