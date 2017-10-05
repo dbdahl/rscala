@@ -1,6 +1,6 @@
 ## Scala scripting over TCP/IP
 
-scala <- function(classpath=character(),classpath.packages=character(),serialize.output=.Platform$OS.type=="windows",scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=60,debug=FALSE,stdout=TRUE,stderr=TRUE,port=0,scalaInfo=NULL,major.release=c("2.10","2.11","2.12")) {
+scala <- function(classpath=character(),classpath.packages=character(),serialize.output=.Platform$OS.type=="windows",scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=60,debug=FALSE,stdout=TRUE,stderr=TRUE,port=0,scala.info=NULL,major.release=c("2.10","2.11","2.12"),lazy.name="",lazy.env=parent.frame()) {
   if ( identical(stdout,TRUE) ) stdout <- ""
   if ( identical(stderr,TRUE) ) stderr <- ""
   debug <- identical(debug,TRUE)
@@ -9,7 +9,7 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
   port <- as.integer(port[1])
   if ( debug && serialize.output ) stop("When debug is TRUE, serialize.output must be FALSE.")
   if ( debug && ( identical(stdout,FALSE) || identical(stdout,NULL) || identical(stderr,FALSE) || identical(stderr,NULL) ) ) stop("When debug is TRUE, stdout and stderr must not be discarded.")
-  sInfo <- if ( is.null(scalaInfo) ) scalaInfo(scala.home, major.release) else scalaInfo
+  sInfo <- if ( is.null(scala.info) ) scalaInfo(scala.home, major.release) else scala.info
   if ( is.null(sInfo) ) stop('Please run "rscala::scalaInstall()" or install Scala manually.')
   pkgJars <- unlist(lapply(classpath.packages, function(p) jarsOfPackage(p, sInfo$major.release)))
   userJars <- c(unlist(strsplit(classpath,.Platform$path.sep)),pkgJars)
@@ -28,15 +28,27 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
   rsClasspath <- shQuote(paste(c(rsJar,userJars),collapse=.Platform$path.sep))
   command.line.options <- shQuote(command.line.options)
   portsFilename <- tempfile("rscala-")
-  args <- c(command.line.options,paste0("-Drscala.classpath=",rsClasspath),"-classpath",rsClasspath,"org.ddahl.rscala.server.Main",portsFilename,debug,serialize.output,row.major,port)
+  args <- c(command.line.options,paste0("-Drscala.classpath=",rsClasspath),"-classpath",rsClasspath,"org.ddahl.rscala.server.Main",portsFilename,debug,serialize.output,row.major,port,identical(lazy.name,""))
   if ( debug ) msg("\n",sInfo$cmd)
   if ( debug ) msg("\n",paste0("<",args,">",collapse="\n"))
   system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
   sInfo$classpath <- rsClasspath
   sInfo$command.line.options <- command.line.options
-  sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
-  scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
-  sockets
+  if ( identical(lazy.name,"") ) {
+    sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
+    scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
+    sockets
+  } else {
+    delayedAssign(lazy.name,{
+      sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
+      scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
+      sockets
+    },assign.env=lazy.env)
+  }
+}
+
+scala2 <- function(...,lazy.name="s") {
+  scala(...,lazy.name=lazy.name,lazy.env=parent.frame())
 }
 
 newSockets <- function(portsFilename,debug,serialize.output,row.major,timeout) {
@@ -558,7 +570,7 @@ jarsOfPackage <- function(pkgname, major.release) {
     classpath.prepend <- unlist(strsplit(classpath.prepend,.Platform$path.sep))
     classpath.append <- unlist(strsplit(classpath.append,.Platform$path.sep))
     classpath <- c(classpath.prepend,pkgJars,classpath.append)
-    s <- scala(classpath=classpath,classpath.packages=NULL,scalaInfo=sInfo,...)
+    s <- scala(classpath=classpath,classpath.packages=NULL,scala.info=sInfo,...)
     assign("sIsForced",TRUE,envir=get(".rscalaPackageEnv",envir=env))
     if ( length(snippet) > 0 ) s %@% snippet
     s

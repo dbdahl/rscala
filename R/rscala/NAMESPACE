@@ -16,6 +16,7 @@ export("scalaNull")
 export("II")
 # export("scalap")
 export("scala")
+export("scala2")
 
 S3method("%@%","ScalaInterpreter")
 S3method("%~%","ScalaInterpreter")

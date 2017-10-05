@@ -1,5 +1,6 @@
 \name{scala}
 \alias{scala}
+\alias{scala2}
 \alias{scalaInfo}
 \alias{scalaInstall}
 \alias{.rscalaJar}
@@ -49,7 +50,10 @@ scala(classpath=character(), classpath.packages=character(),
       serialize.output=.Platform$OS.type=="windows", scala.home=NULL,
       heap.maximum=NULL, command.line.options=NULL, row.major=TRUE,
       timeout=60, debug=FALSE, stdout=TRUE, stderr=TRUE, port=0,
-      scalaInfo=NULL, major.release=c("2.10","2.11","2.12"))
+      scala.info=NULL, major.release=c("2.10","2.11","2.12"),
+      lazy.name="", lazy.env=parent.frame())
+
+scala2(..., lazy.name="s")
 
 scalaInfo(scala.home=NULL, major.release=c("2.10","2.11","2.12"),
           verbose=FALSE)
@@ -76,9 +80,11 @@ scalaInstall(major.release=c("2.10","2.11","2.12"), global=FALSE)
     \item{debug}{An option meant only for developers of the package itself and not intended for users of the package.}
     \item{stdout, stderr}{Where standard output and standard error results that are not serialized should be sent.  \code{TRUE} (the default) or \code{""} sends output to the R console (although that may not work on Windows).  \code{FALSE} or \code{NULL} discards the output.  Otherwise, this is the name of the file that receives the output.}
     \item{port}{If \code{0}, two random ports are selected.  Otherwise, \code{port} and \code{port+1} are used to the TCP/IP connections.}
-    \item{scalaInfo}{The result of a previous call to \code{\link{scalaInfo}}.}
+    \item{scala.info}{The result of a previous call to \code{\link{scalaInfo}}.}
     \item{verbose}{A logical vector of length one indicating whether information regarding the search for the Scala installation should be displayed.}
     \item{major.release}{The character vector giving acceptable major.release numbers (e.g., c("2.10","2.11","2.12")), or \code{NA} in which case the system picks the appropriate version.}
+    \item{lazy.name}{If \code{""}, a Scala interpreter is returned once the connection is initialized.  Otherwise, \code{NULL} is immediately returned and the interpreter (with the identifier given by \code{lazy.name}) is available as a promise.}
+    \item{lazy.env}{The environment in which the promise for the interpreter should be assigned.}
     \item{global}{Should the Scala installation be global, specifically inside the package's directory?  This may require administrator privileges.}
     \item{pkgname}{A character string giving the name of the package (as provided the second argument of the \code{.onLoad} function) that wishes to depend on this package.}
     \item{snippet}{A character vector providing Scala code that will be evaluated when the interpreter in the package namespace is first used.}
@@ -87,7 +93,7 @@ scalaInstall(major.release=c("2.10","2.11","2.12"), global=FALSE)
     \item{...}{These arguments are passed by the \code{\link{.rscalaPackage}} function to the \code{\link{scala}} function.}
 }
 \value{
-    \code{\link{scala}} returns an \R object representing an embedded Scala interpreter.
+    \code{\link{scala}} returns an \R object representing an embedded Scala interpreter.  Or, if \code{lazy.name != ""}), \code{NULL} is returned but there is side effect of creating a promise for an interpreter.
 
     \code{\link{scalaInfo}} returns a list detailing the Scala executable, version, jars, etc.
 }
@@ -110,8 +116,8 @@ David B. Dahl \email{dahl@stat.byu.edu}
 scalaInfo(verbose=TRUE)
 
 \donttest{
-# Make an instance of the Scala interpreter and see how its output is captured.
-s <- scala(serialize.output=TRUE)
+# Make an instance of the Scala interpreter 's' and see how its output is captured.
+scala2(serialize.output=TRUE)
 capture.output(s \%~\% 'println("This is Scala "+scala.util.Properties.versionString)')
 scalaSettings(s)
 

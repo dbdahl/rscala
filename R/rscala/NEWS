@@ -1,3 +1,7 @@
+2.4.1 (2017-XX-XX)
+  * Added new function 'scala2' which lowers the perceived delay in
+    instantiating and first-use of a Scala interpreter.
+
 2.4.0 (2017-09-27)
   * Improved input/output performance for large transfers over TCP/IP bridge.
   * Substantially lower protocol overhead when calling Scala methods (e.g.,

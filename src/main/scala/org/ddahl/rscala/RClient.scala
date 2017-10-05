@@ -46,7 +46,7 @@ import Protocol._
 *
 * @author David B. Dahl
 */
-class RClient private (private val scalaServer: ScalaServer, private val rProcessInstance: Process, private val socket: ScalaSocket, private val debugger: Debugger, val serializeOutput: Boolean, val rowMajor: Boolean) extends Dynamic {
+class RClient private (private val scalaServer: ScalaServer, private val rProcessInstance: Process, private[rscala] var socket: ScalaSocket, private val debugger: Debugger, val serializeOutput: Boolean, val rowMajor: Boolean) extends Dynamic {
 
   private val referenceQueue = new ReferenceQueue[PersistentReference]()
   private val referenceMap = new scala.collection.mutable.HashMap[JavaReference[_ <: PersistentReference],String]()
