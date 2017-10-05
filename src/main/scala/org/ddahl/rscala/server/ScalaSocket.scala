@@ -386,7 +386,7 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
     bufferOut.clear()
   }
 
-  def close() = {
+  def close(): Unit = {
     scIn.close()
     scOut.close()
     sscIn.close()
