@@ -1,6 +1,6 @@
 ## Scala scripting over TCP/IP
 
-scala <- function(classpath=character(),classpath.packages=character(),serialize.output=.Platform$OS.type=="windows",scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=60,debug=FALSE,stdout=TRUE,stderr=TRUE,port=0,scala.info=NULL,major.release=c("2.10","2.11","2.12"),lazy.name="",lazy.env=parent.frame()) {
+scala <- function(classpath=character(),classpath.packages=character(),serialize.output=.Platform$OS.type=="windows",scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=60,debug=FALSE,stdout=TRUE,stderr=TRUE,port=0,scala.info=NULL,major.release=c("2.10","2.11","2.12"),mode="serial",assign.name="",assign.env=parent.frame()) {
   if ( identical(stdout,TRUE) ) stdout <- ""
   if ( identical(stderr,TRUE) ) stderr <- ""
   debug <- identical(debug,TRUE)
@@ -28,27 +28,42 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
   rsClasspath <- shQuote(paste(c(rsJar,userJars),collapse=.Platform$path.sep))
   command.line.options <- shQuote(command.line.options)
   portsFilename <- tempfile("rscala-")
-  args <- c(command.line.options,paste0("-Drscala.classpath=",rsClasspath),"-classpath",rsClasspath,"org.ddahl.rscala.server.Main",portsFilename,debug,serialize.output,row.major,port,identical(lazy.name,""))
+  args <- c(command.line.options,paste0("-Drscala.classpath=",rsClasspath),"-classpath",rsClasspath,"org.ddahl.rscala.server.Main",portsFilename,debug,serialize.output,row.major,port,identical(mode,"serial"))
   if ( debug ) msg("\n",sInfo$cmd)
   if ( debug ) msg("\n",paste0("<",args,">",collapse="\n"))
-  system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
   sInfo$classpath <- rsClasspath
   sInfo$command.line.options <- command.line.options
-  if ( identical(lazy.name,"") ) {
+  if ( identical(mode,"serial") ) {
+    if ( ! identical(assign.name,"") ) stop('"assign.name" should be "" when mode == "serial"')
+    system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
     sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
     scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
     sockets
-  } else {
-    delayedAssign(lazy.name,{
+  } else if ( identical(mode,"parallel") ) {
+    if ( identical(assign.name,"") ) stop('"assign.name" should not be "" when mode != "serial"')
+    system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
+    delayedAssign(assign.name,{
       sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
       scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
       sockets
-    },assign.env=lazy.env)
-  }
+    },assign.env=assign.env)
+  } else if ( identical(mode,"lazy") ) {
+    if ( identical(assign.name,"") ) stop('"assign.name" should not be "" when mode != "serial"')
+    delayedAssign(assign.name,{
+      system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
+      sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
+      scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
+      sockets
+    },assign.env=assign.env)
+  } else stop("Unrecognized mode.")
 }
 
-scala2 <- function(...,lazy.name="s") {
-  scala(...,lazy.name=lazy.name,lazy.env=parent.frame())
+scala2 <- function(...,assign.name="s") {
+  scala(...,mode="parallel",assign.name=assign.name,assign.env=parent.frame())
+}
+
+scala3 <- function(...,assign.name="s") {
+  scala(...,mode="lazy",assign.name=assign.name,assign.env=parent.frame())
 }
 
 newSockets <- function(portsFilename,debug,serialize.output,row.major,timeout) {
