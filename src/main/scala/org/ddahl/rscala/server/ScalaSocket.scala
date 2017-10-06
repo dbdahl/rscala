@@ -16,14 +16,18 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
   private val sscOut = ServerSocketChannel.open()
   sscOut.socket.bind(new InetSocketAddress(if ( port == 0 ) 0 else port+1))
 
-  if ( debugger.value ) debugger.msg("Writing to port file: "+portFilename)
-  locally {
-    val portNumberFile = new File(portFilename)
-    val p = new PrintWriter(portNumberFile)
-    p.println(sscIn.socket.getLocalPort+" "+sscOut.socket.getLocalPort)
-    p.close()
+  try {
+    if ( debugger.value ) debugger.msg("Writing to port file: "+portFilename)
+    locally {
+      val portNumberFile = new File(portFilename)
+      val p = new PrintWriter(portNumberFile)
+      p.println(sscIn.socket.getLocalPort+" "+sscOut.socket.getLocalPort)
+      p.close()
+    }
+    if ( debugger.value ) debugger.msg("Server is running on ports " + sscIn.socket.getLocalPort +" and " + sscOut.socket.getLocalPort)
+  } catch {
+    case _: Throwable => sys.exit(1)
   }
-  if ( debugger.value ) debugger.msg("Server is running on ports " + sscIn.socket.getLocalPort +" and " + sscOut.socket.getLocalPort)
 
   private val scIn = sscIn.accept()
   scIn.configureBlocking(true)

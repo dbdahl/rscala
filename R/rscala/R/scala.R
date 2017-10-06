@@ -1,6 +1,6 @@
 ## Scala scripting over TCP/IP
 
-scala <- function(classpath=character(),classpath.packages=character(),serialize.output=.Platform$OS.type=="windows",scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=60,debug=FALSE,stdout=TRUE,stderr=TRUE,port=0,scala.info=NULL,major.release=c("2.10","2.11","2.12"),mode="serial",assign.name="",assign.env=parent.frame()) {
+scala <- function(classpath=character(),classpath.packages=character(),serialize.output=.Platform$OS.type=="windows",scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=60,debug=FALSE,stdout=TRUE,stderr=TRUE,port=0,scala.info=NULL,major.release=c("2.10","2.11","2.12"),mode="serial",assign.name="s",assign.env=parent.frame(),snippet=character(),callback=function() {}) {
   if ( identical(stdout,TRUE) ) stdout <- ""
   if ( identical(stderr,TRUE) ) stderr <- ""
   debug <- identical(debug,TRUE)
@@ -34,36 +34,39 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
   sInfo$classpath <- rsClasspath
   sInfo$command.line.options <- command.line.options
   if ( identical(mode,"serial") ) {
-    if ( ! identical(assign.name,"") ) stop('"assign.name" should be "" when mode == "serial"')
     system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
+    callback()
     sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
     scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
+    if ( length(snippet) > 0 ) sockets %@% snippet
     sockets
   } else if ( identical(mode,"parallel") ) {
-    if ( identical(assign.name,"") ) stop('"assign.name" should not be "" when mode != "serial"')
     system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
+    callback()
     delayedAssign(assign.name,{
       sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
       scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
+      if ( length(snippet) > 0 ) sockets %@% snippet
       sockets
     },assign.env=assign.env)
   } else if ( identical(mode,"lazy") ) {
-    if ( identical(assign.name,"") ) stop('"assign.name" should not be "" when mode != "serial"')
     delayedAssign(assign.name,{
       system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
+      callback()
       sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
       scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
+      if ( length(snippet) > 0 ) sockets %@% snippet
       sockets
     },assign.env=assign.env)
   } else stop("Unrecognized mode.")
 }
 
-scala2 <- function(...,assign.name="s") {
-  scala(...,mode="parallel",assign.name=assign.name,assign.env=parent.frame())
+scala2 <- function(...) {
+  scala(...,mode="parallel",assign.env=parent.frame())
 }
 
-scala3 <- function(...,assign.name="s") {
-  scala(...,mode="lazy",assign.name=assign.name,assign.env=parent.frame())
+scala3 <- function(...) {
+  scala(...,mode="lazy",assign.env=parent.frame())
 }
 
 newSockets <- function(portsFilename,debug,serialize.output,row.major,timeout) {
@@ -573,23 +576,13 @@ jarsOfPackage <- function(pkgname, major.release) {
   result
 }
 
-.rscalaPackage <- function(pkgname, snippet=character(), classpath.packages=character(), classpath.prepend=character(), classpath.append=character(), major.release=c("2.10","2.11","2.12"), ...) {
+.rscalaPackage <- function(pkgname, classpath.packages=character(), mode="parallel", ...) {
+  if ( identical(mode,"serial") ) stop('Mode "serial" is not supported for packages, but the same effect is achieved by immediately using the promised interpreter from another mode.')
   env <- parent.env(parent.frame())    # Environment of depending package (assuming this function is only called in .onLoad function).
   assign(".rscalaPackageEnv",new.env(parent=emptyenv()), envir=env)
   assign("sIsForced",FALSE,envir=get(".rscalaPackageEnv",envir=env))
-  # Lazy initialization of 's' in environment of depending package
-  delayedAssign("s", {
-    sInfo <- scalaInfo(major.release=major.release)
-    if ( is.null(sInfo) ) stop('Please run "rscala::scalaInstall()" or install Scala manually.')
-    pkgJars <- unlist(lapply(c(pkgname,classpath.packages), function(p) jarsOfPackage(p, sInfo$major.release)))
-    classpath.prepend <- unlist(strsplit(classpath.prepend,.Platform$path.sep))
-    classpath.append <- unlist(strsplit(classpath.append,.Platform$path.sep))
-    classpath <- c(classpath.prepend,pkgJars,classpath.append)
-    s <- scala(classpath=classpath,classpath.packages=NULL,scala.info=sInfo,...)
-    assign("sIsForced",TRUE,envir=get(".rscalaPackageEnv",envir=env))
-    if ( length(snippet) > 0 ) s %@% snippet
-    s
-  }, assign.env=env)
+  callback <- function() { assign("sIsForced",TRUE,envir=get(".rscalaPackageEnv",envir=env)); cat("Hit me!\n") }
+  scala(classpath.packages=c(pkgname,classpath.packages),mode=mode,assign.env=env,callback=callback,...)
   invisible()
 }
 
