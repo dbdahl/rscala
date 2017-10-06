@@ -49,7 +49,7 @@
 
 %% almost as usual
 \author{David B.\ Dahl\\Brigham Young University}
-\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.4.0,\ \ Document ID: 2017-09-27}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
+\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.4.1-SNAPSHOT,\ \ Document ID: 2017-10-06}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
 
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{David B. Dahl} %% comma-separated
@@ -324,8 +324,12 @@ scalaInfo(verbose=TRUE)
 
 The \code{scala} function includes parameters to specify which \Scala
 installation to use, the class path, whether matrices are in row-major or
-column-major order, and several other settings. Details on this and all other
-functions are provided in the \R documentation for the package (e.g.,
+column-major order, and several other settings.  The functions \code{scala2}
+and \code{scala3} are equivalent to \code{scala} except they change the default
+arguments to return without blocking and assign the interpreter implicitly as a
+promise.  There is no practical difference for \R scripts, but interative users
+may notice that \code{scala2} feels faster.  Details on this and all
+other functions are provided in the \R documentation for the package (e.g.,
 \code{help(scala)}).
 
 A \Scala session is only valid during the \R session in which it is created and
@@ -1144,7 +1148,7 @@ timings <- cbind(timings[,c("expr")],c("rJava","rscala"),timings[,c("lq","mean",
 colnames(timings) <- c("Expression","Package","Q1","Mean","Median","Q3")
 xtab <- xtable(timings, label="overhead")
 caption(xtab) <- paste0("Comparison of execution time of various ways to call the \\code{nextGaussian} method of an instance of the \\code{scala.util.Random} class.  Since the method itself is relatively fast, the timings here are an indication of the overhead involved with the various techniques.  Each expression was evaluated ",reps," times and the results are in ",units,".")
-print(xtab,include.rownames=FALSE,booktabs=TRUE)
+print(xtab,include.rownames=FALSE,booktabs=TRUE,table.placement="t")
 @
 
 The results in Table \ref{overhead} indicate that \rJava's \code{.jcall}
@@ -1235,16 +1239,6 @@ on \R's random number seed.
 }
 @
 
-A package's embedded \Scala instance should be terminated when the package is
-unloaded by calling the \code{.rscalaPackageUnload} function in the
-\code{.onUnload} hook as shown here.
-
-<<onUnload, eval=FALSE>>=
-.onUnload <- function(libpath) {
-  .rscalaPackageUnload()
-}
-@
-
 Because \rscala's syntax for calling precompiled code is very similar to
 \rJava's high-level \code{\$} operator, developing a package based on \rscala
 can be very familiar to those accustomed to \rJava.  Take, for example, CRAN's
@@ -1304,7 +1298,7 @@ application, simply add the following line to SBT's \code{build.sbt} file.
 % features and provides familiar Javadoc to \Java developers.
 
 <<sbt, engine="scala",eval=FALSE>>=
-libraryDependencies += "org.ddahl" %% "rscala" % "2.4.0"
+libraryDependencies += "org.ddahl" %% "rscala" % "2.4.1"
 @
 
 Note that, since the necessary \R code is bundled in the JAR file, the \rscala
@@ -1550,12 +1544,11 @@ over the TCP/IP bridge.
 % \label{mcmcSimulated}
 % \end{table}
 
-\clearpage
 \section[Case study: Simulation study accelerated with rscala]{Case study: Simulation study accelerated with \rscala}
 \label{bootstrap}
 
 While the previously mentioned \pkg{shallot} and \pkg{bamboo} packages demonstrate the
-ability to develop packages based on \rscala, we demonstrate in this section
+ability to develop packages based on \rscala, we now demonstrate 
 the ease with which computationally-intensive statistical procedures can be
 implemented by embedding \Scala code in an \R script.  The algorithm is
 embarrassingly parallel and we consider two means of parallelization: one using
