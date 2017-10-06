@@ -1,6 +1,6 @@
 ## Scala scripting over TCP/IP
 
-scala <- function(classpath=character(),classpath.packages=character(),serialize.output=.Platform$OS.type=="windows",scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=60,debug=FALSE,stdout=TRUE,stderr=TRUE,port=0,scala.info=NULL,major.release=c("2.10","2.11","2.12"),mode="serial",assign.name="s",assign.env=parent.frame(),snippet=character(),callback=function() {}) {
+scala <- function(classpath=character(),classpath.packages=character(),serialize.output=.Platform$OS.type=="windows",scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=60,debug=FALSE,stdout=TRUE,stderr=TRUE,port=0,scala.info=NULL,major.release=c("2.10","2.11","2.12"),mode="serial",assign.name="s",assign.env=parent.frame(),snippet=character()) {
   if ( identical(stdout,TRUE) ) stdout <- ""
   if ( identical(stderr,TRUE) ) stderr <- ""
   debug <- identical(debug,TRUE)
@@ -35,15 +35,20 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
   sInfo$command.line.options <- command.line.options
   if ( identical(mode,"serial") ) {
     system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
-    callback()
     sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
     scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
     if ( length(snippet) > 0 ) sockets %@% snippet
     sockets
   } else if ( identical(mode,"parallel") ) {
     system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
-    callback()
+    assign.name.pending <- paste0(assign.name,"--PENDING")
+    pendingEnv <- assign(assign.name.pending,new.env(parent=emptyenv()),envir=assign.env)
+    reg.finalizer(pendingEnv,function(e) {
+      s <- get(assign.name,envir=assign.env)
+      force(s)
+    },onexit=TRUE)
     delayedAssign(assign.name,{
+      rm(pendingEnv)
       sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
       scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
       if ( length(snippet) > 0 ) sockets %@% snippet
@@ -52,7 +57,6 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
   } else if ( identical(mode,"lazy") ) {
     delayedAssign(assign.name,{
       system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
-      callback()
       sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
       scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
       if ( length(snippet) > 0 ) sockets %@% snippet
@@ -96,10 +100,11 @@ newSockets <- function(portsFilename,debug,serialize.output,row.major,timeout) {
   socketConnectionIn  <- socketConnection(port=ports[1],blocking=TRUE,open="ab",timeout=2678400)
   socketConnectionOut <- socketConnection(port=ports[2],blocking=TRUE,open="rb",timeout=2678400)
   if ( debug ) msg("Connected")
-  result <- list(socketIn=socketConnectionIn,socketOut=socketConnectionOut,env=env,
-                 functionCache=functionCache,r=references,garbage=garbage,
-                 garbageFunction=function(e) uniqueName(e[['identifier']],garbage,""))
+  result <- list2env(list(socketIn=socketConnectionIn,socketOut=socketConnectionOut,env=env,
+                          functionCache=functionCache,r=references,garbage=garbage,
+                          garbageFunction=function(e) uniqueName(e[['identifier']],garbage,"")))
   class(result) <- "ScalaInterpreter"
+  reg.finalizer(result,closeInterpreter,onexit=TRUE)
   status <- rb(result,"integer")
   if ( ( length(status) == 0 ) || ( status != OK ) ) stop("Error instantiating interpreter.")
   result
@@ -558,14 +563,18 @@ scalap <- function(interpreter,class.name) {
   })
 }
 
-close.ScalaInterpreter <- function(con,...) {
-  cc(con)
-  assign("open",FALSE,envir=con[['env']])
+closeInterpreter <- function(con) {
   if ( get("debug",envir=con[['env']]) ) msg("Sending SHUTDOWN request.")
   wb(con,SHUTDOWN)
   flush(con[['socketIn']])
   close(con[['socketOut']])
   close(con[['socketIn']])
+}
+
+close.ScalaInterpreter <- function(con,...) {
+  cc(con)
+  assign("open",FALSE,envir=con[['env']])
+  closeInterpreter(con)
 }
 
 jarsOfPackage <- function(pkgname, major.release) {
@@ -579,20 +588,12 @@ jarsOfPackage <- function(pkgname, major.release) {
 .rscalaPackage <- function(pkgname, classpath.packages=character(), mode="parallel", ...) {
   if ( identical(mode,"serial") ) stop('Mode "serial" is not supported for packages, but the same effect is achieved by immediately using the promised interpreter from another mode.')
   env <- parent.env(parent.frame())    # Environment of depending package (assuming this function is only called in .onLoad function).
-  assign(".rscalaPackageEnv",new.env(parent=emptyenv()), envir=env)
-  assign("sIsForced",FALSE,envir=get(".rscalaPackageEnv",envir=env))
-  callback <- function() { assign("sIsForced",TRUE,envir=get(".rscalaPackageEnv",envir=env)); cat("Hit me!\n") }
-  scala(classpath.packages=c(pkgname,classpath.packages),mode=mode,assign.env=env,callback=callback,...)
+  scala(classpath.packages=c(pkgname,classpath.packages),mode=mode,assign.env=env,...)
   invisible()
 }
 
-.rscalaPackageUnload <- function() {
-  env <- parent.env(parent.frame())
-  sIsForced <- get("sIsForced",envir=get(".rscalaPackageEnv",envir=env))
-  if ( sIsForced ) {
-    close(get("s",envir=env))
-  }
-}
+# Kept for backwards compatibility, but deprecated.
+.rscalaPackageUnload <- function() {}
 
 .rscalaJar <- function(major.release=c("2.10","2.11","2.12")) {
   if ( length(major.release) > 1 ) {
