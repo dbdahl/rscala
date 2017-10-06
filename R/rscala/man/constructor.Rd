@@ -1,6 +1,7 @@
 \name{scala}
 \alias{scala}
 \alias{scala2}
+\alias{scala3}
 \alias{scalaInfo}
 \alias{scalaInstall}
 \alias{.rscalaJar}
@@ -19,6 +20,10 @@ interpreters can be created and each runs independently with its own memory.
 Each interpreter can use multiple threads/cores, but the bridge between \R and
 Scala is not thread-safe.  As such, multiple \R threads/cores should not
 simultaneously access the same interpreter. 
+
+The functions \code{\link{scala2}} and \code{\link{scala3}} is equivalent to
+\code{\link{scala}} except they set \code{mode="parallel"} and
+\code{mode="lazy"}, respectively.
 
 The functions \code{\link{scalaInfo}} and \code{\link{.rscalaJar}} provide file
 paths to JAR files, installation directories, the Scala executable, and this
@@ -41,9 +46,8 @@ arguments to the \code{\link{scala}} function.  This instance of Scala is
 available as the object \code{s} in the namespace of the package (thereby
 making it available to the package's function) but it is not exported from
 the namespace.  The object \code{s} is only initialized on its first usage.
-The function \code{\link{.rscalaPackageUnload}} should be called in the
-\code{.onUnload} function of a package that wishes to depend on this package so
-that \code{close(s)} is called (if needed).
+The function \code{\link{.rscalaPackageUnload}} is deprecated and is no longer
+needed for packages that depend on rscala.
 }
 \usage{
 scala(classpath=character(), classpath.packages=character(),
@@ -51,9 +55,12 @@ scala(classpath=character(), classpath.packages=character(),
       heap.maximum=NULL, command.line.options=NULL, row.major=TRUE,
       timeout=60, debug=FALSE, stdout=TRUE, stderr=TRUE, port=0,
       scala.info=NULL, major.release=c("2.10","2.11","2.12"),
-      lazy.name="", lazy.env=parent.frame())
+      mode="serial", assign.name = "s", assign.env = parent.frame(),
+      snippet = character())
 
-scala2(..., lazy.name="s")
+scala2(...)
+
+scala3(...)
 
 scalaInfo(scala.home=NULL, major.release=c("2.10","2.11","2.12"),
           verbose=FALSE)
@@ -62,9 +69,7 @@ scalaInstall(major.release=c("2.10","2.11","2.12"), global=FALSE)
 
 .rscalaJar(major.release=c("2.10","2.11","2.12"))
 
-.rscalaPackage(pkgname, snippet=character(), classpath.packages=character(),
-               classpath.prepend=character(), classpath.append=character(),
-               major.release=c("2.10","2.11","2.12"), ...)
+.rscalaPackage(pkgname, classpath.packages=character(), mode=parallel, ...)
 
 .rscalaPackageUnload()
 }
@@ -72,7 +77,7 @@ scalaInstall(major.release=c("2.10","2.11","2.12"), global=FALSE)
     \item{classpath}{A character vector whose elements are paths to JAR files or directories which specify the classpath for the Scala compiler/interpreter.}
     \item{classpath.packages}{A character vector giving names of other installed packages whose JAR files should be appended to the classpath.}
     \item{serialize.output}{Should standard output (stdout) and standard error (stderr) be captured and serialized back to R?  The default is \code{TRUE} on Windows and \code{FALSE} on other operating systems.  \code{FALSE} requires less computing and is usually not necessary on Linux and Mac OS X.  Depending on the environment and operating system in which R is run, \code{TRUE} may be needed to see output and error messages.}
-    \item{scala.home}{A character vector of length one giving the path where Scala is installed.  When set to \code{NULL} (the default), the function sequentially tries to find the Scala home by:  i. querying the glocal option \var{rscala.scala.home}, ii. using the environment variable \code{SCALA_HOME}, iii. querying the operating system search path, and iv. looking in subdirectories of \code{~/.rscala}.  If all these fail, the function displaces a message to help the user install Scala.  Alternatively, in the class of \code{\link{scalaInfo}}, \code{scala.home} may also be the result of the \code{\link{scala}} function.}
+    \item{scala.home}{A character vector of length one giving the path where Scala is installed.  When set to \code{NULL} (the default), the function sequentially tries to find the Scala home by:  i. querying the global option \var{rscala.scala.home}, ii. using the environment variable \code{SCALA_HOME}, iii. querying the operating system search path, and iv. looking in subdirectories of \code{~/.rscala}.  If all these fail, the function displaces a message to help the user install Scala.  Alternatively, in the class of \code{\link{scalaInfo}}, \code{scala.home} may also be the result of the \code{\link{scala}} function.}
     \item{heap.maximum}{A character vector of length one used to specify the maximum heap size in the JVM.  If \code{NULL}, the global option \var{rscala.heap.maximum} is queried and, if that is also \code{NULL}, Scala's default value is used.  This option is ignored if \var{command.line.options} is not null.}
     \item{command.line.options}{A character vector whose elements are passed as command line arguments when invoking Scala.  If \code{NULL}, the global option \var{rscala.command.line.options} is queried and, if that is also \code{NULL}, the value is set to \code{NULL}.  A value of \code{NULL} means no extra arguments are provided.  If you simply want to add to the classpath and/or set the maximum heap size, use the \var{classpath} and \var{heap.maximum} arguments.}
     \item{row.major}{Should matrices in Scala be row major?}
@@ -83,13 +88,12 @@ scalaInstall(major.release=c("2.10","2.11","2.12"), global=FALSE)
     \item{scala.info}{The result of a previous call to \code{\link{scalaInfo}}.}
     \item{verbose}{A logical vector of length one indicating whether information regarding the search for the Scala installation should be displayed.}
     \item{major.release}{The character vector giving acceptable major.release numbers (e.g., c("2.10","2.11","2.12")), or \code{NA} in which case the system picks the appropriate version.}
-    \item{lazy.name}{If \code{""}, a Scala interpreter is returned once the connection is initialized.  Otherwise, \code{NULL} is immediately returned and the interpreter (with the identifier given by \code{lazy.name}) is available as a promise.}
-    \item{lazy.env}{The environment in which the promise for the interpreter should be assigned.}
+    \item{mode}{One of \code{"serial"}, \code{"parallel"}, or \code{"lazy"} to indicate how the R/Scala connection is established.  \code{"serial"} starts Scala in the background, blocks until the connection is established, and causes the function to return the interpreter.  \code{"parallel"} starts Scala in the background whereas \code{"lazy"} only starts Scala if and when the interpreter is first used.  Both \code{"parallel"} and \code{"lazy"} cause the function to return \code{NULL} and makes the interpreter (with the identifier given by \code{assign.name}) available as a promise.}
+    \item{assign.name}{If \code{mode != "serial"}, the name of the (promise of the) interpreter.}
+    \item{assign.env}{If \code{mode != "serial"}, the environment in which the (promise of the) interpreter is assigned.}
     \item{global}{Should the Scala installation be global, specifically inside the package's directory?  This may require administrator privileges.}
     \item{pkgname}{A character string giving the name of the package (as provided the second argument of the \code{.onLoad} function) that wishes to depend on this package.}
     \item{snippet}{A character vector providing Scala code that will be evaluated when the interpreter in the package namespace is first used.}
-    \item{classpath.prepend}{A character vector giving the full path to JAR files to add to the \emph{beginning} of the classpath for the Scala compiler/interpreter embedded within a package via the \code{\link{.rscalaPackage}} function.  The JAR files in the package's \sQuote{java} directory are already included and do not need to be added here.}
-    \item{classpath.append}{A character vector giving the full path to JAR files to add to the \emph{end} of the classpath for the Scala compiler/interpreter embedded within a package via the \code{\link{.rscalaPackage}} function.  The JAR files in the package's \sQuote{java} directory are already included and do not need to be added here.}
     \item{...}{These arguments are passed by the \code{\link{.rscalaPackage}} function to the \code{\link{scala}} function.}
 }
 \value{
