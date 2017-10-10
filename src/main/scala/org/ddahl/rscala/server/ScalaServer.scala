@@ -9,18 +9,21 @@ import java.nio.ByteBuffer
 import org.ddahl.rscala._
 import Protocol._
  
-class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutputStream, baosErr: ByteArrayOutputStream, portFilename: String, debugger: Debugger, serializeOutput: Boolean, rowMajor: Boolean, port: Int, bufferSize: Int, prioritizeConnect: Boolean) {
+class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutputStream, baosErr: ByteArrayOutputStream, snippetFilename: String, portsFilename: String, debugger: Debugger, serializeOutput: Boolean, rowMajor: Boolean, port: Int, bufferSize: Int, prioritizeConnect: Boolean) {
 
   private val R = RClient(this,null,null,debugger,serializeOutput,rowMajor)
 
   def initialInterpret() {
-    if ( repl.interpret("import org.ddahl.rscala.{EphemeralReference, PersistentReference}") != Success ) sys.error("Problem interpreting import statement.")
-    if ( repl.bind("R","org.ddahl.rscala.RClient",R) != Success ) sys.error("Problem binding R.")
+    val bufferedSource = scala.io.Source.fromFile(snippetFilename)
+    val snippet = "import org.ddahl.rscala.{EphemeralReference, PersistentReference}\n" + bufferedSource.getLines.mkString("\n")
+    bufferedSource.close
+    if ( repl.interpret(snippet) != Success ) sys.error("Problem interpreting initial snippet.  Interpreter is dead.")
+    if ( repl.bind("R","org.ddahl.rscala.RClient",R) != Success ) sys.error("Problem binding R.  Interpreter is dead.")
   }
 
   if ( ! prioritizeConnect ) initialInterpret()
 
-  private val socket = new ScalaSocket(portFilename,port,bufferSize,debugger)
+  private val socket = new ScalaSocket(portsFilename,port,bufferSize,debugger)
   socket.putScalarInt(OK)
   socket.flush()
 
@@ -456,7 +459,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
 
 object ScalaServer {
 
-  def apply(portFilename: String, debug: Boolean = false, serializeOutput: Boolean = false, rowMajor: Boolean = true, port: Int = 0, prioritizeConnect: Boolean = true): ScalaServer = {
+  def apply(snippetFilename: String, portsFilename: String, debug: Boolean = false, serializeOutput: Boolean = false, rowMajor: Boolean = true, port: Int = 0, prioritizeConnect: Boolean = true): ScalaServer = {
     // Set classpath
     val settings = new Settings()
     settings.embeddedDefaults[RClient]
@@ -505,7 +508,7 @@ object ScalaServer {
     // iloop.intp = intp
     // iloop.verbosity()
     // Return the server
-    new ScalaServer(intp, prntWrtr, baosOut, baosErr, portFilename, debugger, serializeOutput, rowMajor, port, 1*1024*1024, prioritizeConnect)
+    new ScalaServer(intp, prntWrtr, baosOut, baosErr, snippetFilename, portsFilename, debugger, serializeOutput, rowMajor, port, 1*1024*1024, prioritizeConnect)
   }
 
 }

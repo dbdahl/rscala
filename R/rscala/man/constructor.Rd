@@ -22,8 +22,8 @@ Scala is not thread-safe.  As such, multiple \R threads/cores should not
 simultaneously access the same interpreter. 
 
 The functions \code{\link{scala2}} and \code{\link{scala3}} is equivalent to
-\code{\link{scala}} except they set \code{mode="parallel"} and
-\code{mode="lazy"}, respectively.
+\code{\link{scala}} except they set \code{mode="lazy"} and
+\code{mode="serial"}, respectively.
 
 The functions \code{\link{scalaInfo}} and \code{\link{.rscalaJar}} provide file
 paths to JAR files, installation directories, the Scala executable, and this
@@ -53,9 +53,9 @@ needed for packages that depend on rscala.
 scala(classpath=character(), classpath.packages=character(),
       serialize.output=.Platform$OS.type=="windows", scala.home=NULL,
       heap.maximum=NULL, command.line.options=NULL, row.major=TRUE,
-      timeout=60, debug=FALSE, stdout=TRUE, stderr=TRUE, port=0,
+      timeout=30, debug=FALSE, stdout=TRUE, stderr=TRUE, port=0,
       scala.info=NULL, major.release=c("2.10","2.11","2.12"),
-      mode="serial", assign.name = "s", assign.env = parent.frame(),
+      mode="parallel", assign.name = "s", assign.env = parent.frame(),
       snippet = character())
 
 scala2(...)
@@ -69,7 +69,7 @@ scalaInstall(major.release=c("2.10","2.11","2.12"), global=FALSE)
 
 .rscalaJar(major.release=c("2.10","2.11","2.12"))
 
-.rscalaPackage(pkgname, classpath.packages=character(), mode=parallel, ...)
+.rscalaPackage(pkgname, classpath.packages=character(), ...)
 
 .rscalaPackageUnload()
 }
@@ -81,14 +81,14 @@ scalaInstall(major.release=c("2.10","2.11","2.12"), global=FALSE)
     \item{heap.maximum}{A character vector of length one used to specify the maximum heap size in the JVM.  If \code{NULL}, the global option \var{rscala.heap.maximum} is queried and, if that is also \code{NULL}, Scala's default value is used.  This option is ignored if \var{command.line.options} is not null.}
     \item{command.line.options}{A character vector whose elements are passed as command line arguments when invoking Scala.  If \code{NULL}, the global option \var{rscala.command.line.options} is queried and, if that is also \code{NULL}, the value is set to \code{NULL}.  A value of \code{NULL} means no extra arguments are provided.  If you simply want to add to the classpath and/or set the maximum heap size, use the \var{classpath} and \var{heap.maximum} arguments.}
     \item{row.major}{Should matrices in Scala be row major?}
-    \item{timeout}{A numeric vector of length one giving the number of seconds to wait for Scala to start before aborting.  The default value is \code{60} seconds.}
+    \item{timeout}{A numeric vector of length one giving the number of seconds to wait for Scala to start before aborting.}
     \item{debug}{An option meant only for developers of the package itself and not intended for users of the package.}
     \item{stdout, stderr}{Where standard output and standard error results that are not serialized should be sent.  \code{TRUE} (the default) or \code{""} sends output to the R console (although that may not work on Windows).  \code{FALSE} or \code{NULL} discards the output.  Otherwise, this is the name of the file that receives the output.}
     \item{port}{If \code{0}, two random ports are selected.  Otherwise, \code{port} and \code{port+1} are used to the TCP/IP connections.}
     \item{scala.info}{The result of a previous call to \code{\link{scalaInfo}}.}
     \item{verbose}{A logical vector of length one indicating whether information regarding the search for the Scala installation should be displayed.}
     \item{major.release}{The character vector giving acceptable major.release numbers (e.g., c("2.10","2.11","2.12")), or \code{NA} in which case the system picks the appropriate version.}
-    \item{mode}{One of \code{"serial"}, \code{"parallel"}, or \code{"lazy"} to indicate how the R/Scala connection is established.  \code{"serial"} starts Scala in the background, blocks until the connection is established, and causes the function to return the interpreter.  \code{"parallel"} starts Scala in the background whereas \code{"lazy"} only starts Scala if and when the interpreter is first used.  Both \code{"parallel"} and \code{"lazy"} cause the function to return \code{NULL} and makes the interpreter (with the identifier given by \code{assign.name}) available as a promise.}
+    \item{mode}{One of \code{"parallel"}, \code{"lazy"}, or \code{"serial"} to indicate how the R/Scala connection is established.  \code{"serial"} starts Scala in the background, blocks until the connection is established, and causes the function to return the interpreter.  \code{"parallel"} starts Scala in the background whereas \code{"lazy"} only starts Scala if and when the interpreter is first used.  Both \code{"parallel"} and \code{"lazy"} cause the function to return \code{NULL} and makes the interpreter (with the identifier given by \code{assign.name}) available as a promise.}
     \item{assign.name}{If \code{mode != "serial"}, the name of the (promise of the) interpreter.}
     \item{assign.env}{If \code{mode != "serial"}, the environment in which the (promise of the) interpreter is assigned.}
     \item{global}{Should the Scala installation be global, specifically inside the package's directory?  This may require administrator privileges.}

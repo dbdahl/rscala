@@ -300,15 +300,17 @@ library('rscala')
 Create a \Scala instance using the \code{scala} function:
 
 <<instantiateInterpreter,eval=FALSE>>=
-s <- scala()
+scala()
 @
 
 <<instantiateInterpreterHidden,eval=TRUE,include=FALSE>>=
 set.seed(2234)
-s <- scala(serialize.output=TRUE)
+scala(serialize.output=TRUE)
 s %@% 'scala.util.Random.setSeed(3242)'
 @
 
+This makes the interpreter \code{s} available in the current
+environment.  (The name can be customized with the \code{assign.name} option of the \code{scala} function.)
 Information on the \Scala instance \code{s} is available using
 
 <<scalaInfo,eval=FALSE>>=
@@ -325,10 +327,10 @@ scalaInfo(verbose=TRUE)
 The \code{scala} function includes parameters to specify which \Scala
 installation to use, the class path, whether matrices are in row-major or
 column-major order, and several other settings.  The functions \code{scala2}
-and \code{scala3} are equivalent to \code{scala} except they change the default
-arguments to return without blocking and assign the interpreter implicitly as a
-promise.  There is no practical difference for \R scripts, but interative users
-may notice that \code{scala2} feels faster.  Details on this and all
+and \code{scala3} are equivalent to \code{scala} except they change the \code{mode}
+option to customize how the bridge between \Scala and \R is established.
+There is no practical difference for \R scripts, but interative users
+may notice that \code{scala} feels faster.  Details on this and all
 other functions are provided in the \R documentation for the package (e.g.,
 \code{help(scala)}).
 

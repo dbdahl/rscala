@@ -15,7 +15,7 @@ alpha   <- 0.05
 #### rscala implementation #1
 
 library(rscala)
-s <- scala()
+scala()
 
 coverage.rscala1 <- function(sampler=NULL, n=0L, truth=0, prob1=0.0, prob2=0.0,
                              nSamples=1000L, alpha=0.05, nIntervals=1000L) {
@@ -65,7 +65,7 @@ cluster <- makeCluster(detectCores())
 
 clusterEvalQ(cluster, {
   library(rscala)
-  s <- scala()
+  scala()
   ciContains.rscala2 <- function(sampler=NULL, n=0L, truth=0, prob1=0.0, prob2=0.0,
                                  nSamples=1000L, alpha=0.05) {
     s %!% '
