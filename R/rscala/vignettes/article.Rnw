@@ -49,7 +49,7 @@
 
 %% almost as usual
 \author{David B.\ Dahl\\Brigham Young University}
-\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.4.1-SNAPSHOT,\ \ Document ID: 2017-10-06}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
+\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.5.0,\ \ Document ID: 2017-10-10}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
 
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{David B. Dahl} %% comma-separated
@@ -309,7 +309,7 @@ scala(serialize.output=TRUE)
 s %@% 'scala.util.Random.setSeed(3242)'
 @
 
-This makes the interpreter \code{s} available in the current
+This implicitly makes the interpreter \code{s} available in the current
 environment.  (The name can be customized with the \code{assign.name} option of the \code{scala} function.)
 Information on the \Scala instance \code{s} is available using
 
@@ -329,7 +329,7 @@ installation to use, the class path, whether matrices are in row-major or
 column-major order, and several other settings.  The functions \code{scala2}
 and \code{scala3} are equivalent to \code{scala} except they change the \code{mode}
 option to customize how the bridge between \Scala and \R is established.
-There is no practical difference for \R scripts, but interative users
+There is no practical difference for \R scripts, but interactive users
 may notice that \code{scala} feels faster.  Details on this and all
 other functions are provided in the \R documentation for the package (e.g.,
 \code{help(scala)}).
@@ -1300,7 +1300,7 @@ application, simply add the following line to SBT's \code{build.sbt} file.
 % features and provides familiar Javadoc to \Java developers.
 
 <<sbt, engine="scala",eval=FALSE>>=
-libraryDependencies += "org.ddahl" %% "rscala" % "2.4.1"
+libraryDependencies += "org.ddahl" %% "rscala" % "2.5.0"
 @
 
 Note that, since the necessary \R code is bundled in the JAR file, the \rscala

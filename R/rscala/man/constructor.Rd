@@ -30,7 +30,7 @@ paths to JAR files, installation directories, the Scala executable, and this
 package.  Note that if you only want to embed R in a Scala application, you do
 not need to install the package. Simply add the following line to the your SBT
 build.sbt file: \sQuote{libraryDependencies += "org.ddahl" %% "rscala" %
-"_VERSION_"}, where _VERSION_ is the rscala version number (i.e., 2.4.0).
+"_VERSION_"}, where _VERSION_ is the rscala version number (i.e., 2.5.0).
 
 \code{\link{scalaInstall}} downloads and installs Scala in \dQuote{~/.rscala}
 in the user's home directory.  System administrators can install Scala
@@ -121,7 +121,7 @@ scalaInfo(verbose=TRUE)
 
 \donttest{
 # Make an instance of the Scala interpreter 's' and see how its output is captured.
-scala2(serialize.output=TRUE)
+scala(serialize.output=TRUE)
 capture.output(s \%~\% 'println("This is Scala "+scala.util.Properties.versionString)')
 scalaSettings(s)
 
