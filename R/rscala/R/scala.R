@@ -36,22 +36,25 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
   sInfo$classpath <- rsClasspath
   sInfo$command.line.options <- command.line.options
   if ( identical(mode,"serial") ) {
-    startScalaServer(sInfo$cmd,args,stdout,stderr,snippetFilename,assign.env)
+    cmdEnv <- startScalaServer(sInfo$cmd,args,stdout,stderr,snippetFilename,assign.env)
     sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
     scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
+    assign("connected",TRUE,envir=cmdEnv)
     sockets
   } else if ( identical(mode,"parallel") ) {
-    startScalaServer(sInfo$cmd,args,stdout,stderr,snippetFilename,assign.env)
+    cmdEnv <- startScalaServer(sInfo$cmd,args,stdout,stderr,snippetFilename,assign.env)
     delayedAssign(assign.name,{
       sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
       scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
+      assign("connected",TRUE,envir=cmdEnv)
       sockets
     },assign.env=assign.env)
   } else if ( identical(mode,"lazy") ) {
     delayedAssign(assign.name,{
-      startScalaServer(sInfo$cmd,args,stdout,stderr,snippetFilename,assign.env)
+      cmdEnv <- startScalaServer(sInfo$cmd,args,stdout,stderr,snippetFilename,assign.env)
       sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
       scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
+      assign("connected",TRUE,envir=cmdEnv)
       sockets
     },assign.env=assign.env)
   } else stop("Unrecognized mode.")
@@ -68,10 +71,20 @@ scala3 <- function(...) {
 startScalaServer <- function(cmd,args,stdout,stderr,snippetFilename,assign.env) {
   system2(cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
   name <- paste0(".",snippetFilename)
-  assign(name,new.env(parent=emptyenv()),envir=assign.env)
-  reg.finalizer(get(name,envir=assign.env),function(e) {
+  env <- new.env(parent=emptyenv())
+  assign("connected",FALSE,envir=env)
+  assign(name,env,envir=assign.env)
+  reg.finalizer(env,function(e) {
     file.remove(snippetFilename)
+    # If its already connected, then the finalizer for the interpreter will close it quickly.
+    # Otherwise, Scala itself will recognize that it needs to quit when the snippet file is deleted.
+    # Most platforms are okay will Scala sticking around for a few seconds after R exits.
+    # But, on Windows, package checks require that the Scala process be finished before R exits.
+    if ( ( ! get("connected",envir=e) ) && ( identical(.Platform$OS.type,"windows") ) ) {
+      Sys.sleep(15)
+    }
   },onexit=TRUE)
+  env
 }
 
 newSockets <- function(portsFilename,debug,serialize.output,row.major,timeout) {
@@ -591,7 +604,7 @@ jarsOfPackage <- function(pkgname, major.release) {
 .rscalaPackage <- function(pkgname, classpath.packages=character(), ...) {
   if ( identical(mode,"serial") ) stop('Mode "serial" is not supported for packages, but the same effect is achieved by immediately using the promised interpreter from another mode.')
   env <- parent.env(parent.frame())    # Environment of depending package (assuming this function is only called in .onLoad function).
-  scala(classpath.packages=c(pkgname,classpath.packages),mode=mode,assign.env=env,...)
+  scala(classpath.packages=c(pkgname,classpath.packages),assign.env=env,...)
   invisible()
 }
 

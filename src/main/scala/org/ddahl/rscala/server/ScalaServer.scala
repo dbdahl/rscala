@@ -14,11 +14,16 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
   private val R = RClient(this,null,null,debugger,serializeOutput,rowMajor)
 
   def initialInterpret() {
-    val bufferedSource = scala.io.Source.fromFile(snippetFilename)
-    val snippet = "import org.ddahl.rscala.{EphemeralReference, PersistentReference}\n" + bufferedSource.getLines.mkString("\n")
-    bufferedSource.close
-    if ( repl.interpret(snippet) != Success ) sys.error("Problem interpreting initial snippet.  Interpreter is dead.")
     if ( repl.bind("R","org.ddahl.rscala.RClient",R) != Success ) sys.error("Problem binding R.  Interpreter is dead.")
+    val snippet = try {
+      val bufferedSource = scala.io.Source.fromFile(snippetFilename)
+      val snip = "import org.ddahl.rscala.{EphemeralReference, PersistentReference}\n" + bufferedSource.getLines.mkString("\n")
+      bufferedSource.close
+      snip
+    } catch {
+      case _: Throwable => sys.exit(1)
+    }
+    if ( repl.interpret(snippet) != Success ) sys.error("Problem interpreting initial snippet.  Interpreter is dead.")
   }
 
   if ( ! prioritizeConnect ) initialInterpret()

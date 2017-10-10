@@ -6,9 +6,10 @@ object Main extends App {
   object killer extends Thread {
     override def run() {
       val snippetFilename = new java.io.File(args(0))
-      // Check every 20 seconds.
-      while ( snippetFilename.exists ) Thread.sleep(20*1000)
-      sys.exit(0)
+      // Check every 10 seconds.
+      val millis = 10*1000
+      while ( snippetFilename.exists ) Thread.sleep(millis)
+      sys.exit(1)
     }
   }
   killer.setDaemon(true)
