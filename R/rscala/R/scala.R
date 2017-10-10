@@ -35,14 +35,17 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
   if ( debug ) msg("\n",paste0("<",args,">",collapse="\n"))
   sInfo$classpath <- rsClasspath
   sInfo$command.line.options <- command.line.options
+  cmdEnv <- new.env(parent=emptyenv())
+  assign("connected",FALSE,envir=cmdEnv)
+  assign(paste0(".",snippetFilename),cmdEnv,envir=assign.env)
   if ( identical(mode,"serial") ) {
-    cmdEnv <- startScalaServer(sInfo$cmd,args,stdout,stderr,snippetFilename,assign.env)
+    startScalaServer(sInfo$cmd,args,stdout,stderr,snippetFilename,assign.env)
     sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
     scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
     assign("connected",TRUE,envir=cmdEnv)
     sockets
   } else if ( identical(mode,"parallel") ) {
-    cmdEnv <- startScalaServer(sInfo$cmd,args,stdout,stderr,snippetFilename,assign.env)
+    startScalaServer(sInfo$cmd,args,stdout,stderr,snippetFilename,assign.env)
     delayedAssign(assign.name,{
       sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
       scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
@@ -51,7 +54,7 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
     },assign.env=assign.env)
   } else if ( identical(mode,"lazy") ) {
     delayedAssign(assign.name,{
-      cmdEnv <- startScalaServer(sInfo$cmd,args,stdout,stderr,snippetFilename,assign.env)
+      startScalaServer(sInfo$cmd,args,stdout,stderr,snippetFilename,assign.env)
       sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
       scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
       assign("connected",TRUE,envir=cmdEnv)
@@ -68,13 +71,9 @@ scala3 <- function(...) {
   scala(...,mode="serial",assign.env=parent.frame())
 }
 
-startScalaServer <- function(cmd,args,stdout,stderr,snippetFilename,assign.env) {
+startScalaServer <- function(cmd,args,stdout,stderr,snippetFilename,cmdEnv) {
   system2(cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
-  name <- paste0(".",snippetFilename)
-  env <- new.env(parent=emptyenv())
-  assign("connected",FALSE,envir=env)
-  assign(name,env,envir=assign.env)
-  reg.finalizer(env,function(e) {
+  reg.finalizer(cmdEnv,function(e) {
     file.remove(snippetFilename)
     # If its already connected, then the finalizer for the interpreter will close it quickly.
     # Otherwise, Scala itself will recognize that it needs to quit when the snippet file is deleted.
@@ -84,7 +83,6 @@ startScalaServer <- function(cmd,args,stdout,stderr,snippetFilename,assign.env) 
       Sys.sleep(15)
     }
   },onexit=TRUE)
-  env
 }
 
 newSockets <- function(portsFilename,debug,serialize.output,row.major,timeout) {

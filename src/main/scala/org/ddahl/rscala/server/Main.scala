@@ -9,7 +9,7 @@ object Main extends App {
       // Check every 10 seconds.
       val millis = 10*1000
       while ( snippetFilename.exists ) Thread.sleep(millis)
-      sys.exit(1)
+      sys.exit(0)
     }
   }
   killer.setDaemon(true)

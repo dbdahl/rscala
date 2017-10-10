@@ -26,7 +26,7 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
     }
     if ( debugger.value ) debugger.msg("Server is running on ports " + sscIn.socket.getLocalPort +" and " + sscOut.socket.getLocalPort)
   } catch {
-    case _: Throwable => sys.exit(1)
+    case _: Throwable => sys.exit(0)
   }
 
   private val scIn = sscIn.accept()

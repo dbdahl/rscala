@@ -21,7 +21,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
       bufferedSource.close
       snip
     } catch {
-      case _: Throwable => sys.exit(1)
+      case _: Throwable => sys.exit(0)
     }
     if ( repl.interpret(snippet) != Success ) sys.error("Problem interpreting initial snippet.  Interpreter is dead.")
   }
