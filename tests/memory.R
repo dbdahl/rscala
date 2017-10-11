@@ -1,6 +1,5 @@
 heap.maximum <- "192M"
 source("common.R",print.eval=TRUE)
-
 tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 close(s)
 cat("----\n")
@@ -11,21 +10,23 @@ tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 close(s)
 cat("----\n")
 
-options(rscala.heap.maximum="64M")
+heap.maximum <- "64M"
 source("common.R",print.eval=TRUE)
 tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 close(s)
 cat("----\n")
 
-options(rscala.heap.maximum="128M")
+heap.maximum <- "128M"
 source("common.R",print.eval=TRUE)
 for ( i in 1:2000 ) {
-  a <- s$".Array[Double]"$new(200000L)  # No memory problems
+  cat(i,"\n")
+  a <- s$".Array[Double]"$new(200000L)      # No memory problems
 }
 
 tryCatch({
 for ( i in 1:2000 ) {
-  s %~% "new Array[Double](200000)"           # Memory problems
+  cat(i,"\n")
+  a <- s %~% "new Array[Double](200000)"    # Memory problems
 }
 },error=function(e) e)
 
