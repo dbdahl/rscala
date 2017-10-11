@@ -49,7 +49,7 @@
 
 %% almost as usual
 \author{David B.\ Dahl\\Brigham Young University}
-\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.5.0,\ \ Document ID: 2017-10-10}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
+\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.5.0,\ \ Document ID: 2017-10-11}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
 
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{David B. Dahl} %% comma-separated
@@ -1182,9 +1182,9 @@ the package's name.  The \code{onLoad} function may be as simple as
 @
 
 The \code{.rscalaPackage} function binds a \Scala instance to the identifier
-\code{s} in the package's namespace using \R's \code{delayedAssign} function.
-This ensures that the start-up cost of instantiating a \Scala instance is only
-incurred when \code{s} is first used.  At that time, if \Scala itself is not
+\code{s} in the package's namespace using the \code{scala} function with \code{mode="parallel"}.
+This instantiates a \Scala interpreter in the background and therefore has minimal delay
+when the interpreter \code{s} is first used.  If, however, \Scala itself is not
 already installed, the user is asked for permission to download and install
 \Scala (using the \code{scalaInstall} function).  Analogous to \rJava's
 \code{.jpackage} function, the \code{.rscalaPackage} function adds the JAR

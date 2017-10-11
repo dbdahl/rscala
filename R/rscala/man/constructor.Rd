@@ -55,8 +55,8 @@ scala(classpath=character(), classpath.packages=character(),
       heap.maximum=NULL, command.line.options=NULL, row.major=TRUE,
       timeout=30, debug=FALSE, stdout=TRUE, stderr=TRUE, port=0,
       scala.info=NULL, major.release=c("2.10","2.11","2.12"),
-      mode="parallel", assign.name = "s", assign.env = parent.frame(),
-      snippet = character())
+      mode="parallel", assign.name="s", assign.env=parent.frame(),
+      snippet=character())
 
 scala2(...)
 
@@ -97,7 +97,9 @@ scalaInstall(major.release=c("2.10","2.11","2.12"), global=FALSE)
     \item{...}{These arguments are passed by the \code{\link{.rscalaPackage}} function to the \code{\link{scala}} function.}
 }
 \value{
-    \code{\link{scala}} returns an \R object representing an embedded Scala interpreter.  Or, if \code{lazy.name != ""}), \code{NULL} is returned but there is side effect of creating a promise for an interpreter.
+    \code{link{scala}} and \code{link{scala2}} return \code{NULL} but have the side effect of creating (a promise for) an \R object representing an embedded Scala interpreter.
+
+    \code{\link{scala3}} returns an \R object representing an embedded Scala interpreter.
 
     \code{\link{scalaInfo}} returns a list detailing the Scala executable, version, jars, etc.
 }
