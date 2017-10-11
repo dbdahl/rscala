@@ -39,13 +39,13 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
   assign("connected",FALSE,envir=cmdEnv)
   assign(paste0(".",snippetFilename),cmdEnv,envir=assign.env)
   if ( identical(mode,"serial") ) {
-    startScalaServer(sInfo$cmd,args,stdout,stderr,snippetFilename,assign.env)
+    startScalaServer(sInfo$cmd,args,stdout,stderr,snippetFilename,cmdEnv)
     sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
     scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
     assign("connected",TRUE,envir=cmdEnv)
     sockets
   } else if ( identical(mode,"parallel") ) {
-    startScalaServer(sInfo$cmd,args,stdout,stderr,snippetFilename,assign.env)
+    startScalaServer(sInfo$cmd,args,stdout,stderr,snippetFilename,cmdEnv)
     delayedAssign(assign.name,{
       sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
       scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
@@ -54,7 +54,7 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
     },assign.env=assign.env)
   } else if ( identical(mode,"lazy") ) {
     delayedAssign(assign.name,{
-      startScalaServer(sInfo$cmd,args,stdout,stderr,snippetFilename,assign.env)
+      startScalaServer(sInfo$cmd,args,stdout,stderr,snippetFilename,cmdEnv)
       sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
       scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
       assign("connected",TRUE,envir=cmdEnv)
