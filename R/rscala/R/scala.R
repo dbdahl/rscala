@@ -86,7 +86,6 @@ startScalaServer <- function(cmd,args,stdout,stderr,snippetFilename,cmdEnv) {
 }
 
 newSockets <- function(portsFilename,debug,serialize.output,row.major,timeout,env) {
-  env <- new.env(parent=emptyenv())
   assign("open",TRUE,envir=env)
   assign("debug",debug,envir=env)
   assign("rowMajor",row.major,envir=env)

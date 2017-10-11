@@ -19,7 +19,6 @@ cat("----\n")
 heap.maximum <- "128M"
 source("common.R",print.eval=TRUE)
 for ( i in 1:2000 ) {
-  cat(i,"\n")
   a <- s$".Array[Double]"$new(200000L)      # No memory problems
 }
 
