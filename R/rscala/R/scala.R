@@ -40,14 +40,14 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
   assign(paste0(".",snippetFilename),cmdEnv,envir=assign.env)
   if ( identical(mode,"serial") ) {
     startScalaServer(sInfo$cmd,args,stdout,stderr,snippetFilename,cmdEnv)
-    sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
+    sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout,cmdEnv)
     scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
     assign("connected",TRUE,envir=cmdEnv)
     sockets
   } else if ( identical(mode,"parallel") ) {
     startScalaServer(sInfo$cmd,args,stdout,stderr,snippetFilename,cmdEnv)
     delayedAssign(assign.name,{
-      sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
+      sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout,cmdEnv)
       scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
       assign("connected",TRUE,envir=cmdEnv)
       sockets
@@ -55,7 +55,7 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
   } else if ( identical(mode,"lazy") ) {
     delayedAssign(assign.name,{
       startScalaServer(sInfo$cmd,args,stdout,stderr,snippetFilename,cmdEnv)
-      sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout)
+      sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout,cmdEnv)
       scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
       assign("connected",TRUE,envir=cmdEnv)
       sockets
@@ -79,13 +79,13 @@ startScalaServer <- function(cmd,args,stdout,stderr,snippetFilename,cmdEnv) {
     # Otherwise, Scala itself will recognize that it needs to quit when the snippet file is deleted.
     # Most platforms are okay will Scala sticking around for a few seconds after R exits.
     # But, on Windows, package checks require that the Scala process be finished before R exits.
-    if ( ( ! get("connected",envir=e) ) && ( identical(.Platform$OS.type,"windows") ) ) {
-      Sys.sleep(15)
+    if ( identical(.Platform$OS.type,"windows") && ( ! get("connected",envir=e) ) && ( ! interactive() ) ) {
+      Sys.sleep(13)
     }
   },onexit=TRUE)
 }
 
-newSockets <- function(portsFilename,debug,serialize.output,row.major,timeout) {
+newSockets <- function(portsFilename,debug,serialize.output,row.major,timeout,env) {
   env <- new.env(parent=emptyenv())
   assign("open",TRUE,envir=env)
   assign("debug",debug,envir=env)
@@ -583,6 +583,11 @@ closeInterpreter <- function(con) {
     flush(con[['socketIn']])
     close(con[['socketOut']])
     close(con[['socketIn']])
+    # Most platforms are okay will Scala sticking around for a few seconds after R exits.
+    # But, on Windows, package checks require that the Scala process be finished before R exits.
+    if ( identical(.Platform$OS.type,"windows") && ( ! interactive() ) ) {
+      Sys.sleep(3)
+    }
   },error=function(e) {})
 }
 
