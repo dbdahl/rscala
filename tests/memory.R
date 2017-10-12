@@ -18,14 +18,14 @@ cat("----\n")
 
 heap.maximum <- "128M"
 source("common.R",print.eval=TRUE)
-for ( i in 1:2000 ) {
-  a <- s$".Array[Double]"$new(200000L)      # No memory problems
+for ( i in 1:20 ) {
+  a <- s$".Array[Double]"$new(2000000L)      # No memory problems
 }
 
 tryCatch({
-for ( i in 1:2000 ) {
-  cat(i,"\n")
-  a <- s %~% "new Array[Double](200000)"    # Memory problems
+for ( i in 1:20 ) {
+  cat(i," ")
+  a <- s %~% "new Array[Double](2000000)"    # Memory problems
 }
 },error=function(e) e)
 

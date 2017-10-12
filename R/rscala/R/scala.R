@@ -1,6 +1,6 @@
 ## Scala scripting over TCP/IP
 
-scala <- function(classpath=character(),classpath.packages=character(),serialize.output=.Platform$OS.type=="windows",scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=30,debug=FALSE,stdout=TRUE,stderr=TRUE,port=0,scala.info=NULL,major.release=c("2.10","2.11","2.12"),mode="parallel",assign.name="s",assign.env=parent.frame(),snippet=character()) {
+scala <- function(classpath=character(),classpath.packages=character(),serialize.output=.Platform$OS.type=="windows",scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=30,debug=FALSE,stdout=TRUE,stderr=TRUE,port=0,scala.info=NULL,major.release=c("2.10","2.11","2.12"),mode="parallel",assign.name="s",assign.env=parent.frame(),callback=function(s) {},snippet=character()) {
   if ( identical(stdout,TRUE) ) stdout <- ""
   if ( identical(stderr,TRUE) ) stderr <- ""
   debug <- identical(debug,TRUE)
@@ -42,6 +42,7 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
     reg.finalizer(env,stopProcess,onexit=TRUE)
     sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout,env)
     scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
+    callback(sockets)
     sockets
   } else if ( identical(mode,"parallel") ) {
     system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
@@ -49,6 +50,7 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
     delayedAssign(assign.name,{
       sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout,env)
       scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
+      callback(sockets)
       sockets
     },assign.env=assign.env)
   } else if ( identical(mode,"lazy") ) {
@@ -57,6 +59,7 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
       reg.finalizer(env,stopProcess,onexit=TRUE)
       sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout,env)
       scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
+      callback(sockets)
       sockets
     },assign.env=assign.env)
   } else stop("Unrecognized mode.")
@@ -88,17 +91,14 @@ newSockets <- function(portsFilename,debug,serialize.output,row.major,timeout,en
         if ( length(line) > 0 ) return(as.numeric(line))
       }
       Sys.sleep(delay)
-      delay <- 1.0*delay
     }
   })
   unlink(portsFilename)
   if ( debug ) msg("Trying to connect to port ",paste(ports,collapse=" "))
-  socketIn <- socketConnection(port=ports[1],blocking=TRUE,open="ab",timeout=2678400)
-  assign("socketIn",socketIn,envir=env)
-  socketOut <- socketConnection(port=ports[2],blocking=TRUE,open="rb",timeout=2678400)
-  assign("socketOut",socketOut,envir=env)
+  socketConnectionIn  <- socketConnection(port=ports[1],blocking=TRUE,open="ab",timeout=2678400)
+  socketConnectionOut <- socketConnection(port=ports[2],blocking=TRUE,open="rb",timeout=2678400)
   if ( debug ) msg("Connected")
-  result <- list2env(list(env=env,
+  result <- list2env(list(socketIn=socketConnectionIn,socketOut=socketConnectionOut,env=env,
                           functionCache=functionCache,r=references,garbage=garbage,
                           garbageFunction=function(e) uniqueName(e[['identifier']],garbage,"")))
   class(result) <- "ScalaInterpreter"
@@ -114,7 +114,7 @@ scalaEval <- function(interpreter,snippet,workspace) {
   tryCatch({
     wb(interpreter,EVAL)
     wc(interpreter,snippet)
-    flush(interpreter[['env']][['socketIn']])
+    flush(interpreter[['socketIn']])
     rServe(interpreter,TRUE,workspace)
     status <- rb(interpreter,"integer")
     if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
@@ -197,7 +197,7 @@ scalaGet <- function(interpreter,identifier,as.reference) {
       if ( get("debug",envir=interpreter[['env']]) ) msg('Sending GET_REFERENCE request.')
       wb(interpreter,GET_REFERENCE)
       wc(interpreter,as.character(identifier[1]))
-      flush(interpreter[['env']][['socketIn']])
+      flush(interpreter[['socketIn']])
       response <- rb(interpreter,"integer")
       if ( response == OK ) {
         id <- rc(interpreter)
@@ -230,7 +230,7 @@ scalaGet <- function(interpreter,identifier,as.reference) {
     if ( get("debug",envir=interpreter[['env']]) ) msg('Sending GET request.')
     wb(interpreter,GET)
     wc(interpreter,i)
-    flush(interpreter[['env']][['socketIn']])
+    flush(interpreter[['socketIn']])
     dataStructure <- rb(interpreter,"integer")
     value <- if ( dataStructure == NULLTYPE ) {
       NULL
@@ -328,7 +328,7 @@ scalaSet <- function(interpreter,identifier,value) {
       wc(interpreter,identifier)
       wb(interpreter,REFERENCE)
       wc(interpreter,value[['identifier']])
-      flush(interpreter[['env']][['socketIn']])
+      flush(interpreter[['socketIn']])
       status <- rb(interpreter,"integer")
       if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
       if ( status == ERROR ) {
@@ -377,7 +377,7 @@ scalaSet <- function(interpreter,identifier,value) {
         wc(interpreter,identifier)
         wb(interpreter,NULLTYPE)
       } else stop("Data structure is not supported.")
-      flush(interpreter[['env']][['socketIn']])
+      flush(interpreter[['socketIn']])
       if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
     }
   }, interrupt = function(x) {
@@ -405,7 +405,7 @@ scalaDef <- function(interpreter,snippet,as.reference) {
   cc(interpreter)
   wb(interpreter,DEF)
   wc(interpreter,snippet)
-  flush(interpreter[['env']][['socketIn']])
+  flush(interpreter[['socketIn']])
   status <- rb(interpreter,"integer")
   if ( status != OK ) {
     if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
@@ -415,7 +415,7 @@ scalaDef <- function(interpreter,snippet,as.reference) {
   if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
   wb(interpreter,INVOKE)
   wc(interpreter,functionName)
-  flush(interpreter[['env']][['socketIn']])
+  flush(interpreter[['socketIn']])
   assign(".rsI",interpreter,envir=parent.frame(2))
   rServe(interpreter,TRUE,parent.frame(2))
   status <- rb(interpreter,"integer")
@@ -504,7 +504,7 @@ scalaDollarSignMethod <- function(reference,method) {
     cc(interpreter)
     wb(interpreter,DEF)
     wc(interpreter,snippet)
-    flush(interpreter[['env']][['socketIn']])
+    flush(interpreter[['socketIn']])
     status <- rb(interpreter,"integer")
     if ( status != OK ) {
       if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
@@ -522,7 +522,7 @@ scalaDollarSignMethod <- function(reference,method) {
       cc(interpreter)
       wb(interpreter,INVOKE)
       wc(interpreter,functionName)
-      flush(interpreter[['env']][['socketIn']])
+      flush(interpreter[['socketIn']])
       rServe(interpreter,TRUE,workspace)
       status <- rb(interpreter,"integer")
       if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
@@ -551,7 +551,7 @@ scalap <- function(interpreter,class.name) {
   tryCatch({
     wb(interpreter,SCALAP)
     wc(interpreter,class.name)
-    flush(interpreter[['env']][['socketIn']])
+    flush(interpreter[['socketIn']])
     status <- rb(interpreter,"integer")
     if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
   }, interrupt = function(x) {
@@ -561,6 +561,11 @@ scalap <- function(interpreter,class.name) {
 }
 
 stopProcess <- function(env) {
+  # The 'close' function should be used to shutdown the interpreter.
+  # But this is a backup method for unusual circumstances.
+  # Scala itself will recognize that it needs to quit when the snippet file is deleted.
+  # Most platforms are okay will Scala sticking around for a few seconds after R exits.
+  # But, on Windows, package checks require that the Scala process be finished before R exits.
   snippetFilename <- env[['snippetFilename']]
   if ( file.exists(snippetFilename) ) {
     unlink(snippetFilename)
@@ -576,18 +581,14 @@ stopProcess <- function(env) {
 }
 
 close.ScalaInterpreter <- function(con,...) {
-  # If its already connected, then close quickly through sockets.
-  # Otherwise, Scala itself will recognize that it needs to quit when the snippet file is deleted.
-  # Most platforms are okay will Scala sticking around for a few seconds after R exits.
-  # But, on Windows, package checks require that the Scala process be finished before R exits.
   if ( get("valid",envir=con[['env']]) ) {
     tryCatch({
       assign("valid",FALSE,envir=con[['env']])
-      writeBin(SHUTDOWN, con[['env']][['socketIn']], endian="big")
-      flush(con[['env']][['socketIn']])
-      close(con[['env']][['socketOut']])
-      close(con[['env']][['socketIn']])
-      snippetFilename <- con[['env']][['snippetFilename']]
+      writeBin(SHUTDOWN, con[['socketIn']], endian="big")
+      flush(con[['socketIn']])
+      close(con[['socketOut']])
+      close(con[['socketIn']])
+      snippetFilename <- con[['snippetFilename']]
       assign("killStamp",proc.time()['elapsed'],envir=con[['env']])
       unlink(snippetFilename)
     },error=function(err) {})
@@ -605,12 +606,20 @@ jarsOfPackage <- function(pkgname, major.release) {
 .rscalaPackage <- function(pkgname, classpath.packages=character(), ...) {
   if ( identical(mode,"serial") ) stop('Mode "serial" is not supported for packages, but the same effect is achieved by immediately using the promised interpreter from another mode.')
   env <- parent.env(parent.frame())    # Environment of depending package (assuming this function is only called in .onLoad function).
-  scala(classpath.packages=c(pkgname,classpath.packages),assign.env=env,...)
+  rscalaPackageEnv <- new.env(parent=emptyenv())
+  assign(".rscalaPackageEnv",rscalaPackageEnv, envir=env)
+  assign("isConnected",FALSE,envir=rscalaPackageEnv)
+  callback <- function(ss) { assign("isConnected",TRUE,envir=rscalaPackageEnv) }
+  scala(classpath.packages=c(pkgname,classpath.packages),assign.env=env,callback=callback,...)
   invisible()
 }
 
-# Kept for backwards compatibility, but deprecated.
-.rscalaPackageUnload <- function() {}
+.rscalaPackageUnload <- function() {
+  env <- parent.env(parent.frame())
+  if ( get("isConnected",envir=get(".rscalaPackageEnv",envir=env)) ) {
+    close(get("s",envir=env))
+  }
+}
 
 .rscalaJar <- function(major.release=c("2.10","2.11","2.12")) {
   if ( length(major.release) > 1 ) {
@@ -839,29 +848,32 @@ cc <- function(c) {
 }
 
 wb <- function(c,v) {
-  writeBin(v, c[['env']][['socketIn']], endian="big")
+  writeBin(v, c[['socketIn']], endian="big")
 }
 
 wc <- function(c,v) {
   bytes <- charToRaw(iconv(v, to="UTF-8"))
   wb(c,length(bytes))
-  writeBin(bytes, c[['env']][['socketIn']], endian="big", useBytes=TRUE)
+  writeBin(bytes, c[['socketIn']], endian="big", useBytes=TRUE)
 }
 
 # Sockets should be blocking, but that contract is not fulfilled when other code uses functions from the parallel library.  Program around their problem.
 rb <- function(c,v,n=1L) {
-  r <- vector(v)
-  while ( length(r) != n ) {
-    r <- c(r,readBin(c[['env']][['socketOut']], v, n-length(r), endian="big"))
+  r <- readBin(c[['socketOut']], v, n, endian="big")
+  if ( length(r) == n ) r
+  else {
+    while ( length(r) != n ) {
+      r <- c(r,readBin(c[['socketOut']], v, n-length(r), endian="big"))
+    }
+    r
   }
-  r
 }
 
 # Sockets should be blocking, but that contract is not fulfilled when other code uses functions from the parallel library.  Program around their problem.
 rc <- function(c) {
   length <- rb(c,"integer")
   r <- raw(0)
-  while ( length(r) != length ) r <- c(r,readBin(c[['env']][['socketOut']], "raw", length-length(r), endian="big"))
+  while ( length(r) != length ) r <- c(r,readBin(c[['socketOut']], "raw", length-length(r), endian="big"))
   iconv(rawToChar(r),from="UTF-8")
 }
 

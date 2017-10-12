@@ -49,7 +49,7 @@
 
 %% almost as usual
 \author{David B.\ Dahl\\Brigham Young University}
-\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.5.0,\ \ Document ID: 2017-10-11}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
+\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.5.0,\ \ Document ID: 2017-10-12}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
 
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{David B. Dahl} %% comma-separated
@@ -329,8 +329,8 @@ installation to use, the class path, whether matrices are in row-major or
 column-major order, and several other settings.  The functions \code{scala2}
 and \code{scala3} are equivalent to \code{scala} except they change the \code{mode}
 option to customize how the bridge between \Scala and \R is established.
-There is no practical difference for \R scripts, but interactive users
-may notice that \code{scala} feels faster.  Details on this and all
+Interactive users may notice that the \code{scala} function feels faster because
+it starts \Scala in the background.  Details on this and all
 other functions are provided in the \R documentation for the package (e.g.,
 \code{help(scala)}).
 
@@ -1238,6 +1238,16 @@ on \R's random number seed.
   '
   ## Users may want to use 'options(rscala.heap.maximum="2G")'.
   .rscalaPackage(pkgname,classpath.packages="commonsMath",snippet=snippet)
+}
+@
+
+A package's embedded \Scala instance should be terminated when the package is
+unloaded by calling the \code{.rscalaPackageUnload} function in the
+\code{.onUnload} hook as shown here.
+
+<<onUnload, eval=FALSE>>=
+.onUnload <- function(libpath) {
+  .rscalaPackageUnload()
 }
 @
 

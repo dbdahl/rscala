@@ -56,7 +56,7 @@ scala(classpath=character(), classpath.packages=character(),
       timeout=30, debug=FALSE, stdout=TRUE, stderr=TRUE, port=0,
       scala.info=NULL, major.release=c("2.10","2.11","2.12"),
       mode="parallel", assign.name="s", assign.env=parent.frame(),
-      snippet=character())
+      callback=function(s) {}, snippet=character())
 
 scala2(...)
 
@@ -88,12 +88,13 @@ scalaInstall(major.release=c("2.10","2.11","2.12"), global=FALSE)
     \item{scala.info}{The result of a previous call to \code{\link{scalaInfo}}.}
     \item{verbose}{A logical vector of length one indicating whether information regarding the search for the Scala installation should be displayed.}
     \item{major.release}{The character vector giving acceptable major.release numbers (e.g., c("2.10","2.11","2.12")), or \code{NA} in which case the system picks the appropriate version.}
-    \item{mode}{One of \code{"parallel"}, \code{"lazy"}, or \code{"serial"} to indicate how the R/Scala connection is established.  \code{"serial"} starts Scala in the background, blocks until the connection is established, and causes the function to return the interpreter.  \code{"parallel"} starts Scala in the background whereas \code{"lazy"} only starts Scala if and when the interpreter is first used.  Both \code{"parallel"} and \code{"lazy"} cause the function to return \code{NULL} and makes the interpreter (with the identifier given by \code{assign.name}) available as a promise.}
+    \item{mode}{One of \code{"parallel"}, \code{"lazy"}, or \code{"serial"} to indicate how the R/Scala bridge is established.  \code{"serial"} starts Scala in the background, blocks until the bridge is established, and causes the function to return the interpreter.  \code{"parallel"} starts Scala in the background whereas \code{"lazy"} only starts Scala if and when the interpreter is first used.  Both \code{"parallel"} and \code{"lazy"} cause the function to return \code{NULL} and makes the interpreter (with the identifier given by \code{assign.name}) available as a promise.}
     \item{assign.name}{If \code{mode != "serial"}, the name of the (promise of the) interpreter.}
     \item{assign.env}{If \code{mode != "serial"}, the environment in which the (promise of the) interpreter is assigned.}
+    \item{callback}{A function taking a Scala interpreter as its only argument.  This function is called immediately after the R/Scala bridge is established.}
+    \item{snippet}{A character vector providing Scala code that will be evaluated when the interpreter in the package namespace is first used.}
     \item{global}{Should the Scala installation be global, specifically inside the package's directory?  This may require administrator privileges.}
     \item{pkgname}{A character string giving the name of the package (as provided the second argument of the \code{.onLoad} function) that wishes to depend on this package.}
-    \item{snippet}{A character vector providing Scala code that will be evaluated when the interpreter in the package namespace is first used.}
     \item{...}{These arguments are passed by the \code{\link{.rscalaPackage}} function to the \code{\link{scala}} function.}
 }
 \value{

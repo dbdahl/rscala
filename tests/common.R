@@ -13,7 +13,7 @@ s <- local({
   if ( ! exists("row.major") ) row.major <- TRUE
   if ( ! exists("port") ) port <- 0
   if ( ! exists("debug") ) debug <- FALSE
-  if ( ! exists("scala3") ) scala3 <- scala
+  #if ( ! exists("scala3") ) scala3 <- scala
   s <- scala3(classpath=jars,serialize=serialize,row.major=row.major,stdout=output,stderr=output,heap.maximum=heap.maximum,debug=debug,port=port)
   actualVersion <- s %~% "scala.util.Properties.versionNumberString"
   if ( !is.na(version) && ( version != actualVersion ) ) {
