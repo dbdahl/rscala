@@ -857,23 +857,31 @@ wc <- function(c,v) {
   writeBin(bytes, c[['socketIn']], endian="big", useBytes=TRUE)
 }
 
-# Sockets should be blocking, but that contract is not fulfilled when other code uses functions from the parallel library.  Program around their problem.
 rb <- function(c,v,n=1L) {
   r <- readBin(c[['socketOut']], v, n, endian="big")
   if ( length(r) == n ) r
   else {
+    counter <- 0L
     while ( length(r) != n ) {
+      if ( counter >= 100 ) stop("Socket isn't providing data.")
+      counter <- counter + 1L
       r <- c(r,readBin(c[['socketOut']], v, n-length(r), endian="big"))
     }
     r
   }
 }
 
-# Sockets should be blocking, but that contract is not fulfilled when other code uses functions from the parallel library.  Program around their problem.
 rc <- function(c) {
-  length <- rb(c,"integer")
-  r <- raw(0)
-  while ( length(r) != length ) r <- c(r,readBin(c[['socketOut']], "raw", length-length(r), endian="big"))
+  n <- rb(c,"integer")
+  r <- readBin(c[['socketOut']], "raw", n, endian="big")
+  if ( length(r) != n ) {
+    counter <- 0L
+    while (  length(r) != n ) {
+      if ( counter >= 100 ) stop("Socket isn't providing data.")
+      counter <- counter + 1L
+      r <- c(r,readBin(c[['socketOut']], "raw", n-length(r), endian="big"))
+    }
+  }
   iconv(rawToChar(r),from="UTF-8")
 }
 
