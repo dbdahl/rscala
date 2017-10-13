@@ -21,7 +21,7 @@
 > 
 > row.major <- FALSE
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # becker # FALSE # TRUE
+# R version 3.4.2 (2017-09-28) # hilton # FALSE # TRUE
 > 
 > y <- c(0,1,2,3,4,5,6,8)
 > for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y),as.raw(y)) ) {
@@ -47,7 +47,7 @@ Class is raw
 > 
 > row.major <- TRUE
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # becker # FALSE # TRUE
+# R version 3.4.2 (2017-09-28) # hilton # FALSE # TRUE
 > 
 > y <- c(0,1,2,3,4,5,6,8)
 > for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y),as.raw(y)) ) {
@@ -105,10 +105,10 @@ java.lang.RuntimeException: Unsupported data type.
 	at scala.tools.nsc.interpreter.IMain.loadAndRunReq$1(IMain.scala:573)
 	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:604)
 	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:568)
-	at org.ddahl.rscala.server.ScalaServer.doEval(ScalaServer.scala:58)
-	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:404)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:441)
-	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:5)
+	at org.ddahl.rscala.server.ScalaServer.doEval(ScalaServer.scala:74)
+	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:420)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:457)
+	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:18)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
 	at scala.App$$anonfun$main$1.apply(App.scala:71)
@@ -161,10 +161,10 @@ java.lang.RuntimeException: Undefined identifier.
 	at scala.tools.nsc.interpreter.IMain.loadAndRunReq$1(IMain.scala:573)
 	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:604)
 	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:568)
-	at org.ddahl.rscala.server.ScalaServer.doEval(ScalaServer.scala:58)
-	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:404)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:441)
-	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:5)
+	at org.ddahl.rscala.server.ScalaServer.doEval(ScalaServer.scala:74)
+	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:420)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:457)
+	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:18)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
 	at scala.App$$anonfun$main$1.apply(App.scala:71)
@@ -304,10 +304,10 @@ java.lang.RuntimeException: Error in R evaluation.
 	at scala.tools.nsc.interpreter.IMain.loadAndRunReq$1(IMain.scala:573)
 	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:604)
 	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:568)
-	at org.ddahl.rscala.server.ScalaServer.doEval(ScalaServer.scala:58)
-	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:404)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:441)
-	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:5)
+	at org.ddahl.rscala.server.ScalaServer.doEval(ScalaServer.scala:74)
+	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:420)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:457)
+	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:18)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
 	at scala.App$$anonfun$main$1.apply(App.scala:71)
@@ -420,10 +420,10 @@ java.lang.RuntimeException: Error in R evaluation.
 	at scala.tools.nsc.interpreter.IMain.loadAndRunReq$1(IMain.scala:573)
 	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:604)
 	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:568)
-	at org.ddahl.rscala.server.ScalaServer.doEval(ScalaServer.scala:58)
-	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:404)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:441)
-	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:5)
+	at org.ddahl.rscala.server.ScalaServer.doEval(ScalaServer.scala:74)
+	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:420)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:457)
+	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:18)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
 	at scala.App$$anonfun$main$1.apply(App.scala:71)
@@ -471,10 +471,10 @@ java.lang.reflect.InvocationTargetException
 	at sun.reflect.GeneratedMethodAccessor1.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:112)
-	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:414)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:441)
-	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:5)
+	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:128)
+	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:430)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:457)
+	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:18)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
 	at scala.App$$anonfun$main$1.apply(App.scala:71)
@@ -534,13 +534,13 @@ Here is am.
 > callRFunction0D2 <- function(func) s %!% 'R.invokeD2(func)'
 > callRFunction0D2(gc)
        [,1] [,2]    [,3] [,4]    [,5] [,6]
-[1,] 340801 18.3  592000 31.7  460000 24.6
-[2,] 648442  5.0 1211339  9.3 1065243  8.2
+[1,] 340961 18.3  592000 31.7  460000 24.6
+[2,] 646089  5.0 1209604  9.3 1064045  8.2
 Warning messages:
 1: In .Internal(gc(verbose, reset)) :
-  closing unused connection 4 (->localhost:43337)
+  closing unused connection 4 (->localhost:36489)
 2: In .Internal(gc(verbose, reset)) :
-  closing unused connection 3 (->localhost:40765)
+  closing unused connection 3 (->localhost:43364)
 > 
 > tryCatch(callRFunction(1:100),error = function(e) {})
 NULL
@@ -566,10 +566,10 @@ java.lang.RuntimeException: Error in R evaluation.
 	at scala.tools.nsc.interpreter.IMain.loadAndRunReq$1(IMain.scala:573)
 	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:604)
 	at scala.tools.nsc.interpreter.IMain.interpret(IMain.scala:568)
-	at org.ddahl.rscala.server.ScalaServer.doEval(ScalaServer.scala:58)
-	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:404)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:441)
-	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:5)
+	at org.ddahl.rscala.server.ScalaServer.doEval(ScalaServer.scala:74)
+	at org.ddahl.rscala.server.ScalaServer.org$ddahl$rscala$server$ScalaServer$$heart(ScalaServer.scala:420)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:457)
+	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:18)
 	at scala.Function0$class.apply$mcV$sp(Function0.scala:40)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
 	at scala.App$$anonfun$main$1.apply(App.scala:71)

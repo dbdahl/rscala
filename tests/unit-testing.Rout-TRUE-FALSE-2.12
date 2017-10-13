@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # becker # TRUE # FALSE
+# R version 3.4.2 (2017-09-28) # hilton # TRUE # FALSE
 > 
 > 
 > test <- function(a,value,func=list()) {
@@ -57,19 +57,19 @@ true
 > # What about when there is no result?
 > tryCatch(s %~% 'import scala.util._', error=function(e) e)
 java.lang.RuntimeException: There is no result.  Maybe use the %@% operator instead?
-	at org.ddahl.rscala.server.ScalaServer.mostRecentVar(ScalaServer.scala:40)
-	at org.ddahl.rscala.server.ScalaServer.doGet(ScalaServer.scala:207)
-	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:408)
-	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$2(ScalaServer.scala:433)
+	at org.ddahl.rscala.server.ScalaServer.mostRecentVar(ScalaServer.scala:56)
+	at org.ddahl.rscala.server.ScalaServer.doGet(ScalaServer.scala:223)
+	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:424)
+	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$2(ScalaServer.scala:449)
 	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withErr(Console.scala:192)
-	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$1(ScalaServer.scala:433)
+	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$1(ScalaServer.scala:449)
 	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withOut(Console.scala:163)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:432)
-	at org.ddahl.rscala.server.Main$.delayedEndpoint$org$ddahl$rscala$server$Main$1(Main.scala:5)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:448)
+	at org.ddahl.rscala.server.Main$.delayedEndpoint$org$ddahl$rscala$server$Main$1(Main.scala:18)
 	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0.apply$mcV$sp(Function0.scala:34)
 	at scala.Function0.apply$mcV$sp$(Function0.scala:34)
@@ -110,20 +110,20 @@ java.lang.RuntimeException: There is no result.  Maybe use the %@% operator inst
 > 
 > tryCatch(s %.~% 'import scala.util._', error=function(e) e)
 java.lang.RuntimeException: There is no result.  Maybe use the %@% operator instead?
-	at org.ddahl.rscala.server.ScalaServer.mostRecentVar(ScalaServer.scala:40)
-	at org.ddahl.rscala.server.ScalaServer.liftedTree1$1(ScalaServer.scala:371)
-	at org.ddahl.rscala.server.ScalaServer.doGetReference(ScalaServer.scala:370)
-	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:410)
-	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$2(ScalaServer.scala:433)
+	at org.ddahl.rscala.server.ScalaServer.mostRecentVar(ScalaServer.scala:56)
+	at org.ddahl.rscala.server.ScalaServer.liftedTree1$1(ScalaServer.scala:387)
+	at org.ddahl.rscala.server.ScalaServer.doGetReference(ScalaServer.scala:386)
+	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:426)
+	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$2(ScalaServer.scala:449)
 	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withErr(Console.scala:192)
-	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$1(ScalaServer.scala:433)
+	at org.ddahl.rscala.server.ScalaServer.$anonfun$run$1(ScalaServer.scala:449)
 	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
 	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
 	at scala.Console$.withOut(Console.scala:163)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:432)
-	at org.ddahl.rscala.server.Main$.delayedEndpoint$org$ddahl$rscala$server$Main$1(Main.scala:5)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:448)
+	at org.ddahl.rscala.server.Main$.delayedEndpoint$org$ddahl$rscala$server$Main$1(Main.scala:18)
 	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0.apply$mcV$sp(Function0.scala:34)
 	at scala.Function0.apply$mcV$sp$(Function0.scala:34)
