@@ -1,7 +1,6 @@
 > heap.maximum <- "192M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # becker # FALSE # FALSE
-> 
+# R version 3.4.2 (2017-09-28) # hilton # FALSE # FALSE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 <simpleError in f(..., .NBACK = 2): Problem invoking function.>
 > close(s)
@@ -10,33 +9,35 @@
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # becker # FALSE # FALSE
+# R version 3.4.2 (2017-09-28) # hilton # FALSE # FALSE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
 ----
 > 
-> options(rscala.heap.maximum="64M")
+> heap.maximum <- "64M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # becker # FALSE # FALSE
+# R version 3.4.2 (2017-09-28) # hilton # FALSE # FALSE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
+<simpleError in f(..., .NBACK = 2): Problem invoking function.>
 > close(s)
 > cat("----\n")
 ----
 > 
-> options(rscala.heap.maximum="128M")
+> heap.maximum <- "128M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # becker # FALSE # FALSE
-> for ( i in 1:2000 ) {
-+   a <- s$".Array[Double]"$new(200000L)  # No memory problems
+# R version 3.4.2 (2017-09-28) # hilton # FALSE # FALSE
+> for ( i in 1:20 ) {
++   a <- s$".Array[Double]"$new(2000000L)      # No memory problems
 + }
 > 
 > tryCatch({
-+ for ( i in 1:2000 ) {
-+   s %~% "new Array[Double](200000)"           # Memory problems
++ for ( i in 1:20 ) {
++   cat(i," ")
++   a <- s %~% "new Array[Double](2000000)"    # Memory problems
 + }
 + },error=function(e) e)
-<simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
+1  2  3  4  5  <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
 > 
 > 
 > 

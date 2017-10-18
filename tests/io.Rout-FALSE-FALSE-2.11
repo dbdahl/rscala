@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R version 3.4.1 (2017-06-30) # becker # FALSE # FALSE
+# R version 3.4.2 (2017-09-28) # hilton # FALSE # FALSE
 > 
 > tryCatch(s %~% "new java.util.Random(23455).nextDoubllllllllle",error=function(e) e)
 <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
@@ -10,6 +10,6 @@
 > capture.output(s %~% "println(3+2)")
 character(0)
 > capture.output(s %~% 'R.eval("""cat(R.version.string)""")')
-[1] "R version 3.4.1 (2017-06-30)"
+[1] "R version 3.4.2 (2017-09-28)"
 > 
 > 
