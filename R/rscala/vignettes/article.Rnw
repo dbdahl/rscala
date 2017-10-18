@@ -870,7 +870,8 @@ notice that the last expression in the function is \code{s \%!\% '...'}, where
 \code{s} is the \Scala instance and \code{'...'} represents the multiline
 \Scala snippet.  The effect of the \code{\%!\%} operator is two-fold: i.~it
 automatically makes the arguments of the enclosing function (namely, \code{n}
-and \code{format}) available in the \Scala snippet, and ii.~it caches the
+and \code{format}) available in the \Scala snippet (although this can be customized with
+the \code{scalaFunctionArgs} function), and ii.~it caches the
 on-the-fly compilation of the \Scala snippet to substantially improve speed for
 subsequent calls to \code{bell.version2}.  The \code{\%!\%} operator returns a
 copyable type or a \Scala reference if the result is not a copyable type.  The
