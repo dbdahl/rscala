@@ -16,17 +16,17 @@ strintrplt <- function(snippet,envir=parent.frame()) {
   } else snippet
 }
 
-scalaSettings <- function(interpreter, interpolate=NULL, show.header=NULL, info=NULL) {
-  if ( is.null(interpolate) && is.null(show.header) && is.null(info) ) {
+scalaSettings <- function(interpreter, interpolate=NULL, show.snippet=NULL, info=NULL) {
+  if ( is.null(interpolate) && is.null(show.snippet) && is.null(info) ) {
     list(debug=get("debug",envir=interpreter[['env']]),
          info=get("info",envir=interpreter[['env']]),
          interpolate=get("interpolate",envir=interpreter[['env']]),
-         show.header=get("show.header",envir=interpreter[['env']]),
+         show.snippet=get("show.snippet",envir=interpreter[['env']]),
          row.major=get("rowMajor",envir=interpreter[['env']]),
          serialize.output=get("serializeOutput",envir=interpreter[['env']]))
   } else {
     if ( ! is.null(interpolate) ) assign("interpolate",as.logical(interpolate)[1],envir=interpreter[['env']])
-    if ( ! is.null(show.header) ) assign("show.header",as.logical(show.header)[1],envir=interpreter[['env']])
+    if ( ! is.null(show.snippet) ) assign("show.snippet",as.logical(show.snippet)[1],envir=interpreter[['env']])
     if ( ! is.null(info) ) {
       if ( exists("info",envir=interpreter[['env']]) ) stop("'info' cannot be set by the user.")
       assign("info",info,envir=interpreter[['env']])

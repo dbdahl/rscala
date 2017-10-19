@@ -41,7 +41,7 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
     system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
     reg.finalizer(env,stopProcess,onexit=TRUE)
     sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout,env)
-    scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
+    scalaSettings(sockets,interpolate=TRUE,show.snippet=FALSE,info=sInfo)
     callback(sockets)
     sockets
   } else if ( identical(mode,"parallel") ) {
@@ -49,7 +49,7 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
     reg.finalizer(env,stopProcess,onexit=TRUE)
     delayedAssign(assign.name,{
       sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout,env)
-      scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
+      scalaSettings(sockets,interpolate=TRUE,show.snippet=FALSE,info=sInfo)
       callback(sockets)
       sockets
     },assign.env=assign.env)
@@ -58,7 +58,7 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
       system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
       reg.finalizer(env,stopProcess,onexit=TRUE)
       sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout,env)
-      scalaSettings(sockets,interpolate=TRUE,show.header=FALSE,info=sInfo)
+      scalaSettings(sockets,interpolate=TRUE,show.snippet=FALSE,info=sInfo)
       callback(sockets)
       sockets
     },assign.env=assign.env)
@@ -408,9 +408,9 @@ scalaDef <- function(interpreter,snippet,as.reference) {
   } else {
     list()
   }
-  header <- mkHeader(argsValues,names(argsValues),get("show.header",envir=interpreter[['env']]))
-  assign(".rsI",interpreter,envir=parent.frame(2))
+  header <- mkHeader(argsValues,names(argsValues))
   snippet <- paste0(header,snippet)
+  if ( get("show.snippet",envir=interpreter[['env']]) ) cat(snippet,"\n",sep="")
   cc(interpreter)
   wb(interpreter,DEF)
   wc(interpreter,snippet)
@@ -457,7 +457,7 @@ mkEphemeralReferenceSnippet <- function(name) {
   paste0('val ',name,' = EphemeralReference("',name,'")')
 }
 
-mkHeader <- function(args,names,show.header) {
+mkHeader <- function(args,names) {
   if ( length(args) == 0 ) return(character())
   headers <- character(length(args))
   for ( i in seq_len(length(args))) {
@@ -485,9 +485,7 @@ mkHeader <- function(args,names,show.header) {
     }
     headers[i] <- mkHeaderEngine()
   }
-  result <- paste0(paste(headers,collapse="\n"),"\n")
-  if ( show.header ) cat(result)
-  result
+  paste0(paste(headers,collapse="\n"),"\n")
 }
 
 scalaDollarSignMethod <- function(reference,method) {
@@ -500,9 +498,15 @@ scalaDollarSignMethod <- function(reference,method) {
     args <- list(...)
     if ( ! is.null(names(args)) ) stop("Arguments should not have names.")
     names <- paste0(rep('$',length(args)),seq_len(length(args)))
-    header <- mkHeader(args,names,get("show.header",envir=interpreter[['env']]))
+    header <- mkHeader(args,names)
     body <- if ( inherits(reference,"ScalaInterpreterReference") ) paste0(reference[['identifier']],'.',method)
-    else if ( inherits(reference,"ScalaCachedReference") ) paste0('R.cached("',reference[['identifier']],'").asInstanceOf[',reference[['type']],'].',method)
+    else if ( inherits(reference,"ScalaCachedReference") ) {
+      if ( .EVALUATE ) {
+        paste0('R.cached(R.getS0(".rsX")).asInstanceOf[',reference[['type']],'].',method)
+      } else {
+        paste0('R.cached("',reference[['identifier']],'").asInstanceOf[',reference[['type']],'].',method)
+      }
+    }
     else if ( inherits(reference,"ScalaInterpreterItem") ) {
       if ( method == "new") paste0("new ",reference[['snippet']])
       else paste0(reference[['snippet']],'.',method)
@@ -510,6 +514,7 @@ scalaDollarSignMethod <- function(reference,method) {
     argsList <- paste0(names,collapse=",")
     if ( nchar(argsList) > 0 ) argsList <- paste0('(',argsList,')')
     snippet <- paste0(header,paste0(body,argsList))
+    if ( get("show.snippet",envir=interpreter[['env']]) ) cat(snippet,"\n",sep="")
     cc(interpreter)
     wb(interpreter,DEF)
     wc(interpreter,snippet)
@@ -527,6 +532,7 @@ scalaDollarSignMethod <- function(reference,method) {
       if ( ! is.null(names(args)) ) stop("Arguments should not have names.")
       workspace <- new.env(parent=parent.frame(.NBACK))
       assign(".rsI",interpreter,envir=workspace)
+      if ( .EVALUATE ) assign(".rsX",reference[['identifier']],envir=workspace)
       for ( i in seq_len(length(args))) assign(names[i],args[[i]],envir=workspace)
       cc(interpreter)
       wb(interpreter,INVOKE)
