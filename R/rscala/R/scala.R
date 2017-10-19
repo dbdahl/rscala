@@ -410,7 +410,7 @@ scalaDef <- function(interpreter,snippet,as.reference) {
   }
   header <- mkHeader(argsValues,names(argsValues))
   snippet <- paste0(header,snippet)
-  if ( get("show.snippet",envir=interpreter[['env']]) ) cat(snippet,"\n",sep="")
+  if ( get("show.snippet",envir=interpreter[['env']]) ) cat("<<<\n",snippet,"\n>>>\n",sep="")
   cc(interpreter)
   wb(interpreter,DEF)
   wc(interpreter,snippet)
@@ -514,7 +514,7 @@ scalaDollarSignMethod <- function(reference,method) {
     argsList <- paste0(names,collapse=",")
     if ( nchar(argsList) > 0 ) argsList <- paste0('(',argsList,')')
     snippet <- paste0(header,paste0(body,argsList))
-    if ( get("show.snippet",envir=interpreter[['env']]) ) cat(snippet,"\n",sep="")
+    if ( get("show.snippet",envir=interpreter[['env']]) ) cat("<<<\n",snippet,"\n>>>\n",sep="")
     cc(interpreter)
     wb(interpreter,DEF)
     wc(interpreter,snippet)
