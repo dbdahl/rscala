@@ -44,7 +44,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
   private[rscala] val cacheMap = new Cache()
 
   private var functionResult: (Any, String) = null
-  private val nullary = Class.forName("scala.Function0").getMethod("apply")
+  private val nullary = Class.forName("scala.Function1").getMethod("apply", classOf[java.lang.Object]) // Class.forName("scala.Function1").getMethod("apply")
   nullary.setAccessible(true)
   private val functionMap = new scala.collection.mutable.HashMap[String,(Any,String)]()
   private val functionMap2 = new scala.collection.mutable.HashMap[String,String]()
@@ -93,7 +93,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
   }
 
   private def doDef(): Unit = {
-    val body = "() => {\n" + socket.getScalarString() + "\n}"
+    val body = "($0: String) => {\n" + socket.getScalarString() + "\n}"
     try {
       if ( debugger.value ) debugger.msg("Function is: "+body)
       val (f, returnType) = if ( ! functionMap2.contains(body) ) {
@@ -105,7 +105,11 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
         }
         val functionName = repl.mostRecentVar
         val f = repl.valueOfTerm(functionName).get
-        val returnType = repl.symbolOfLine(functionName).info.toString.substring(6)  // Drop "() => " in the return type.
+        val returnType = {
+          val rt = repl.symbolOfLine(functionName).info.toString.substring(10)  // Drop "String => " in the return type.
+          if ( rt.startsWith("(") && rt.endsWith(")") ) rt.substring(1,rt.length-1)
+          else rt
+        }
         functionMap2(body) = functionName
         functionMap(functionName) = (f, returnType)
         if ( debugger.value ) debugger.msg("Function definition is okay.")
@@ -125,7 +129,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
     val functionName = socket.getScalarString()
     try {
       val (f, returnType) = functionMap(functionName)
-      functionResult = (nullary.invoke(f), returnType)
+      functionResult = (nullary.invoke(f,socket.getScalarString()), returnType)
       R.exit()
       if ( debugger.value ) debugger.msg("Function invocation is okay.")
       socket.putScalarInt(OK)

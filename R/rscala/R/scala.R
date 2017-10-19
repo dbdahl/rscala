@@ -424,6 +424,7 @@ scalaDef <- function(interpreter,snippet,as.reference) {
   if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
   wb(interpreter,INVOKE)
   wc(interpreter,functionName)
+  wc(interpreter,"")
   flush(interpreter[['socketIn']])
   assign(".rsI",interpreter,envir=parent.frame(2))
   rServe(interpreter,TRUE,parent.frame(2))
@@ -499,10 +500,12 @@ scalaDollarSignMethod <- function(reference,method) {
     if ( ! is.null(names(args)) ) stop("Arguments should not have names.")
     names <- paste0(rep('$',length(args)),seq_len(length(args)))
     header <- mkHeader(args,names)
+    identifier <- ""
     body <- if ( inherits(reference,"ScalaInterpreterReference") ) paste0(reference[['identifier']],'.',method)
     else if ( inherits(reference,"ScalaCachedReference") ) {
       if ( .EVALUATE ) {
-        paste0('R.cached(R.getS0(".rsX")).asInstanceOf[',reference[['type']],'].',method)
+        identifier <- reference[['identifier']]
+        paste0('R.cached($0).asInstanceOf[',reference[['type']],'].',method)
       } else {
         paste0('R.cached("',reference[['identifier']],'").asInstanceOf[',reference[['type']],'].',method)
       }
@@ -532,11 +535,11 @@ scalaDollarSignMethod <- function(reference,method) {
       if ( ! is.null(names(args)) ) stop("Arguments should not have names.")
       workspace <- new.env(parent=parent.frame(.NBACK))
       assign(".rsI",interpreter,envir=workspace)
-      if ( .EVALUATE ) assign(".rsX",reference[['identifier']],envir=workspace)
       for ( i in seq_len(length(args))) assign(names[i],args[[i]],envir=workspace)
       cc(interpreter)
       wb(interpreter,INVOKE)
       wc(interpreter,functionName)
+      wc(interpreter,identifier)
       flush(interpreter[['socketIn']])
       rServe(interpreter,TRUE,workspace)
       status <- rb(interpreter,"integer")
