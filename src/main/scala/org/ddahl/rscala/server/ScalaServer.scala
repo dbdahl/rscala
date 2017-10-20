@@ -44,8 +44,8 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
   private[rscala] val cacheMap = new Cache()
 
   private var functionResult: (Any, String) = null
-  private val nullary = Class.forName("scala.Function1").getMethod("apply", classOf[java.lang.Object]) // Class.forName("scala.Function1").getMethod("apply")
-  nullary.setAccessible(true)
+  private val unary = Class.forName("scala.Function1").getMethod("apply", classOf[java.lang.Object])
+  unary.setAccessible(true)
   private val functionMap = new scala.collection.mutable.HashMap[String,(Any,String)]()
   private val functionMap2 = new scala.collection.mutable.HashMap[String,String]()
 
@@ -125,7 +125,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
     val functionName = socket.getScalarString()
     try {
       val (f, returnType) = functionMap(functionName)
-      functionResult = (nullary.invoke(f,socket.getScalarString()), returnType)
+      functionResult = (unary.invoke(f,socket.getScalarString()), returnType)
       R.exit()
       if ( debugger.value ) debugger.msg("Function invocation is okay.")
       socket.putScalarInt(OK)
