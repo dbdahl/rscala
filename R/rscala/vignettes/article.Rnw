@@ -979,9 +979,14 @@ s %~% '
 The example above demonstrates the use of \Scala's builtin notation for
 creating pairs (e.g., \code{"sd" -> 3}) to provide named arguments to the \R
 function invoked from \Scala.  The arguments to an \code{invoke} method can be
-copyable types, \Scala references, and \code{EphemeralReference}
-objects, the last being automatically generated in \Scala functions for all arguments that are
-wrapped by the \code{II} function or that are not copyable types and not \Scala references.
+copyable types, \Scala references, and \code{EphemeralReference} objects, the
+last being automatically generated in \Scala functions for all arguments that
+are wrapped by the \code{II} function or that are not copyable types and not
+\Scala references.  Note that a \code{EphemeralReference} object is only valid
+within the \Scala function in which it is defined.  It can, however, be made
+valid beyond the \Scala function by converting it to a
+\code{PersistentReference} using \code{R.getReference(x)}, where \code{x} is a
+\code{EphemeralReference} object.
 
 A more interesting use case is calling a user-supplied \R function from \Scala.
 First, consider an \R function that computes $f(n,\alpha)$, the expectation of

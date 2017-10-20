@@ -390,6 +390,17 @@ scalaSet <- function(interpreter,identifier,value) {
 '%!%.ScalaInterpreter'  <- function(interpreter,snippet) scalaDef(interpreter,snippet,NA)
 '%.!%.ScalaInterpreter' <- function(interpreter,snippet) scalaDef(interpreter,snippet,TRUE)
 
+"[.ScalaInterpreter" <- function(x, i, j, ..., drop=TRUE) {
+  keep <- character()
+  if ( ! missing(i) ) keep <- c(keep,i)
+  if ( ! missing(j) ) keep <- c(keep,i)
+  keep <- c(keep, ...)
+  pf <- parent.frame(1)
+  if (length(keep) > 0) assign(".scalaFunctionArgsInclude", as.character(keep), envir = pf)
+  if (length(drop) > 0) assign(".scalaFunctionArgsExclude", as.character(drop), envir = pf)
+  x
+}
+
 scalaDef <- function(interpreter,snippet,as.reference) {
   pf <- parent.frame(2)
   snippet <- strintrpltIf(snippet,pf,interpreter)
