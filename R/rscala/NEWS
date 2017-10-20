@@ -6,6 +6,8 @@
     's <- scala()' to 'scala()' or 's <- scala3()'.
   * Added 'scalaFunctionArgs' function to customize the arguments passed to
     Scala functions.
+  * Caching of methods calls from difference instances of Scala references for
+    faster invocation.
 
 2.4.0 (2017-09-27)
   * Improved input/output performance for large transfers over TCP/IP bridge.
