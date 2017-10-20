@@ -506,7 +506,7 @@ scalaDollarSignMethod <- function(reference,method) {
     else return(reference[['type']])
   }
   interpreter <- reference[['interpreter']]
-  function(..., .AS.REFERENCE = NA, .EVALUATE = TRUE) {
+  function(..., .AS.REFERENCE = NA, .EVALUATE = TRUE, .PARENTHESES = FALSE) {
     args <- list(...)
     if ( ! is.null(names(args)) ) stop("Arguments should not have names.")
     names <- paste0(rep('$',length(args)),seq_len(length(args)))
@@ -526,7 +526,7 @@ scalaDollarSignMethod <- function(reference,method) {
       else paste0(reference[['snippet']],'.',method)
     } else stop('Unrecognized reference type.')
     argsList <- paste0(names,collapse=",")
-    if ( nchar(argsList) > 0 ) argsList <- paste0('(',argsList,')')
+    if ( ( nchar(argsList) > 0 ) || .PARENTHESES ) argsList <- paste0('(',argsList,')')
     snippet <- paste0(header,paste0(body,argsList))
     if ( get("show.snippet",envir=interpreter[['env']]) ) cat("<<<\n",snippet,"\n>>>\n",sep="")
     cc(interpreter)
