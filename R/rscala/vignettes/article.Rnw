@@ -1139,7 +1139,7 @@ fasterNextGaussianRJava <- function() rJava::.jcall(rngRJava, "D", "nextGaussian
 
 if ( suppressWarnings(require('microbenchmark', quietly=TRUE)) ) {
   timings <- summary(microbenchmark(fasterNextGaussianRJava(), fasterNextGaussian(),
-    rngRJava$nextGaussian(), rng$nextGaussian(), times=1000))
+    rng$nextGaussian(), rngRJava$nextGaussian(), times=1000))
 } else load('timings.RData')
 @
 
