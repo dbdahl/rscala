@@ -607,6 +607,12 @@ instance of \code{scala.util.Random} is access as
 rng$self()
 @
 
+If there are no arguments when calling a method of a \Scala reference, the
+empty parentheses are excluded in the generated \Scala code.  These empty
+parentheses are needed, however, when one intends to use the methods default
+arguments.  In that class, use \code{.PARENTHESES=TRUE} when calling the
+method.
+
 \subsubsection{Calling methods of singleton objects}
 
 In contrast to \Java, \Scala classes do not have static variables or methods.
