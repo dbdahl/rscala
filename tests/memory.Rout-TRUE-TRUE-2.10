@@ -1,6 +1,6 @@
 > heap.maximum <- "192M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.2 (2017-09-28) # hilton # TRUE # TRUE
+# R version 3.4.2 (2017-09-28) # carter # TRUE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
@@ -89,7 +89,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.2 (2017-09-28) # hilton # TRUE # TRUE
+# R version 3.4.2 (2017-09-28) # carter # TRUE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -97,7 +97,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > heap.maximum <- "64M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.2 (2017-09-28) # hilton # TRUE # TRUE
+# R version 3.4.2 (2017-09-28) # carter # TRUE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
@@ -186,7 +186,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > heap.maximum <- "128M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.2 (2017-09-28) # hilton # TRUE # TRUE
+# R version 3.4.2 (2017-09-28) # carter # TRUE # TRUE
 > for ( i in 1:20 ) {
 +   a <- s$".Array[Double]"$new(2000000L)      # No memory problems
 + }

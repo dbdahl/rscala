@@ -1,6 +1,6 @@
 > heap.maximum <- "192M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.2 (2017-09-28) # hilton # FALSE # TRUE
+# R version 3.4.2 (2017-09-28) # carter # FALSE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
@@ -45,7 +45,7 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.OutOfMemoryError: Java heap space
 	at $line6.$read$$iw$$iw$.$anonfun$res1$1(<console>:16)
-	at $line6.$read$$iw$$iw$$$Lambda$1033/1211627902.apply(Unknown Source)
+	at $line6.$read$$iw$$iw$$$Lambda$1035/1586519852.apply(Unknown Source)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -85,7 +85,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.2 (2017-09-28) # hilton # FALSE # TRUE
+# R version 3.4.2 (2017-09-28) # carter # FALSE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -93,7 +93,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > heap.maximum <- "64M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.2 (2017-09-28) # hilton # FALSE # TRUE
+# R version 3.4.2 (2017-09-28) # carter # FALSE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
@@ -138,7 +138,7 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.OutOfMemoryError: Java heap space
 	at $line6.$read$$iw$$iw$.$anonfun$res1$1(<console>:16)
-	at $line6.$read$$iw$$iw$$$Lambda$1033/1211627902.apply(Unknown Source)
+	at $line6.$read$$iw$$iw$$$Lambda$1035/1586519852.apply(Unknown Source)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -178,7 +178,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > heap.maximum <- "128M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.2 (2017-09-28) # hilton # FALSE # TRUE
+# R version 3.4.2 (2017-09-28) # carter # FALSE # TRUE
 > for ( i in 1:20 ) {
 +   a <- s$".Array[Double]"$new(2000000L)      # No memory problems
 + }
@@ -189,7 +189,7 @@ java.lang.OutOfMemoryError: Java heap space
 +   a <- s %~% "new Array[Double](2000000)"    # Memory problems
 + }
 + },error=function(e) e)
-1  2  3  4  5  java.lang.OutOfMemoryError: Java heap space
+1  2  3  4  java.lang.OutOfMemoryError: Java heap space
   ... 32 elided
 <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
 > 

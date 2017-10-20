@@ -1,6 +1,6 @@
 > heap.maximum <- "3G"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.2 (2017-09-28) # hilton # TRUE # TRUE
+# R version 3.4.2 (2017-09-28) # carter # TRUE # TRUE
 > 
 > library(help="rscala")
 
@@ -12,8 +12,8 @@ Package:              rscala
 Type:                 Package
 Title:                Bi-Directional Interface Between 'R' and 'Scala'
                       with Callbacks
-Version:              2.4.1-591
-Date:                 2017-10-12
+Version:              2.4.1-600
+Date:                 2017-10-19
 Authors@R:            person(given="David
                       B.",family="Dahl",role=c("aut","cre"),email="dahl@stat.byu.edu")
 URL:                  https://github.com/dbdahl/rscala
@@ -30,10 +30,10 @@ License:              GPL (>= 2) | BSD_3_clause + file LICENSE
 VignetteBuilder:      knitr
 Suggests:             knitr, microbenchmark, rJava, xtable
 NeedsCompilation:     no
-Packaged:             2017-10-12 23:50:44 UTC; dahl
+Packaged:             2017-10-20 05:19:03 UTC; dahl
 Author:               David B. Dahl [aut, cre]
 Maintainer:           David B. Dahl <dahl@stat.byu.edu>
-Built:                R 3.4.2; ; 2017-10-12 23:52:23 UTC; unix
+Built:                R 3.4.2; ; 2017-10-20 05:27:58 UTC; unix
 
 Index:
 
@@ -48,6 +48,7 @@ rscala-package          Bi-Directional Interface Between R and Scala
                         with Callbacks
 scala                   Create an Instance of an Embedded Scala
                         Interpreter
+scalaFunctionArgs       Manipulate Arguments to a Scala Function
 scalaSettings           Settings of the Scala Interpreter
 strintrplt              String Interpolation with Arbitrary R Code
 
@@ -99,7 +100,7 @@ article: Integration of R and Scala Using rscala (source, pdf)
 +   times=2500)
 Unit: microseconds
                expr     min       lq     mean   median       uq      max neval
- rng$nextGaussian() 499.257 612.0055 1293.946 884.4705 1075.601 55910.57  2500
+ rng$nextGaussian() 447.931 952.8925 1817.748 1144.693 1257.362 60884.86  2500
 > 
 > microbenchmark(
 +   rng$nextGaussian(),
@@ -116,26 +117,26 @@ Unit: microseconds
 +   times=25)
 Unit: milliseconds
                expr        min         lq       mean     median         uq
- rng$nextGaussian()   0.839851   1.263004   4.340670   1.399552   1.613107
-           func0a() 434.595195 500.738724 631.555855 571.392862 720.847192
-           func1a() 453.239748 507.074427 648.626405 588.186325 664.047787
-           func1b()   2.924353   4.130848   8.171909   4.904014   9.476960
-           func2a() 201.492331 254.658339 352.280972 312.589838 434.188060
-           func2b()   2.541836   3.668268  32.884103   3.890071   5.158356
-           func3a()  58.101337  71.050507 166.802398 114.828307 162.568535
-           func4a() 126.595502 158.290905 269.881772 186.873909 239.948650
-     s$a <- 1:6e+06 160.751948 271.997683 331.488001 308.529008 348.415256
-                s$a 189.523866 235.815063 350.378589 311.397949 411.532502
+ rng$nextGaussian()   0.647113   0.941077   4.355342   1.415706   2.644549
+           func0a() 326.671398 447.085779 592.326292 518.057081 682.578668
+           func1a() 411.328900 460.395247 707.580922 574.531864 830.523598
+           func1b()   3.692265   4.358369   9.714996   4.827202   5.290493
+           func2a() 193.686439 252.074738 360.272896 345.706372 392.007272
+           func2b()   2.127671   3.141214  46.762951   3.641235   4.243808
+           func3a()  51.507730  64.106011 122.179468  75.397057 119.227082
+           func4a() 120.280631 146.175352 246.975202 196.352567 250.611732
+     s$a <- 1:6e+06 177.196616 248.320602 345.662258 314.534111 381.649708
+                s$a 188.994694 246.080154 340.738879 292.032855 372.964719
         max neval
-   30.31243    25
- 1197.16151    25
- 1579.94632    25
-   30.91348    25
-  845.45354    25
-  683.49517    25
-  818.98809    25
- 1245.11360    25
-  615.83465    25
-  763.21018    25
+   31.95859    25
+ 1430.09588    25
+ 1841.20093    25
+  121.12591    25
+  863.24430    25
+ 1057.10189    25
+  816.01119    25
+  883.03953    25
+  665.43433    25
+  861.18932    25
 > 
 > 

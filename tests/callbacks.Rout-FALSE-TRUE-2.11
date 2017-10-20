@@ -21,7 +21,7 @@
 > 
 > row.major <- FALSE
 > source("common.R",print.eval=TRUE)
-# R version 3.4.2 (2017-09-28) # hilton # FALSE # TRUE
+# R version 3.4.2 (2017-09-28) # carter # FALSE # TRUE
 > 
 > y <- c(0,1,2,3,4,5,6,8)
 > for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y),as.raw(y)) ) {
@@ -47,7 +47,7 @@ Class is raw
 > 
 > row.major <- TRUE
 > source("common.R",print.eval=TRUE)
-# R version 3.4.2 (2017-09-28) # hilton # FALSE # TRUE
+# R version 3.4.2 (2017-09-28) # carter # FALSE # TRUE
 > 
 > y <- c(0,1,2,3,4,5,6,8)
 > for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y),as.raw(y)) ) {
@@ -301,8 +301,8 @@ Caused by: java.lang.RuntimeException: Unsupported array type.
 	at scala.collection.AbstractTraversable.map(Traversable.scala:104)
 	at org.ddahl.rscala.RClient.mkSnippet(RClient.scala:301)
 	at org.ddahl.rscala.RClient.invokeD1(RClient.scala:244)
-	at $line347.$read$$iw$$iw$$anonfun$1.apply(<console>:19)
-	at $line347.$read$$iw$$iw$$anonfun$1.apply(<console>:14)
+	at $line289.$read$$iw$$iw$$anonfun$1.apply(<console>:19)
+	at $line289.$read$$iw$$iw$$anonfun$1.apply(<console>:14)
 	... 35 more
 java.lang.reflect.InvocationTargetException
 java.lang.RuntimeException: Unsupported array type.
@@ -321,13 +321,13 @@ Here is am.
 > callRFunction0D2 <- function(func) s %!% 'R.invokeD2(func)'
 > callRFunction0D2(gc)
        [,1] [,2]    [,3] [,4]    [,5] [,6]
-[1,] 340967 18.3  592000 31.7  460000 24.6
-[2,] 646765  5.0 1209484  9.3 1063969  8.2
+[1,] 341119 18.3  592000 31.7  460000 24.6
+[2,] 647102  5.0 1209492  9.3 1063975  8.2
 Warning messages:
 1: In .Internal(gc(verbose, reset)) :
-  closing unused connection 4 (->localhost:44032)
+  closing unused connection 4 (->localhost:38008)
 2: In .Internal(gc(verbose, reset)) :
-  closing unused connection 3 (->localhost:41634)
+  closing unused connection 3 (->localhost:35277)
 > 
 > tryCatch(callRFunction(1:100),error = function(e) {})
 NULL
