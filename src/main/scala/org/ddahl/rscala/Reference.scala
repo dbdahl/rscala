@@ -13,12 +13,12 @@ sealed trait Reference {
 }
 
 /** A reference to an R object which is only guaranteed to be valid in the scope in which it was created.  */
-class EphemeralReference private[rscala] (val name: String) extends Reference
+class EphemeralReference private[rscala] (val name: String, val scalaAsIs: Boolean) extends Reference
 
 /** A reference to an R object which is only guaranteed to be valid in the scope in which it was created.  */
 object EphemeralReference {
 
-  def apply(name: String) = new EphemeralReference(name)
+  def apply(name: String, scalaAsIs: Boolean = false) = new EphemeralReference(name, scalaAsIs)
 
 }
 

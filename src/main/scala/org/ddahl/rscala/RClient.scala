@@ -301,14 +301,14 @@ class RClient private (private val scalaServer: ScalaServer, private val rProces
     val argsStrings = args.map {
       case null => "NULL"
       case (name: String, r: PersistentReference) =>  s"$name = get('$r',envir=.rsI[['r']])"
-      case (name: String, r: EphemeralReference) =>  s"$name = $r"
+      case (name: String, r: EphemeralReference) =>  if ( r.scalaAsIs ) s"$name = $r$$original" else s"$name = $r"
       case (name: String, o) =>
         val id = ".rsX" + counter
         counter += 1
         set(id,o)
         name + "=" + id
       case r: PersistentReference => s"get('$r',envir=.rsI[['r']])"
-      case r: EphemeralReference => r.toString
+      case r: EphemeralReference => if ( r.scalaAsIs ) r.toString + "$original" else r.toString
       case o =>
         val id = ".rsX" + counter
         counter += 1

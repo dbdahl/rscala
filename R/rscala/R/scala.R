@@ -437,8 +437,8 @@ scalaDef <- function(interpreter,snippet,as.reference) {
   wc(interpreter,functionName)
   wc(interpreter,"")
   flush(interpreter[['socketIn']])
-  assign(".rsI",interpreter,envir=parent.frame(2))
-  rServe(interpreter,TRUE,parent.frame(2))
+  assign(".rsI",interpreter,envir=pf)
+  rServe(interpreter,TRUE,pf)
   status <- rb(interpreter,"integer")
   if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
   if ( status != OK ) stop("Problem invoking function.")
@@ -462,11 +462,12 @@ scalaUnboxReference <- function(x) {
 
 II <- function(x) {
   if ( is.null(x) ) return(x)
-  structure(x, class=unique(c("ScalaAsIs", oldClass(x))))
+  structure(list(original=x), class="ScalaAsIs")
 }
 
-mkEphemeralReferenceSnippet <- function(name) {
-  paste0('val ',name,' = EphemeralReference("',name,'")')
+mkEphemeralReferenceSnippet <- function(name, scalaAsIs=FALSE) {
+  if ( scalaAsIs ) paste0('val ',name,' = EphemeralReference("',name,'",true)')
+  else paste0('val ',name,' = EphemeralReference("',name,'")')
 }
 
 mkHeader <- function(args,names) {
@@ -477,7 +478,7 @@ mkHeader <- function(args,names) {
     value <- args[[i]]
     if ( missing(value) ) stop(paste0('Argument "',name,'" is missing, with no default.'))
     mkHeaderEngine <- function() {
-      if ( inherits(value,"ScalaAsIs") ) return(mkEphemeralReferenceSnippet(name))
+      if ( inherits(value,"ScalaAsIs") ) return(mkEphemeralReferenceSnippet(name,TRUE))
       if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") || inherits(value,"ScalaNullReference")) {
         return(paste0('val ',name,' = R.cached(R.evalS0("toString(get(\'',name,'\'))")).asInstanceOf[',args[[i]][['type']],']'))
       }
