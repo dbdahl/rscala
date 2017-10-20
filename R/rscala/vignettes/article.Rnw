@@ -1139,7 +1139,7 @@ fasterNextGaussianRJava <- function() rJava::.jcall(rngRJava, "D", "nextGaussian
 
 if ( suppressWarnings(require('microbenchmark', quietly=TRUE)) ) {
   timings <- summary(microbenchmark(fasterNextGaussianRJava(), fasterNextGaussian(),
-    rng$nextGaussian(), rngRJava$nextGaussian(), times=1000))
+    rngRJava$nextGaussian(), rng$nextGaussian(), times=1000))
 } else load('timings.RData')
 @
 
@@ -1147,7 +1147,7 @@ if ( suppressWarnings(require('microbenchmark', quietly=TRUE)) ) {
 library(xtable)
 units <- attr(timings,"unit")
 reps <- timings[1,"neval"]
-timings <- cbind(timings[,c("expr")],c("rJava","rscala"),timings[,c("lq","mean","median","uq")])
+timings <- cbind(timings[,c("expr")],c("rJava","rscala","rJava","rscala"),timings[,c("lq","mean","median","uq")])
 colnames(timings) <- c("Expression","Package","Q1","Mean","Median","Q3")
 xtab <- xtable(timings, label="overhead")
 caption(xtab) <- paste0("Comparison of execution time of various ways to call the \\code{nextGaussian} method of an instance of the \\code{scala.util.Random} class.  Since the method itself is relatively fast, the timings here are an indication of the overhead involved with the various techniques.  Each expression was evaluated ",reps," times and the results are in ",units,".")
