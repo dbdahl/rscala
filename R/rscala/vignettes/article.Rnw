@@ -49,7 +49,7 @@
 
 %% almost as usual
 \author{David B.\ Dahl\\Brigham Young University}
-\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.5.0,\ \ Document ID: 2017-10-12}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
+\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.5.0,\ \ Document ID: 2017-10-20}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
 
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{David B. Dahl} %% comma-separated
@@ -865,35 +865,39 @@ cpuFirstEval <- system.time(
 cat(paste(strsplit(bigNumber, "(?<=.{80})", perl = TRUE)[[1]], collapse="\n"), "\n")
 @
 
-Taking a closer look at the definition of the \code{bell.version2} function,
-notice that the last expression in the function is \code{s \%!\% '...'}, where
-\code{s} is the \Scala instance and \code{'...'} represents the multiline
-\Scala snippet.  The effect of the \code{\%!\%} operator is two-fold: i.~it
-automatically makes the arguments of the enclosing function (namely, \code{n}
-and \code{format}) available in the \Scala snippet (although this can be customized with
-the \code{scalaFunctionArgs} function), and ii.~it caches the
-on-the-fly compilation of the \Scala snippet to substantially improve speed for
-subsequent calls to \code{bell.version2}.  The \code{\%!\%} operator returns a
-copyable type or a \Scala reference if the result is not a copyable type.  The
-\code{\%.!\%} operator is identical except that it always returns a \Scala
-reference.
+Take a closer look at the definition of the \code{bell.version2} function.  We
+call this a \Scala function because it contains \code{s \%!\% '...'}, where
+\code{s} is a \Scala instance and \code{'...'} represents a \Scala snippet.
+The effect of the \code{\%!\%} operator is two-fold: i.~it automatically makes
+the arguments of the enclosing function (namely, \code{n} and \code{format})
+available in the \Scala snippet, although this can be customized with the
+\code{[} operator (as explained below), and ii.~it caches the on-the-fly
+compilation of the \Scala snippet to substantially improve speed for repeated
+calls.  The \code{\%!\%} operator returns a copyable type or, if the result is
+not a copyable type, a \Scala reference.  The \code{\%.!\%} operator is
+identical except that it always returns a \Scala reference.
 
 The consumer of a \Scala function does not need to know that the implementation
 is written in \Scala, but the programmer of a \Scala function should bear in
-mind a few items.  If an argument to a \Scala function is not a copyable
-type or a \Scala references, it will become a \code{EphemeralReference} object that
-can still be used in \R code executed by the \Scala function.  (This functionality is
-demonstrated later.)  If an argument
-is not needed in the \Scala implementation (because, for example, it has
-already been processed in the \R code), the conversion can be avoided by
-deleting the object with \R's \code{rm} function before the \code{s \%!\%
-'...'} snippet.  The automatically generated \Scala code for the conversion of
-arguments can be displayed (for debugging purposes) by setting the
-\code{show.header} option, e.g., \code{scalaSettings(s, show.header=TRUE)}.
-The \code{scalaNull} function can be used to pass a null reference of a particular
-type.  For example, an argument to a \Scala function might be \code{rng =
-scalaNull("scala.util.Random")}, indicating a null reference to
-\code{scala.util.Random}.
+mind a few items.  If an argument to a \Scala function is not a copyable type
+or a \Scala references, it will become a \code{EphemeralReference} object that
+can still be used in \R code executed by the \Scala function.  (This
+functionality is demonstrated later.) The \code{scalaNull} function can be used
+to pass a null reference of a particular type.  For example, an argument to a
+\Scala function might be \code{rng = scalaNull("scala.util.Random")},
+indicating a null reference to \code{scala.util.Random}.
+
+Additional variables in the local environment can be automatically serialized
+to \Scala by listing them after the \code{[} operator of the \Scala instance.
+Conversely, if an argument is not needed in the \Scala implementation (because,
+for example, it has already been processed in the \R code), the serialization
+can be avoided by using the \code{drop} argument of the \code{[} operator.  So,
+for example, we can make available new variables \code{x}, \code{y}, and
+\code{z} and skip variables \code{a} and \code{b} using
+\code{s["x","y","z",drop=c("a","b")] \%!\% '...'}.  The automatically generated
+\Scala code for the conversion of variables can be displayed (for debugging
+purposes) by setting the \code{show.snippet} option, e.g.,
+\code{scalaSettings(s, show.snippet=TRUE)}.
 
 \subsection[Callbacks into R from embedded Scala]{Callbacks into \R from embedded \Scala}
 
@@ -1073,8 +1077,9 @@ Here we wish to highlight performance characteristics of \rscala itself.
 
 Every \Scala snippet associated with the \code{\%@\%}, \code{\%\mytilde\%}, and
 \code{\%.\mytilde\%} operators is compiled at every invocation.  In contrast, a
-\Scala snippet in a \Scala function (see Section \ref{inline}) is only compiled
-the first time the function is run.  Subsequent invocations are faster because
+\Scala snippet in a \Scala function (see Section \ref{inline})
+and methods of Scala references are only compiled
+the first time they are run.  Subsequent invocations are faster because
 the compiled code is cached and re-used.  Recall that in Section \ref{inline}
 the variable \code{cpuFirstEval} saved the system time associated with the
 first invocation of the \Scala function \code{bell.version2}.

@@ -4,8 +4,10 @@
     a Scala interpreter.  Added 'scala2' and 'scala3' functions to customize
     how the Scala/R bridge is established.  Users should change instances of
     's <- scala()' to 'scala()' or 's <- scala3()'.
-  * Added 'scalaFunctionArgs' function to customize the arguments passed to
-    Scala functions.
+  * Added ability to control which variables are passed to a Scala
+    function using the [ operator.  Including additional items can be
+    convenient and excluding items avoids potentially costly serializing over
+    the R/Scala bridge.  See the vignette for syntaxical details.
   * Caching of methods calls from difference instances of Scala references for
     faster invocation.
 

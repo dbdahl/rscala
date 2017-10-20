@@ -197,7 +197,7 @@ system.time({
   '
   acf(draws,plot=FALSE)
 })
-sampler <- function(nDraws, rho=0.0, rng=scalaNull("scala.util.Random")) s \%!\% '
+sampler <- function(nDraws, rho, rng) s \%!\% '
   val result = new Array[Double](nDraws)
   result(0) = rng.nextGaussian
   for ( i <- 1 until nDraws ) {

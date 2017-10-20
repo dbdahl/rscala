@@ -390,18 +390,18 @@ scalaSet <- function(interpreter,identifier,value) {
 '%!%.ScalaInterpreter'  <- function(interpreter,snippet) scalaDef(interpreter,snippet,NA)
 '%.!%.ScalaInterpreter' <- function(interpreter,snippet) scalaDef(interpreter,snippet,TRUE)
 
-scalaFunctionArgs <- function(include=character(), exclude=character()) {
-  pf <- parent.frame(1)
-  if ( length(include) > 0 ) assign(".scalaFunctionArgsInclude",include,envir=pf) 
-  if ( length(exclude) > 0 ) assign(".scalaFunctionArgsExclude",exclude,envir=pf) 
-}
-
 scalaDef <- function(interpreter,snippet,as.reference) {
   pf <- parent.frame(2)
   snippet <- strintrpltIf(snippet,pf,interpreter)
   argsNames <- names(formals(sys.function(-3)))
-  if ( exists(".scalaFunctionArgsInclude",envir=pf) ) argsNames <- union(argsNames,get(".scalaFunctionArgsInclude",envir=pf))
-  if ( exists(".scalaFunctionArgsExclude",envir=pf) ) argsNames <- setdiff(argsNames,get(".scalaFunctionArgsExclude",envir=pf))
+  if ( exists(".scalaFunctionArgsInclude",envir=pf) ) {
+    argsNames <- union(argsNames,get(".scalaFunctionArgsInclude",envir=pf))
+    rm(".scalaFunctionArgsInclude",envir=pf)
+  }
+  if ( exists(".scalaFunctionArgsExclude",envir=pf) ) {
+    argsNames <- setdiff(argsNames,get(".scalaFunctionArgsExclude",envir=pf))
+    rm(".scalaFunctionArgsExclude",envir=pf)
+  }
   argsNames <- intersect(argsNames,ls(envir=pf))
   argsValues <- if ( length(argsNames) > 0 ) {
     mget(argsNames,envir=pf)
