@@ -105,7 +105,11 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
         }
         val functionName = repl.mostRecentVar
         val f = repl.valueOfTerm(functionName).get
-        val returnType = repl.symbolOfLine(functionName).info.toString.substring(10)  // Drop "String => " in the return type.
+        val returnType = {
+          val r = repl.symbolOfLine(functionName).info.toString.substring(10)  // Drop "String => " in the return type.
+          if ( r.startsWith("iw$") ) r.substring(3)
+          else r
+        }
         functionMap2(body) = functionName
         functionMap(functionName) = (f, returnType)
         if ( debugger.value ) debugger.msg("Function definition is okay.")

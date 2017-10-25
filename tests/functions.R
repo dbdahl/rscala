@@ -43,11 +43,8 @@ class Bob {
 '
 
 d <- s$.Bob$new()
-d[['type']]                           # Note the weird 'iw$' prepended to 'Bob'
-tryCatch(d$b(),error=function(e) e)   # Doesn't work
-
-d[['type']] <- "Bob"     # Cast it to be 'Bob'
-d$b()                    # Now it does
+d[['type']]  # The weird 'iw$' prepended to 'Bob' is automatically removed
+d$b()
 
 d$sum(4L)
 m <- d$sum(5L,.EVALUATE=FALSE)
