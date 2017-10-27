@@ -366,7 +366,7 @@ scalaSet <- function(interpreter,identifier,value) {
         wb(interpreter,MATRIX)
         wb(interpreter,dim(value))
         wb(interpreter,type)
-        dim(value) <- NULL
+        if ( length(attributes(value)) != 0 ) value <- as.vector(value)
         if ( type == STRING ) {
           if ( length(value) > 0 ) for ( i in seq_len(length(value)) ) wc(interpreter,value[i])
         } else if ( type == BOOLEAN ) wb(interpreter,as.integer(value))
@@ -393,7 +393,7 @@ scalaSet <- function(interpreter,identifier,value) {
 "[.ScalaInterpreter" <- function(x, i, j, ..., drop=TRUE) {
   keep <- character()
   if ( ! missing(i) ) keep <- c(keep,i)
-  if ( ! missing(j) ) keep <- c(keep,i)
+  if ( ! missing(j) ) keep <- c(keep,j)
   keep <- c(keep, ...)
   pf <- parent.frame(1)
   if (length(keep) > 0) assign(".scalaFunctionArgsInclude", as.character(keep), envir = pf)
@@ -482,6 +482,7 @@ mkHeader <- function(args,names) {
       if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") || inherits(value,"ScalaNullReference")) {
         return(paste0('val ',name,' = R.cached(R.evalS0("toString(get(\'',name,'\'))")).asInstanceOf[',args[[i]][['type']],']'))
       }
+      if ( inherits(value,"ScalaInterpreterItem") ) return(paste0('val ',name,' = ',args[[i]][['snippet']]))
       if ( ( ! is.atomic(value) ) || is.null(value) ) return(mkEphemeralReferenceSnippet(name))
       type <- if ( is.integer(value) ) "I"
       else if ( is.double(value) ) "D"

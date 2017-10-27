@@ -111,7 +111,7 @@ rServe <- function(sockets,with.callbacks,workspace=.GlobalEnv) {
           wb(sockets,MATRIX)
           wb(sockets,dim(value))
           wb(sockets,type)
-          dim(value) <- NULL
+          if ( length(attributes(value)) != 0 ) value <- as.vector(value)
           if ( type == STRING ) {
             if ( length(value) > 0 ) for ( i in seq_len(length(value)) ) wc(sockets,value[i])
           } else if ( type == BOOLEAN ) wb(sockets,as.integer(value))
