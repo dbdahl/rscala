@@ -158,9 +158,9 @@ toString.ScalaInterpreter <- function(x,...) {
 
 print.ScalaInterpreterReference <- function(x,...) {
   type <- x[['type']]
-  # scalap(x[['interpreter']],type)
   cat("ScalaInterpreterReference... ")
   cat(x[['identifier']],": ",type,"\n",sep="")
+  cat(x$toString(),"\n",sep="")
   invisible(x)
 }
 
@@ -170,9 +170,9 @@ toString.ScalaInterpreterReference <- function(x,...) {
 
 print.ScalaCachedReference <- function(x,...) {
   type <- x[['type']]
-  # scalap(x[['interpreter']],type)
   cat("ScalaCachedReference... ")
   cat("*: ",type,"\n",sep="")
+  cat(x$toString(),"\n",sep="")
   invisible(x)
 }
 
@@ -181,7 +181,6 @@ toString.ScalaCachedReference <- function(x,...) {
 }
 
 print.ScalaInterpreterItem <- function(x,...) {
-  # scalap(x[['interpreter']],x[['snippet']])
   cat(toString(x),"\n",sep="")
   invisible(x)
 }
@@ -506,7 +505,7 @@ scalaDollarSignMethod <- function(reference,method) {
   if ( method == "type" ) {
     if ( inherits(reference,"ScalaInterpreterItem") ) return(reference[['snippet']])
     else return(reference[['type']])
-  }
+  } else if ( method == "do" ) return(function(method2) { scalaDollarSignMethod(reference,method2) })
   interpreter <- reference[['interpreter']]
   function(..., .AS.REFERENCE = NA, .EVALUATE = TRUE, .PARENTHESES = FALSE) {
     args <- list(...)
