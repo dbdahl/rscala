@@ -48,3 +48,5 @@ S3method(".DollarNames", "ScalaInterpreterItem")
 S3method(".DollarNames", "ScalaInterpreterReference")
 S3method(".DollarNames", "ScalaCachedReference")
 
+export("scalaConvert")
+export("scalaConvert.data.frame")

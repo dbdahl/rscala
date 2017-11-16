@@ -309,7 +309,7 @@ scala(serialize.output=TRUE)
 s %@% 'scala.util.Random.setSeed(3242)'
 @
 
-This implicitly makes the interpreter \code{s} available in the current
+This implicitly makes the interpreter instance \code{s} available in the current
 environment.  (The name can be customized with the \code{assign.name} option of the \code{scala} function.)
 Information on the \Scala instance \code{s} is available using
 

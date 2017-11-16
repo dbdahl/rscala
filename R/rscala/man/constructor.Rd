@@ -126,7 +126,7 @@ scalaInfo(verbose=TRUE)
 # Make an instance of the Scala interpreter 's' and see how its output is captured.
 scala(serialize.output=TRUE)
 capture.output(s \%~\% 'println("This is Scala "+scala.util.Properties.versionString)')
-scalaSettings(s)
+scalaSettings()
 
 # Demonstrate convenient notation and string interpolation
 stringFromScala <- s \%~\% '"Hello @{Sys.getenv("USER")} from @{R.Version()$nickname}" + "!"*10'

@@ -41,7 +41,7 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
     system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
     reg.finalizer(env,stopProcess,onexit=TRUE)
     sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout,env)
-    scalaSettings(sockets,interpolate=TRUE,show.snippet=FALSE,info=sInfo)
+    scalaSettings(interpreter=sockets,interpolate=TRUE,show.snippet=FALSE,info=sInfo)
     callback(sockets)
     sockets
   } else if ( identical(mode,"parallel") ) {
@@ -49,7 +49,7 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
     reg.finalizer(env,stopProcess,onexit=TRUE)
     delayedAssign(assign.name,{
       sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout,env)
-      scalaSettings(sockets,interpolate=TRUE,show.snippet=FALSE,info=sInfo)
+      scalaSettings(interpreter=sockets,interpolate=TRUE,show.snippet=FALSE,info=sInfo)
       callback(sockets)
       sockets
     },assign.env=assign.env)
@@ -58,7 +58,7 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
       system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
       reg.finalizer(env,stopProcess,onexit=TRUE)
       sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout,env)
-      scalaSettings(sockets,interpolate=TRUE,show.snippet=FALSE,info=sInfo)
+      scalaSettings(interpreter=sockets,interpolate=TRUE,show.snippet=FALSE,info=sInfo)
       callback(sockets)
       sockets
     },assign.env=assign.env)

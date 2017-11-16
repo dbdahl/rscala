@@ -16,7 +16,7 @@ strintrplt <- function(snippet,envir=parent.frame()) {
   } else snippet
 }
 
-scalaSettings <- function(interpreter, interpolate=NULL, show.snippet=NULL, info=NULL) {
+scalaSettings <- function(interpolate=NULL, show.snippet=NULL, info=NULL, interpreter=findScalaInstance()) {
   if ( is.null(interpolate) && is.null(show.snippet) && is.null(info) ) {
     list(debug=get("debug",envir=interpreter[['env']]),
          info=get("info",envir=interpreter[['env']]),
