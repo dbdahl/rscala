@@ -669,10 +669,6 @@ jarsOfPackage <- function(pkgname, major.release) {
   result
 }
 
-latest <- function() {
-  install.packages('https://dahl.byu.edu/public/rscala_LATEST.tar.gz',repos=NULL,type='source')
-}
-
 scalaInfoEngine <- function(scala.command,major.release,verbose) {
   scala.command <- normalizePath(scala.command,mustWork=FALSE)
   if ( ! file.exists(scala.command) ) return(NULL)
