@@ -50,3 +50,5 @@ S3method(".DollarNames", "ScalaCachedReference")
 
 export("scalaConvert")
 export("scalaConvert.data.frame")
+export("is.scalaReference")
+
