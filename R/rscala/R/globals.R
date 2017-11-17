@@ -17,7 +17,7 @@ findScalaInstance <- function() {
     frame <- parent.frame(counter)
     w <- which(sapply(ls(envir=frame),function(x) class(get(x)))=="ScalaInterpreter")
     if ( length(w) == 1 ) return(get(names(w),envir=frame))
-    if ( length(w) >  1 ) stop("Multiple Scala instances were found.")
+    if ( length(w) >  1 ) stop("Multiple Scala instances were found in the same environment.")
     if ( identical(frame,.GlobalEnv) ) stop("Cannot find a Scala instance.")
     counter <- counter + 1
   }

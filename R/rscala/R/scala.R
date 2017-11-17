@@ -633,14 +633,14 @@ jarsOfPackage <- function(pkgname, major.release) {
   result
 }
 
-.rscalaPackage <- function(pkgname, classpath.packages=character(), ...) {
+.rscalaPackage <- function(pkgname, ..., classpath.packages=character(), mode="parallel") {
   if ( identical(mode,"serial") ) stop('Mode "serial" is not supported for packages, but the same effect is achieved by immediately using the promised interpreter from another mode.')
   env <- parent.env(parent.frame())    # Environment of depending package (assuming this function is only called in .onLoad function).
   rscalaPackageEnv <- new.env(parent=emptyenv())
   assign(".rscalaPackageEnv",rscalaPackageEnv, envir=env)
   assign("isConnected",FALSE,envir=rscalaPackageEnv)
   callback <- function(ss) { assign("isConnected",TRUE,envir=rscalaPackageEnv) }
-  scala(classpath.packages=c(pkgname,classpath.packages),assign.env=env,callback=callback,...)
+  scala(classpath.packages=c(pkgname,classpath.packages),assign.env=env,callback=callback,mode=mode,...)
   invisible()
 }
 

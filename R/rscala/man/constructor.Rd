@@ -69,7 +69,8 @@ scalaInstall(major.release=c("2.10","2.11","2.12"), global=FALSE)
 
 .rscalaJar(major.release=c("2.10","2.11","2.12"))
 
-.rscalaPackage(pkgname, classpath.packages=character(), ...)
+.rscalaPackage(pkgname, ..., classpath.packages=character(),
+               mode="parallel")
 
 .rscalaPackageUnload()
 }
@@ -88,7 +89,7 @@ scalaInstall(major.release=c("2.10","2.11","2.12"), global=FALSE)
     \item{scala.info}{The result of a previous call to \code{\link{scalaInfo}}.}
     \item{verbose}{A logical vector of length one indicating whether information regarding the search for the Scala installation should be displayed.}
     \item{major.release}{The character vector giving acceptable major.release numbers (e.g., c("2.10","2.11","2.12")), or \code{NA} in which case the system picks the appropriate version.}
-    \item{mode}{One of \code{"parallel"}, \code{"lazy"}, or \code{"serial"} to indicate how the R/Scala bridge is established.  \code{"serial"} starts Scala in the background, blocks until the bridge is established, and causes the function to return the interpreter.  \code{"parallel"} starts Scala in the background whereas \code{"lazy"} only starts Scala if and when the interpreter is first used.  Both \code{"parallel"} and \code{"lazy"} cause the function to return \code{NULL} and makes the interpreter (with the identifier given by \code{assign.name}) available as a promise.}
+    \item{mode}{One of \code{"parallel"}, \code{"lazy"}, or \code{"serial"} to indicate how the R/Scala bridge is established.  \code{"serial"} starts Scala in the background, blocks until the bridge is established, and causes the function to return the interpreter.  \code{"parallel"} starts Scala in the background whereas \code{"lazy"} only starts Scala if and when the interpreter is first used.  Both \code{"parallel"} and \code{"lazy"} cause the function to return \code{NULL} and makes the interpreter (with the identifier given by \code{assign.name}) available as a promise.  \code{"serial"} is not supported in the \code{\link{.rscalaPackage}} function.}
     \item{assign.name}{If \code{mode != "serial"}, the name of the (promise of the) interpreter.}
     \item{assign.env}{If \code{mode != "serial"}, the environment in which the (promise of the) interpreter is assigned.}
     \item{callback}{A function taking a Scala interpreter as its only argument.  This function is called immediately after the R/Scala bridge is established.}
