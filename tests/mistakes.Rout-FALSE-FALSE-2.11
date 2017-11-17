@@ -1,10 +1,8 @@
 > source("common.R",print.eval=TRUE)
-# R version 3.4.2 (2017-09-28) # carter # FALSE # FALSE
+# R version 3.4.2 (2017-09-28) # hunter # FALSE # FALSE
 > 
-> if ( substr(Sys.getenv("RSCALA_SCALA_VERSION"),1,4) != "2.10" ) {
-+   a <- s %.~% "null"
-+   print(a)
-+ }
+> a <- s %.~% "null"
+> print(a)
 ScalaInterpreterReference... res1: Null
 > 
 > a <- s %~% "null"
@@ -33,14 +31,14 @@ NULL
 +   val b = 5
 +   (a,b)
 + "
-ScalaInterpreterReference... res4: (Int, Int)
+ScalaInterpreterReference... res5: (Int, Int)
 > 
 > s %.~% "
 +   val a = 3
 +   val b = 5
 +   (a,b)
 + "
-ScalaInterpreterReference... res5: (Int, Int)
+ScalaInterpreterReference... res7: (Int, Int)
 > 
 > tryCatch(s$xaa,error = function(e) e)
 <simpleError in doTryCatch(return(expr), name, parentenv, handler): Undefined identifier: xaa>

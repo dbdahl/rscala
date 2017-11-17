@@ -1,9 +1,10 @@
 > jars <- c("commons-math3-3.2.jar","shallot.jar")
 > source("common.R",print.eval=TRUE)
-# R version 3.4.2 (2017-09-28) # carter # FALSE # TRUE
+# R version 3.4.2 (2017-09-28) # hunter # FALSE # TRUE
 > 
 > tryCatch(s %~% 'new org.apache.commons.math3.random.EmpiricalDistribution()',error=function(e) e)   # Scala 2.11.x class loader is weird.  This line avoid subsequent problems.
 ScalaInterpreterReference... res1: org.apache.commons.math3.random.EmpiricalDistribution
+org.apache.commons.math3.random.EmpiricalDistribution@7383eae2
 > 
 > 
 > rscala:::scalap(s,"org.apache.commons.math3.random.RandomDataGenerator")
@@ -87,19 +88,19 @@ ScalaInterpreterItem for org.apache.commons.math3.random.RandomDataGenerator
 > options(width=120)
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: microseconds
-                   expr     min       lq     mean   median      uq       max neval
- rdg$nextExponential(4) 560.823 962.0860 2131.737 1176.945 1351.16 453738.55  1000
-                rexp(4) 374.164 636.9035 1087.724  780.733  870.32  62420.03  1000
+                   expr     min       lq     mean    median        uq       max neval
+ rdg$nextExponential(4) 567.843 861.3680 1894.443 1262.4410 1458.4115 350580.02  1000
+                rexp(4) 357.075 543.9115 1095.570  820.8175  937.8525  33870.69  1000
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: microseconds
-                   expr     min       lq     mean    median        uq      max neval
- rdg$nextExponential(4) 600.043 881.7360 1690.075 1135.8195 1309.4420 46184.64  1000
-                rexp(4) 349.786 617.6605 1094.825  743.8385  864.1755 66580.50  1000
+                   expr     min       lq      mean   median       uq      max neval
+ rdg$nextExponential(4) 631.503 1045.109 1561.4009 1184.588 1307.476 43073.41  1000
+                rexp(4) 420.527  641.486  879.4939  764.519  850.939 25527.81  1000
 > microbenchmark(rdg$nextExponential(4),rexp(4),times=1000L)
 Unit: microseconds
-                   expr     min        lq     mean    median        uq      max neval
- rdg$nextExponential(4) 511.511 1196.1340 2717.554 1311.9380 1467.5290 77630.26  1000
-                rexp(4) 331.570  761.7955 1896.934  845.8415  924.0985 59965.54  1000
+                   expr     min       lq     mean   median       uq      max neval
+ rdg$nextExponential(4) 611.487 1059.402 1485.426 1198.825 1271.520 69619.16  1000
+                rexp(4) 407.193  693.365 1003.353  787.044  834.631 31334.88  1000
 > 
 > s$.org.ddahl.shallot.parameter.Mass
 ScalaInterpreterItem for org.ddahl.shallot.parameter.Mass
@@ -132,16 +133,9 @@ ScalaInterpreterItem for org.ddahl.shallot.parameter.Mass
 + '
 > 
 > d <- s$.Bob$new()
-> d[['type']]                           # Note the weird 'iw$' prepended to 'Bob'
-[1] "iw$Bob"
-> tryCatch(d$b(),error=function(e) e)   # Doesn't work
-<console>:15: error: not found: type iw$Bob
-       R.cached($0).asInstanceOf[iw$Bob].b
-                                 ^
-<simpleError in d$b(): Problem defining function.>
-> 
-> d[['type']] <- "Bob"     # Cast it to be 'Bob'
-> d$b()                    # Now it does
+> d[['type']]  # The weird 'iw$' prepended to 'Bob' is automatically removed
+[1] "Bob"
+> d$b()
 [1] 4
 > 
 > d$sum(4L)

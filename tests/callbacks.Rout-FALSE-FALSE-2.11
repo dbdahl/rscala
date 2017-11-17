@@ -21,7 +21,7 @@
 > 
 > row.major <- FALSE
 > source("common.R",print.eval=TRUE)
-# R version 3.4.2 (2017-09-28) # carter # FALSE # FALSE
+# R version 3.4.2 (2017-09-28) # hunter # FALSE # FALSE
 > 
 > y <- c(0,1,2,3,4,5,6,8)
 > for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y),as.raw(y)) ) {
@@ -47,7 +47,7 @@ Class is raw
 > 
 > row.major <- TRUE
 > source("common.R",print.eval=TRUE)
-# R version 3.4.2 (2017-09-28) # carter # FALSE # FALSE
+# R version 3.4.2 (2017-09-28) # hunter # FALSE # FALSE
 > 
 > y <- c(0,1,2,3,4,5,6,8)
 > for ( x in list(as.integer(y),as.double(y),as.logical(y),as.character(y),as.raw(y)) ) {
@@ -218,13 +218,13 @@ Here is am.
 > callRFunction0D2 <- function(func) s %!% 'R.invokeD2(func)'
 > callRFunction0D2(gc)
        [,1] [,2]    [,3] [,4]    [,5] [,6]
-[1,] 341119 18.3  592000 31.7  460000 24.6
-[2,] 647102  5.0 1209492  9.3 1063975  8.2
+[1,] 342235 18.3  592000 31.7  460000 24.6
+[2,] 648364  5.0 1210731  9.3 1064796  8.2
 Warning messages:
 1: In .Internal(gc(verbose, reset)) :
-  closing unused connection 4 (->localhost:43039)
+  closing unused connection 4 (->localhost:33542)
 2: In .Internal(gc(verbose, reset)) :
-  closing unused connection 3 (->localhost:38427)
+  closing unused connection 3 (->localhost:39231)
 > 
 > tryCatch(callRFunction(1:100),error = function(e) {})
 NULL

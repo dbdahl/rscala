@@ -1,15 +1,15 @@
 > heap.maximum <- "192M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.2 (2017-09-28) # carter # FALSE # TRUE
+# R version 3.4.2 (2017-09-28) # hunter # FALSE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:128)
-	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:430)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:457)
+	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:143)
+	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:447)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:474)
 	at org.ddahl.rscala.server.Main$.delayedEndpoint$org$ddahl$rscala$server$Main$1(Main.scala:18)
 	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0.apply$mcV$sp(Function0.scala:34)
@@ -25,13 +25,13 @@ java.lang.reflect.InvocationTargetException
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at scala.reflect.internal.util.ScalaClassLoader.$anonfun$run$2(ScalaClassLoader.scala:98)
-	at scala.reflect.internal.util.ScalaClassLoader.asContext(ScalaClassLoader.scala:32)
+	at scala.reflect.internal.util.ScalaClassLoader.$anonfun$run$2(ScalaClassLoader.scala:99)
+	at scala.reflect.internal.util.ScalaClassLoader.asContext(ScalaClassLoader.scala:34)
 	at scala.reflect.internal.util.ScalaClassLoader.asContext$(ScalaClassLoader.scala:30)
-	at scala.reflect.internal.util.ScalaClassLoader$URLClassLoader.asContext(ScalaClassLoader.scala:129)
-	at scala.reflect.internal.util.ScalaClassLoader.run(ScalaClassLoader.scala:98)
-	at scala.reflect.internal.util.ScalaClassLoader.run$(ScalaClassLoader.scala:90)
-	at scala.reflect.internal.util.ScalaClassLoader$URLClassLoader.run(ScalaClassLoader.scala:129)
+	at scala.reflect.internal.util.ScalaClassLoader$URLClassLoader.asContext(ScalaClassLoader.scala:125)
+	at scala.reflect.internal.util.ScalaClassLoader.run(ScalaClassLoader.scala:99)
+	at scala.reflect.internal.util.ScalaClassLoader.run$(ScalaClassLoader.scala:91)
+	at scala.reflect.internal.util.ScalaClassLoader$URLClassLoader.run(ScalaClassLoader.scala:125)
 	at scala.tools.nsc.CommonRunner.run(ObjectRunner.scala:22)
 	at scala.tools.nsc.CommonRunner.run$(ObjectRunner.scala:21)
 	at scala.tools.nsc.ObjectRunner$.run(ObjectRunner.scala:39)
@@ -45,21 +45,21 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.OutOfMemoryError: Java heap space
 	at $line6.$read$$iw$$iw$.$anonfun$res1$1(<console>:16)
-	at $line6.$read$$iw$$iw$$$Lambda$1035/1586519852.apply(Unknown Source)
+	at $line6.$read$$iw$$iw$$$Lambda$1054/1745241742.apply(Unknown Source)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:128)
-	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:430)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:457)
+	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:143)
+	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:447)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:474)
 	at org.ddahl.rscala.server.Main$.delayedEndpoint$org$ddahl$rscala$server$Main$1(Main.scala:18)
 	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0.apply$mcV$sp(Function0.scala:34)
 	at scala.Function0.apply$mcV$sp$(Function0.scala:34)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
 	at scala.App.$anonfun$main$1$adapted(App.scala:76)
-	at scala.App$$Lambda$104/758529971.apply(Unknown Source)
+	at scala.App$$Lambda$103/971848845.apply(Unknown Source)
 	at scala.collection.immutable.List.foreach(List.scala:389)
 	at scala.App.main(App.scala:76)
 	at scala.App.main$(App.scala:74)
@@ -69,13 +69,13 @@ Caused by: java.lang.OutOfMemoryError: Java heap space
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at scala.reflect.internal.util.ScalaClassLoader.$anonfun$run$2(ScalaClassLoader.scala:98)
-	at scala.reflect.internal.util.ScalaClassLoader$$Lambda$103/1562557367.apply(Unknown Source)
-	at scala.reflect.internal.util.ScalaClassLoader.asContext(ScalaClassLoader.scala:32)
+	at scala.reflect.internal.util.ScalaClassLoader.$anonfun$run$2(ScalaClassLoader.scala:99)
+	at scala.reflect.internal.util.ScalaClassLoader$$Lambda$102/123961122.apply(Unknown Source)
+	at scala.reflect.internal.util.ScalaClassLoader.asContext(ScalaClassLoader.scala:34)
 	at scala.reflect.internal.util.ScalaClassLoader.asContext$(ScalaClassLoader.scala:30)
-	at scala.reflect.internal.util.ScalaClassLoader$URLClassLoader.asContext(ScalaClassLoader.scala:129)
-	at scala.reflect.internal.util.ScalaClassLoader.run(ScalaClassLoader.scala:98)
-	at scala.reflect.internal.util.ScalaClassLoader.run$(ScalaClassLoader.scala:90)
+	at scala.reflect.internal.util.ScalaClassLoader$URLClassLoader.asContext(ScalaClassLoader.scala:125)
+	at scala.reflect.internal.util.ScalaClassLoader.run(ScalaClassLoader.scala:99)
+	at scala.reflect.internal.util.ScalaClassLoader.run$(ScalaClassLoader.scala:91)
 java.lang.reflect.InvocationTargetException
 java.lang.OutOfMemoryError: Java heap space
 <simpleError in f(..., .NBACK = 2): Problem invoking function.>
@@ -85,7 +85,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.2 (2017-09-28) # carter # FALSE # TRUE
+# R version 3.4.2 (2017-09-28) # hunter # FALSE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -93,16 +93,16 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > heap.maximum <- "64M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.2 (2017-09-28) # carter # FALSE # TRUE
+# R version 3.4.2 (2017-09-28) # hunter # FALSE # TRUE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 java.lang.reflect.InvocationTargetException
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:128)
-	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:430)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:457)
+	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:143)
+	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:447)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:474)
 	at org.ddahl.rscala.server.Main$.delayedEndpoint$org$ddahl$rscala$server$Main$1(Main.scala:18)
 	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0.apply$mcV$sp(Function0.scala:34)
@@ -118,13 +118,13 @@ java.lang.reflect.InvocationTargetException
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at scala.reflect.internal.util.ScalaClassLoader.$anonfun$run$2(ScalaClassLoader.scala:98)
-	at scala.reflect.internal.util.ScalaClassLoader.asContext(ScalaClassLoader.scala:32)
+	at scala.reflect.internal.util.ScalaClassLoader.$anonfun$run$2(ScalaClassLoader.scala:99)
+	at scala.reflect.internal.util.ScalaClassLoader.asContext(ScalaClassLoader.scala:34)
 	at scala.reflect.internal.util.ScalaClassLoader.asContext$(ScalaClassLoader.scala:30)
-	at scala.reflect.internal.util.ScalaClassLoader$URLClassLoader.asContext(ScalaClassLoader.scala:129)
-	at scala.reflect.internal.util.ScalaClassLoader.run(ScalaClassLoader.scala:98)
-	at scala.reflect.internal.util.ScalaClassLoader.run$(ScalaClassLoader.scala:90)
-	at scala.reflect.internal.util.ScalaClassLoader$URLClassLoader.run(ScalaClassLoader.scala:129)
+	at scala.reflect.internal.util.ScalaClassLoader$URLClassLoader.asContext(ScalaClassLoader.scala:125)
+	at scala.reflect.internal.util.ScalaClassLoader.run(ScalaClassLoader.scala:99)
+	at scala.reflect.internal.util.ScalaClassLoader.run$(ScalaClassLoader.scala:91)
+	at scala.reflect.internal.util.ScalaClassLoader$URLClassLoader.run(ScalaClassLoader.scala:125)
 	at scala.tools.nsc.CommonRunner.run(ObjectRunner.scala:22)
 	at scala.tools.nsc.CommonRunner.run$(ObjectRunner.scala:21)
 	at scala.tools.nsc.ObjectRunner$.run(ObjectRunner.scala:39)
@@ -138,21 +138,21 @@ java.lang.reflect.InvocationTargetException
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 Caused by: java.lang.OutOfMemoryError: Java heap space
 	at $line6.$read$$iw$$iw$.$anonfun$res1$1(<console>:16)
-	at $line6.$read$$iw$$iw$$$Lambda$1035/1586519852.apply(Unknown Source)
+	at $line6.$read$$iw$$iw$$$Lambda$1054/893281161.apply(Unknown Source)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:128)
-	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:430)
-	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:457)
+	at org.ddahl.rscala.server.ScalaServer.doInvoke(ScalaServer.scala:143)
+	at org.ddahl.rscala.server.ScalaServer.heart(ScalaServer.scala:447)
+	at org.ddahl.rscala.server.ScalaServer.run(ScalaServer.scala:474)
 	at org.ddahl.rscala.server.Main$.delayedEndpoint$org$ddahl$rscala$server$Main$1(Main.scala:18)
 	at org.ddahl.rscala.server.Main$delayedInit$body.apply(Main.scala:3)
 	at scala.Function0.apply$mcV$sp(Function0.scala:34)
 	at scala.Function0.apply$mcV$sp$(Function0.scala:34)
 	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:12)
 	at scala.App.$anonfun$main$1$adapted(App.scala:76)
-	at scala.App$$Lambda$104/758529971.apply(Unknown Source)
+	at scala.App$$Lambda$103/971848845.apply(Unknown Source)
 	at scala.collection.immutable.List.foreach(List.scala:389)
 	at scala.App.main(App.scala:76)
 	at scala.App.main$(App.scala:74)
@@ -162,13 +162,13 @@ Caused by: java.lang.OutOfMemoryError: Java heap space
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:498)
-	at scala.reflect.internal.util.ScalaClassLoader.$anonfun$run$2(ScalaClassLoader.scala:98)
-	at scala.reflect.internal.util.ScalaClassLoader$$Lambda$103/1562557367.apply(Unknown Source)
-	at scala.reflect.internal.util.ScalaClassLoader.asContext(ScalaClassLoader.scala:32)
+	at scala.reflect.internal.util.ScalaClassLoader.$anonfun$run$2(ScalaClassLoader.scala:99)
+	at scala.reflect.internal.util.ScalaClassLoader$$Lambda$102/123961122.apply(Unknown Source)
+	at scala.reflect.internal.util.ScalaClassLoader.asContext(ScalaClassLoader.scala:34)
 	at scala.reflect.internal.util.ScalaClassLoader.asContext$(ScalaClassLoader.scala:30)
-	at scala.reflect.internal.util.ScalaClassLoader$URLClassLoader.asContext(ScalaClassLoader.scala:129)
-	at scala.reflect.internal.util.ScalaClassLoader.run(ScalaClassLoader.scala:98)
-	at scala.reflect.internal.util.ScalaClassLoader.run$(ScalaClassLoader.scala:90)
+	at scala.reflect.internal.util.ScalaClassLoader$URLClassLoader.asContext(ScalaClassLoader.scala:125)
+	at scala.reflect.internal.util.ScalaClassLoader.run(ScalaClassLoader.scala:99)
+	at scala.reflect.internal.util.ScalaClassLoader.run$(ScalaClassLoader.scala:91)
 java.lang.reflect.InvocationTargetException
 java.lang.OutOfMemoryError: Java heap space
 <simpleError in f(..., .NBACK = 2): Problem invoking function.>
@@ -178,7 +178,7 @@ java.lang.OutOfMemoryError: Java heap space
 > 
 > heap.maximum <- "128M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.2 (2017-09-28) # carter # FALSE # TRUE
+# R version 3.4.2 (2017-09-28) # hunter # FALSE # TRUE
 > for ( i in 1:20 ) {
 +   a <- s$".Array[Double]"$new(2000000L)      # No memory problems
 + }
@@ -189,7 +189,7 @@ java.lang.OutOfMemoryError: Java heap space
 +   a <- s %~% "new Array[Double](2000000)"    # Memory problems
 + }
 + },error=function(e) e)
-1  2  3  4  java.lang.OutOfMemoryError: Java heap space
+1  2  3  4  5  java.lang.OutOfMemoryError: Java heap space
   ... 32 elided
 <simpleError in scalaEval(interpreter, snippet, workspace): Error in evaluation.>
 > 

@@ -1,6 +1,6 @@
 > heap.maximum <- "192M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.2 (2017-09-28) # carter # FALSE # FALSE
+# R version 3.4.2 (2017-09-28) # hunter # FALSE # FALSE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 <simpleError in f(..., .NBACK = 2): Problem invoking function.>
 > close(s)
@@ -9,7 +9,7 @@
 > 
 > heap.maximum <- "386M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.2 (2017-09-28) # carter # FALSE # FALSE
+# R version 3.4.2 (2017-09-28) # hunter # FALSE # FALSE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 > close(s)
 > cat("----\n")
@@ -17,7 +17,7 @@
 > 
 > heap.maximum <- "64M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.2 (2017-09-28) # carter # FALSE # FALSE
+# R version 3.4.2 (2017-09-28) # hunter # FALSE # FALSE
 > tryCatch(a <- s$".Array[Double]"$new(20000000L),error=function(e) e)
 <simpleError in f(..., .NBACK = 2): Problem invoking function.>
 > close(s)
@@ -26,7 +26,7 @@
 > 
 > heap.maximum <- "128M"
 > source("common.R",print.eval=TRUE)
-# R version 3.4.2 (2017-09-28) # carter # FALSE # FALSE
+# R version 3.4.2 (2017-09-28) # hunter # FALSE # FALSE
 > for ( i in 1:20 ) {
 +   a <- s$".Array[Double]"$new(2000000L)      # No memory problems
 + }

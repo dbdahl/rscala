@@ -1,5 +1,5 @@
 > source("common.R",print.eval=TRUE)
-# R version 3.4.2 (2017-09-28) # carter # TRUE # FALSE
+# R version 3.4.2 (2017-09-28) # hunter # TRUE # FALSE
 > 
 > tryCatch(s %~% "new java.util.Random(23455).nextDoubllllllllle",error=function(e) e)
 <console>:15: error: value nextDoubllllllllle is not a member of java.util.Random
