@@ -1,9 +1,7 @@
 source("common.R",print.eval=TRUE)
 
-if ( substr(Sys.getenv("RSCALA_SCALA_VERSION"),1,4) != "2.10" ) {
-  a <- s %.~% "null"
-  print(a)
-}
+a <- s %.~% "null"
+print(a)
 
 a <- s %~% "null"
 a

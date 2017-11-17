@@ -1,8 +1,0 @@
-> port <- as.integer(runif(1,1024,65535))
-> source("common.R",print.eval=TRUE)
-# R version 3.4.2 (2017-09-28) # carter # FALSE # FALSE
-> 
-> tryCatch(source("common.R",print.eval=TRUE), error=function(e) e)
-<simpleError in (function() {    delay <- 0.05    start <- proc.time()[3]    while (TRUE) {        if ((proc.time()[3] - start) > timeout)             stop("Timed out waiting for Scala to start.")        if (file.exists(portsFilename)) {            line <- scan(portsFilename, n = 2, what = character(),                 quiet = TRUE)            if (length(line) > 0)                 return(as.numeric(line))        }        Sys.sleep(delay)    }})(): Timed out waiting for Scala to start.>
-> 
-> 

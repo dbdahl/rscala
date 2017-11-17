@@ -22,7 +22,7 @@ s <- local({
     stop("Version mismatch.")
   }
   cat('# ')
-  cat(paste(R.Version()$version.string),Sys.info()[["nodename"]],scalaSettings(s)$serialize,output,sep=' # ')
+  cat(paste(R.Version()$version.string),Sys.info()[["nodename"]],scalaSettings()$serialize,output,sep=' # ')
   cat('\n')
   s
 })

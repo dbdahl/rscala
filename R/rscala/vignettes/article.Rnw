@@ -276,7 +276,7 @@ and can be installed by executing the following \R expression.
 install.packages('rscala')
 @
 
-The \rscala package requires a \Scala installation in the 2.10.x, 2.11.x, or
+The \rscala package requires a \Scala installation in the 2.11.x or
 2.12.x series.  A convenience function, \code{rscala::scalaInstall()}, is
 provided to download and install \Scala in the user's home directory under the
 \code{.rscala} directory. Because this is a user-level installation,
@@ -1207,9 +1207,9 @@ already installed, the user is asked for permission to download and install
 \code{.jpackage} function, the \code{.rscalaPackage} function adds the JAR
 files in the source package's \code{inst/java} directory to \Scala's classpath.
 Since \Scala is binary-compatible only within major releases, package
-developers are encouraged to cross-compile for releases 2.10, 2.11, and 2.12
-and to place compatible \Scala JAR files in \code{inst/java/scala-2.10},
-\code{inst/java/scala-2.11}, and \code{inst/java/scala-2.12}, respectively.  If
+developers are encouraged to cross-compile for releases 2.11 and 2.12
+and to place compatible \Scala JAR files in 
+\code{inst/java/scala-2.11} and \code{inst/java/scala-2.12}, respectively.  If
 a package supports only specific major releases of \Scala, change the
 \code{major.release} argument of the \code{.rscalaPackage} function.
 

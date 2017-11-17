@@ -174,11 +174,9 @@ then
   rm -rf "$JARDIR"
   mkdir -p "$JARDIR"/scala-2.12
   mkdir -p "$JARDIR"/scala-2.11
-  mkdir -p "$JARDIR"/scala-2.10
   shopt -s extglob
   find "$PKG_HOME"/target -regex '.*/'${PKG_NAME}'_2.12-.*[^a-zA-Z]+\(-SNAPSHOT\)?\.jar' -exec cp {} "$JARDIR"/scala-2.12 \;
   find "$PKG_HOME"/target -regex '.*/'${PKG_NAME}'_2.11-.*[^a-zA-Z]+\(-SNAPSHOT\)?\.jar' -exec cp {} "$JARDIR"/scala-2.11 \;
-  find "$PKG_HOME"/target -regex '.*/'${PKG_NAME}'_2.10-.*[^a-zA-Z]+\(-SNAPSHOT\)?\.jar' -exec cp {} "$JARDIR"/scala-2.10 \;
 
   # copy $JARSRC "$PKG_HOME"/R/$PKG_NAME/java -sources
   # Don't keep the sources for all the Scala versions since the code is the same.

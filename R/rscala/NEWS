@@ -12,6 +12,7 @@
     the R/Scala bridge.  See the vignette for syntactical details.
   * Added experimental support for data frames with the scalaConvert.data.frame
     function.
+  * Dropped support for Scala 2.10.x.
 
 2.4.0 (2017-09-27)
   * Improved input/output performance for large transfers over TCP/IP bridge.

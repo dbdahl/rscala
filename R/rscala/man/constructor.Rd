@@ -54,7 +54,7 @@ scala(classpath=character(), classpath.packages=character(),
       serialize.output=.Platform$OS.type=="windows", scala.home=NULL,
       heap.maximum=NULL, command.line.options=NULL, row.major=TRUE,
       timeout=30, debug=FALSE, stdout=TRUE, stderr=TRUE, port=0,
-      scala.info=NULL, major.release=c("2.10","2.11","2.12"),
+      scala.info=NULL, major.release=c("2.11","2.12"),
       mode="parallel", assign.name="s", assign.env=parent.frame(),
       callback=function(s) {}, snippet=character())
 
@@ -62,12 +62,12 @@ scala2(...)
 
 scala3(...)
 
-scalaInfo(scala.home=NULL, major.release=c("2.10","2.11","2.12"),
+scalaInfo(scala.home=NULL, major.release=c("2.11","2.12"),
           verbose=FALSE)
 
-scalaInstall(major.release=c("2.10","2.11","2.12"), global=FALSE)
+scalaInstall(major.release=c("2.11","2.12"), global=FALSE)
 
-.rscalaJar(major.release=c("2.10","2.11","2.12"))
+.rscalaJar(major.release=c("2.11","2.12"))
 
 .rscalaPackage(pkgname, ..., classpath.packages=character(),
                mode="parallel")
@@ -88,7 +88,7 @@ scalaInstall(major.release=c("2.10","2.11","2.12"), global=FALSE)
     \item{port}{If \code{0}, two random ports are selected.  Otherwise, \code{port} and \code{port+1} are used to the TCP/IP connections.}
     \item{scala.info}{The result of a previous call to \code{\link{scalaInfo}}.}
     \item{verbose}{A logical vector of length one indicating whether information regarding the search for the Scala installation should be displayed.}
-    \item{major.release}{The character vector giving acceptable major.release numbers (e.g., c("2.10","2.11","2.12")), or \code{NA} in which case the system picks the appropriate version.}
+    \item{major.release}{The character vector giving acceptable major.release numbers (e.g., c("2.11","2.12")), or \code{NA} in which case the system picks the appropriate version.}
     \item{mode}{One of \code{"parallel"}, \code{"lazy"}, or \code{"serial"} to indicate how the R/Scala bridge is established.  \code{"serial"} starts Scala in the background, blocks until the bridge is established, and causes the function to return the interpreter.  \code{"parallel"} starts Scala in the background whereas \code{"lazy"} only starts Scala if and when the interpreter is first used.  Both \code{"parallel"} and \code{"lazy"} cause the function to return \code{NULL} and makes the interpreter (with the identifier given by \code{assign.name}) available as a promise.  \code{"serial"} is not supported in the \code{\link{.rscalaPackage}} function.}
     \item{assign.name}{If \code{mode != "serial"}, the name of the (promise of the) interpreter.}
     \item{assign.env}{If \code{mode != "serial"}, the environment in which the (promise of the) interpreter is assigned.}

@@ -1,6 +1,5 @@
 SCALA_212_VERSION <- "2.12.4"
 SCALA_211_VERSION <- "2.11.11"
-SCALA_210_VERSION <- "2.10.6"
 
 findJava <- function() {  ## Mimic how the 'scala' shell script finds Java.
   javaName <- if ( .Platform$OS.type == "windows" ) "java.exe" else "java"
@@ -42,7 +41,7 @@ javaVersion <- function(javaCmd) {
   versionNumber
 }
 
-scalaInstall <- function(major.release=c("2.10","2.11","2.12"), global=FALSE) {
+scalaInstall <- function(major.release=c("2.11","2.12"), global=FALSE) {
   if ( length(major.release) > 1 ) return(scalaInstall(latestVersion(major.release), global=global))
   if ( length(major.release) == 0 ) stop("At least one major release must be supplied.")
   javaVersion <- javaVersion(findJava())
@@ -52,7 +51,6 @@ scalaInstall <- function(major.release=c("2.10","2.11","2.12"), global=FALSE) {
   }
   if ( major.release == "2.12" ) version <- SCALA_212_VERSION
   else if ( major.release == "2.11" ) version <- SCALA_211_VERSION
-  else if ( major.release == "2.10" ) version <- SCALA_210_VERSION
   else stop("Unsupported major release.")
   installPath <- if ( global ) system.file(package="rscala") else file.path("~",".rscala")
   installPath <- normalizePath(installPath, mustWork=FALSE)

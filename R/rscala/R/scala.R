@@ -1,6 +1,6 @@
 ## Scala scripting over TCP/IP
 
-scala <- function(classpath=character(),classpath.packages=character(),serialize.output=.Platform$OS.type=="windows",scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=30,debug=FALSE,stdout=TRUE,stderr=TRUE,port=0,scala.info=NULL,major.release=c("2.10","2.11","2.12"),mode="parallel",assign.name="s",assign.env=parent.frame(),callback=function(s) {},snippet=character()) {
+scala <- function(classpath=character(),classpath.packages=character(),serialize.output=.Platform$OS.type=="windows",scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=30,debug=FALSE,stdout=TRUE,stderr=TRUE,port=0,scala.info=NULL,major.release=c("2.11","2.12"),mode="parallel",assign.name="s",assign.env=parent.frame(),callback=function(s) {},snippet=character()) {
   if ( identical(stdout,TRUE) ) stdout <- ""
   if ( identical(stderr,TRUE) ) stderr <- ""
   debug <- identical(debug,TRUE)
@@ -61,6 +61,14 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
       scalaSettings(interpreter=sockets,interpolate=TRUE,show.snippet=FALSE,info=sInfo)
       callback(sockets)
       sockets
+    },assign.env=assign.env)
+  } else if ( grepl("^\\w+:::\\w+$",mode) ) {
+    delayedAssign(assign.name,{
+      s <- eval(parse(text=paste0(mode)))
+      sapply(userJars,function(jar) scalaRequire(jar,interpreter=s))
+      s %@% snippet
+      callback(s)
+      s
     },assign.env=assign.env)
   } else stop("Unrecognized mode.")
 }
@@ -160,7 +168,7 @@ print.ScalaInterpreterReference <- function(x,...) {
   type <- x[['type']]
   cat("ScalaInterpreterReference... ")
   cat(x[['identifier']],": ",type,"\n",sep="")
-  cat(x$toString(),"\n",sep="")
+  x[['interpreter']] %!% 'println(x)'
   invisible(x)
 }
 
@@ -172,7 +180,7 @@ print.ScalaCachedReference <- function(x,...) {
   type <- x[['type']]
   cat("ScalaCachedReference... ")
   cat("*: ",type,"\n",sep="")
-  cat(x$toString(),"\n",sep="")
+  x[['interpreter']] %!% 'println(x)'
   invisible(x)
 }
 
@@ -633,25 +641,28 @@ jarsOfPackage <- function(pkgname, major.release) {
   result
 }
 
-.rscalaPackage <- function(pkgname, ..., classpath.packages=character(), mode="parallel") {
+.rscalaPackage <- function(pkgname, ..., classpath.packages=character(), mode="parallel", assign.name="s") {
   if ( identical(mode,"serial") ) stop('Mode "serial" is not supported for packages, but the same effect is achieved by immediately using the promised interpreter from another mode.')
   env <- parent.env(parent.frame())    # Environment of depending package (assuming this function is only called in .onLoad function).
   rscalaPackageEnv <- new.env(parent=emptyenv())
   assign(".rscalaPackageEnv",rscalaPackageEnv, envir=env)
   assign("isConnected",FALSE,envir=rscalaPackageEnv)
-  callback <- function(ss) { assign("isConnected",TRUE,envir=rscalaPackageEnv) }
-  scala(classpath.packages=c(pkgname,classpath.packages),assign.env=env,callback=callback,mode=mode,...)
+  assign("assign.name",assign.name,envir=rscalaPackageEnv)
+  callback <- if ( grepl("^\\w+:::\\w+$",mode) ) function(ss) {}
+  else function(ss) { assign("isConnected",TRUE,envir=rscalaPackageEnv) }
+  scala(classpath.packages=c(pkgname,classpath.packages),assign.env=env,callback=callback,mode=mode,assign.name,...)
   invisible()
 }
 
 .rscalaPackageUnload <- function() {
   env <- parent.env(parent.frame())
   if ( get("isConnected",envir=get(".rscalaPackageEnv",envir=env)) ) {
-    close(get("s",envir=env))
+    assign.name <- get("assign.name",envir=get(".rscalaPackageEnv",envir=env))
+    close(get(assign.name,envir=env))
   }
 }
 
-.rscalaJar <- function(major.release=c("2.10","2.11","2.12")) {
+.rscalaJar <- function(major.release=c("2.11","2.12")) {
   if ( length(major.release) > 1 ) {
     return(sapply(major.release,.rscalaJar,USE.NAMES=FALSE))
   }
@@ -662,7 +673,7 @@ jarsOfPackage <- function(pkgname, major.release) {
     else major.release <- "2.12"
   }
   major.release <- substr(major.release,1,4)
-  if ( ! ( major.release %in% c("2.10","2.11","2.12") ) ) stop(paste("Unsupported major release:",major.release))
+  if ( ! ( major.release %in% c("2.11","2.12") ) ) stop(paste("Unsupported major release:",major.release))
   result <- jarsOfPackage("rscala",major.release)
   names(result) <- major.release
   result
@@ -731,7 +742,7 @@ scalaInfoEngine <- function(scala.command,major.release,verbose) {
   list(cmd=scala.command,home=scala.home,version=version,major.release=actual.major.release)
 }
 
-scalaInfo <- function(scala.home=NULL,major.release=c("2.10","2.11","2.12"),verbose=FALSE) {
+scalaInfo <- function(scala.home=NULL,major.release=c("2.11","2.12"),verbose=FALSE) {
   if ( inherits(scala.home,"ScalaInterpreter") ) return(get("info",scala.home[['env']]))
   if ( verbose ) cat("\nSearching for a suitable Scala installation.\n")
   tab <- "  * "

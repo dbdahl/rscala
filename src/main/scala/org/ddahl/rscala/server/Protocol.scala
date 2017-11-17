@@ -19,20 +19,21 @@ object Protocol {
   val MATRIX    = 15
 
   // Commands
-  val EXIT          = 100
-  val PING          = 101
-  val FREE          = 103
-  val EVAL          = 104
-  val SET           = 105
-  val SET_SINGLE    = 106
-  val SET_DOUBLE    = 107
-  val GET           = 108
-  val GET_REFERENCE = 109
-  val DEF           = 110
-  val INVOKE        = 111
-  val SCALAP        = 112
-  val EVALNAKED     = 113
-  val SHUTDOWN      = 114
+  val EXIT           = 100
+  val PING           = 101
+  val ADD_CLASS_PATH = 102
+  val FREE           = 103
+  val EVAL           = 104
+  val SET            = 105
+  val SET_SINGLE     = 106
+  val SET_DOUBLE     = 107
+  val GET            = 108
+  val GET_REFERENCE  = 109
+  val DEF            = 110
+  val INVOKE         = 111
+  val SCALAP         = 112
+  val EVALNAKED      = 113
+  val SHUTDOWN       = 114
 
   // Result
   val OK = 1000

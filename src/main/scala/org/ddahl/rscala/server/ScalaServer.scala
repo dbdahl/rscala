@@ -1,13 +1,11 @@
 package org.ddahl.rscala.server
 
+import org.ddahl.rscala._
+import Protocol._
 import scala.tools.nsc.interpreter.IMain
 import scala.tools.nsc.interpreter.IR.Success
 import scala.tools.nsc.Settings
 import java.io._
-import java.nio.ByteBuffer
-
-import org.ddahl.rscala._
-import Protocol._
  
 class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, baosOut: ByteArrayOutputStream, baosErr: ByteArrayOutputStream, snippetFilename: String, portsFilename: String, debugger: Debugger, serializeOutput: Boolean, rowMajor: Boolean, port: Int, bufferSize: Int, prioritizeConnect: Boolean) {
 
@@ -60,6 +58,19 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
   private def setAVM(identifier: String, t: String, v: Any): Unit = {
     if ( debugger.value ) debugger.msg("Value is "+v)
     repl.bind(identifier,t,v)
+  }
+
+  private def doAddClassPath(): Unit = {
+    try {
+      val path = new File(socket.getScalarString()).toURI.toURL
+      repl.addUrlsToClassPath(path)
+      socket.putScalarInt(OK)
+    } catch {
+      case e: Throwable =>
+        socket.putScalarInt(ERROR)
+        e.printStackTrace(pw)
+        pw.println(e + ( if ( e.getCause != null ) System.lineSeparator + e.getCause else "" ) )
+    }
   }
 
   private def doFree(): Unit = {
@@ -250,7 +261,7 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
         socket.putScalarInt(UNDEFINED_IDENTIFIER)
         return
       } else {
-        if ( debugger.value ) debugger.msg("... which is empty [due to quirk in 2.10 series].")
+        if ( debugger.value ) debugger.msg("... which is empty [due to quirk that should no longer be present].")
         socket.putScalarInt(NULLTYPE)
         return
       }
@@ -418,6 +429,8 @@ class ScalaServer private (private[rscala] val repl: IMain, pw: PrintWriter, bao
       case EXIT =>
         if ( debugger.value ) debugger.msg("Exiting")
         return false
+      case ADD_CLASS_PATH =>
+        doAddClassPath()
       case FREE =>
         doFree()
       case EVAL =>
@@ -481,17 +494,7 @@ object ScalaServer {
     settings.deprecation.value = true
     settings.feature.value = true
     settings.unchecked.value = true
-    // Allow reflective calls without a warning since we make us of them.
-    // Use refective since Scala 2.10.x doess not have the settings.language.add method.
-    val m1 = if ( util.Properties.versionNumberString.split("""\.""").take(2).mkString(".") == "2.10" ) {
-      settings.language.getClass.getMethod("appendToValue","".getClass)
-    } else {
-      settings.language.getClass.getMethod("add","".getClass)
-    }
-    m1.setAccessible(true)
-    m1.invoke(settings.language,"reflectiveCalls")
-    // A better way to do it, but Scala 2.10.x does not the settings.language.add method.
-    // settings.language.add("reflectiveCalls")
+    settings.language.add("reflectiveCalls")
     // Set up sinks
     val (debugger,prntWrtr,baosOut,baosErr) = serializeOutput match {
       case true =>
@@ -512,7 +515,7 @@ object ScalaServer {
     val m2 = intp.getClass.getMethod("printResults_$eq",java.lang.Boolean.TYPE)
     m2.setAccessible(true)
     m2.invoke(intp,java.lang.Boolean.FALSE)
-    // Another way to do it, but Scala 2.10.x is chatty and prints "Switched off result printing."
+    // Another way to do it, but older version of Scala are chatty and print "Switched off result printing."
     // val iloop = new ILoop()
     // iloop.intp = intp
     // iloop.verbosity()
