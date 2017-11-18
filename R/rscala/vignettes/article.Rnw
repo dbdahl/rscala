@@ -1199,7 +1199,8 @@ the package's name.  The \code{onLoad} function may be as simple as
 @
 
 The \code{.rscalaPackage} function binds a \Scala instance to the identifier
-\code{s} in the package's namespace using the \code{scala} function with \code{mode="parallel"}.
+\code{s} in the package's namespace using the \code{scala} function.
+The default for the \code{mode} argument is \code{"parallel"}.
 This instantiates a \Scala interpreter in the background and therefore has minimal delay
 when the interpreter \code{s} is first used.  If, however, \Scala itself is not
 already installed, the user is asked for permission to download and install
