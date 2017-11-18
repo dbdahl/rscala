@@ -70,7 +70,7 @@ scalaInstall(major.release=c("2.11","2.12"), global=FALSE)
 .rscalaJar(major.release=c("2.11","2.12"))
 
 .rscalaPackage(pkgname, ..., classpath.packages=character(),
-               mode="parallel")
+               mode="parallel", assign.name = "s")
 
 .rscalaPackageUnload()
 }
@@ -89,7 +89,7 @@ scalaInstall(major.release=c("2.11","2.12"), global=FALSE)
     \item{scala.info}{The result of a previous call to \code{\link{scalaInfo}}.}
     \item{verbose}{A logical vector of length one indicating whether information regarding the search for the Scala installation should be displayed.}
     \item{major.release}{The character vector giving acceptable major.release numbers (e.g., c("2.11","2.12")), or \code{NA} in which case the system picks the appropriate version.}
-    \item{mode}{One of \code{"parallel"}, \code{"lazy"}, or \code{"serial"} to indicate how the R/Scala bridge is established.  \code{"serial"} starts Scala in the background, blocks until the bridge is established, and causes the function to return the interpreter.  \code{"parallel"} starts Scala in the background whereas \code{"lazy"} only starts Scala if and when the interpreter is first used.  Both \code{"parallel"} and \code{"lazy"} cause the function to return \code{NULL} and makes the interpreter (with the identifier given by \code{assign.name}) available as a promise.  \code{"serial"} is not supported in the \code{\link{.rscalaPackage}} function.}
+    \item{mode}{One of \code{"parallel"}, \code{"lazy"}, \code{"serial"}, or an arbitrary string to indicate how the R/Scala bridge is established.  \code{"serial"} starts Scala in the background, blocks until the bridge is established, and causes the function to return the interpreter.  \code{"parallel"} starts Scala in the background whereas \code{"lazy"} only starts Scala if and when the interpreter is first used.  If \code{mode} is some other string, it is considered to be the name of an already-existing Scala instance (e.g., to use the Scala instance of the package sdols, use \code{"sdols:::s"}).  When using an arbitrary string, many arguments are honored including those specifying the class path, but some arguments only make sense for a new instance (e.g., ignored arguments include \code{serialize.output}, \code{heap.maximum}, \code{row.major}, and \code{command.line.options}).  All options except \code{"serial"} cause the function to return \code{NULL} and makes the interpreter (with the identifier given by \code{assign.name}) available as a promise.  \code{"serial"} is not supported in the \code{\link{.rscalaPackage}} function.}
     \item{assign.name}{If \code{mode != "serial"}, the name of the (promise of the) interpreter.}
     \item{assign.env}{If \code{mode != "serial"}, the environment in which the (promise of the) interpreter is assigned.}
     \item{callback}{A function taking a Scala interpreter as its only argument.  This function is called immediately after the R/Scala bridge is established.}
