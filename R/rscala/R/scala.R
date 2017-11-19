@@ -650,7 +650,7 @@ jarsOfPackage <- function(pkgname, major.release) {
   assign("assign.name",assign.name,envir=rscalaPackageEnv)
   callback <- if ( grepl("^\\w+:::\\w+$",mode) ) function(ss) {}
   else function(ss) { assign("isConnected",TRUE,envir=rscalaPackageEnv) }
-  scala(classpath.packages=c(pkgname,classpath.packages),assign.env=env,callback=callback,mode=mode,assign.name,...)
+  scala(classpath.packages=c(pkgname,classpath.packages),assign.env=env,callback=callback,mode=mode,assign.name=assign.name,...)
   invisible()
 }
 
