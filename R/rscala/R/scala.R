@@ -62,7 +62,7 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
       callback(sockets)
       sockets
     },assign.env=assign.env)
-  } else if ( grepl("^\\w+:::\\w+$",mode) ) {
+  } else {
     delayedAssign(assign.name,{
       s <- eval(parse(text=paste0(mode)))
       sapply(userJars,function(jar) scalaRequire(jar,interpreter=s))
@@ -70,7 +70,7 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
       callback(s)
       s
     },assign.env=assign.env)
-  } else stop("Unrecognized mode.")
+  }
 }
 
 scala2 <- function(...) {
@@ -648,7 +648,7 @@ jarsOfPackage <- function(pkgname, major.release) {
   assign(".rscalaPackageEnv",rscalaPackageEnv, envir=env)
   assign("isConnected",FALSE,envir=rscalaPackageEnv)
   assign("assign.name",assign.name,envir=rscalaPackageEnv)
-  callback <- if ( grepl("^\\w+:::\\w+$",mode) ) function(ss) {}
+  callback <- if ( ! ( mode %in% c("parallel","lazy","serial") ) ) function(ss) {}
   else function(ss) { assign("isConnected",TRUE,envir=rscalaPackageEnv) }
   scala(classpath.packages=c(pkgname,classpath.packages),assign.env=env,callback=callback,mode=mode,assign.name=assign.name,...)
   invisible()
