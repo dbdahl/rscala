@@ -35,6 +35,8 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
   if ( debug ) msg("\n",paste0("<",args,">",collapse="\n"))
   sInfo$classpath <- rsClasspath
   sInfo$command.line.options <- command.line.options
+  sInfo$pid <- Sys.getpid()
+  sInfo$epoch <- as.integer(Sys.time()-proc.time()[3])
   env <- new.env(parent=emptyenv())
   assign("snippetFilename",snippetFilename,envir=env)
   if ( identical(mode,"serial") ) {
@@ -164,11 +166,18 @@ toString.ScalaInterpreter <- function(x,...) {
   "ScalaInterpreter"
 }
 
+toString4ScalaReference <- function(x) {
+  if ( x$true ) {
+    str <- x[['interpreter']] %!% 'if ( x == null ) "null" else x.toString'
+    cat("\n",str,"\n",sep="")
+  } else cat("  (expired)\n",sep="")
+}
+
 print.ScalaInterpreterReference <- function(x,...) {
   type <- x[['type']]
   cat("ScalaInterpreterReference... ")
-  cat(x[['identifier']],": ",type,"\n",sep="")
-  x[['interpreter']] %!% 'println(x)'
+  cat(x[['identifier']],": ",type,sep="")
+  toString4ScalaReference(x)
   invisible(x)
 }
 
@@ -179,8 +188,8 @@ toString.ScalaInterpreterReference <- function(x,...) {
 print.ScalaCachedReference <- function(x,...) {
   type <- x[['type']]
   cat("ScalaCachedReference... ")
-  cat("*: ",type,"\n",sep="")
-  x[['interpreter']] %!% 'println(x)'
+  cat("*: ",type,sep="")
+  toString4ScalaReference(x)
   invisible(x)
 }
 
@@ -513,7 +522,16 @@ scalaDollarSignMethod <- function(reference,method) {
   if ( method == "type" ) {
     if ( inherits(reference,"ScalaInterpreterItem") ) return(reference[['snippet']])
     else return(reference[['type']])
-  } else if ( method == "do" ) return(function(method2) { scalaDollarSignMethod(reference,method2) })
+  } else if ( method == "do" ) {
+    return(function(method2) { scalaDollarSignMethod(reference,method2) })
+  } else if ( method == "true" ) {
+    env <- reference[['interpreter']][['env']]
+    if ( ! get("valid",envir=env) ) return(FALSE)
+    info <- env[['info']]
+    if ( info$pid != Sys.getpid() ) return(FALSE)
+    sameTime <- abs(info$epoch - as.integer(Sys.time()-proc.time()[3])) < 5 
+    return(sameTime)
+  }
   interpreter <- reference[['interpreter']]
   function(..., .AS.REFERENCE = NA, .EVALUATE = TRUE, .PARENTHESES = FALSE) {
     args <- list(...)
