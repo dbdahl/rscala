@@ -1,6 +1,7 @@
 install-R --devel
 Bump version number in build.sbt, constructor.Rd, README.md, vignette
 Update R/rscala/NEWS detailing changes (including the date)
+Try to bump to latest sbt version in project/build.properties.
 ./bin/package -p
 test on Linux, Mac OS, and Windows (use https://win-builder.r-project.org/)
 test depending packages: shallot, bamboo, commonsMath
