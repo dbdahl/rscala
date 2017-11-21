@@ -43,6 +43,10 @@ S3method("$","ScalaCachedReference")
 S3method("print","ScalaCachedReference")
 S3method("toString","ScalaCachedReference")
 
+S3method("$", "ScalaNullReference")
+S3method("print","ScalaNullReference")
+S3method("toString","ScalaNullReference")
+
 S3method(".DollarNames", "ScalaInterpreter")
 S3method(".DollarNames", "ScalaInterpreterItem")
 S3method(".DollarNames", "ScalaInterpreterReference")

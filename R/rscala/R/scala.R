@@ -168,9 +168,11 @@ toString.ScalaInterpreter <- function(x,...) {
 
 toString4ScalaReference <- function(x) {
   if ( x$true ) {
-    str <- x[['interpreter']] %!% 'if ( x == null ) "null" else x.toString'
+    y <- x
+    y[['type']] <- "Any" 
+    str <- x[['interpreter']]['y',drop='x'] %!% 'if ( y == null ) "null" else y.toString'
     cat("\n",str,"\n",sep="")
-  } else cat("  (expired)\n",sep="")
+  } else cat("  (invalid)\n",sep="")
 }
 
 print.ScalaInterpreterReference <- function(x,...) {
@@ -188,7 +190,7 @@ toString.ScalaInterpreterReference <- function(x,...) {
 print.ScalaCachedReference <- function(x,...) {
   type <- x[['type']]
   cat("ScalaCachedReference... ")
-  cat("*: ",type,sep="")
+  cat("_: ",type,sep="")
   toString4ScalaReference(x)
   invisible(x)
 }
@@ -204,6 +206,16 @@ print.ScalaInterpreterItem <- function(x,...) {
 
 toString.ScalaInterpreterItem <- function(x,...) {
   paste0("ScalaInterpreterItem for ",x[['snippet']])
+}
+
+print.ScalaNullReference <- function(x,...) {
+  type <- x[['type']]
+  cat("ScalaNullReference... null: ",type,"\n",sep="")
+  invisible(x)
+}
+
+toString.ScalaNullReference <- function(x,...) {
+  x[['identifier']]
 }
 
 scalaGet <- function(interpreter,identifier,as.reference) {
@@ -495,8 +507,11 @@ mkHeader <- function(args,names) {
     if ( missing(value) ) stop(paste0('Argument "',name,'" is missing, with no default.'))
     mkHeaderEngine <- function() {
       if ( inherits(value,"ScalaAsIs") ) return(mkEphemeralReferenceSnippet(name,TRUE))
-      if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") || inherits(value,"ScalaNullReference")) {
+      if ( inherits(value,"ScalaInterpreterReference") || inherits(value,"ScalaCachedReference") ) {
         return(paste0('val ',name,' = R.cached(R.evalS0("toString(get(\'',name,'\'))")).asInstanceOf[',args[[i]][['type']],']'))
+      }
+      if ( inherits(value,"ScalaNullReference")) {
+        return(paste0('val ',name,' = null.asInstanceOf[',args[[i]][['type']],']'))
       }
       if ( inherits(value,"ScalaInterpreterItem") ) return(paste0('val ',name,' = ',args[[i]][['snippet']]))
       if ( ( ! is.atomic(value) ) || is.null(value) ) return(mkEphemeralReferenceSnippet(name))
@@ -592,9 +607,15 @@ scalaDollarSignMethod <- function(reference,method) {
   }
 }
 
+'$.ScalaInterpreterItem' <- scalaDollarSignMethod
 '$.ScalaCachedReference' <- scalaDollarSignMethod
 '$.ScalaInterpreterReference' <- scalaDollarSignMethod
-'$.ScalaInterpreterItem' <- scalaDollarSignMethod
+
+'$.ScalaNullReference' <- function(reference,method) {
+  if ( method == "type" ) return(reference[['type']])
+  else if ( method == "true" ) return(TRUE)
+  else stop("Invalid for a null reference.")
+}
 
 scalap <- function(interpreter,class.name) {
   if ( inherits(interpreter,"ScalaInterpreterReference") || inherits(interpreter,"ScalaCachedReference") ) {
@@ -889,7 +910,7 @@ echoResponseScala <- function(interpreter) {
 }
 
 cc <- function(c) {
-  if ( ! get("valid",envir=c[['env']]) ) stop("The connection has already been closed.")
+  if ( ! get("valid",envir=c[['env']]) ) stop("The bridge is invalid.")
   if ( length(c[['garbage']]) > 0 ) {
     env <- c[['garbage']]
     garbage <- ls(envir=env)
@@ -903,41 +924,61 @@ cc <- function(c) {
 }
 
 wb <- function(c,v) {
-  writeBin(v, c[['socketIn']], endian="big")
+  tryCatch({
+    writeBin(v, c[['socketIn']], endian="big")
+  },error=function(e) {
+    assign("valid",FALSE,envir=c[['env']])
+    stop("The bridge is invalid.")
+  })
 }
 
 wc <- function(c,v) {
-  bytes <- charToRaw(iconv(v, to="UTF-8"))
-  wb(c,length(bytes))
-  writeBin(bytes, c[['socketIn']], endian="big", useBytes=TRUE)
+  tryCatch({
+    bytes <- charToRaw(iconv(v, to="UTF-8"))
+    wb(c,length(bytes))
+    writeBin(bytes, c[['socketIn']], endian="big", useBytes=TRUE)
+  },error=function(e) {
+    assign("valid",FALSE,envir=c[['env']])
+    stop("The bridge is invalid.")
+  })
 }
 
 rb <- function(c,v,n=1L) {
-  r <- readBin(c[['socketOut']], v, n, endian="big")
-  if ( length(r) == n ) r
-  else {
-    counter <- 0L
-    while ( length(r) != n ) {
-      if ( counter >= 100 ) stop("Socket isn't providing data.")
-      counter <- counter + 1L
-      r <- c(r,readBin(c[['socketOut']], v, n-length(r), endian="big"))
+  tryCatch({
+    r <- readBin(c[['socketOut']], v, n, endian="big")
+    if ( length(r) == n ) r
+    else {
+      counter <- 0L
+      while ( length(r) != n ) {
+        if ( counter >= 100 ) stop("Socket isn't providing data.")
+        counter <- counter + 1L
+        r <- c(r,readBin(c[['socketOut']], v, n-length(r), endian="big"))
+      }
+      r
     }
-    r
-  }
+  },error=function(e) {
+    assign("valid",FALSE,envir=c[['env']])
+    stop("The bridge is invalid.")
+  })
 }
 
 rc <- function(c) {
-  n <- rb(c,"integer")
-  r <- readBin(c[['socketOut']], "raw", n, endian="big")
-  if ( length(r) != n ) {
-    counter <- 0L
-    while (  length(r) != n ) {
-      if ( counter >= 100 ) stop("Socket isn't providing data.")
-      counter <- counter + 1L
-      r <- c(r,readBin(c[['socketOut']], "raw", n-length(r), endian="big"))
+  tryCatch({
+    n <- rb(c,"integer")
+    r <- readBin(c[['socketOut']], "raw", n, endian="big")
+    if ( length(r) != n ) {
+      counter <- 0L
+      while (  length(r) != n ) {
+        if ( counter >= 100 ) stop("Socket isn't providing data.")
+        counter <- counter + 1L
+        r <- c(r,readBin(c[['socketOut']], "raw", n-length(r), endian="big"))
+      }
     }
-  }
-  iconv(rawToChar(r),from="UTF-8")
+    iconv(rawToChar(r),from="UTF-8")
+  },error=function(e) {
+    assign("valid",FALSE,envir=c[['env']])
+    stop("The bridge is invalid.")
+  })
 }
 
 pretty <- function(header,body) {
