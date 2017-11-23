@@ -168,9 +168,10 @@ toString.ScalaInterpreter <- function(x,...) {
 
 toString4ScalaReference <- function(x) {
   if ( x$true ) {
-    y <- x
-    y[['type']] <- "Any" 
-    str <- x[['interpreter']]['y',drop='x'] %!% 'if ( y == null ) "null" else y.toString'
+    str <- x[['interpreter']][drop='x'] %!% '
+      val x = R.cached(R.evalS0("""toString(get("x"))""")).asInstanceOf[Any]
+      if ( x == null ) "null" else x.toString
+    '
     cat("\n",str,"\n",sep="")
   } else cat("  (invalid)\n",sep="")
 }
