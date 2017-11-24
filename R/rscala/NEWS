@@ -1,4 +1,4 @@
-2.5.0 (2017-XX-XX)
+2.5.0 (2017-11-24)
   * Made 'scala' function return NULL and provide the interpreter as a side
     effect.  This lowers the perceived delay in instantiating and first-use of
     a Scala interpreter.  Added 'scala2' and 'scala3' functions to customize
