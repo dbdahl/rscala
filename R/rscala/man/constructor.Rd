@@ -4,6 +4,7 @@
 \alias{scala3}
 \alias{scalaInfo}
 \alias{scalaInstall}
+\alias{.rscalaOptions}
 \alias{.rscalaJar}
 \alias{.rscalaPackage}
 \alias{.rscalaPackageUnload}
@@ -67,6 +68,8 @@ scalaInfo(scala.home=NULL, major.release=c("2.11","2.12"),
 
 scalaInstall(major.release=c("2.11","2.12"), global=FALSE)
 
+.rscalaOptions(heap.maximum=NULL, command.line.options=NULL)
+
 .rscalaJar(major.release=c("2.11","2.12"))
 
 .rscalaPackage(pkgname, ..., classpath.packages=character(),
@@ -79,8 +82,8 @@ scalaInstall(major.release=c("2.11","2.12"), global=FALSE)
     \item{classpath.packages}{A character vector giving names of other installed packages whose JAR files should be appended to the classpath.}
     \item{serialize.output}{Should standard output (stdout) and standard error (stderr) be captured and serialized back to R?  The default is \code{TRUE} on Windows and \code{FALSE} on other operating systems.  \code{FALSE} requires less computing and is usually not necessary on Linux and Mac OS X.  Depending on the environment and operating system in which R is run, \code{TRUE} may be needed to see output and error messages.}
     \item{scala.home}{A character vector of length one giving the path where Scala is installed.  When set to \code{NULL} (the default), the function sequentially tries to find the Scala home by:  i. querying the global option \var{rscala.scala.home}, ii. using the environment variable \code{SCALA_HOME}, iii. querying the operating system search path, and iv. looking in subdirectories of \code{~/.rscala}.  If all these fail, the function displaces a message to help the user install Scala.  Alternatively, in the class of \code{\link{scalaInfo}}, \code{scala.home} may also be the result of the \code{\link{scala}} function.}
-    \item{heap.maximum}{A character vector of length one used to specify the maximum heap size in the JVM.  If \code{NULL}, the global option \var{rscala.heap.maximum} is queried and, if that is also \code{NULL}, Scala's default value is used.  This option is ignored if \var{command.line.options} is not null.}
-    \item{command.line.options}{A character vector whose elements are passed as command line arguments when invoking Scala.  If \code{NULL}, the global option \var{rscala.command.line.options} is queried and, if that is also \code{NULL}, the value is set to \code{NULL}.  A value of \code{NULL} means no extra arguments are provided.  If you simply want to add to the classpath and/or set the maximum heap size, use the \var{classpath} and \var{heap.maximum} arguments.}
+    \item{heap.maximum}{A character vector of length one used to specify the maximum heap size in the JVM.  If \code{NULL}, the global option \var{rscala.heap.maximum} is queried and, if that is also \code{NULL}, Scala's default value is used.  This option is ignored if \var{command.line.options} is not \code{NULL} or if the global options \var{rscala.command.line.options} is not \code{NULL}.  In the function \code{\link{.rscalaOptions}}, the global option \var{rscala.heap.maximum} is set and effects future Scala instances.}
+    \item{command.line.options}{A character vector whose elements are passed as command line arguments when invoking Scala.  If \code{NULL}, the global option \var{rscala.command.line.options} is queried and, if that is also \code{NULL}, the value is set to \code{NULL}.  A value of \code{NULL} means no extra arguments are provided.  If you simply want to add to the classpath and/or set the maximum heap size, use the \var{classpath} and \var{heap.maximum} arguments.    In the function \code{\link{.rscalaOptions}}, the global option \var{rscala.command.line.options} is set and effects future Scala instances.}
     \item{row.major}{Should matrices in Scala be row major?}
     \item{timeout}{A numeric vector of length one giving the number of seconds to wait for Scala to start before aborting.}
     \item{debug}{An option meant only for developers of the package itself and not intended for users of the package.}

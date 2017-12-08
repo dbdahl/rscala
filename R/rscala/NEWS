@@ -1,3 +1,6 @@
+2.5.1 (2018-XX-XX)
+  * Added the .rscalaOptions function to make it easier to set the memory.
+
 2.5.0 (2017-11-24)
   * Made 'scala' function return NULL and provide the interpreter as a side
     effect.  This lowers the perceived delay in instantiating and first-use of

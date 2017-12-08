@@ -5,7 +5,7 @@
 Settings of a Scala Instance
 }
 \description{
-This function retrieves information about the a Scala instance when using the default values of function arguments.
+This function retrieves information about a Scala instance when using the default values of function arguments.
 Otherwise, the code interpolation and show snippet settings can be modified.
 }
 \usage{
