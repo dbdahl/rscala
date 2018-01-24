@@ -5,8 +5,8 @@ scalaRequire <- function(jar.file, interpreter=findScalaInstance()) {
   wc(interpreter,jar.file)
   flush(interpreter[['socketIn']])
   status <- rb(interpreter,"integer")
+  if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
   if ( status != OK ) {
-    if ( get("serializeOutput",envir=interpreter[['env']]) ) echoResponseScala(interpreter)
     stop("Problem defining function.")
   }
   invisible()

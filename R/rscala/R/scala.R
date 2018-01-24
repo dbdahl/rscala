@@ -66,7 +66,7 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
     },assign.env=assign.env)
   } else {
     delayedAssign(assign.name,{
-      s <- eval(parse(text=paste0(mode)))
+      s <- eval(parse(text=mode))
       sapply(userJars,function(jar) scalaRequire(jar,interpreter=s))
       s %@% snippet
       callback(s)
