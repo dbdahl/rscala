@@ -4,7 +4,7 @@ Update R/rscala/NEWS detailing changes (including the date)
 Try to bump to latest sbt version in project/build.properties.
 ./bin/package -p
 test on Linux, Mac OS, and Windows (use https://win-builder.r-project.org/)
-test depending packages: shallot, bamboo, commonsMath
+test depending packages: shallot, sdols, bamboo, commonsMath
 Commit everything to Git.
 Tag in Git the version using "bin/tag" script.
 sbt +publishSigned

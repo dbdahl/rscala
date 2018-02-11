@@ -2,6 +2,7 @@
   * Added the .rscalaOptions function to make it easier to set
     rscala.scala.home, rscala.heap.maximum, rscala.command.line.options.
   * Added 'digest' as a suggested package for building the vignette.
+  * Bug fix for rscalaRequire function on Windows.
 
 2.5.0 (2017-11-24)
   * Made 'scala' function return NULL and provide the interpreter as a side
