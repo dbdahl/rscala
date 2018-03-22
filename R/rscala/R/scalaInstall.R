@@ -1,4 +1,4 @@
-SCALA_212_VERSION <- "2.12.4"
+SCALA_212_VERSION <- "2.12.5"
 SCALA_211_VERSION <- "2.11.12"
 
 findJava <- function() {  ## Mimic how the 'scala' shell script finds Java.

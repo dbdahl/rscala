@@ -1,13 +1,13 @@
 name := "rscala"
 
-version := "2.5.1"
-//version := "2.5.2-SNAPSHOT"
+//version := "2.5.1"
+version := "2.5.2-SNAPSHOT"
 
 organization := "org.ddahl"
 
-scalaVersion := "2.12.4"
+scalaVersion := "2.12.5"
 
-crossScalaVersions := Seq("2.11.12", "2.12.4")
+crossScalaVersions := Seq("2.11.12", "2.12.5")
 
 publishMavenStyle := true
 
