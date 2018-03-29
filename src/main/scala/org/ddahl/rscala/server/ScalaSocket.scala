@@ -2,7 +2,7 @@ package org.ddahl.rscala.server
 
 import java.io.File
 import java.io.PrintWriter
-import java.nio.ByteBuffer
+import java.nio.{Buffer, ByteBuffer}
 import java.nio.channels.ServerSocketChannel
 import java.net.InetSocketAddress
 
@@ -62,7 +62,7 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
   private def outFill(nBytes: Int): Unit = {
     if ( nBytes > bufferOut.remaining ) {
       flush()
-      if ( nBytes > bufferOut.limit ) {
+      if ( nBytes > bufferOut.limit() ) {
         _bufferOut = ByteBuffer.allocateDirect(nBytes)
       }
     }
@@ -385,7 +385,7 @@ private[rscala] class ScalaSocket(portFilename: String, port: Int, initialBuffer
   }
 
   def flush(): Unit = {
-    bufferOut.flip()
+    bufferOut.asInstanceOf[Buffer].flip()   // See rototor comment on Oct 6, 2017 at https://github.com/plasma-umass/doppio/issues/497
     while ( bufferOut.hasRemaining() ) scOut.write(bufferOut)
     bufferOut.clear()
   }
