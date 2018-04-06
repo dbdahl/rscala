@@ -66,9 +66,7 @@ public class RClient4Java {
 
   public RClient4Java(String rCmd, boolean serializeOutput, boolean rowMajor, int port) { this(rCmd,serializeOutput,rowMajor,port,false); }
 
-  public RClient4Java(String rCmd, boolean serializeOutput, boolean rowMajor, int port, boolean debug) { this(rCmd,serializeOutput,rowMajor,port,debug,60); }
-
-  public RClient4Java(String rCmd, boolean serializeOutput, boolean rowMajor, int port, boolean debug, int timeout) { c = org.ddahl.rscala.RClient.apply(rCmd,serializeOutput,rowMajor,port,debug,timeout); }
+  public RClient4Java(String rCmd, boolean serializeOutput, boolean rowMajor, int port, boolean debug) { c = org.ddahl.rscala.RClient.apply(rCmd,serializeOutput,rowMajor,port,debug); }
 
   /** Closes the interface to the R interpreter.
   * 

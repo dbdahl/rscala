@@ -1,15 +1,24 @@
 package org.ddahl.rscala.server
 
+import java.nio.file._
+import collection.JavaConverters._
+
 object Main extends App {
 
-  // Once Java 6 support is dropped, we can replace polling with java.nio.file.WatchService
   object killer extends Thread {
-    override def run() {
-      val snippetFilename = new java.io.File(args(0))
-      // Check every 10 seconds.
-      val millis = 10*1000
-      while ( snippetFilename.exists ) Thread.sleep(millis)
-      sys.exit(0)
+    override def run(): Unit = {
+      val watchService = FileSystems.getDefault().newWatchService()
+      val snippetFileFullPath = Paths.get(args(0))
+      val snippetFile = snippetFileFullPath.getFileName
+      snippetFileFullPath.getParent.register(watchService, StandardWatchEventKinds.ENTRY_DELETE)
+      while (true) {
+        val watchKey = watchService.take()
+        for ( event <- watchKey.pollEvents().asScala ) {
+          val path = event.context.asInstanceOf[Path]
+          if ( path.equals(snippetFile) ) sys.exit(0)
+        }
+        watchKey.reset()
+      }
     }
   }
   killer.setDaemon(true)

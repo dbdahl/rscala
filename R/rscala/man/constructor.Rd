@@ -53,7 +53,7 @@ needed for packages that depend on rscala.
 scala(classpath=character(), classpath.packages=character(),
       serialize.output=.Platform$OS.type=="windows", scala.home=NULL,
       heap.maximum=NULL, command.line.options=NULL, row.major=TRUE,
-      timeout=30, debug=FALSE, stdout=TRUE, stderr=TRUE, port=0,
+      debug=FALSE, stdout=TRUE, stderr=TRUE, port=0,
       scala.info=NULL, major.release=c("2.11","2.12"),
       mode="parallel", assign.name="s", assign.env=parent.frame(),
       callback=function(s) {}, snippet=character())
@@ -82,7 +82,6 @@ scalaInstall(major.release=c("2.11","2.12"), global=FALSE)
     \item{heap.maximum}{A character vector of length one used to specify the maximum heap size in the JVM.  If \code{NULL}, the global option \var{rscala.heap.maximum} is queried and, if that is also \code{NULL}, Scala's default value is used.  This option is ignored if \var{command.line.options} is not \code{NULL} or if the global options \var{rscala.command.line.options} is not \code{NULL}.  Using the function \code{\link{.rscalaOptions}}, the global option \var{rscala.heap.maximum} is set and effects future Scala instances.}
     \item{command.line.options}{A character vector whose elements are passed as command line arguments when invoking Scala.  If \code{NULL}, the global option \var{rscala.command.line.options} is queried and, if that is also \code{NULL}, the value is set to \code{NULL}.  A value of \code{NULL} means no extra arguments are provided.  If you simply want to add to the classpath and/or set the maximum heap size, use the \var{classpath} and \var{heap.maximum} arguments.  Using the function \code{\link{.rscalaOptions}}, the global option \var{rscala.command.line.options} is set and effects future Scala instances.}
     \item{row.major}{Should matrices in Scala be row major?}
-    \item{timeout}{A numeric vector of length one giving the number of seconds to wait for Scala to start before aborting.}
     \item{debug}{An option meant only for developers of the package itself and not intended for users of the package.}
     \item{stdout, stderr}{Where standard output and standard error results that are not serialized should be sent.  \code{TRUE} (the default) or \code{""} sends output to the R console (although that may not work on Windows).  \code{FALSE} or \code{NULL} discards the output.  Otherwise, this is the name of the file that receives the output.}
     \item{port}{If \code{0}, two random ports are selected.  Otherwise, \code{port} and \code{port+1} are used to the TCP/IP connections.}

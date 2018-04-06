@@ -955,10 +955,10 @@ object RClient {
   }
 
   /** Returns an instance of the [[RClient]] class, using the path specified by `rCmd` and specifying whether output
-  * should be serialized, whether matrices are row major, whether debugging output should be displayed, the `timeout` to establish a connection
-  * with the R interpreter, and the port number.  Two sockets are establised using: 1. the specified port and 2. the specified port plus one.
+  * should be serialized, whether matrices are row major, whether debugging output should be displayed,
+  * and the port number.  Two sockets are establised using: 1. the specified port and 2. the specified port plus one.
   */
-  def apply(rCmd: String = defaultRCmd, serializeOutput: Boolean = true, rowMajor: Boolean = true, port: Int = 0, debug: Boolean = false, timeout: Int = 60): RClient = {
+  def apply(rCmd: String = defaultRCmd, serializeOutput: Boolean = true, rowMajor: Boolean = true, port: Int = 0, debug: Boolean = false): RClient = {
     var cmd: PrintWriter = null
     val command = rCmd +: ( defaultArguments ++ interactiveArguments )
     val processCmd = Process(command)
@@ -988,7 +988,7 @@ object RClient {
     val snippet = s"""
       source("${sourceFileNameForR}")
       file.remove("${sourceFileNameForR}")
-      .rsI <- rscala[['newSockets']]('${portsFile.getAbsolutePath.replace(File.separator,"/")}',debug=${if ( debug ) "TRUE" else "FALSE"},serialize.output=${if ( serializeOutput ) "TRUE" else "FALSE"},row.major=${if ( rowMajor ) "TRUE" else "FALSE"},timeout=${timeout},new.env(parent=emptyenv()))
+      .rsI <- rscala[['newSockets']]('${portsFile.getAbsolutePath.replace(File.separator,"/")}',debug=${if ( debug ) "TRUE" else "FALSE"},serialize.output=${if ( serializeOutput ) "TRUE" else "FALSE"},row.major=${if ( rowMajor ) "TRUE" else "FALSE"},new.env(parent=emptyenv()))
       rscala[['rServe']](.rsI,with.callbacks=FALSE)
       q(save='no')
     """.stripMargin

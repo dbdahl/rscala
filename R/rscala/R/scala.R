@@ -1,6 +1,6 @@
 ## Scala scripting over TCP/IP
 
-scala <- function(classpath=character(),classpath.packages=character(),serialize.output=.Platform$OS.type=="windows",scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,timeout=30,debug=FALSE,stdout=TRUE,stderr=TRUE,port=0,scala.info=NULL,major.release=c("2.11","2.12"),mode="parallel",assign.name="s",assign.env=parent.frame(),callback=function(s) {},snippet=character()) {
+scala <- function(classpath=character(),classpath.packages=character(),serialize.output=.Platform$OS.type=="windows",scala.home=NULL,heap.maximum=NULL,command.line.options=NULL,row.major=TRUE,debug=FALSE,stdout=TRUE,stderr=TRUE,port=0,scala.info=NULL,major.release=c("2.11","2.12"),mode="parallel",assign.name="s",assign.env=parent.frame(),callback=function(s) {},snippet=character()) {
   if ( identical(stdout,TRUE) ) stdout <- ""
   if ( identical(stderr,TRUE) ) stderr <- ""
   debug <- identical(debug,TRUE)
@@ -42,7 +42,7 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
   if ( identical(mode,"serial") ) {
     system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
     reg.finalizer(env,stopProcess,onexit=TRUE)
-    sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout,env)
+    sockets <- newSockets(portsFilename,debug,serialize.output,row.major,env)
     scalaSettings(interpreter=sockets,interpolate=TRUE,show.snippet=FALSE,info=sInfo)
     callback(sockets)
     sockets
@@ -50,7 +50,7 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
     system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
     reg.finalizer(env,stopProcess,onexit=TRUE)
     delayedAssign(assign.name,{
-      sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout,env)
+      sockets <- newSockets(portsFilename,debug,serialize.output,row.major,env)
       scalaSettings(interpreter=sockets,interpolate=TRUE,show.snippet=FALSE,info=sInfo)
       callback(sockets)
       sockets
@@ -59,7 +59,7 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
     delayedAssign(assign.name,{
       system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
       reg.finalizer(env,stopProcess,onexit=TRUE)
-      sockets <- newSockets(portsFilename,debug,serialize.output,row.major,timeout,env)
+      sockets <- newSockets(portsFilename,debug,serialize.output,row.major,env)
       scalaSettings(interpreter=sockets,interpolate=TRUE,show.snippet=FALSE,info=sInfo)
       callback(sockets)
       sockets
@@ -83,7 +83,7 @@ scala3 <- function(...) {
   scala(...,mode="serial",assign.env=parent.frame())
 }
 
-newSockets <- function(portsFilename,debug,serialize.output,row.major,timeout,env) {
+newSockets <- function(portsFilename,debug,serialize.output,row.major,env) {
   assign("valid",TRUE,envir=env)
   assign("debug",debug,envir=env)
   assign("rowMajor",row.major,envir=env)
@@ -93,9 +93,7 @@ newSockets <- function(portsFilename,debug,serialize.output,row.major,timeout,en
   garbage <- new.env(parent=emptyenv())
   ports <- local({
     delay <- 0.05
-    start <- proc.time()[3]
     while ( TRUE ) {
-      if ( ( proc.time()[3] - start ) > timeout ) stop("Timed out waiting for Scala to start.")
       if ( file.exists(portsFilename) ) {
         line <- scan(portsFilename,n=2,what=character(),quiet=TRUE)
         if ( length(line) > 0 ) return(as.numeric(line))
@@ -651,7 +649,7 @@ stopProcess <- function(env) {
   snippetFilename <- env[['snippetFilename']]
   if ( file.exists(snippetFilename) ) {
     unlink(snippetFilename)
-    pause <- 13
+    pause <- 6
     diff <- 0
   } else {
     pause <- 3
@@ -779,6 +777,7 @@ scalaInfoEngine <- function(scala.command,major.release,verbose) {
     if ( verbose ) cat(sprintf("Cannot get Scala version from library jar (%s)\n",libraryJar))
     return(NULL)
   }
+### DBD: Check java version at this point!
   if ( ! ( actual.major.release %in% major.release ) ) {
     if ( verbose ) cat(sprintf("      Major release %s is not what was requested: %s\n",actual.major.release,paste(major.release,collapse=", ")))
     return(NULL)
