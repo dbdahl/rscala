@@ -777,7 +777,11 @@ scalaInfoEngine <- function(scala.command,major.release,verbose) {
     if ( verbose ) cat(sprintf("Cannot get Scala version from library jar (%s)\n",libraryJar))
     return(NULL)
   }
-### DBD: Check java version at this point!
+  javaVers <- javaVersion(findJava())
+  if ( ( actual.major.release == "2.11" ) && ( javaVers > 8 ) ) {
+    if ( verbose ) cat(sprintf("Your Scala version (%s) is too old for your Java version (%s).\n",actual.major.release,javaVers))
+    return(NULL)
+  }
   if ( ! ( actual.major.release %in% major.release ) ) {
     if ( verbose ) cat(sprintf("      Major release %s is not what was requested: %s\n",actual.major.release,paste(major.release,collapse=", ")))
     return(NULL)

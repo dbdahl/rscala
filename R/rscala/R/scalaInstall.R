@@ -30,14 +30,17 @@ latestVersion <- function(major.release) {
 
 javaVersion <- function(javaCmd) {
   response <- system2(javaCmd,"-version",stdout=TRUE,stderr=TRUE)
-  regexp <- '(java|openjdk) version "(.*)"'
+  regexp <- '(java|openjdk) version "([^"]*)".*'
   line <- response[grepl(regexp,response)]
   if ( length(line) != 1 ) stop(paste0("Cannot determine Java version.\n",paste(response,collapse="\n")))
   versionString <- gsub(regexp,"\\2",line)
   versionParts <- strsplit(versionString,"\\.")[[1]]
-  if ( versionParts[1] != '1' ) stop(paste0("Unexpected Java version.\n",paste(response,collapse="\n")))
-  versionNumber <- as.numeric(versionParts[2])
-  if ( ! ( versionNumber %in% c(6,7,8) ) ) stop(paste0("Unsupported Java version.\n",paste(response,collapse="\n")))
+  versionNumber <- if ( versionParts[1] == '1' ) {
+    as.numeric(versionParts[2])
+  } else {
+    as.numeric(versionParts[1])
+  }
+  if ( ! ( versionNumber %in% c(7,8,9,10,11) ) ) stop(paste0("Unsupported Java version.\n",paste(response,collapse="\n")))
   versionNumber
 }
 
