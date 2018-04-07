@@ -10,7 +10,11 @@ object Main extends App {
       val watchService = FileSystems.getDefault().newWatchService()
       val snippetFileFullPath = Paths.get(args(0))
       val snippetFile = snippetFileFullPath.getFileName
-      snippetFileFullPath.getParent.register(watchService, StandardWatchEventKinds.ENTRY_DELETE)
+      try {
+        snippetFileFullPath.getParent.register(watchService, StandardWatchEventKinds.ENTRY_DELETE)
+      } catch {
+        case e: NoSuchFileException => sys.exit(0)      // R already exited!
+      }
       while (true) {
         val watchKey = watchService.take()
         for ( event <- watchKey.pollEvents().asScala ) {

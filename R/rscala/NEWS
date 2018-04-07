@@ -1,3 +1,7 @@
+2.5.2 (2018-04-07)
+  * Added support for Java 9, 10, and 11.
+  * Removed 'timeout' argument to 'scala' function.
+
 2.5.1 (2018-02-10)
   * Added the .rscalaOptions function to make it easier to set
     rscala.scala.home, rscala.heap.maximum, rscala.command.line.options.
@@ -18,7 +22,7 @@
     the R/Scala bridge.  See the vignette for syntactical details.
   * Added experimental support for data frames with the scalaConvert.data.frame
     function.
-  * Dropped support for Scala 2.10.x.
+  * Dropped support for Scala 2.10.x and Java 6.
 
 2.4.0 (2017-09-27)
   * Improved input/output performance for large transfers over TCP/IP bridge.
