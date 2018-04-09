@@ -32,13 +32,14 @@ case "$(uname -s)" in
 esac
 
 function usage() {
-  echo "Usage: $0 [ -s -r -c -v -f ]"
+  echo "Usage: $0 [ -s -r -c -v -f -x ]"
   echo "       where -s turns on Scala compile,"
   echo "             -r builds the R package,"
   echo "             -c does basic checking,"
   echo "             -v does basic checking with vignettes,"
   echo "             -f does build and full checking."
   echo "             -p does build, full checking, and posts to web server."
+  echo "             -x builds the R package and posts to web server."
   exit 1
 }
 
@@ -61,7 +62,7 @@ FLAG_POST=
 # Set up
 cd "$PKG_HOME"
 
-while getopts ":srcvfp" o
+while getopts ":srcvfpx" o
 do
   case "${o}" in
     s)
@@ -100,6 +101,10 @@ do
       FLAG_CHECK_VIGNETTES=
       FLAG_CHECK_CRAN="--as-cran --run-dontrun --run-donttest"
       #rm -rf R/$PKG_NAME/inst/doc
+      FLAG_POST=yes
+      ;;
+    x)
+      TASK_R=yes
       FLAG_POST=yes
       ;;
     *)
