@@ -1,5 +1,9 @@
 install-R --devel
-Bump version number in build.sbt, constructor.Rd, README.md, vignette
+Bump version number in
+  build.sbt
+  R/rscala/man/constructor.Rd
+  README.md
+  R/rscala/vignettes/article.Rnw
 Update R/rscala/NEWS detailing changes (including the date)
 Try to bump to latest sbt version in project/build.properties.
 ./bin/package -p

@@ -2,7 +2,7 @@ package org.ddahl.rscala.server
 
 import org.ddahl.rscala._
 import Protocol._
-import scala.tools.nsc.interpreter.IMain
+import scala.tools.nsc.interpreter.{ILoop, IMain}
 import scala.tools.nsc.interpreter.IR.Success
 import scala.tools.nsc.Settings
 import java.io._
@@ -512,13 +512,13 @@ object ScalaServer {
     // Instantiate an interpreter
     val intp = new IMain(settings,prntWrtr)
     // Suppress output; equivalent to :silent in REPL, but it's private, so use reflection.
-    val m2 = intp.getClass.getMethod("printResults_$eq",java.lang.Boolean.TYPE)
-    m2.setAccessible(true)
-    m2.invoke(intp,java.lang.Boolean.FALSE)
+    // val m2 = intp.getClass.getMethod("printResults_$eq",java.lang.Boolean.TYPE)
+    // m2.setAccessible(true)
+    // m2.invoke(intp,java.lang.Boolean.FALSE)
     // Another way to do it, but older version of Scala are chatty and print "Switched off result printing."
-    // val iloop = new ILoop()
-    // iloop.intp = intp
-    // iloop.verbosity()
+    val iloop = new ILoop()
+    iloop.intp = intp
+    iloop.verbosity()
     // Return the server
     new ScalaServer(intp, prntWrtr, baosOut, baosErr, snippetFilename, portsFilename, debugger, serializeOutput, rowMajor, port, 1*1024*1024, prioritizeConnect)
   }
