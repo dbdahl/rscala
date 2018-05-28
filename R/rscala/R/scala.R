@@ -428,7 +428,7 @@ scalaSet <- function(interpreter,identifier,value) {
   keep <- c(keep, ...)
   pf <- parent.frame(1)
   if (length(keep) > 0) assign(".scalaFunctionArgsInclude", as.character(keep), envir = pf)
-  if (length(drop) > 0) assign(".scalaFunctionArgsExclude", as.character(drop), envir = pf)
+  if ( ! is.logical(drop) && ( length(drop) > 0 ) ) assign(".scalaFunctionArgsExclude", as.character(drop), envir = pf)
   x
 }
 
@@ -444,9 +444,8 @@ scalaDef <- function(interpreter,snippet,as.reference) {
     argsNames <- setdiff(argsNames,get(".scalaFunctionArgsExclude",envir=pf))
     rm(".scalaFunctionArgsExclude",envir=pf)
   }
-  argsNames <- intersect(argsNames,ls(envir=pf))
   argsValues <- if ( length(argsNames) > 0 ) {
-    mget(argsNames,envir=pf)
+    mget(argsNames,envir=pf,inherits=TRUE)
   } else {
     list()
   }
