@@ -903,7 +903,7 @@ for example, we can make available new variables \code{x}, \code{y}, and
 \code{s["x","y","z",drop=c("a","b")] \%!\% '...'}.  The automatically generated
 \Scala code for the conversion of variables can be displayed (for debugging
 purposes) by setting the \code{show.snippet} option, e.g.,
-\code{scalaSettings(s, show.snippet=TRUE)}.
+\code{scalaSettings(show.snippet=TRUE)}.
 
 \subsection[Callbacks into R from embedded Scala]{Callbacks into \R from embedded \Scala}
 
