@@ -1,4 +1,8 @@
 2.5.4 (2018-XX-XX)
+  * Added %#% and %.#% operators that are equivalent to #!# and #.!# operators
+    except %#% and %.#% do *not* automatically pass function arguments to a
+    Scala snippet (and therefore can be used both inside and outside of R
+    functions.)  **** This still needs to be documented in the paper. ****
   * Automatically detect physical RAM and set the Java heap maximum to a
     reasonable default to avoid 'java.lang.OutOfMemoryError'.  As before, users
     can still explicitly set it using the .rscalaOptions function and the

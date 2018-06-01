@@ -3,6 +3,8 @@
 '%.~%'  <- function(interpreter,snippet) UseMethod("%.~%")
 '%!%'   <- function(interpreter,snippet) UseMethod("%!%")
 '%.!%'  <- function(interpreter,snippet) UseMethod("%.!%")
+'%#%'   <- function(interpreter,snippet) UseMethod("%#%")
+'%.#%'  <- function(interpreter,snippet) UseMethod("%.#%")
 
 strintrplt <- function(snippet,envir=parent.frame()) {
   if ( ! is.character(snippet) ) stop("Character vector expected.")

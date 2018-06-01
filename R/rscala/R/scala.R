@@ -189,7 +189,7 @@ toString.ScalaInterpreter <- function(x,...) {
 
 toString4ScalaReference <- function(x) {
   if ( x$true ) {
-    str <- x[['interpreter']][drop='x'] %!% '
+    str <- x[['interpreter']] %#% '
       val x = R.cached(R.evalS0("""toString(get("x"))""")).asInstanceOf[Any]
       if ( x == null ) "null" else {
         val y = x.toString
@@ -441,8 +441,11 @@ scalaSet <- function(interpreter,identifier,value) {
   invisible()
 }
 
-'%!%.ScalaInterpreter'  <- function(interpreter,snippet) scalaDef(interpreter,snippet,NA)
-'%.!%.ScalaInterpreter' <- function(interpreter,snippet) scalaDef(interpreter,snippet,TRUE)
+'%!%.ScalaInterpreter'  <- function(interpreter,snippet) scalaDef(interpreter,snippet,NA,TRUE)
+'%.!%.ScalaInterpreter' <- function(interpreter,snippet) scalaDef(interpreter,snippet,TRUE,TRUE)
+
+'%#%.ScalaInterpreter'  <- function(interpreter,snippet) scalaDef(interpreter,snippet,NA,FALSE)
+'%.#%.ScalaInterpreter' <- function(interpreter,snippet) scalaDef(interpreter,snippet,TRUE,FALSE)
 
 "[.ScalaInterpreter" <- function(x, i, j, ..., drop=TRUE) {
   keep <- character()
@@ -455,10 +458,14 @@ scalaSet <- function(interpreter,identifier,value) {
   x
 }
 
-scalaDef <- function(interpreter,snippet,as.reference) {
+scalaDef <- function(interpreter,snippet,as.reference,include.args) {
   pf <- parent.frame(2)
   snippet <- strintrpltIf(snippet,pf,interpreter)
-  argsNames <- names(formals(sys.function(-3)))
+  argsNames <- if ( include.args ) {
+    func <- sys.function(-3)
+    if ( ! is.function(func) ) stop('The %!% and %.!% operators should only be used inside functions.  Perhaps you meant to use the %#% and %.#% operators?')
+    names(formals(func))
+  } else character()
   if ( exists(".scalaFunctionArgsInclude",envir=pf) ) {
     argsNames <- union(argsNames,get(".scalaFunctionArgsInclude",envir=pf))
     rm(".scalaFunctionArgsInclude",envir=pf)
