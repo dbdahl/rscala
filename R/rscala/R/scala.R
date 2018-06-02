@@ -21,21 +21,21 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
         if ( is.null(heap.maximum) ) {
           memoryPercentage <- 0.85
           bytes <- if ( file.exists("/proc/meminfo") ) {  # Linux
-            stdout <- readLines("/proc/meminfo")
-            stdout <- stdout[grepl("^MemTotal:\\s*",stdout)]
-            stdout <- gsub("^MemTotal:\\s*","",stdout)
-            stdout <- gsub("\\s*kB$","",stdout)
-            as.numeric(stdout) * 1024
+            outTemp <- readLines("/proc/meminfo")
+            outTemp <- outTemp[grepl("^MemTotal:\\s*",outTemp)]
+            outTemp <- gsub("^MemTotal:\\s*","",outTemp)
+            outTemp <- gsub("\\s*kB$","",outTemp)
+            as.numeric(outTemp) * 1024
           } else if ( .Platform$OS.type=="windows" ) {    # Windows
-            stdout <- system2("wmic",c("computersystem","get","TotalPhysicalMemory","/VALUE"),stdout=TRUE)
-            stdout <- stdout[stdout != "\r"]
-            stdout <- gsub("^TotalPhysicalMemory=","",stdout)
-            stdout <- gsub("\r","",stdout)
-            as.numeric(stdout)
+            outTemp <- system2("wmic",c("computersystem","get","TotalPhysicalMemory","/VALUE"),outTemp=TRUE)
+            outTemp <- outTemp[outTemp != "\r"]
+            outTemp <- gsub("^TotalPhysicalMemory=","",outTemp)
+            outTemp <- gsub("\r","",outTemp)
+            as.numeric(outTemp)
           } else if ( grepl("^darwin", R.version$os) ) {  # Mac OS X
-            stdout <- system2("sysctl","hw.memsize",stdout=TRUE)
-            stdout <- gsub("^hw.memsize:\\s*","",stdout)
-            as.numeric(stdout)
+            outTemp <- system2("sysctl","hw.memsize",outTemp=TRUE)
+            outTemp <- gsub("^hw.memsize:\\s*","",outTemp)
+            as.numeric(outTemp)
           } else NA                                       # Unknown, so do not do anything.
           heap.maximum <- if ( ! is.na(bytes) ) {
             paste0(as.integer(memoryPercentage * (bytes / 1024^2)),"m")
