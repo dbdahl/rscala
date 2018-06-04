@@ -1,8 +1,9 @@
 2.5.4 (2018-XX-XX)
-  * Added %#% and %.#% operators that are equivalent to #!# and #.!# operators
-    except %#% and %.#% do *not* automatically pass function arguments to a
-    Scala snippet (and therefore can be used both inside and outside of R
-    functions.)  **** This still needs to be documented in the paper. ****
+  * Modified that %~% and %.~% operators to behave like the %!% and %.!% operators
+    except they do *not* automatically pass function arguments to a Scala snippet
+    (and therefore can be used both inside and outside of R functions).  As such,
+    the %~% and %.~% operators are much faster (after the first invocation) and not
+    subject to Scala's memory leak bug.
   * Automatically detect physical RAM and set the Java heap maximum to a
     reasonable default to avoid 'java.lang.OutOfMemoryError'.  As before, users
     can still explicitly set it using the .rscalaOptions function and the
