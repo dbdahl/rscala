@@ -32,9 +32,6 @@ interpreter \%.~\% snippet
 interpreter \%!\% snippet
 interpreter \%.!\% snippet
 
-interpreter \%#\% snippet
-interpreter \%.#\% snippet
-
 scalaNull(type)
 II(x)
 
@@ -52,34 +49,30 @@ II(x)
 }
 \details{
 
-\code{interpreter \%@\% snippet} evaluates the expression \var{snippet},
-whereas \code{interpreter \%~\% snippet} both evaluates the expression
-\var{snippet} and attempts to return a vector or matrix of integers, doubles,
-logicals, characters, or raw or --- if this is not possible --- \code{NULL} is
-returned.  \code{interpreter \%.~\% snippet} has the same behavior except it
-always returns a Scala reference.  References may be used later for assignment
-and Scala function arguments.  Note that memory allocated as a result of
-assignment or executing \code{snippet} will never be garbage collected due to a
-limitation of Scala's REPL.  (See the Scala bug detailed here:
+\code{interpreter \%@\% snippet} evaluates the expression \var{snippet} in the
+\emph{global} workspace.  Use this operator when defining imports, classes,
+companion objects, etc. that you want available in subsequent Scala
+expressions.  Each use of the \code{\%@\%} involves both a compilation and
+execuation step.   Note that memory allocated as a result of assignment or
+executing \code{snippet} will never be garbage collected due to a limitation of
+Scala's REPL.  (See the Scala bug detailed here:
 \url{https://issues.scala-lang.org/browse/SI-4331}.)
 
-\code{interpreter \%#\% snippet} and \code{interpreter \%.#\% snippet} are
-the analog to \code{interpreter \%~\% snippet} and \code{interpreter \%~\%
-snippet}, respectively, that cache the compilation.
+In contrast, \code{interpreter \%~\% snippet}: i. compiles a given snippet only
+once for any number of invocations (leading to a significant performance
+improvement for quick functions), ii. evaluates in an \emph{isolated}
+workspace, iii. does \emph{not} suffer from the aforementioned memory bug, and
+iv. attempts to return a vector or matrix of integers, doubles, logicals,
+characters, or raw or --- if this is not possible --- \code{NULL} is returned.
+\code{interpreter \%.~\% snippet} has the same behavior except it always
+returns a Scala reference.  References may be used later for assignment and
+Scala function arguments.
 
 \code{interpreter \%!\% snippet} and \code{interpreter \%.!\% snippet} are the
-analog to \code{interpreter \%#\% snippet} and \code{interpreter \%.#\%
+analogs to \code{interpreter \%~\% snippet} and \code{interpreter \%.~\%
 snippet}, respectively, that can only be used within a function to define a
 Scala function.  The arguments of the function where these operators are used
 are automatically passed to the Scala snippet.
-
-Memory associated with using the \code{\%!\%}, \code{\%.!\%}, \code{\%#\%},
-and \code{\%.#\%} operators is garbage collected.  Thus, preference for these
-operators over \code{\%~\%} and \code{\%.~\%} is encouraged for memory intensive
-applications.  Importantly, these operators also have much less invocation
-latency than the equivalent code using \code{\link{\%~\%}} and
-\code{\link{\%.~\%}}.  The speed difference in invocation is especially
-noticeable for quick functions.
 
 \code{interpreter$identifier} and \code{interpreter$identifier <- value} get
 and set variables in the interpreter, and the results are not garbage collected

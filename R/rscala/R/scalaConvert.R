@@ -1,11 +1,11 @@
 scalaConvert <- function(x, interpreter=findScalaInstance()) {
   s <- interpreter
   if ( inherits(x,"ScalaCachedReference") || inherits(x,"ScalaInterpreterReference") ) {
-    result <- s['x']  %#% 'x'
+    result <- s['x']  %~% 'x'
     if ( inherits(result,"ScalaCachedReference") ) stop("Failed to convert object.")
     result
   } else {
-    result <- s['x'] %.#% 'x'
+    result <- s['x'] %.~% 'x'
     if ( result$type == "org.ddahl.rscala.EphemeralReference" ) stop("Failed to convert object.")
     result
   }
@@ -19,7 +19,7 @@ scalaConvert.data.frame <- function(x, interpreter=findScalaInstance()) {
     dimnames(results) <- list(x$apply(".rownames")$"_1"(),names)
     results
   } else {
-    s %.#% '
+    s %.~% '
       val names = R.evalS1("names(x)")
       val nCols = names.length
       var result = scala.collection.immutable.ListMap[String,(Any,String)]().withDefaultValue(null)

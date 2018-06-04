@@ -161,16 +161,22 @@ strintrpltIf <- function(snippet,env,interpreter) {
   if ( get("interpolate",envir=interpreter[['env']]) ) strintrplt(snippet,env) else snippet
 }
 
-'%~%.ScalaInterpreter'  <- function(interpreter,snippet) scalaEvalGet(interpreter,snippet,NA)
-'%.~%.ScalaInterpreter' <- function(interpreter,snippet) scalaEvalGet(interpreter,snippet,TRUE)
+# '%~%.ScalaInterpreter'  <- function(interpreter,snippet) scalaEvalGet(interpreter,snippet,NA)
+# '%.~%.ScalaInterpreter' <- function(interpreter,snippet) scalaEvalGet(interpreter,snippet,TRUE)
+#
+# scalaEvalGet <- function(interpreter,snippet,as.reference) {
+#   cc(interpreter)
+#   snippet <- strintrpltIf(paste(snippet,collapse="\n"),parent.frame(2),interpreter)
+#   result <- evalAndGet(interpreter,snippet,as.reference,parent.frame(2))
+#   if ( is.null(result) ) invisible(result)
+#   else result
+# }
+#
+# evalAndGet <- function(interpreter,snippet,as.reference,workspace) {
+#   scalaEval(interpreter,snippet,workspace)
+#   scalaGet(interpreter,".",as.reference)
+# }
 
-scalaEvalGet <- function(interpreter,snippet,as.reference) {
-  cc(interpreter)
-  snippet <- strintrpltIf(paste(snippet,collapse="\n"),parent.frame(2),interpreter)
-  result <- evalAndGet(interpreter,snippet,as.reference,parent.frame(2))
-  if ( is.null(result) ) invisible(result)
-  else result
-}
 
 '%@%.ScalaInterpreter' <- function(interpreter,snippet) {
   cc(interpreter)
@@ -189,7 +195,7 @@ toString.ScalaInterpreter <- function(x,...) {
 
 toString4ScalaReference <- function(x) {
   if ( x$true ) {
-    str <- x[['interpreter']] %#% '
+    str <- x[['interpreter']] %~% '
       val x = R.cached(R.evalS0("""toString(get("x"))""")).asInstanceOf[Any]
       if ( x == null ) "null" else {
         val y = x.toString
@@ -441,11 +447,11 @@ scalaSet <- function(interpreter,identifier,value) {
   invisible()
 }
 
+'%~%.ScalaInterpreter'  <- function(interpreter,snippet) scalaDef(interpreter,snippet,NA,FALSE)
+'%.~%.ScalaInterpreter' <- function(interpreter,snippet) scalaDef(interpreter,snippet,TRUE,FALSE)
+
 '%!%.ScalaInterpreter'  <- function(interpreter,snippet) scalaDef(interpreter,snippet,NA,TRUE)
 '%.!%.ScalaInterpreter' <- function(interpreter,snippet) scalaDef(interpreter,snippet,TRUE,TRUE)
-
-'%#%.ScalaInterpreter'  <- function(interpreter,snippet) scalaDef(interpreter,snippet,NA,FALSE)
-'%.#%.ScalaInterpreter' <- function(interpreter,snippet) scalaDef(interpreter,snippet,TRUE,FALSE)
 
 "[.ScalaInterpreter" <- function(x, i, j, ..., drop=TRUE) {
   keep <- character()
@@ -463,7 +469,7 @@ scalaDef <- function(interpreter,snippet,as.reference,include.args) {
   snippet <- strintrpltIf(snippet,pf,interpreter)
   argsNames <- if ( include.args ) {
     func <- sys.function(-3)
-    if ( ! is.function(func) ) stop('The %!% and %.!% operators should only be used inside functions.  Perhaps you meant to use the %#% and %.#% operators?')
+    if ( ! is.function(func) ) stop('The %!% and %.!% operators should only be used inside functions.  Perhaps you meant to use the %~% and %.~% operators?')
     names(formals(func))
   } else character()
   if ( exists(".scalaFunctionArgsInclude",envir=pf) ) {
@@ -912,11 +918,6 @@ askWhereToInstall <- function() {
     if ( response == "Y" ) return(TRUE)
     if ( response == "N" ) return(FALSE)
   }
-}
-
-evalAndGet <- function(interpreter,snippet,as.reference,workspace) {
-  scalaEval(interpreter,snippet,workspace)
-  scalaGet(interpreter,".",as.reference)
 }
 
 checkType <- function(x) {

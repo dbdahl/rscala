@@ -49,7 +49,7 @@
 
 %% almost as usual
 \author{David B.\ Dahl\\Brigham Young University}
-\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.5.3,\ \ Document ID: 2018-04-10}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
+\title{\textit{\Large Under Review\\\footnotesize Software Version: 2.5.4-SNAPSHOT,\ \ Document ID: 2018-06-04}\\\vspace{5ex} Integration of \R and \Scala Using \rscala}
 
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{David B. Dahl} %% comma-separated
@@ -671,12 +671,12 @@ method that takes an array of any arbitrary type \code{T} and a value of type
 \code{T}, and sets every element of the array to that value:
 
 <<lengthOne>>=
-setter <- s %.~% '
+s %@% '
   object setter {
     def apply[T](x: Array[T], value: T) = x.indices.foreach { x(_) = value }
   }
-  setter
 '
+setter <- s$.setter
 @
 
 When calling the \code{apply} method of the \code{setter} object, the first
@@ -1059,23 +1059,21 @@ recursive.sum(10)
 The \rscala package ties into the garbage collectors of both \R and \Scala.  As
 such, the user often does not need to think about memory management.  There are
 a few important things to note, however.  First, the default maximum heap size
-set by the Java Virtual Machine may not be sufficient.  Adjust the heap size
+for \rscala is 85\% of the physical RAM.  Adjust the heap size
 using the \code{scala} function's \code{heap.size} argument, or use the global
 option \code{rscala.heap.maximum} (e.g.,
 \code{options(rscala.heap.maximum="4G")}). The former takes precedence over the
-latter.
+latter.  The global option may conveniently be set using the \code{.rscalaOptions} function.
 
-Second, there is an
-\href{https://issues.scala-lang.org/browse/SI-4331}{unresolved issue (SI-4331)}
-with the \Scala REPL (read-eval-print-loop) where allocated memory cannot be
-freed even if the same identifier is set to another value.  This issue prevents
-memory from being recovered in \rscala when using the \code{\%\mytilde\%} and
-\code{\%.\mytilde\%} operators, or when using the the \code{\$} assignment
-operator.  This issue does not affect \Scala functions and calls to methods on
-\Scala references.  Hence, we encourage developers to use functions and methods
-for memory intensive applications.  As will be shown later, functions and
-methods also enjoy faster execution than the equivalent code using the
-\code{\%\mytilde\%} and \code{\%.\mytilde\%} operators.
+Memory allocated as a result of the \code{\$} assignment
+operator or the \code{\%@\%} evaluation operator are subject to
+an \href{https://issues.scala-lang.org/browse/SI-4332}{unresolved issue (SI-4331)}
+with the \Scala REPL (read-eval-print-loop)
+which prevents
+memory from being recovered.
+This issue does not affect memory associated with the use of the
+\code{\%\mytilde\%}, \code{\%.\mytilde\%}, \code{\%!\%}, and \code{\%.!\%}
+operators.
 
 \subsection{Speed considerations}
 \label{cpu}
@@ -1086,11 +1084,12 @@ comprehensive comparison of the performance of these languages.  For that, we re
 readers to benchmarks available on the web, including \citet{languageShootout}.
 Here we wish to highlight performance characteristics of \rscala itself.
 
-Every \Scala snippet associated with the \code{\%@\%}, \code{\%\mytilde\%}, and
-\code{\%.\mytilde\%} operators is compiled at every invocation.  In contrast, a
-\Scala snippet in a \Scala function (see Section \ref{inline})
-and methods of Scala references are only compiled
-the first time they are run.  Subsequent invocations are faster because
+Every \Scala snippet associated with the \code{\%@\%}
+operator is compiled at every invocation.  In contrast, when using the
+\code{\%\mytilde\%}, \code{\%.\mytilde\%}, \code{\%!\%}, and \code{\%.!\%} operators,
+the \Scala snippet 
+is only compiled
+the first time it is invoked.  Subsequent invocations are faster because
 the compiled code is cached and re-used.  Recall that in Section \ref{inline}
 the variable \code{cpuFirstEval} saved the system time associated with the
 first invocation of the \Scala function \code{bell.version2}.
@@ -1353,7 +1352,7 @@ functions, facilitate calculations, manage data, and produce plots in a \Scala
 application.  Consider, for example, wrapping \R's \code{qnorm} function to
 define a method in \Scala by the same name.
 
-<<scalaScript1qnorm,engine="scala",engine.path=scalaInfo(s)$cmd,engine.opts=paste0('-nc -cp ',scalaInfo(s)$classpath),comment="//",eval=(.Platform$OS.type != "windows")>>=
+<<scalaScript1qnorm,engine="scala",engine.path=rscala::scalaInfo(s)$cmd,engine.opts=paste0('-nc -cp ',rscala::scalaInfo(s)$classpath),comment="//",eval=(.Platform$OS.type != "windows")>>=
 val R = org.ddahl.rscala.RClient()
 
 def qnorm(x: Double, mean: Double = 0, sd: Double = 1, lowerTail: Boolean = true) = {
@@ -1370,7 +1369,7 @@ statistical calculation is easily implemented in \R, one can imagine a \Scala
 application that needs to perform a more taxing calculation that leverages \R's
 rich data-processing functions.
 
-<<scalaScript1europe,engine="scala",engine.path=scalaInfo(s)$cmd,engine.opts=paste0('-nc -cp ',scalaInfo(s)$classpath),comment="//",eval=(.Platform$OS.type != "windows")>>=
+<<scalaScript1europe,engine="scala",engine.path=rscala::scalaInfo(s)$cmd,engine.opts=paste0('-nc -cp ',rscala::scalaInfo(s)$classpath),comment="//",eval=(.Platform$OS.type != "windows")>>=
 val R = org.ddahl.rscala.RClient()
 val distances = R.evalD2("as.matrix(eurodist)")
 val cities = R.evalS1("attr(eurodist,'Labels')")
