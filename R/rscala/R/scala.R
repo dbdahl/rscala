@@ -27,13 +27,13 @@ scala <- function(classpath=character(),classpath.packages=character(),serialize
             outTemp <- gsub("\\s*kB$","",outTemp)
             as.numeric(outTemp) * 1024
           } else if ( .Platform$OS.type=="windows" ) {    # Windows
-            outTemp <- system2("wmic",c("computersystem","get","TotalPhysicalMemory","/VALUE"),outTemp=TRUE)
+            outTemp <- system2("wmic",c("computersystem","get","TotalPhysicalMemory","/VALUE"),stdout=TRUE)
             outTemp <- outTemp[outTemp != "\r"]
             outTemp <- gsub("^TotalPhysicalMemory=","",outTemp)
             outTemp <- gsub("\r","",outTemp)
             as.numeric(outTemp)
           } else if ( grepl("^darwin", R.version$os) ) {  # Mac OS X
-            outTemp <- system2("sysctl","hw.memsize",outTemp=TRUE)
+            outTemp <- system2("sysctl","hw.memsize",stdout=TRUE)
             outTemp <- gsub("^hw.memsize:\\s*","",outTemp)
             as.numeric(outTemp)
           } else NA                                       # Unknown, so do not do anything.
