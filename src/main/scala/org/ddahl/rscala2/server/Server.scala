@@ -3,9 +3,7 @@ package org.ddahl.rscala2.server
 import java.net._
 import java.io._
 import java.nio.ByteBuffer
-
 import scala.annotation.tailrec
-
 
 case class Datum(value: Any, tipe: Int)
 
@@ -15,9 +13,12 @@ object Server extends App {
   val serverOut = new ServerSocket(9998)
   val serverIn = new ServerSocket(9999)
   val sOut = serverOut.accept()
+  println("Connected out.")
   val sIn = serverIn.accept()
+  println("Connected in.")
   val out = new DataOutputStream(sOut.getOutputStream())
   val in = new DataInputStream(sIn.getInputStream())
+
   var stack = List[Datum]()
 
   def exit(): Unit = {
@@ -85,6 +86,7 @@ object Server extends App {
   @tailrec
   def loop(): Unit = {
     val request = in.readInt()
+    println("Command: "+tipe)
     request match {
       case PCODE_EXIT => exit(); return
       case PCODE_PUSH => push()

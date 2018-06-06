@@ -8,20 +8,16 @@ set -e
 # set -x
 # trap read debug
 
+
+# Make protocal.R script
+
 cd $(dirname $(readlink -f "$0"))
-
 ./make-protocol
-
 cd ..
-sbt package
 
-JAR=$(ls -t ./target/scala-2.12/${PKG_NAME}_2.12-*.jar | head -n 1)
-JARDIR=R/${PKG_NAME}/inst/java/scala-2.12
-rm -rf "$JARDIR"
-mkdir -p "$JARDIR"
-cp $JAR "$JARDIR"
 
-# Set version number and data
+# Set version number 
+
 function setversion {
   OLDWD="$PWD"
   sed -i $SEDOPT 's/\(\s*Version\s*:\s*\)\(.*\)/\1'"$1"'/g' R/$PKG_NAME/DESCRIPTION
@@ -38,6 +34,16 @@ then
 fi
 set -e
 setversion $PKG_VERSION $(date +'%Y-%m-%d')
-cd R
-R -e "devtools::document('$PKG_NAME')"
+
+
+# Compile Scala
+
+sbt package
+
+JAR=$(ls -t ./target/scala-2.12/${PKG_NAME}_2.12-*.jar | head -n 1)
+JARDIR=R/${PKG_NAME}/inst/java/scala-2.12
+rm -rf "$JARDIR"
+mkdir -p "$JARDIR"
+cp $JAR "$JARDIR"
+
 

@@ -4,6 +4,7 @@
 /R/rscala2/NAMESPACE
 /R/rscala2/.Rproj.user
 /R/rscala2_*.tar.gz
+.Rproj.user
 .Rhistory
 .RData
 

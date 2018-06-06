@@ -9,7 +9,7 @@ code <- sub("\\s+$","",code)
 code <- paste(code,ifelse(grepl("=\\s*\\d+$",code),"L",""),sep="")
 code <- sub("=","<-",code)
 
-con <- file("../R/rscala2/R/protocol.R")
+con <- file("../R/rscala2/R/INTERNAL-protocol.R")
 writeLines(code,con)
 close(con)
 

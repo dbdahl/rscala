@@ -1,13 +1,16 @@
-push(1L)
-push(2L)
-push(3L)
-pop()
-pop()
-push(10L)
-push(1:10)
-pop()
-push(as.double(1:10))
-pop()
+library(rscala2)
+scala()
+
+push(1L, s)
+push(2L, s)
+push(3L, s)
+pop(s)
+pop(s)
+
+push(1:10, s)
+is.integer(pop(s))
+push(as.double(1:10), s)
+is.integer(pop(s))
 
 
 library(rscala)
