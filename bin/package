@@ -1,0 +1,43 @@
+#!/bin/bash
+
+PKG_NAME=rscala2
+
+set -e
+
+## For debugging
+# set -x
+# trap read debug
+
+cd $(dirname $(readlink -f "$0"))
+
+./make-protocol
+
+cd ..
+sbt package
+
+JAR=$(ls -t ./target/scala-2.12/${PKG_NAME}_2.12-*.jar | head -n 1)
+JARDIR=R/${PKG_NAME}/inst/java/scala-2.12
+rm -rf "$JARDIR"
+mkdir -p "$JARDIR"
+cp $JAR "$JARDIR"
+
+# Set version number and data
+function setversion {
+  OLDWD="$PWD"
+  sed -i $SEDOPT 's/\(\s*Version\s*:\s*\)\(.*\)/\1'"$1"'/g' R/$PKG_NAME/DESCRIPTION
+  sed -i $SEDOPT 's/\(\s*Date\s*:\s*\)\(.*\)/\1'"$2"'/g' R/$PKG_NAME/DESCRIPTION
+  cd "$OLDWD"
+}
+
+PKG_VERSION=$(cat build.sbt | grep "^version := " | cut -d '"' -f 2)
+set +e
+echo $PKG_VERSION | grep -q SNAPSHOT
+if [[ $? == 0 ]]
+then
+  PKG_VERSION=$(echo $PKG_VERSION | sed s/SNAPSHOT/$(date +'%Y%m%d-%H%M')/g)
+fi
+set -e
+setversion $PKG_VERSION $(date +'%Y-%m-%d')
+cd R
+R -e "devtools::document('$PKG_NAME')"
+
