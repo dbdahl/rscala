@@ -1,5 +1,5 @@
 library(rscala2)
-scala()
+scala(useSockets=FALSE)
 
 library(rJava)
 .jinit()
@@ -11,6 +11,7 @@ f2 <- function(x) s(x=x,b="Dahl",pi=pi) %~% 'println("<:"+x+" "+b+":>")'
 
 big <- paste0(rep(letters,times=100),collapse="")
 
+library(microbenchmark)
 microbenchmark(
 f0(),
 s$java.lang.Runtime.getRuntime.availableProcessors(),
@@ -20,6 +21,9 @@ s$java.lang.System.setProperty("scala.is.cool","TRUE"),
 s$java.lang.System.setProperty("scala.is.cool",big),
 .jcall("java.lang.System","S","setProperty","scala.is.cool",big),
 times=1000)
+
+
+
 
 
   .jcall("java.lang.System","S","setProperty","scala.is.cool","TRUE")

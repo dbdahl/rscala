@@ -8,6 +8,6 @@
 #' 
 '%~%.rscalaBridge' <- function(bridge, snippet) {
   details <- attr(bridge,"details")
-  if ( is.function(bridge) ) scalaInvokeWithNames(details, snippet, list())
-  else scalaInvokeWithNames(details, snippet, bridge)
+  args <- if ( is.function(bridge) ) list() else bridge
+  scalaInvoke(details, snippet, args, withNames=TRUE)
 }

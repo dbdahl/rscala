@@ -1,10 +1,8 @@
 #' @export
 #' 
-pop <- function(details) {
-  socketOut <- details[["socketOut"]]
-  socketIn <- details[["socketIn"]]
-  writeBin(PCODE_POP,socketOut,endian="big")
+pop <- function(socketIn) {
   tipe <- readBin(socketIn,what=RTYPE_INT,endian="big")
+  if ( length(tipe) == 0 ) browser()
   if ( tipe == TCODE_INT_0 ) {
     readBin(socketIn,what=RTYPE_INT,endian="big")
   } else if ( tipe == TCODE_INT_1 ) {

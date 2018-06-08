@@ -1,20 +1,11 @@
-scalaInvokeWithNames <- function(details, snippet, args) {
+scalaInvoke <- function(details, snippet, args, withNames=FALSE) {
   socketOut <- details[["socketOut"]]
-  socketIn <- details[["socketIn"]]
   sapply(args, push, details=details)
-  writeBin(c(PCODE_INVOKE_WITH_NAMES,length(args)),socketOut,endian="big")
-  sapply(names(args), function(name) writeString(socketOut, name))
+  code <- if ( withNames ) PCODE_INVOKE_WITH_NAMES else PCODE_INVOKE_WITHOUT_NAMES
+  writeBin(c(code,length(args)),socketOut,endian="big")
+  if ( withNames ) sapply(names(args), function(name) writeString(socketOut, name))
   writeString(socketOut, snippet)
-  readBin(socketIn,what=RTYPE_INT,endian="big")
-}
-
-scalaInvokeWithoutNames <- function(details, snippet, args) {
-  socketOut <- details[["socketOut"]]
-  socketIn <- details[["socketIn"]]
-  sapply(args, push, details=details)
-  writeBin(c(PCODE_INVOKE_WITHOUT_NAMES,length(args)),socketOut,endian="big")
-  writeString(socketOut, snippet)
-  readBin(socketIn,what=RTYPE_INT,endian="big")
+  pop(details[["socketIn"]])
 }
 
 writeString <- function(socketOut, x) {

@@ -35,17 +35,38 @@ class EmbeddedStack {
 
 object Server extends App {
 
-  Logger.enabled = false
+  val debug = true
+  // val technique: Either[(Int,Int),(String,String)] = Left(9998,9999)
+  val technique: Either[(Int,Int),(String,String)] = Right("/home/dahl/docs/devel/rscala2/pipe-s2r","/home/dahl/docs/devel/rscala2/pipe-r2s")
+  val buffer = false
+
+  Logger.enabled = debug
 
   import Protocol._
-  val serverOut = new ServerSocket(9998)
-  val serverIn = new ServerSocket(9999)
-  val sOut = serverOut.accept()
-  Logger("connected out")
-  val sIn = serverIn.accept()
-  Logger("connected in")
-  val out = new DataOutputStream(sOut.getOutputStream())
-  val in = new DataInputStream(sIn.getInputStream())
+
+  Logger("starting server")
+
+  private val (out, in) = {
+    val buffer = false
+    val (os,is) = if ( technique.isLeft ) {
+      val (portS2R, portR2S) = technique.left.get
+      val serverOut = new ServerSocket(portS2R)
+      val serverIn = new ServerSocket(portR2S)
+      Logger("socket S2R waiting for client on port: "+portS2R)
+      val sOut = serverOut.accept()
+      Logger("socket R2S waiting for client on port: "+portR2S)
+      val sIn = serverIn.accept()
+      (sOut.getOutputStream, sIn.getInputStream)
+    } else {
+      val (pipeS2R, pipeR2S) = technique.right.get
+      Logger("pipe S2R client is: "+pipeS2R)
+      Logger("pipe R2S client is: "+pipeR2S)
+      (new FileOutputStream(pipeS2R), new FileInputStream(pipeR2S))
+    }
+    val bos = if ( buffer ) new BufferedOutputStream(os) else os
+    (new DataOutputStream(bos), new DataInputStream(is))
+  }
+  Logger("connections established")
 
   private var stack = List[Datum]()
   private val embeddedStack = new EmbeddedStack()    // called ES in the REPL
@@ -92,16 +113,15 @@ object Server extends App {
     stack = Datum(value,tipe) :: stack
   }
 
-  def pop(): Unit = {
-    Logger("pop")
-    val head = stack.head
-    val tipe = head.tipe
+  def report(datum: Datum): Unit = {
+    Logger("report")
+    val tipe = datum.tipe
     tipe match {
       case TCODE_INT_0 =>
         out.writeInt(tipe)
-        out.writeInt(head.value.asInstanceOf[Int])
+        out.writeInt(datum.value.asInstanceOf[Int])
       case TCODE_INT_1 =>
-        val value = head.value.asInstanceOf[Array[Int]]
+        val value = datum.value.asInstanceOf[Array[Int]]
         val byteBuffer = ByteBuffer.allocate(value.length*BYTES_PER_INT)
         value.foreach(byteBuffer.putInt(_))
         out.writeInt(tipe)
@@ -109,9 +129,9 @@ object Server extends App {
         out.write(byteBuffer.array)
       case TCODE_DOUBLE_0 =>
         out.writeInt(tipe)
-        out.writeDouble(head.value.asInstanceOf[Double])
+        out.writeDouble(datum.value.asInstanceOf[Double])
       case TCODE_DOUBLE_1 =>
-        val value = head.value.asInstanceOf[Array[Double]]
+        val value = datum.value.asInstanceOf[Array[Double]]
         val byteBuffer = ByteBuffer.allocate(value.length*BYTES_PER_DOUBLE)
         value.foreach(byteBuffer.putDouble(_))
         out.writeInt(tipe)
@@ -119,14 +139,14 @@ object Server extends App {
         out.write(byteBuffer.array)
       case TCODE_CHARACTER_0 =>
         out.writeInt(tipe)
-        val value = head.value.asInstanceOf[String]
+        val value = datum.value.asInstanceOf[String]
         val bytes = value.getBytes("UTF-8")
         out.writeInt(bytes.length)
         out.write(bytes)
       case _ =>
         throw new IllegalStateException("Unsupported type.")
     }
-    stack = stack.tail
+    out.flush()
   }
 
   def invokeWithNames(): Unit = {
@@ -152,7 +172,7 @@ object Server extends App {
       // This is where we compile the body
       (null, "Null")
     })
-    out.writeInt(RESULT_OKAY)
+    report(Datum(0,TCODE_INT_0))
     // Debugging
 //    println("<---")
 //    (0 until nArgs).foreach { i => println(embeddedStack.pop[Any]()) }
@@ -191,7 +211,7 @@ object Server extends App {
       // This is where we compile the body
       (null, "Null")
     })
-    out.writeInt(RESULT_OKAY)
+    report(Datum(0,TCODE_INT_0))
     // Debugging
 //    println("<---")
 //    (0 until nArgs).foreach { i => println(embeddedStack.pop[Any]()) }
@@ -207,7 +227,6 @@ object Server extends App {
     request match {
       case PCODE_EXIT => exit(); return
       case PCODE_PUSH => push()
-      case PCODE_POP  => pop()
       case PCODE_INVOKE_WITH_NAMES => invokeWithNames()
       case PCODE_INVOKE_WITHOUT_NAMES => invokeWithoutNames()
       case _ =>

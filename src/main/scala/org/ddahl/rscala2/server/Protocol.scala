@@ -6,9 +6,8 @@ object Protocol {
 
   val PCODE_EXIT   = 0
   val PCODE_PUSH   = 1
-  val PCODE_POP    = 2
-  val PCODE_INVOKE_WITH_NAMES = 3
-  val PCODE_INVOKE_WITHOUT_NAMES = 4
+  val PCODE_INVOKE_WITH_NAMES = 2
+  val PCODE_INVOKE_WITHOUT_NAMES = 3
 
   // results
 
