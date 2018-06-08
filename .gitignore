@@ -2,6 +2,8 @@
 /project/target
 /R/rscala2/man
 /R/rscala2/NAMESPACE
+/R/rscala2/R/INTERNAL-protocol.R
+/R/rscala2/inst/java/scala-2.12/rscala2_2.12-*.jar
 /R/rscala2/.Rproj.user
 /R/rscala2_*.tar.gz
 .Rproj.user
