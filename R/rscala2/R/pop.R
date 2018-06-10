@@ -1,23 +1,48 @@
 #' @export
 #' 
 pop <- function(socketIn) {
-  tipe <- readBin(socketIn,what=RTYPE_INT,endian="big")
-  if ( length(tipe) == 0 ) browser()
+  tipe <- rbyte(socketIn)
   if ( tipe == TCODE_INT_0 ) {
-    readBin(socketIn,what=RTYPE_INT,endian="big")
+    rb(socketIn,RTYPE_INT)
   } else if ( tipe == TCODE_INT_1 ) {
-    len <- readBin(socketIn,what=RTYPE_INT,endian="big")
-    readBin(socketIn,n=len,what=RTYPE_INT,endian="big")
+    len <- rb(socketIn,RTYPE_INT)
+    rb(socketIn,RTYPE_INT,len)
   } else if ( tipe == TCODE_DOUBLE_0 ) {
-    readBin(socketIn,what=RTYPE_DOUBLE,endian="big")
+    rb(socketIn,RTYPE_DOUBLE)
   } else if ( tipe == TCODE_DOUBLE_1 ) {
-    len <- readBin(socketIn,what=RTYPE_INT,endian="big")
-    readBin(socketIn,n=len,what=RTYPE_DOUBLE,endian="big")
+    len <- rb(socketIn,RTYPE_INT)
+    rb(socketIn,RTYPE_DOUBLE,len)
   } else if ( tipe == TCODE_CHARACTER_0 ) {
-    len <- readBin(socketIn,what=RTYPE_INT,endian="big")
-    r <- readBin(socketIn,n=len,what=RTYPE_RAW,endian="big")
+    len <- rb(socketIn,RTYPE_INT)
+    r <- rb(socketIn,RTYPE_RAW,len)
     iconv(rawToChar(r),from="UTF-8")
   } else if ( tipe == TCODE_CHARACTER_1 ) {
 
   } else stop(paste0("Unsupported type: ",tipe))
 }
+
+rbyte <- function(c) {
+  while ( TRUE ) {
+    x <- readBin(c,RTYPE_RAW,endian="big")
+    if ( length(x) > 0 ) return(x)
+  }
+}
+
+rb <- function(c,v,n=1L) {
+  tryCatch({
+    r <- readBin(c,v,n,endian="big")
+    if ( length(r) == n ) r
+    else {
+      counter <- 0L
+      while ( length(r) != n ) {
+        if ( counter >= 100 ) stop("Connection isn't providing data.")
+        counter <- counter + 1L
+        r <- c(r,readBin(c,v,n-length(r),endian="big"))
+      }
+      r
+    }
+  },error=function(e) {
+    stop("The bridge is invalid.")
+  })
+}
+

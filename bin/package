@@ -35,6 +35,10 @@ fi
 set -e
 setversion $PKG_VERSION $(date +'%Y-%m-%d')
 
+cd R
+R CMD INSTALL rscala2
+
+exit
 
 # Compile Scala
 

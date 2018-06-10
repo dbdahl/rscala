@@ -1,3 +1,4 @@
 RTYPE_INT <- integer()
 RTYPE_DOUBLE <- double()
-RTYPE_BOOLEAN <- logical()
+RTYPE_LOGICAL <- logical()
+RTYPE_RAW <- raw()

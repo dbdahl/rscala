@@ -7,7 +7,7 @@ import java.nio.ByteBuffer
 import scala.annotation.tailrec
 import scala.collection.immutable.HashMap
 
-case class Datum(value: Any, tipe: Int)
+case class Datum(value: Any, tipe: Byte)
 
 object Logger {
 
@@ -87,7 +87,7 @@ object Server extends App {
 
   def push(): Unit = {
     Logger("push")
-    val tipe = in.readInt()
+    val tipe = in.readByte()
     val value = tipe match {
       case TCODE_INT_0 =>
         in.readInt()
@@ -118,27 +118,27 @@ object Server extends App {
     val tipe = datum.tipe
     tipe match {
       case TCODE_INT_0 =>
-        out.writeInt(tipe)
+        out.writeByte(tipe)
         out.writeInt(datum.value.asInstanceOf[Int])
       case TCODE_INT_1 =>
         val value = datum.value.asInstanceOf[Array[Int]]
         val byteBuffer = ByteBuffer.allocate(value.length*BYTES_PER_INT)
         value.foreach(byteBuffer.putInt(_))
-        out.writeInt(tipe)
+        out.writeByte(tipe)
         out.writeInt(value.length)
         out.write(byteBuffer.array)
       case TCODE_DOUBLE_0 =>
-        out.writeInt(tipe)
+        out.writeByte(tipe)
         out.writeDouble(datum.value.asInstanceOf[Double])
       case TCODE_DOUBLE_1 =>
         val value = datum.value.asInstanceOf[Array[Double]]
         val byteBuffer = ByteBuffer.allocate(value.length*BYTES_PER_DOUBLE)
         value.foreach(byteBuffer.putDouble(_))
-        out.writeInt(tipe)
+        out.writeByte(tipe)
         out.writeInt(value.length)
         out.write(byteBuffer.array)
       case TCODE_CHARACTER_0 =>
-        out.writeInt(tipe)
+        out.writeByte(tipe)
         val value = datum.value.asInstanceOf[String]
         val bytes = value.getBytes("UTF-8")
         out.writeInt(bytes.length)
@@ -223,14 +223,14 @@ object Server extends App {
   @tailrec
   def loop(): Unit = {
     Logger("main")
-    val request = in.readInt()
+    val request = in.readByte()
     request match {
       case PCODE_EXIT => exit(); return
       case PCODE_PUSH => push()
       case PCODE_INVOKE_WITH_NAMES => invokeWithNames()
       case PCODE_INVOKE_WITHOUT_NAMES => invokeWithoutNames()
       case _ =>
-        throw new IllegalStateException("Unsupported command.")
+        throw new IllegalStateException("Unsupported command: "+request)
     }
     loop()
   }

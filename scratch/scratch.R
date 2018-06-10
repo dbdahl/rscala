@@ -1,5 +1,16 @@
+system2("killall","java")
+system2("bin/package")
+system2("rm",c("pipe-r2s","pipe-s2r"))
+system2("mkfifo",c("pipe-r2s","pipe-s2r"))
+system2("sbt","run",wait=FALSE)
+
 library(rscala2)
 scala(useSockets=FALSE)
+
+f0 <- function(x) s %~% 'println("<:"+x+":>")'
+f0(3)
+
+
 
 library(rJava)
 .jinit()

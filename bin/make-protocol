@@ -3,11 +3,11 @@
 protocolFilename <- "../src/main/scala/org/ddahl/rscala2/server/Protocol.scala"
 
 lines <- scan(protocolFilename,what=character(0),sep="\n",quiet=TRUE)
-lines <- lines[grep("^\\s*val\\s+[A-Z_0-9]+\\s*=",lines)]
+lines <- lines[grep("^\\s*val\\s+[A-Z_0-9]+\\s*=\\s*.*\\.toByte",lines)]
 code <- sub("^\\s*val\\s+","",lines)
+code <- sub("\\.toByte\\s*$","+128)",code)
 code <- sub("\\s+$","",code)
-code <- paste(code,ifelse(grepl("=\\s*\\d+$",code),"L",""),sep="")
-code <- sub("=","<-",code)
+code <- sub("= ","<- as.raw(",code)
 
 con <- file("../R/rscala2/R/INTERNAL-protocol.R")
 writeLines(code,con)
