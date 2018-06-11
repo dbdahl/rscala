@@ -7,6 +7,9 @@ system2("mkfifo","pipe-s2r")
 library(rscala2)
 scala(useSockets=TRUE)
 
+scalaEcho(s)
+
+
 f0 <- function(x) s %~% 'println("<:"+x+":>")'
 f0(3)
 
@@ -24,8 +27,21 @@ f0 <- function(x) {
 }
 f0(0)
 
+scalaEcho2 <- function(bridge) {
+  details <- attr(bridge,"details")
+  socketOut <- details[["socketOut"]]
+  wb(socketOut,PCODE_ECHO)
+  wb(socketOut,as.integer(runif(1,0,10)))
+  flush(socketOut)
+#  pop(details[["socketIn"]])
+}
+
+
 library(microbenchmark)
 microbenchmark(
+  scalaEcho(s),
+  scalaEcho2(s),
+  as.integer(runif(1,0,10)),
 f0(3)
 ,times=10000)
 
@@ -36,15 +52,17 @@ f2 <- function(x) s(x=x,b="Dahl",pi=pi) %~% 'println("<:"+x+" "+b+":>")'
 big <- paste0(rep(letters,times=100),collapse="")
 
 f0(1)
-f0(2)
-f0(3)
-s$java.lang.Runtime.getRuntime.availableProcessors()
+f1(2)
+f2(3L)
+x <- "David"
+s$java.lang.Runtime.getRuntime.availableProcessors(2,3L,x)
 s$java.lang.System.setProperty("scala.is.cool","TRUE")
 s$java.lang.System.setProperty("scala.is.cool",big)
 
 library(microbenchmark)
 microbenchmark(
 f0(3),
+s$j(),
 s$java.lang.Runtime.getRuntime.availableProcessors(),
 .jcall(rt,"I","availableProcessors"),
 s$java.lang.System.setProperty("scala.is.cool","TRUE"),

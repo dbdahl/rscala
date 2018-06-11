@@ -19,16 +19,48 @@ object Logger {
 
 class EmbeddedStack {
 
-  private var stack: List[Any] = Nil
+  private val maxNArgs = 50
+  private val argsLists = Array.range(1,maxNArgs).scanLeft("")((sum,i) => sum + ",x" + i).map(x => if ( x != "" ) x.substring(1) else x).map("(" + _ + ")")
+  private val argsNames = Array.range(1,maxNArgs).scanLeft(List[String]())((sum,i) => ("x"+i) :: sum).map(_.reverse)
+
+  private var size = 0
+  private var valuesStack: List[Datum] = Nil
+  private var namesStack: List[String] = Nil
 
   def pop[T](): T = {
-    val x = stack.head
-    stack = stack.tail
-    x.asInstanceOf[T]
+    val x = valuesStack.head
+    valuesStack = valuesStack.tail
+    x.value.asInstanceOf[T]
   }
 
-  private[server] def set(x: List[Datum]): Unit = {
-    stack = x.map(_.value)
+  private[server] def pushValue(x: Datum): Unit = {
+    size += 1
+    valuesStack = x :: valuesStack
+  }
+
+  private[server] def pushName(x: String): Unit = {
+    namesStack = x :: namesStack
+  }
+
+  private[server] def reset(): Unit = {
+    size = 0
+    valuesStack = Nil
+    namesStack = Nil
+  }
+
+  private[server] def argsList: String = argsLists(size)
+
+  override def toString(): String = {
+    val sb = new java.lang.StringBuilder()
+    if ( namesStack == Nil ) namesStack = argsNames(size)
+    valuesStack.zip(namesStack).foreach { x =>
+      sb.append("val ")
+      sb.append(x._2)
+      sb.append(" = ES.pop[")
+      sb.append(Protocol.typeMapper(x._1.tipe))
+      sb.append("]()\n")
+    }
+    sb.toString
   }
 
 }
@@ -70,7 +102,6 @@ object Server extends App {
   }
   if ( Logger.enabled ) Logger("connections established")
 
-  private var stack = List[Datum]()
   private val embeddedStack = new EmbeddedStack()    // called ES in the REPL
   private val functionCache = new HashMap[String, (Any,String)]()
 
@@ -112,7 +143,7 @@ object Server extends App {
       case _ =>
         throw new IllegalStateException("Unsupported type.")
     }
-    stack = Datum(value,tipe) :: stack
+    embeddedStack.pushValue(Datum(value,tipe))
   }
 
   def report(datum: Datum): Unit = {
@@ -151,41 +182,37 @@ object Server extends App {
     out.flush()
   }
 
-  private val maxNArgs = 50
-  private val argsLists = Array.range(1,maxNArgs).scanLeft("")((sum,i) => sum + ",x" + i).map(x => if ( x != "" ) x.substring(1) else x).map("(" + _ + ")")
-  private val argsNames = Array.range(1,maxNArgs).scanLeft(List[String]())((sum,i) => ("x"+i) :: sum).map(_.reverse)
-
   def invoke(withNames: Boolean): Unit = {
     if ( Logger.enabled ) Logger("invoke with" + (if (withNames) "" else "out") +" names")
     val nArgs = in.readInt()
-    val names = if ( withNames ) List.fill(nArgs)(readString()) else argsNames(nArgs)
+    if ( withNames ) List.fill(nArgs)(readString()).foreach(embeddedStack.pushName)
     val snippet = readString()
-    val data = stack.take(nArgs).reverse
-    embeddedStack.set(data)
     val sb = new java.lang.StringBuilder()
     sb.append("() => {\n")
-    data.zip(names).foreach { triple =>
-      sb.append("val ")
-      sb.append(triple._2)
-      sb.append(" = ES.pop[")
-      sb.append(typeMapper(triple._1.tipe))
-      sb.append("]()\n")
-    }
+    sb.append(embeddedStack)
     sb.append(snippet)
-    if ( ! withNames ) sb.append(argsLists(nArgs))
+    if ( ! withNames ) sb.append(embeddedStack.argsList)
     sb.append("\n}")
     val body = sb.toString
     val (jvmFunction, resultType) = functionCache.getOrElse(body, {
       // This is where we compile the body
       (null, "Null")
     })
-    report(Datum(0,TCODE_INT_0))
+    /*
     // Debugging
     println("<---")
     (0 until nArgs).foreach { i => println(embeddedStack.pop[Any]()) }
     println("----")
     println(body)
     println("--->")
+    */
+    embeddedStack.reset()
+    report(Datum(0,TCODE_INT_0))
+  }
+
+  def echo(): Unit = {
+    val value = in.readInt()
+    report(Datum(value,TCODE_INT_0))
   }
 
   @tailrec
@@ -197,6 +224,7 @@ object Server extends App {
       case PCODE_PUSH => push()
       case PCODE_INVOKE_WITH_NAMES => invoke(true)
       case PCODE_INVOKE_WITHOUT_NAMES => invoke(false)
+      case PCODE_ECHO => echo()
       case _ =>
         throw new IllegalStateException("Unsupported command: "+request)
     }
