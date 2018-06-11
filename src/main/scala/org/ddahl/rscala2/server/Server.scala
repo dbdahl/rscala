@@ -52,15 +52,15 @@ object Server extends App {
       val (portS2R, portR2S) = technique.left.get
       val serverOut = new ServerSocket(portS2R)
       val serverIn = new ServerSocket(portR2S)
-      Logger("socket S2R waiting for client on port: "+portS2R)
+      if ( Logger.enabled ) Logger("socket S2R waiting for client on port: "+portS2R)
       val sOut = serverOut.accept()
-      Logger("socket R2S waiting for client on port: "+portR2S)
+      if ( Logger.enabled ) Logger("socket R2S waiting for client on port: "+portR2S)
       val sIn = serverIn.accept()
       (sOut.getOutputStream, sIn.getInputStream)
     } else {
       val (pipeS2R, pipeR2S) = technique.right.get
-      Logger("pipe S2R client is: "+pipeS2R)
-      Logger("pipe R2S client is: "+pipeR2S)
+      if ( Logger.enabled ) Logger("pipe S2R client is: "+pipeS2R)
+      if ( Logger.enabled ) Logger("pipe R2S client is: "+pipeR2S)
       val fos = new FileOutputStream(pipeS2R)
       val fis = new FileInputStream(pipeR2S)
       (fos, fis)
@@ -68,14 +68,14 @@ object Server extends App {
     val bos = if ( buffer ) new BufferedOutputStream(os) else os
     (new DataOutputStream(bos), new DataInputStream(is))
   }
-  Logger("connections established")
+  if ( Logger.enabled ) Logger("connections established")
 
   private var stack = List[Datum]()
   private val embeddedStack = new EmbeddedStack()    // called ES in the REPL
   private val functionCache = new HashMap[String, (Any,String)]()
 
   def exit(): Unit = {
-    Logger("exit")
+    if ( Logger.enabled ) Logger("exit")
     out.close()
     in.close()
   }
@@ -88,7 +88,7 @@ object Server extends App {
   }
 
   def push(): Unit = {
-    Logger("push")
+    if ( Logger.enabled ) Logger("push")
     val tipe = in.readByte()
     val value = tipe match {
       case TCODE_INT_0 =>
@@ -116,7 +116,7 @@ object Server extends App {
   }
 
   def report(datum: Datum): Unit = {
-    Logger("report")
+    if ( Logger.enabled ) Logger("report")
     val tipe = datum.tipe
     tipe match {
       case TCODE_INT_0 =>
@@ -151,62 +151,28 @@ object Server extends App {
     out.flush()
   }
 
-  def invokeWithNames(): Unit = {
-    Logger("invoke with names")
-    val nArgs = in.readInt()
-    val names = List.fill(nArgs)(readString())
-    val snippet = readString()
-    val data = stack.take(nArgs).reverse
-    embeddedStack.set(data)
-    val sb = new java.lang.StringBuilder()
-    sb.append("() => {\n")
-    names.zip(data).foreach { triple =>
-      sb.append("val ")
-      sb.append(triple._1)
-      sb.append(" = ES.pop[")
-      sb.append(typeMapper(triple._2.tipe))
-      sb.append("]()\n")
-    }
-    sb.append(snippet)
-    sb.append("\n}")
-    val body = sb.toString
-    val (jvmFunction, resultType) = functionCache.getOrElse(body, {
-      // This is where we compile the body
-      (null, "Null")
-    })
-    report(Datum(0,TCODE_INT_0))
-    // Debugging
-//    println("<---")
-//    (0 until nArgs).foreach { i => println(embeddedStack.pop[Any]()) }
-//    println("----")
-//    println(body)
-//    println("--->")
-  }
+  private val maxNArgs = 50
+  private val argsLists = Array.range(1,maxNArgs).scanLeft("")((sum,i) => sum + ",x" + i).map(x => if ( x != "" ) x.substring(1) else x).map("(" + _ + ")")
+  private val argsNames = Array.range(1,maxNArgs).scanLeft(List[String]())((sum,i) => ("x"+i) :: sum).map(_.reverse)
 
-  def invokeWithoutNames(): Unit = {
-    Logger("invoke without names")
+  def invoke(withNames: Boolean): Unit = {
+    if ( Logger.enabled ) Logger("invoke with" + (if (withNames) "" else "out") +" names")
     val nArgs = in.readInt()
+    val names = if ( withNames ) List.fill(nArgs)(readString()) else argsNames(nArgs)
     val snippet = readString()
     val data = stack.take(nArgs).reverse
     embeddedStack.set(data)
     val sb = new java.lang.StringBuilder()
     sb.append("() => {\n")
-    data.zipWithIndex.foreach { triple =>
-      sb.append("val x")
+    data.zip(names).foreach { triple =>
+      sb.append("val ")
       sb.append(triple._2)
       sb.append(" = ES.pop[")
       sb.append(typeMapper(triple._1.tipe))
       sb.append("]()\n")
     }
     sb.append(snippet)
-    sb.append("(")
-    data.indices.foreach( i => {
-      sb.append("x")
-      sb.append(i)
-      sb.append(",")
-    })
-    if ( ! data.isEmpty ) sb.deleteCharAt(sb.length-1)
-    sb.append(")")
+    if ( ! withNames ) sb.append(argsLists(nArgs))
     sb.append("\n}")
     val body = sb.toString
     val (jvmFunction, resultType) = functionCache.getOrElse(body, {
@@ -215,22 +181,22 @@ object Server extends App {
     })
     report(Datum(0,TCODE_INT_0))
     // Debugging
-//    println("<---")
-//    (0 until nArgs).foreach { i => println(embeddedStack.pop[Any]()) }
-//    println("----")
-//    println(body)
-//    println("--->")
+    println("<---")
+    (0 until nArgs).foreach { i => println(embeddedStack.pop[Any]()) }
+    println("----")
+    println(body)
+    println("--->")
   }
 
   @tailrec
   def loop(): Unit = {
-    Logger("main")
+    if ( Logger.enabled ) Logger("main")
     val request = in.readByte()
     request match {
       case PCODE_EXIT => exit(); return
       case PCODE_PUSH => push()
-      case PCODE_INVOKE_WITH_NAMES => invokeWithNames()
-      case PCODE_INVOKE_WITHOUT_NAMES => invokeWithoutNames()
+      case PCODE_INVOKE_WITH_NAMES => invoke(true)
+      case PCODE_INVOKE_WITHOUT_NAMES => invoke(false)
       case _ =>
         throw new IllegalStateException("Unsupported command: "+request)
     }

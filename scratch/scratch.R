@@ -5,7 +5,7 @@ system2("mkfifo","pipe-s2r")
   #system2("sbt","run",wait=FALSE)
 
 library(rscala2)
-scala(useSockets=FALSE)
+scala(useSockets=TRUE)
 
 f0 <- function(x) s %~% 'println("<:"+x+":>")'
 f0(3)
