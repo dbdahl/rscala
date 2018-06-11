@@ -35,9 +35,9 @@ class EmbeddedStack {
 
 object Server extends App {
 
-  val debug = true
-  // val technique: Either[(Int,Int),(String,String)] = Left(9998,9999)
-  val technique: Either[(Int,Int),(String,String)] = Right("/home/dahl/docs/devel/rscala2/pipe-s2r","/home/dahl/docs/devel/rscala2/pipe-r2s")
+  val debug = false
+  val technique: Either[(Int,Int),(String,String)] = Left(9998,9999)
+  //val technique: Either[(Int,Int),(String,String)] = Right("/home/dahl/docs/devel/rscala2/R/rscala2/pipe-s2r","/home/dahl/docs/devel/rscala2/R/rscala2/pipe-r2s")
   val buffer = false
 
   Logger.enabled = debug
@@ -61,7 +61,9 @@ object Server extends App {
       val (pipeS2R, pipeR2S) = technique.right.get
       Logger("pipe S2R client is: "+pipeS2R)
       Logger("pipe R2S client is: "+pipeR2S)
-      (new FileOutputStream(pipeS2R), new FileInputStream(pipeR2S))
+      val fos = new FileOutputStream(pipeS2R)
+      val fis = new FileInputStream(pipeR2S)
+      (fos, fis)
     }
     val bos = if ( buffer ) new BufferedOutputStream(os) else os
     (new DataOutputStream(bos), new DataInputStream(is))

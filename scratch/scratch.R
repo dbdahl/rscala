@@ -1,8 +1,8 @@
-system2("killall","java")
 system2("bin/package")
-system2("rm",c("pipe-r2s","pipe-s2r"))
-system2("mkfifo",c("pipe-r2s","pipe-s2r"))
-system2("sbt","run",wait=FALSE)
+system2("rm",c("pipe-r2sr","pipe-s2r"))
+system2("mkfifo","pipe-r2s")
+system2("mkfifo","pipe-s2r")
+  #system2("sbt","run",wait=FALSE)
 
 library(rscala2)
 scala(useSockets=FALSE)
@@ -16,15 +16,35 @@ library(rJava)
 .jinit()
 rt <- J("java.lang.Runtime")$getRuntime()
 
+counter <- 0
+f0 <- function(x) {
+  counter <<- counter + 1
+  cat(counter,"\n")
+  s %~% 'println("<:"+x+":>")'
+}
+f0(0)
+
+library(microbenchmark)
+microbenchmark(
+f0(3)
+,times=10000)
+
 f0 <- function(x) s %~% 'println("<:"+x+":>")'
 f1 <- function(x) s(x=x) %~% 'println("<:"+x+":>")'
 f2 <- function(x) s(x=x,b="Dahl",pi=pi) %~% 'println("<:"+x+" "+b+":>")'
 
 big <- paste0(rep(letters,times=100),collapse="")
 
+f0(1)
+f0(2)
+f0(3)
+s$java.lang.Runtime.getRuntime.availableProcessors()
+s$java.lang.System.setProperty("scala.is.cool","TRUE")
+s$java.lang.System.setProperty("scala.is.cool",big)
+
 library(microbenchmark)
 microbenchmark(
-f0(),
+f0(3),
 s$java.lang.Runtime.getRuntime.availableProcessors(),
 .jcall(rt,"I","availableProcessors"),
 s$java.lang.System.setProperty("scala.is.cool","TRUE"),

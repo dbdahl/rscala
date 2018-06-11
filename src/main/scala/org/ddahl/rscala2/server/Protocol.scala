@@ -2,12 +2,14 @@ package org.ddahl.rscala2.server
 
 object Protocol {
 
+  // Since Scala uses signed bytes and R uses unsigned bytes, stay between 0 and 127 to avoid extra work.
+
   // commands
 
-  val PCODE_EXIT                 = 0.toByte
-  val PCODE_PUSH                 = 1.toByte
-  val PCODE_INVOKE_WITH_NAMES    = 2.toByte
-  val PCODE_INVOKE_WITHOUT_NAMES = 3.toByte
+  val PCODE_EXIT                 = 10.toByte
+  val PCODE_PUSH                 = 11.toByte
+  val PCODE_INVOKE_WITH_NAMES    = 12.toByte
+  val PCODE_INVOKE_WITHOUT_NAMES = 13.toByte
 
   // type codes
 

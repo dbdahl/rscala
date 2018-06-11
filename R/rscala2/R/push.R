@@ -31,15 +31,5 @@ push <- function(what, details) {
       })
     }
   } else stop(paste0("Unsupported type: ",class(what)))
+  flush(socketOut)
 }
-
-wb <- function(c,x) {
-  writeBin(x,c,endian="big")
-}
-
-wc <- function(c,x) {
-  bytes <- charToRaw(iconv(x,to="UTF-8"))
-  writeBin(length(bytes),socketOut)
-  writeBin(bytes,socketOut,useBytes=TRUE)
-}
-
