@@ -7,7 +7,7 @@
 #' 
 #' @export
 #'
-scala <- function(useSockets=TRUE) {
+scala <- function(useSockets=TRUE, useBuffer=TRUE) {
   if ( useSockets ) {
     socketIn  <- socketConnection(host="localhost", port=9998, server=FALSE, blocking=TRUE, open="rb")
     socketOut <- socketConnection(host="localhost", port=9999, server=FALSE, blocking=TRUE, open="ab")
@@ -18,10 +18,11 @@ scala <- function(useSockets=TRUE) {
   details <- list2env(parent=emptyenv(), list(
       socketIn=socketIn,
       socketOut=socketOut,
+      useBuffer=useBuffer,
       buffer=rawConnection(raw(),open="wb")))
   bridge <- function(...) {
     bridge2 <- list(...)
-    if ( ! all(grepl("^\\w+$",names(bridge2))) ) {
+    if ( ( length(bridge2) > 0 ) && ! all(grepl("^\\w+$",names(bridge2),perl=TRUE)) ) {
       stop("Argument names must be given and consist only alphanumeric & underscore characters.")
     }
     attr(bridge2,"details") <- details

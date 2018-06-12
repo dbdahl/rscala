@@ -1,8 +1,11 @@
 scalaInvoke <- function(details, snippet, args, withNames=FALSE) {
-  socketOut <- details[["socketOut"]]
-  buffer <- details[["buffer"]]
-  seek(buffer,where=0)
-  truncate(buffer)
+  useBuffer <- details[["useBuffer"]] 
+  buffer <- if ( useBuffer ) {
+    buffer <- details[["buffer"]]
+    seek(buffer,where=0)
+    truncate(buffer)
+    buffer
+  } else details[['socketOut']]
   args <- rev(args)
   sapply(args, push, socketOut=buffer)
   if ( withNames ) {
@@ -12,7 +15,9 @@ scalaInvoke <- function(details, snippet, args, withNames=FALSE) {
     wb(buffer, PCODE_INVOKE_WITHOUT_NAMES)
   }
   wc(buffer,snippet)
-  wb(socketOut,rawConnectionValue(buffer))
+  if ( useBuffer ) {
+    wb(details[["socketOut"]],rawConnectionValue(buffer))
+  }
   pop(details[["socketIn"]])
 }
 

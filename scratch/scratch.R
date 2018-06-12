@@ -1,44 +1,17 @@
-system2("bin/package")
-system2("rm",c("pipe-r2sr","pipe-s2r"))
-system2("mkfifo","pipe-r2s")
-system2("mkfifo","pipe-s2r")
-  #system2("sbt","run",wait=FALSE)
-
 library(rscala2)
-scala(useSockets=TRUE)
-
-scalaEcho(s)
-
+scala()
 
 f0 <- function(x) s(x=x) %~% 'println("<:"+x+":>")'
-f0(3)
-
 f1 <- function() s %~% 'println("<:"+x+":>")'
-f1()
-
 f2 <- function() s() %~% 'println("<:"+x+":>")'
-f2()
 
 library(rJava)
 .jinit()
 rt <- J("java.lang.Runtime")$getRuntime()
 
 b <- paste(letters,collapse="")
-big <- paste0(rep(letters,times=100),collapse="")
-big <- b
-
-  .jcall(rt,"I","availableProcessors")
-  s$j(2,3L,x)
-  s$j(2,3L,x,b,b)
-  s$j(2,3L,x,b,big)
-  s$j()
-  s$java.lang.Runtime.getRuntime.availableProcessors()
-  scalaEcho(s)
-  f1()
-  f2()
-  f0(3)
-  
 x <- 3
+
 library(microbenchmark)
 microbenchmark(
   .jcall(rt,"I","availableProcessors"),
@@ -46,12 +19,29 @@ microbenchmark(
   s$j(2,3L,x,b,b),
   s$j(2,3L,x,b,big),
   s$j(),
+  g(attr(s,"details"),"availableProcessors",list(),FALSE),
   s$java.lang.Runtime.getRuntime.availableProcessors(),
   scalaEcho(s),
   f1(),
   f2(),
   f0(3),
   times=1000)
+
+
+
+rscala2:::scalaInvoke(attr(s,"details"),"availableProcessors",list(),FALSE)
+
+g <- rscala2:::scalaInvoke
+
+
+
+
+
+
+
+
+
+
 
 f0 <- function(x) s %~% 'println("<:"+x+":>")'
 f1 <- function(x) s(x=x) %~% 'println("<:"+x+":>")'
