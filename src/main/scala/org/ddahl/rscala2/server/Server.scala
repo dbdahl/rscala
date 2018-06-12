@@ -1,21 +1,16 @@
 package org.ddahl.rscala2.server
 
+import Protocol._
+import scala.tools.nsc.interpreter.{ILoop, IMain}
+import scala.tools.nsc.interpreter.IR.Success
+import scala.tools.nsc.Settings
+import scala.annotation.tailrec
+import scala.collection.immutable.HashMap
 import java.net._
 import java.io._
 import java.nio.ByteBuffer
 
-import scala.annotation.tailrec
-import scala.collection.immutable.HashMap
-
 case class Datum(value: Any, tipe: Byte)
-
-object Logger {
-
-  var enabled = false
-
-  def apply(x: String): Unit = if ( enabled ) println("DEBUG: "+x)
-
-}
 
 class EmbeddedStack {
 
@@ -69,16 +64,50 @@ class EmbeddedStack {
 
 object Server extends App {
 
+  val serializeOutput = false
   val debug = false
-  val technique: Either[(Int,Int),(String,String)] = Left(9998,9999)
+  val technique: Either[(Int, Int), (String, String)] = Left(9998, 9999)
   //val technique: Either[(Int,Int),(String,String)] = Right("/home/dahl/docs/devel/rscala2/R/rscala2/pipe-s2r","/home/dahl/docs/devel/rscala2/R/rscala2/pipe-r2s")
   val buffer = false
 
-  Logger.enabled = debug
+  // Set classpath
+  private val settings = new Settings()
+  settings.embeddedDefaults[Datum]
+//  val initialClasspath = (java.lang.Thread.currentThread.getContextClassLoader match {
+//    case cl: java.net.URLClassLoader => cl.getURLs.toList
+//    case e => sys.error("Classloader is not a URLClassLoader: "+e)
+//  }).map(_.getPath)
+//  settings.classpath.value = initialClasspath.distinct.mkString(java.io.File.pathSeparator)
+  settings.deprecation.value = true
+  settings.feature.value = true
+  settings.unchecked.value = true
+  settings.language.add("reflectiveCalls")
 
-  import Protocol._
+  // Set up sinks
+  val (debugger, prntWrtr, baosOut, baosErr) = serializeOutput match {
+    case true =>
+      val out = new ByteArrayOutputStream()
+      val err = new ByteArrayOutputStream()
+      val pw = new PrintWriter(out)
+      val d = new Debugger(debug, pw, "Scala", false)
+      (d, pw, out, err)
+    case false =>
+      val pw = new PrintWriter(System.out, true)
+      val d = new Debugger(debug, pw, "Scala", false)
+      (d, pw, null, null)
+  }
+//  if (debugger.on) debugger("Initial classpath is:\n" + initialClasspath.mkString("\n"))
 
-  Logger("starting server")
+  // Instantiate an interpreter
+  val intp = new IMain(settings, prntWrtr)
+  // Don't be chatty
+  locally {
+    val iloop = new ILoop()
+    iloop.intp = intp
+    iloop.verbosity()
+  }
+
+  debugger("starting server")
 
   private val (out, in) = {
     val buffer = false
@@ -86,15 +115,15 @@ object Server extends App {
       val (portS2R, portR2S) = technique.left.get
       val serverOut = new ServerSocket(portS2R)
       val serverIn = new ServerSocket(portR2S)
-      if ( Logger.enabled ) Logger("socket S2R waiting for client on port: "+portS2R)
+      if ( debugger.on) debugger("socket S2R waiting for client on port: "+portS2R)
       val sOut = serverOut.accept()
-      if ( Logger.enabled ) Logger("socket R2S waiting for client on port: "+portR2S)
+      if ( debugger.on ) debugger("socket R2S waiting for client on port: "+portR2S)
       val sIn = serverIn.accept()
       (sOut.getOutputStream, sIn.getInputStream)
     } else {
       val (pipeS2R, pipeR2S) = technique.right.get
-      if ( Logger.enabled ) Logger("pipe S2R client is: "+pipeS2R)
-      if ( Logger.enabled ) Logger("pipe R2S client is: "+pipeR2S)
+      if ( debugger.on ) debugger("pipe S2R client is: "+pipeS2R)
+      if ( debugger.on ) debugger("pipe R2S client is: "+pipeR2S)
       val fos = new FileOutputStream(pipeS2R)
       val fis = new FileInputStream(pipeR2S)
       (fos, fis)
@@ -102,13 +131,13 @@ object Server extends App {
     val bos = if ( buffer ) new BufferedOutputStream(os) else os
     (new DataOutputStream(bos), new DataInputStream(is))
   }
-  if ( Logger.enabled ) Logger("connections established")
+  if ( debugger.on ) debugger("connections established")
 
   private val embeddedStack = new EmbeddedStack()    // called ES in the REPL
   private val functionCache = new HashMap[String, (Any,String)]()
 
   def exit(): Unit = {
-    if ( Logger.enabled ) Logger("exit")
+    if ( debugger.on ) debugger("exit")
     out.close()
     in.close()
   }
@@ -121,7 +150,7 @@ object Server extends App {
   }
 
   def push(): Unit = {
-    if ( Logger.enabled ) Logger("push")
+    if ( debugger.on ) debugger("push")
     val tipe = in.readByte()
     val value = tipe match {
       case TCODE_INT_0 =>
@@ -149,7 +178,7 @@ object Server extends App {
   }
 
   def report(datum: Datum): Unit = {
-    if ( Logger.enabled ) Logger("report")
+    if ( debugger.on ) debugger("report")
     val tipe = datum.tipe
     tipe match {
       case TCODE_INT_0 =>
@@ -185,7 +214,7 @@ object Server extends App {
   }
 
   def invoke(withNames: Boolean): Unit = {
-    if ( Logger.enabled ) Logger("invoke with" + (if (withNames) "" else "out") +" names")
+    if ( debugger.on ) debugger("invoke with" + (if (withNames) "" else "out") +" names")
     if ( withNames ) List.fill(embeddedStack.size)(readString()).foreach(embeddedStack.pushName)
     val snippet = readString()
     val sb = new java.lang.StringBuilder()
@@ -218,7 +247,7 @@ object Server extends App {
 
   @tailrec
   def loop(): Unit = {
-    if ( Logger.enabled ) Logger("main")
+    if ( debugger.on ) debugger("main")
     val request = in.readByte()
     request match {
       case PCODE_EXIT => exit(); return

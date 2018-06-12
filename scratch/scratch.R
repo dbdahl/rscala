@@ -4,6 +4,14 @@ scala()
 f0 <- function(x) s(x=x) %~% 'println("<:"+x+":>")'
 f1 <- function() s %~% 'println("<:"+x+":>")'
 f2 <- function() s() %~% 'println("<:"+x+":>")'
+f5 <- function() s(x) %~% 'println("<:"+x+":>")'
+f5()
+
+x <- 4
+s()
+
+asdfasdf <- s
+
 
 library(rJava)
 .jinit()
@@ -18,6 +26,7 @@ microbenchmark(
   s$j(2,3L,x),
   s$j(2,3L,x,b,b),
   s$j(2,3L,x,b,big),
+  s$j(rnorm(10)),
   s$j(),
   g(attr(s,"details"),"availableProcessors",list(),FALSE),
   s$java.lang.Runtime.getRuntime.availableProcessors(),
