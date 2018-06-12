@@ -36,6 +36,5 @@ push <- function(what, socketOut) {
       TCODE_CHARACTER_1
     }
   } else stop(paste0("Unsupported type: ",class(what)))
-  flush(socketOut)
   tipe
 }

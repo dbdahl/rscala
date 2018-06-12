@@ -23,12 +23,15 @@ library(rJava)
 .jinit()
 rt <- J("java.lang.Runtime")$getRuntime()
 
+b <- paste(letters,collapse="")
+
 x <- 3
 library(microbenchmark)
 microbenchmark(
   .jcall(rt,"I","availableProcessors"),
   s$j(2,3L,x),
-  s$java.lang.Runtime.getRuntime.availableProcessors(2,3L,x),
+  s$j(2,3L,x,b,b),
+  s$j(),
   s$java.lang.Runtime.getRuntime.availableProcessors(),
   scalaEcho(s),
   f1(),
@@ -53,6 +56,8 @@ s$java.lang.System.setProperty("scala.is.cool",big)
 library(microbenchmark)
 microbenchmark(
 f0(3),
+s$j(big),
+s$j(3L),
 s$j(),
 s$java.lang.Runtime.getRuntime.availableProcessors(),
 .jcall(rt,"I","availableProcessors"),
