@@ -15,7 +15,7 @@ scala <- function(useSockets=TRUE) {
     socketIn  <- file("/home/dahl/docs/devel/rscala2/R/rscala2/pipe-s2r", blocking=TRUE, open="rb")
     socketOut <- file("/home/dahl/docs/devel/rscala2/R/rscala2/pipe-r2s", blocking=TRUE, open="ab")
   }
-  details <- list(socketIn=socketIn,socketOut=socketOut)
+  details <- list(socketIn=socketIn,socketOut=socketOut,cache=new.env(parent=emptyenv()))
   bridge <- function(...) {
     bridge2 <- list(...)
     if ( ! all(grepl("^\\w+$",names(bridge2))) ) {

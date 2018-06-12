@@ -10,40 +10,31 @@ scala(useSockets=TRUE)
 scalaEcho(s)
 
 
-f0 <- function(x) s %~% 'println("<:"+x+":>")'
+f0 <- function(x) s(x=x) %~% 'println("<:"+x+":>")'
 f0(3)
 
+f1 <- function() s %~% 'println("<:"+x+":>")'
+f1()
 
+f2 <- function() s() %~% 'println("<:"+x+":>")'
+f2()
 
 library(rJava)
 .jinit()
 rt <- J("java.lang.Runtime")$getRuntime()
 
-counter <- 0
-f0 <- function(x) {
-  counter <<- counter + 1
-  cat(counter,"\n")
-  s %~% 'println("<:"+x+":>")'
-}
-f0(0)
-
-scalaEcho2 <- function(bridge) {
-  details <- attr(bridge,"details")
-  socketOut <- details[["socketOut"]]
-  wb(socketOut,PCODE_ECHO)
-  wb(socketOut,as.integer(runif(1,0,10)))
-  flush(socketOut)
-#  pop(details[["socketIn"]])
-}
-
-
+x <- 3
 library(microbenchmark)
 microbenchmark(
+  .jcall(rt,"I","availableProcessors"),
+  s$j(2,3L,x),
+  s$java.lang.Runtime.getRuntime.availableProcessors(2,3L,x),
+  s$java.lang.Runtime.getRuntime.availableProcessors(),
   scalaEcho(s),
-  scalaEcho2(s),
-  as.integer(runif(1,0,10)),
-f0(3)
-,times=10000)
+  f1(),
+  f2(),
+  f0(3),
+  times=10000)
 
 f0 <- function(x) s %~% 'println("<:"+x+":>")'
 f1 <- function(x) s(x=x) %~% 'println("<:"+x+":>")'

@@ -1,11 +1,22 @@
 scalaInvoke <- function(details, snippet, args, withNames=FALSE) {
   socketOut <- details[["socketOut"]]
+  cache <- details[["cache"]]
   args <- rev(args)
-  sapply(args, push, details=details)
-  wb(socketOut, if ( withNames ) PCODE_INVOKE_WITH_NAMES else PCODE_INVOKE_WITHOUT_NAMES)
-  wb(socketOut,length(args))
-  if ( withNames ) sapply(names(args), function(name) wc(socketOut,name))
-  wc(socketOut,snippet)
+  tipes <- sapply(args, push, socketOut=socketOut)
+  body <- paste0(
+    "() => {\n"
+    ,paste0("val ",names(args)," = ES.pop[",tipes,"]()",collapse="\n")
+    ,"\n"
+    ,snippet
+    ,"\n}"
+  )
+  if ( ! exists(body, envir=cache) ) {
+    functionID <- 341234L
+    assign(body, functionID, envir=cache)
+  }
+  functionID <- get(body, envir=cache)
+  wb(socketOut, PCODE_INVOKE)
+  wb(socketOut, functionID)   # Function reference
   flush(socketOut)
   pop(details[["socketIn"]])
 }

@@ -103,7 +103,7 @@ object Server extends App {
   if ( Logger.enabled ) Logger("connections established")
 
   private val embeddedStack = new EmbeddedStack()    // called ES in the REPL
-  private val functionCache = new HashMap[String, (Any,String)]()
+  private val functionCache = new HashMap[Int, (Any,String)]()
 
   def exit(): Unit = {
     if ( Logger.enabled ) Logger("exit")
@@ -182,19 +182,11 @@ object Server extends App {
     out.flush()
   }
 
-  def invoke(withNames: Boolean): Unit = {
-    if ( Logger.enabled ) Logger("invoke with" + (if (withNames) "" else "out") +" names")
-    val nArgs = in.readInt()
-    if ( withNames ) List.fill(nArgs)(readString()).foreach(embeddedStack.pushName)
-    val snippet = readString()
-    val sb = new java.lang.StringBuilder()
-    sb.append("() => {\n")
-    sb.append(embeddedStack)
-    sb.append(snippet)
-    if ( ! withNames ) sb.append(embeddedStack.argsList)
-    sb.append("\n}")
-    val body = sb.toString
-    val (jvmFunction, resultType) = functionCache.getOrElse(body, {
+  def invoke(): Unit = {
+    if ( Logger.enabled ) Logger("invoke")
+    val functionID = in.readInt()
+    val (jvmFunction, resultType) = functionCache.getOrElse(functionID, {
+      // throw new IllegalStateException("This function should be compiled first.")
       // This is where we compile the body
       (null, "Null")
     })
@@ -222,8 +214,7 @@ object Server extends App {
     request match {
       case PCODE_EXIT => exit(); return
       case PCODE_PUSH => push()
-      case PCODE_INVOKE_WITH_NAMES => invoke(true)
-      case PCODE_INVOKE_WITHOUT_NAMES => invoke(false)
+      case PCODE_INVOKE => invoke()
       case PCODE_ECHO => echo()
       case _ =>
         throw new IllegalStateException("Unsupported command: "+request)
