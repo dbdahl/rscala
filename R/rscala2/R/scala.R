@@ -22,7 +22,8 @@ scala <- function(useSockets=TRUE, useBuffer=TRUE) {
       buffer=rawConnection(raw(),open="wb")))
   bridge <- function(...) {
     bridge2 <- list(...)
-    if ( ( length(bridge2) > 0 ) && ! all(grepl("^\\w+$",names(bridge2),perl=TRUE)) ) {
+    argNames <- names(bridge2)
+    if ( ( length(bridge2) > 0 )  && ( is.null(argNames) || ! all(grepl("^\\w+$",argNames,perl=TRUE)) ) ) {
       stop("Argument names must be given and consist only alphanumeric & underscore characters.")
     }
     attr(bridge2,"details") <- details
