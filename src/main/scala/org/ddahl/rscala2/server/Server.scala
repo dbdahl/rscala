@@ -19,11 +19,11 @@ object Logger {
 
 class EmbeddedStack {
 
-  private val maxNArgs = 50
+  private val maxNArgs: Int = 50
   private val argsLists = Array.range(1,maxNArgs).scanLeft("")((sum,i) => sum + ",x" + i).map(x => if ( x != "" ) x.substring(1) else x).map("(" + _ + ")")
   private val argsNames = Array.range(1,maxNArgs).scanLeft(List[String]())((sum,i) => ("x"+i) :: sum).map(_.reverse)
 
-  private var size = 0
+  private var _size: Int = 0
   private var valuesStack: List[Datum] = Nil
   private var namesStack: List[String] = Nil
 
@@ -33,8 +33,10 @@ class EmbeddedStack {
     x.value.asInstanceOf[T]
   }
 
+  private[server] def size: Int = _size
+
   private[server] def pushValue(x: Datum): Unit = {
-    size += 1
+    _size += 1
     valuesStack = x :: valuesStack
   }
 
@@ -43,16 +45,16 @@ class EmbeddedStack {
   }
 
   private[server] def reset(): Unit = {
-    size = 0
+    _size = 0
     valuesStack = Nil
     namesStack = Nil
   }
 
-  private[server] def argsList: String = argsLists(size)
+  private[server] def argsList: String = argsLists(_size)
 
   override def toString(): String = {
     val sb = new java.lang.StringBuilder()
-    if ( namesStack == Nil ) namesStack = argsNames(size)
+    if ( namesStack == Nil ) namesStack = argsNames(_size)
     valuesStack.zip(namesStack).foreach { x =>
       sb.append("val ")
       sb.append(x._2)
@@ -103,7 +105,7 @@ object Server extends App {
   if ( Logger.enabled ) Logger("connections established")
 
   private val embeddedStack = new EmbeddedStack()    // called ES in the REPL
-  private val functionCache = new HashMap[Int, (Any,String)]()
+  private val functionCache = new HashMap[String, (Any,String)]()
 
   def exit(): Unit = {
     if ( Logger.enabled ) Logger("exit")
@@ -182,18 +184,25 @@ object Server extends App {
     out.flush()
   }
 
-  def invoke(): Unit = {
-    if ( Logger.enabled ) Logger("invoke")
-    val functionID = in.readInt()
-    val (jvmFunction, resultType) = functionCache.getOrElse(functionID, {
-      // throw new IllegalStateException("This function should be compiled first.")
+  def invoke(withNames: Boolean): Unit = {
+    if ( Logger.enabled ) Logger("invoke with" + (if (withNames) "" else "out") +" names")
+    if ( withNames ) List.fill(embeddedStack.size)(readString()).foreach(embeddedStack.pushName)
+    val snippet = readString()
+    val sb = new java.lang.StringBuilder()
+    sb.append("() => {\n")
+    sb.append(embeddedStack)
+    sb.append(snippet)
+    if ( ! withNames ) sb.append(embeddedStack.argsList)
+    sb.append("\n}")
+    val body = sb.toString
+    val (jvmFunction, resultType) = functionCache.getOrElse(body, {
       // This is where we compile the body
       (null, "Null")
     })
     /*
     // Debugging
     println("<---")
-    (0 until nArgs).foreach { i => println(embeddedStack.pop[Any]()) }
+    (0 until embeddedStack.size).foreach { i => println(embeddedStack.pop[Any]()) }
     println("----")
     println(body)
     println("--->")
@@ -214,7 +223,8 @@ object Server extends App {
     request match {
       case PCODE_EXIT => exit(); return
       case PCODE_PUSH => push()
-      case PCODE_INVOKE => invoke()
+      case PCODE_INVOKE_WITH_NAMES => invoke(true)
+      case PCODE_INVOKE_WITHOUT_NAMES => invoke(false)
       case PCODE_ECHO => echo()
       case _ =>
         throw new IllegalStateException("Unsupported command: "+request)

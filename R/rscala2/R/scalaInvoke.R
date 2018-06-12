@@ -1,26 +1,17 @@
 scalaInvoke <- function(details, snippet, args, withNames=FALSE) {
   socketOut <- details[["socketOut"]]
-  cache <- details[["cache"]]
   buffer <- details[["buffer"]]
   seek(buffer,where=0)
   truncate(buffer)
   args <- rev(args)
-  tipes <- sapply(args, push, socketOut=buffer)
-#  body <- paste0(
-#    "() => {\n"
-#    ,paste0("val ",names(args)," = ES.pop[",tipes,"]()",collapse="\n")
-#    ,"\n"
-#    ,snippet
-#    ,"\n}"
-#  )
-  body <- "adf"
-  if ( ! exists(body, envir=cache) ) {
-    functionID <- 341234L
-    assign(body, functionID, envir=cache)
+  sapply(args, push, socketOut=buffer)
+  if ( withNames ) {
+    wb(buffer, PCODE_INVOKE_WITH_NAMES)
+    sapply(names(args), function(name) wc(buffer,name))
+  } else {
+    wb(buffer, PCODE_INVOKE_WITHOUT_NAMES)
   }
-  functionID <- get(body, envir=cache)
-  wb(buffer, PCODE_INVOKE)
-  wb(buffer, functionID)   # Function reference
+  wc(buffer,snippet)
   wb(socketOut,rawConnectionValue(buffer))
   pop(details[["socketIn"]])
 }

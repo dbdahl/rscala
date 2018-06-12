@@ -24,20 +24,34 @@ library(rJava)
 rt <- J("java.lang.Runtime")$getRuntime()
 
 b <- paste(letters,collapse="")
+big <- paste0(rep(letters,times=100),collapse="")
+big <- b
 
+  .jcall(rt,"I","availableProcessors")
+  s$j(2,3L,x)
+  s$j(2,3L,x,b,b)
+  s$j(2,3L,x,b,big)
+  s$j()
+  s$java.lang.Runtime.getRuntime.availableProcessors()
+  scalaEcho(s)
+  f1()
+  f2()
+  f0(3)
+  
 x <- 3
 library(microbenchmark)
 microbenchmark(
   .jcall(rt,"I","availableProcessors"),
   s$j(2,3L,x),
   s$j(2,3L,x,b,b),
+  s$j(2,3L,x,b,big),
   s$j(),
   s$java.lang.Runtime.getRuntime.availableProcessors(),
   scalaEcho(s),
   f1(),
   f2(),
   f0(3),
-  times=10000)
+  times=1000)
 
 f0 <- function(x) s %~% 'println("<:"+x+":>")'
 f1 <- function(x) s(x=x) %~% 'println("<:"+x+":>")'
