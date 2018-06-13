@@ -1,6 +1,11 @@
 library(rscala2)
 scala()
 
+f9 <- function(x) s(x=x) %~% 'Array(Array(x))'
+f9(3L)
+gc()
+attr(s,"details")[["garbage"]]
+
 f0 <- function(x) s(x=x) %~% 'println("<:"+x+":>")'
 f1 <- function() s %~% 'println("<:"+x+":>")'
 f2 <- function() s() %~% 'println("<:"+x+":>")'
@@ -12,7 +17,17 @@ f5 <- function() s(x=6) %~% '
 f5()
 f2()
 
-s$java.lang.Runtime.getRuntime.availableProcessors()
+library(rJava)
+.jinit()
+rt <- J("java.lang.Runtime")$getRuntime()
+
+library(microbenchmark)
+microbenchmark(
+  rt$availableProcessors(),
+  .jcall(rt,"I","availableProcessors"),
+  s$java.lang.Runtime.getRuntime.availableProcessors(),
+  times=10000)
+
 
 
 x <- 4
@@ -21,9 +36,6 @@ s()
 asdfasdf <- s
 
 
-library(rJava)
-.jinit()
-rt <- J("java.lang.Runtime")$getRuntime()
 
 b <- paste(letters,collapse="")
 x <- 3

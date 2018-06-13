@@ -18,6 +18,7 @@ scala <- function(useSockets=TRUE, useBuffer=TRUE) {
   details <- list2env(parent=emptyenv(), list(
       socketIn=socketIn,
       socketOut=socketOut,
+      garbage=integer(),
       useBuffer=useBuffer,
       buffer=rawConnection(raw(),open="wb")))
   bridge <- function(...) {

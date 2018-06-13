@@ -83,9 +83,10 @@ object Server extends App {
 
   private val embeddedStack = new EmbeddedStack()    // called ES in the REPL
   intp.bind("ES",embeddedStack)
-  private val functionCache = new HashMap[String, (Any,String)]()
+  private val functionMap = new HashMap[String, (Any,String)]()
   private val unary = Class.forName("scala.Function0").getMethod("apply")
   unary.setAccessible(true)
+  private val referenceMap = new HashMap[Int, (Any,String)]()
 
   def exit(): Unit = {
     if ( debugger.on ) debugger("exit")
@@ -160,7 +161,17 @@ object Server extends App {
         writeString(datum.value.asInstanceOf[String])
       case TCODE_UNIT =>
       case TCODE_REFERENCE =>
-        writeString(datum.value.asInstanceOf[(Any,String)]._2)
+        val value = datum.value.asInstanceOf[(Any,String)]
+        val key = {
+          var candidate = scala.util.Random.nextInt()
+          while ( referenceMap.contains(candidate) ) {
+            candidate = scala.util.Random.nextInt()
+          }
+          candidate
+        }
+        referenceMap(key) = value
+        out.writeInt(key)
+        writeString(value._2)
       case TCODE_ERROR_DEF =>
         writeString(datum.value.asInstanceOf[String])
       case TCODE_ERROR_INVOKE =>
@@ -181,7 +192,7 @@ object Server extends App {
     if ( ! withNames ) sb.append(embeddedStack.argsList)
     sb.append("\n}")
     val body = sb.toString
-    val (jvmFunction, resultType) = functionCache.getOrElse(body, {
+    val (jvmFunction, resultType) = functionMap.getOrElse(body, {
       val result = intp.interpret(body)
       if ( result != Success ) {
         if ( debugger.on ) debugger("error in defining function.")
@@ -197,7 +208,7 @@ object Server extends App {
       }
       if ( debugger.on ) debugger("result type: "+resultType)
       val tuple = (jvmFunction, resultType)
-      functionCache(body) = tuple
+      functionMap(body) = tuple
       if ( debugger.on ) debugger("function definition is okay.")
       tuple
     })
@@ -221,6 +232,14 @@ object Server extends App {
     report(Datum(value,TCODE_INT_0))
   }
 
+  def gc(): Unit = {
+    if ( debugger.on ) debugger("garbage collect")
+    (0 until in.readInt()).foreach { i =>
+      val key = in.readInt()
+      referenceMap.remove(key)
+    }
+  }
+
   @tailrec
   def loop(): Unit = {
     if ( debugger.on ) debugger("main")
@@ -231,6 +250,7 @@ object Server extends App {
       case PCODE_INVOKE_WITH_NAMES => invoke(true)
       case PCODE_INVOKE_WITHOUT_NAMES => invoke(false)
       case PCODE_ECHO => echo()
+      case PCODE_GARBAGE_COLLECT => gc()
       case _ =>
         throw new IllegalStateException("Unsupported command: "+request)
     }

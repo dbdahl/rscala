@@ -1,6 +1,6 @@
 #' @export
 #' 
-pop <- function(socketIn) {
+pop <- function(socketIn, details) {
   tipe <- rbyte(socketIn)
   if ( tipe == TCODE_INT_0 ) {
     rb(socketIn,RTYPE_INT)
@@ -18,8 +18,15 @@ pop <- function(socketIn) {
   } else if ( tipe == TCODE_UNIT ) {
     invisible()
   } else if ( tipe == TCODE_REFERENCE ) {
+    referenceID <- rb(socketIn,RTYPE_INT)
     referenceType <- rc(socketIn)
-    structure(list2env(list(type=referenceType),parent=emptyenv()),class="rscalaReference")
+    env <- list2env(list(id=referenceID,type=referenceType),parent=emptyenv())
+    reg.finalizer(env, function(e) {
+      gl <- details[["garbage"]]
+      gl[length(gl)+1] <- e$id
+      assign("garbage",gl,envir=details)
+    })
+    structure(env,class="rscalaReference")
   } else if ( tipe == TCODE_ERROR_DEF ) {
     code <- rc(socketIn)
     stop(paste0("Compilation error. Code is:\n",code))

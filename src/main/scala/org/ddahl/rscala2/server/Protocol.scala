@@ -11,6 +11,7 @@ object Protocol {
   val PCODE_INVOKE_WITH_NAMES    = 12.toByte
   val PCODE_INVOKE_WITHOUT_NAMES = 13.toByte
   val PCODE_ECHO                 = 14.toByte
+  val PCODE_GARBAGE_COLLECT      = 15.toByte
 
   // type codes
 
