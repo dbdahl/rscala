@@ -21,6 +21,12 @@ scala <- function(useSockets=TRUE, useBuffer=TRUE) {
       garbage=integer(),
       useBuffer=useBuffer,
       buffer=rawConnection(raw(),open="wb")))
+  gcFunction <- function(e) {
+    garbage <- details[["garbage"]]
+    garbage[length(garbage)+1] <- e$id
+    assign("garbage",garbage,envir=details)
+  }
+  assign("gcFunction",gcFunction,envir=details)
   bridge <- function(...) {
     bridge2 <- list(...)
     argNames <- names(bridge2)

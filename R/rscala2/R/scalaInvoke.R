@@ -24,7 +24,7 @@ scalaInvoke <- function(details, snippet, args, withNames=FALSE) {
   if ( useBuffer ) {
     wb(details[["socketOut"]],rawConnectionValue(buffer))
   }
-  pop(details[["socketIn"]], details)
+  pop(details[["socketIn"]], details[["gcFunction"]])
 }
 
 #' @export
