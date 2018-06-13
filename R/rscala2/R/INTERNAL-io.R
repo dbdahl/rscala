@@ -16,6 +16,12 @@ rbyte <- function(con) {
   }
 }
 
+rc <- function(con) {
+  len <- rb(con,RTYPE_INT)
+  r <- rb(con,RTYPE_RAW,len)
+  iconv(rawToChar(r),from="UTF-8") 
+}
+
 rb <- function(con,v,n=1L) {
   tryCatch({
     r <- readBin(con,v,n,endian="big")

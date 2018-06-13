@@ -7,10 +7,13 @@ f2 <- function() s() %~% 'println("<:"+x+":>")'
 f5 <- function() s(x=6) %~% 'println("<:"+x+":>")'
 f5 <- function() s(x=6) %~% '
   println("<:"+x+":>")
-  x+1
+  x+y+1
 '
 f5()
 f2()
+
+s$java.lang.Runtime.getRuntime.availableProcessors()
+
 
 x <- 4
 s()

@@ -100,6 +100,12 @@ object Server extends App {
     new String(bytes,"UTF-8")
   }
 
+  private def writeString(x: String): Unit = {
+    val bytes = x.getBytes("UTF-8")
+    out.writeInt(bytes.length)
+    out.write(bytes)
+  }
+
   def push(): Unit = {
     if ( debugger.on ) debugger("push")
     val tipe = in.readByte()
@@ -132,33 +138,32 @@ object Server extends App {
     if ( debugger.on ) debugger("report")
     embeddedStack.reset()
     val tipe = datum.tipe
+    out.writeByte(tipe)
     tipe match {
       case TCODE_INT_0 =>
-        out.writeByte(tipe)
         out.writeInt(datum.value.asInstanceOf[Int])
       case TCODE_INT_1 =>
         val value = datum.value.asInstanceOf[Array[Int]]
         val byteBuffer = ByteBuffer.allocate(value.length*BYTES_PER_INT)
         value.foreach(byteBuffer.putInt(_))
-        out.writeByte(tipe)
         out.writeInt(value.length)
         out.write(byteBuffer.array)
       case TCODE_DOUBLE_0 =>
-        out.writeByte(tipe)
         out.writeDouble(datum.value.asInstanceOf[Double])
       case TCODE_DOUBLE_1 =>
         val value = datum.value.asInstanceOf[Array[Double]]
         val byteBuffer = ByteBuffer.allocate(value.length*BYTES_PER_DOUBLE)
         value.foreach(byteBuffer.putDouble(_))
-        out.writeByte(tipe)
         out.writeInt(value.length)
         out.write(byteBuffer.array)
       case TCODE_CHARACTER_0 =>
-        out.writeByte(tipe)
-        val value = datum.value.asInstanceOf[String]
-        val bytes = value.getBytes("UTF-8")
-        out.writeInt(bytes.length)
-        out.write(bytes)
+        writeString(datum.value.asInstanceOf[String])
+      case TCODE_UNIT =>
+      case TCODE_REFERENCE =>
+        writeString(datum.value.asInstanceOf[(Any,String)]._2)
+      case TCODE_ERROR_DEF =>
+        writeString(datum.value.asInstanceOf[String])
+      case TCODE_ERROR_INVOKE =>
       case e =>
         throw new IllegalStateException("Unsupported type: "+e)
     }
@@ -179,29 +184,35 @@ object Server extends App {
     val (jvmFunction, resultType) = functionCache.getOrElse(body, {
       val result = intp.interpret(body)
       if ( result != Success ) {
-        if ( debugger.on ) debugger("Error in defining function.")
-        report(Datum(result,TCODE_ERROR_DEF))
+        if ( debugger.on ) debugger("error in defining function.")
+        report(Datum(body,TCODE_ERROR_DEF))
         return
       }
       val functionName = intp.mostRecentVar
       val jvmFunction = intp.valueOfTerm(functionName).get
       val resultType = {
-        val r = intp.symbolOfLine(functionName).info.toString.substring(10)  // Drop "String => " in the return type.
+        val r = intp.symbolOfLine(functionName).info.toString.substring(6)  // Drop "() => " in the return type.
         if ( r.startsWith("iw$") ) r.substring(3)
         else r
       }
+      if ( debugger.on ) debugger("result type: "+resultType)
       val tuple = (jvmFunction, resultType)
       functionCache(body) = tuple
-      if ( debugger.on ) debugger("Function definition is okay.")
+      if ( debugger.on ) debugger("function definition is okay.")
       tuple
     })
-    try {
-      val result = unary.invoke(jvmFunction)
-      if ( debugger.on ) debugger("Function invocation is okay.")
-      report(Datum(result,typeMapper2.getOrElse(resultType,TCODE_REFERENCE)))
+    val result = try {
+      unary.invoke(jvmFunction)
     } catch {
       case e: Throwable =>
         report(Datum(e,TCODE_ERROR_INVOKE))
+        return
+    }
+    if ( debugger.on ) debugger("function invocation is okay.")
+    if ( typeMapper2.contains(resultType) ) {
+      report(Datum(result, typeMapper2.get(resultType).get))
+    } else {
+      report(Datum((result, resultType), TCODE_REFERENCE))
     }
   }
 

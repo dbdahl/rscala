@@ -24,6 +24,7 @@ object Protocol {
   val TCODE_RAW_1        = 57.toByte
   val TCODE_CHARACTER_0  = 58.toByte
   val TCODE_CHARACTER_1  = 59.toByte
+  val TCODE_UNIT         = 60.toByte
   val TCODE_REFERENCE    = 70.toByte
   val TCODE_ERROR_DEF    = 80.toByte
   val TCODE_ERROR_INVOKE = 81.toByte
@@ -46,6 +47,7 @@ object Protocol {
     TCODE_RAW_1 -> "Array[Byte]",
     TCODE_CHARACTER_0 -> "String",
     TCODE_CHARACTER_1 -> "Array[String]",
+    TCODE_UNIT -> "Unit"
   )
 
   val typeMapper2 = typeMapper.map(_.swap)
