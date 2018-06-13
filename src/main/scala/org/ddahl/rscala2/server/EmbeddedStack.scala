@@ -1,6 +1,10 @@
 package org.ddahl.rscala2.server
 
-class EmbeddedStack {
+import Protocol._
+
+import scala.collection.mutable.HashMap
+
+class EmbeddedStack(referenceMap: HashMap[Int, (Any,String)]) {
 
   private val maxNArgs: Int = 50
   private val argsLists = Array.range(1,maxNArgs).scanLeft("")((sum,i) => sum + ",x" + i).map(x => if ( x != "" ) x.substring(1) else x).map("(" + _ + ")")
@@ -33,7 +37,7 @@ class EmbeddedStack {
     namesStack = Nil
   }
 
-  private[server] def argsList: String = argsLists(_size)
+  private[server] def argsList(withReference: Boolean): String = argsLists(_size - ( if (withReference) 1 else 0))
 
   override def toString(): String = {
     val sb = new java.lang.StringBuilder()
@@ -42,7 +46,14 @@ class EmbeddedStack {
       sb.append("val ")
       sb.append(x._2)
       sb.append(" = ES.pop[")
-      sb.append(Protocol.typeMapper(x._1.tipe))
+      val tipe = x._1.tipe
+      val tipeString = tipe match {
+        case TCODE_REFERENCE =>
+          x._1.tipeString.get
+        case _ =>
+          Protocol.typeMapper(tipe)
+      }
+      sb.append(tipeString)
       sb.append("]()\n")
     }
     sb.toString

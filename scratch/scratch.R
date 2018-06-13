@@ -1,10 +1,32 @@
 library(rscala2)
+
 scala()
+rtScala <- s$java.lang.Runtime.getRuntime()
+rtScala$availableProcessors()
+
+library(rJava)
+.jinit()
+rtJava <- J("java.lang.Runtime")$getRuntime()
+rtJava$availableProcessors()
+
+library(microbenchmark)
+microbenchmark(
+  rtJava$availableProcessors(),
+  rtScala$availableProcessors(),
+  .jcall(rtJava,"I","availableProcessors"),
+  s$java.lang.Runtime.getRuntime.availableProcessors(),
+  times=10000)
+
+
+
+rng <- s$scala.util.Random()
 
 f9 <- function(x) s(x=x) %~% 'Array(Array(x))'
-f9(3L)
+a <- f9(3L)
 gc()
 attr(s,"details")[["garbage"]]
+
+e <- s %~% 'new scala.util.Random()'
 
 f0 <- function(x) s(x=x) %~% 'println("<:"+x+":>")'
 f1 <- function() s %~% 'println("<:"+x+":>")'
@@ -17,9 +39,6 @@ f5 <- function() s(x=6) %~% '
 f5()
 f2()
 
-library(rJava)
-.jinit()
-rt <- J("java.lang.Runtime")$getRuntime()
 
 library(microbenchmark)
 microbenchmark(

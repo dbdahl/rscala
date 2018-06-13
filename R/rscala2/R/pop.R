@@ -1,6 +1,7 @@
 #' @export
 #' 
-pop <- function(socketIn, gcFunction) {
+pop <- function(details) {
+  socketIn <- details[["socketIn"]]
   tipe <- rbyte(socketIn)
   if ( tipe == TCODE_INT_0 ) {
     rb(socketIn,RTYPE_INT)
@@ -13,15 +14,15 @@ pop <- function(socketIn, gcFunction) {
     len <- rb(socketIn,RTYPE_INT)
     rb(socketIn,RTYPE_DOUBLE,len)
   } else if ( tipe == TCODE_CHARACTER_0 ) {
-    rc(socketInt)
+    rc(socketIn)
   } else if ( tipe == TCODE_CHARACTER_1 ) {
   } else if ( tipe == TCODE_UNIT ) {
     invisible()
   } else if ( tipe == TCODE_REFERENCE ) {
     referenceID <- rb(socketIn,RTYPE_INT)
     referenceType <- rc(socketIn)
-    env <- list2env(list(id=referenceID,type=referenceType),parent=emptyenv())
-    reg.finalizer(env, gcFunction)
+    env <- list2env(list(id=referenceID,type=referenceType,details=details),parent=emptyenv())
+    reg.finalizer(env, details[["gcFunction"]])
     structure(env,class="rscalaReference")
   } else if ( tipe == TCODE_ERROR_DEF ) {
     code <- rc(socketIn)

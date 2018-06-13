@@ -81,12 +81,12 @@ object Server extends App {
   }
   if ( debugger.on ) debugger("connections established")
 
-  private val embeddedStack = new EmbeddedStack()    // called ES in the REPL
+  private val referenceMap = new HashMap[Int, (Any,String)]()
+  private val embeddedStack = new EmbeddedStack(referenceMap)    // called ES in the REPL
   intp.bind("ES",embeddedStack)
   private val functionMap = new HashMap[String, (Any,String)]()
   private val unary = Class.forName("scala.Function0").getMethod("apply")
   unary.setAccessible(true)
-  private val referenceMap = new HashMap[Int, (Any,String)]()
 
   def exit(): Unit = {
     if ( debugger.on ) debugger("exit")
@@ -111,6 +111,10 @@ object Server extends App {
     if ( debugger.on ) debugger("push")
     val tipe = in.readByte()
     val value = tipe match {
+      case TCODE_REFERENCE =>
+        val (value,typeString) = referenceMap(in.readInt())
+        embeddedStack.pushValue(Datum(value,tipe,Some(typeString)))
+        return
       case TCODE_INT_0 =>
         in.readInt()
       case TCODE_INT_1 =>
@@ -132,7 +136,7 @@ object Server extends App {
       case _ =>
         throw new IllegalStateException("Unsupported type.")
     }
-    embeddedStack.pushValue(Datum(value,tipe))
+    embeddedStack.pushValue(Datum(value,tipe,None))
   }
 
   def report(datum: Datum): Unit = {
@@ -161,7 +165,6 @@ object Server extends App {
         writeString(datum.value.asInstanceOf[String])
       case TCODE_UNIT =>
       case TCODE_REFERENCE =>
-        val value = datum.value.asInstanceOf[(Any,String)]
         val key = {
           var candidate = scala.util.Random.nextInt()
           while ( referenceMap.contains(candidate) ) {
@@ -169,9 +172,10 @@ object Server extends App {
           }
           candidate
         }
-        referenceMap(key) = value
+        val tipeString = datum.tipeString.get
+        referenceMap(key) = (datum.value, tipeString)
         out.writeInt(key)
-        writeString(value._2)
+        writeString(tipeString)
       case TCODE_ERROR_DEF =>
         writeString(datum.value.asInstanceOf[String])
       case TCODE_ERROR_INVOKE =>
@@ -181,22 +185,28 @@ object Server extends App {
     out.flush()
   }
 
-  def invoke(withNames: Boolean): Unit = {
+  def invoke(withNames: Boolean, withReference: Boolean, showCode: Boolean): Unit = {
     if ( debugger.on ) debugger("invoke with" + (if (withNames) "" else "out") +" names")
     if ( withNames ) List.fill(embeddedStack.size)(readString()).foreach(embeddedStack.pushName)
     val snippet = readString()
     val sb = new java.lang.StringBuilder()
     sb.append("() => {\n")
     sb.append(embeddedStack)
+    if ( withReference ) {
+      sb.append("x")
+      sb.append(embeddedStack.size)
+      sb.append(".")
+    }
     sb.append(snippet)
-    if ( ! withNames ) sb.append(embeddedStack.argsList)
+    if ( ! withNames ) sb.append(embeddedStack.argsList(withReference))
     sb.append("\n}")
     val body = sb.toString
+    if ( showCode ) println(body)
     val (jvmFunction, resultType) = functionMap.getOrElse(body, {
       val result = intp.interpret(body)
       if ( result != Success ) {
         if ( debugger.on ) debugger("error in defining function.")
-        report(Datum(body,TCODE_ERROR_DEF))
+        report(Datum(body,TCODE_ERROR_DEF,None))
         return
       }
       val functionName = intp.mostRecentVar
@@ -216,20 +226,22 @@ object Server extends App {
       unary.invoke(jvmFunction)
     } catch {
       case e: Throwable =>
-        report(Datum(e,TCODE_ERROR_INVOKE))
+        println(e)
+        e.printStackTrace()
+        report(Datum(e,TCODE_ERROR_INVOKE,None))
         return
     }
     if ( debugger.on ) debugger("function invocation is okay.")
     if ( typeMapper2.contains(resultType) ) {
-      report(Datum(result, typeMapper2.get(resultType).get))
+      report(Datum(result, typeMapper2.get(resultType).get, None))
     } else {
-      report(Datum((result, resultType), TCODE_REFERENCE))
+      report(Datum(result, TCODE_REFERENCE, Some(resultType)))
     }
   }
 
   def echo(): Unit = {
     val value = in.readInt()
-    report(Datum(value,TCODE_INT_0))
+    report(Datum(value,TCODE_INT_0,None))
   }
 
   def gc(): Unit = {
@@ -247,8 +259,9 @@ object Server extends App {
     request match {
       case PCODE_EXIT => exit(); return
       case PCODE_PUSH => push()
-      case PCODE_INVOKE_WITH_NAMES => invoke(true)
-      case PCODE_INVOKE_WITHOUT_NAMES => invoke(false)
+      case PCODE_INVOKE_WITH_NAMES => invoke(true, false, debugger.on)
+      case PCODE_INVOKE_WITHOUT_NAMES => invoke(false, false, debugger.on)
+      case PCODE_INVOKE_WITH_REFERENCE => invoke(false, true, debugger.on)
       case PCODE_ECHO => echo()
       case PCODE_GARBAGE_COLLECT => gc()
       case _ =>

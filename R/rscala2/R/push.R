@@ -1,5 +1,8 @@
 push <- function(what, socketOut) {
-  if ( is.integer(what) ) {
+  if ( inherits(what, "rscalaReference") ) {
+    wb(socketOut,c(PCODE_PUSH,TCODE_REFERENCE))
+    wb(socketOut,what[["id"]])
+  } else if ( is.integer(what) ) {
     if ( length(what) == 1L ) {
       wb(socketOut,c(PCODE_PUSH,TCODE_INT_0))
       wb(socketOut,what)
