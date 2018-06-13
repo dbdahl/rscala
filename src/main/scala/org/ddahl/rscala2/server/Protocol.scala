@@ -14,17 +14,19 @@ object Protocol {
 
   // type codes
 
-  val TCODE_INT_0       = 50.toByte
-  val TCODE_INT_1       = 51.toByte
-  val TCODE_DOUBLE_0    = 52.toByte
-  val TCODE_DOUBLE_1    = 53.toByte
-  val TCODE_LOGICAL_0   = 54.toByte
-  val TCODE_LOGICAL_1   = 55.toByte
-  val TCODE_RAW_0       = 56.toByte
-  val TCODE_RAW_1       = 57.toByte
-  val TCODE_CHARACTER_0 = 58.toByte
-  val TCODE_CHARACTER_1 = 59.toByte
-  val TCODE_ERROR       = 60.toByte
+  val TCODE_INT_0        = 50.toByte
+  val TCODE_INT_1        = 51.toByte
+  val TCODE_DOUBLE_0     = 52.toByte
+  val TCODE_DOUBLE_1     = 53.toByte
+  val TCODE_LOGICAL_0    = 54.toByte
+  val TCODE_LOGICAL_1    = 55.toByte
+  val TCODE_RAW_0        = 56.toByte
+  val TCODE_RAW_1        = 57.toByte
+  val TCODE_CHARACTER_0  = 58.toByte
+  val TCODE_CHARACTER_1  = 59.toByte
+  val TCODE_REFERENCE    = 70.toByte
+  val TCODE_ERROR_DEF    = 80.toByte
+  val TCODE_ERROR_INVOKE = 81.toByte
 
   // sizes
 
@@ -45,6 +47,8 @@ object Protocol {
     TCODE_CHARACTER_0 -> "String",
     TCODE_CHARACTER_1 -> "Array[String]",
   )
+
+  val typeMapper2 = typeMapper.map(_.swap)
 
 }
 

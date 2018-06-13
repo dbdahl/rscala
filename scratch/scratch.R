@@ -4,8 +4,13 @@ scala()
 f0 <- function(x) s(x=x) %~% 'println("<:"+x+":>")'
 f1 <- function() s %~% 'println("<:"+x+":>")'
 f2 <- function() s() %~% 'println("<:"+x+":>")'
-f5 <- function() s(x) %~% 'println("<:"+x+":>")'
+f5 <- function() s(x=6) %~% 'println("<:"+x+":>")'
+f5 <- function() s(x=6) %~% '
+  println("<:"+x+":>")
+  x+1
+'
 f5()
+f2()
 
 x <- 4
 s()

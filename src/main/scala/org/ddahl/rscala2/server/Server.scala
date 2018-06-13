@@ -5,62 +5,10 @@ import scala.tools.nsc.interpreter.{ILoop, IMain}
 import scala.tools.nsc.interpreter.IR.Success
 import scala.tools.nsc.Settings
 import scala.annotation.tailrec
-import scala.collection.immutable.HashMap
+import scala.collection.mutable.HashMap
 import java.net._
 import java.io._
 import java.nio.ByteBuffer
-
-case class Datum(value: Any, tipe: Byte)
-
-class EmbeddedStack {
-
-  private val maxNArgs: Int = 50
-  private val argsLists = Array.range(1,maxNArgs).scanLeft("")((sum,i) => sum + ",x" + i).map(x => if ( x != "" ) x.substring(1) else x).map("(" + _ + ")")
-  private val argsNames = Array.range(1,maxNArgs).scanLeft(List[String]())((sum,i) => ("x"+i) :: sum).map(_.reverse)
-
-  private var _size: Int = 0
-  private var valuesStack: List[Datum] = Nil
-  private var namesStack: List[String] = Nil
-
-  def pop[T](): T = {
-    val x = valuesStack.head
-    valuesStack = valuesStack.tail
-    x.value.asInstanceOf[T]
-  }
-
-  private[server] def size: Int = _size
-
-  private[server] def pushValue(x: Datum): Unit = {
-    _size += 1
-    valuesStack = x :: valuesStack
-  }
-
-  private[server] def pushName(x: String): Unit = {
-    namesStack = x :: namesStack
-  }
-
-  private[server] def reset(): Unit = {
-    _size = 0
-    valuesStack = Nil
-    namesStack = Nil
-  }
-
-  private[server] def argsList: String = argsLists(_size)
-
-  override def toString(): String = {
-    val sb = new java.lang.StringBuilder()
-    if ( namesStack == Nil ) namesStack = argsNames(_size)
-    valuesStack.zip(namesStack).foreach { x =>
-      sb.append("val ")
-      sb.append(x._2)
-      sb.append(" = ES.pop[")
-      sb.append(Protocol.typeMapper(x._1.tipe))
-      sb.append("]()\n")
-    }
-    sb.toString
-  }
-
-}
 
 object Server extends App {
 
@@ -134,7 +82,10 @@ object Server extends App {
   if ( debugger.on ) debugger("connections established")
 
   private val embeddedStack = new EmbeddedStack()    // called ES in the REPL
+  intp.bind("ES",embeddedStack)
   private val functionCache = new HashMap[String, (Any,String)]()
+  private val unary = Class.forName("scala.Function0").getMethod("apply")
+  unary.setAccessible(true)
 
   def exit(): Unit = {
     if ( debugger.on ) debugger("exit")
@@ -179,6 +130,7 @@ object Server extends App {
 
   def report(datum: Datum): Unit = {
     if ( debugger.on ) debugger("report")
+    embeddedStack.reset()
     val tipe = datum.tipe
     tipe match {
       case TCODE_INT_0 =>
@@ -207,8 +159,8 @@ object Server extends App {
         val bytes = value.getBytes("UTF-8")
         out.writeInt(bytes.length)
         out.write(bytes)
-      case _ =>
-        throw new IllegalStateException("Unsupported type.")
+      case e =>
+        throw new IllegalStateException("Unsupported type: "+e)
     }
     out.flush()
   }
@@ -225,19 +177,32 @@ object Server extends App {
     sb.append("\n}")
     val body = sb.toString
     val (jvmFunction, resultType) = functionCache.getOrElse(body, {
-      // This is where we compile the body
-      (null, "Null")
+      val result = intp.interpret(body)
+      if ( result != Success ) {
+        if ( debugger.on ) debugger("Error in defining function.")
+        report(Datum(result,TCODE_ERROR_DEF))
+        return
+      }
+      val functionName = intp.mostRecentVar
+      val jvmFunction = intp.valueOfTerm(functionName).get
+      val resultType = {
+        val r = intp.symbolOfLine(functionName).info.toString.substring(10)  // Drop "String => " in the return type.
+        if ( r.startsWith("iw$") ) r.substring(3)
+        else r
+      }
+      val tuple = (jvmFunction, resultType)
+      functionCache(body) = tuple
+      if ( debugger.on ) debugger("Function definition is okay.")
+      tuple
     })
-    /*
-    // Debugging
-    println("<---")
-    (0 until embeddedStack.size).foreach { i => println(embeddedStack.pop[Any]()) }
-    println("----")
-    println(body)
-    println("--->")
-    */
-    embeddedStack.reset()
-    report(Datum(0,TCODE_INT_0))
+    try {
+      val result = unary.invoke(jvmFunction)
+      if ( debugger.on ) debugger("Function invocation is okay.")
+      report(Datum(result,typeMapper2.getOrElse(resultType,TCODE_REFERENCE)))
+    } catch {
+      case e: Throwable =>
+        report(Datum(e,TCODE_ERROR_INVOKE))
+    }
   }
 
   def echo(): Unit = {
