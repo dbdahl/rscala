@@ -197,7 +197,12 @@ object Server extends App {
       sb.append(embeddedStack.size)
       sb.append(".")
     }
-    sb.append(snippet)
+    if ( snippet.startsWith(".new_") ) {
+      sb.append("new ")
+      sb.append(snippet.substring(5))
+    } else {
+      sb.append(snippet)
+    }
     if ( ! withNames ) sb.append(embeddedStack.argsList(withReference))
     sb.append("\n}")
     val body = sb.toString

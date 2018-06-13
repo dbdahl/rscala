@@ -23,7 +23,7 @@ scala <- function(useSockets=TRUE, useBuffer=TRUE) {
       buffer=rawConnection(raw(),open="wb")))
   gcFunction <- function(e) {
     garbage <- details[["garbage"]]
-    garbage[length(garbage)+1] <- e$id
+    garbage[length(garbage)+1] <- e[["id"]]
     assign("garbage",garbage,envir=details)
   }
   assign("gcFunction",gcFunction,envir=details)
