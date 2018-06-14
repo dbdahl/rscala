@@ -5,6 +5,7 @@ rscala::'%~%'(o,"3+4")
 library(rscala2)
 rscala2::scala()
 
+# Check supported types
 f <- function(x) identical(x, s(x=x) %~% "x")
 sapply(list(1,c(1,2),matrix(as.double(1:6),nrow=3)), f)
 sapply(list(1L,c(1L,2L),matrix(1:6,nrow=3)), f)
@@ -12,6 +13,12 @@ sapply(list(TRUE,c(TRUE,FALSE),matrix(c(TRUE,FALSE,TRUE),nrow=3)), f)
 sapply(list(as.raw(1L),as.raw(c(1L,2L)),matrix(as.raw(1:6),nrow=3)), f)
 sapply(list("David",c("David","Dahl"),matrix(c("David","Dahl"),nrow=1)), f)
 
+# Interrupts
+s %~% "Thread.sleep(10000)"
+
+
+s %~% "1"
+rng$.nextGaussian()
 
 
 s %~% "3+4"

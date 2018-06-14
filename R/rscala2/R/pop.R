@@ -26,7 +26,7 @@ pop <- function(details) {
     dim <- rb(socketIn,RTYPE_INT,2L)
     matrix(as.logical(rb(socketIn,RTYPE_RAW,prod(dim))),nrow=dim[1],byrow=TRUE)
   } else if  ( tipe == TCODE_RAW_0 ) {
-    rbyte(socketIn)
+    rb(socketIn,RTYPE_RAW)
   } else if  ( tipe == TCODE_RAW_1 ) {
     len <- rb(socketIn,RTYPE_INT)
     rb(socketIn,RTYPE_RAW,len)
@@ -54,5 +54,9 @@ pop <- function(details) {
     stop(paste0("Compilation error. Code is:\n",code))
   } else if ( tipe == TCODE_ERROR_INVOKE ) {
     stop("Invocation error.")  
+  } else if ( tipe == TCODE_INTERRUPTED ) {
+    cat("<< computation interrupted >>\n")
+    assign("interrupted",TRUE,envir=details)
+    invisible() 
   } else stop(paste0("Unsupported type: ",tipe))
 }

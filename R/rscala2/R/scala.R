@@ -18,6 +18,7 @@ scala <- function(useSockets=TRUE) {
   details <- list2env(parent=emptyenv(), list(
       socketIn=socketIn,
       socketOut=socketOut,
+      interrupted=FALSE,
       garbage=integer(),
       buffer=rawConnection(raw(),open="wb")))
   gcFunction <- function(e) {

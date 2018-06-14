@@ -10,7 +10,11 @@ wc <- function(con,x) {
 
 rbyte <- function(con) {
   while ( TRUE ) {
-    x <- readBin(con,RTYPE_RAW,endian="big")
+    x <- tryCatch({
+      readBin(con,RTYPE_RAW,endian="big")
+    },interrupt=function(e) {
+      TCODE_INTERRUPTED
+    })
     if ( length(x) > 0 ) return(x)
     browser()
   }

@@ -1,4 +1,9 @@
 scalaInvoke <- function(details, snippet, args, withNames=FALSE, withReference=FALSE) {
+  while ( details[["interrupted"]] ) {
+    cat("<< waiting for previously interrupted computation to finish >>\n")
+    assign("interrupted",FALSE,envir=details)
+    pop(details)
+  }
   socketOut <- details[["buffer"]]
   seek(socketOut,where=0)
   truncate(socketOut)
