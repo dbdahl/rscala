@@ -1,5 +1,3 @@
-#' @export
-#' 
 pop <- function(details) {
   socketIn <- details[["socketIn"]]
   tipe <- rbyte(socketIn)

@@ -1,11 +1,11 @@
 #'
 #' @export
-#' 
+#'
 '%~%' <- function(bridge, snippet) UseMethod("%~%")
 
 #'
 #' @export
-#' 
+#'
 '%~%.rscalaBridge' <- function(bridge, snippet) {
   details <- attr(bridge,"details")
   args <- if ( is.function(bridge) ) list() else bridge
@@ -14,12 +14,12 @@
 
 #'
 #' @export
-#' 
+#'
 '%.~%' <- function(bridge, snippet) UseMethod("%.~%")
 
 #'
 #' @export
-#' 
+#'
 '%.~%.rscalaBridge' <- function(bridge, snippet) {
   details <- attr(bridge,"details")
   args <- if ( is.function(bridge) ) list() else bridge

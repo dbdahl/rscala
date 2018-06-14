@@ -1,17 +1,17 @@
-library(rscala2)
-rscala2::scala(useBuffer=TRUE)
-tildePercentTilde(s,"3+4")
-
 library(rscala)
 rscala::scala(assign.name="o")
-o %~% "3+4"
+rscala::'%~%'(o,"3+4")
+
+library(rscala2)
+rscala2::scala()
+s %~% "3+4"
 
 library(microbenchmark)
 microbenchmark(
-  tildePercentTilde(s,"3+4"),
-  tildePercentTilde(s(x=rnorm(100000)),"x"),
-  o %~% "3+4",
-  {x <- rnorm(100000); o['x'] %~% "x" },
+  s %~% "3+4",
+  s(x=rnorm(1000)) %~% "x",
+  rscala::'%~%'(o,"3+4"),
+  {x <- rnorm(1000); rscala::'%~%'(o['x'],"x") },
   times=1000
 )
 
