@@ -19,6 +19,7 @@ scala <- function(useSockets=TRUE) {
       socketIn=socketIn,
       socketOut=socketOut,
       interrupted=FALSE,
+      last=NULL,
       garbage=integer(),
       buffer=rawConnection(raw(),open="wb")))
   gcFunction <- function(e) {

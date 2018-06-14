@@ -1,7 +1,7 @@
 pop <- function(details) {
   socketIn <- details[["socketIn"]]
   tipe <- rbyte(socketIn)
-  if ( tipe == TCODE_INT_0 ) {
+  result <- if ( tipe == TCODE_INT_0 ) {
     rb(socketIn,RTYPE_INT)
   } else if ( tipe == TCODE_INT_1 ) {
     len <- rb(socketIn,RTYPE_INT)
@@ -57,6 +57,8 @@ pop <- function(details) {
   } else if ( tipe == TCODE_INTERRUPTED ) {
     cat("<< computation interrupted >>\n")
     assign("interrupted",TRUE,envir=details)
-    invisible() 
+    return(invisible())
   } else stop(paste0("Unsupported type: ",tipe))
+  assign("last",result,envir=details)
+  result
 }

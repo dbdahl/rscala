@@ -14,10 +14,12 @@ sapply(list(as.raw(1L),as.raw(c(1L,2L)),matrix(as.raw(1:6),nrow=3)), f)
 sapply(list("David",c("David","Dahl"),matrix(c("David","Dahl"),nrow=1)), f)
 
 # Interrupts
-s %~% "Thread.sleep(10000)"
-
+s %~% "Thread.sleep(10000); 5"
+scalaLast(s)
 
 s %~% "1"
+rng <- s$.new_scala.util.Random()
+rng$nextGaussian()
 rng$.nextGaussian()
 
 

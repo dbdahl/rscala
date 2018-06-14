@@ -1,9 +1,6 @@
 scalaInvoke <- function(details, snippet, args, withNames=FALSE, withReference=FALSE) {
-  while ( details[["interrupted"]] ) {
-    cat("<< waiting for previously interrupted computation to finish >>\n")
-    assign("interrupted",FALSE,envir=details)
-    pop(details)
-  }
+  scalaLastEngine(details)
+  if ( details[["interrupted"]] ) return(invisible())
   socketOut <- details[["buffer"]]
   seek(socketOut,where=0)
   truncate(socketOut)
@@ -28,6 +25,23 @@ scalaInvoke <- function(details, snippet, args, withNames=FALSE, withReference=F
   wc(socketOut,snippet)
   wb(details[["socketOut"]],rawConnectionValue(socketOut))
   pop(details)
+}
+
+#' @export
+#'
+scalaLast <- function(s) {
+  details <- attr(s,"details")
+  last <- scalaLastEngine(details)
+  if ( details[["interrupted"]] ) invisible() else last
+}
+
+scalaLastEngine <- function(details) {
+  if ( details[["interrupted"]] ) {
+    cat("<< waiting for previously interrupted computation to finish >>\n")
+    assign("interrupted",FALSE,envir=details)
+    pop(details)
+  }
+  details[["last"]]
 }
 
 #' @export
