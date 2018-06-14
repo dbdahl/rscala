@@ -7,7 +7,7 @@
 #' 
 #' @export
 #'
-scala <- function(useSockets=TRUE, useBuffer=TRUE) {
+scala <- function(useSockets=TRUE, useBuffer=FALSE) {
   if ( useSockets ) {
     socketIn  <- socketConnection(host="localhost", port=9998, server=FALSE, blocking=TRUE, open="rb")
     socketOut <- socketConnection(host="localhost", port=9999, server=FALSE, blocking=TRUE, open="ab")

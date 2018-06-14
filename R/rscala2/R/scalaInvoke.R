@@ -1,6 +1,6 @@
 scalaInvoke <- function(details, snippet, args, withNames=FALSE, withReference=FALSE) {
   useBuffer <- details[["useBuffer"]]
-  buffer <- if ( useBuffer ) {
+  socketOut <- if ( useBuffer ) {
     buffer <- details[["buffer"]]
     seek(buffer,where=0)
     truncate(buffer)
@@ -8,25 +8,25 @@ scalaInvoke <- function(details, snippet, args, withNames=FALSE, withReference=F
   } else details[['socketOut']]
   garbageLength <- length(details[["garbage"]]) 
   if ( garbageLength > 0 ) {
-    wb(buffer, PCODE_GARBAGE_COLLECT)
-    wb(buffer, c(garbageLength,details[["garbage"]]))
+    wb(socketOut, PCODE_GARBAGE_COLLECT)
+    wb(socketOut, c(garbageLength,details[["garbage"]]))
     details[["garbage"]] <- integer()
   }
   args <- rev(args)
-  sapply(args, push, socketOut=buffer)
+  sapply(args, push, socketOut=socketOut)
   if ( withNames ) {
-    wb(buffer, PCODE_INVOKE_WITH_NAMES)
-    sapply(names(args), function(name) wc(buffer,name))
+    wb(socketOut, PCODE_INVOKE_WITH_NAMES)
+    sapply(names(args), function(name) wc(socketOut,name))
   } else {
     if ( withReference ) {
-      wb(buffer, PCODE_INVOKE_WITH_REFERENCE)
+      wb(socketOut, PCODE_INVOKE_WITH_REFERENCE)
     } else {
-      wb(buffer, PCODE_INVOKE_WITHOUT_NAMES)
+      wb(socketOut, PCODE_INVOKE_WITHOUT_NAMES)
     }
   }
-  wc(buffer,snippet)
+  wc(socketOut,snippet)
   if ( useBuffer ) {
-    wb(details[["socketOut"]],rawConnectionValue(buffer))
+    wb(details[["socketOut"]],rawConnectionValue(socketOut))
   }
   pop(details)
 }

@@ -1,6 +1,20 @@
 library(rscala2)
+rscala2::scala(useBuffer=TRUE)
+tildePercentTilde(s,"3+4")
 
-scala()
+library(rscala)
+rscala::scala(assign.name="o")
+o %~% "3+4"
+
+library(microbenchmark)
+microbenchmark(
+  tildePercentTilde(s,"3+4"),
+  tildePercentTilde(s(x=rnorm(100000)),"x"),
+  o %~% "3+4",
+  {x <- rnorm(100000); o['x'] %~% "x" },
+  times=1000
+)
+
 rtScala <- s$java.lang.Runtime.getRuntime()
 rtScala$availableProcessors()
 
