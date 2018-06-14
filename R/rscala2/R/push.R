@@ -19,6 +19,15 @@ push <- function(what, socketOut) {
       wb(socketOut,length(what))
       wb(socketOut,what)
     }
+  } else if ( is.logical(what) ) {
+    if ( length(what) == 1L ) {
+      wb(socketOut,c(PCODE_PUSH,TCODE_LOGICAL_0))
+      wb(socketOut,as.raw(what))
+    } else {
+      wb(socketOut,c(PCODE_PUSH,TCODE_LOGICAL_1))
+      wb(socketOut,length(what))
+      wb(socketOut,as.raw(what))
+    }    
   } else if ( is.character(what) ) {
     if ( length(what) == 1L ) {
       wb(socketOut,c(PCODE_PUSH,TCODE_CHARACTER_0))

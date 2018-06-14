@@ -6,6 +6,10 @@ library(rscala2)
 rscala2::scala()
 s %~% "3+4"
 
+s(x=c(TRUE,FALSE)) %~% "x"
+s(x=TRUE) %~% "x"
+s(x=FALSE) %~% "x"
+
 library(microbenchmark)
 microbenchmark(
   s %~% "3+4",

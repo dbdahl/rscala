@@ -88,6 +88,9 @@ object Server extends App {
   private val unary = Class.forName("scala.Function0").getMethod("apply")
   unary.setAccessible(true)
 
+  private val zero = 0.toByte
+  private val one = 1.toByte
+
   def exit(): Unit = {
     if ( debugger.on ) debugger("exit")
     out.close()
@@ -131,6 +134,14 @@ object Server extends App {
         in.readFully(bytes)
         val byteBuffer = ByteBuffer.wrap(bytes)
         Array.fill[Double](len) { byteBuffer.getDouble() }
+      case TCODE_LOGICAL_0 =>
+        if ( in.readByte() != zero ) true else false
+      case TCODE_LOGICAL_1 =>
+        val len = in.readInt()
+        val bytes = new Array[Byte](len)
+        in.readFully(bytes)
+        val byteBuffer = ByteBuffer.wrap(bytes)
+        Array.fill[Boolean](len) { if ( byteBuffer.get() != zero ) true else false }
       case TCODE_CHARACTER_0 =>
         readString()
       case _ =>
@@ -159,6 +170,14 @@ object Server extends App {
         val value = datum.value.asInstanceOf[Array[Double]]
         val byteBuffer = ByteBuffer.allocate(value.length*BYTES_PER_DOUBLE)
         value.foreach(byteBuffer.putDouble(_))
+        out.writeInt(value.length)
+        out.write(byteBuffer.array)
+      case TCODE_LOGICAL_0 =>
+        out.write(if ( datum.value.asInstanceOf[Boolean] ) one else zero)
+      case TCODE_LOGICAL_1 =>
+        val value = datum.value.asInstanceOf[Array[Boolean]]
+        val byteBuffer = ByteBuffer.allocate(value.length)
+        value.foreach(boolean => byteBuffer.put(if (boolean) one else zero))
         out.writeInt(value.length)
         out.write(byteBuffer.array)
       case TCODE_CHARACTER_0 =>
