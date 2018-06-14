@@ -197,11 +197,17 @@ object Server extends App {
       sb.append(embeddedStack.size)
       sb.append(".")
     }
-    if ( snippet.startsWith(".new_") ) {
-      sb.append("new ")
-      sb.append(snippet.substring(5))
+    val forceReference = if ( snippet.startsWith(".") ) {
+      if ( snippet.startsWith(".new_") ) {
+        sb.append("new ")
+        sb.append(snippet.substring(5))
+      } else {
+        sb.append(snippet.substring(1))
+      }
+      true
     } else {
       sb.append(snippet)
+      false
     }
     if ( ! withNames ) sb.append(embeddedStack.argsList(withReference))
     sb.append("\n}")
@@ -237,7 +243,7 @@ object Server extends App {
         return
     }
     if ( debugger.on ) debugger("function invocation is okay.")
-    if ( typeMapper2.contains(resultType) ) {
+    if ( ( ! forceReference ) && typeMapper2.contains(resultType) ) {
       report(Datum(result, typeMapper2.get(resultType).get, None))
     } else {
       report(Datum(result, TCODE_REFERENCE, Some(resultType)))

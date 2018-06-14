@@ -8,6 +8,7 @@ class EmbeddedStack(referenceMap: HashMap[Int, (Any,String)]) {
 
   private val maxNArgs: Int = 50
   private val argsLists = Array.range(1,maxNArgs).scanLeft("")((sum,i) => sum + ",x" + i).map(x => if ( x != "" ) x.substring(1) else x).map("(" + _ + ")")
+  argsLists(0) = ""
   private val argsNames = Array.range(1,maxNArgs).scanLeft(List[String]())((sum,i) => ("x"+i) :: sum).map(_.reverse)
 
   private var _size: Int = 0

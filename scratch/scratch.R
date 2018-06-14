@@ -4,6 +4,11 @@ scala()
 rtScala <- s$java.lang.Runtime.getRuntime()
 rtScala$availableProcessors()
 
+a <- rtScala$.availableProcessors()
+a$toDouble()
+
+s$java.lang.Runtime.getRuntime.availableProcessors()
+
 rng <- s$.new_scala.util.Random()
 
 library(rJava)
@@ -17,12 +22,12 @@ microbenchmark(
   rtScala$availableProcessors(),
   .jcall(rtJava,"I","availableProcessors"),
   s$java.lang.Runtime.getRuntime.availableProcessors(),
-  s(rng=rng) %~% "rng.nextDouble()",
+  s(x=rng) %~% "x.nextDouble()",
   rng$nextDouble(),
-  s(rng=rng) %~% "rng.nextDouble()",
   times=1000)
 
-
+s(x=rng) %~% "x.nextDouble()"
+s(x=rng) %.~% "x.nextDouble()"
 
 rng <- s$scala.util.Random()
 
