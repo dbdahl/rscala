@@ -3,7 +3,15 @@ push <- function(what, socketOut) {
     wb(socketOut,c(PCODE_PUSH,TCODE_REFERENCE))
     wb(socketOut,what[["id"]])
   } else if ( is.integer(what) ) {
-    if ( length(what) == 1L ) {
+    if ( is.matrix(what) ) {
+      dim <- dim(what)
+      if ( dim[1] == 0L ) stop("Number of rows must be at least 1.")
+      wb(socketOut,c(PCODE_PUSH,TCODE_INT_2))
+      wb(socketOut,dim)
+      what <- t(what)
+      attr(what,"dim") <- NULL
+      wb(socketOut,what)
+    } else if ( length(what) == 1L ) {
       wb(socketOut,c(PCODE_PUSH,TCODE_INT_0))
       wb(socketOut,what)
     } else {

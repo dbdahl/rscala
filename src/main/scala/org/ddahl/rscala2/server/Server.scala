@@ -125,7 +125,14 @@ object Server extends App {
         val bytes = new Array[Byte](len*BYTES_PER_INT)
         in.readFully(bytes)
         val byteBuffer = ByteBuffer.wrap(bytes)
-        Array.fill[Int](len) { byteBuffer.getInt() }
+        Array.fill(len) { byteBuffer.getInt() }
+      case TCODE_INT_2 =>
+        val nRows = in.readInt()
+        val nColumns = in.readInt()
+        val bytes = new Array[Byte](nRows*nColumns*BYTES_PER_INT)
+        in.readFully(bytes)
+        val byteBuffer = ByteBuffer.wrap(bytes)
+        Array.fill(nRows) { Array.fill(nColumns) { byteBuffer.getInt() } }
       case TCODE_DOUBLE_0 =>
         in.readDouble()
       case TCODE_DOUBLE_1 =>
@@ -133,7 +140,7 @@ object Server extends App {
         val bytes = new Array[Byte](len*BYTES_PER_DOUBLE)
         in.readFully(bytes)
         val byteBuffer = ByteBuffer.wrap(bytes)
-        Array.fill[Double](len) { byteBuffer.getDouble() }
+        Array.fill(len) { byteBuffer.getDouble() }
       case TCODE_LOGICAL_0 =>
         if ( in.readByte() != zero ) true else false
       case TCODE_LOGICAL_1 =>
@@ -141,7 +148,7 @@ object Server extends App {
         val bytes = new Array[Byte](len)
         in.readFully(bytes)
         val byteBuffer = ByteBuffer.wrap(bytes)
-        Array.fill[Boolean](len) { if ( byteBuffer.get() != zero ) true else false }
+        Array.fill(len) { if ( byteBuffer.get() != zero ) true else false }
       case TCODE_CHARACTER_0 =>
         readString()
       case _ =>
@@ -163,6 +170,15 @@ object Server extends App {
         val byteBuffer = ByteBuffer.allocate(value.length*BYTES_PER_INT)
         value.foreach(byteBuffer.putInt(_))
         out.writeInt(value.length)
+        out.write(byteBuffer.array)
+      case TCODE_INT_2 =>
+        val value = datum.value.asInstanceOf[Array[Array[Int]]]
+        val nRows = value.length
+        val nColumns = value(0).length
+        val byteBuffer = ByteBuffer.allocate(nRows*nColumns*BYTES_PER_INT)
+        value.foreach(_.foreach(byteBuffer.putInt(_)))
+        out.writeInt(nRows)
+        out.writeInt(nColumns)
         out.write(byteBuffer.array)
       case TCODE_DOUBLE_0 =>
         out.writeDouble(datum.value.asInstanceOf[Double])
@@ -266,10 +282,24 @@ object Server extends App {
         return
     }
     if ( debugger.on ) debugger("function invocation is okay.")
-    if ( ( ! forceReference ) && typeMapper2.contains(resultType) ) {
-      report(Datum(result, typeMapper2.get(resultType).get, None))
+    val tipe = if ( ( ! forceReference ) && typeMapper2.contains(resultType) ) {
+      val tipe = typeMapper2.get(resultType).get
+      tipe match {
+        case TCODE_INT_2 | TCODE_DOUBLE_2 | TCODE_LOGICAL_2 | TCODE_CHARACTER_2 =>
+          val a = result.asInstanceOf[Array[Array[_]]]
+          if ( a.length == 0 ) TCODE_REFERENCE
+          else {
+            val nColumns = a(0).length
+            if ( a.forall(_.length == nColumns) ) tipe else TCODE_REFERENCE
+          }
+        case _ =>
+          tipe
+      }
+    } else TCODE_REFERENCE
+    if ( tipe == TCODE_REFERENCE ) {
+      report(Datum(result, tipe, Some(resultType)))
     } else {
-      report(Datum(result, TCODE_REFERENCE, Some(resultType)))
+      report(Datum(result, tipe, None))
     }
   }
 

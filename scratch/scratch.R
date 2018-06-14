@@ -6,6 +6,17 @@ library(rscala2)
 rscala2::scala()
 s %~% "3+4"
 
+s(x=list(a=3,b=3)) %~% "x"
+s(x=matrix(1:10,nrow=2)) %~% "x"
+
+x <- matrix(1:10,nrow=2)
+x
+identical(x,s(x=x) %~% "x")
+b <- s(x=x) %.~% "x"
+s(b=b) %~% "b"
+
+s(x=matrix(integer(),nrow=2)) %~% "x"
+
 s(x=c(TRUE,FALSE)) %~% "x"
 s(x=TRUE) %~% "x"
 s(x=FALSE) %~% "x"

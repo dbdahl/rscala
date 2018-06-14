@@ -6,6 +6,9 @@ pop <- function(details) {
   } else if ( tipe == TCODE_INT_1 ) {
     len <- rb(socketIn,RTYPE_INT)
     rb(socketIn,RTYPE_INT,len)
+  } else if ( tipe == TCODE_INT_2 ) {
+    dim <- rb(socketIn,RTYPE_INT,2L)
+    matrix(rb(socketIn,RTYPE_INT,prod(dim)),nrow=dim[1],byrow=TRUE)
   } else if ( tipe == TCODE_DOUBLE_0 ) {
     rb(socketIn,RTYPE_DOUBLE)
   } else if ( tipe == TCODE_DOUBLE_1 ) {

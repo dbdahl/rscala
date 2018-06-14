@@ -1,11 +1,7 @@
 scalaInvoke <- function(details, snippet, args, withNames=FALSE, withReference=FALSE) {
-  useBuffer <- details[["useBuffer"]]
-  socketOut <- if ( useBuffer ) {
-    buffer <- details[["buffer"]]
-    seek(buffer,where=0)
-    truncate(buffer)
-    buffer
-  } else details[['socketOut']]
+  socketOut <- details[["buffer"]]
+  seek(socketOut,where=0)
+  truncate(socketOut)
   garbageLength <- length(details[["garbage"]]) 
   if ( garbageLength > 0 ) {
     wb(socketOut, PCODE_GARBAGE_COLLECT)
@@ -25,9 +21,7 @@ scalaInvoke <- function(details, snippet, args, withNames=FALSE, withReference=F
     }
   }
   wc(socketOut,snippet)
-  if ( useBuffer ) {
-    wb(details[["socketOut"]],rawConnectionValue(socketOut))
-  }
+  wb(details[["socketOut"]],rawConnectionValue(socketOut))
   pop(details)
 }
 

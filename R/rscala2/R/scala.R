@@ -7,7 +7,7 @@
 #' 
 #' @export
 #'
-scala <- function(useSockets=TRUE, useBuffer=FALSE) {
+scala <- function(useSockets=TRUE) {
   if ( useSockets ) {
     socketIn  <- socketConnection(host="localhost", port=9998, server=FALSE, blocking=TRUE, open="rb")
     socketOut <- socketConnection(host="localhost", port=9999, server=FALSE, blocking=TRUE, open="ab")
@@ -19,7 +19,6 @@ scala <- function(useSockets=TRUE, useBuffer=FALSE) {
       socketIn=socketIn,
       socketOut=socketOut,
       garbage=integer(),
-      useBuffer=useBuffer,
       buffer=rawConnection(raw(),open="wb")))
   gcFunction <- function(e) {
     garbage <- details[["garbage"]]
