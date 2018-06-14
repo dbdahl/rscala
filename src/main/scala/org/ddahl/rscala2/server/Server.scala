@@ -163,6 +163,10 @@ object Server extends App {
         out.write(byteBuffer.array)
       case TCODE_CHARACTER_0 =>
         writeString(datum.value.asInstanceOf[String])
+      case TCODE_CHARACTER_1 =>
+        val value = datum.value.asInstanceOf[Array[String]]
+        out.writeInt(value.length)
+        value.foreach(writeString)
       case TCODE_UNIT =>
       case TCODE_REFERENCE =>
         val key = {

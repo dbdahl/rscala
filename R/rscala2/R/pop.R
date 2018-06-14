@@ -14,6 +14,8 @@ pop <- function(details) {
   } else if ( tipe == TCODE_CHARACTER_0 ) {
     rc(socketIn)
   } else if ( tipe == TCODE_CHARACTER_1 ) {
+    len <- rb(socketIn,RTYPE_INT)
+    sapply(seq_len(len), function(i) rc(socketIn))
   } else if ( tipe == TCODE_UNIT ) {
     invisible()
   } else if ( tipe == TCODE_REFERENCE ) {
