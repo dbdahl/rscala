@@ -4,10 +4,25 @@ rscala::'%~%'(o,"3+4")
 
 library(rscala2)
 rscala2::scala()
+
+f <- function(x) identical(x, s(x=x) %~% "x")
+sapply(list(1,c(1,2),matrix(as.double(1:6),nrow=3)), f)
+sapply(list(1L,c(1L,2L),matrix(1:6,nrow=3)), f)
+sapply(list(TRUE,c(TRUE,FALSE),matrix(c(TRUE,FALSE,TRUE),nrow=3)), f)
+sapply(list(as.raw(1L),as.raw(c(1L,2L)),matrix(as.raw(1:6),nrow=3)), f)
+sapply(list("David",c("David","Dahl"),matrix(c("David","Dahl"),nrow=1)), f)
+
+
+
 s %~% "3+4"
 
 s(x=list(a=3,b=3)) %~% "x"
 s(x=matrix(1:10,nrow=2)) %~% "x"
+
+s %~% '
+  Array(Array(1,3),Array(4,5))
+'
+
 
 x <- matrix(1:10,nrow=2)
 x

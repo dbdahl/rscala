@@ -14,16 +14,33 @@ pop <- function(details) {
   } else if ( tipe == TCODE_DOUBLE_1 ) {
     len <- rb(socketIn,RTYPE_INT)
     rb(socketIn,RTYPE_DOUBLE,len)
-  } else if ( tipe == TCODE_CHARACTER_0 ) {
-    rc(socketIn)
-  } else if ( tipe == TCODE_CHARACTER_1 ) {
-    len <- rb(socketIn,RTYPE_INT)
-    sapply(seq_len(len), function(i) rc(socketIn))
+  } else if ( tipe == TCODE_DOUBLE_2 ) {
+    dim <- rb(socketIn,RTYPE_INT,2L)
+    matrix(rb(socketIn,RTYPE_DOUBLE,prod(dim)),nrow=dim[1],byrow=TRUE)
   } else if  ( tipe == TCODE_LOGICAL_0 ) {
     as.logical(rb(socketIn,RTYPE_RAW))
   } else if  ( tipe == TCODE_LOGICAL_1 ) {
     len <- rb(socketIn,RTYPE_INT)
     as.logical(rb(socketIn,RTYPE_RAW,len))
+  } else if ( tipe == TCODE_LOGICAL_2 ) {
+    dim <- rb(socketIn,RTYPE_INT,2L)
+    matrix(as.logical(rb(socketIn,RTYPE_RAW,prod(dim))),nrow=dim[1],byrow=TRUE)
+  } else if  ( tipe == TCODE_RAW_0 ) {
+    rbyte(socketIn)
+  } else if  ( tipe == TCODE_RAW_1 ) {
+    len <- rb(socketIn,RTYPE_INT)
+    rb(socketIn,RTYPE_RAW,len)
+  } else if ( tipe == TCODE_RAW_2 ) {
+    dim <- rb(socketIn,RTYPE_INT,2L)
+    matrix(rb(socketIn,RTYPE_RAW,prod(dim)),nrow=dim[1],byrow=TRUE)
+  } else if ( tipe == TCODE_CHARACTER_0 ) {
+    rc(socketIn)
+  } else if ( tipe == TCODE_CHARACTER_1 ) {
+    len <- rb(socketIn,RTYPE_INT)
+    sapply(seq_len(len), function(i) rc(socketIn))
+  } else if ( tipe == TCODE_CHARACTER_2 ) {
+    dim <- rb(socketIn,RTYPE_INT,2L)
+    t(sapply(seq_len(dim[1]), function(i) sapply(seq_len(dim[2]), function(j) rc(socketIn))))
   } else if ( tipe == TCODE_UNIT ) {
     invisible()
   } else if ( tipe == TCODE_REFERENCE ) {
