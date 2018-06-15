@@ -5,6 +5,11 @@ rscala::'%~%'(o,"3+4")
 library(rscala2)
 rscala2::scala()
 
+s(x=rnorm(10)) %~% "x.sum"
+s(x=I(rnorm(10))) %~% "x.sum"
+s(x=rnorm(1),nrow=1) %~% "x.sum"
+s(x=rnorm(1)) %~% "x.sum"
+
 # Check supported types
 f <- function(x) identical(x, s(x=x) %~% "x")
 sapply(list(1,c(1,2),matrix(as.double(1:6),nrow=3)), f)

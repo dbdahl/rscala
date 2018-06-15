@@ -1,4 +1,8 @@
 push <- function(what, socketOut) {
+  forceVector <- if ( inherits(what,"AsIs") ) {
+    what <- unclass(what)
+    TRUE
+  } else FALSE
   if ( inherits(what, "rscalaReference") ) {
     wb(socketOut,c(PCODE_PUSH,TCODE_REFERENCE))
     wb(socketOut,what[["id"]])
@@ -11,7 +15,7 @@ push <- function(what, socketOut) {
       what <- t(what)
       attr(what,"dim") <- NULL
       wb(socketOut,what)
-    } else if ( length(what) == 1L ) {
+    } else if ( ( ! forceVector ) && ( length(what) == 1L ) ) {
       wb(socketOut,c(PCODE_PUSH,TCODE_INT_0))
       wb(socketOut,what)
     } else {
@@ -27,7 +31,7 @@ push <- function(what, socketOut) {
       what <- t(what)
       attr(what,"dim") <- NULL
       wb(socketOut,what)
-    } else if ( length(what) == 1L ) {
+    } else if ( ( ! forceVector ) && ( length(what) == 1L ) ) {
       wb(socketOut,c(PCODE_PUSH,TCODE_DOUBLE_0))
       wb(socketOut,what)
     } else {
@@ -44,7 +48,7 @@ push <- function(what, socketOut) {
       what <- t(what)
       attr(what,"dim") <- NULL
       wb(socketOut,as.raw(what))
-    } else if ( length(what) == 1L ) {
+    } else if ( ( ! forceVector ) && ( length(what) == 1L ) ) {
       wb(socketOut,c(PCODE_PUSH,TCODE_LOGICAL_0))
       wb(socketOut,as.raw(what))
     } else {
@@ -61,7 +65,7 @@ push <- function(what, socketOut) {
       what <- t(what)
       attr(what,"dim") <- NULL
       wb(socketOut,what)
-    } else if ( length(what) == 1L ) {
+    } else if ( ( ! forceVector ) && ( length(what) == 1L ) ) {
       wb(socketOut,c(PCODE_PUSH,TCODE_RAW_0))
       wb(socketOut,what)
     } else {
@@ -78,7 +82,7 @@ push <- function(what, socketOut) {
       what <- t(what)
       attr(what,"dim") <- NULL
       sapply(what, function(x) wc(socketOut,x))
-    } else if ( length(what) == 1L ) {
+    } else if ( ( ! forceVector ) && ( length(what) == 1L ) ) {
       wb(socketOut,c(PCODE_PUSH,TCODE_CHARACTER_0))
       wc(socketOut,what)
     } else {
