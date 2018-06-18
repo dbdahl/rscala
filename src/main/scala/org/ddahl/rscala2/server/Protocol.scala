@@ -12,7 +12,8 @@ object Protocol {
   val PCODE_INVOKE_WITHOUT_NAMES  = 13.toByte
   val PCODE_INVOKE_WITH_REFERENCE = 14.toByte
   val PCODE_EVALUATE              = 15.toByte
-  val PCODE_GARBAGE_COLLECT       = 16.toByte
+  val PCODE_ADD_TO_CLASSPATH      = 16.toByte
+  val PCODE_GARBAGE_COLLECT       = 17.toByte
 
   // type codes
 

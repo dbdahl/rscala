@@ -414,6 +414,23 @@ object Server extends App {
     report(Datum((),TCODE_UNIT,None))
   }
 
+  def addToClasspath(): Unit = {
+    if ( debugger.on ) debugger("add to classpath")
+    val body = readString()
+    try {
+      val path = new File(body).toURI.toURL
+      intp.addUrlsToClassPath(path)
+    } catch {
+      case e: Throwable =>
+        println(e)
+        e.printStackTrace()
+        if ( debugger.on ) debugger("error in adding to classpath.")
+        report(Datum(e,TCODE_ERROR_INVOKE,None))
+        return
+    }
+    report(Datum((),TCODE_UNIT,None))
+  }
+
   def gc(): Unit = {
     if ( debugger.on ) debugger("garbage collect")
     (0 until in.readInt()).foreach { i =>
@@ -433,6 +450,7 @@ object Server extends App {
       case PCODE_INVOKE_WITHOUT_NAMES => invoke(false, false, debugger.on)
       case PCODE_INVOKE_WITH_REFERENCE => invoke(false, true, debugger.on)
       case PCODE_EVALUATE => evaluate()
+      case PCODE_ADD_TO_CLASSPATH => addToClasspath()
       case PCODE_GARBAGE_COLLECT => gc()
       case _ =>
         throw new IllegalStateException("Unsupported command: "+request)

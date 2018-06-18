@@ -1,7 +1,7 @@
 #' @export
 #'
-scalaLast <- function(s) {
-  details <- attr(s,"details")
+scalaLast <- function(bridge) {
+  details <- attr(bridge,"details")
   last <- scalaLastEngine(details)
   if ( details[["interrupted"]] ) invisible() else last
 }

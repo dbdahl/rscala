@@ -1,25 +1,65 @@
-#' Title
+#' Instantiate a Scala Bridge
 #'
-#' @return
-#' 
+#' The \code{\link{scala}} function creates an instance of a Scala bridge.
+#' Multiple interpreters can be created and each runs independently with its own
+#' memory space. Each interpreter can use multiple threads/cores, but the bridge
+#' between \R and Scala is itself not thread-safe, so multiple \R threads/cores
+#' should not simultaneously access the same bridge.
+#'
+#' @param classpath Character vector whose elements are individual JAR files to
+#'   be added to the runtime classpath.
+#' @param classpath.packages Character vector of package names whose embedded
+#'   JAR files are to be added to the runtime classpath.
+#' @param serialize.output Logical indicating whether Scala output should be
+#'   serialized back to R.  This is slower and probably only needed on Windows.
+#' @param stdout Whether "standard output" results that are not serialized
+#'   should be sent.  \code{TRUE} or \code{""} sends output to the R console
+#'   (although that may not work on Windows).  \code{FALSE} or \code{NULL}
+#'   discards the output.  Otherwise, this is the name of the file that receives
+#'   the output.
+#' @param stderr Same as \code{stdout}, except influences the "standard error".
+#' @param port If \code{0}, two random ports are selected.  Otherwise,
+#'   \code{port} and \code{port+1} are used to the TCP/IP connections.
+#' @param assign.name The name of the (promise of the) bridge to be assigned in
+#'   the environment given by the \code{assign.env} argument.
+#' @param assign.env The environment in which the (promise of the) bridge is
+#'   assigned.
+#' @param assign.callback A function taking a Scala bridge as its only argument.
+#'   This function is called immediately after the bridge is established.
+#' @param heap.maximum String indicating the JVM heap maximum, e.g., "8G".
+#'   Without this being set, the heap maximum will be 85\% of the physical RAM.
+#' @param debug (Developer use only.)  Logical indicating whether debugging
+#'   should be enabled.
+#' @param command.line.options (Developer use only.)  A character vector
+#'   influencing the command line options when launching Scala.
+#'
+#' @return A Scala bridge
+#'
 #' @export
 #'
-#' @examples
+#' @examples  \dontrun{
+#' scala()
+#' rng <- s$.new_scala.util.Random()
+#' rng$alphanumeric()$take(15L)$mkString(",")
+#' s %~% "2+3"
+#' h <- s(x=2, y=3) %.~% "x+y"
+#' h$toString()
+#' s(mean=h, sd=2, r=rng) %~% "mean + sd * r.nextGaussian()"
 #' 
-#' @export
-#'
+#' }
+#' 
 scala <- function(classpath=character(),
                   classpath.packages=character(),
                   serialize.output=.Platform$OS.type=="windows",
-                  heap.maximum=NULL,
-                  command.line.options=NULL,
-                  debug=FALSE,
                   stdout=TRUE,
                   stderr=TRUE,
                   port=0L,
                   assign.name="s",
                   assign.env=.GlobalEnv,
-                  assign.callback=function(s) {}) {
+                  assign.callback=function(s) {},
+                  heap.maximum=NULL,
+                  command.line.options=NULL,
+                  debug=FALSE) {
   if ( identical(stdout,TRUE) ) stdout <- ""
   if ( identical(stderr,TRUE) ) stderr <- ""
   debug <- identical(debug,TRUE)
@@ -30,7 +70,7 @@ scala <- function(classpath=character(),
   if ( ! requireNamespace("rscalaCore", quietly=TRUE) ) {
     stop("Please install the 'rscalaCore' package.  Here's how...")
   }
-  if ( packageVersion("rscalaCore") < "2.12.6" ) {
+  if ( utils::packageVersion("rscalaCore") < "2.12.6" ) {
     stop("Please update the 'rscalaCore' package.  Here's how...")
   }
   scalaMajor <- rscalaCore::scalaVersion(TRUE)

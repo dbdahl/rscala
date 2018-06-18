@@ -1,7 +1,7 @@
 #' @export
 #' 
 print.rscalaBridge <- function(x, ...) {
-  cat(toString(x, ...))
+  cat(toString(x, ...),"\n",sep="")
 }
 
 #' @export
@@ -13,7 +13,7 @@ toString.rscalaBridge <- function(x, ...) {
 #' @export
 #' 
 print.rscalaReference <- function(x, ...) {
-  cat(toString(x, ...))
+  cat(toString(x, ...),"\n",sep="")
 }
 
 #' @export
