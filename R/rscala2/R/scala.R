@@ -1,13 +1,19 @@
 #' Title
 #'
 #' @return
+#' 
 #' @export
+#' @import rscalaCore
 #'
 #' @examples
 #' 
 #' @export
 #'
 scala <- function(useSockets=TRUE) {
+  classpath <- paste0(list.files(system.file(file.path("java","scala-2.12"),package="rscala2",mustWork=TRUE),full.names=TRUE),collapse=.Platform$path.sep)
+  args <- c("-cp",classpath,"org.ddahl.rscala2.server.Server")
+  system2(scalaExec(),args,wait=FALSE)
+  Sys.sleep(10)
   if ( useSockets ) {
     socketIn  <- socketConnection(host="localhost", port=9998, server=FALSE, blocking=TRUE, open="rb")
     socketOut <- socketConnection(host="localhost", port=9999, server=FALSE, blocking=TRUE, open="ab")

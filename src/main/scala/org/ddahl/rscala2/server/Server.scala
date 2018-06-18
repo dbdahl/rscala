@@ -12,6 +12,7 @@ import java.nio.ByteBuffer
 
 object Server extends App {
 
+  val rscalaJARPath = args(0)
   val serializeOutput = false
   val debug = false
   val technique: Either[(Int, Int), (String, String)] = Left(9998, 9999)
@@ -26,6 +27,7 @@ object Server extends App {
 //    case e => sys.error("Classloader is not a URLClassLoader: "+e)
 //  }).map(_.getPath)
 //  settings.classpath.value = initialClasspath.distinct.mkString(java.io.File.pathSeparator)
+  settings.classpath.value = rscalaJARPath
   settings.deprecation.value = true
   settings.feature.value = true
   settings.unchecked.value = true

@@ -35,11 +35,6 @@ fi
 set -e
 setversion $PKG_VERSION $(date +'%Y-%m-%d')
 
-cd R
-R CMD INSTALL rscala2
-
-exit
-
 # Compile Scala
 
 sbt package
@@ -50,4 +45,10 @@ rm -rf "$JARDIR"
 mkdir -p "$JARDIR"
 cp $JAR "$JARDIR"
 
+# Build package
+
+cd R
+R CMD build rscala2
+R CMD INSTALL rscala2
+cd ..
 
