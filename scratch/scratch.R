@@ -9,9 +9,11 @@ microbenchmark(
 )
 
 
+
 library(rscala2)
-scala()
-s %~% "3+4"
+scala(snippet=c("import scala.util.{Random => R}","val a = 45"))
+s$R.nextDouble()
+s %~% "a"
 close(s)
 
 

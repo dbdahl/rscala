@@ -54,6 +54,12 @@ object Server extends App {
   settings.unchecked.value = true
   settings.language.add("reflectiveCalls")
 
+  private val referenceMap = new HashMap[Int, (Any,String)]()
+  private val embeddedStack = new EmbeddedStack(referenceMap)    // called ES in the REPL
+  private val functionMap = new HashMap[String, (Any,String)]()
+  private val unary = Class.forName("scala.Function0").getMethod("apply")
+  unary.setAccessible(true)
+
   // Set up sinks
   val (debugger, prntWrtr, baosOut, baosErr) = serializeOutput match {
     case true =>
@@ -77,12 +83,20 @@ object Server extends App {
     iloop.verbosity()
   }
 
-  private val referenceMap = new HashMap[Int, (Any,String)]()
-  private val embeddedStack = new EmbeddedStack(referenceMap)    // called ES in the REPL
+  try {
+    val bufferedSource = scala.io.Source.fromFile(snippetFilename)
+    val snippet = bufferedSource.getLines.mkString("\n")
+    bufferedSource.close
+    println("<"+snippet+">")
+    if ( snippet != "" ) {
+      if (intp.interpret(snippet) != Success) sys.error("Problem interpreting initial snippet.  Interpreter is dead.")
+    }
+    println("5")
+  } catch {
+    case _: Throwable => sys.error("Problem reading or interpreting initial snippet.  Interpreter is dead.")
+  }
+
   intp.bind("ES",embeddedStack)
-  private val functionMap = new HashMap[String, (Any,String)]()
-  private val unary = Class.forName("scala.Function0").getMethod("apply")
-  unary.setAccessible(true)
 
   private val zero = 0.toByte
   private val one = 1.toByte
