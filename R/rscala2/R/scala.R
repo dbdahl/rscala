@@ -19,8 +19,7 @@ scala <- function(classpath=character(),
                   port=0L,
                   assign.name="s",
                   assign.env=.GlobalEnv,
-                  assign.callback=function(s) {},
-                  snippet=character()) {
+                  assign.callback=function(s) {}) {
   if ( identical(stdout,TRUE) ) stdout <- ""
   if ( identical(stderr,TRUE) ) stderr <- ""
   debug <- identical(debug,TRUE)
@@ -39,13 +38,13 @@ scala <- function(classpath=character(),
   rscalaJAR <- list.files(system.file(file.path("java",paste0("scala-",scalaMajor)),package="rscala2",mustWork=TRUE),full.names=TRUE)
   rscalaClasspath <- shQuote(paste0(c(rscalaJAR,classpath,pkgJARs),collapse=.Platform$path.sep))
   command.line.options <- shQuote(mkCommandLineOptions(command.line.options,heap.maximum))
-  snippetFilename <- tempfile("rscala-snippet-")
-  writeLines(snippet,snippetFilename)
+  sessionFilename <- tempfile("rscala-session-")
+  writeLines(character(),sessionFilename)
   portsFilename <- tempfile("rscala-ports-")
-  args <- c(command.line.options,"-classpath",rscalaJAR,"org.ddahl.rscala2.server.Server",rscalaClasspath,port,portsFilename,snippetFilename,debug,serialize.output,FALSE)
+  args <- c(command.line.options,"-classpath",rscalaJAR,"org.ddahl.rscala2.server.Server",rscalaClasspath,port,portsFilename,sessionFilename,debug,serialize.output,FALSE)
   system2(rscalaCore::scalaExec(),args,wait=FALSE,stdout=stdout,stderr=stderr)
   details <- new.env(parent=emptyenv())
-  assign("snippetFilename",snippetFilename,envir=details)
+  assign("sessionFilename",sessionFilename,envir=details)
   assign("closed",FALSE,envir=details)
   assign("interrupted",FALSE,envir=details)
   assign("last",NULL,envir=details)
@@ -157,13 +156,13 @@ mkCommandLineOptions <- function(command.line.options, heap.maximum) {
 stopProcess <- function(env) {
   # The 'close' function should be used to shutdown the interpreter. But this is
   # a backup method for unusual circumstances. Scala itself will recognize that
-  # it needs to quit when the snippet file is deleted. Most platforms are okay
+  # it needs to quit when the session file is deleted. Most platforms are okay
   # will Scala sticking around for a few seconds after R exits. But, on Windows,
   # package checks seem to require that the Scala process be finished before R
   # exits.
-  snippetFilename <- env[['snippetFilename']]
-  if ( file.exists(snippetFilename) ) {
-    unlink(snippetFilename)
+  sessionFilename <- env[['sessionFilename']]
+  if ( file.exists(sessionFilename) ) {
+    unlink(sessionFilename)
     pause <- 6
     diff <- 0
   } else {

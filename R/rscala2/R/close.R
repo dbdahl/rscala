@@ -16,7 +16,7 @@ close.rscalaBridge <- function(con, ...) {
   close(details[["buffer"]])
   close(details[["socketIn"]])
   close(details[["socketOut"]])
-  unlink(details[['snippetFilename']])
+  unlink(details[['sessionFilename']])
   assign("closed",TRUE,envir=details)
   assign("killStamp",proc.time()['elapsed'],envir=details)
   invisible()

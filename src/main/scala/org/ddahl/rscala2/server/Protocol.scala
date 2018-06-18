@@ -11,30 +11,31 @@ object Protocol {
   val PCODE_INVOKE_WITH_NAMES     = 12.toByte
   val PCODE_INVOKE_WITHOUT_NAMES  = 13.toByte
   val PCODE_INVOKE_WITH_REFERENCE = 14.toByte
-  val PCODE_GARBAGE_COLLECT       = 15.toByte
+  val PCODE_EVALUATE              = 15.toByte
+  val PCODE_GARBAGE_COLLECT       = 16.toByte
 
   // type codes
 
-  val TCODE_INT_0        = 50.toByte
-  val TCODE_INT_1        = 51.toByte
-  val TCODE_INT_2        = 52.toByte
-  val TCODE_DOUBLE_0     = 53.toByte
-  val TCODE_DOUBLE_1     = 54.toByte
-  val TCODE_DOUBLE_2     = 55.toByte
-  val TCODE_LOGICAL_0    = 56.toByte
-  val TCODE_LOGICAL_1    = 57.toByte
-  val TCODE_LOGICAL_2    = 58.toByte
-  val TCODE_RAW_0        = 59.toByte
-  val TCODE_RAW_1        = 60.toByte
-  val TCODE_RAW_2        = 61.toByte
-  val TCODE_CHARACTER_0  = 62.toByte
-  val TCODE_CHARACTER_1  = 63.toByte
-  val TCODE_CHARACTER_2  = 64.toByte
-  val TCODE_UNIT         = 65.toByte
-  val TCODE_REFERENCE    = 70.toByte
-  val TCODE_ERROR_DEF    = 80.toByte
-  val TCODE_ERROR_INVOKE = 81.toByte
-  val TCODE_INTERRUPTED  = 82.toByte
+  val TCODE_INT_0          = 50.toByte
+  val TCODE_INT_1          = 51.toByte
+  val TCODE_INT_2          = 52.toByte
+  val TCODE_DOUBLE_0       = 53.toByte
+  val TCODE_DOUBLE_1       = 54.toByte
+  val TCODE_DOUBLE_2       = 55.toByte
+  val TCODE_LOGICAL_0      = 56.toByte
+  val TCODE_LOGICAL_1      = 57.toByte
+  val TCODE_LOGICAL_2      = 58.toByte
+  val TCODE_RAW_0          = 59.toByte
+  val TCODE_RAW_1          = 60.toByte
+  val TCODE_RAW_2          = 61.toByte
+  val TCODE_CHARACTER_0    = 62.toByte
+  val TCODE_CHARACTER_1    = 63.toByte
+  val TCODE_CHARACTER_2    = 64.toByte
+  val TCODE_UNIT           = 65.toByte
+  val TCODE_REFERENCE      = 70.toByte
+  val TCODE_ERROR_DEF      = 80.toByte
+  val TCODE_ERROR_INVOKE   = 81.toByte
+  val TCODE_INTERRUPTED    = 82.toByte
 
   // sizes
 

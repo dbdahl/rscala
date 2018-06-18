@@ -15,7 +15,7 @@ object Server extends App {
   val rscalaClasspath = args(0)
   val port = args(1).toInt
   val portsFilename = args(2)
-  val snippetFilename =  args(3)
+  val sessionFilename =  args(3)
   val debug = ( args(4) == "TRUE" )
   val serializeOutput = ( args(5) == "TRUE" )
   val buffer = ( args(6) == "TRUE" )
@@ -25,10 +25,10 @@ object Server extends App {
     import java.nio.file.{FileSystems, Path, Paths, StandardWatchEventKinds, NoSuchFileException}
     override def run(): Unit = {
       val watchService = FileSystems.getDefault().newWatchService()
-      val snippetFileFullPath = Paths.get(snippetFilename)
-      val snippetFile = snippetFileFullPath.getFileName
+      val sessionFileFullPath = Paths.get(sessionFilename)
+      val sessionFile = sessionFileFullPath.getFileName
       try {
-        snippetFileFullPath.getParent.register(watchService, StandardWatchEventKinds.ENTRY_DELETE)
+        sessionFileFullPath.getParent.register(watchService, StandardWatchEventKinds.ENTRY_DELETE)
       } catch {
         case e: NoSuchFileException => sys.exit(0)      // R already exited!
       }
@@ -36,7 +36,7 @@ object Server extends App {
         val watchKey = watchService.take()
         for ( event <- watchKey.pollEvents().asScala ) {
           val path = event.context.asInstanceOf[Path]
-          if ( path.equals(snippetFile) ) sys.exit(0)
+          if ( path.equals(sessionFile) ) sys.exit(0)
         }
         watchKey.reset()
       }
@@ -82,20 +82,6 @@ object Server extends App {
     iloop.intp = intp
     iloop.verbosity()
   }
-
-  try {
-    val bufferedSource = scala.io.Source.fromFile(snippetFilename)
-    val snippet = bufferedSource.getLines.mkString("\n")
-    bufferedSource.close
-    println("<"+snippet+">")
-    if ( snippet != "" ) {
-      if (intp.interpret(snippet) != Success) sys.error("Problem interpreting initial snippet.  Interpreter is dead.")
-    }
-    println("5")
-  } catch {
-    case _: Throwable => sys.error("Problem reading or interpreting initial snippet.  Interpreter is dead.")
-  }
-
   intp.bind("ES",embeddedStack)
 
   private val zero = 0.toByte
@@ -381,6 +367,7 @@ object Server extends App {
       case e: Throwable =>
         println(e)
         e.printStackTrace()
+        if ( debugger.on ) debugger("error in executing function.")
         report(Datum(e,TCODE_ERROR_INVOKE,None))
         return
     }
@@ -406,6 +393,27 @@ object Server extends App {
     }
   }
 
+  def evaluate(): Unit = {
+    if ( debugger.on ) debugger("evaluate")
+    val body = readString()
+    try {
+      val result = intp.interpret(body)
+      if ( result != Success ) {
+        if ( debugger.on ) debugger("error in defining evaluation.")
+        report(Datum(body,TCODE_ERROR_DEF,None))
+        return
+      }
+    } catch {
+      case e: Throwable =>
+        println(e)
+        e.printStackTrace()
+        if ( debugger.on ) debugger("error in executing evaluation.")
+        report(Datum(e,TCODE_ERROR_INVOKE,None))
+        return
+    }
+    report(Datum((),TCODE_UNIT,None))
+  }
+
   def gc(): Unit = {
     if ( debugger.on ) debugger("garbage collect")
     (0 until in.readInt()).foreach { i =>
@@ -424,6 +432,7 @@ object Server extends App {
       case PCODE_INVOKE_WITH_NAMES => invoke(true, false, debugger.on)
       case PCODE_INVOKE_WITHOUT_NAMES => invoke(false, false, debugger.on)
       case PCODE_INVOKE_WITH_REFERENCE => invoke(false, true, debugger.on)
+      case PCODE_EVALUATE => evaluate()
       case PCODE_GARBAGE_COLLECT => gc()
       case _ =>
         throw new IllegalStateException("Unsupported command: "+request)

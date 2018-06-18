@@ -11,10 +11,26 @@ microbenchmark(
 
 
 library(rscala2)
-scala(snippet=c("import scala.util.{Random => R}","val a = 45"))
+
+callback <- function(s) {
+  s %@% '
+    println("Hi there")
+    import scala.util.{Random => R}
+    val a = 45
+  '
+}
+
+scala(assign.callback=callback)
 s$R.nextDouble()
 s %~% "a"
 close(s)
+
+
+scala()
+s %@% '
+  import scala.util.{Random => R}
+  val b = 34asd
+'
 
 
 library(rscala2)
