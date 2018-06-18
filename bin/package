@@ -48,6 +48,9 @@ cp $JAR "$JARDIR"
 # Build package
 
 cd R
+cd rscala2
+R -e 'devtools::document(roclets=c("rd", "collate", "namespace"))'
+cd ..
 R CMD build rscala2
 R CMD INSTALL rscala2
 cd ..

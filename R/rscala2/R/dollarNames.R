@@ -1,5 +1,6 @@
 #'
 #' @export
+#' @importFrom utils .DollarNames
 #'
 .DollarNames.rscalaReference <- function(x, pattern="") {
   snippet <- '

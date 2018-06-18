@@ -1,33 +1,54 @@
 package org.ddahl.rscala2.server
 
 import Protocol._
+import java.io.{BufferedOutputStream, ByteArrayOutputStream, DataInputStream, DataOutputStream, File, PrintWriter}
+import java.net.ServerSocket
+import java.nio.ByteBuffer
 import scala.tools.nsc.interpreter.{ILoop, IMain}
 import scala.tools.nsc.interpreter.IR.Success
 import scala.tools.nsc.Settings
 import scala.annotation.tailrec
 import scala.collection.mutable.HashMap
-import java.net._
-import java.io._
-import java.nio.ByteBuffer
 
 object Server extends App {
 
-  val rscalaJARPath = args(0)
-  val serializeOutput = false
-  val debug = false
-  val technique: Either[(Int, Int), (String, String)] = Left(9998, 9999)
-  //val technique: Either[(Int,Int),(String,String)] = Right("/home/dahl/docs/devel/rscala2/R/rscala2/pipe-s2r","/home/dahl/docs/devel/rscala2/R/rscala2/pipe-r2s")
-  val buffer = false
+  val rscalaClasspath = args(0)
+  val port = args(1).toInt
+  val portsFilename = args(2)
+  val snippetFilename =  args(3)
+  val debug = ( args(4) == "TRUE" )
+  val serializeOutput = ( args(5) == "TRUE" )
+  val buffer = ( args(6) == "TRUE" )
+
+  object killer extends Thread {
+    import collection.JavaConverters._
+    import java.nio.file.{FileSystems, Path, Paths, StandardWatchEventKinds, NoSuchFileException}
+    override def run(): Unit = {
+      val watchService = FileSystems.getDefault().newWatchService()
+      val snippetFileFullPath = Paths.get(snippetFilename)
+      val snippetFile = snippetFileFullPath.getFileName
+      try {
+        snippetFileFullPath.getParent.register(watchService, StandardWatchEventKinds.ENTRY_DELETE)
+      } catch {
+        case e: NoSuchFileException => sys.exit(0)      // R already exited!
+      }
+      while (true) {
+        val watchKey = watchService.take()
+        for ( event <- watchKey.pollEvents().asScala ) {
+          val path = event.context.asInstanceOf[Path]
+          if ( path.equals(snippetFile) ) sys.exit(0)
+        }
+        watchKey.reset()
+      }
+    }
+  }
+  killer.setDaemon(true)
+  killer.start()
 
   // Set classpath
   private val settings = new Settings()
   settings.embeddedDefaults[Datum]
-//  val initialClasspath = (java.lang.Thread.currentThread.getContextClassLoader match {
-//    case cl: java.net.URLClassLoader => cl.getURLs.toList
-//    case e => sys.error("Classloader is not a URLClassLoader: "+e)
-//  }).map(_.getPath)
-//  settings.classpath.value = initialClasspath.distinct.mkString(java.io.File.pathSeparator)
-  settings.classpath.value = rscalaJARPath
+  settings.classpath.value = rscalaClasspath
   settings.deprecation.value = true
   settings.feature.value = true
   settings.unchecked.value = true
@@ -46,7 +67,6 @@ object Server extends App {
       val d = new Debugger(debug, pw, "Scala", false)
       (d, pw, null, null)
   }
-//  if (debugger.on) debugger("Initial classpath is:\n" + initialClasspath.mkString("\n"))
 
   // Instantiate an interpreter
   val intp = new IMain(settings, prntWrtr)
@@ -57,32 +77,6 @@ object Server extends App {
     iloop.verbosity()
   }
 
-  debugger("starting server")
-
-  private val (out, in) = {
-    val buffer = false
-    val (os,is) = if ( technique.isLeft ) {
-      val (portS2R, portR2S) = technique.left.get
-      val serverOut = new ServerSocket(portS2R)
-      val serverIn = new ServerSocket(portR2S)
-      if ( debugger.on) debugger("socket S2R waiting for client on port: "+portS2R)
-      val sOut = serverOut.accept()
-      if ( debugger.on ) debugger("socket R2S waiting for client on port: "+portR2S)
-      val sIn = serverIn.accept()
-      (sOut.getOutputStream, sIn.getInputStream)
-    } else {
-      val (pipeS2R, pipeR2S) = technique.right.get
-      if ( debugger.on ) debugger("pipe S2R client is: "+pipeS2R)
-      if ( debugger.on ) debugger("pipe R2S client is: "+pipeR2S)
-      val fos = new FileOutputStream(pipeS2R)
-      val fis = new FileInputStream(pipeR2S)
-      (fos, fis)
-    }
-    val bos = if ( buffer ) new BufferedOutputStream(os) else os
-    (new DataOutputStream(bos), new DataInputStream(is))
-  }
-  if ( debugger.on ) debugger("connections established")
-
   private val referenceMap = new HashMap[Int, (Any,String)]()
   private val embeddedStack = new EmbeddedStack(referenceMap)    // called ES in the REPL
   intp.bind("ES",embeddedStack)
@@ -92,6 +86,30 @@ object Server extends App {
 
   private val zero = 0.toByte
   private val one = 1.toByte
+
+  debugger("starting server")
+
+  private val (out, in) = {
+    val ( portS2R, portR2S) = if ( port == 0 ) (0, 0) else (port, port+1)
+    val serverOut = new ServerSocket(portS2R)
+    val serverIn = new ServerSocket(portR2S)
+    locally {
+      val portsFile = new File(portsFilename)
+      val p = new PrintWriter(portsFile)
+      p.println(serverOut.getLocalPort+" "+serverIn.getLocalPort)
+      p.close()
+    }
+    if (debugger.on) debugger("socket S2R waiting for client on port: " + serverOut.getLocalPort)
+    val sOut = serverOut.accept()
+    if (debugger.on) debugger("socket R2S waiting for client on port: " + serverIn.getLocalPort)
+    val sIn = serverIn.accept()
+    val bos = if ( buffer ) new BufferedOutputStream(sOut.getOutputStream) else sOut.getOutputStream
+    (new DataOutputStream(bos), new DataInputStream(sIn.getInputStream))
+  }
+
+  if ( debugger.on ) debugger("connections established")
+
+  loop()
 
   def exit(): Unit = {
     if ( debugger.on ) debugger("exit")
@@ -308,6 +326,9 @@ object Server extends App {
       if ( snippet.startsWith(".new_") ) {
         sb.append("new ")
         sb.append(snippet.substring(5))
+      } else if ( snippet.startsWith(".null_") ) {
+        sb.append("null: ")
+        sb.append(snippet.substring(6))
       } else {
         sb.append(snippet.substring(1))
       }
@@ -371,11 +392,6 @@ object Server extends App {
     }
   }
 
-  def echo(): Unit = {
-    val value = in.readInt()
-    report(Datum(value,TCODE_INT_0,None))
-  }
-
   def gc(): Unit = {
     if ( debugger.on ) debugger("garbage collect")
     (0 until in.readInt()).foreach { i =>
@@ -394,15 +410,12 @@ object Server extends App {
       case PCODE_INVOKE_WITH_NAMES => invoke(true, false, debugger.on)
       case PCODE_INVOKE_WITHOUT_NAMES => invoke(false, false, debugger.on)
       case PCODE_INVOKE_WITH_REFERENCE => invoke(false, true, debugger.on)
-      case PCODE_ECHO => echo()
       case PCODE_GARBAGE_COLLECT => gc()
       case _ =>
         throw new IllegalStateException("Unsupported command: "+request)
     }
     loop()
   }
-
-  loop()
 
 }
 

@@ -2,13 +2,43 @@ library(rscala)
 rscala::scala(assign.name="o")
 rscala::'%~%'(o,"3+4")
 
+library(microbenchmark)
+microbenchmark(
+ { scala(); s; close(s) },
+ times=10
+)
+
+
 library(rscala2)
-rscala2::scala()
+scala()
+s %~% "3+4"
+close(s)
+
+
+library(rscala2)
+library(microbenchmark)
+microbenchmark(
+ { scala(); s(); close(s) },
+ times=10
+)
+warnings()
+
+scala(assign.name=)
+
+gcs(x=rnorm(10000))
+
+library(rscala2)
+scala()
+s %~% "Thread.sleep(10000)"
+close(s)
+
+
 
 s(x=rnorm(10)) %~% "x.sum"
 s(x=I(rnorm(10))) %~% "x.sum"
 s(x=rnorm(1),nrow=1) %~% "x+100*nrow"
-s(x=rnorm(1)) %~% "x.sum"
+s(x=I(rnorm(1))) %~% "x.sum"
+s(x=I(rnorm(100))) %~% "x.sum"
 
 # Check supported types
 f <- function(x) identical(x, s(x=x) %~% "x")
