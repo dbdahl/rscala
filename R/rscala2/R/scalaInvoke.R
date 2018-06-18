@@ -26,12 +26,3 @@ scalaInvoke <- function(details, snippet, args, withNames=FALSE, withReference=F
   wb(details[["socketOut"]],rawConnectionValue(socketOut))
   pop(details)
 }
-
-scalaEvaluate <- function(details, snippet) {
-  scalaLastEngine(details)
-  if ( details[["interrupted"]] ) return(invisible())
-  socketOut <- details[["socketOut"]]
-  wb(socketOut,PCODE_EVALUATE)
-  wc(socketOut,snippet)
-  invisible(pop(details))
-}
