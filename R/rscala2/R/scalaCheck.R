@@ -11,7 +11,7 @@
 #' scalaCheck()
 #' }
 scalaCheck <- function(verbose=TRUE) {
-  out <- tryCatch(system2(scalaExec(verbose),c('-nc','-e',shQuote('println(sys.props("java.version")+java.io.File.pathSeparator+scala.util.Properties.versionNumberString)')),stdout=TRUE,stderr=TRUE,timeout=60), warning=function(w) "")
+  out <- tryCatch(system2(scalaExec(verbose),c('-nc','-e',shQuote('println(sys.props("java.version")+java.io.File.pathSeparator+scala.util.Properties.versionNumberString)')),stdout=TRUE,stderr=TRUE), warning=function(w) "")
   cells <- strsplit(out,"(:|;)")[[1]]
   javaOK <- grepl("^1\\.8\\.0_",cells[1]) || grepl("^9\\.",out) || grepl("^1\\d+\\.",cells[1])
   scalaOK <- grepl("^2\\.12\\.",cells[2])

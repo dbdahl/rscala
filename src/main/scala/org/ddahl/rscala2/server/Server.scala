@@ -442,7 +442,17 @@ object Server extends App {
   @tailrec
   def loop(): Unit = {
     if ( debugger.on ) debugger("main")
-    val request = in.readByte()
+    val request = try {
+      in.readByte()
+    } catch {
+      case e: Throwable =>
+        if ( debugger.on ) {
+          println(e)
+          e.printStackTrace()
+          debugger("fatal error at loop main.")
+        }
+        return
+    }
     request match {
       case PCODE_EXIT => exit(); return
       case PCODE_PUSH => push()
