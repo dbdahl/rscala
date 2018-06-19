@@ -6,10 +6,16 @@
 #' between \R and Scala is itself not thread-safe, so multiple \R threads/cores
 #' should not simultaneously access the same bridge.
 #'
-#' @param classpath Character vector whose elements are individual JAR files to
+#' @param packages Character vector of package names whose embedded JAR files
+#'   are to be added to the runtime classpath.
+#' @param assign.callback A function taking a Scala bridge as its only argument.
+#'   This function is called immediately after the bridge is established.
+#' @param assign.name The name of the (promise of the) bridge to be assigned in
+#'   the environment given by the \code{assign.env} argument.
+#' @param assign.env The environment in which the (promise of the) bridge is
+#'   assigned.
+#' @param JARs Character vector whose elements are individual JAR files to
 #'   be added to the runtime classpath.
-#' @param classpath.packages Character vector of package names whose embedded
-#'   JAR files are to be added to the runtime classpath.
 #' @param serialize.output Logical indicating whether Scala output should be
 #'   serialized back to R.  This is slower and probably only needed on Windows.
 #' @param stdout Whether "standard output" results that are not serialized
@@ -20,12 +26,6 @@
 #' @param stderr Same as \code{stdout}, except influences the "standard error".
 #' @param port If \code{0}, two random ports are selected.  Otherwise,
 #'   \code{port} and \code{port+1} are used to the TCP/IP connections.
-#' @param assign.name The name of the (promise of the) bridge to be assigned in
-#'   the environment given by the \code{assign.env} argument.
-#' @param assign.env The environment in which the (promise of the) bridge is
-#'   assigned.
-#' @param assign.callback A function taking a Scala bridge as its only argument.
-#'   This function is called immediately after the bridge is established.
 #' @param heap.maximum String indicating the JVM heap maximum, e.g., "8G".
 #'   Without this being set, the heap maximum will be 85\% of the physical RAM.
 #' @param debug (Developer use only.)  Logical indicating whether debugging
@@ -48,15 +48,15 @@
 #' 
 #' }
 #' 
-scala <- function(classpath=character(),
-                  classpath.packages=character(),
+scala <- function(packages=character(),
+                  assign.callback=function(s) {},
+                  assign.name="s",
+                  assign.env=.GlobalEnv,
+                  JARs=character(),
                   serialize.output=.Platform$OS.type=="windows",
                   stdout=TRUE,
                   stderr=TRUE,
                   port=0L,
-                  assign.name="s",
-                  assign.env=.GlobalEnv,
-                  assign.callback=function(s) {},
                   heap.maximum=NULL,
                   command.line.options=NULL,
                   debug=FALSE) {
@@ -68,9 +68,9 @@ scala <- function(classpath=character(),
   if ( debug && serialize.output ) stop("When debug is TRUE, serialize.output must be FALSE.")
   if ( debug && ( identical(stdout,FALSE) || identical(stdout,NULL) || identical(stderr,FALSE) || identical(stderr,NULL) ) ) stop("When debug is TRUE, stdout and stderr must not be discarded.")
   scalaMajor <- CANONICAL_SCALA_MAJOR_VERSION
-  pkgJARs <- unlist(lapply(classpath.packages, function(p) jarsOfPackage(p, scalaMajor)))
+  pkgJARs <- unlist(lapply(packages, function(p) jarsOfPackage(p, scalaMajor)))
   rscalaJAR <- list.files(system.file(file.path("java",paste0("scala-",scalaMajor)),package="rscala",mustWork=TRUE),full.names=TRUE)
-  rscalaClasspath <- shQuote(paste0(c(rscalaJAR,classpath,pkgJARs),collapse=.Platform$path.sep))
+  rscalaClasspath <- shQuote(paste0(c(rscalaJAR,JARs,pkgJARs),collapse=.Platform$path.sep))
   command.line.options <- shQuote(mkCommandLineOptions(command.line.options,heap.maximum))
   sessionFilename <- tempfile("rscala-session-")
   writeLines(character(),sessionFilename)
@@ -115,7 +115,7 @@ scala <- function(classpath=character(),
         newSockets(portsFilename, details)
         assign.callback(bridge)
         bridge
-      },envir=assign.env)      
+      },envir=assign.env)
     }
   } else {
     newSockets(portsFilename, details)
