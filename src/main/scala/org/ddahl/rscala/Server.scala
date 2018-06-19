@@ -1,4 +1,4 @@
-package org.ddahl.rscala2.server
+package org.ddahl.rscala
 
 import Protocol._
 import java.io.{BufferedOutputStream, ByteArrayOutputStream, DataInputStream, DataOutputStream, File, PrintWriter}

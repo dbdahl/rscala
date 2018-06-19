@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-protocolFilename <- "../src/main/scala/org/ddahl/rscala2/server/Protocol.scala"
+protocolFilename <- "../src/main/scala/org/ddahl/rscala/Protocol.scala"
 
 lines <- scan(protocolFilename,what=character(0),sep="\n",quiet=TRUE)
 lines <- lines[grep("^\\s*val\\s+[A-Z_0-9]+\\s*=\\s*.*\\.toByte",lines)]
@@ -9,7 +9,7 @@ code <- sub("\\.toByte\\s*$",")",code)
 code <- sub("\\s+$","",code)
 code <- sub("= ","<- as.raw(",code)
 
-con <- file("../R/rscala2/R/INTERNAL-protocol.R")
+con <- file("../R/rscala/R/INTERNAL-protocol.R")
 writeLines(code,con)
 close(con)
 

@@ -1,4 +1,4 @@
-name := "rscala2"
+name := "rscala"
 
 version := "0.0.1-SNAPSHOT"
 

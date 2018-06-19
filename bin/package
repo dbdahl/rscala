@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PKG_NAME=rscala2
+PKG_NAME=rscala
 
 set -e
 
@@ -48,10 +48,10 @@ cp $JAR "$JARDIR"
 # Build package
 
 cd R
-cd rscala2
+cd $PKG_NAME
 R -e 'devtools::document(roclets=c("rd", "collate", "namespace"))'
 cd ..
-R CMD build rscala2
-R CMD INSTALL rscala2
+R CMD build $PKG_NAME
+R CMD INSTALL $PKG_NAME
 cd ..
 

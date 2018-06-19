@@ -1,4 +1,4 @@
-package org.ddahl.rscala2.server
+package org.ddahl.rscala
 
 import Protocol._
 
@@ -21,24 +21,24 @@ class EmbeddedStack(referenceMap: HashMap[Int, (Any,String)]) {
     x.value.asInstanceOf[T]
   }
 
-  private[server] def size: Int = _size
+  private[rscala] def size: Int = _size
 
-  private[server] def pushValue(x: Datum): Unit = {
+  private[rscala] def pushValue(x: Datum): Unit = {
     _size += 1
     valuesStack = x :: valuesStack
   }
 
-  private[server] def pushName(x: String): Unit = {
+  private[rscala] def pushName(x: String): Unit = {
     namesStack = x :: namesStack
   }
 
-  private[server] def reset(): Unit = {
+  private[rscala] def reset(): Unit = {
     _size = 0
     valuesStack = Nil
     namesStack = Nil
   }
 
-  private[server] def argsList(withReference: Boolean): String = argsLists(_size - ( if (withReference) 1 else 0))
+  private[rscala] def argsList(withReference: Boolean): String = argsLists(_size - ( if (withReference) 1 else 0))
 
   override def toString(): String = {
     val sb = new java.lang.StringBuilder()
