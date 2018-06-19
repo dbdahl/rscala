@@ -37,7 +37,7 @@
 #'
 #' @export
 #'
-#' @examples  \dontrun{
+#' @examples \dontrun{
 #' scala()
 #' rng <- s$.new_scala.util.Random()
 #' rng$alphanumeric()$take(15L)$mkString(",")
@@ -67,13 +67,7 @@ scala <- function(classpath=character(),
   port <- as.integer(port[1])
   if ( debug && serialize.output ) stop("When debug is TRUE, serialize.output must be FALSE.")
   if ( debug && ( identical(stdout,FALSE) || identical(stdout,NULL) || identical(stderr,FALSE) || identical(stderr,NULL) ) ) stop("When debug is TRUE, stdout and stderr must not be discarded.")
-  if ( ! requireNamespace("rscalaCore", quietly=TRUE) ) {
-    stop("Please install the 'rscalaCore' package.  Here's how...")
-  }
-  if ( utils::packageVersion("rscalaCore") < "2.12.6" ) {
-    stop("Please update the 'rscalaCore' package.  Here's how...")
-  }
-  scalaMajor <- rscalaCore::scalaVersion(TRUE)
+  scalaMajor <- CANONICAL_SCALA_MAJOR_VERSION
   pkgJARs <- unlist(lapply(classpath.packages, function(p) jarsOfPackage(p, scalaMajor)))
   rscalaJAR <- list.files(system.file(file.path("java",paste0("scala-",scalaMajor)),package="rscala2",mustWork=TRUE),full.names=TRUE)
   rscalaClasspath <- shQuote(paste0(c(rscalaJAR,classpath,pkgJARs),collapse=.Platform$path.sep))
@@ -82,7 +76,7 @@ scala <- function(classpath=character(),
   writeLines(character(),sessionFilename)
   portsFilename <- tempfile("rscala-ports-")
   args <- c(command.line.options,"-classpath",rscalaJAR,"org.ddahl.rscala2.server.Server",rscalaClasspath,port,portsFilename,sessionFilename,debug,serialize.output,FALSE)
-  system2(rscalaCore::scalaExec(),args,wait=FALSE,stdout=stdout,stderr=stderr)
+  system2(scalaExec(FALSE),args,wait=FALSE,stdout=stdout,stderr=stderr)
   details <- new.env(parent=emptyenv())
   assign("sessionFilename",sessionFilename,envir=details)
   assign("closed",FALSE,envir=details)

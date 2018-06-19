@@ -29,7 +29,7 @@ close(s)
 scala()
 s %@% '
   import scala.util.{Random => R}
-  val b = 34asd
+  val b = 34
 '
 
 
