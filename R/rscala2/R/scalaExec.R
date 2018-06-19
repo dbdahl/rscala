@@ -9,7 +9,7 @@
 #' scalaExec()
 #' }
 scalaExec <- function(verbose=TRUE) {
-  candidate <- addBat(file.path(Sys.getenv("SCALA_HOME"),"bin","scala"))
+  candidate <- polish(file.path(Sys.getenv("SCALA_HOME"),"bin","scala"))
   if ( file.exists(candidate) ) {
     if ( verbose ) cat("SCALA_HOME environment method succeeded.\n")
     return(candidate)
@@ -19,7 +19,7 @@ scalaExec <- function(verbose=TRUE) {
     if ( verbose ) cat("Shell PATH method succeeded.\n")
     return(unname(candidate))
   } else if ( verbose ) cat("Shell PATH method failed.\n")
-  candidate <- addBat(file.path(installPath(),"bin","scala"))
+  candidate <- polish(file.path(installPath(),"bin","scala"))
   if ( file.exists(candidate) ) {
     if ( verbose ) cat("~/.rscala directory method succeeded.\n")
     return(candidate)
@@ -38,4 +38,4 @@ scalaExec <- function(verbose=TRUE) {
   }
 }
 
-addBat <- function(cmd) if ( .Platform$OS.type == "windows" ) paste0(cmd,".bat") else cmd
+polish <- function(cmd) normalizePath(if ( .Platform$OS.type == "windows" ) paste0(cmd,".bat") else cmd, mustWork=FALSE)

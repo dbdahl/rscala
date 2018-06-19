@@ -11,8 +11,8 @@ CANONICAL_SCALA_MAJOR_VERSION <- "2.12"
 #' }
 scalaInstall <- function() {
   installPath <- installPath()
-  unlink(installPath,recursive=TRUE,force=TRUE)
-  dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
+  result <- unlink(installPath,recursive=TRUE,force=TRUE)
+  if ( result != 0 ) stop(paste0("Please delete the following directory and retry the installation: ",installPath))
   url <- sprintf("https://downloads.lightbend.com/scala/%s/scala-%s.tgz",CANONICAL_SCALA_VERSION,CANONICAL_SCALA_VERSION)
   tgzFile <- tempfile("rscala-tgz-")
   result <- download.file(url,tgzFile)
