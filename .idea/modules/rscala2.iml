@@ -17,5 +17,7 @@
     <orderEntry type="library" name="sbt: org.scala-lang:scalap:2.12.6:jar" level="project" />
     <orderEntry type="library" name="sbt: org.scala-lang:scala-reflect:2.12.6:jar" level="project" />
     <orderEntry type="library" name="sbt: org.scala-lang:scala-compiler:2.12.6:jar" level="project" />
+    <orderEntry type="library" name="R User Library" level="project" />
+    <orderEntry type="library" name="R Skeletons" level="application" />
   </component>
 </module>

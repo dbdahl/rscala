@@ -80,6 +80,7 @@ scala <- function(packages=character(),
   details <- new.env(parent=emptyenv())
   assign("sessionFilename",sessionFilename,envir=details)
   assign("closed",FALSE,envir=details)
+  assign("connected",FALSE,envir=details) 
   assign("interrupted",FALSE,envir=details)
   assign("last",NULL,envir=details)
   assign("garbage",integer(),envir=details)
@@ -102,7 +103,7 @@ scala <- function(packages=character(),
   }
   attr(bridge,"details") <- details
   class(bridge) <- "rscalaBridge"    
-  reg.finalizer(details,stopProcess,onexit=TRUE)
+  reg.finalizer(details,close.rscalaBridge,onexit=TRUE)
   if ( ! is.null(assign.name) && ( assign.name != "" ) ) {
     if ( interactive() ) {
       delayedAssign(assign.name,{
@@ -140,6 +141,7 @@ newSockets <- function(portsFilename, details) {
   socketOut <- socketConnection(host="localhost", port=ports[2], server=FALSE, blocking=TRUE, open="ab", timeout=2678400L)
   assign("socketIn",socketIn,envir=details)
   assign("socketOut",socketOut,envir=details) 
+  assign("connected",TRUE,envir=details) 
 }
 
 jarsOfPackage <- function(pkgname, major.release) {
@@ -185,25 +187,4 @@ mkCommandLineOptions <- function(command.line.options, heap.maximum) {
       }
     }
   } else command.line.options
-}
-
-stopProcess <- function(env) {
-  # The 'close' function should be used to shutdown the interpreter. But this is
-  # a backup method for unusual circumstances. Scala itself will recognize that
-  # it needs to quit when the session file is deleted. Most platforms are okay
-  # will Scala sticking around for a few seconds after R exits. But, on Windows,
-  # package checks seem to require that the Scala process be finished before R
-  # exits.
-  sessionFilename <- env[['sessionFilename']]
-  if ( file.exists(sessionFilename) ) {
-    unlink(sessionFilename)
-    pause <- 6
-    diff <- 0
-  } else {
-    pause <- 3
-    diff <- proc.time()['elapsed'] - get("killStamp",envir=env)
-  }
-  if ( identical(.Platform$OS.type,"windows") && ( ! interactive() ) && ( diff < pause ) ) {
-    Sys.sleep(pause-diff)
-  }
 }

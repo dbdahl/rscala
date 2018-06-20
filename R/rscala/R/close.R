@@ -7,17 +7,20 @@
 #' @export
 #'
 close.rscalaBridge <- function(con, ...) {
-  details <- attr(con,"details")
+  details <- if ( inherits(con,"rscalaBridge") ) attr(con,"details") else con
   if ( details[["closed"]] ) return(invisible())
-  scalaLastEngine(details)
-  if ( details[["interrupted"]] ) return(invisible())
-  socketOut <- details[["socketOut"]]
-  wb(socketOut,PCODE_EXIT)
-  close(details[["buffer"]])
-  close(details[["socketIn"]])
-  close(details[["socketOut"]])
-  unlink(details[['sessionFilename']])
   assign("closed",TRUE,envir=details)
-  assign("killStamp",proc.time()['elapsed'],envir=details)
+  close(details[["buffer"]])
+  if ( details[["connected"]] ) {
+    close(details[["socketIn"]])
+    close(details[["socketOut"]])
+  }
+  sessionFilename <- details[['sessionFilename']]
+  if ( file.exists(sessionFilename) ) {
+    unlink(sessionFilename)
+    if ( identical(.Platform$OS.type,"windows") && ! interactive() ) {
+      Sys.sleep(6)
+    }
+  }
   invisible()
 }
