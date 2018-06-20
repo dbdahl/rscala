@@ -22,23 +22,22 @@ object Server extends App {
 
   object killer extends Thread {
     import collection.JavaConverters._
-    import java.nio.file.{FileSystems, Path, Paths, StandardWatchEventKinds, NoSuchFileException}
+    import java.util.concurrent.TimeUnit
+    import java.nio.file.{FileSystems, Files, Path, Paths, StandardWatchEventKinds, NoSuchFileException}
     override def run(): Unit = {
       val watchService = FileSystems.getDefault().newWatchService()
-      val sessionFileFullPath = Paths.get(sessionFilename)
-      val sessionFile = sessionFileFullPath.getFileName
+      val sessionFile = Paths.get(sessionFilename)
+      if ( ! Files.exists(sessionFile) ) sys.exit(0)    // Session file has already been deleted.
       try {
-        sessionFileFullPath.getParent.register(watchService, StandardWatchEventKinds.ENTRY_DELETE)
+        sessionFile.getParent.register(watchService, StandardWatchEventKinds.ENTRY_DELETE)
       } catch {
         case e: NoSuchFileException => sys.exit(0)      // R already exited!
       }
       while (true) {
-        val watchKey = watchService.take()
-        for ( event <- watchKey.pollEvents().asScala ) {
-          val path = event.context.asInstanceOf[Path]
-          if ( path.equals(sessionFile) ) sys.exit(0)
-        }
-        watchKey.reset()
+        // Check for file existence every 10 seconds or whenever R's temp directory changes.
+        val watchKey = watchService.poll(10, TimeUnit.SECONDS)
+        if ( watchKey != null ) watchKey.reset()
+        if ( ! Files.exists(sessionFile) ) sys.exit(0)
       }
     }
   }
@@ -94,10 +93,20 @@ object Server extends App {
     val serverOut = new ServerSocket(portS2R)
     val serverIn = new ServerSocket(portR2S)
     locally {
-      val portsFile = new File(portsFilename)
-      val p = new PrintWriter(portsFile)
-      p.println(serverOut.getLocalPort+" "+serverIn.getLocalPort)
-      p.close()
+      try {
+        val portsFile = new File(portsFilename)
+        val p = new PrintWriter(portsFile)
+        p.println(serverOut.getLocalPort + " " + serverIn.getLocalPort)
+        p.close()
+      } catch {
+        case e: Throwable =>     // R has already exited?
+          if ( debugger.on ) {
+            println(e)
+            e.printStackTrace()
+            debugger("fatal error at loop main.")
+          }
+          sys.exit(0)
+      }
     }
     if (debugger.on) debugger("socket S2R waiting for client on port: " + serverOut.getLocalPort)
     val sOut = serverOut.accept()

@@ -15,12 +15,9 @@ close.rscalaBridge <- function(con, ...) {
     close(details[["socketIn"]])
     close(details[["socketOut"]])
   }
-  sessionFilename <- details[['sessionFilename']]
-  if ( file.exists(sessionFilename) ) {
-    unlink(sessionFilename)
-    if ( identical(.Platform$OS.type,"windows") && ! interactive() ) {
-      Sys.sleep(6)
-    }
-  }
+  unlink(details[["sessionFilename"]])
+  # if ( identical(.Platform$OS.type,"windows") && ! interactive() ) {
+  #   Sys.sleep(12)
+  # }
   invisible()
 }
