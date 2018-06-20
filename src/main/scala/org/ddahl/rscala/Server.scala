@@ -5,7 +5,7 @@ import java.io.{BufferedOutputStream, ByteArrayOutputStream, DataInputStream, Da
 import java.net.ServerSocket
 import java.nio.ByteBuffer
 import scala.tools.nsc.interpreter.{ILoop, IMain}
-import scala.tools.nsc.interpreter.IR.Success
+import scala.tools.nsc.interpreter.IR.{Result, Success}
 import scala.tools.nsc.Settings
 import scala.annotation.tailrec
 import scala.collection.mutable.HashMap
@@ -20,7 +20,7 @@ object Server extends App {
   val serializeOutput = ( args(5) == "TRUE" )
   val buffer = ( args(6) == "TRUE" )
 
-  object killer extends Thread {
+  private object killer extends Thread {
     import collection.JavaConverters._
     import java.util.concurrent.TimeUnit
     import java.nio.file.{FileSystems, Files, Path, Paths, StandardWatchEventKinds, NoSuchFileException}
@@ -60,21 +60,20 @@ object Server extends App {
   unary.setAccessible(true)
 
   // Set up sinks
-  val (debugger, prntWrtr, baosOut, baosErr) = serializeOutput match {
+  private val (debugger, prntWrtr, baosOut) = serializeOutput match {
     case true =>
       val out = new ByteArrayOutputStream()
-      val err = new ByteArrayOutputStream()
-      val pw = new PrintWriter(out)
+      val pw = new PrintWriter(out, false)
       val d = new Debugger(debug, pw, "Scala", false)
-      (d, pw, out, err)
+      (d, pw, out)
     case false =>
       val pw = new PrintWriter(System.out, true)
       val d = new Debugger(debug, pw, "Scala", false)
-      (d, pw, null, null)
+      (d, pw, null)
   }
 
   // Instantiate an interpreter
-  val intp = new IMain(settings, prntWrtr)
+  private val intp = new IMain(settings, prntWrtr)
   // Don't be chatty
   locally {
     val iloop = new ILoop()
@@ -101,8 +100,8 @@ object Server extends App {
       } catch {
         case e: Throwable =>     // R has already exited?
           if ( debugger.on ) {
-            println(e)
-            e.printStackTrace()
+            prntWrtr.println(e)
+            e.printStackTrace(prntWrtr)
             debugger("fatal error at loop main.")
           }
           sys.exit(0)
@@ -120,7 +119,7 @@ object Server extends App {
 
   loop()
 
-  def exit(): Unit = {
+  private def exit(): Unit = {
     if ( debugger.on ) debugger("exit")
     out.close()
     in.close()
@@ -139,7 +138,17 @@ object Server extends App {
     out.write(bytes)
   }
 
-  def push(): Unit = {
+  private def wrap[A](expression: => A): A = {
+    if ( serializeOutput ) {
+      scala.Console.withOut(baosOut) {
+        scala.Console.withErr(baosOut) {
+          expression
+        }
+      }
+    } else expression
+  }
+
+  private def push(): Unit = {
     if ( debugger.on ) debugger("push")
     val tipe = in.readByte()
     val value = tipe match {
@@ -218,9 +227,14 @@ object Server extends App {
     embeddedStack.pushValue(Datum(value,tipe,None))
   }
 
-  def report(datum: Datum): Unit = {
+  private def report(datum: Datum): Unit = {
     if ( debugger.on ) debugger("report")
     embeddedStack.reset()
+    if ( serializeOutput ) {
+      prntWrtr.flush()
+      writeString(baosOut.toString)
+      baosOut.reset()
+    }
     val tipe = datum.tipe
     out.writeByte(tipe)
     tipe match {
@@ -319,7 +333,7 @@ object Server extends App {
     out.flush()
   }
 
-  def invoke(withNames: Boolean, withReference: Boolean, showCode: Boolean): Unit = {
+  private def invoke(withNames: Boolean, withReference: Boolean, showCode: Boolean): Unit = {
     if ( debugger.on ) debugger("invoke with" + (if (withNames) "" else "out") +" names")
     if ( withNames ) List.fill(embeddedStack.size)(readString()).foreach(embeddedStack.pushName)
     val snippet = readString()
@@ -349,9 +363,9 @@ object Server extends App {
     if ( ! withNames ) sb.append(embeddedStack.argsList(withReference))
     sb.append("\n}")
     val body = sb.toString
-    if ( showCode ) println(body)
+    if ( showCode ) prntWrtr.println(body)
     val (jvmFunction, resultType) = functionMap.getOrElse(body, {
-      val result = intp.interpret(body)
+      val result = wrap(intp.interpret(body))
       if ( result != Success ) {
         if ( debugger.on ) debugger("error in defining function.")
         report(Datum(body,TCODE_ERROR_DEF,None))
@@ -371,11 +385,11 @@ object Server extends App {
       tuple
     })
     val result = try {
-      unary.invoke(jvmFunction)
+      wrap(unary.invoke(jvmFunction))
     } catch {
       case e: Throwable =>
-        println(e)
-        e.printStackTrace()
+        prntWrtr.println(e)
+        if ( e.getCause != null ) e.getCause.printStackTrace(prntWrtr) else e.printStackTrace(prntWrtr)
         if ( debugger.on ) debugger("error in executing function.")
         report(Datum(e,TCODE_ERROR_INVOKE,None))
         return
@@ -402,11 +416,11 @@ object Server extends App {
     }
   }
 
-  def evaluate(): Unit = {
+  private def evaluate(): Unit = {
     if ( debugger.on ) debugger("evaluate")
     val body = readString()
     try {
-      val result = intp.interpret(body)
+      val result = wrap(intp.interpret(body))
       if ( result != Success ) {
         if ( debugger.on ) debugger("error in defining evaluation.")
         report(Datum(body,TCODE_ERROR_DEF,None))
@@ -414,8 +428,8 @@ object Server extends App {
       }
     } catch {
       case e: Throwable =>
-        println(e)
-        e.printStackTrace()
+        prntWrtr.println(e)
+        if ( e.getCause != null ) e.getCause.printStackTrace(prntWrtr) else e.printStackTrace(prntWrtr)
         if ( debugger.on ) debugger("error in executing evaluation.")
         report(Datum(e,TCODE_ERROR_INVOKE,None))
         return
@@ -423,7 +437,7 @@ object Server extends App {
     report(Datum((),TCODE_UNIT,None))
   }
 
-  def addToClasspath(): Unit = {
+  private def addToClasspath(): Unit = {
     if ( debugger.on ) debugger("add to classpath")
     val body = readString()
     try {
@@ -431,8 +445,8 @@ object Server extends App {
       intp.addUrlsToClassPath(path)
     } catch {
       case e: Throwable =>
-        println(e)
-        e.printStackTrace()
+        prntWrtr.println(e)
+        e.printStackTrace(prntWrtr)
         if ( debugger.on ) debugger("error in adding to classpath.")
         report(Datum(e,TCODE_ERROR_INVOKE,None))
         return
@@ -440,7 +454,7 @@ object Server extends App {
     report(Datum((),TCODE_UNIT,None))
   }
 
-  def gc(): Unit = {
+  private def gc(): Unit = {
     if ( debugger.on ) debugger("garbage collect")
     (0 until in.readInt()).foreach { i =>
       val key = in.readInt()
@@ -449,15 +463,15 @@ object Server extends App {
   }
 
   @tailrec
-  def loop(): Unit = {
+  private def loop(): Unit = {
     if ( debugger.on ) debugger("main")
     val request = try {
       in.readByte()
     } catch {
       case e: Throwable =>
         if ( debugger.on ) {
-          println(e)
-          e.printStackTrace()
+          prntWrtr.println(e)
+          e.printStackTrace(prntWrtr)
           debugger("fatal error at loop main.")
         }
         return

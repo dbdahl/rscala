@@ -1,7 +1,7 @@
-#' Add a JAR File to the Classpath
+#' Add JAR Files to the Classpath
 #'
 #' @param bridge An rscala bridge from the \code{scala} function.
-#' @param JAR A character vector of length one giving the path to a JAR file.
+#' @param JAR Paths to JAR files, as a character vector.
 #'
 #' @return Returns \code{NULL}, invisibly.
 #' 
@@ -12,12 +12,19 @@
 #' scalaAddJAR(s, "PATH/TO/jarToLoad.jar")
 #' }
 #' }
-scalaAddJAR <- function(bridge, JAR) {
+scalaAddJARs <- function(bridge, JARs) {
+  if ( ! inherits(bridge,"rscalaBridge") ) stop("'bridge' should be a Scala bridge.")
+  if ( ! is.character(JARs) ) stop("'JARs' should be a character vector.")
+  JARs <- path.expand(JARs)
   details <- attr(bridge,"details")
-  scalaLastEngine(details)
-  if ( details[["interrupted"]] ) return(invisible())
   socketOut <- details[["socketOut"]]
-  wb(socketOut,PCODE_ADD_TO_CLASSPATH)
-  wc(socketOut,as.character(JAR))
-  invisible(pop(details))
+  for ( JAR in JARs ) {
+    if ( ! file.exists(JAR) ) stop(paste0("File ",JAR," does not exist."))
+    scalaLastEngine(details)
+    if ( details[["interrupted"]] ) return(invisible())
+    wb(socketOut,PCODE_ADD_TO_CLASSPATH)
+    wc(socketOut,JAR)
+    tryCatch(pop(details), error=function(e) stop(paste0("Failed to add ",JAR," to classpath.")))
+    invisible() 
+  }
 }

@@ -82,6 +82,7 @@ scala <- function(packages=character(),
   assign("closed",FALSE,envir=details)
   assign("connected",FALSE,envir=details) 
   assign("interrupted",FALSE,envir=details)
+  assign("serializeOutput",serialize.output,envir=details)
   assign("last",NULL,envir=details)
   assign("garbage",integer(),envir=details)
   assign("buffer",rawConnection(raw(),open="wb"),envir=details)
