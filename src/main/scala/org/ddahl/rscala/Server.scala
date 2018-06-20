@@ -333,7 +333,7 @@ object Server extends App {
     out.flush()
   }
 
-  private def invoke(withNames: Boolean, withReference: Boolean, showCode: Boolean): Unit = {
+  private def invoke(withNames: Boolean, withReference: Boolean): Unit = {
     if ( debugger.on ) debugger("invoke with" + (if (withNames) "" else "out") +" names")
     if ( withNames ) List.fill(embeddedStack.size)(readString()).foreach(embeddedStack.pushName)
     val snippet = readString()
@@ -363,7 +363,10 @@ object Server extends App {
     if ( ! withNames ) sb.append(embeddedStack.argsList(withReference))
     sb.append("\n}")
     val body = sb.toString
-    if ( showCode ) prntWrtr.println(body)
+    if ( debugger.on ) {
+      prntWrtr.println("Generated code:")
+      prntWrtr.println(body)
+    }
     val (jvmFunction, resultType) = functionMap.getOrElse(body, {
       val result = wrap(intp.interpret(body))
       if ( result != Success ) {
@@ -479,9 +482,9 @@ object Server extends App {
     request match {
       case PCODE_EXIT => exit(); return
       case PCODE_PUSH => push()
-      case PCODE_INVOKE_WITH_NAMES => invoke(true, false, debugger.on)
-      case PCODE_INVOKE_WITHOUT_NAMES => invoke(false, false, debugger.on)
-      case PCODE_INVOKE_WITH_REFERENCE => invoke(false, true, debugger.on)
+      case PCODE_INVOKE_WITH_NAMES => invoke(true, false)
+      case PCODE_INVOKE_WITHOUT_NAMES => invoke(false, false)
+      case PCODE_INVOKE_WITH_REFERENCE => invoke(false, true)
       case PCODE_EVALUATE => evaluate()
       case PCODE_ADD_TO_CLASSPATH => addToClasspath()
       case PCODE_GARBAGE_COLLECT => gc()
