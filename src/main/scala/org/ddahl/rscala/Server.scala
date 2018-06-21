@@ -36,7 +36,10 @@ object Server extends App {
       while (true) {
         // Check for file existence every 10 seconds or whenever R's temp directory changes.
         val watchKey = watchService.poll(10, TimeUnit.SECONDS)
-        if ( watchKey != null ) watchKey.reset()
+        if ( watchKey != null ) {
+          watchKey.pollEvents()
+          watchKey.reset()
+        }
         if ( ! Files.exists(sessionFile) ) sys.exit(0)
       }
     }
@@ -148,13 +151,15 @@ object Server extends App {
     } else expression
   }
 
-  private def push(): Unit = {
-    if ( debugger.on ) debugger("push")
+  private def push(withName: Boolean): Unit = {
+    if ( debugger.on ) debugger("push with" + (if (withName) "" else "out") +" name")
     val tipe = in.readByte()
     val value = tipe match {
       case TCODE_REFERENCE =>
         val (value,typeString) = referenceMap(in.readInt())
-        embeddedStack.pushValue(Datum(value,tipe,Some(typeString)))
+        val nameOption = if ( withName ) Some(readString()) else None
+        if ( debugger.on && withName ) debugger("name is "+nameOption.get)
+        embeddedStack.push(Datum(value,tipe,Some(typeString)),nameOption)
         return
       case TCODE_INT_0 =>
         in.readInt()
@@ -224,12 +229,18 @@ object Server extends App {
       case _ =>
         throw new IllegalStateException("Unsupported type.")
     }
-    embeddedStack.pushValue(Datum(value,tipe,None))
+    val nameOption = if ( withName ) Some(readString()) else None
+    if ( debugger.on && withName ) debugger("name is "+nameOption.get)
+    embeddedStack.push(Datum(value,tipe,None),nameOption)
+  }
+
+  private def clear(): Unit = {
+    if ( debugger.on ) debugger("clear")
+    embeddedStack.reset(in.readInt())
   }
 
   private def report(datum: Datum): Unit = {
     if ( debugger.on ) debugger("report")
-    embeddedStack.reset()
     if ( serializeOutput ) {
       prntWrtr.flush()
       writeString(baosOut.toString)
@@ -333,16 +344,17 @@ object Server extends App {
     out.flush()
   }
 
-  private def invoke(withNames: Boolean, withReference: Boolean): Unit = {
-    if ( debugger.on ) debugger("invoke with" + (if (withNames) "" else "out") +" names")
-    if ( withNames ) List.fill(embeddedStack.size)(readString()).foreach(embeddedStack.pushName)
+  private def invoke(withReference: Boolean, freeForm: Boolean): Unit = {
+    if ( debugger.on ) debugger("invoke with" + (if (withReference) "" else "out") +" reference")
+    val nArgs = in.readInt()
     val snippet = readString()
+    val header = embeddedStack.mkHeader(nArgs)
     val sb = new java.lang.StringBuilder()
     sb.append("() => {\n")
-    sb.append(embeddedStack)
+    sb.append(header)
     if ( withReference ) {
       sb.append("x")
-      sb.append(embeddedStack.size)
+      sb.append(nArgs)
       sb.append(".")
     }
     val forceReference = if ( snippet.startsWith(".") ) {
@@ -360,7 +372,7 @@ object Server extends App {
       sb.append(snippet)
       false
     }
-    if ( ! withNames ) sb.append(embeddedStack.argsList(withReference))
+    if ( ! freeForm ) sb.append(embeddedStack.argsList(nArgs, withReference))
     sb.append("\n}")
     val body = sb.toString
     if ( debugger.on ) {
@@ -371,6 +383,7 @@ object Server extends App {
       val result = wrap(intp.interpret(body))
       if ( result != Success ) {
         if ( debugger.on ) debugger("error in defining function.")
+        embeddedStack.reset(nArgs)
         report(Datum(body,TCODE_ERROR_DEF,None))
         return
       }
@@ -381,10 +394,9 @@ object Server extends App {
         if ( r.startsWith("iw$") ) r.substring(3)
         else r
       }
-      if ( debugger.on ) debugger("result type: "+resultType)
+      if ( debugger.on ) debugger("function definition is okay, result type: "+resultType)
       val tuple = (jvmFunction, resultType)
       functionMap(body) = tuple
-      if ( debugger.on ) debugger("function definition is okay.")
       tuple
     })
     val result = try {
@@ -481,10 +493,12 @@ object Server extends App {
     }
     request match {
       case PCODE_EXIT => exit(); return
-      case PCODE_PUSH => push()
-      case PCODE_INVOKE_WITH_NAMES => invoke(true, false)
-      case PCODE_INVOKE_WITHOUT_NAMES => invoke(false, false)
-      case PCODE_INVOKE_WITH_REFERENCE => invoke(false, true)
+      case PCODE_PUSH_WITH_NAME => push(true)
+      case PCODE_PUSH_WITHOUT_NAME => push(false)
+      case PCODE_CLEAR => clear()
+      case PCODE_INVOKE => invoke(false, false)
+      case PCODE_INVOKE_WITH_REFERENCE => invoke(true,false)
+      case PCODE_INVOKE_FREEFORM => invoke(false,true)
       case PCODE_EVALUATE => evaluate()
       case PCODE_ADD_TO_CLASSPATH => addToClasspath()
       case PCODE_GARBAGE_COLLECT => gc()
