@@ -96,7 +96,7 @@ scala <- function(packages=character(),
     bridge2 <- list(...)
     argnames <- names(bridge2)
     if ( ( length(bridge2) > 0 )  && ( is.null(argnames) || ! all(grepl("^\\w+$",argnames,perl=TRUE)) ) ) {
-      stop("argument names must be given and consist only alphanumeric & underscore characters.")
+      stop("Names must be given in parameter list and they consist only of alphanumeric & underscore characters.")
     }
     attr(bridge2,"details") <- details
     class(bridge2) <- "rscalaBridge"

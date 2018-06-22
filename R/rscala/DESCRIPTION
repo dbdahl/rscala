@@ -1,7 +1,7 @@
 Package: rscala
 Type: Package
 Title: Bi-Directional Interface Between 'R' and 'Scala' with Callbacks
-Version: 3.0.0-20180621-1633
+Version: 3.0.0-20180621-2235
 Date: 2018-06-21
 Authors@R: person(given="David B.",family="Dahl",role=c("aut","cre"),email="dahl@stat.byu.edu")
 URL: https://github.com/dbdahl/rscala

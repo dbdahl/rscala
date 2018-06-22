@@ -7,7 +7,8 @@ print.rscalaBridge <- function(x, ...) {
 #' @export
 #
 toString.rscalaBridge <- function(x, ...) {
-  "rscalaBridge"
+  if ( is.function(x) ) "rscala bridge"
+  else "rscala bridge with a parameter list"
 }
 
 #' @export
@@ -19,5 +20,17 @@ print.rscalaReference <- function(x, ...) {
 #' @export
 #
 toString.rscalaReference <- function(x, ...) {
-  paste0("Scala reference of type ",x[["type"]])
+  paste0("rscala reference of type ",x[["type"]])
+}
+
+#' @export
+#' 
+print.rscalaFunction <- function(x, ...) {
+  cat(toString(x, ...),"\n",sep="")
+}
+
+#' @export
+#
+toString.rscalaFunction <- function(x, ...) {
+  "rscala function"
 }

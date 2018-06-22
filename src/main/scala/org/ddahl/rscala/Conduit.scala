@@ -4,7 +4,7 @@ import Protocol._
 
 import scala.collection.mutable.HashMap
 
-class EmbeddedStack(referenceMap: HashMap[Int, (Any,String)]) {
+class Conduit(referenceMap: HashMap[Int, (Any,String)], debugger: Debugger) {
 
   private val maxNArgs: Int = 50
   private val argsNames = Array.range(1,maxNArgs+1).map("x"+_)
@@ -36,7 +36,7 @@ class EmbeddedStack(referenceMap: HashMap[Int, (Any,String)]) {
     stack.take(nArgs).zipWithIndex.foreach { x =>
       sb.append("val ")
       sb.append(x._1._2.getOrElse(argsNames(x._2)))
-      sb.append(" = ES.pop[")
+      sb.append(" = conduit.pop[")
       val tipe = x._1._1.tipe
       val tipeString = tipe match {
         case TCODE_REFERENCE =>
@@ -48,6 +48,14 @@ class EmbeddedStack(referenceMap: HashMap[Int, (Any,String)]) {
       sb.append("]()\n")
     }
     sb.toString
+  }
+
+  var showCode = false
+
+  def debug: Boolean = debugger.on
+
+  def debug_=(value: Boolean) = {
+    debugger.on = value
   }
 
 }

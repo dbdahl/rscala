@@ -57,7 +57,6 @@ object Server extends App {
   settings.language.add("reflectiveCalls")
 
   private val referenceMap = new HashMap[Int, (Any,String)]()
-  private val embeddedStack = new EmbeddedStack(referenceMap)    // called ES in the REPL
   private val functionMap = new HashMap[String, (Any,String)]()
   private val unary = Class.forName("scala.Function0").getMethod("apply")
   unary.setAccessible(true)
@@ -74,6 +73,7 @@ object Server extends App {
       val d = new Debugger(debug, pw, "Scala", false)
       (d, pw, null)
   }
+  private val conduit = new Conduit(referenceMap, debugger)    // called conduit in the REPL
 
   // Instantiate an interpreter
   private val intp = new IMain(settings, prntWrtr)
@@ -83,7 +83,7 @@ object Server extends App {
     iloop.intp = intp
     iloop.verbosity()
   }
-  intp.bind("ES",embeddedStack)
+  intp.bind("conduit",conduit)
 
   private val zero = 0.toByte
   private val one = 1.toByte
@@ -159,7 +159,7 @@ object Server extends App {
         val (value,typeString) = referenceMap(in.readInt())
         val nameOption = if ( withName ) Some(readString()) else None
         if ( debugger.on && withName ) debugger("name is "+nameOption.get)
-        embeddedStack.push(Datum(value,tipe,Some(typeString)),nameOption)
+        conduit.push(Datum(value,tipe,Some(typeString)),nameOption)
         return
       case TCODE_INT_0 =>
         in.readInt()
@@ -231,12 +231,12 @@ object Server extends App {
     }
     val nameOption = if ( withName ) Some(readString()) else None
     if ( debugger.on && withName ) debugger("name is "+nameOption.get)
-    embeddedStack.push(Datum(value,tipe,None),nameOption)
+    conduit.push(Datum(value,tipe,None),nameOption)
   }
 
   private def clear(): Unit = {
     if ( debugger.on ) debugger("clear")
-    embeddedStack.reset(in.readInt())
+    conduit.reset(in.readInt())
   }
 
   private def report(datum: Datum): Unit = {
@@ -348,7 +348,7 @@ object Server extends App {
     if ( debugger.on ) debugger("invoke with" + (if (withReference) "" else "out") +" reference")
     val nArgs = in.readInt()
     val snippet = readString()
-    val header = embeddedStack.mkHeader(nArgs)
+    val header = conduit.mkHeader(nArgs)
     val sb = new java.lang.StringBuilder()
     sb.append("() => {\n")
     sb.append(header)
@@ -364,6 +364,10 @@ object Server extends App {
       } else if ( snippet.startsWith(".null_") ) {
         sb.append("null: ")
         sb.append(snippet.substring(6))
+      } else if ( snippet.startsWith(".asInstanceOf_") ) {
+        sb.append("asInstanceOf[")
+        sb.append(snippet.substring(14))
+        sb.append("]")
       } else {
         sb.append(snippet.substring(1))
       }
@@ -372,10 +376,10 @@ object Server extends App {
       sb.append(snippet)
       false
     }
-    if ( ! freeForm ) sb.append(embeddedStack.argsList(nArgs, withReference))
+    if ( ! freeForm ) sb.append(conduit.argsList(nArgs, withReference))
     sb.append("\n}")
     val body = sb.toString
-    if ( debugger.on ) {
+    if ( conduit.showCode || debugger.on ) {
       prntWrtr.println("Generated code:")
       prntWrtr.println(body)
     }
@@ -383,7 +387,7 @@ object Server extends App {
       val result = wrap(intp.interpret(body))
       if ( result != Success ) {
         if ( debugger.on ) debugger("error in defining function.")
-        embeddedStack.reset(nArgs)
+        conduit.reset(nArgs)
         report(Datum(body,TCODE_ERROR_DEF,None))
         return
       }
@@ -479,7 +483,7 @@ object Server extends App {
 
   @tailrec
   private def loop(): Unit = {
-    if ( debugger.on ) debugger("main, stack size = " + embeddedStack.size)
+    if ( debugger.on ) debugger("main, stack size = " + conduit.size)
     val request = try {
       in.readByte()
     } catch {
