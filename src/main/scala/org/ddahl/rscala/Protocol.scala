@@ -39,6 +39,7 @@ object Protocol {
   val TCODE_ERROR_DEF      = 80.toByte
   val TCODE_ERROR_INVOKE   = 81.toByte
   val TCODE_INTERRUPTED    = 82.toByte
+  val TCODE_CALLBACK       = 90.toByte
 
   // sizes
 

@@ -18,8 +18,10 @@ class Server(intp: IMain, out: DataOutputStream, in: DataInputStream, val debugg
   private val unary = Class.forName("scala.Function0").getMethod("apply")
   unary.setAccessible(true)
 
-  private val conduit = new Conduit(referenceMap, debugger)
+  val conduit = new Conduit(referenceMap, debugger)
   intp.bind("conduit",conduit)
+  private val rClient = new RClient(this)
+  intp.bind("R",rClient)
 
   private def exit(): Unit = {
     if ( debugger.on ) debugger("exit.")
@@ -50,7 +52,7 @@ class Server(intp: IMain, out: DataOutputStream, in: DataInputStream, val debugg
     } else expression
   }
 
-  private def push(withName: Boolean): Unit = {
+  private[rscala] def push(withName: Boolean): Unit = {
     if ( debugger.on ) debugger("push with" + (if (withName) "" else "out") +" name.")
     val tipe = in.readByte()
     val value = tipe match {
@@ -138,7 +140,7 @@ class Server(intp: IMain, out: DataOutputStream, in: DataInputStream, val debugg
     conduit.reset(in.readInt())
   }
 
-  private def report(datum: Datum): Unit = {
+  private[rscala] def report(datum: Datum): Unit = {
     if ( debugger.on ) debugger("report.")
     if ( serializeOutput ) {
       prntWrtr.flush()
@@ -230,13 +232,16 @@ class Server(intp: IMain, out: DataOutputStream, in: DataInputStream, val debugg
           }
           candidate
         }
-        val tipeString = datum.tipeString.get
+        val tipeString = datum.msg.get
         referenceMap(key) = (datum.value, tipeString)
         out.writeInt(key)
         writeString(tipeString)
       case TCODE_ERROR_DEF =>
         writeString(datum.value.asInstanceOf[String])
       case TCODE_ERROR_INVOKE =>
+      case TCODE_CALLBACK =>
+        writeString(datum.msg.get)
+        out.writeInt(datum.value.asInstanceOf[Int])
       case e =>
         throw new IllegalStateException("Unsupported type: "+e)
     }
@@ -381,7 +386,7 @@ class Server(intp: IMain, out: DataOutputStream, in: DataInputStream, val debugg
   }
 
   @tailrec
-  final def run(): Unit = {
+  final def run(oneOff: Boolean): Unit = {
     if ( debugger.on ) debugger("main, stack size = " + conduit.size + ".")
     val request = try {
       in.readByte()
@@ -408,7 +413,7 @@ class Server(intp: IMain, out: DataOutputStream, in: DataInputStream, val debugg
       case _ =>
         throw new IllegalStateException("Unsupported command: "+request)
     }
-    run()
+    if ( ! oneOff ) run(false)
   }
 
 }

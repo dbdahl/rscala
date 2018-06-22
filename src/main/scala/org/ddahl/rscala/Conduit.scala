@@ -40,7 +40,7 @@ class Conduit(referenceMap: HashMap[Int, (Any,String)], debugger: Debugger) {
       val tipe = x._1._1.tipe
       val tipeString = tipe match {
         case TCODE_REFERENCE =>
-          x._1._1.tipeString.get
+          x._1._1.msg.get
         case _ =>
           Protocol.typeMapper(tipe)
       }

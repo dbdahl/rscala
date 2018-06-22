@@ -85,6 +85,7 @@ scala <- function(packages=character(),
   assign("debug",debug,envir=details)
   assign("serializeOutput",serialize.output,envir=details)
   assign("last",NULL,envir=details)
+  assign("callbackEnv",new.env(parent=.GlobalEnv),envir=details)
   assign("garbage",integer(),envir=details)
   gcFunction <- function(e) {
     garbage <- details[["garbage"]]

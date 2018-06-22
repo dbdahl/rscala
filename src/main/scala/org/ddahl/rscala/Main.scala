@@ -119,7 +119,7 @@ object Main extends App {
   // Start main loop
   if ( debugger.on ) debugger("entering main loop.")
   val server = new Server(intp, out, in, debugger, serializeOutput, prntWrtr, baos)
-  server.run()
+  server.run(false)
 
 }
 

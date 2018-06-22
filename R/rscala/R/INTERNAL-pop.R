@@ -59,7 +59,33 @@ pop <- function(details) {
     cat("<< computation interrupted >>\n")
     assign("interrupted",TRUE,envir=details)
     return(invisible())
+  } else if ( tipe == TCODE_CALLBACK ) {
+    callback(details)
   } else stop(paste0("Unsupported type: ",tipe))
   assign("last",result,envir=details)
   if ( is.null(result) ) invisible() else result
+}
+
+callback <- function(details) {
+  socketIn <- details[["socketIn"]]
+  snippet <- rc(socketIn)
+  nArgs <- rb(socketIn,RTYPE_INT)
+  cat("### Got CALLBACK request\n")
+  cat("template = ",snippet,"\n",sep="")
+  cat("nArgs = ",nArgs,"\n",sep="")
+  env <- details[["callbackEnv"]]
+  args <- vector(mode="list", length=nArgs)
+  while ( TRUE ) {
+    argsListName <- paste0(".rs",sample.int(.Machine$integer.max,1L))
+    if ( ! exists(argsListName,envir=env) ) break
+  }
+  for ( i in seq_len(nArgs) ) {
+    snippet <- sub("%-",paste0(argsListName,"[[",i,"]]"),snippet)
+    args[[i]] <- pop(details)
+  }
+  assign(argsListName,args,envir=env)  
+  result <- eval(parse(text=snippet),envir=env)
+  rm(list=argsListName,envir=env)
+  push(result, NULL, details[["socketOut"]])
+  pop(details)
 }
