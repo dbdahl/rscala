@@ -85,8 +85,9 @@ callback <- function(details) {
     cat(toString(e))
     NULL
   })
-  socketOut <- details[["socketOut"]]
   rm(list=argsListName,envir=env)
+  socketOut <- details[["socketOut"]]
+  wb(socketOut, PCODE_REXIT)
   pushOkay <- push(result, NULL, socketOut)
   if ( ! identical(pushOkay,TRUE) ) {
     cat(attr(pushOkay,"msg"),"\n",sep="")

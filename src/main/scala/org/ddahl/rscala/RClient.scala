@@ -39,6 +39,7 @@ class RClient(server: Server) {
   private def evalEngine(template: String, values: Seq[Any]): Unit = {
     server.report(Datum(values.length, TCODE_CALLBACK, Some(template)))
     values.foreach(v => server.report(any2Datum(v)))
+    server.run()
     server.getCmd()
     server.push(false)
   }
