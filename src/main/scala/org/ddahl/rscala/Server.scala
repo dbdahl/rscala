@@ -127,6 +127,7 @@ class Server(intp: IMain, out: DataOutputStream, in: DataInputStream, val debugg
         val nRows = in.readInt()
         val nColumns = in.readInt()
         Array.fill(nRows) { Array.fill(nColumns) { readString() } }
+      case TCODE_UNIT =>
       case _ =>
         throw new IllegalStateException("Unsupported type.")
     }

@@ -92,6 +92,8 @@ push <- function(what, name, socketOut) {
       wb(socketOut,length(what))
       sapply(what, function(x) wc(socketOut,x))
     }
+  } else if ( is.null(what) ) {
+    wb(socketOut,c(pcode,TCODE_UNIT))
   } else return(structure(FALSE,msg=paste0("Unsupported type: ",class(what))))
   if ( ! is.null(name) ) wc(socketOut,name)
   TRUE

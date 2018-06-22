@@ -70,9 +70,6 @@ callback <- function(details) {
   socketIn <- details[["socketIn"]]
   snippet <- rc(socketIn)
   nArgs <- rb(socketIn,RTYPE_INT)
-  cat("### Got CALLBACK request\n")
-  cat("template = ",snippet,"\n",sep="")
-  cat("nArgs = ",nArgs,"\n",sep="")
   env <- details[["callbackEnv"]]
   args <- vector(mode="list", length=nArgs)
   while ( TRUE ) {
@@ -84,8 +81,15 @@ callback <- function(details) {
     args[[i]] <- pop(details)
   }
   assign(argsListName,args,envir=env)  
-  result <- eval(parse(text=snippet),envir=env)
+  result <- tryCatch(eval(parse(text=snippet),envir=env), error=function(e) {
+    cat(toString(e))
+    NULL
+  })
   rm(list=argsListName,envir=env)
-  push(result, NULL, details[["socketOut"]])
+  pushOkay <- push(result, NULL, details[["socketOut"]])
+  if ( ! identical(pushOkay,TRUE) ) {
+    cat(attr(pushOkay,"msg"),"\n",sep="")
+    push(NULL, NULL, details[["socketOut"]])
+  }
   pop(details)
 }

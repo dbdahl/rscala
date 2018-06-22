@@ -12,7 +12,7 @@ scalaInvoke <- function(details, snippet, args, withNames=FALSE, withReference=F
   names <- names(args)
   for ( i in seq_along(args) ) {
     result <- push(args[[i]], names[i], socketOut) 
-    if ( ! result ) {
+    if ( ! identical(result,TRUE) ) {
       if ( i > 1 ) {
         wb(socketOut,PCODE_CLEAR)
         wb(socketOut,as.integer(i-1L))
