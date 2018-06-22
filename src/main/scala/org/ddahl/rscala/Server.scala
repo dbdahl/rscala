@@ -479,7 +479,7 @@ object Server extends App {
 
   @tailrec
   private def loop(): Unit = {
-    if ( debugger.on ) debugger("main")
+    if ( debugger.on ) debugger("main, stack size = " + embeddedStack.size)
     val request = try {
       in.readByte()
     } catch {

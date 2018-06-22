@@ -61,5 +61,5 @@ pop <- function(details) {
     return(invisible())
   } else stop(paste0("Unsupported type: ",tipe))
   assign("last",result,envir=details)
-  result
+  if ( is.null(result) ) invisible() else result
 }

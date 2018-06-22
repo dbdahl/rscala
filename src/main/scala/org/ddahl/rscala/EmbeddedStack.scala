@@ -27,6 +27,8 @@ class EmbeddedStack(referenceMap: HashMap[Int, (Any,String)]) {
     stack = stack.drop(nArgs)
   }
 
+  def size: Int = stack.size
+
   private[rscala] def argsList(nArgs: Int, withReference: Boolean): String = argsLists(nArgs - ( if (withReference) 1 else 0))
 
   def mkHeader(nArgs: Int): String = {
