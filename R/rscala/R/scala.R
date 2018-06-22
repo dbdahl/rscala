@@ -75,7 +75,7 @@ scala <- function(packages=character(),
   sessionFilename <- tempfile("rscala-session-")
   writeLines(character(),sessionFilename)
   portsFilename <- tempfile("rscala-ports-")
-  args <- c(command.line.options,"-classpath",rscalaJAR,"org.ddahl.rscala.Server",rscalaClasspath,port,portsFilename,sessionFilename,debug,serialize.output,FALSE)
+  args <- c(command.line.options,"-classpath",rscalaJAR,"org.ddahl.rscala.Main",rscalaClasspath,port,portsFilename,sessionFilename,debug,serialize.output,FALSE)
   system2(scalaExec(FALSE),args,wait=FALSE,stdout=stdout,stderr=stderr)
   details <- new.env(parent=emptyenv())
   assign("sessionFilename",sessionFilename,envir=details)
