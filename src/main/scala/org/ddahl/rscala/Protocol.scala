@@ -6,16 +6,17 @@ object Protocol {
 
   // commands
 
-  val PCODE_EXIT                  = 10.toByte
-  val PCODE_PUSH_WITH_NAME        = 11.toByte
-  val PCODE_PUSH_WITHOUT_NAME     = 12.toByte
-  val PCODE_CLEAR                 = 13.toByte
-  val PCODE_INVOKE                = 14.toByte
-  val PCODE_INVOKE_WITH_REFERENCE = 15.toByte
-  val PCODE_INVOKE_FREEFORM       = 16.toByte
-  val PCODE_EVALUATE              = 17.toByte
-  val PCODE_ADD_TO_CLASSPATH      = 18.toByte
-  val PCODE_GARBAGE_COLLECT       = 19.toByte
+  val PCODE_SHUTDOWN              = 10.toByte
+  val PCODE_REXIT                 = 11.toByte
+  val PCODE_PUSH_WITH_NAME        = 12.toByte
+  val PCODE_PUSH_WITHOUT_NAME     = 13.toByte
+  val PCODE_CLEAR                 = 14.toByte
+  val PCODE_INVOKE                = 15.toByte
+  val PCODE_INVOKE_WITH_REFERENCE = 16.toByte
+  val PCODE_INVOKE_FREEFORM       = 17.toByte
+  val PCODE_EVALUATE              = 18.toByte
+  val PCODE_ADD_TO_CLASSPATH      = 19.toByte
+  val PCODE_GARBAGE_COLLECT       = 20.toByte
 
   // type codes
 

@@ -142,7 +142,7 @@ class Server(intp: IMain, out: DataOutputStream, in: DataInputStream, val debugg
   }
 
   private[rscala] def report(datum: Datum): Unit = {
-    if ( debugger.on ) debugger("report.")
+    if ( debugger.on ) debugger("report on " + datum + ".")
     if ( serializeOutput ) {
       prntWrtr.flush()
       writeString(baos.toString)
@@ -308,6 +308,7 @@ class Server(intp: IMain, out: DataOutputStream, in: DataInputStream, val debugg
       functionMap(body) = tuple
       tuple
     })
+    if ( debugger.on ) debugger("starting function invocation.")
     val result = try {
       wrap(unary.invoke(jvmFunction))
     } catch {
@@ -386,10 +387,8 @@ class Server(intp: IMain, out: DataOutputStream, in: DataInputStream, val debugg
     }
   }
 
-  @tailrec
-  final def run(oneOff: Boolean): Unit = {
-    if ( debugger.on ) debugger("main, stack size = " + conduit.size + ".")
-    val request = try {
+  private[rscala] def getCmd(): Byte = {
+    try {
       in.readByte()
     } catch {
       case e: Throwable =>
@@ -398,10 +397,21 @@ class Server(intp: IMain, out: DataOutputStream, in: DataInputStream, val debugg
           e.printStackTrace(prntWrtr)
           debugger("fatal error at loop main.")
         }
-        return
+        sys.exit(0)
     }
+  }
+
+  @tailrec
+  final def run(): Unit = {
+    if ( debugger.on ) debugger("main, stack size = " + conduit.size + ".")
+    val request = getCmd()
     request match {
-      case PCODE_EXIT => exit(); return
+      case PCODE_SHUTDOWN =>
+        exit()
+        return
+      case PCODE_REXIT =>
+        if ( debugger.on ) debugger("R exits main loop.")
+        return
       case PCODE_PUSH_WITH_NAME => push(true)
       case PCODE_PUSH_WITHOUT_NAME => push(false)
       case PCODE_CLEAR => clear()
@@ -414,7 +424,7 @@ class Server(intp: IMain, out: DataOutputStream, in: DataInputStream, val debugg
       case _ =>
         throw new IllegalStateException("Unsupported command: "+request)
     }
-    if ( ! oneOff ) run(false)
+    run()
   }
 
 }

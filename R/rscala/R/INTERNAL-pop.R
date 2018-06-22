@@ -85,11 +85,12 @@ callback <- function(details) {
     cat(toString(e))
     NULL
   })
+  socketOut <- details[["socketOut"]]
   rm(list=argsListName,envir=env)
-  pushOkay <- push(result, NULL, details[["socketOut"]])
+  pushOkay <- push(result, NULL, socketOut)
   if ( ! identical(pushOkay,TRUE) ) {
     cat(attr(pushOkay,"msg"),"\n",sep="")
-    push(NULL, NULL, details[["socketOut"]])
+    push(NULL, NULL, socketOut)
   }
   pop(details)
 }
