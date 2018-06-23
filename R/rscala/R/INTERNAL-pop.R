@@ -38,7 +38,9 @@ pop <- function(details) {
     rc(socketIn)
   } else if ( tipe == TCODE_CHARACTER_1 ) {
     len <- rb(socketIn,RTYPE_INT)
-    sapply(seq_len(len), function(i) rc(socketIn))
+    result <- character(len)
+    for ( i in seq_len(len) ) result[i] <- rc(socketIn)
+    result
   } else if ( tipe == TCODE_CHARACTER_2 ) {
     dim <- rb(socketIn,RTYPE_INT,2L)
     t(sapply(seq_len(dim[1]), function(i) sapply(seq_len(dim[2]), function(j) rc(socketIn))))
