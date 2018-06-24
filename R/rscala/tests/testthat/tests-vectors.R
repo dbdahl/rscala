@@ -1,6 +1,6 @@
 context("vectors")
 
-skip("vectors")
+# skip("vectors")
 
 test_that("length 1 as primitives, bridge without a parameter list", {
   expect_identical(s %~% '0', 0L)

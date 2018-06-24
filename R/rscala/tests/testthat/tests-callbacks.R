@@ -1,5 +1,7 @@
 context("callbacks")
 
+# skip("callbacks")
+
 test_that("primitives work in callbacks", {
   x <- as.integer(1); expect_identical(s(x=x) %~% 'R.evalI0("%-",x)', x)
   x <- as.integer(1); expect_identical(s(x=I(x)) %~% 'R.evalI0("%-",x)', x)
@@ -47,3 +49,17 @@ test_that("matrices work in callbacks", {
   x <- matrix(as.character(c(1,2)),nrow=1); expect_identical(s(x=x) %~% 'R.evalS2("%-",x)', x)
 })
 
+test_that("misc. stuff works as expected", {
+  expect_error(s %~% 'R.eval("%-",List(1,2))',"^Invocation error")  # Unsupported type
+})
+
+myLittleF <- function() {
+  x <- 5L
+  s(x=x) %~% 'R.eval("a <- %-",x)'
+  a == x
+}
+
+test_that("we evaluate in the calling R environment.", {
+  x <- 5L; s(x=x) %~% 'R.eval("a <- %-",x)'; expect_identical(a,x)
+  expect_true(myLittleF())
+})
