@@ -141,8 +141,8 @@ class Server(intp: IMain, out: DataOutputStream, in: DataInputStream, val debugg
     conduit.reset(in.readInt())
   }
 
-  private[rscala] def report(datum: Datum): Unit = {
-    if ( debugger.on ) debugger("report on " + datum + ".")
+  private[rscala] def pop(datum: Datum): Unit = {
+    if ( debugger.on ) debugger("pop on " + datum + ".")
     if ( serializeOutput ) {
       prntWrtr.flush()
       writeString(baos.toString)
@@ -293,7 +293,7 @@ class Server(intp: IMain, out: DataOutputStream, in: DataInputStream, val debugg
       if ( result != Success ) {
         if ( debugger.on ) debugger("error in defining function.")
         conduit.reset(nArgs)
-        report(Datum(body,TCODE_ERROR_DEF,None))
+        pop(Datum(body,TCODE_ERROR_DEF,None))
         return
       }
       val functionName = intp.mostRecentVar
@@ -316,7 +316,7 @@ class Server(intp: IMain, out: DataOutputStream, in: DataInputStream, val debugg
         prntWrtr.println(e)
         if ( e.getCause != null ) e.getCause.printStackTrace(prntWrtr) else e.printStackTrace(prntWrtr)
         if ( debugger.on ) debugger("error in executing function.")
-        report(Datum(e,TCODE_ERROR_INVOKE,None))
+        pop(Datum(e,TCODE_ERROR_INVOKE,None))
         return
     }
     if ( debugger.on ) debugger("function invocation is okay.")
@@ -335,9 +335,9 @@ class Server(intp: IMain, out: DataOutputStream, in: DataInputStream, val debugg
       }
     } else TCODE_REFERENCE
     if ( tipe == TCODE_REFERENCE ) {
-      report(Datum(result, tipe, Some(resultType)))
+      pop(Datum(result, tipe, Some(resultType)))
     } else {
-      report(Datum(result, tipe, None))
+      pop(Datum(result, tipe, None))
     }
   }
 
@@ -348,7 +348,7 @@ class Server(intp: IMain, out: DataOutputStream, in: DataInputStream, val debugg
       val result = wrap(intp.interpret(body))
       if ( result != Success ) {
         if ( debugger.on ) debugger("error in defining evaluation.")
-        report(Datum(body,TCODE_ERROR_DEF,None))
+        pop(Datum(body,TCODE_ERROR_DEF,None))
         return
       }
     } catch {
@@ -356,10 +356,10 @@ class Server(intp: IMain, out: DataOutputStream, in: DataInputStream, val debugg
         prntWrtr.println(e)
         if ( e.getCause != null ) e.getCause.printStackTrace(prntWrtr) else e.printStackTrace(prntWrtr)
         if ( debugger.on ) debugger("error in executing evaluation.")
-        report(Datum(e,TCODE_ERROR_INVOKE,None))
+        pop(Datum(e,TCODE_ERROR_INVOKE,None))
         return
     }
-    report(Datum((),TCODE_UNIT,None))
+    pop(Datum((),TCODE_UNIT,None))
   }
 
   private def addToClasspath(): Unit = {
@@ -373,10 +373,10 @@ class Server(intp: IMain, out: DataOutputStream, in: DataInputStream, val debugg
         prntWrtr.println(e)
         e.printStackTrace(prntWrtr)
         if ( debugger.on ) debugger("error in adding to classpath.")
-        report(Datum(e,TCODE_ERROR_INVOKE,None))
+        pop(Datum(e,TCODE_ERROR_INVOKE,None))
         return
     }
-    report(Datum((),TCODE_UNIT,None))
+    pop(Datum((),TCODE_UNIT,None))
   }
 
   private def gc(): Unit = {

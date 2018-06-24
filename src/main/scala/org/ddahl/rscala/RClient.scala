@@ -37,8 +37,8 @@ class RClient(server: Server) {
   }
 
   private def evalEngine(template: String, values: Seq[Any]): Unit = {
-    server.report(Datum(values.length, TCODE_CALLBACK, Some(template)))
-    values.foreach(v => server.report(any2Datum(v)))
+    server.pop(Datum(values.length, TCODE_CALLBACK, Some(template)))
+    values.foreach(v => server.pop(any2Datum(v)))
     server.run()
     if ( server.getCmd() != PCODE_PUSH_WITHOUT_NAME ) throw new RuntimeException("Protocol error.")
     server.push(false)
