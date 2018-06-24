@@ -20,7 +20,7 @@ test_that("references work", {
   expect_is(s %.~% "4", "rscalaReference")
   expect_is(s$.Array(1,2,3), "rscalaReference")
   expect_identical(s$Array(1,2,3), c(1,2,3))
-  expect_null(s %@% "def nextInt(max: Int) = scala.util.Random.nextInt(max)")
+  expect_null(s %% "def nextInt(max: Int) = scala.util.Random.nextInt(max)")
   expect_type(s$nextInt(4L),"integer")
   nextInt <- s$nextInt; expect_type(nextInt(4L),"integer")
 })

@@ -1,9 +1,21 @@
+#' Evaluation Operator
 #'
+#' @param bridge A foreign language bridge, e.g., an rscala bridge.
+#' @param snippet String providing a code snippet to compile and evaluate.
+#'
+#' @return A vector or matrix of R's basic types (if possible) or an rscala
+#'   reference (otherwise).
 #' @export
-#'
+#' 
 '%~%' <- function(bridge, snippet) UseMethod("%~%")
 
+#' Evaluation Operator
 #'
+#' @param bridge An rscala bridge.
+#' @param snippet String providing a code snippet to compile and evaluate.
+#'
+#' @return A vector or matrix of R's basic types (if possible) or an rscala
+#'   reference (otherwise).
 #' @export
 #'
 '%~%.rscalaBridge' <- function(bridge, snippet) {
@@ -12,12 +24,22 @@
   scalaInvoke(details, snippet, args, withNames=TRUE)
 }
 
+#' Evaluation Operator Ensuring a Reference
 #'
+#' @param bridge A foreign language bridge, e.g., an rscala bridge.
+#' @param snippet String providing a code snippet to compile and evaluate.
+#'
+#' @return An rscala reference.
 #' @export
 #'
 '%.~%' <- function(bridge, snippet) UseMethod("%.~%")
 
+#' Evaluation Operator Ensuring a Reference
 #'
+#' @param bridge An rscala bridge.
+#' @param snippet String providing a code snippet to compile and evaluate.
+#'
+#' @return An rscala reference.
 #' @export
 #'
 '%.~%.rscalaBridge' <- function(bridge, snippet) {
@@ -26,15 +48,15 @@
   scalaInvoke(details, paste0(".",snippet), args, withNames=TRUE)
 }
 
+#' Execution Operator
 #'
+#' @param bridge A foreign language bridge, e.g., an rscala bridge.
+#' @param snippet String providing a code snippet to compile and execute.
+#'
+#' @return NULL, invisibly.
 #' @export
-#'
-'%@%' <- function(bridge, snippet) UseMethod("%@%")
-
-#'
-#' @export
-#'
-'%@%.rscalaBridge' <- function(bridge, snippet) {
+#' 
+'%%.rscalaBridge' <- function(bridge, snippet) {
   details <- attr(bridge,"details")
   scalaEvaluate(details, snippet)
 }
