@@ -42,11 +42,10 @@ i <- function(x=0L) s(x=as.integer(x[1])) %~% '
   } else x
 '
 
-s %~% 'R.evalI0("""s %~% "3 + 4"""")'
-
 test_that("recursive callbacks work", {
   expect_identical(f(0), 10L)
   expect_identical(g(0), 10L)
   expect_identical(h(0), 10L)
   expect_identical(i(0), 10L)
+  expect_identical(s %~% 'R.evalI0("""s %~% "3 + 4"""")', 7L)
 })
