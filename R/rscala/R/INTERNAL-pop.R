@@ -43,7 +43,9 @@ pop <- function(details) {
     result
   } else if ( tipe == TCODE_CHARACTER_2 ) {
     dim <- rb(socketIn,RTYPE_INT,2L)
-    t(sapply(seq_len(dim[1]), function(i) sapply(seq_len(dim[2]), function(j) rc(socketIn))))
+    result <- matrix(character(prod(dim)),nrow=dim[1])
+    for ( i in seq_len(dim[1]) )  for ( j in seq_len(dim[2]) )  result[i,j] <- rc(socketIn)
+    result
   } else if ( tipe == TCODE_UNIT ) {
     invisible()
   } else if ( tipe == TCODE_REFERENCE ) {
