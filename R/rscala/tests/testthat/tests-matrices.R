@@ -1,5 +1,7 @@
 context("matrices")
 
+skip("matrices")
+
 md2by3 <- matrix(c(1,2,3,4,5,6),nrow=2)
 mi2by3 <- matrix(as.integer(c(1,2,3,4,5,6)),nrow=2)
 ml2by3 <- matrix(as.logical(c(1,0,1,0,1,1)),nrow=2)

@@ -1,5 +1,7 @@
 context("recursion")
 
+skip("recursion")
+
 f <- function(counter) {
   if ( counter >= 10 ) return(counter)
   # cat("Hello",counter,"from R.\n")
