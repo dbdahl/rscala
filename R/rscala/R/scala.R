@@ -51,7 +51,7 @@
 scala <- function(packages=character(),
                   assign.callback=function(s) {},
                   assign.name="s",
-                  assign.env=.GlobalEnv,
+                  assign.env=parent.frame(),
                   JARs=character(),
                   serialize.output=.Platform$OS.type=="windows",
                   stdout=TRUE,

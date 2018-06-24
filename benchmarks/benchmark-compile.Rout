@@ -1,0 +1,78 @@
+
+R version 3.5.0 (2018-04-23) -- "Joy in Playing"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(rscala)
+> library(microbenchmark)
+> 
+> cat(system2("hostname",stdout=TRUE),"\n",sep="")
+sidon
+> scalaExec()
+SCALA_HOME environment method failed.
+Shell PATH method succeeded.
+[1] "/home/dahl/local/bin/scala"
+> sessionInfo()
+R version 3.5.0 (2018-04-23)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 16.04.4 LTS
+
+Matrix products: default
+BLAS: /usr/lib/libblas/libblas.so.3.6.0
+LAPACK: /usr/lib/lapack/liblapack.so.3.6.0
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] microbenchmark_1.4-4       rscala_3.0.0-20180624-0605
+
+loaded via a namespace (and not attached):
+[1] compiler_3.5.0
+> 
+> scala()
+> nReps <- 100
+> 
+> #####
+> s %~% "7"   # First-time compilation
+[1] 7
+> 
+> microbenchmark(
++   s %~% sample.int(.Machine$integer.max,1),
++   s %~% 2056700609,
++   times=nReps
++ )
+Unit: microseconds
+                                      expr        min          lq       mean
+ s %~% sample.int(.Machine$integer.max, 1) 107187.002 129703.3840 171995.380
+                          s %~% 2056700609    115.666    164.9635   4669.527
+     median         uq      max neval
+ 149353.081 205856.612 384625.6   100
+    245.322    331.596 441606.4   100
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  0.265   0.160  22.885 
