@@ -40,7 +40,7 @@ class RClient(server: Server) {
     server.report(Datum(values.length, TCODE_CALLBACK, Some(template)))
     values.foreach(v => server.report(any2Datum(v)))
     server.run()
-    server.getCmd()
+    if ( server.getCmd() != PCODE_PUSH_WITHOUT_NAME ) throw new RuntimeException("Protocol error.")
     server.push(false)
   }
 

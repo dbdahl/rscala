@@ -67,33 +67,3 @@ pop <- function(details) {
   assign("last",result,envir=details)
   if ( is.null(result) ) invisible() else result
 }
-
-callback <- function(details) {
-  socketIn <- details[["socketIn"]]
-  snippet <- rc(socketIn)
-  nArgs <- rb(socketIn,RTYPE_INT)
-  env <- details[["callbackEnv"]]
-  args <- vector(mode="list", length=nArgs)
-  while ( TRUE ) {
-    argsListName <- paste0(".rs",sample.int(.Machine$integer.max,1L))
-    if ( ! exists(argsListName,envir=env) ) break
-  }
-  for ( i in seq_len(nArgs) ) {
-    snippet <- sub("%-",paste0(argsListName,"[[",i,"]]"),snippet)
-    args[[i]] <- pop(details)
-  }
-  assign(argsListName,args,envir=env)  
-  result <- tryCatch(eval(parse(text=snippet),envir=env), error=function(e) {
-    cat(toString(e))
-    NULL
-  })
-  rm(list=argsListName,envir=env)
-  socketOut <- details[["socketOut"]]
-  wb(socketOut, PCODE_REXIT)
-  pushOkay <- push(result, NULL, socketOut)
-  if ( ! identical(pushOkay,TRUE) ) {
-    cat(attr(pushOkay,"msg"),"\n",sep="")
-    push(NULL, NULL, socketOut)
-  }
-  pop(details)
-}
