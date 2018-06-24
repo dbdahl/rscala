@@ -5,6 +5,7 @@
 #'
 #' @return A vector or matrix of R's basic types (if possible) or an rscala
 #'   reference (otherwise).
+#' @seealso \code{\link{scala}}
 #' @export
 #' 
 '%~%' <- function(bridge, snippet) UseMethod("%~%")
@@ -16,6 +17,7 @@
 #'
 #' @return A vector or matrix of R's basic types (if possible) or an rscala
 #'   reference (otherwise).
+#' @seealso \code{\link{scala}}
 #' @export
 #'
 '%~%.rscalaBridge' <- function(bridge, snippet) {
@@ -30,6 +32,7 @@
 #' @param snippet String providing a code snippet to compile and evaluate.
 #'
 #' @return An rscala reference.
+#' @seealso \code{\link{scala}}
 #' @export
 #'
 '%.~%' <- function(bridge, snippet) UseMethod("%.~%")
@@ -40,6 +43,7 @@
 #' @param snippet String providing a code snippet to compile and evaluate.
 #'
 #' @return An rscala reference.
+#' @seealso \code{\link{scala}}
 #' @export
 #'
 '%.~%.rscalaBridge' <- function(bridge, snippet) {
@@ -54,6 +58,7 @@
 #' @param snippet String providing a code snippet to compile and execute.
 #'
 #' @return NULL, invisibly.
+#' @seealso \code{\link{scala}}
 #' @export
 #' 
 '%%.rscalaBridge' <- function(bridge, snippet) {

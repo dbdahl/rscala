@@ -3,6 +3,11 @@
 #' This function should be called in the \code{\link{.onLoad}} function of a
 #' depending package.
 #'
+#' The function makes a Scala bridge available to the functions of the package.
+#' Package developers should call this function in the package's
+#' \code{\link{.onLoad}} function. The \code{\link{scalaPackageUnload}} function
+#' should be called in the package's \code{\link{.onUnload}} function.
+#'
 #' @param packages See the function \code{\link{scala}}, but this will include
 #'   the name of the package if it has its owns JAR file(s).
 #' @param assign.callback See the function \code{\link{scala}}, but this is
@@ -10,15 +15,19 @@
 #'   \code{function(s) { s \%\% "import scala.util.Random" }}.  \strong{Note}
 #'   the use of the execution operator \code{\%\%} instead of the evaluation
 #'   operator \code{\%~\%}.
-#' @param assign.name See the function \code{\link{scala}}.  This will be name
-#'   of the bridge available to the package's functions.
+#' @param assign.name See the function \code{\link{scala}}.  This will be the
+#'   name of the bridge available to the package's functions.
 #' @param mode A string.  If the package is to have its own bridge, this should
 #'   be \code{""}.  If the package is to use the bridge of another package
 #'   (e.g., package "foo"), then this should be the fully qualified variable of
 #'   that package (e.g., \code{"foo:::s"}).
-#' @param ... Other arguments pass to the function \code{\link{scala}}.
+#' @param ... Other arguments passed to the function \code{\link{scala}}.  The
+#'   \code{assign.env} option is \emph{not} allowed.  Many arguments are ignored
+#'   if the package uses the bridge of another package.
 #'
-#' @return NULL, invisibly.
+#' @return Returns \code{NULL}, invisibly.
+#' 
+#' @seealso \code{\link{scalaPackageUnload}}, \code{\link{scala}}
 #' @export
 #'
 #' @examples \dontrun{
@@ -30,10 +39,10 @@
 #' }
 #' 
 scalaPackage <- function(packages=character(),
-                          assign.callback=function(s) {},
-                          assign.name="s",
-                          mode="",
-                          ...) {
+                         assign.callback=function(s) {},
+                         assign.name="s",
+                         mode="",
+                         ...) {
   pkgEnv <- parent.env(parent.frame())    # Environment of depending package (assuming this function is only called in .onLoad function).
   if ( is.null(assign.name) || ( assign.name == "" ) ) stop("'assign.name' must be supplied.")
   if ( mode == "" ) {
@@ -49,21 +58,5 @@ scalaPackage <- function(packages=character(),
       s
     },assign.env=pkgEnv)
   }
-  invisible()
-}
-
-#' Clean up an Embedded Scala Bridge of a Package
-#'
-#' This function should be called in the \code{.onUnload} function of a
-#' depending package if, in the corresponding function
-#' \link{\code{scalaPackage}}, the argument \code{mode=""} was used.  It has
-#' no effect otherwise.
-#'
-#' @return NULL, invisibly.
-#' @export
-#' 
-scalaPackageUnload <- function() {
-  pkgEnv <- parent.env(parent.frame())    # Environment of depending package (assuming this function is only called in .onUnload function).
-  if ( pkgEnv[["rscalaBridgeOwner"]] ) close(pkgEnv[[pkgEnv[["rscalaBridgeName"]]]])
   invisible()
 }

@@ -1,4 +1,4 @@
-#' Close rscala Bridge
+#' Close a Scala Bridge
 #'
 #' @param con rscala bridge.
 #' @param ... Currently ignored.

@@ -1,21 +1,30 @@
 #' Instantiate a Scala Bridge
 #'
-#' The \code{\link{scala}} function creates an instance of a Scala bridge.
+#' This function creates an instance of a Scala bridge.
+#'
 #' Multiple interpreters can be created and each runs independently with its own
 #' memory space. Each interpreter can use multiple threads/cores, but the bridge
 #' between \R and Scala is itself not thread-safe, so multiple \R threads/cores
 #' should not simultaneously access the same bridge.
 #'
+#' Terminate the bridge using \code{\link{close.rscalaBridge}}.
+#'
+#' Rather than calling this function explicitly, packages importing or depending
+#' on rscala should instead use the \code{\link{scalaPackage}} and
+#' \code{\link{scalaPackageUnload}} functions.
+#'
 #' @param packages Character vector of package names whose embedded JAR files
 #'   are to be added to the runtime classpath.
 #' @param assign.callback A function taking a Scala bridge as its only argument.
-#'   This function is called immediately after the bridge is established.
+#'   This function is called immediately after the bridge is connected, which
+#'   does not happen until the bridge is actually used and may be long after
+#'   this function finishes.
 #' @param assign.name The name of the (promise of the) bridge to be assigned in
 #'   the environment given by the \code{assign.env} argument.
 #' @param assign.env The environment in which the (promise of the) bridge is
 #'   assigned.
-#' @param JARs Character vector whose elements are individual JAR files to
-#'   be added to the runtime classpath.
+#' @param JARs Character vector whose elements are individual JAR files to be
+#'   added to the runtime classpath.
 #' @param serialize.output Logical indicating whether Scala output should be
 #'   serialized back to R.  This is slower and probably only needed on Windows.
 #' @param stdout Whether "standard output" results that are not serialized
@@ -33,8 +42,9 @@
 #' @param command.line.options (Developer use only.)  A character vector
 #'   influencing the command line options when launching Scala.
 #'
-#' @return A Scala bridge
-#'
+#' @return Returns a Scala bridge
+#' @seealso \code{\link{close.rscalaBridge}}, \code{\link{scalaPackage}},
+#'   \code{\link{scalaPackageUnload}}
 #' @export
 #'
 #' @examples \dontrun{
@@ -45,7 +55,7 @@
 #' h <- s(x=2, y=3) %.~% "x+y"
 #' h$toString()
 #' s(mean=h, sd=2, r=rng) %~% "mean + sd * r.nextGaussian()"
-#' 
+#'
 #' }
 #' 
 scala <- function(packages=character(),

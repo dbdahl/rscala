@@ -3,7 +3,7 @@ CANONICAL_SCALA_MAJOR_VERSION <- "2.12"
 
 #' Install Scala
 #'
-#' @return NULL, invisibly.
+#' @return Returns \code{NULL}, invisibly.
 #' @export
 #'
 #' @examples \dontrun{
