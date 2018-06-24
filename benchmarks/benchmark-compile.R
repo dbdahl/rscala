@@ -9,7 +9,7 @@ scala()
 nReps <- 100
 
 #####
-s %~% "7"   # First-time compilation
+s %~% 2056700609   # First-time compilation
 
 microbenchmark(
   s %~% sample.int(.Machine$integer.max,1),
