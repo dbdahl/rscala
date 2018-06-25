@@ -7,7 +7,7 @@ sessionInfo()
 
 openAndClose <- function() {
   scala()
-  s %~% "3"
+  s * "3"
   close(s)
 }
 

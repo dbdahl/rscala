@@ -1,5 +1,5 @@
 
-R version 3.5.0 (2018-04-23) -- "Joy in Playing"
+R Under development (unstable) (2018-06-21 r74929) -- "Unsuffered Consequences"
 Copyright (C) 2018 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -27,7 +27,7 @@ SCALA_HOME environment method failed.
 Shell PATH method succeeded.
 [1] "/home/dahl/local/bin/scala"
 > sessionInfo()
-R version 3.5.0 (2018-04-23)
+R Under development (unstable) (2018-06-21 r74929)
 Platform: x86_64-pc-linux-gnu (64-bit)
 Running under: Ubuntu 16.04.4 LTS
 
@@ -47,10 +47,10 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] microbenchmark_1.4-4       rscala_3.0.0-20180624-0605
+[1] microbenchmark_1.4-4       rscala_3.0.0-20180625-2052
 
 loaded via a namespace (and not attached):
-[1] compiler_3.5.0
+[1] compiler_3.6.0
 > 
 > scala()
 > nReps <- 10000
@@ -59,18 +59,18 @@ loaded via a namespace (and not attached):
 > 
 > rng <- s$.new_scala.util.Random()
 > rng$nextInt()      # First-time compilation
-[1] 743627714
+[1] -1728996459
 > rng$nextInt(1L)    # First-time compilation
 [1] 0
 > nextInt <- rng$nextInt
 > nextInt()          # Alreary compiled
-[1] -1685162179
+[1] -1541984906
 > nextInt(1L)        # Alreary compiled
 [1] 0
 > 
 > microbenchmark(
-+   s(rng=rng) %.~% 'rng.nextInt()',
-+   s(rng=rng) %~% 'rng.nextInt()',
++   s(rng=rng) ^ 'rng.nextInt()',
++   s(rng=rng) * 'rng.nextInt()',
 +   rng$.nextInt(),
 +   rng$nextInt(),
 +   nextInt(),
@@ -80,25 +80,25 @@ loaded via a namespace (and not attached):
 +   times=nReps
 + )
 Unit: microseconds
-                              expr     min       lq     mean   median       uq
- s(rng = rng) %.~% "rng.nextInt()" 178.421 210.7755 240.8409 219.9985 238.0335
-  s(rng = rng) %~% "rng.nextInt()" 138.152 162.4965 234.5501 173.8885 189.1215
-                    rng$.nextInt() 149.237 170.5420 196.8119 178.4390 192.6250
-                     rng$nextInt() 112.608 128.8660 148.0648 137.3000 148.2850
-                         nextInt() 101.025 115.3515 134.5985 124.9880 135.5100
-                rng$.nextInt(100L) 168.465 194.2205 227.7341 205.3960 222.8205
-                 rng$nextInt(100L) 132.116 150.9045 176.9770 164.0985 178.0850
-                     nextInt(100L) 120.345 137.6615 162.0113 151.7715 164.0980
+                           expr     min       lq     mean   median       uq
+   s(rng = rng)^"rng.nextInt()" 164.075 205.2350 237.2866 216.9325 244.1050
+ s(rng = rng) * "rng.nextInt()" 123.494 158.2720 217.9952 169.2175 192.5110
+                 rng$.nextInt() 131.670 166.4270 192.7973 175.8305 196.2790
+                  rng$nextInt() 100.543 124.9630 146.2238 133.3815 151.3895
+                      nextInt()  89.253 112.2265 130.3174 120.4785 137.7880
+             rng$.nextInt(100L) 150.344 190.1135 220.6518 201.9165 227.4155
+              rng$nextInt(100L) 109.550 147.9970 171.3108 158.6200 181.8950
+                  nextInt(100L) 103.707 135.3465 158.6405 145.4695 169.4935
         max neval
-   4424.354 10000
- 451576.040 10000
-   6342.296 10000
-   3773.535 10000
-   4626.444 10000
-  20541.978 10000
-   5775.511 10000
-   4697.270 10000
+  21273.955 10000
+ 349728.968 10000
+   7122.651 10000
+   7653.008 10000
+   2631.598 10000
+   4819.562 10000
+   7141.707 10000
+   8441.555 10000
 > 
 > proc.time()
    user  system elapsed 
- 11.184   3.944  21.539 
+ 10.771   4.021  20.491 

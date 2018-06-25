@@ -9,11 +9,11 @@ scala()
 nReps <- 100
 
 #####
-s %~% 2056700609   # First-time compilation
+s * 2056700609   # First-time compilation
 
 microbenchmark(
-  s %~% sample.int(.Machine$integer.max,1),
-  s %~% 2056700609,
+  s * sample.int(.Machine$integer.max,1),
+  s * 2056700609,
   times=nReps
 )
 

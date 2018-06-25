@@ -1,5 +1,5 @@
 
-R version 3.5.0 (2018-04-23) -- "Joy in Playing"
+R Under development (unstable) (2018-06-21 r74929) -- "Unsuffered Consequences"
 Copyright (C) 2018 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -27,7 +27,7 @@ SCALA_HOME environment method failed.
 Shell PATH method succeeded.
 [1] "/home/dahl/local/bin/scala"
 > sessionInfo()
-R version 3.5.0 (2018-04-23)
+R Under development (unstable) (2018-06-21 r74929)
 Platform: x86_64-pc-linux-gnu (64-bit)
 Running under: Ubuntu 16.04.4 LTS
 
@@ -47,32 +47,32 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] microbenchmark_1.4-4       rscala_3.0.0-20180624-0605
+[1] microbenchmark_1.4-4       rscala_3.0.0-20180625-2052
 
 loaded via a namespace (and not attached):
-[1] compiler_3.5.0
+[1] compiler_3.6.0
 > 
 > scala()
 > nReps <- 100
 > 
 > #####
-> s %~% "7"   # First-time compilation
-[1] 7
+> s * 2056700609   # First-time compilation
+[1] 2056700609
 > 
 > microbenchmark(
-+   s %~% sample.int(.Machine$integer.max,1),
-+   s %~% 2056700609,
++   s * sample.int(.Machine$integer.max,1),
++   s * 2056700609,
 +   times=nReps
 + )
 Unit: microseconds
-                                      expr        min          lq       mean
- s %~% sample.int(.Machine$integer.max, 1) 107187.002 129703.3840 171995.380
-                          s %~% 2056700609    115.666    164.9635   4669.527
-     median         uq      max neval
- 149353.081 205856.612 384625.6   100
-    245.322    331.596 441606.4   100
+                                    expr        min          lq       mean
+ s * sample.int(.Machine$integer.max, 1) 103622.084 117843.5945 159345.528
+                          s * 2056700609    115.566    195.2735    429.106
+     median          uq       max neval
+ 141960.680 184239.6935 381444.25   100
+    231.648    276.9025  19142.52   100
 > 
 > 
 > proc.time()
    user  system elapsed 
-  0.265   0.160  22.885 
+  0.283   0.141  20.717 

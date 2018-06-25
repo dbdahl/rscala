@@ -1,5 +1,5 @@
 
-R version 3.5.0 (2018-04-23) -- "Joy in Playing"
+R Under development (unstable) (2018-06-21 r74929) -- "Unsuffered Consequences"
 Copyright (C) 2018 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -27,7 +27,7 @@ SCALA_HOME environment method failed.
 Shell PATH method succeeded.
 [1] "/home/dahl/local/bin/scala"
 > sessionInfo()
-R version 3.5.0 (2018-04-23)
+R Under development (unstable) (2018-06-21 r74929)
 Platform: x86_64-pc-linux-gnu (64-bit)
 Running under: Ubuntu 16.04.4 LTS
 
@@ -47,10 +47,10 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] microbenchmark_1.4-4       rscala_3.0.0-20180624-0605
+[1] microbenchmark_1.4-4       rscala_3.0.0-20180625-2052
 
 loaded via a namespace (and not attached):
-[1] compiler_3.5.0
+[1] compiler_3.6.0
 > 
 > scala()
 > nReps <- 100
@@ -59,22 +59,19 @@ loaded via a namespace (and not attached):
 > 
 > big <- rnorm(10000000)
 > microbenchmark(
-+   s(x=big) %.~% 'x',
-+   s(x=big) %~% 'x',
++   s(x=big) ^ 'x',
++   s(x=big) * 'x',
 +   times=nReps
 + )
 Unit: milliseconds
-                expr      min       lq     mean   median       uq       max
- s(x = big) %.~% "x" 131.3575 138.3473 149.3822 139.7742 144.0116  310.7643
-  s(x = big) %~% "x" 349.1947 357.0316 433.3677 374.2730 436.2901 3769.4973
- neval
-   100
-   100
+             expr      min       lq     mean   median       uq      max neval
+   s(x = big)^"x" 132.3473 135.5813 185.2026 141.2115 155.6474 3455.864   100
+ s(x = big) * "x" 336.2935 360.8039 405.9398 388.8442 432.1995  592.101   100
 >  
-> s %~% "true"    # Is everything still okay?
+> s * "true"    # Is everything still okay?
 [1] TRUE
 > 
 > 
 > proc.time()
    user  system elapsed 
- 14.604  14.378  60.771 
+ 14.707  14.198  61.455 

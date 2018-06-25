@@ -1,5 +1,5 @@
 
-R version 3.5.0 (2018-04-23) -- "Joy in Playing"
+R Under development (unstable) (2018-06-21 r74929) -- "Unsuffered Consequences"
 Copyright (C) 2018 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -27,7 +27,7 @@ SCALA_HOME environment method failed.
 Shell PATH method succeeded.
 [1] "/home/dahl/local/bin/scala"
 > sessionInfo()
-R version 3.5.0 (2018-04-23)
+R Under development (unstable) (2018-06-21 r74929)
 Platform: x86_64-pc-linux-gnu (64-bit)
 Running under: Ubuntu 16.04.4 LTS
 
@@ -47,14 +47,14 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] microbenchmark_1.4-4       rscala_3.0.0-20180624-0605
+[1] microbenchmark_1.4-4       rscala_3.0.0-20180625-2052
 
 loaded via a namespace (and not attached):
-[1] compiler_3.5.0
+[1] compiler_3.6.0
 > 
 > openAndClose <- function() {
 +   scala()
-+   s %~% "3"
++   s * "3"
 +   close(s)
 + }
 > 
@@ -63,9 +63,9 @@ loaded via a namespace (and not attached):
 +   times=10
 + )
 Unit: seconds
-           expr     min       lq     mean   median       uq      max neval
- openAndClose() 4.72525 4.841014 4.875104 4.871548 4.910281 5.045319    10
+           expr     min      lq    mean   median       uq      max neval
+ openAndClose() 4.34861 4.66297 5.03895 4.899517 5.318102 6.187216    10
 > 
 > proc.time()
    user  system elapsed 
-  0.338   0.177  49.080 
+  0.329   0.187  50.714 

@@ -12,10 +12,10 @@ nReps <- 100
 
 big <- rnorm(10000000)
 microbenchmark(
-  s(x=big) %.~% 'x',
-  s(x=big) %~% 'x',
+  s(x=big) ^ 'x',
+  s(x=big) * 'x',
   times=nReps
 )
  
-s %~% "true"    # Is everything still okay?
+s * "true"    # Is everything still okay?
 

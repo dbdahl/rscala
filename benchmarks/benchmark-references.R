@@ -18,8 +18,8 @@ nextInt()          # Alreary compiled
 nextInt(1L)        # Alreary compiled
 
 microbenchmark(
-  s(rng=rng) %.~% 'rng.nextInt()',
-  s(rng=rng) %~% 'rng.nextInt()',
+  s(rng=rng) ^ 'rng.nextInt()',
+  s(rng=rng) * 'rng.nextInt()',
   rng$.nextInt(),
   rng$nextInt(),
   nextInt(),
