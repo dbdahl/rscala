@@ -1,3 +1,3 @@
 cat("Starting instance. ********************************\n")
-scala()
+scala(serialize.output=FALSE)
 scala(assign.name="s2",serialize.output=TRUE)
