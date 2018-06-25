@@ -2,7 +2,7 @@
 #'
 #' This operator compiles and executes a snippet of Scala code.  All definitions
 #' are \emph{local} to Scala snippet itself.  Subsequent uses of the same code
-#' snippet skips the time-consuming compilation step.  The return valus is a
+#' snippet skips the time-consuming compilation step.  The return value is a
 #' vector or matrix of \R's basic types (if possible) or an rscala reference
 #' (otherwise).
 #'
@@ -30,21 +30,23 @@
 
 #' Evaluation Operator Returning a Reference
 #'
-#' This operator is equivalent to \code{\link{*.rscalaBridge}}, except the return value is always an rscala reference.
+#' This operator is equivalent to \code{\link{*.rscalaBridge}}, except the
+#' return value is always an rscala reference.
 #'
 #' @inheritParams *.rscalaBridge
 #'
 #' @return Returns an rscala reference.
-#' @seealso \code{\link{*.rscalaBridge}}, \code{\link{+.rscalaBridge}}, \code{\link{scala}}
+#' @seealso \code{\link{*.rscalaBridge}}, \code{\link{+.rscalaBridge}},
+#'   \code{\link{scala}}
 #' @export
 #' @examples \donttest{
-#' 
+#'
 #' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
 #' x <- e ^ 'new scala.util.Random()'
 #' e(rng=x) * 'rng.nextDouble()'
 #' close(e)
-#' }#' 
-#'
+#' }#'
+#' 
 '^.rscalaBridge' <- function(bridge, snippet) {
   details <- attr(bridge,"details")
   args <- if ( is.function(bridge) ) list() else bridge
@@ -52,19 +54,21 @@
 }
 
 #' Execution Operator
-#' 
-#' This operator compiles and executes a snippet of Scala code \emph{in Scala's global environment},
-#' where subsequent uses of the
-#' same code snippet do \emph{not} skip the time-consuming compilation step and the return
-#' valus is \code{NULL}.  As such, this operator is used to define \emph{global} imports, objects, classes, methods, etc.
+#'
+#' This operator compiles and executes a snippet of Scala code \emph{in Scala's
+#' global environment}, where subsequent uses of the same code snippet do
+#' \emph{not} skip the time-consuming compilation step and the return value is
+#' \code{NULL}.  As such, this operator is used to define \emph{global} imports,
+#' objects, classes, methods, etc.
 #'
 #' @inheritParams *.rscalaBridge
 #'
-#' @return Return \code{NULL}, invisibly.
-#' @seealso \code{\link{*.rscalaBridge}}, \code{\link{^.rscalaBridge}}, \code{\link{scala}}
+#' @return Returns \code{NULL}, invisibly.
+#' @seealso \code{\link{*.rscalaBridge}}, \code{\link{^.rscalaBridge}},
+#'   \code{\link{scala}}
 #' @export
 #' @examples \donttest{
-#' 
+#'
 #' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
 #' e + '
 #'   import scala.util.Random.nextInt
@@ -81,7 +85,7 @@
 #' e $ dnorm(8, 10, 2, FALSE)
 #' close(e)
 #'
-#' }#' 
+#' }
 #' 
 '+.rscalaBridge' <- function(bridge, snippet) {
   details <- attr(bridge,"details")

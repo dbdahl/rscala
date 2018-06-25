@@ -1,6 +1,6 @@
 #' Instantiate a Scala Bridge
 #'
-#' This function creates an instance of a Scala bridge.
+#' This function creates an instance of an rscala bridge.
 #'
 #' Multiple interpreters can be created and each runs independently with its own
 #' memory space. Each interpreter can use multiple threads/cores, but the bridge
@@ -28,7 +28,7 @@
 #' @param serialize.output Logical indicating whether Scala output should be
 #'   serialized back to R.  This is slower and probably only needed on Windows.
 #' @param stdout Whether "standard output" results that are not serialized
-#'   should be sent.  \code{TRUE} or \code{""} sends output to the R console
+#'   should be sent.  \code{TRUE} or \code{""} sends output to the \R console
 #'   (although that may not work on Windows).  \code{FALSE} or \code{NULL}
 #'   discards the output.  Otherwise, this is the name of the file that receives
 #'   the output.
@@ -42,13 +42,13 @@
 #' @param command.line.options (Developer use only.)  A character vector
 #'   influencing the command line options when launching Scala.
 #'
-#' @return Returns a Scala bridge
+#' @return Returns an rscala bridge
 #' @seealso \code{\link{close.rscalaBridge}}, \code{\link{scalaPackage}},
 #'   \code{\link{scalaPackageUnload}}
 #' @export
 #'
 #' @examples \donttest{
-#' 
+#'
 #' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
 #' rng <- e $ .new_scala.util.Random()
 #' rng $ alphanumeric() $ take(15L) $ mkString(',')

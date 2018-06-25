@@ -1,6 +1,6 @@
 #' Close a Scala Bridge
 #'
-#' @param con rscala bridge.
+#' @param con An rscala bridge.
 #' @param ... Currently ignored.
 #'
 #' @return Returns \code{NULL}, invisibly.

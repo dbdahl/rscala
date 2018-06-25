@@ -1,12 +1,14 @@
 #' Get Path of Scala Executable
 #'
-#' @param verbose Logical indicating whether details of the search should be printed to the console.
+#' @param verbose Logical indicating whether details of the search should be
+#'   printed to the console.
 #'
-#' @return The path to the Scala executable, as a character vector of length one.
+#' @return Returns the path to the Scala executable, as a character vector of
+#'   length one.
 #' @export
 #'
 #' @examples \donttest{
-#' 
+#'
 #' scalaExec()
 #' }
 scalaExec <- function(verbose=TRUE) {

@@ -1,14 +1,16 @@
 #' Check Scala/Java Installation
 #'
-#' Run this function to confirm that Scala and R are a compatible version of Java is installed.
+#' Run this function to confirm that Scala and \R are a compatible version of
+#' Java is installed.
 #'
 #' @param verbose Should a helpful message be displayed?
 #'
-#' @return A logical indicating whether a compatible version of Java is insalled.
+#' @return Returns a logical indicating whether a compatible version of Java is
+#'   installed.
 #' @export
 #'
 #' @examples \donttest{
-#' 
+#'
 #' scalaCheck()
 #' }
 scalaCheck <- function(verbose=TRUE) {

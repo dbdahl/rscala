@@ -8,6 +8,7 @@
 /R/rscala/java/
 /R/rscala/.Rproj.user
 /R/rscala_*.tar.gz
+/R/rscala.Rcheck
 .Rproj.user
 .Rhistory
 .RData
