@@ -189,6 +189,7 @@ mkCommandLineOptions <- function(command.line.options, heap.maximum) {
             as.numeric(outTemp)
           } else NA                                       # Unknown, so do not do anything.
           heap.maximum <- if ( ! is.na(bytes) ) {
+            if ( .Machine$sizeof.pointer < 8L ) bytes <- min(c(1.35*1024^3,bytes))   # 32 binaries have limited memory.
             paste0(as.integer(memoryPercentage * (bytes / 1024^2)),"m")
           } else NULL
         }
