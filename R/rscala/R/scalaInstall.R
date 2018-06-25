@@ -7,6 +7,7 @@ CANONICAL_SCALA_MAJOR_VERSION <- "2.12"
 #' @export
 #'
 #' @examples \dontrun{
+#' 
 #' scalaInstall()
 #' }
 scalaInstall <- function() {

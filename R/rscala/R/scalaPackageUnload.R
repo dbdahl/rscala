@@ -9,6 +9,13 @@
 #' @seealso \code{\link{scalaPackage}}
 #' @export
 #' 
+#' @examples \dontrun{
+#' 
+#' .onUnload <- function(libname, pkgname) {
+#'   scalaPackageUnload()
+#' }
+#' }
+#'
 scalaPackageUnload <- function() {
   pkgEnv <- parent.env(parent.frame())    # Environment of depending package (assuming this function is only called in .onUnload function).
   if ( pkgEnv[["rscalaBridgeOwner"]] ) close(pkgEnv[[pkgEnv[["rscalaBridgeName"]]]])

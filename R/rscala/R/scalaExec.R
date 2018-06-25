@@ -5,7 +5,8 @@
 #' @return The path to the Scala executable, as a character vector of length one.
 #' @export
 #'
-#' @examples{
+#' @examples \donttest{
+#' 
 #' scalaExec()
 #' }
 scalaExec <- function(verbose=TRUE) {

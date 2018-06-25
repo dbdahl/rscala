@@ -12,9 +12,9 @@
 #'   the name of the package if it has its owns JAR file(s).
 #' @param assign.callback See the function \code{\link{scala}}, but this is
 #'   where setup code goes, like import statements.  For example, it might equal
-#'   \code{function(s) { s \%\% "import scala.util.Random" }}.  \strong{Note}
-#'   the use of the execution operator \code{\%\%} instead of the evaluation
-#'   operator \code{\%~\%}.
+#'   \code{function(s) { s + "import scala.util.Random" }}.  \strong{Note}
+#'   the use of the execution operator \code{+} instead of the evaluation
+#'   operator \code{*}.
 #' @param assign.name See the function \code{\link{scala}}.  This will be the
 #'   name of the bridge available to the package's functions.
 #' @param mode A string.  If the package is to have its own bridge, this should
@@ -31,8 +31,9 @@
 #' @export
 #'
 #' @examples \dontrun{
+#' 
 #' .onLoad <- function(libname, pkgname) {
-#'   scalaPackage(c(pkgname, "commonsMath"), function(s) s \%\% "
+#'   scalaPackage(c(pkgname, "commonsMath"), function(s) s + "
 #'     import org.apache.commons.math3._
 #'   ")
 #' }

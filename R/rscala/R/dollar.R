@@ -22,9 +22,9 @@
 "$<-.rscalaBridge" <- function(bridge, snippet, value) {
   details <- attr(bridge,"details")
   if ( snippet == "showCode" ) {
-    bridge(x=as.logical(value[1])) %~% "conduit.showCode = x"
+    bridge(x=as.logical(value[1])) * "conduit.showCode = x"
   } else if ( snippet == "debug" ) {
-    bridge(x=as.logical(value[1])) %~% "conduit.debug = x"
+    bridge(x=as.logical(value[1])) * "conduit.debug = x"
   } else stop(paste0("Unsupported option: ", snippet))
   bridge
 }

@@ -1,16 +1,15 @@
 #' Add JAR Files to the Classpath
 #'
 #' @param bridge An rscala bridge from the \code{scala} function.
-#' @param JAR Paths to JAR files, as a character vector.
+#' @param JARs Paths to JAR files, as a character vector.
 #'
 #' @return Returns \code{NULL}, invisibly.
 #' 
 #' @export
 #'
-#' @examples{
-#' \dontrun{
-#' scalaAddJAR(s, "PATH/TO/jarToLoad.jar")
-#' }
+#' @examples \dontrun{
+#' 
+#' scalaAddJARs(e, "PATH/TO/jarFileToLoad.jar")
 #' }
 scalaAddJARs <- function(bridge, JARs) {
   if ( ! inherits(bridge,"rscalaBridge") ) stop("'bridge' should be a Scala bridge.")

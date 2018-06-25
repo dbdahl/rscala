@@ -7,7 +7,8 @@
 #' @return A logical indicating whether a compatible version of Java is insalled.
 #' @export
 #'
-#' @examples{
+#' @examples \donttest{
+#' 
 #' scalaCheck()
 #' }
 scalaCheck <- function(verbose=TRUE) {

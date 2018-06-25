@@ -47,15 +47,15 @@
 #'   \code{\link{scalaPackageUnload}}
 #' @export
 #'
-#' @examples \dontrun{
-#' scala()
-#' rng <- s$.new_scala.util.Random()
-#' rng$alphanumeric()$take(15L)$mkString(",")
-#' s %~% "2+3"
-#' h <- s(x=2, y=3) %.~% "x+y"
-#' h$toString()
-#' s(mean=h, sd=2, r=rng) %~% "mean + sd * r.nextGaussian()"
-#'
+#' @examples \donttest{
+#' 
+#' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
+#' rng <- e $ .new_scala.util.Random()
+#' rng $ alphanumeric() $ take(15L) $ mkString(',')
+#' e * '2+3'
+#' h <- e(x=2, y=3) ^ 'x+y'
+#' h $ toString()
+#' e(mean=h, sd=2, r=rng) * 'mean + sd * r.nextGaussian()'
 #' }
 #' 
 scala <- function(packages=character(),

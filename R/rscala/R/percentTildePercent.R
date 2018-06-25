@@ -1,67 +1,89 @@
 #' Evaluation Operator
 #'
-#' @param bridge A foreign language bridge, e.g., an rscala bridge.
-#' @param snippet String providing a code snippet to compile and evaluate.
-#'
-#' @return A vector or matrix of R's basic types (if possible) or an rscala
-#'   reference (otherwise).
-#' @seealso \code{\link{scala}}
-#' @export
-#' 
-'%~%' <- function(bridge, snippet) UseMethod("%~%")
-
-#' Evaluation Operator
+#' This operator compiles and executes a snippet of Scala code.  All definitions
+#' are \emph{local} to Scala snippet itself.  Subsequent uses of the same code
+#' snippet skips the time-consuming compilation step.  The return valus is a
+#' vector or matrix of \R's basic types (if possible) or an rscala reference
+#' (otherwise).
 #'
 #' @param bridge An rscala bridge.
-#' @param snippet String providing a code snippet to compile and evaluate.
+#' @param snippet String providing a Scala code snippet.
 #'
-#' @return A vector or matrix of R's basic types (if possible) or an rscala
-#'   reference (otherwise).
-#' @seealso \code{\link{scala}}
+#' @return Returns a vector or matrix of \R's basic types (if possible) or an
+#'   rscala reference (otherwise).
+#' @seealso \code{\link{^.rscalaBridge}}, \code{\link{+.rscalaBridge}},
+#'   \code{\link{scala}}
 #' @export
+#' @examples \donttest{
 #'
-'%~%.rscalaBridge' <- function(bridge, snippet) {
+#' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
+#' e * 'scala.util.Random.nextDouble() <= 0.75'
+#' e(mean=10, sd=2.5) * 'mean + sd * scala.util.Random.nextGaussian()'
+#' close(e)
+#' }
+#' 
+'*.rscalaBridge' <- function(bridge, snippet) {
   details <- attr(bridge,"details")
   args <- if ( is.function(bridge) ) list() else bridge
   scalaInvoke(details, snippet, args, withNames=TRUE)
 }
 
-#' Evaluation Operator Ensuring a Reference
+#' Evaluation Operator Returning a Reference
 #'
-#' @param bridge A foreign language bridge, e.g., an rscala bridge.
-#' @param snippet String providing a code snippet to compile and evaluate.
+#' This operator is equivalent to \code{\link{*.rscalaBridge}}, except the return value is always an rscala reference.
 #'
-#' @return An rscala reference.
-#' @seealso \code{\link{scala}}
+#' @inheritParams *.rscalaBridge
+#'
+#' @return Returns an rscala reference.
+#' @seealso \code{\link{*.rscalaBridge}}, \code{\link{+.rscalaBridge}}, \code{\link{scala}}
 #' @export
+#' @examples \donttest{
+#' 
+#' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
+#' x <- e ^ 'new scala.util.Random()'
+#' e(rng=x) * 'rng.nextDouble()'
+#' close(e)
+#' }#' 
 #'
-'%.~%' <- function(bridge, snippet) UseMethod("%.~%")
-
-#' Evaluation Operator Ensuring a Reference
-#'
-#' @param bridge An rscala bridge.
-#' @param snippet String providing a code snippet to compile and evaluate.
-#'
-#' @return An rscala reference.
-#' @seealso \code{\link{scala}}
-#' @export
-#'
-'%.~%.rscalaBridge' <- function(bridge, snippet) {
+'^.rscalaBridge' <- function(bridge, snippet) {
   details <- attr(bridge,"details")
   args <- if ( is.function(bridge) ) list() else bridge
   scalaInvoke(details, paste0(".",snippet), args, withNames=TRUE)
 }
 
 #' Execution Operator
-#'
-#' @param bridge A foreign language bridge, e.g., an rscala bridge.
-#' @param snippet String providing a code snippet to compile and execute.
-#'
-#' @return NULL, invisibly.
-#' @seealso \code{\link{scala}}
-#' @export
 #' 
-'%%.rscalaBridge' <- function(bridge, snippet) {
+#' This operator compiles and executes a snippet of Scala code \emph{in Scala's global environment},
+#' where subsequent uses of the
+#' same code snippet do \emph{not} skip the time-consuming compilation step and the return
+#' valus is \code{NULL}.  As such, this operator is used to define \emph{global} imports, objects, classes, methods, etc.
+#'
+#' @inheritParams *.rscalaBridge
+#'
+#' @return Return \code{NULL}, invisibly.
+#' @seealso \code{\link{*.rscalaBridge}}, \code{\link{^.rscalaBridge}}, \code{\link{scala}}
+#' @export
+#' @examples \donttest{
+#' 
+#' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
+#' e + '
+#'   import scala.util.Random.nextInt
+#'   import scala.math.{Pi, log, exp, sqrt}
+#'   val const = -log(sqrt(2*Pi))
+#'   def dnorm(x: Double, mean: Double, sd: Double, logScale: Boolean) = {
+#'     val z = ( x - mean ) / sd
+#'     val result = const - log(sd) - z * z / 2
+#'     if ( logScale ) result else exp(result)
+#'   }
+#' '
+#' e $ const()
+#' e $ nextInt(100L)
+#' e $ dnorm(8, 10, 2, FALSE)
+#' close(e)
+#'
+#' }#' 
+#' 
+'+.rscalaBridge' <- function(bridge, snippet) {
   details <- attr(bridge,"details")
   scalaEvaluate(details, snippet)
 }

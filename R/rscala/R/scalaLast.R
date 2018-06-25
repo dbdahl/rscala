@@ -1,4 +1,17 @@
+#' Retreive the Last Scala Computation
+#'
+#' This function retreives the last result from the supplied rscala bridge.
+#'
+#' @param bridge An rscala bridge
+#'
 #' @export
+#' @examples \donttest{
+#' 
+#' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
+#' e * "2+3"
+#' scalaLast(e)
+#' close(e)
+#' }
 #'
 scalaLast <- function(bridge) {
   details <- attr(bridge,"details")
