@@ -2,7 +2,9 @@ package org.ddahl.rscala
 
 import Protocol._
 
-class RClient(server: Server) {
+class RClient() {
+
+  private[rscala] var server: Server = null
 
   def eval  (template: String, values: Any*): Unit                  = evalWithoutResult                     (template, values)
 

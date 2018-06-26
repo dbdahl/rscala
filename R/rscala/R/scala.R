@@ -14,15 +14,19 @@
 #' \code{\link{scalaPackageUnload}} functions.
 #'
 #' @param packages Character vector of package names whose embedded JAR files
-#'   are to be added to the runtime classpath.
+#'   are to be added to the classpath.
 #' @param assign.callback A function taking a Scala bridge as its only argument.
 #'   This function is called immediately after the bridge is connected, which
 #'   does not happen until the bridge is actually used and may be long after
-#'   this function finishes.
+#'   this function finishes. This is where setup code goes, like \emph{global}
+#'   imports, objects, classes, methods, etc.  For example, it might equal
+#'   \code{function(s) { s + 'import scala.util.Random' }}.  \strong{Note} the
+#'   use of the execution operator \code{+} instead of the evaluation operator
+#'   \code{*}.
 #' @param assign.name The name of the (promise of the) bridge to be assigned in
 #'   the environment given by the \code{assign.env} argument.
 #' @param assign.env The environment in which the (promise of the) bridge is
-#'   assigned.
+#'   assigned.  The user should likely \emph{not} set this.
 #' @param JARs Character vector whose elements are individual JAR files to be
 #'   added to the runtime classpath.
 #' @param serialize.output Logical indicating whether Scala output should be
@@ -77,15 +81,14 @@ scala <- function(packages=character(),
   port <- as.integer(port[1])
   if ( debug && serialize.output ) stop("When debug is TRUE, serialize.output must be FALSE.")
   if ( debug && ( identical(stdout,FALSE) || identical(stdout,NULL) || identical(stderr,FALSE) || identical(stderr,NULL) ) ) stop("When debug is TRUE, stdout and stderr must not be discarded.")
-  scalaMajor <- CANONICAL_SCALA_MAJOR_VERSION
-  pkgJARs <- unlist(lapply(packages, function(p) jarsOfPackage(p, scalaMajor)))
-  rscalaJAR <- list.files(system.file(file.path("java",paste0("scala-",scalaMajor)),package="rscala",mustWork=TRUE),full.names=TRUE)
-  rscalaClasspath <- shQuote(paste0(c(rscalaJAR,JARs,pkgJARs),collapse=.Platform$path.sep))
+  scalaMajor <- scalaVersion(TRUE)
+  JARs <- c(JARs,unlist(lapply(packages, function(p) jarsOfPackage(p, scalaMajor))))
+  rscalaJAR <- shQuote(list.files(system.file(file.path("java",paste0("scala-",scalaMajor)),package="rscala",mustWork=TRUE),full.names=TRUE))
   command.line.options <- shQuote(mkCommandLineOptions(command.line.options,heap.maximum))
   sessionFilename <- tempfile("rscala-session-")
   writeLines(character(),sessionFilename)
   portsFilename <- tempfile("rscala-ports-")
-  args <- c(command.line.options,"-classpath",rscalaJAR,"org.ddahl.rscala.Main",rscalaClasspath,port,portsFilename,sessionFilename,debug,serialize.output,FALSE)
+  args <- c(command.line.options,"-classpath",rscalaJAR,"org.ddahl.rscala.Main",rscalaJAR,port,portsFilename,sessionFilename,debug,serialize.output,FALSE)
   system2(scalaExec(FALSE),args,wait=FALSE,stdout=stdout,stderr=stderr)
   details <- new.env(parent=emptyenv())
   assign("sessionFilename",sessionFilename,envir=details)
@@ -96,6 +99,7 @@ scala <- function(packages=character(),
   assign("serializeOutput",serialize.output,envir=details)
   assign("last",NULL,envir=details)
   assign("garbage",integer(),envir=details)
+  assign("scalaMajor",scalaMajor,envir=details)
   gcFunction <- function(e) {
     garbage <- details[["garbage"]]
     garbage[length(garbage)+1] <- e[["id"]]
@@ -118,25 +122,25 @@ scala <- function(packages=character(),
   if ( ! is.null(assign.name) && ( assign.name != "" ) ) {
     if ( interactive() ) {
       delayedAssign(assign.name,{
-        newSockets(portsFilename, details)
+        newSockets(portsFilename, details, JARs)
         assign.callback(bridge)
         bridge
       },assign.env=assign.env)
     } else {
       assign(assign.name,{
-        newSockets(portsFilename, details)
+        newSockets(portsFilename, details, JARs)
         assign.callback(bridge)
         bridge
       },envir=assign.env)
     }
   } else {
-    newSockets(portsFilename, details)
+    newSockets(portsFilename, details, JARs)
     assign.callback(bridge)
     bridge
   }
 }
 
-newSockets <- function(portsFilename, details) {
+newSockets <- function(portsFilename, details, JARs) {
   ports <- local({
     delay <- 0.01
     while ( TRUE ) {
@@ -151,8 +155,9 @@ newSockets <- function(portsFilename, details) {
   socketIn  <- socketConnection(host="localhost", port=ports[1], server=FALSE, blocking=TRUE, open="rb", timeout=2678400L)
   socketOut <- socketConnection(host="localhost", port=ports[2], server=FALSE, blocking=TRUE, open="ab", timeout=2678400L)
   assign("socketIn",socketIn,envir=details)
-  assign("socketOut",socketOut,envir=details) 
-  assign("connected",TRUE,envir=details) 
+  assign("socketOut",socketOut,envir=details)
+  assign("connected",TRUE,envir=details)
+  if ( length(JARs) > 0 ) scalaAddJARs(details, JARs)
 }
 
 jarsOfPackage <- function(pkgname, major.release) {

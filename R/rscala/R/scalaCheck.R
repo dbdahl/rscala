@@ -32,3 +32,9 @@ scalaCheck <- function(verbose=TRUE) {
   }
   javaOK && scalaOK
 }
+
+scalaVersion <- function(majorOnly=TRUE) {
+  out <- tryCatch(system2(scalaExec(FALSE),'-version',stdout=TRUE,stderr=TRUE), warning=function(w) "")
+  fullVersion <- gsub("Scala code runner version (.*) --.*","\\1",out)
+  if ( majorOnly ) gsub("([23]\\.[0-9]+).*","\\1",fullVersion) else fullVersion
+}

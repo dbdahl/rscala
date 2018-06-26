@@ -1,5 +1,6 @@
 package org.ddahl.rscala
 
+import scala.collection.mutable.HashMap
 import scala.tools.nsc.interpreter.{ILoop, IMain}
 import scala.tools.nsc.Settings
 import java.io.{BufferedOutputStream, ByteArrayOutputStream, DataInputStream, DataOutputStream, File, PrintWriter}
@@ -88,6 +89,17 @@ object Main extends App {
     iloop.verbosity()
   }
 
+  // Set up interpreter
+  val referenceMap = new HashMap[Int, (Any,String)]()
+
+  if ( debugger.on ) debugger("binding conduit.")
+  val conduit = new Conduit(referenceMap, debugger)
+  intp.bind("conduit",conduit)
+
+  if ( debugger.on ) debugger("binding r client.")
+  val rClient = new RClient()
+  intp.bind("R",rClient)
+
   // Start server
   if ( debugger.on ) debugger("starting server.")
   val ( portS2R, portR2S) = if ( port == 0 ) (0, 0) else (port, port+1)
@@ -118,7 +130,8 @@ object Main extends App {
 
   // Start main loop
   if ( debugger.on ) debugger("entering main loop.")
-  val server = new Server(intp, out, in, debugger, serializeOutput, prntWrtr, baos)
+  val server = new Server(intp, referenceMap, conduit, out, in, debugger, serializeOutput, prntWrtr, baos)
+  rClient.server = server
   server.run()
 
 }

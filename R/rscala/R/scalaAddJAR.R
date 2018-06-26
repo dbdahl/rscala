@@ -12,10 +12,9 @@
 #' scalaAddJARs(e, "PATH/TO/jarFileToLoad.jar")
 #' }
 scalaAddJARs <- function(bridge, JARs) {
-  if ( ! inherits(bridge,"rscalaBridge") ) stop("'bridge' should be a Scala bridge.")
   if ( ! is.character(JARs) ) stop("'JARs' should be a character vector.")
   JARs <- path.expand(JARs)
-  details <- attr(bridge,"details")
+  details <- if ( inherits(bridge,"rscalaBridge") ) attr(bridge,"details") else bridge
   socketOut <- details[["socketOut"]]
   for ( JAR in JARs ) {
     if ( ! file.exists(JAR) ) stop(paste0("File ",JAR," does not exist."))
@@ -24,6 +23,6 @@ scalaAddJARs <- function(bridge, JARs) {
     wb(socketOut,PCODE_ADD_TO_CLASSPATH)
     wc(socketOut,JAR)
     tryCatch(pop(details), error=function(e) stop(paste0("Failed to add ",JAR," to classpath.")))
-    invisible() 
   }
+  invisible() 
 }

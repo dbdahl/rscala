@@ -8,20 +8,14 @@ import scala.tools.nsc.interpreter.IR.Success
 import scala.annotation.tailrec
 import scala.collection.mutable.HashMap
 
-class Server(intp: IMain, out: DataOutputStream, in: DataInputStream, val debugger: Debugger, val serializeOutput: Boolean, prntWrtr: PrintWriter, baos: ByteArrayOutputStream) {
+class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rscala] val conduit: Conduit, out: DataOutputStream, in: DataInputStream, val debugger: Debugger, val serializeOutput: Boolean, prntWrtr: PrintWriter, baos: ByteArrayOutputStream) {
 
   private val zero = 0.toByte
   private val one = 1.toByte
 
-  private val referenceMap = new HashMap[Int, (Any,String)]()
   private val functionMap = new HashMap[String, (Any,String)]()
   private val unary = Class.forName("scala.Function0").getMethod("apply")
   unary.setAccessible(true)
-
-  val conduit = new Conduit(referenceMap, debugger)
-  intp.bind("conduit",conduit)
-  private val rClient = new RClient(this)
-  intp.bind("R",rClient)
 
   private def exit(): Unit = {
     if ( debugger.on ) debugger("exit.")
