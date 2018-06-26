@@ -33,7 +33,20 @@ scalaCheck <- function(verbose=TRUE) {
 }
 
 scalaVersion <- function(majorOnly=TRUE) {
-  out <- tryCatch(system2(scalaExec(FALSE),'-version',stdout=TRUE,stderr=TRUE), warning=function(w) "")
-  fullVersion <- gsub("Scala code runner version (.*) --.*","\\1",out)
+  cmd <- normalizePath(scalaExec(FALSE))
+  fullVersion <- tryCatch({
+    scalaHome <- dirname(dirname(cmd))
+    jars <- list.files(file.path(scalaHome,"lib"),".*.jar$",full.names=TRUE)
+    libraryJar <- jars[grepl("^scala-library",basename(jars))][1]
+    fn <- unz(libraryJar,"library.properties")
+    lines <- readLines(fn)
+    close(fn)
+    sub("^version.number=","",lines[grepl("^version.number=",lines)])[1]
+  }, warning=function(e) { NULL }, error=function(e) { NULL } )
+  if ( is.null(fullVersion) ) fullVersion <- tryCatch({
+    out <- system2(cmd,'-version',stdout=TRUE,stderr=TRUE)
+    gsub("Scala code runner version (.*) --.*","\\1",out)
+  }, warning=function(e) { NULL }, error=function(e) { NULL } )
+  if ( is.null(fullVersion) ) stop("Cannot determine Scala version.")
   if ( majorOnly ) gsub("([23]\\.[0-9]+).*","\\1",fullVersion) else fullVersion
 }

@@ -46,7 +46,8 @@ scalaPackage <- function(packages=character(),
     assign("rscalaBridgeOwner",FALSE,envir=pkgEnv)
     delayedAssign(assign.name,{
       s <- eval(parse(text=mode))
-      JARs <- c(JARs,unlist(lapply(packages, function(p) jarsOfPackage(p, s[["details"]][["scalaMajor"]]))))
+      majorVersion <- attr(s,"details")[["scalaInfo"]]$majorVersion
+      JARs <- c(JARs,unlist(lapply(packages, function(p) jarsOfPackage(p, majorVersion))))
       assign.callback(s)
       s
     },assign.env=pkgEnv)

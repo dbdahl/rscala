@@ -81,7 +81,8 @@ scala <- function(packages=character(),
   port <- as.integer(port[1])
   if ( debug && serialize.output ) stop("When debug is TRUE, serialize.output must be FALSE.")
   if ( debug && ( identical(stdout,FALSE) || identical(stdout,NULL) || identical(stderr,FALSE) || identical(stderr,NULL) ) ) stop("When debug is TRUE, stdout and stderr must not be discarded.")
-  scalaMajor <- scalaVersion(TRUE)
+  scalaInfo <- scalaInfo(FALSE)
+  scalaMajor <- scalaInfo$majorVersion
   JARs <- c(JARs,unlist(lapply(packages, function(p) jarsOfPackage(p, scalaMajor))))
   rscalaJAR <- shQuote(list.files(system.file(file.path("java",paste0("scala-",scalaMajor)),package="rscala",mustWork=TRUE),full.names=TRUE))
   command.line.options <- shQuote(mkCommandLineOptions(command.line.options,heap.maximum))
@@ -89,7 +90,7 @@ scala <- function(packages=character(),
   writeLines(character(),sessionFilename)
   portsFilename <- tempfile("rscala-ports-")
   args <- c(command.line.options,"-classpath",rscalaJAR,"org.ddahl.rscala.Main",rscalaJAR,port,portsFilename,sessionFilename,debug,serialize.output,FALSE)
-  system2(scalaExec(FALSE),args,wait=FALSE,stdout=stdout,stderr=stderr)
+  system2(scalaInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
   details <- new.env(parent=emptyenv())
   assign("sessionFilename",sessionFilename,envir=details)
   assign("closed",FALSE,envir=details)
@@ -99,7 +100,7 @@ scala <- function(packages=character(),
   assign("serializeOutput",serialize.output,envir=details)
   assign("last",NULL,envir=details)
   assign("garbage",integer(),envir=details)
-  assign("scalaMajor",scalaMajor,envir=details)
+  assign("scalaInfo",scalaInfo,envir=details)
   gcFunction <- function(e) {
     garbage <- details[["garbage"]]
     garbage[length(garbage)+1] <- e[["id"]]
