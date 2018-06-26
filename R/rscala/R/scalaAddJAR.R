@@ -1,4 +1,4 @@
-#' Add JAR Files to the Classpath
+#' Add JAR Files to Classpath
 #'
 #' @param bridge An rscala bridge from the \code{scala} function.
 #' @param JARs Paths to JAR files, as a character vector.

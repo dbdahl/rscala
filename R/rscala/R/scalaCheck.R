@@ -10,7 +10,6 @@
 #' @export
 #'
 #' @examples \donttest{
-#'
 #' scalaCheck()
 #' }
 scalaCheck <- function(verbose=TRUE) {

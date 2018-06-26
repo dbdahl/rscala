@@ -10,7 +10,7 @@
 #' @export
 #'
 #' @examples \dontrun{
-#'
+#' 
 #' .onUnload <- function(libname, pkgname) {
 #'   scalaPackageUnload()
 #' }

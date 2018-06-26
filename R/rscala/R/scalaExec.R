@@ -8,7 +8,6 @@
 #' @export
 #'
 #' @examples \donttest{
-#'
 #' scalaExec()
 #' }
 scalaExec <- function(verbose=TRUE) {

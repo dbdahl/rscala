@@ -15,7 +15,6 @@
 #'   \code{\link{scala}}
 #' @export
 #' @examples \donttest{
-#'
 #' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
 #' e * 'scala.util.Random.nextDouble() <= 0.75'
 #' e(mean=10, sd=2.5) * 'mean + sd * scala.util.Random.nextGaussian()'
@@ -40,12 +39,11 @@
 #'   \code{\link{scala}}
 #' @export
 #' @examples \donttest{
-#'
 #' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
 #' x <- e ^ 'new scala.util.Random()'
 #' e(rng=x) * 'rng.nextDouble()'
 #' close(e)
-#' }#'
+#' }
 #' 
 '^.rscalaBridge' <- function(bridge, snippet) {
   details <- attr(bridge,"details")
@@ -68,7 +66,6 @@
 #'   \code{\link{scala}}
 #' @export
 #' @examples \donttest{
-#'
 #' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
 #' e + '
 #'   import scala.util.Random.nextInt
@@ -84,7 +81,6 @@
 #' e $ nextInt(100L)
 #' e $ dnorm(8, 10, 2, FALSE)
 #' close(e)
-#'
 #' }
 #' 
 '+.rscalaBridge' <- function(bridge, snippet) {

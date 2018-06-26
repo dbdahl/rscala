@@ -6,7 +6,6 @@
 #'
 #' @export
 #' @examples \donttest{
-#'
 #' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
 #' e * "2+3"
 #' scalaLast(e)

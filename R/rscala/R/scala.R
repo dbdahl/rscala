@@ -25,8 +25,6 @@
 #'   \code{*}.
 #' @param assign.name The name of the (promise of the) bridge to be assigned in
 #'   the environment given by the \code{assign.env} argument.
-#' @param assign.env The environment in which the (promise of the) bridge is
-#'   assigned.  The user should likely \emph{not} set this.
 #' @param JARs Character vector whose elements are individual JAR files to be
 #'   added to the runtime classpath.
 #' @param serialize.output Logical indicating whether Scala output should be
@@ -41,18 +39,19 @@
 #'   \code{port} and \code{port+1} are used to the TCP/IP connections.
 #' @param heap.maximum String indicating the JVM heap maximum, e.g., "8G".
 #'   Without this being set, the heap maximum will be 85\% of the physical RAM.
-#' @param debug (Developer use only.)  Logical indicating whether debugging
-#'   should be enabled.
+#' @param assign.env (Developer use only.) The environment in which the (promise
+#'   of the) bridge is assigned.
 #' @param command.line.options (Developer use only.)  A character vector
 #'   influencing the command line options when launching Scala.
+#' @param debug (Developer use only.)  Logical indicating whether debugging
+#'   should be enabled.
 #'
-#' @return Returns an rscala bridge
+#' @return Returns an rscala bridge.
 #' @seealso \code{\link{close.rscalaBridge}}, \code{\link{scalaPackage}},
 #'   \code{\link{scalaPackageUnload}}
 #' @export
 #'
 #' @examples \donttest{
-#'
 #' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
 #' rng <- e $ .new_scala.util.Random()
 #' rng $ alphanumeric() $ take(15L) $ mkString(',')
@@ -60,18 +59,19 @@
 #' h <- e(x=2, y=3) ^ 'x+y'
 #' h $ toString()
 #' e(mean=h, sd=2, r=rng) * 'mean + sd * r.nextGaussian()'
+#' close(e)
 #' }
 #' 
 scala <- function(packages=character(),
                   assign.callback=function(s) {},
                   assign.name="s",
-                  assign.env=parent.frame(),
                   JARs=character(),
                   serialize.output=.Platform$OS.type=="windows",
                   stdout=TRUE,
                   stderr=TRUE,
                   port=0L,
                   heap.maximum=NULL,
+                  assign.env=parent.frame(),
                   command.line.options=NULL,
                   debug=FALSE) {
   if ( identical(stdout,TRUE) ) stdout <- ""
