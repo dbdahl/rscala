@@ -3,8 +3,6 @@ to find a suitable Scala installation.  Details on the search are available
 using "rscala::scalaInfo(verbose=TRUE)".  Note that Scala itself requires Java.
 
 Users can install Scala with "rscala::scalaInstall()", which places Scala in
-the user's home directory under "~/.rscala".  System administrators can use
-"rscala::scalaInstall(global=TRUE)", which places Scala in the package's
-directory but requires a new installation every time the package is updated.
-To avoid this, a conventional Scala installation can be performed as described
-here: http://www.scala-lang.org/download/install.html.
+the user's home directory under "~/.rscala".  Or, your operating system may
+package Scala in its software repositories.  Or, a conventional Scala
+installation can be performed: http://www.scala-lang.org/download/install.html.
