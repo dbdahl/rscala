@@ -1,5 +1,7 @@
 #' Retrieve Information on Scala Installation
 #'
+#' This function retrieves information about the installation of Scala.
+#'
 #' @param verbose Should information on the search be provided?
 #'
 #' @return Returns a list containing the path to the Scala executable and version information.
@@ -8,6 +10,7 @@
 #' @examples{
 #' scalaInfo()
 #' }
+#' 
 scalaInfo <- function(verbose=TRUE) {
   if ( verbose ) cat("\nSearch details:\n")
   execName <- if ( .Platform$OS.type == "windows" ) "scala.bat" else "scala"
@@ -55,4 +58,31 @@ scalaInfo <- function(verbose=TRUE) {
   if ( is.null(sInfo) ) stop("Cannot find a suitable Scala insallation.")
   if ( verbose ) cat("\n")
   sInfo
+}
+
+noCandidate <- function(message, verbose) {
+  if ( verbose ) cat("    ",message,"\n",sep="")
+  NULL
+}
+
+verifyCandidate <- function(candidate, message, verbose) {
+  if ( verbose ) cat("    Looking for Scala using ",message,".\n")
+  candidate <- normalizePath(candidate, mustWork=FALSE)
+  if ( file.exists(candidate) ) {
+    if ( verbose ) cat("    Found 'scala' at ",candidate,".\n",sep="")
+    fullVersion <- tryCatch({
+      jars <- list.files(file.path(dirname(dirname(candidate)),"lib"),".*.jar$",full.names=TRUE)
+      libraryJar <- jars[grepl("^scala-library",basename(jars))]
+      fn <- unz(libraryJar,"library.properties")
+      lines <- readLines(fn)
+      close(fn)
+      sub("^version.number=","",lines[grepl("^version.number=",lines)])[1]
+    }, warning=function(e) { NULL }, error=function(e) { NULL } )
+    if ( is.null(fullVersion) ) {
+      cat("    ... but the version number is unknown.")
+      return(NULL)
+    }
+    majorVersion <- gsub("(^[23]\\.[0-9]+)\\..*","\\1",fullVersion)
+    list(cmd=candidate, fullVersion=fullVersion, majorVersion=majorVersion)
+  }
 }
