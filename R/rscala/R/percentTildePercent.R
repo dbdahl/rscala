@@ -39,8 +39,9 @@
 #'   \code{\link{scala}}
 #' @export
 #' @examples \donttest{
-#' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
-#' x <- e ^ 'new scala.util.Random()'
+#' scala(assign.name='e')              # Implicitly defines the bridge 'e'.
+#' x <- e ^ 'new scala.util.Random()'  # These two lines ...
+#' x <- e $ .new_scala.util.Random()   # ... are equivalent
 #' e(rng=x) * 'rng.nextDouble()'
 #' close(e)
 #' }
