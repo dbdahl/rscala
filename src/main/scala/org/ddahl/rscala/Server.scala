@@ -133,6 +133,13 @@ class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rsca
     conduit.reset(in.readInt())
   }
 
+  private def writeArray[T](value: Array[T], size: Int, write: (ByteBuffer,T) => ByteBuffer): Unit = {
+    val byteBuffer = ByteBuffer.allocate(value.length*size)
+    value.foreach(x => write(byteBuffer,x))
+    out.writeInt(value.length)
+    out.write(byteBuffer.array)
+  }
+
   private[rscala] def pop(datum: Datum): Unit = {
     if ( debugger.on ) debugger("pop on " + datum + ".")
     if ( serializeOutput ) {
@@ -146,11 +153,7 @@ class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rsca
       case TCODE_INT_0 =>
         out.writeInt(datum.value.asInstanceOf[Int])
       case TCODE_INT_1 =>
-        val value = datum.value.asInstanceOf[Array[Int]]
-        val byteBuffer = ByteBuffer.allocate(value.length*BYTES_PER_INT)
-        value.foreach(byteBuffer.putInt)
-        out.writeInt(value.length)
-        out.write(byteBuffer.array)
+        writeArray(datum.value.asInstanceOf[Array[Int]], BYTES_PER_INT, (b: ByteBuffer, x: Int) => b.putInt(x))
       case TCODE_INT_2 =>
         val value = datum.value.asInstanceOf[Array[Array[Int]]]
         val nRows = value.length
@@ -163,11 +166,7 @@ class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rsca
       case TCODE_DOUBLE_0 =>
         out.writeDouble(datum.value.asInstanceOf[Double])
       case TCODE_DOUBLE_1 =>
-        val value = datum.value.asInstanceOf[Array[Double]]
-        val byteBuffer = ByteBuffer.allocate(value.length*BYTES_PER_DOUBLE)
-        value.foreach(byteBuffer.putDouble)
-        out.writeInt(value.length)
-        out.write(byteBuffer.array)
+        writeArray(datum.value.asInstanceOf[Array[Double]], BYTES_PER_DOUBLE, (b: ByteBuffer, x: Double) => b.putDouble(x))
       case TCODE_DOUBLE_2 =>
         val value = datum.value.asInstanceOf[Array[Array[Double]]]
         val nRows = value.length
@@ -180,11 +179,7 @@ class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rsca
       case TCODE_LOGICAL_0 =>
         out.write(boolean2Byte(datum.value.asInstanceOf[Boolean]))
       case TCODE_LOGICAL_1 =>
-        val value = datum.value.asInstanceOf[Array[Boolean]]
-        val byteBuffer = ByteBuffer.allocate(value.length)
-        value.foreach(boolean => byteBuffer.put(boolean2Byte(boolean)))
-        out.writeInt(value.length)
-        out.write(byteBuffer.array)
+        writeArray(datum.value.asInstanceOf[Array[Boolean]], 1, (b: ByteBuffer, x: Boolean) => b.put(boolean2Byte(x)))
       case TCODE_LOGICAL_2 =>
         val value = datum.value.asInstanceOf[Array[Array[Boolean]]]
         val nRows = value.length
