@@ -1,3 +1,5 @@
+MAXIMUM_RAW_LENGTH <- 2147483647L - 5L 
+
 push <- function(what, name, socketOut) {
   pcode <- if ( is.null(name) ) PCODE_PUSH_WITHOUT_NAME
   else PCODE_PUSH_WITH_NAME
@@ -9,6 +11,7 @@ push <- function(what, name, socketOut) {
     wb(socketOut,c(pcode,TCODE_REFERENCE))
     wb(socketOut,what[["id"]])
   } else if ( is.integer(what) ) {
+    if ( length(what)*4 > MAXIMUM_RAW_LENGTH ) return(structure(FALSE,msg="Object exceeds maximum supported length."))
     if ( is.matrix(what) ) {
       dim <- dim(what)
       if ( dim[1] == 0L ) return(structure(FALSE,msg="Number of rows must be at least 1."))
@@ -25,6 +28,7 @@ push <- function(what, name, socketOut) {
       wb(socketOut,c(length(what),what))
     }
   } else if ( is.double(what) ) {
+    if ( length(what)*8 > MAXIMUM_RAW_LENGTH ) return(structure(FALSE,msg="Object exceeds maximum supported length."))
     if ( is.matrix(what) ) {
       dim <- dim(what)
       if ( dim[1] == 0L ) return(structure(FALSE,msg="Number of rows must be at least 1."))
@@ -42,6 +46,7 @@ push <- function(what, name, socketOut) {
       wb(socketOut,what)
     }
   } else if ( is.logical(what) ) {
+    if ( length(what) > MAXIMUM_RAW_LENGTH ) return(structure(FALSE,msg="Object exceeds maximum supported length."))
     if ( is.matrix(what) ) {
       dim <- dim(what)
       if ( dim[1] == 0L ) return(structure(FALSE,msg="Number of rows must be at least 1."))
@@ -59,6 +64,7 @@ push <- function(what, name, socketOut) {
       wb(socketOut,as.raw(what))
     }
   } else if ( is.raw(what) ) {
+    if ( length(what) > MAXIMUM_RAW_LENGTH ) return(structure(FALSE,msg="Object exceeds maximum supported length."))
     if ( is.matrix(what) ) {
       dim <- dim(what)
       if ( dim[1] == 0L ) return(structure(FALSE,msg="Number of rows must be at least 1."))
