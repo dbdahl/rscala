@@ -1,12 +1,13 @@
 package org.ddahl.rscala
 
 import Protocol._
-import java.io.{ByteArrayOutputStream, DataInputStream, DataOutputStream, File, PrintWriter}
-import java.nio.ByteBuffer
 import scala.tools.nsc.interpreter.IMain
 import scala.tools.nsc.interpreter.IR.Success
 import scala.annotation.tailrec
 import scala.collection.mutable.HashMap
+import scala.reflect.ClassTag
+import java.io.{ByteArrayOutputStream, DataInputStream, DataOutputStream, File, PrintWriter}
+import java.nio.ByteBuffer
 
 class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rscala] val conduit: Conduit, out: DataOutputStream, in: DataInputStream, val debugger: Debugger, val serializeOutput: Boolean, prntWrtr: PrintWriter, baos: ByteArrayOutputStream) {
 
@@ -46,6 +47,17 @@ class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rsca
     } else expression
   }
 
+  private def readArray[T: ClassTag](size: Int, read: ByteBuffer => T): Array[T] = {
+    val len = in.readInt()
+    val bytes = new Array[Byte](len*size)
+    in.readFully(bytes)
+    val byteBuffer = ByteBuffer.wrap(bytes)
+    Array.fill(len)(read(byteBuffer))
+  }
+
+  private def byte2Boolean(x: Byte): Boolean = if ( x != zero ) true else false
+  private def boolean2Byte(x: Boolean): Byte = if ( x ) one else zero
+
   private[rscala] def push(withName: Boolean): Unit = {
     if ( debugger.on ) debugger("push with" + (if (withName) "" else "out") +" name.")
     val tipe = in.readByte()
@@ -59,11 +71,7 @@ class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rsca
       case TCODE_INT_0 =>
         in.readInt()
       case TCODE_INT_1 =>
-        val len = in.readInt()
-        val bytes = new Array[Byte](len*BYTES_PER_INT)
-        in.readFully(bytes)
-        val byteBuffer = ByteBuffer.wrap(bytes)
-        Array.fill(len) { byteBuffer.getInt() }
+        readArray(BYTES_PER_INT,_.getInt)
       case TCODE_INT_2 =>
         val nRows = in.readInt()
         val nColumns = in.readInt()
@@ -74,11 +82,7 @@ class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rsca
       case TCODE_DOUBLE_0 =>
         in.readDouble()
       case TCODE_DOUBLE_1 =>
-        val len = in.readInt()
-        val bytes = new Array[Byte](len*BYTES_PER_DOUBLE)
-        in.readFully(bytes)
-        val byteBuffer = ByteBuffer.wrap(bytes)
-        Array.fill(len) { byteBuffer.getDouble() }
+        readArray(BYTES_PER_DOUBLE,_.getDouble)
       case TCODE_DOUBLE_2 =>
         val nRows = in.readInt()
         val nColumns = in.readInt()
@@ -87,20 +91,16 @@ class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rsca
         val byteBuffer = ByteBuffer.wrap(bytes)
         Array.fill(nRows) { Array.fill(nColumns) { byteBuffer.getDouble() } }
       case TCODE_LOGICAL_0 =>
-        if ( in.readByte() != zero ) true else false
+        byte2Boolean(in.readByte())
       case TCODE_LOGICAL_1 =>
-        val len = in.readInt()
-        val bytes = new Array[Byte](len)
-        in.readFully(bytes)
-        val byteBuffer = ByteBuffer.wrap(bytes)
-        Array.fill(len) { if ( byteBuffer.get() != zero ) true else false }
+        readArray(1, b => byte2Boolean(b.get()))
       case TCODE_LOGICAL_2 =>
         val nRows = in.readInt()
         val nColumns = in.readInt()
         val bytes = new Array[Byte](nRows*nColumns)
         in.readFully(bytes)
         val byteBuffer = ByteBuffer.wrap(bytes)
-        Array.fill(nRows) { Array.fill(nColumns) { if ( byteBuffer.get() != zero ) true else false } }
+        Array.fill(nRows) { Array.fill(nColumns) { byte2Boolean(byteBuffer.get()) } }
       case TCODE_RAW_0 =>
         in.readByte()
       case TCODE_RAW_1 =>
@@ -180,11 +180,11 @@ class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rsca
         out.writeInt(nColumns)
         out.write(byteBuffer.array)
       case TCODE_LOGICAL_0 =>
-        out.write(if ( datum.value.asInstanceOf[Boolean] ) one else zero)
+        out.write(boolean2Byte(datum.value.asInstanceOf[Boolean]))
       case TCODE_LOGICAL_1 =>
         val value = datum.value.asInstanceOf[Array[Boolean]]
         val byteBuffer = ByteBuffer.allocate(value.length)
-        value.foreach(boolean => byteBuffer.put(if (boolean) one else zero))
+        value.foreach(boolean => byteBuffer.put(boolean2Byte(boolean)))
         out.writeInt(value.length)
         out.write(byteBuffer.array)
       case TCODE_LOGICAL_2 =>
@@ -192,7 +192,7 @@ class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rsca
         val nRows = value.length
         val nColumns = value(0).length
         val byteBuffer = ByteBuffer.allocate(nRows*nColumns)
-        value.foreach(_.foreach(x => byteBuffer.put( if ( x ) one else zero)))
+        value.foreach(_.foreach(x => byteBuffer.put(boolean2Byte(x))))
         out.writeInt(nRows)
         out.writeInt(nColumns)
         out.write(byteBuffer.array)
