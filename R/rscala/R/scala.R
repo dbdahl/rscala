@@ -38,17 +38,18 @@
 #' @param port If \code{0}, two random ports are selected.  Otherwise,
 #'   \code{port} and \code{port+1} are used to the TCP/IP connections.
 #' @param heap.maximum String indicating the JVM heap maximum, e.g., "8G".
-#'   Without this being set, the heap maximum will be 85\% of the physical RAM.
+#'   Without this being set in either \code{\link{scala}} or
+#'   \code{\link{scalaHeapMaximum}}, the heap maximum will be 85\% of the
+#'   physical RAM.  The value from \code{\link{scalaHeapMaximum}} supersedes
+#'   that from \code{\link{scala}}.
 #' @param assign.env (Developer use only.) The environment in which the (promise
 #'   of the) bridge is assigned.
-#' @param command.line.options (Developer use only.)  A character vector
-#'   influencing the command line options when launching Scala.
 #' @param debug (Developer use only.)  Logical indicating whether debugging
 #'   should be enabled.
 #'
 #' @return Returns an rscala bridge.
 #' @seealso \code{\link{close.rscalaBridge}}, \code{\link{scalaPackage}},
-#'   \code{\link{scalaPackageUnload}}
+#'   \code{\link{scalaPackageUnload}}, \code{\link{scalaHeapMaximum}}
 #' @export
 #'
 #' @examples \donttest{
@@ -72,7 +73,6 @@ scala <- function(packages=character(),
                   port=0L,
                   heap.maximum=NULL,
                   assign.env=parent.frame(),
-                  command.line.options=NULL,
                   debug=FALSE) {
   if ( identical(stdout,TRUE) ) stdout <- ""
   if ( identical(stderr,TRUE) ) stderr <- ""
@@ -85,7 +85,9 @@ scala <- function(packages=character(),
   scalaMajor <- sInfo$majorVersion
   JARs <- c(JARs,unlist(lapply(packages, function(p) jarsOfPackage(p, scalaMajor))))
   rscalaJAR <- shQuote(list.files(system.file(file.path("java",paste0("scala-",scalaMajor)),package="rscala",mustWork=TRUE),full.names=TRUE))
-  command.line.options <- shQuote(mkCommandLineOptions(command.line.options,heap.maximum))
+  heap.maximum <- getHeapMaximum(heap.maximum)
+  command.line.options <- if ( is.null(heap.maximum) ) NULL
+  else shQuote(paste0("-J",c(paste("-Xmx",heap.maximum,sep=""),"-Xms32M")))
   sessionFilename <- tempfile("rscala-session-")
   writeLines(character(),sessionFilename)
   portsFilename <- tempfile("rscala-ports-")
@@ -101,6 +103,7 @@ scala <- function(packages=character(),
   assign("last",NULL,envir=details)
   assign("garbage",integer(),envir=details)
   assign("scalaInfo",sInfo,envir=details)
+  assign("heapMaximum",heap.maximum,envir=details)
   gcFunction <- function(e) {
     garbage <- details[["garbage"]]
     garbage[length(garbage)+1] <- e[["id"]]
@@ -169,40 +172,31 @@ jarsOfPackage <- function(pkgname, major.release) {
   result
 }
 
-mkCommandLineOptions <- function(command.line.options, heap.maximum) {
-  if ( is.null(command.line.options) ) {
-    command.line.options <- getOption("rscala.command.line.options",default=NULL)
-    if ( is.null(command.line.options) ) {
-      if ( is.null(heap.maximum) ) {
-        heap.maximum <- getOption("rscala.heap.maximum",default=NULL)
-        if ( is.null(heap.maximum) ) {
-          memoryPercentage <- 0.85
-          bytes <- if ( file.exists("/proc/meminfo") ) {  # Linux
-            outTemp <- readLines("/proc/meminfo")
-            outTemp <- outTemp[grepl("^MemTotal:\\s*",outTemp)]
-            outTemp <- gsub("^MemTotal:\\s*","",outTemp)
-            outTemp <- gsub("\\s*kB$","",outTemp)
-            as.numeric(outTemp) * 1024
-          } else if ( .Platform$OS.type=="windows" ) {    # Windows
-            outTemp <- system2("wmic",c("computersystem","get","TotalPhysicalMemory","/VALUE"),stdout=TRUE)
-            outTemp <- outTemp[outTemp != "\r"]
-            outTemp <- gsub("^TotalPhysicalMemory=","",outTemp)
-            outTemp <- gsub("\r","",outTemp)
-            as.numeric(outTemp)
-          } else if ( grepl("^darwin", R.version$os) ) {  # Mac OS X
-            outTemp <- system2("sysctl","hw.memsize",stdout=TRUE)
-            outTemp <- gsub("^hw.memsize:\\s*","",outTemp)
-            as.numeric(outTemp)
-          } else NA                                       # Unknown, so do not do anything.
-          heap.maximum <- if ( ! is.na(bytes) ) {
-            if ( .Machine$sizeof.pointer < 8L ) bytes <- min(c(1.35*1024^3,bytes))   # 32 binaries have limited memory.
-            paste0(as.integer(memoryPercentage * (bytes / 1024^2)),"m")
-          } else NULL
-        }
-      }
-      if ( !is.null(heap.maximum) ) {
-        command.line.options <- paste("-J",c(paste("-Xmx",heap.maximum,sep=""),"-Xms32M"),sep="")
-      }
-    }
-  } else command.line.options
+getHeapMaximum <- function(heap.maximum) {
+  heap.maximum <- getOption("rscala.heap.maximum", default=heap.maximum)
+  if ( ! is.null(heap.maximum) ) heap.maximum
+  else {
+    memoryPercentage <- 0.85
+    bytes <- if ( file.exists("/proc/meminfo") ) {  # Linux
+      outTemp <- readLines("/proc/meminfo")
+      outTemp <- outTemp[grepl("^MemTotal:\\s*",outTemp)]
+      outTemp <- gsub("^MemTotal:\\s*","",outTemp)
+      outTemp <- gsub("\\s*kB$","",outTemp)
+      as.numeric(outTemp) * 1024
+    } else if ( .Platform$OS.type=="windows" ) {    # Windows
+      outTemp <- system2("wmic",c("computersystem","get","TotalPhysicalMemory","/VALUE"),stdout=TRUE)
+      outTemp <- outTemp[outTemp != "\r"]
+      outTemp <- gsub("^TotalPhysicalMemory=","",outTemp)
+      outTemp <- gsub("\r","",outTemp)
+      as.numeric(outTemp)
+    } else if ( grepl("^darwin", R.version$os) ) {  # Mac OS X
+      outTemp <- system2("sysctl","hw.memsize",stdout=TRUE)
+      outTemp <- gsub("^hw.memsize:\\s*","",outTemp)
+      as.numeric(outTemp)
+    } else NA                                       # Unknown, so do not do anything.
+    if ( ! is.na(bytes) ) {
+      if ( .Machine$sizeof.pointer < 8L ) bytes <- min(c(1.35*1024^3,bytes))   # 32 binaries have limited memory.
+      paste0(as.integer(memoryPercentage * (bytes / 1024^2)),"M")
+    } else NULL
+  }
 }
