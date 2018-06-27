@@ -55,6 +55,19 @@ class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rsca
     Array.fill(len)(read(byteBuffer))
   }
 
+  private def readMatrix[T: ClassTag](size: Int, read: ByteBuffer => T): Array[Array[T]] = {
+    val nRows = in.readInt()
+    val nColumns = in.readInt()
+    val bytes = new Array[Byte](nRows * nColumns * size)
+    in.readFully(bytes)
+    val byteBuffer = ByteBuffer.wrap(bytes)
+    Array.fill(nRows) {
+      Array.fill(nColumns) {
+        read(byteBuffer)
+      }
+    }
+  }
+
   private def byte2Boolean(x: Byte): Boolean = if ( x != zero ) true else false
   private def boolean2Byte(x: Boolean): Byte = if ( x ) one else zero
 
@@ -73,34 +86,19 @@ class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rsca
       case TCODE_INT_1 =>
         readArray(BYTES_PER_INT,_.getInt)
       case TCODE_INT_2 =>
-        val nRows = in.readInt()
-        val nColumns = in.readInt()
-        val bytes = new Array[Byte](nRows*nColumns*BYTES_PER_INT)
-        in.readFully(bytes)
-        val byteBuffer = ByteBuffer.wrap(bytes)
-        Array.fill(nRows) { Array.fill(nColumns) { byteBuffer.getInt() } }
+        readMatrix(BYTES_PER_INT,_.getInt)
       case TCODE_DOUBLE_0 =>
         in.readDouble()
       case TCODE_DOUBLE_1 =>
         readArray(BYTES_PER_DOUBLE,_.getDouble)
       case TCODE_DOUBLE_2 =>
-        val nRows = in.readInt()
-        val nColumns = in.readInt()
-        val bytes = new Array[Byte](nRows*nColumns*BYTES_PER_DOUBLE)
-        in.readFully(bytes)
-        val byteBuffer = ByteBuffer.wrap(bytes)
-        Array.fill(nRows) { Array.fill(nColumns) { byteBuffer.getDouble() } }
+        readMatrix(BYTES_PER_DOUBLE,_.getDouble)
       case TCODE_LOGICAL_0 =>
         byte2Boolean(in.readByte())
       case TCODE_LOGICAL_1 =>
         readArray(1, b => byte2Boolean(b.get()))
       case TCODE_LOGICAL_2 =>
-        val nRows = in.readInt()
-        val nColumns = in.readInt()
-        val bytes = new Array[Byte](nRows*nColumns)
-        in.readFully(bytes)
-        val byteBuffer = ByteBuffer.wrap(bytes)
-        Array.fill(nRows) { Array.fill(nColumns) { byte2Boolean(byteBuffer.get()) } }
+        readMatrix(1, b => byte2Boolean(b.get()))
       case TCODE_RAW_0 =>
         in.readByte()
       case TCODE_RAW_1 =>
