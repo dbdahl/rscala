@@ -22,10 +22,22 @@ Type 'q()' to quit R.
 > 
 > cat(system2("hostname",stdout=TRUE),"\n",sep="")
 sidon
-> scalaExec()
-SCALA_HOME environment method failed.
-Shell PATH method succeeded.
-[1] "/home/dahl/local/bin/scala"
+> scalaInfo()
+
+Search details:
+    SCALA_HOME environment variable is not set.
+    Looking for Scala using PATH environment variable.
+    Found 'scala' at /home/dahl/local/scala/scala/scala-2.12.3/bin/scala.
+
+$cmd
+[1] "/home/dahl/local/scala/scala/scala-2.12.3/bin/scala"
+
+$fullVersion
+[1] "2.12.3"
+
+$majorVersion
+[1] "2.12"
+
 > sessionInfo()
 R Under development (unstable) (2018-06-21 r74929)
 Platform: x86_64-pc-linux-gnu (64-bit)
@@ -47,7 +59,7 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] microbenchmark_1.4-4       rscala_3.0.0-20180625-2052
+[1] microbenchmark_1.4-4       rscala_3.0.0-20180626-2217
 
 loaded via a namespace (and not attached):
 [1] compiler_3.6.0
@@ -59,12 +71,12 @@ loaded via a namespace (and not attached):
 > 
 > rng <- s$.new_scala.util.Random()
 > rng$nextInt()      # First-time compilation
-[1] -1728996459
+[1] -792831832
 > rng$nextInt(1L)    # First-time compilation
 [1] 0
 > nextInt <- rng$nextInt
 > nextInt()          # Alreary compiled
-[1] -1541984906
+[1] -1017684677
 > nextInt(1L)        # Alreary compiled
 [1] 0
 > 
@@ -81,24 +93,24 @@ loaded via a namespace (and not attached):
 + )
 Unit: microseconds
                            expr     min       lq     mean   median       uq
-   s(rng = rng)^"rng.nextInt()" 164.075 205.2350 237.2866 216.9325 244.1050
- s(rng = rng) * "rng.nextInt()" 123.494 158.2720 217.9952 169.2175 192.5110
-                 rng$.nextInt() 131.670 166.4270 192.7973 175.8305 196.2790
-                  rng$nextInt() 100.543 124.9630 146.2238 133.3815 151.3895
-                      nextInt()  89.253 112.2265 130.3174 120.4785 137.7880
-             rng$.nextInt(100L) 150.344 190.1135 220.6518 201.9165 227.4155
-              rng$nextInt(100L) 109.550 147.9970 171.3108 158.6200 181.8950
-                  nextInt(100L) 103.707 135.3465 158.6405 145.4695 169.4935
+   s(rng = rng)^"rng.nextInt()" 162.045 187.0535 282.3754 215.1845 233.9425
+ s(rng = rng) * "rng.nextInt()" 119.156 142.7660 176.9193 169.2480 183.5230
+                 rng$.nextInt() 134.506 151.7950 193.7930 172.8705 188.3230
+                  rng$nextInt() 101.602 113.1215 143.3687 133.9150 144.9825
+                      nextInt()  89.938 101.0080 128.9036 121.4820 131.9680
+             rng$.nextInt(100L) 153.123 172.9170 219.1881 200.7180 218.1345
+              rng$nextInt(100L) 116.423 133.7930 170.5802 161.2205 174.4665
+                  nextInt(100L) 101.707 121.4330 157.0159 147.5025 160.5310
         max neval
-  21273.955 10000
- 349728.968 10000
-   7122.651 10000
-   7653.008 10000
-   2631.598 10000
-   4819.562 10000
-   7141.707 10000
-   8441.555 10000
+ 504227.244 10000
+   2849.633 10000
+  20742.491 10000
+   2957.731 10000
+   2569.333 10000
+   6961.478 10000
+   5134.267 10000
+  20889.422 10000
 > 
 > proc.time()
    user  system elapsed 
- 10.771   4.021  20.491 
+ 11.021   3.571  21.637 
