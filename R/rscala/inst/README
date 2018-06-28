@@ -1,6 +1,6 @@
 Scala is not distributed with the rscala package.  Various techniques are used
 to find a suitable Scala installation.  Details on the search are available
-using "rscala::scalaInfo(verbose=TRUE)".  Note that Scala itself requires Java.
+using "rscala::scalaInfo()".  Note that Scala itself requires Java.
 
 Users can install Scala with "rscala::scalaInstall()", which places Scala in
 the user's home directory under "~/.rscala".  Or, your operating system may

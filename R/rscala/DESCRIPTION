@@ -1,14 +1,14 @@
 Package: rscala
 Type: Package
-Title: Bi-Directional Interface Between 'R' and 'Scala' with Callbacks
+Title: Bridge Between 'R' and 'Scala' with Callbacks
 Version: 3.0.0-20180627-2202
 Date: 2018-06-27
 Authors@R: person(given="David B.",family="Dahl",role=c("aut","cre"),email="dahl@stat.byu.edu")
 URL: https://github.com/dbdahl/rscala
 BugReports: https://github.com/dbdahl/rscala/issues
 Imports: utils
-SystemRequirements: Scala (== 2.12)
-Description: The 'Scala' <http://www.scala-lang.org/> interpreter is embedded in 'R' and callbacks to 'R' from the embedded interpreter are supported. Conversely, the 'R' interpreter is embedded in 'Scala'. 'Scala' versions in the 2.12.x series are supported.
+SystemRequirements: Scala (>= 2.11)
+Description: 'Scala' <http://www.scala-lang.org/> is embedded in 'R' and callbacks from 'Scala' to 'R' are available. Support is provided to write 'R' packages that access 'Scala'. 'Scala' versions in the 2.11.x and 2.12.x series are supported.
 Depends: R (>= 3.1.0)
 LazyData: TRUE
 License: Apache License 2.0 | file LICENSE
