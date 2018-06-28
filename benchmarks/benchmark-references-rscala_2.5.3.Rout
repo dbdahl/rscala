@@ -1,0 +1,123 @@
+
+R version 3.5.0 (2018-04-23) -- "Joy in Playing"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(rscala)
+> library(microbenchmark)
+> 
+> cat(system2("hostname",stdout=TRUE),"\n",sep="")
+sidon
+> scalaInfo()
+$cmd
+[1] "/home/dahl/local/scala/scala/scala-2.12.3/bin/scala"
+
+$home
+[1] "/home/dahl/local/scala/scala/scala-2.12.3"
+
+$version
+[1] "2.12.3"
+
+$major.release
+[1] "2.12"
+
+> sessionInfo()
+R version 3.5.0 (2018-04-23)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 16.04.4 LTS
+
+Matrix products: default
+BLAS: /usr/lib/libblas/libblas.so.3.6.0
+LAPACK: /usr/lib/lapack/liblapack.so.3.6.0
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] microbenchmark_1.4-4 rscala_2.5.3        
+
+loaded via a namespace (and not attached):
+[1] compiler_3.5.0
+> 
+> scala()
+> nReps <- 10000
+> 
+> #####
+> 
+> rng <- s$.scala.util.Random$new()
+> rng$nextInt()      # First-time compilation
+[1] -100414894
+> rng$nextInt(1L)    # First-time compilation
+[1] 0
+> nextInt <- rng$nextInt
+> nextInt()          # Alreary compiled
+[1] 908291642
+> nextInt(1L)        # Alreary compiled
+[1] 0
+> 
+> a <- function(rng) s %!% 'rng.nextInt()'
+> b <- function(rng) s %.!% 'rng.nextInt()'
+> a(rng)
+[1] -851951285
+> b(rng)
+ScalaCachedReference... _: Int
+-1187796798
+> 
+> microbenchmark(
++   b(rng),
++   a(rng),
++   rng$nextInt(.AS.REFERENCE=TRUE),
++   rng$nextInt(),
++   nextInt(),
++   rng$nextInt(100L,.AS.REFERENCE=TRUE),
++   rng$nextInt(100L),
++   nextInt(100L),
++   times=nReps
++ )
+Unit: microseconds
+                                    expr     min        lq      mean   median
+                                  b(rng) 929.127 1000.3700 1258.1853 1102.528
+                                  a(rng) 871.904  954.6465 1186.5723 1053.675
+       rng$nextInt(.AS.REFERENCE = TRUE) 507.918  561.7185  713.4960  620.971
+                           rng$nextInt() 464.926  513.3415  663.5071  575.125
+                               nextInt() 463.967  504.9320  645.4041  568.609
+ rng$nextInt(100L, .AS.REFERENCE = TRUE) 678.952  732.3630  926.4079  813.062
+                       rng$nextInt(100L) 627.992  682.8525  879.0694  762.608
+                           nextInt(100L) 620.264  675.5075  853.0284  749.496
+        uq       max neval
+ 1155.3270 45271.091 10000
+ 1105.5705 10890.391 10000
+  653.9495  7693.163 10000
+  604.5935  9413.272 10000
+  596.2135 33027.930 10000
+  851.7655 42070.277 10000
+  799.9475 43874.345 10000
+  789.3280 33030.917 10000
+> 
+> 
+> 
+> proc.time()
+   user  system elapsed 
+ 61.463  10.495  81.413 

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+Rb benchmark-compile.R
+Rb benchmark-invocation.R
+Rb benchmark-large.R
+Rb benchmark-references.R

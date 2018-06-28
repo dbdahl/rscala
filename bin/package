@@ -1,0 +1,93 @@
+#!/bin/bash
+
+set -e
+
+## For debugging
+# set -x
+# trap read debug
+
+PKG_NAME=rscala
+
+case "$(uname -s)" in
+  Darwin)
+    SEP=':'
+    SEDOPT=.trashme
+    PKG_HOME=$(dirname "$0")/..
+    CWD=$(pwd -P)
+    cd "$PKG_HOME"
+    PKG_HOME=$(pwd -P)
+    cd "$CWD"
+    ;;
+  CYGWIN*|MINGW32*|MSYS*)
+    SEP=';'
+    SEDOPT=""
+    PKG_HOME=$(readlink -f $(dirname $(readlink -f "$0"))/..)
+    ;;
+  *)
+    SEP=':'
+    SEDOPT=""
+    PKG_HOME=$(readlink -f $(dirname $(readlink -f "$0"))/..)
+    ;;
+esac
+
+
+
+# Make protocal.R script
+
+cd $(dirname $(readlink -f "$0"))
+./make-protocol
+cd ..
+
+
+
+# Set version number 
+
+function setversion {
+  OLDWD="$PWD"
+  sed -i $SEDOPT 's/\(\s*Version\s*:\s*\)\(.*\)/\1'"$1"'/g' R/$PKG_NAME/DESCRIPTION
+  sed -i $SEDOPT 's/\(\s*Date\s*:\s*\)\(.*\)/\1'"$2"'/g' R/$PKG_NAME/DESCRIPTION
+  cd "$OLDWD"
+}
+
+PKG_VERSION=$(cat build.sbt | grep "^version := " | cut -d '"' -f 2)
+set +e
+echo $PKG_VERSION | grep -q SNAPSHOT
+if [[ $? == 0 ]]
+then
+  PKG_VERSION=$(echo $PKG_VERSION | sed s/SNAPSHOT/$(date +'%Y%m%d-%H%M')/g)
+fi
+set -e
+setversion $PKG_VERSION $(date +'%Y-%m-%d')
+
+
+
+# Compile Scala
+
+sbt +package +packageSrc
+
+JARDIR="$PKG_HOME"/R/${PKG_NAME}/inst/java
+rm -rf "$JARDIR"
+shopt -s extglob
+for i in 2.11 2.12
+do
+  mkdir -p "$JARDIR"/scala-$i
+  find "$PKG_HOME"/target -regex '.*/'${PKG_NAME}_$i'-.*[^a-zA-Z]+\(-SNAPSHOT\)?\.jar' | xargs ls -1t | head -1 | xargs -i cp '{}' "$JARDIR"/scala-$i
+done
+
+SRCDIR="$PKG_HOME"/R/${PKG_NAME}/java
+rm -rf "$SRCDIR"
+mkdir -p "$SRCDIR"
+find "$PKG_HOME"/target -regex '.*/'${PKG_NAME}'_2.12-.*[^a-zA-Z]+\(-SNAPSHOT\)?\-sources.jar' | xargs ls -1t | head -1 | xargs -i cp '{}' "$SRCDIR"/${PKG_NAME}-sources.jar
+ 
+
+
+# Build package
+
+cd R
+cd $PKG_NAME
+R -e 'devtools::document(roclets=c("rd", "collate", "namespace"))'
+cd ..
+R CMD build $PKG_NAME
+R CMD INSTALL $PKG_NAME
+cd ..
+

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -e
+
+cd $(dirname $(readlink -f "$0"))/..
+
+bin/package
+
+cd R
+
+R CMD check --as-cran --run-donttest $(ls -1t *.tar.gz | head -1)
+

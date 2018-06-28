@@ -1,0 +1,83 @@
+
+R Under development (unstable) (2018-06-21 r74929) -- "Unsuffered Consequences"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(rscala)
+> library(microbenchmark)
+> 
+> cat(system2("hostname",stdout=TRUE),"\n",sep="")
+sidon
+> scalaInfo()
+
+Search details:
+    SCALA_HOME environment variable is not set.
+    Looking for Scala using PATH environment variable.
+    Found 'scala' at /home/dahl/local/scala/scala/scala-2.12.3/bin/scala.
+
+$cmd
+[1] "/home/dahl/local/scala/scala/scala-2.12.3/bin/scala"
+
+$fullVersion
+[1] "2.12.3"
+
+$majorVersion
+[1] "2.12"
+
+> sessionInfo()
+R Under development (unstable) (2018-06-21 r74929)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 16.04.4 LTS
+
+Matrix products: default
+BLAS: /usr/lib/libblas/libblas.so.3.6.0
+LAPACK: /usr/lib/lapack/liblapack.so.3.6.0
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] microbenchmark_1.4-4       rscala_3.0.0-20180627-2050
+
+loaded via a namespace (and not attached):
+[1] compiler_3.6.0
+> 
+> openAndClose <- function() {
++   scala()
++   s * "3"
++   close(s)
++ }
+> 
+> microbenchmark(
++   openAndClose(),
++   times=10
++ )
+Unit: seconds
+           expr      min       lq     mean   median       uq      max neval
+ openAndClose() 4.637146 4.784212 5.382183 5.208576 5.558977 7.762795    10
+> 
+> proc.time()
+   user  system elapsed 
+  0.490   0.282  54.145 
