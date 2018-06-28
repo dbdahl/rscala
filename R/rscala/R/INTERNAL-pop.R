@@ -1,6 +1,5 @@
-pop <- function(details, callingEnv) {
+pop <- function(details) {
   socketIn <- details[["socketIn"]]
-  if ( details[["serializeOutput"]] ) cat(rc(socketIn))
   goAgain <- TRUE
   while ( goAgain ) {
     goAgain <- FALSE
@@ -67,7 +66,7 @@ pop <- function(details, callingEnv) {
       assign("interrupted",TRUE,envir=details)
       return(invisible())
     } else if ( tipe == TCODE_CALLBACK ) {
-      callback(details, callingEnv)
+      callback(details)
       goAgain <- TRUE
     } else stop(paste0("Unsupported type: ",tipe))
   }
