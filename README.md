@@ -22,5 +22,5 @@ install.packages("rscala")
 Resources:
 
 * [Git repository](https://github.com/dbdahl/rscala) containing source code and build & test scripts.
-* [Package](https://cran.r-project.org/package=rscala) on [Comprehensive R Archive Network (CRAN)](http://cran.r-project.org/).
+* [Package](https://CRAN.R-project.org/package=rscala) on [Comprehensive R Archive Network (CRAN)](HTTP://CRAN.r-project.org/).
 
