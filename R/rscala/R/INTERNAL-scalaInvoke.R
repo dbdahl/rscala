@@ -28,6 +28,5 @@ scalaInvoke <- function(details, snippet, args, withNames=FALSE, withReference=F
   }
   wb(socketOut,length(args))
   wc(socketOut,snippet)
-  if ( details[["serializeOutput"]] ) cat(rc(details[["socketIn"]]))
   pop(details)
 }

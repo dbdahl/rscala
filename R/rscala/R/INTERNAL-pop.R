@@ -1,8 +1,10 @@
 pop <- function(details) {
   socketIn <- details[["socketIn"]]
+  serializeOutput <- details[["serializeOutput"]]
   goAgain <- TRUE
   while ( goAgain ) {
     goAgain <- FALSE
+    if ( serializeOutput ) cat(rc(socketIn))
     tipe <- rbyte(socketIn)
     result <- if ( tipe == TCODE_INT_0 ) {
       rb(socketIn,RTYPE_INT)
