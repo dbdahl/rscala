@@ -19,6 +19,25 @@ Install the package in R by executing:
 install.packages("rscala") 
 ```
 
+A paper describing an older version of the software is awaiting peer review at
+the [Journal of Statistical Softwware](https://www.jstatsoft.org).  The paper
+will be updated to the current version when the peer review is available.  In
+the meantime, the functionality of the paper is described and demonstrated
+in the help files:
+
+```R
+library(help="rscala")
+library(rscala)
+example(scala)
+
+```
+
+R extensions can be written using this package, as demonstrated by these packages:
+
+* [sdols](https://CRAN.R-project.org/package=sdols)
+* [shallot](https://CRAN.R-project.org/package=shallot)
+* [bamboo](https://CRAN.R-project.org/package=bamboo)
+
 Resources:
 
 * [Git repository](https://github.com/dbdahl/rscala) containing source code and build & test scripts.
