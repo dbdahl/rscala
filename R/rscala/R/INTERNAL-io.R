@@ -16,7 +16,6 @@ rbyte <- function(con) {
       TCODE_INTERRUPTED
     })
     if ( length(x) > 0 ) return(x)
-    browser()
   }
 }
 
@@ -31,7 +30,6 @@ rb <- function(con,v,n=1L) {
     r <- readBin(con,v,n,endian="big")
     if ( length(r) == n ) r
     else {
-      browser()
       counter <- 0L
       while ( length(r) != n ) {
         if ( counter >= 100 ) stop("Connection isn't providing data.")
