@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -e
+
+cd $(dirname $(readlink -f "$0"))/..
+
+cd R
+TGZ_NAME=$(ls -1t *.tar.gz | head -1)
+R CMD check --as-cran $TGZ_NAME
+cp -f $TGZ_NAME ../deliveries/$TGZ_NAME
+cd ..
+
+rsync --chmod=644 deliveries/$TGZ_NAME dahl.byu.edu:public
+ssh dahl.byu.edu "cd public && ln -f -s $TGZ_NAME rscala_LATEST.tar.gz"
+echo -e "####\nPosted to\n  https://dahl.byu.edu/public/$TGZ_NAME\n####"
+
