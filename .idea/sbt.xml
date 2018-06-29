@@ -16,6 +16,5 @@
         <option name="useSbtShell" value="true" />
       </SbtProjectSettings>
     </option>
-    <option name="maximumHeapSize" value="2048" />
   </component>
 </project>
