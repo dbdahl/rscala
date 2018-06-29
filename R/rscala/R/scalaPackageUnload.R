@@ -18,6 +18,11 @@
 #' 
 scalaPackageUnload <- function() {
   pkgEnv <- parent.env(parent.frame())    # Environment of depending package (assuming this function is only called in .onUnload function).
-  if ( pkgEnv[["rscalaBridgeOwner"]] ) close(pkgEnv[[pkgEnv[["rscalaBridgeName"]]]])
+  if ( pkgEnv[["rscalaBridgeOwner"]] ) {
+    close(pkgEnv[[pkgEnv[["rscalaBridgeName"]]]])
+    if ( identical(.Platform$OS.type,"windows") && ( ! interactive() ) ) {
+      Sys.sleep(6)
+    }
+  }
   invisible()
 }

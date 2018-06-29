@@ -1,3 +1,6 @@
+3.0.1 (2018-06-28)
+  * Small bug fix discovered when testing on Windows.
+
 3.0.0 (2018-06-28)
   * Improvements to the API.  See descriptions and examples in the help files.
   * Significantly reduced the overhead of making a calls to and from Scala,
