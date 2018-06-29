@@ -54,7 +54,7 @@ scalaInfo <- function(verbose=TRUE) {
       }
     }
   }
-  if ( is.null(sInfo) ) stop("Cannot find a suitable Scala insallation.")
+  if ( is.null(sInfo) ) stop("Please run 'rscala::scalaInstall()' or install Scala manually.")
   if ( verbose ) cat("\n")
   sInfo
 }
