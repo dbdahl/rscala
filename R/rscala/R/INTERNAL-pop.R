@@ -35,6 +35,9 @@ pop <- function(details) {
     } else if  ( tipe == TCODE_RAW_1 ) {
       len <- rb(socketIn,RTYPE_INT)
       rb(socketIn,RTYPE_RAW,len)
+    } else if ( tipe == TCODE_ROBJECT ) {
+      len <- rb(socketIn,RTYPE_INT)
+      list(value=rb(socketIn,RTYPE_RAW,len))
     } else if ( tipe == TCODE_RAW_2 ) {
       dim <- rb(socketIn,RTYPE_INT,2L)
       matrix(rb(socketIn,RTYPE_RAW,prod(dim)),nrow=dim[1],byrow=TRUE)

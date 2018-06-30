@@ -37,6 +37,7 @@ object Protocol {
   val TCODE_CHARACTER_2    = 64.toByte
   val TCODE_UNIT           = 65.toByte
   val TCODE_REFERENCE      = 70.toByte
+  val TCODE_ROBJECT        = 71.toByte
   val TCODE_ERROR_DEF      = 80.toByte
   val TCODE_ERROR_INVOKE   = 81.toByte
   val TCODE_INTERRUPTED    = 82.toByte

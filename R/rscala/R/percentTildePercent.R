@@ -88,3 +88,11 @@
   details <- attr(bridge,"details")
   scalaEvaluate(details, snippet)
 }
+
+#' @export
+#' 
+'-.rscalaBridge' <- function(bridge,rObject) bridge$.R.evalObject('rObject')
+
+#' @export
+#' 
+'-.rscalaReference' <- function(rscalaReference, e2) unserialize(rscalaReference$x())

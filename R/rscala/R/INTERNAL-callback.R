@@ -9,8 +9,14 @@ callback <- function(details) {
     if ( ! exists(argsListName,envir=env) ) break
   }
   for ( i in seq_len(nArgs) ) {
-    snippet <- sub("%-",paste0(argsListName,"[[",i,"]]"),snippet)
-    args[[i]] <- pop(details)
+    arg <- pop(details)
+    rhs <- paste0(argsListName,"[[",i,"]]")
+    if ( is.list(arg) ) {
+      arg <- arg[['value']]
+      rhs <- paste0("unserialize(",rhs,")")
+    }
+    snippet <- sub("%-",rhs,snippet)
+    args[[i]] <- arg
   }
   assign(argsListName,args,envir=env)  
   result <- tryCatch(eval(parse(text=snippet),envir=env), error=function(e) {

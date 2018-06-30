@@ -2,6 +2,8 @@ package org.ddahl.rscala
 
 import Protocol._
 
+class RObject private[rscala] (val x: Array[Byte])
+
 class RClient() {
 
   private[rscala] var server: Server = null
@@ -27,6 +29,13 @@ class RClient() {
   def evalS0(template: String, values: Any*): String                = evalWithResult[String]                (template, values)
   def evalS1(template: String, values: Any*): Array[String]         = evalWithResult[Array[String]]         (template, values)
   def evalS2(template: String, values: Any*): Array[Array[String]]  = evalWithResult[Array[Array[String]]]  (template, values)
+
+  def evalObject(template: String, values: Any*): RObject = {
+    val template2 = "I(serialize(" + template + ",NULL))"
+    evalEngine(template2,values)
+    val x = server.conduit.pop[Array[Byte]]
+    new RObject(x)
+  }
 
   private def evalWithoutResult[A](template: String, values: Seq[Any]): Unit = {
     evalEngine(template + "; NULL",values)
@@ -69,10 +78,12 @@ class RClient() {
         case "java.lang.Boolean" => TCODE_LOGICAL_0
         case "java.lang.Byte" => TCODE_RAW_0
         case "java.lang.String" => TCODE_CHARACTER_0
-        case _ => throw new RuntimeException("Unsupported type.")
+        case "org.ddahl.rscala.RObject" => TCODE_ROBJECT
+        case o => throw new RuntimeException("Unsupported type: <"+o+">")
       }
     }
-    Datum(any, tipe, None)
+    if ( tipe == TCODE_ROBJECT ) Datum(any.asInstanceOf[RObject].x, tipe, None)
+    else Datum(any, tipe, None)
   }
 
 }

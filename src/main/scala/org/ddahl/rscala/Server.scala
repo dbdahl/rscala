@@ -180,7 +180,7 @@ class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rsca
         writeMatrix(datum.value.asInstanceOf[Array[Array[Boolean]]], 1, (b: ByteBuffer, x: Boolean) => b.put(boolean2Byte(x)))
       case TCODE_RAW_0 =>
         out.writeByte(datum.value.asInstanceOf[Byte])
-      case TCODE_RAW_1 =>
+      case TCODE_RAW_1 | TCODE_ROBJECT =>
         val value = datum.value.asInstanceOf[Array[Byte]]
         out.writeInt(value.length)
         out.write(value)
