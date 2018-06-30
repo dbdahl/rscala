@@ -89,10 +89,44 @@
   scalaEvaluate(details, snippet)
 }
 
+#' Operator to Make an R Object Reference
+#'
+#' This operator creates an rscala reference to an arbitrary R object.  This reference
+#' can be passed as an argument to a method call of the embedded \code{RClient} or
+#' may be reconstituted using the unary minus operator \code{\link{-.rscalaReference}}.
+#'
+#' @param bridge 
+#' @param rObject 
+#' 
+#' @seealso \code{\link{-.rscalaReference}}
 #' @export
+#' @examples
+#' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
+#' wrappedFunction <- e - rnorm
+#' (-wrappedFunction)(10)
+#' close(e)
 #' 
 '-.rscalaBridge' <- function(bridge,rObject) bridge$.R.evalObject('rObject')
 
-#' @export
+#' Operator to Reconstitute an R object
 #' 
-'-.rscalaReference' <- function(rscalaReference, e2) unserialize(rscalaReference$x())
+#' This operator reconstitutes an R object that has been created by the binary minus
+#' operator \code{\link{-.rscalaReference}} on a scala bridge.
+#'
+#' @param rscalaReference An rscala reference of type \code{org.ddahl.rscala.RObject}.
+#'
+#' @aliases unaryMinus
+#' @export
+#' @seealso \code{\link{-.rscalaBridge}}
+#' @examples
+#' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
+#' wrappedFunction <- e - rnorm
+#' (-wrappedFunction)(10)
+#' close(e)
+#'  
+'-.rscalaReference' <- function(rscalaReference, e2) {
+  if ( rscalaReference[["type"]] != "org.ddahl.rscala.RObject" ) {
+    stop("Only references created by the -.rscalaBridge operator are allowed.")
+  }
+  unserialize(rscalaReference$x())
+}
