@@ -8,13 +8,28 @@ sampler <- function() {
 }
 
 mm <- function(n) s(sf=s-sampler,n=as.integer(n[1])) * '
-  Array.fill(n) {
+  List.fill(n) {
     R.evalObject("%-()",sf)
   }
 '
 
 b <- mm(10)
-b <- mm(10000)
+library(microbenchmark)
+microbenchmark(
+  mm(1)
+  ,
+  mm(10)
+  ,
+  mm(100)
+  ,
+  mm(500)
+  ,
+  mm(1000)
+  ,
+  mm(10000)
+  ,times=10)
+
+b <- mm(1000)
 
 -(s - list(1,2,3))
 -(s - I(list(1,2,3)))
