@@ -8,10 +8,28 @@ sampler <- function() {
 }
 
 mm <- function(n) s(sf=s-sampler,n=as.integer(n[1])) * '
-  List.fill(n) {
+  var time = System.nanoTime()
+  List.tabulate(n) { i =>
+    if ( i % 100 == 0 ) R.eval("gc()")
+    val newTime = System.nanoTime()
+    val lapse = newTime - time
+    time = newTime
+    println(lapse+" : "+i)
     R.evalObject("%-()",sf)
   }
 '
+
+s$showCode <- TRUE
+system.time(mm(1))
+system.time(mm(1))
+
+s$debug <- FALSE
+system.time(mm(1000))
+s$debug <- TRUE
+system.time(mm(1000))
+system.time(mm(10000))
+
+
 
 b <- mm(10)
 library(microbenchmark)
