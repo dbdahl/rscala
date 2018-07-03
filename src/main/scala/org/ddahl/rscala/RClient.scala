@@ -4,13 +4,12 @@ import Protocol._
 
 final class RObject private[rscala] (val x: Array[Byte]) {
 
-  private def canEqual(a: Any) = a.isInstanceOf[RObject]
+  private def canEqual(a: Any): Boolean = a.isInstanceOf[RObject]
 
-  override def equals(that: Any): Boolean =
-    that match {
-      case that: RObject => that.canEqual(this) && this.hashCode == that.hashCode
-      case _ => false
-    }
+  override def equals(that: Any): Boolean = that match {
+    case that: RObject => that.canEqual(this) && this.hashCode == that.hashCode
+    case _ => false
+  }
 
   override def hashCode: Int = java.util.Arrays.hashCode(x)
 

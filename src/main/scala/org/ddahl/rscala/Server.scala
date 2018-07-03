@@ -260,11 +260,11 @@ class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rsca
     if ( ! freeForm ) sb.append(conduit.argsList(nArgs, withReference))
     sb.append("\n}")
     val body = sb.toString
-    if ( conduit.showCode || debugger.on ) {
-      prntWrtr.println("Generated code:")
-      prntWrtr.println(body)
-    }
     val (jvmFunction, resultType) = functionMap.getOrElse(body, {
+      if ( conduit.showCode || debugger.on ) {
+        prntWrtr.println("Generated code:")
+        prntWrtr.println(body)
+      }
       val result = wrap(intp.interpret(body))
       if ( result != Success ) {
         if ( debugger.on ) debugger("error in defining function.")
