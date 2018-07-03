@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2018-06-21 r74929) -- "Unsuffered Consequences"
+R version 3.5.0 (2018-04-23) -- "Joy in Playing"
 Copyright (C) 2018 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -21,25 +21,25 @@ Type 'q()' to quit R.
 > library(microbenchmark)
 > 
 > cat(system2("hostname",stdout=TRUE),"\n",sep="")
-sidon
+ramah
 > scalaInfo()
 
 Search details:
     SCALA_HOME environment variable is not set.
     Looking for Scala using PATH environment variable.
-    Found 'scala' at /home/dahl/local/scala/scala/scala-2.12.3/bin/scala.
+    Found 'scala' at /home/dahl/local/scala/scala/scala-2.12.6/bin/scala.
 
 $cmd
-[1] "/home/dahl/local/scala/scala/scala-2.12.3/bin/scala"
+[1] "/home/dahl/local/scala/scala/scala-2.12.6/bin/scala"
 
 $fullVersion
-[1] "2.12.3"
+[1] "2.12.6"
 
 $majorVersion
 [1] "2.12"
 
 > sessionInfo()
-R Under development (unstable) (2018-06-21 r74929)
+R version 3.5.0 (2018-04-23)
 Platform: x86_64-pc-linux-gnu (64-bit)
 Running under: Ubuntu 16.04.4 LTS
 
@@ -59,10 +59,10 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] microbenchmark_1.4-4       rscala_3.0.0-20180627-2050
+[1] microbenchmark_1.4-4       rscala_3.0.2-20180703-1547
 
 loaded via a namespace (and not attached):
-[1] compiler_3.6.0
+[1] compiler_3.5.0
 > 
 > scala()
 > nReps <- 100
@@ -77,14 +77,14 @@ loaded via a namespace (and not attached):
 +   times=nReps
 + )
 Unit: microseconds
-                                    expr        min         lq        mean
- s * sample.int(.Machine$integer.max, 1) 105049.610 121067.294 159638.2776
-                          s * 2056700609     91.331    173.284    258.8325
-     median          uq        max neval
- 141698.562 177980.7465 370302.840   100
-    234.238    297.2445   1127.129   100
+                                    expr       min         lq        mean
+ s * sample.int(.Machine$integer.max, 1) 82913.300 87509.4505 110979.8448
+                          s * 2056700609    91.348   172.4095    197.8687
+    median          uq        max neval
+ 98521.398 117866.6095 277778.765   100
+   192.031    217.4845    457.522   100
 > 
 > 
 > proc.time()
    user  system elapsed 
-  0.323   0.162  20.876 
+  0.208   0.148  14.385 

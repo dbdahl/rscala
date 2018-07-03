@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2018-06-21 r74929) -- "Unsuffered Consequences"
+R version 3.5.0 (2018-04-23) -- "Joy in Playing"
 Copyright (C) 2018 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -21,25 +21,25 @@ Type 'q()' to quit R.
 > library(microbenchmark)
 > 
 > cat(system2("hostname",stdout=TRUE),"\n",sep="")
-sidon
+ramah
 > scalaInfo()
 
 Search details:
     SCALA_HOME environment variable is not set.
     Looking for Scala using PATH environment variable.
-    Found 'scala' at /home/dahl/local/scala/scala/scala-2.12.3/bin/scala.
+    Found 'scala' at /home/dahl/local/scala/scala/scala-2.12.6/bin/scala.
 
 $cmd
-[1] "/home/dahl/local/scala/scala/scala-2.12.3/bin/scala"
+[1] "/home/dahl/local/scala/scala/scala-2.12.6/bin/scala"
 
 $fullVersion
-[1] "2.12.3"
+[1] "2.12.6"
 
 $majorVersion
 [1] "2.12"
 
 > sessionInfo()
-R Under development (unstable) (2018-06-21 r74929)
+R version 3.5.0 (2018-04-23)
 Platform: x86_64-pc-linux-gnu (64-bit)
 Running under: Ubuntu 16.04.4 LTS
 
@@ -59,10 +59,10 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] microbenchmark_1.4-4       rscala_3.0.0-20180627-2050
+[1] microbenchmark_1.4-4       rscala_3.0.2-20180703-1547
 
 loaded via a namespace (and not attached):
-[1] compiler_3.6.0
+[1] compiler_3.5.0
 > 
 > scala()
 > nReps <- 100
@@ -76,9 +76,9 @@ loaded via a namespace (and not attached):
 +   times=nReps
 + )
 Unit: milliseconds
-             expr      min       lq     mean   median       uq       max neval
-   s(x = big)^"x" 131.2834 139.1653 153.8193 144.3551 157.7956  349.8052   100
- s(x = big) * "x" 344.0024 370.5711 423.5548 393.3088 439.2368 1241.6231   100
+             expr      min       lq     mean   median       uq      max neval
+   s(x = big)^"x" 118.7084 122.3264 136.0183 124.4788 125.7850 429.1364   100
+ s(x = big) * "x" 304.3786 313.0757 360.1212 330.0671 377.7753 893.9179   100
 >  
 > s * "true"    # Is everything still okay?
 [1] TRUE
@@ -86,4 +86,4 @@ Unit: milliseconds
 > 
 > proc.time()
    user  system elapsed 
- 15.222  14.578  63.282 
+ 12.876  11.808  53.366 
