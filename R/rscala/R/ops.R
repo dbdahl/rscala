@@ -106,7 +106,17 @@
 #' (-wrappedFunction)(10)
 #' close(e)
 #' 
-'-.rscalaBridge' <- function(bridge,rObject) bridge$.R.evalObject('rObject')
+'-.rscalaBridge' <- function(bridge,rObject) {
+  if ( is.list(rObject) && ( ! inherits(rObject,"AsIs") ) ) {
+    bridge(len=length(rObject)) ^ '
+      Array.tabulate(len) { i =>
+        R.evalObject("rObject[[%-]]",i+1)
+      }
+    '
+  } else {
+    bridge$.R.evalObject('rObject')
+  }
+}
 
 #' Operator to Reconstitute an R object
 #' 
@@ -125,8 +135,17 @@
 #' close(e)
 #'  
 '-.rscalaReference' <- function(rscalaReference, e2) {
-  if ( rscalaReference[["type"]] != "org.ddahl.rscala.RObject" ) {
-    stop("Only references created by the -.rscalaBridge operator are allowed.")
-  }
-  unserialize(rscalaReference$x())
+  type <- rscalaReference[["type"]] 
+  if ( type == "org.ddahl.rscala.RObject" ) {
+    unserialize(rscalaReference$x())
+  } else if ( type == "Array[org.ddahl.rscala.RObject]" ) {
+    args <- list(arr=rscalaReference)
+    snippet <- '.(arr.flatMap(_.x), arr.scanLeft(1)((sum,y) => sum + y.x.length))'
+    pair <- scalaInvoke(rscalaReference[["details"]], snippet, args, withNames=TRUE)
+    bytes <- pair$"_1"()
+    sizes <- pair$"_2"()
+    lapply(seq_along(sizes[-1]), function(i) {
+      unserialize(bytes[sizes[i]:(sizes[i+1]-1)])
+    }) 
+  } else stop("Only references to RObject or Array[RObject] are allowed.")
 }

@@ -2,7 +2,19 @@ package org.ddahl.rscala
 
 import Protocol._
 
-class RObject private[rscala] (val x: Array[Byte])
+final class RObject private[rscala] (val x: Array[Byte]) {
+
+  private def canEqual(a: Any) = a.isInstanceOf[RObject]
+
+  override def equals(that: Any): Boolean =
+    that match {
+      case that: RObject => that.canEqual(this) && this.hashCode == that.hashCode
+      case _ => false
+    }
+
+  override def hashCode: Int = java.util.Arrays.hashCode(x)
+
+}
 
 class RClient() {
 

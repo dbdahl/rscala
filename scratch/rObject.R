@@ -7,15 +7,53 @@ sampler <- function() {
   list(mean=rnorm(1),prob=rbeta(1,1,1))
 }
 
-microbenchmark(
-o <- s(samplerFunction=s-sampler) * '
-  R.evalObject("%-()",samplerFunction)
-',
-s$R.evalObject("%-()",s-sampler),
-times=1000)
+mm <- function(n) s(sf=s-sampler,n=as.integer(n[1])) * '
+  Array.fill(n) {
+    R.evalObject("%-()",sf)
+  }
+'
 
-sf <- s-sampler
--sf
+b <- mm(10)
+b <- mm(10000)
+
+-(s - list(1,2,3))
+-(s - I(list(1,2,3)))
+
+identical(-b, -(s - (-b)))
+
+
+
+
+microbenchmark(
+  -b
+  ,
+  sapply(-b,function(i) i) 
+  ,times=10)
+
+
+
+undo <- function(b) {
+  nn <- s(mm=b) ^ '
+    (mm.flatMap(_.x), mm.scanLeft(1)((sum,x) => sum + x.x.length))
+  '
+  bytes <- nn$"_1"()
+  sizes <- nn$"_2"()
+  lapply(seq_along(sizes[-1]), function(i) {
+    unserialize(bytes[sizes[i]:(sizes[i+1]-1)])
+  })
+}
+p <- undo(b)
+
+
+
+nn <- s(mm=mm) * '
+  mm.map(_.x)
+'
+unlist(apply(nn,1,function(i) unserialize(i)))
+
+for ( i in seq_along(sizes) ) {
+  unserialize(arr
+}
 
 y <- s$R.evalObject
 microbenchmark(
