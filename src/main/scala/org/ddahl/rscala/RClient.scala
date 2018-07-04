@@ -42,7 +42,7 @@ class RClient() {
   def evalS2(template: String, values: Any*): Array[Array[String]]  = evalWithResult[Array[Array[String]]]  (template, values, "storage.mode(.rs) <- 'character'; .rs")
 
   def evalObject(template: String, values: Any*): RObject = {
-    val template2 = "I(serialize(" + template + ",NULL))"
+    val template2 = "I(serialize({" + template + "},NULL))"
     evalEngine(template2, values)
     val x = server.conduit.pop[Array[Byte]]
     new RObject(x)
