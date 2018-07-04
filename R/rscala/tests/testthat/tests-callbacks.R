@@ -22,15 +22,10 @@ test_that("primitives work in callbacks", {
 
 test_that("length 1 vectors work in callbacks", {
   x <- as.integer(1); expect_identical(s(x=I(x)) * 'R.evalI1("I(%-)",x)', x)
-  x <- as.integer(1); expect_error(s(x=I(x)) * 'R.evalI1("%-",x)', "^Invocation error")
   x <- as.double(1); expect_identical(s(x=I(x)) * 'R.evalD1("I(%-)",x)', x)
-  x <- as.double(1); expect_error(s(x=I(x)) * 'R.evalD1("%-",x)', "^Invocation error")
   x <- as.logical(1); expect_identical(s(x=I(x)) * 'R.evalL1("I(%-)",x)', x)
-  x <- as.logical(1); expect_error(s(x=I(x)) * 'R.evalL1("%-",x)', "^Invocation error")
   x <- as.raw(1); expect_identical(s(x=I(x)) * 'R.evalR1("I(%-)",x)', x)
-  x <- as.raw(1); expect_error(s(x=I(x)) * 'R.evalR1("%-",x)', "^Invocation error")
   x <- as.character(1); expect_identical(s(x=I(x)) * 'R.evalS1("I(%-)",x)', x)
-  x <- as.character(1); expect_error(s(x=I(x)) * 'R.evalS1("%-",x)', "^Invocation error")
 })
 
 test_that("length 2 vectors work in callbacks", {

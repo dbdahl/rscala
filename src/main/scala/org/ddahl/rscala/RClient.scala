@@ -21,40 +21,40 @@ class RClient() {
 
   def eval  (template: String, values: Any*): Unit                  = evalWithoutResult                     (template, values)
 
-  def evalI0(template: String, values: Any*): Int                   = evalWithResult[Int]                   (template, values)
-  def evalI1(template: String, values: Any*): Array[Int]            = evalWithResult[Array[Int]]            (template, values)
-  def evalI2(template: String, values: Any*): Array[Array[Int]]     = evalWithResult[Array[Array[Int]]]     (template, values)
+  def evalI0(template: String, values: Any*): Int                   = evalWithResult[Int]                   (template, values, "storage.mode(.rs) <- 'integer'; .rs[1]")
+  def evalI1(template: String, values: Any*): Array[Int]            = evalWithResult[Array[Int]]            (template, values, "storage.mode(.rs) <- 'integer'; I(.rs)")
+  def evalI2(template: String, values: Any*): Array[Array[Int]]     = evalWithResult[Array[Array[Int]]]     (template, values, "storage.mode(.rs) <- 'integer'; .rs")
 
-  def evalD0(template: String, values: Any*): Double                = evalWithResult[Double]                (template, values)
-  def evalD1(template: String, values: Any*): Array[Double]         = evalWithResult[Array[Double]]         (template, values)
-  def evalD2(template: String, values: Any*): Array[Array[Double]]  = evalWithResult[Array[Array[Double]]]  (template, values)
+  def evalD0(template: String, values: Any*): Double                = evalWithResult[Double]                (template, values, "storage.mode(.rs) <- 'double'; .rs[1]")
+  def evalD1(template: String, values: Any*): Array[Double]         = evalWithResult[Array[Double]]         (template, values, "storage.mode(.rs) <- 'double'; I(.rs)")
+  def evalD2(template: String, values: Any*): Array[Array[Double]]  = evalWithResult[Array[Array[Double]]]  (template, values, "storage.mode(.rs) <- 'double'; .rs")
 
-  def evalL0(template: String, values: Any*): Boolean               = evalWithResult[Boolean]               (template, values)
-  def evalL1(template: String, values: Any*): Array[Boolean]        = evalWithResult[Array[Boolean]]        (template, values)
-  def evalL2(template: String, values: Any*): Array[Array[Boolean]] = evalWithResult[Array[Array[Boolean]]] (template, values)
+  def evalL0(template: String, values: Any*): Boolean               = evalWithResult[Boolean]               (template, values, "storage.mode(.rs) <- 'logical'; .rs[1]")
+  def evalL1(template: String, values: Any*): Array[Boolean]        = evalWithResult[Array[Boolean]]        (template, values, "storage.mode(.rs) <- 'logical'; I(.rs)")
+  def evalL2(template: String, values: Any*): Array[Array[Boolean]] = evalWithResult[Array[Array[Boolean]]] (template, values, "storage.mode(.rs) <- 'logical'; .rs")
 
-  def evalR0(template: String, values: Any*): Byte                  = evalWithResult[Byte]                  (template, values)
-  def evalR1(template: String, values: Any*): Array[Byte]           = evalWithResult[Array[Byte]]           (template, values)
-  def evalR2(template: String, values: Any*): Array[Array[Byte]]    = evalWithResult[Array[Array[Byte]]]    (template, values)
+  def evalR0(template: String, values: Any*): Byte                  = evalWithResult[Byte]                  (template, values, "storage.mode(.rs) <- 'raw'; .rs[1]")
+  def evalR1(template: String, values: Any*): Array[Byte]           = evalWithResult[Array[Byte]]           (template, values, "storage.mode(.rs) <- 'raw'; I(.rs)")
+  def evalR2(template: String, values: Any*): Array[Array[Byte]]    = evalWithResult[Array[Array[Byte]]]    (template, values, "storage.mode(.rs) <- 'raw'; .rs")
 
-  def evalS0(template: String, values: Any*): String                = evalWithResult[String]                (template, values)
-  def evalS1(template: String, values: Any*): Array[String]         = evalWithResult[Array[String]]         (template, values)
-  def evalS2(template: String, values: Any*): Array[Array[String]]  = evalWithResult[Array[Array[String]]]  (template, values)
+  def evalS0(template: String, values: Any*): String                = evalWithResult[String]                (template, values, "storage.mode(.rs) <- 'character'; .rs[1]")
+  def evalS1(template: String, values: Any*): Array[String]         = evalWithResult[Array[String]]         (template, values, "storage.mode(.rs) <- 'character'; I(.rs)")
+  def evalS2(template: String, values: Any*): Array[Array[String]]  = evalWithResult[Array[Array[String]]]  (template, values, "storage.mode(.rs) <- 'character'; .rs")
 
   def evalObject(template: String, values: Any*): RObject = {
     val template2 = "I(serialize(" + template + ",NULL))"
-    evalEngine(template2,values)
+    evalEngine(template2, values)
     val x = server.conduit.pop[Array[Byte]]
     new RObject(x)
   }
 
   private def evalWithoutResult[A](template: String, values: Seq[Any]): Unit = {
-    evalEngine(template + "; NULL",values)
+    evalEngine(template + "; NULL", values)
     server.conduit.pop[Any]
   }
 
-  private def evalWithResult[A](template: String, values: Seq[Any]): A = {
-    evalEngine(template,values)
+  private def evalWithResult[A](template: String, values: Seq[Any], casting: String): A = {
+    evalEngine(".rs <- {" + template + "}; " + casting, values)
     server.conduit.pop[A]
   }
 
