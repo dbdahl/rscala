@@ -50,7 +50,7 @@ class RClient() {
 
   private def evalWithoutResult[A](template: String, values: Seq[Any]): Unit = {
     evalEngine(template + "; NULL", values)
-    server.conduit.pop[Any]
+    server.conduit.pop[Any]()
   }
 
   private def evalWithResult[A](template: String, values: Seq[Any], casting: String): A = {
