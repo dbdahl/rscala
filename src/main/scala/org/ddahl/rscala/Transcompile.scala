@@ -5,6 +5,8 @@ import scala.reflect.ClassTag
 object Transcompile {
 
   val pi: Double = math.Pi
+  val T: Boolean = true
+  val F: Boolean = false
 
   def _abs(x: Double): Double = math.abs(x)
   def _abs(x: Int): Int = math.abs(x)
@@ -46,11 +48,13 @@ object Transcompile {
   def _min(x: Array[Double]): Double = x.min
   def _min(x: Array[Int]): Int = x.min
 
-  def _cat(x: Object*): Unit = print(_paste(x:_*))
-  def _paste(x: Object*): String = x.mkString(" ")
-  def _paste0(x: Object*): String = x.mkString
+  def _cat(x: Any*): Unit = print(_paste(x:_*))
+  def _paste(x: Any*): String = x.mkString(" ")
+  def _paste0(x: Any*): String = x.mkString
 
   def _nchar(x: String): Int = x.length
+
+  def _range(lower: Double, upper: Double): Array[Int] = Array.range(lower.toInt, upper.toInt + 1)
 
 }
 

@@ -21,7 +21,7 @@ r2scala <- function(x, showCode=FALSE, symbolEnv=new.env(parent=emptyenv())) {
       } else NULL
       paste0(prefix,r2scala(x[[2]],showCode,symbolEnv)," = ",r2scala(x[[3]],showCode,symbolEnv))
     }
-    else if ( strings[1] == ":" ) paste0("Array.range(",r2scala(x[[2]],showCode,symbolEnv),".toInt,",r2scala(x[[3]],showCode,symbolEnv),".toInt+1)")
+    else if ( strings[1] == ":" ) paste0('_range(',r2scala(x[[2]],showCode,symbolEnv),',',r2scala(x[[3]],showCode,symbolEnv),')')
     else if ( strings[1] == "(" ) paste0("(",r2scala(x[[2]],showCode,symbolEnv),")")
     else if ( strings[1] == "+" ) if ( length(x) == 3 ) paste0(r2scala(x[[2]],showCode,symbolEnv)," + ",r2scala(x[[3]],showCode,symbolEnv)) else paste0("+",r2scala(x[[2]],showCode,symbolEnv))
     else if ( strings[1] == "-" ) if ( length(x) == 3 ) paste0(r2scala(x[[2]],showCode,symbolEnv)," - ",r2scala(x[[3]],showCode,symbolEnv)) else paste0("-",r2scala(x[[2]],showCode,symbolEnv))
@@ -34,11 +34,16 @@ r2scala <- function(x, showCode=FALSE, symbolEnv=new.env(parent=emptyenv())) {
       args <- if ( length(x) > 2 ) paste0(',',paste0(sapply(x[-(1:2)],r2scala,showCode,symbolEnv),collapse=",")) else NULL
       paste0('R.',strings[1],'("',strings[2],'"',args,')')
     }
+    else if ( strings[1] == "if" ) {
+      ifexpression = paste0('if ( ',r2scala(x[[2]],showCode,symbolEnv),' ) ',r2scala(x[[3]],showCode,symbolEnv))
+      if ( length(x) == 4 ) paste0(ifexpression,' else ',r2scala(x[[4]],showCode,symbolEnv)) else ifexpression
+    }
     else paste0(r2scalaSubs(strings[1]),"(",paste0(sapply(x[-1],r2scala,showCode,symbolEnv),collapse=","),")")
   }
   else if ( typeof[1] == "integer" ) paste0("{",strings[1],":Int}")
   else if ( typeof[1] == "double" ) paste0("{",strings[1],":Double}")
-  else if ( typeof[1] == "character" ) paste0('{"',strings[1],'":String}')
+  else if ( typeof[1] == "logical" ) if (x[[1]]) "true" else "false"
+  else if ( typeof[1] == "character" ) paste0('"""',strings[1],'"""')
   else stop("33")
 }
 

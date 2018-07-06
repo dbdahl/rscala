@@ -46,6 +46,8 @@ r <- s %~% {
   a <- 10:12
   a[3] <- a[1] + a[2]
   a[2] + a[3]
+  a <- 1:100
+  a[3]
 }
 r$apply()
 
@@ -56,8 +58,33 @@ cat(rscala:::r2scala(quote({
   a[1] <- 4L
 }),TRUE))
 
+cat(rscala:::r2scala(quote({
+  a <- 1:4
+  mean(a)
+}),TRUE))
 
+cat(rscala:::r2scala(quote({
+  if ( TRUE ) cat("Yes\n")
+}),TRUE))
 
+r <- s(x=scalaType("Boolean")) %~% {
+  answer <- if ( x ) {
+    cat("Yes\n")
+    "yes"
+  } else {
+    a <- 2
+    cat(paste0("No: ",a," ",pi,"\n"))
+    "no"
+  }
+  nchar(answer)
+}
+r$apply(FALSE)
+
+r <- s %~% {
+  (1:11)[5]
+}
+r$apply()
+s$showCode <- TRUE
 
 r <- s(x=scalaType("Double"),mean=1.0,sigma=3) %~% {
   a <- 1:13
