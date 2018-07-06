@@ -1,3 +1,8 @@
+3.1.0 (2018-07-06)
+  * Support for passing arbitrary R objects between R and Scala.
+  * Experimental support for transcompling a (subset of) R code to Scala code.
+  * Bug fix: Close dangling connection on error from scalaInfo function.
+
 3.0.2 (2018-06-29)
   * Improvements to the API.  See descriptions and examples in the help files.
   * Significantly reduced the overhead of making a calls to and from Scala,
