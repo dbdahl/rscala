@@ -43,8 +43,20 @@ typeof(r$apply(1.0))
 s$showCode <- TRUE
 
 r <- s %~% {
-  var(1:1e8)
+  a <- 10:12
+  a[3] <- a[1] + a[2]
+  a[2] + a[3]
 }
+r$apply()
+
+
+cat(rscala:::r2scala(quote({
+  a <- 1:4
+  a[1] <- 4L
+  a[1] <- 4L
+}),TRUE))
+
+
 
 
 r <- s(x=scalaType("Double"),mean=1.0,sigma=3) %~% {

@@ -1,4 +1,4 @@
-r2scala <- function(x, showCode=FALSE) {
+r2scala <- function(x, showCode=FALSE, symbolEnv=new.env(parent=emptyenv())) {
   if ( length(x) == 0 ) return("")
   typeof  <- sapply(x,function(y) typeof(y))
   classes <- sapply(x,function(y) class(y))
@@ -11,23 +11,30 @@ r2scala <- function(x, showCode=FALSE) {
     cat(">>\n")
   }
   if ( ( typeof[1] == "symbol" ) && ( classes[1] == "name" ) ) {
-    if ( strings[1] == "{" ) paste0("{\n",paste0(sapply(x[-1],r2scala,showCode=showCode),collapse="\n"),"\n}")
-    else if ( strings[1] == "<-" ) paste0("val ",r2scala(x[[2]],showCode=showCode)," = ",r2scala(x[[3]],showCode=showCode))
-    else if ( strings[1] == ":" ) paste0("Array.range(",r2scala(x[[2]],showCode=showCode),".toInt,",r2scala(x[[3]],showCode=showCode),".toInt+1)")
-    else if ( strings[1] == "(" ) paste0("(",r2scala(x[[2]],showCode=showCode),")")
-    else if ( strings[1] == "+" ) if ( length(x) == 3 ) paste0(r2scala(x[[2]],showCode=showCode)," + ",r2scala(x[[3]],showCode=showCode)) else paste0("+",r2scala(x[[2]],showCode=showCode))
-    else if ( strings[1] == "-" ) if ( length(x) == 3 ) paste0(r2scala(x[[2]],showCode=showCode)," - ",r2scala(x[[3]],showCode=showCode)) else paste0("-",r2scala(x[[2]],showCode=showCode))
-    else if ( strings[1] == "*" ) paste0(r2scala(x[[2]],showCode=showCode)," * ",r2scala(x[[3]],showCode=showCode))
-    else if ( strings[1] == "/" ) paste0(r2scala(x[[2]],showCode=showCode),".toDouble / ",r2scala(x[[3]],showCode=showCode))
-    else if ( strings[1] == "%%" ) paste0(r2scala(x[[2]],showCode=showCode)," % ",r2scala(x[[3]],showCode=showCode))
-    else if ( strings[1] == "^" ) paste0(r2scalaSubs("pow"),"(",r2scala(x[[2]],showCode=showCode),",",r2scala(x[[3]],showCode=showCode),")")
-    else if ( ! is.list(x) && is.symbol(x) ) paste0(strings[1])
+    if ( ! is.list(x) && is.symbol(x) ) paste0(strings[1])
+    else if ( strings[1] == "{" ) paste0("{\n",paste0(sapply(x[-1],r2scala,showCode,symbolEnv),collapse="\n"),"\n}")
+    else if ( strings[1] == "[" ) paste0(r2scala(x[[2]],showCode,symbolEnv),"(",paste0(sapply(x[-(1:2)],r2scala,showCode,symbolEnv),".toInt - 1",collapse=","),")")
+    else if ( strings[1] == "<-" ) {
+      prefix <- if ( ( typeof[2] == "symbol" ) && ( ! exists(strings[2],envir=symbolEnv) ) ) {
+        assign(strings[2],"TRUE",envir=symbolEnv)
+        "var "
+      } else NULL
+      paste0(prefix,r2scala(x[[2]],showCode,symbolEnv)," = ",r2scala(x[[3]],showCode,symbolEnv))
+    }
+    else if ( strings[1] == ":" ) paste0("Array.range(",r2scala(x[[2]],showCode,symbolEnv),".toInt,",r2scala(x[[3]],showCode,symbolEnv),".toInt+1)")
+    else if ( strings[1] == "(" ) paste0("(",r2scala(x[[2]],showCode,symbolEnv),")")
+    else if ( strings[1] == "+" ) if ( length(x) == 3 ) paste0(r2scala(x[[2]],showCode,symbolEnv)," + ",r2scala(x[[3]],showCode,symbolEnv)) else paste0("+",r2scala(x[[2]],showCode,symbolEnv))
+    else if ( strings[1] == "-" ) if ( length(x) == 3 ) paste0(r2scala(x[[2]],showCode,symbolEnv)," - ",r2scala(x[[3]],showCode,symbolEnv)) else paste0("-",r2scala(x[[2]],showCode,symbolEnv))
+    else if ( strings[1] == "*" ) paste0(r2scala(x[[2]],showCode,symbolEnv)," * ",r2scala(x[[3]],showCode,symbolEnv))
+    else if ( strings[1] == "/" ) paste0(r2scala(x[[2]],showCode,symbolEnv),".toDouble / ",r2scala(x[[3]],showCode,symbolEnv))
+    else if ( strings[1] == "%%" ) paste0(r2scala(x[[2]],showCode,symbolEnv)," % ",r2scala(x[[3]],showCode,symbolEnv))
+    else if ( strings[1] == "^" ) paste0(r2scalaSubs("pow"),"(",r2scala(x[[2]],showCode,symbolEnv),",",r2scala(x[[3]],showCode,symbolEnv),")")
     else if ( ( strings[1] == "I" ) && ( length(x) == 2 ) && ( typeof[2] == "character" ) ) paste0(strings[2])
     else if ( ( grepl("^eval[IDLRS][012]$",strings[1]) ) && ( typeof[2] == "character" ) ) {
-      args <- if ( length(x) > 2 ) paste0(',',paste0(sapply(x[-(1:2)],r2scala,showCode=showCode),collapse=",")) else NULL
+      args <- if ( length(x) > 2 ) paste0(',',paste0(sapply(x[-(1:2)],r2scala,showCode,symbolEnv),collapse=",")) else NULL
       paste0('R.',strings[1],'("',strings[2],'"',args,')')
     }
-    else paste0(r2scalaSubs(strings[1]),"(",paste0(sapply(x[-1],r2scala,showCode=showCode),collapse=","),")")
+    else paste0(r2scalaSubs(strings[1]),"(",paste0(sapply(x[-1],r2scala,showCode,symbolEnv),collapse=","),")")
   }
   else if ( typeof[1] == "integer" ) paste0("{",strings[1],":Int}")
   else if ( typeof[1] == "double" ) paste0("{",strings[1],":Double}")
