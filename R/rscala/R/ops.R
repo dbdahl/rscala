@@ -91,20 +91,21 @@
 
 #' Operator to Make an R Object Reference
 #'
-#' This operator creates an rscala reference to an arbitrary R object.  This reference
+#' This operator creates an rscala reference from an arbitrary R object.  This reference
 #' can be passed as an argument to a method call of the embedded \code{RClient} or
 #' may be reconstituted using the unary minus operator \code{\link{-.rscalaReference}}.
 #'
-#' @param bridge 
-#' @param rObject 
+#' @param bridge An rscala bridge
+#' @param rObject An arbitrary R object
 #' 
 #' @seealso \code{\link{-.rscalaReference}}
 #' @export
-#' @examples
+#' @examples \donttest{
 #' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
 #' wrappedFunction <- e - rnorm
 #' (-wrappedFunction)(10)
 #' close(e)
+#' }
 #' 
 '-.rscalaBridge' <- function(bridge,rObject) {
   if ( is.list(rObject) && ( ! inherits(rObject,"AsIs") ) ) {
@@ -124,15 +125,18 @@
 #' operator \code{\link{-.rscalaReference}} on a scala bridge.
 #'
 #' @param rscalaReference An rscala reference of type \code{org.ddahl.rscala.RObject}.
+#' @param e2 Ignored since only the unary minus operator is supported for rscala references.
 #'
 #' @aliases unaryMinus
 #' @export
 #' @seealso \code{\link{-.rscalaBridge}}
-#' @examples
+#' @examples \donttest{
 #' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
-#' wrappedFunction <- e - rnorm
-#' (-wrappedFunction)(10)
+#' e(func=e-rnorm, arg=10) * 'R.evalD1("%-(%-)",func,arg)'
+#' wrappedFunction <- e - dnorm
+#' identical((-wrappedFunction)(1.0), dnorm(1.0))
 #' close(e)
+#' }
 #'  
 '-.rscalaReference' <- function(rscalaReference, e2) {
   type <- rscalaReference[["type"]] 
@@ -148,4 +152,47 @@
       unserialize(bytes[sizes[i]:(sizes[i+1]-1)])
     }) 
   } else stop("Only references to RObject or List[RObject] are allowed.")
+}
+
+#' Transcompile R Code to Scala
+#'
+#' **Experimental** This function allows (a small subset of) R code to be transcompiled to
+#' Scala code and produces an rscala reference to an anonymous Scala function.
+#'
+#' @param bridge An rscala bridge.
+#' @param snippet An snippet of R code to transcompile to Scala.
+#'
+#' @return An rscala reference to an anonymous Scala function.
+#' @export
+#'
+#' @examples \donttest{
+#' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
+#' f <- e(x=scalaType('Double')) %~% { pi - x }
+#' f$apply(3.14)
+#' e(n=10L, mapper=e(x=scalaType("Int")) %~% { 2 * x }) * "Array.tabulate(n)(mapper)"
+#' logStdNormalDensity <- e(x=scalaType("Double"), mean=0.0, sd=1.0) %~% {
+#'   variance <- sd^2
+#'   -0.5*log(2*pi*variance) - 0.5/variance * (x-mean)^2
+#' }
+#' identical(logStdNormalDensity$apply(1.0), dnorm(1.0, log=TRUE))
+#' close(e)
+#' }
+#' 
+"%~%" <- function(bridge, snippet) {
+  ast <- as.list(substitute(snippet))
+  details <- attr(bridge,"details")
+  transcompilation <- r2scala(ast,details[["debugTranscompilation"]])
+  header <- details[["transcompilationHeader"]]
+  header <- if ( length(header) > 0 ) paste0(paste0(header,collapse="\n"),"\n") else NULL
+  if ( is.function(bridge) ) bridge ^ paste0("() => {\n", header, transcompilation,"\n}")
+  else {
+    whichInternal <- sapply(bridge,function(x) inherits(x,"rscalaType"))
+    internalArgs <- bridge[whichInternal]
+    newBridge <- bridge[!whichInternal]
+    namesNewBridge <- names(newBridge)
+    mostattributes(newBridge) <- attributes(bridge)
+    names(newBridge) <- namesNewBridge
+    internalArgsList <- if ( length(internalArgs) > 0 ) paste0(names(internalArgs),": ",internalArgs,collapse=", ") else NULL
+    newBridge ^ paste0("(", internalArgsList, ") => {\n", header, transcompilation, "\n}")
+  }
 }

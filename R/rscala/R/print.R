@@ -34,3 +34,9 @@ print.rscalaFunction <- function(x, ...) {
 toString.rscalaFunction <- function(x, ...) {
   "rscala function"
 }
+
+#' @export
+#' 
+print.rscalaType <- function(x, ...) {
+  print(unclass(x), ...)
+}
