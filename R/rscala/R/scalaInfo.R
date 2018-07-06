@@ -71,12 +71,11 @@ verifyCandidate <- function(candidate, message, verbose) {
     if ( verbose ) cat("    Found 'scala' at ",candidate,".\n",sep="")
     fullVersion <- tryCatch({
       jars <- list.files(file.path(dirname(dirname(candidate)),"lib"),".*.jar$",full.names=TRUE)
-      libraryJar <- jars[grepl("^scala-library",basename(jars))]
+      libraryJar <- jars[which(basename(jars) == "scala-library.jar")[1]]
       fn <- unz(libraryJar,"library.properties")
       lines <- readLines(fn)
-      close(fn)
       sub("^version.number=","",lines[grepl("^version.number=",lines)])[1]
-    }, warning=function(e) { NULL }, error=function(e) { NULL } )
+    }, warning=function(e) { NULL }, error=function(e) { NULL }, finally = { close(fn) })
     if ( is.null(fullVersion) ) {
       if ( verbose ) cat("    ... but the version number is unknown.\n")
       return(NULL)
