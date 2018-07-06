@@ -23,6 +23,36 @@ r <- s(x=scalaType("Double"),mean=1.0,sigma=3) %~% {
   -0.5*log(2*pi*sigma^2) - 0.5/sigma^2 * (x-mean)^2
 }
 
+teekee <- 3
+
+r <- s(x=scalaType("Double"),mean=1.0,sigma=3) %~% {
+  a <- 1:13
+  total <- I('R.evalD0("teekee")')
+  total
+}
+r$apply(1.0)
+
+teekee <- 1
+r <- s(x=scalaType("Double"),mean=1.0,sigma=3) %~% {
+  a <- 1:12
+  total <- 3*evalI0("teekee+%-",3) + evalI0("100*teekee")
+  total
+}
+r$apply(1.0)
+typeof(r$apply(1.0))
+s$showCode <- TRUE
+
+r <- s %~% {
+  var(1:1e8)
+}
+
+
+r <- s(x=scalaType("Double"),mean=1.0,sigma=3) %~% {
+  a <- 1:13
+  total <- I('R.evalD0("teekee")')
+  -0.5*log(2*pi*sigma^2) - 0.5/sigma^2 * (x-mean)^2
+}
+
 r <- s(x=scalaType("Double"),mean=0,sigma=3) %~% {
   a <- 1L:15
   total <- I('{

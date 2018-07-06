@@ -98,7 +98,7 @@ scala <- function(packages=character(),
   assign("closed",FALSE,envir=details)
   assign("connected",FALSE,envir=details) 
   assign("interrupted",FALSE,envir=details)
-  assign("transcompilationHeader",c("import math._","import math.{Pi => pi}"),envir=details)
+  assign("transcompilationHeader",c("import org.ddahl.rscala.Transcompile._"),envir=details)
   assign("debugTranscompilation",FALSE,envir=details)
   assign("debug",debug,envir=details)
   assign("serializeOutput",serialize.output,envir=details)

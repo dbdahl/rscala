@@ -20,13 +20,23 @@ r2scala <- function(x, showCode=FALSE) {
     else if ( strings[1] == "*" ) paste0(r2scala(x[[2]],showCode=showCode)," * ",r2scala(x[[3]],showCode=showCode))
     else if ( strings[1] == "/" ) paste0(r2scala(x[[2]],showCode=showCode),".toDouble / ",r2scala(x[[3]],showCode=showCode))
     else if ( strings[1] == "%%" ) paste0(r2scala(x[[2]],showCode=showCode)," % ",r2scala(x[[3]],showCode=showCode))
-    else if ( strings[1] == "^" ) paste0("pow(",r2scala(x[[2]],showCode=showCode),",",r2scala(x[[3]],showCode=showCode),")")
+    else if ( strings[1] == "^" ) paste0(r2scalaSubs("pow"),"(",r2scala(x[[2]],showCode=showCode),",",r2scala(x[[3]],showCode=showCode),")")
     else if ( ! is.list(x) && is.symbol(x) ) paste0(strings[1])
     else if ( ( strings[1] == "I" ) && ( length(x) == 2 ) && ( typeof[2] == "character" ) ) paste0(strings[2])
-    else paste0(strings[1],"(",paste0(sapply(x[-1],r2scala,showCode=showCode),collapse=","),")")
+    else if ( ( grepl("^eval[IDLRS][012]$",strings[1]) ) && ( typeof[2] == "character" ) ) {
+      args <- if ( length(x) > 2 ) paste0(',',paste0(sapply(x[-(1:2)],r2scala,showCode=showCode),collapse=",")) else NULL
+      paste0('R.',strings[1],'("',strings[2],'"',args,')')
+    }
+    else paste0(r2scalaSubs(strings[1]),"(",paste0(sapply(x[-1],r2scala,showCode=showCode),collapse=","),")")
   }
   else if ( typeof[1] == "integer" ) paste0("{",strings[1],":Int}")
   else if ( typeof[1] == "double" ) paste0("{",strings[1],":Double}")
   else if ( typeof[1] == "character" ) paste0('{"',strings[1],'":String}')
   else stop("33")
+}
+
+r2scalaSubs <- function(x) {
+  if ( x %in% c("abs","sqrt","log","log10","exp","pow","c","mean","sd","max","min","cat","paste","paste0","nchar") ) paste0("_",x)
+  else if ( x == 'var' ) '_variance'
+  else x
 }
