@@ -67,6 +67,44 @@ cat(rscala:::r2scala(quote({
   if ( TRUE ) cat("Yes\n")
 }),TRUE))
 
+
+
+
+cat(rscala:::r2scala(quote({
+  for ( i in 1:10 ) {
+    cat(paste0(i,"\n"))
+  }
+}),TRUE))
+
+r <- s(x=scalaType("Double")) %~% {
+  sum(c(T,F,T,T,F))
+}
+
+r <- s(x=scalaType("Double")) %~% {
+  seq(0.0,1.0,100L)
+}
+r$apply(100)
+
+r <- s(x=scalaType("Double")) %~% {
+  seq(0.0,1.0,0.12)
+  ceiling(1.5)
+}
+r$apply(100)
+
+r <- s(x=scalaType("Int")) %~% {
+  runif()
+}
+r$apply(100L)
+
+
+r <- s(x=scalaType("Double")) %~% {
+  for ( i in c(T,F,T,T,F) ) {
+    cat(paste0(i,"\n"))
+  }
+}
+r$apply(100)
+s$showCode <- TRUE
+
 r <- s(x=scalaType("Boolean")) %~% {
   answer <- if ( x ) {
     cat("Yes\n")
@@ -78,9 +116,9 @@ r <- s(x=scalaType("Boolean")) %~% {
   }
   nchar(answer)
 }
-r$apply(FALSE)
+r$apply(TRUE)
 
-r <- s %~% {
+  r <- s %~% {
   (1:11)[5]
 }
 r$apply()
