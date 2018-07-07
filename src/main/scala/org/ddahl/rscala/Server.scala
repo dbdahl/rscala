@@ -32,7 +32,7 @@ class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rsca
   }
 
   private def writeString(x: String): Unit = {
-    val bytes = x.getBytes("UTF-8")
+    val bytes = if ( x == null ) new Array[Byte](0) else x.getBytes("UTF-8")
     out.writeInt(bytes.length)
     out.write(bytes)
   }
