@@ -3,6 +3,11 @@ context("transcompile")
 # skip("transcompile")
 
 test_that("compilation works", {
+  expect_identical({r <- s %~% { numeric(4) }; r$apply()}, numeric(4))
+  expect_identical({r <- s %~% { double(4) }; r$apply()}, double(4))
+  expect_identical({r <- s %~% { integer(4) }; r$apply()}, integer(4))
+  expect_identical({r <- s %~% { logical(4) }; r$apply()}, logical(4))
+  expect_identical({r <- s %~% { character(4) }; r$apply()}, character(4))
   expect_identical({r <- s %~% { 1 + 2 }; r$apply()}, 3)
   expect_identical({r <- s(x=scalaType("Double")) %~% { 1 + 2 + x }; r$apply(5)}, 8)
   expect_identical({r <- s(x=scalaType("Double"),y=4L) %~% { 1 + 2 + x/y }; r$apply(4)}, 4)

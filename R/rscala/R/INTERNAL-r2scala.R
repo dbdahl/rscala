@@ -53,7 +53,7 @@ r2scala <- function(x, showCode=FALSE, symbolEnv=new.env(parent=emptyenv())) {
 }
 
 r2scalaSubs <- function(x) {
-  if ( x %in% c("abs","sqrt","log","log10","exp","pow","c","length","sum","mean","var","sd","max","min","cat","paste","paste0","nchar","seq","ceiling","floor","round","runif") ) paste0("_",x)
+  if ( x %in% c("numeric","double","integer","logical","character","abs","sqrt","log","log10","exp","pow","c","length","sum","mean","var","sd","max","min","cat","paste","paste0","nchar","seq","ceiling","floor","round","runif") ) paste0("_",x)
   else if ( x %in% c("as.numeric","as.double","as.integer","as.logical","as.character") ) paste0("_",gsub("\\.","DOT",x))
   else x
 }
