@@ -8,6 +8,62 @@ object Transcompile {
   val T: Boolean = true
   val F: Boolean = false
 
+  def _numeric(n: Double): Array[Double] = _double(n)
+  def _double(n: Double): Array[Double] = new Array[Double](n.toInt)
+  def _integer(n: Double): Array[Int] = new Array[Int](n.toInt)
+  def _logical(n: Double): Array[Boolean] = new Array[Boolean](n.toInt)
+  def _character(n: Double): Array[String] = new Array[String](n.toInt)
+
+  def _asDOTnumeric(x: Int): Double = _asDOTdouble(x)
+  def _asDOTnumeric(x: Double): Double = _asDOTdouble(x)
+  def _asDOTnumeric(x: Boolean): Double = _asDOTdouble(x)
+  def _asDOTnumeric(x: String): Double = _asDOTdouble(x)
+
+  def _asDOTnumeric(x: Array[Int]): Array[Double] = _asDOTdouble(x)
+  def _asDOTnumeric(x: Array[Double]): Array[Double] = _asDOTdouble(x)
+  def _asDOTnumeric(x: Array[Boolean]): Array[Double] = _asDOTdouble(x)
+  def _asDOTnumeric(x: Array[String]): Array[Double] = _asDOTdouble(x)
+
+  def _asDOTdouble(x: Int): Double = x.toDouble
+  def _asDOTdouble(x: Double): Double = x
+  def _asDOTdouble(x: Boolean): Double = if ( x ) 1.0 else 0.0
+  def _asDOTdouble(x: String): Double = x.toDouble
+
+  def _asDOTdouble(x: Array[Int]): Array[Double] = x.map(_.toDouble)
+  def _asDOTdouble(x: Array[Double]): Array[Double] = x.clone
+  def _asDOTdouble(x: Array[Boolean]): Array[Double] = x.map( if ( _ ) 1.0 else 0.0 )
+  def _asDOTdouble(x: Array[String]): Array[Double] = x.map(_.toDouble)
+
+  def _asDOTinteger(x: Int): Int = x
+  def _asDOTinteger(x: Double): Int = x.toInt
+  def _asDOTinteger(x: Boolean): Int = if ( x ) 1 else 0
+  def _asDOTinteger(x: String): Int = x.toInt
+
+  def _asDOTinteger(x: Array[Int]): Array[Int] = x.clone
+  def _asDOTinteger(x: Array[Double]): Array[Int] = x.map(_.toInt)
+  def _asDOTinteger(x: Array[Boolean]): Array[Int] = x.map( if ( _ ) 1 else 0 )
+  def _asDOTinteger(x: Array[String]): Array[Int] = x.map(_.toInt)
+
+  def _asDOTlogical(x: Int): Boolean = { x != 0 }
+  def _asDOTlogical(x: Double): Boolean = { x != 0.0 }
+  def _asDOTlogical(x: Boolean): Boolean = x
+  def _asDOTlogical(x: String): Boolean = x.toBoolean
+
+  def _asDOTlogical(x: Array[Int]): Array[Boolean] = x.map { _ != 0 }
+  def _asDOTlogical(x: Array[Double]): Array[Boolean] = x.map { _ != 0.0 }
+  def _asDOTlogical(x: Array[Boolean]): Array[Boolean] = x.clone
+  def _asDOTlogical(x: Array[String]): Array[Boolean] = x.map { _.toBoolean }
+
+  def _asDOTcharacter(x: Int): String = x.toString
+  def _asDOTcharacter(x: Double): String = x.toString
+  def _asDOTcharacter(x: Boolean): String = x.toString
+  def _asDOTcharacter(x: String): String = x
+
+  def _asDOTcharacter(x: Array[Int]): Array[String] = x.map { _.toString }
+  def _asDOTcharacter(x: Array[Double]): Array[String] = x.map { _.toString }
+  def _asDOTcharacter(x: Array[Boolean]): Array[String] = x.map { _.toString }
+  def _asDOTcharacter(x: Array[String]): Array[String] = x.clone
+
   def _abs(x: Double): Double = math.abs(x)
   def _abs(x: Int): Int = math.abs(x)
   def _sqrt(x: Double): Double = math.sqrt(x)

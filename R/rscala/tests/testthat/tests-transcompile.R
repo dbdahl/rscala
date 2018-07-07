@@ -38,6 +38,18 @@ test_that("compilation works", {
   expect_true({r <- s %~% { runif(10) }; x <- r$apply(); length(x) == 10})
   expect_identical({r <- s(x=scalaType("Boolean")) %~% { if ( x ) 1.0 else 0.0 }; r$apply(TRUE)}, 1.0)
   expect_identical({r <- s(x=scalaType("Boolean")) %~% { if ( x ) 1.0 else 0.0 }; r$apply(FALSE)}, 0.0)
+  expect_identical({r <- s %~% { as.integer(1.0) }; r$apply()}, 1L)
+  expect_identical({r <- s %~% { as.numeric(1L) }; r$apply()}, 1.0)
+  expect_identical({r <- s %~% { as.double(2L) }; r$apply()}, 2.0)
+  expect_identical({r <- s %~% { as.logical(2.0) }; r$apply()}, TRUE)
+  expect_identical({r <- s %~% { as.character(1L) }; r$apply()}, "1")
+  expect_identical({r <- s %~% { as.character(1.1) }; r$apply()}, "1.1")
+  expect_identical({r <- s %~% { as.integer(c(1.0,2.0)) }; r$apply()}, c(1L,2L))
+  expect_identical({r <- s %~% { as.numeric(c(1L,2L)) }; r$apply()}, c(1.0,2.0))
+  expect_identical({r <- s %~% { as.double(c(2L,3L)) }; r$apply()}, c(2.0,3.0))
+  expect_identical({r <- s %~% { as.logical(c(2.0,0.0)) }; r$apply()}, c(TRUE,FALSE))
+  expect_identical({r <- s %~% { as.character(c(1L,2L)) }; r$apply()}, c("1","2"))
+  expect_identical({r <- s %~% { as.character(c(1.1,2.1)) }; r$apply()}, c("1.1","2.1"))
   expect_identical({
       r <- s(x=scalaType("Int")) %~% {
         a <- 1:x
