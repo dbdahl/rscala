@@ -83,7 +83,7 @@ object Transcompile {
   def _round(x: Double): Double = math.round(x)
 
   def _runif(): Double = scala.util.Random.nextDouble()
-  def _runif(n: Int): Array[Double] = Array.fill(n) { scala.util.Random.nextDouble() }
+  def _runif(n: Double): Array[Double] = Array.fill(n.toInt) { scala.util.Random.nextDouble() }
 
 }
 
