@@ -27,10 +27,12 @@
   scalaInvoke(details, snippet, args, withNames=TRUE)
 }
 
-#' Evaluation Operator Returning a Reference
+#' Evaluation Operator Returning a Reference and Transcompile Operator
 #'
 #' This operator is equivalent to \code{\link{*.rscalaBridge}}, except the
-#' return value is always an rscala reference.
+#' return value is always an rscala reference. This operator also allows (a
+#' small subset of) R code to be transcompiled to Scala code and produces an
+#' rscala reference to an anonymous Scala function.
 #'
 #' @inheritParams *.rscalaBridge
 #'
@@ -43,13 +45,35 @@
 #' x <- e ^ 'new scala.util.Random()'  # These two lines ...
 #' x <- e $ .new_scala.util.Random()   # ... are equivalent
 #' e(rng=x) * 'rng.nextDouble()'
+#' f <- e ^ function(x=scalaType('Double')) { pi - x }
+#' f$apply(3.14)
+#' e(n=10L, mapper=e ^ function(x=scalaType("Int")) { 2 * x }) * "Array.tabulate(n)(mapper)"
+#' logStdNormalDensity <- e ^ function(x=scalaType("Double"), mean=0.0, sd=1.0) {
+#'   variance <- sd^2
+#'   -0.5*log(2*pi*variance) - 0.5/variance * (x-mean)^2
+#' }
+#' identical(logStdNormalDensity$apply(1.0), dnorm(1.0, log=TRUE))
 #' close(e)
 #' }
 #' 
 '^.rscalaBridge' <- function(bridge, snippet) {
   details <- attr(bridge,"details")
   args <- if ( is.function(bridge) ) list() else bridge
-  scalaInvoke(details, paste0(".",snippet), args, withNames=TRUE)
+  if ( ! is.function(snippet) ) scalaInvoke(details, paste0(".",snippet), args, withNames=TRUE)
+  else {
+    ast <- as.list(snippet)
+    args <- c(args,lapply(ast[-length(ast)],eval))
+    ast <- ast[[length(ast)]]
+    details <- attr(bridge,"details")
+    transcompilation <- r2scala(ast,details[["debugTranscompilation"]])
+    header <- details[["transcompilationHeader"]]
+    header <- if ( length(header) > 0 ) paste0(paste0(header,collapse="\n"),"\n") else NULL
+    whichInternal <- if ( length(args) == 0 ) logical(0) else sapply(args,function(x) inherits(x,"rscalaType"))
+    internalArgs <- args[whichInternal]
+    args <- args[!whichInternal]
+    internalArgsList <- if ( length(internalArgs) > 0 ) paste0(names(internalArgs),": ",internalArgs,collapse=", ") else NULL
+    scalaInvoke(details, paste0(".(", internalArgsList, ") => {\n", header, transcompilation, "\n}"), args, withNames=TRUE)
+  }
 }
 
 #' Execution Operator
@@ -152,47 +176,4 @@
       unserialize(bytes[sizes[i]:(sizes[i+1]-1)])
     }) 
   } else stop("Only references to RObject or List[RObject] are allowed.")
-}
-
-#' Transcompile R Code to Scala
-#'
-#' **Experimental** This function allows (a small subset of) R code to be transcompiled to
-#' Scala code and produces an rscala reference to an anonymous Scala function.
-#'
-#' @param bridge An rscala bridge.
-#' @param snippet An snippet of R code to transcompile to Scala.
-#'
-#' @return An rscala reference to an anonymous Scala function.
-#' @export
-#'
-#' @examples \donttest{
-#' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
-#' f <- e(x=scalaType('Double')) %~% { pi - x }
-#' f$apply(3.14)
-#' e(n=10L, mapper=e(x=scalaType("Int")) %~% { 2 * x }) * "Array.tabulate(n)(mapper)"
-#' logStdNormalDensity <- e(x=scalaType("Double"), mean=0.0, sd=1.0) %~% {
-#'   variance <- sd^2
-#'   -0.5*log(2*pi*variance) - 0.5/variance * (x-mean)^2
-#' }
-#' identical(logStdNormalDensity$apply(1.0), dnorm(1.0, log=TRUE))
-#' close(e)
-#' }
-#' 
-"%~%" <- function(bridge, snippet) {
-  ast <- as.list(substitute(snippet))
-  details <- attr(bridge,"details")
-  transcompilation <- r2scala(ast,details[["debugTranscompilation"]])
-  header <- details[["transcompilationHeader"]]
-  header <- if ( length(header) > 0 ) paste0(paste0(header,collapse="\n"),"\n") else NULL
-  if ( is.function(bridge) ) bridge ^ paste0("() => {\n", header, transcompilation,"\n}")
-  else {
-    whichInternal <- sapply(bridge,function(x) inherits(x,"rscalaType"))
-    internalArgs <- bridge[whichInternal]
-    newBridge <- bridge[!whichInternal]
-    namesNewBridge <- names(newBridge)
-    mostattributes(newBridge) <- attributes(bridge)
-    names(newBridge) <- namesNewBridge
-    internalArgsList <- if ( length(internalArgs) > 0 ) paste0(names(internalArgs),": ",internalArgs,collapse=", ") else NULL
-    newBridge ^ paste0("(", internalArgsList, ") => {\n", header, transcompilation, "\n}")
-  }
 }

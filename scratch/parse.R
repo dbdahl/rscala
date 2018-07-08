@@ -1,13 +1,47 @@
 library(rscala)
 scala()
 
+r <- s(x=2) ^ function(y=scalaType("Double")) {
+  2+3*3^2 + x + 2*y
+}
+r$apply(3)
+
+r <- s(x=scalaType("Double")) ^ function(y=2) {
+  2+3*3^2 + x + 2*y
+}
+r$apply(3)
+
+r <- s(x=3) ^ function(y=2) {
+  2+3*3^2 + x + 2*y
+}
+r$apply()
+
+r <- s ^ function(x=3,y=2) {
+  2+3*3^2 + x + 2*y
+}
+r$apply()
+
+r <- s(x=scalaType("Double")) ^ function(y=2) {
+  2+3*3^2 + x + 2*y
+}
+r$apply(3)
+
+r <- function() {
+  2+3 * 3^2
+}
+
+rlist <- as.list(r)
+rscala:::r2scala(rlist[[length(rlist)]])
+
+
 r <- s %~% {
   2+3 * 3^2
 }
 
-r <- s(sigma=3) %~% {
+r <- s ^ function(sigma=scalaType("Double")) {
   2+3 * sigma^2
 }
+r$apply(2)
 
 r <- s(x=scalaType("Double"),mean=0, sigma=3) %~% {
   -0.5*log(2*pi*sigma^2) - 0.5/sigma^2 * (x-mean)^2
