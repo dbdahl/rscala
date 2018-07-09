@@ -59,7 +59,7 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] microbenchmark_1.4-4       rscala_3.0.2-20180703-1547
+[1] microbenchmark_1.4-4       rscala_3.0.2-20180709-0901
 
 loaded via a namespace (and not attached):
 [1] compiler_3.5.0
@@ -77,14 +77,14 @@ loaded via a namespace (and not attached):
 +   times=nReps
 + )
 Unit: microseconds
-                                    expr       min         lq        mean
- s * sample.int(.Machine$integer.max, 1) 82913.300 87509.4505 110979.8448
-                          s * 2056700609    91.348   172.4095    197.8687
-    median          uq        max neval
- 98521.398 117866.6095 277778.765   100
-   192.031    217.4845    457.522   100
+                                    expr       min        lq        mean
+ s * sample.int(.Machine$integer.max, 1) 83259.377 88267.577 116145.4593
+                          s * 2056700609    95.298   128.799    172.2419
+     median          uq        max neval
+ 96991.1405 134907.9525 295368.551   100
+   180.8045    207.8275    290.366   100
 > 
 > 
 > proc.time()
    user  system elapsed 
-  0.208   0.148  14.385 
+  0.216   0.112  14.899 
