@@ -17,42 +17,33 @@ bisection <- function(func, lower, upper, epsilon=1e-14) s(g=func, lower=lower, 
   engine(lower, upper, fLower, fUpper)
 '
 
-mkFunction1 <- function(n, target) {
-  f1 <- function(a) sum(a / (1:n + a - 1))
-  s(func=s-f1, n=n, target=target) ^ '
-    (x: Double) => R.evalD0("%-(%-)", func, x) - target
+
+func1 <- function(a, n=100, target=10) {
+  sum(a / (1:n + a - 1)) - target
+}
+
+wrapped1 <- {
+  s(func=s-func1) ^ '
+    (a: Double) => R.evalD0("%-(%-)", func, a)
   '
 }
 
-mkFunction2 <- function(n, target) {
-  s(a=scalaType("Double"), n=n, target=target) %~% {
-    x <- numeric(n)
-    for ( i in 1:n ) {
-      x[i] <- a / ( i + a - 1 )
-    }
-    sum(x) - target
+
+func2 <- function(a=scalaType("Double"), n=100, target=10) {
+  x <- numeric(n)
+  for ( i in 1:n ) {
+    x[i] <- a / ( i + a - 1 )
   }
+  sum(x) - target  
 }
 
-mkFunction1(100, 10)
-mkFunction2(100, 10)
+wrapped2 <- s ^ func2
 
 library(microbenchmark)
 
 microbenchmark(
-  bisection(mkFunction1(100, 10), 0.1, 20),
-  bisection(mkFunction2(100, 10), 0.1, 20),
+  bisection(wrapped1, 0.1, 20),
+  bisection(wrapped2, 0.1, 20),
   times=100)
 
-
-f <- function(x,y=2) {
-  2*x
-}
-as.list(f)
-
-
-str(f)
-f2 <- attributes(f)$srcref
-str(f2)
-attributes(f2)$srcfile
 
