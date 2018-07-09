@@ -18,8 +18,15 @@ bisection <- function(func, lower, upper, epsilon=1e-14) s(g=func, lower=lower, 
 '
 
 
-func1 <- function(a, n=100, target=10) {
+
+func1 <- function(a=scalaType("Double"), n=100, target=10) {
   sum(a / (1:n + a - 1)) - target
+}
+func1 <- function(a=scalaType("Double"), n=100, target=10) {
+  sum(a / (1:n + (a - 1))) - target
+}
+func1 <- function(a=scalaType("Double"), n=100, target=10) {
+  sum(a / (a - 1 + 1:n)) - target
 }
 
 wrapped1 <- {
@@ -27,6 +34,7 @@ wrapped1 <- {
     (a: Double) => R.evalD0("%-(%-)", func, a)
   '
 }
+
 
 
 func2 <- function(a=scalaType("Double"), n=100, target=10) {
@@ -38,6 +46,12 @@ func2 <- function(a=scalaType("Double"), n=100, target=10) {
 }
 
 wrapped2 <- s ^ func2
+wrapped2 <- s ^ func1
+
+(s ^ function() {
+  +c(1,-2)
+})()
+
 
 library(microbenchmark)
 

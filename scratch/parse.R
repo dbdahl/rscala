@@ -2,12 +2,20 @@ library(rscala)
 scala()
 s$showCode <- TRUE
 
+(s ^ function() {
+  x <- 1L
+  y <- 2L
+  x / y
+})()
+
 r <- s(x=2) ^ function(y=scalaType("Double")) {
   2+3*3^2 + x + 2*y
 }
 r$apply(3)
 r(3)
 r(3L)
+
+
 
 r <- s(x=scalaType("Double")) ^ function(y=2) {
   2+3*3^2 + x + 2*y

@@ -64,17 +64,86 @@ object Transcompile {
   def _asDOTcharacter(x: Array[Boolean]): Array[String] = x.map { _.toString }
   def _asDOTcharacter(x: Array[String]): Array[String] = x.clone
 
-  def _abs(x: Double): Double = math.abs(x)
+  def _subset(x: Array[Int], index: Double): Int = x(index.toInt)
+  def _subset(x: Array[Int], index: Int): Int = x(index)
+  def _subset(x: Array[Double], index: Double): Double = x(index.toInt)
+  def _subset(x: Array[Double], index: Int): Double = x(index)
+  def _subset(x: Array[Boolean], index: Double): Boolean = x(index.toInt)
+  def _subset(x: Array[Boolean], index: Int): Boolean = x(index)
+  def _subset(x: Array[String], index: Double): String = x(index.toInt)
+  def _subset(x: Array[String], index: Int): String = x(index)
+
+  def _subset(x: Array[Double], indices: Array[Double]): Array[Double] = {
+    val set = indices.map(_.toInt).toSet
+    x.zipWithIndex.filter(z => set.contains(z._2)).map(_._1)
+  }
+  def _subset(x: Array[Int], indices: Array[Double]): Array[Int] = {
+    val set = indices.map(_.toInt).toSet
+    x.zipWithIndex.filter(z => set.contains(z._2)).map(_._1)
+  }
+  def _subset(x: Array[Boolean], indices: Array[Double]): Array[Boolean] = {
+    val set = indices.map(_.toInt).toSet
+    x.zipWithIndex.filter(z => set.contains(z._2)).map(_._1)
+  }
+  def _subset(x: Array[String], indices: Array[Double]): Array[String] = {
+    val set = indices.map(_.toInt).toSet
+    x.zipWithIndex.filter(z => set.contains(z._2)).map(_._1)
+  }
+  def _subset(x: Array[Double], indices: Array[Int]): Array[Double] = {
+    val set = indices.toSet
+    x.zipWithIndex.filter(z => set.contains(z._2)).map(_._1)
+  }
+  def _subset(x: Array[Int], indices: Array[Int]): Array[Int] = {
+    val set = indices.toSet
+    x.zipWithIndex.filter(z => set.contains(z._2)).map(_._1)
+  }
+  def _subset(x: Array[Boolean], indices: Array[Int]): Array[Boolean] = {
+    val set = indices.toSet
+    x.zipWithIndex.filter(z => set.contains(z._2)).map(_._1)
+  }
+  def _subset(x: Array[String], indices: Array[Int]): Array[String] = {
+    val set = indices.toSet
+    x.zipWithIndex.filter(z => set.contains(z._2)).map(_._1)
+  }
+
+  def _which(x: Array[Boolean]): Array[Int] = x.zipWithIndex.filter(_._1).map(_._2)
+
   def _abs(x: Int): Int = math.abs(x)
+  def _abs(x: Double): Double = math.abs(x)
+  def _abs(x: Array[Double]): Array[Double] = x map { math.abs }
+  def _abs(x: Array[Int]): Array[Int] = x map { math.abs }
+
   def _sqrt(x: Double): Double = math.sqrt(x)
+  def _sqrt(x: Array[Double]): Array[Double] = x map { math.sqrt }
+  def _sqrt(x: Array[Int]): Array[Double] = x map { xx => math.sqrt(xx) }
+
   def _log(x: Double): Double = math.log(x)
+  def _log(x: Array[Double]): Array[Double] = x map { math.log }
+  def _log(x: Array[Int]): Array[Double] = x map { xx => math.log(xx) }
+
   def _log10(x: Double): Double = math.log10(x)
+  def _log10(x: Array[Double]): Array[Double] = x map { math.log10 }
+  def _log10(x: Array[Int]): Array[Double] = x map { xx => math.log10(xx) }
+
   def _exp(x: Double): Double = math.exp(x)
+  def _exp(x: Array[Double]): Array[Double] = x map { math.exp }
+  def _exp(x: Array[Int]): Array[Double] = x map { xx => math.exp(xx) }
+
   def _pow(x: Double, y: Double): Double = math.pow(x,y)
+  def _pow(x: Double, y: Array[Double]): Array[Double] = y map { yy => math.pow(x,yy) }
+  def _pow(x: Double, y: Array[Int]): Array[Double] = y map { yy => math.pow(x,yy) }
+  def _pow(x: Array[Double], y: Double): Array[Double] = x map { xx => math.pow(xx,y) }
+  def _pow(x: Array[Int], y: Double): Array[Double] = x map { xx => math.pow(xx,y) }
+  def _pow(x: Array[Double], y: Array[Double]): Array[Double] = x zip y  map { zz => math.pow(zz._1,zz._2) }
+  def _pow(x: Array[Int], y: Array[Int]): Array[Double] = x zip y map { zz => math.pow(zz._1,zz._2) }
+  def _pow(x: Array[Double], y: Array[Int]): Array[Double] = x zip y map { zz => math.pow(zz._1,zz._2) }
+  def _pow(x: Array[Int], y: Array[Double]): Array[Double] = x zip y map { zz => math.pow(zz._1,zz._2) }
 
   def _c[A: ClassTag](x: A*): Array[A] = x.toArray
 
   def _length[A](x: Array[A]): Int = x.length
+  def _length(x: Double): Int = 1
+  def _length(x: Int): Int = 1
 
   def _sum(x: Array[Double]): Double = x.sum
   def _sum(x: Array[Int]): Int = x.sum
@@ -118,6 +187,8 @@ object Transcompile {
 
   def _nchar(x: String): Int = x.length
 
+  def _rep(x: Double, n: Double): Array[Double] = Array.fill(n.toInt)(x)
+
   def _range(lower: Double, upper: Double): Array[Int] = Array.range(lower.toInt, upper.toInt + 1)
 
   def _seq(from: Double, to: Double, length: Int): Array[Double] = {
@@ -135,11 +206,89 @@ object Transcompile {
   }
 
   def _ceiling(x: Double): Double = math.ceil(x)
+  def _ceiling(x: Array[Double]): Array[Double] = x map { math.ceil }
+
   def _floor(x: Double): Double = math.floor(x)
+  def _floor(x: Array[Double]): Array[Double] = x map { math.floor }
+
   def _round(x: Double): Double = math.round(x)
+  def _round(x: Array[Double]): Array[Double] = x map { z => math.round(z).toDouble }
 
   def _runif(): Double = scala.util.Random.nextDouble()
   def _runif(n: Double): Array[Double] = Array.fill(n.toInt) { scala.util.Random.nextDouble() }
+
+  def _rnorm(): Double = scala.util.Random.nextGaussian()
+  def _rnorm(n: Double): Array[Double] = Array.fill(n.toInt) { scala.util.Random.nextGaussian() }
+
+  implicit class RScalaIntArray(x: Array[Int]) {
+
+    def unary_+ : Array[Int] = x.map(+_)
+    def unary_- : Array[Int] = x.map(-_)
+    def +(y: Double): Array[Double] = x.map(_+y)
+    def -(y: Double): Array[Double] = x.map(_-y)
+    def *(y: Double): Array[Double] = x.map(_*y)
+    def /(y: Double): Array[Double] = x.map(_/y)
+    def +(y: Int): Array[Int] = x.map(_+y)
+    def -(y: Int): Array[Int] = x.map(_-y)
+    def *(y: Int): Array[Int] = x.map(_*y)
+    def /(y: Int): Array[Double] = {
+      val yy = y.toDouble
+      x.map(_/yy)
+    }
+    def +(y: Array[Double]): Array[Double] = x zip y map { zz => zz._1 + zz._2 }
+    def -(y: Array[Double]): Array[Double] = x zip y map { zz => zz._1 - zz._2 }
+    def *(y: Array[Double]): Array[Double] = x zip y map { zz => zz._1 * zz._2 }
+    def /(y: Array[Double]): Array[Double] = x zip y map { zz => zz._1 / zz._2 }
+    def +(y: Array[Int]): Array[Int] = x zip y map { zz => zz._1 + zz._2 }
+    def -(y: Array[Int]): Array[Int] = x zip y map { zz => zz._1 - zz._2 }
+    def *(y: Array[Int]): Array[Int] = x zip y map { zz => zz._1 * zz._2 }
+    def /(y: Array[Int]): Array[Double] = x zip y map { zz => zz._1.toDouble / zz._2 }
+
+  }
+
+  implicit class RScalaDoubleArray(x: Array[Double]) {
+
+    def unary_+ : Array[Double] = x.map(+_)
+    def unary_- : Array[Double] = x.map(-_)
+    def +(y: Double): Array[Double] = x.map(_+y)
+    def -(y: Double): Array[Double] = x.map(_-y)
+    def *(y: Double): Array[Double] = x.map(_*y)
+    def /(y: Double): Array[Double] = x.map(_/y)
+    def +(y: Int): Array[Double] = x.map(_+y)
+    def -(y: Int): Array[Double] = x.map(_-y)
+    def *(y: Int): Array[Double] = x.map(_*y)
+    def /(y: Int): Array[Double] = x.map(_/y)
+    def +(y: Array[Double]): Array[Double] = x zip y map { zz => zz._1 + zz._2 }
+    def -(y: Array[Double]): Array[Double] = x zip y map { zz => zz._1 - zz._2 }
+    def *(y: Array[Double]): Array[Double] = x zip y map { zz => zz._1 * zz._2 }
+    def /(y: Array[Double]): Array[Double] = x zip y map { zz => zz._1 / zz._2 }
+    def +(y: Array[Int]): Array[Double] = x zip y map { zz => zz._1 + zz._2 }
+    def -(y: Array[Int]): Array[Double] = x zip y map { zz => zz._1 - zz._2 }
+    def *(y: Array[Int]): Array[Double] = x zip y map { zz => zz._1 * zz._2 }
+    def /(y: Array[Int]): Array[Double] = x zip y map { zz => zz._1 / zz._2 }
+
+  }
+
+  implicit class RScalaInt(x: Int) {
+
+    def +(y: Array[Int]): Array[Int] = y.map(x+_)
+    def -(y: Array[Int]): Array[Int] = y.map(x-_)
+    def *(y: Array[Int]): Array[Int] = y.map(x*_)
+    def /(y: Array[Int]): Array[Double] = {
+      val xx = x.toDouble
+      y.map(xx/_)
+    }
+
+  }
+
+  implicit class RScalaDouble(x: Double) {
+
+    def +(y: Array[Double]): Array[Double] = y.map(x+_)
+    def -(y: Array[Double]): Array[Double] = y.map(x-_)
+    def *(y: Array[Double]): Array[Double] = y.map(x*_)
+    def /(y: Array[Double]): Array[Double] = y.map(x/_)
+
+  }
 
 }
 
