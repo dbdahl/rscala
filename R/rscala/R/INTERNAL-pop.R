@@ -58,9 +58,13 @@ pop <- function(details) {
     } else if ( tipe == TCODE_REFERENCE ) {
       referenceID <- rb(socketIn,RTYPE_INT)
       referenceType <- rc(socketIn)
-      env <- list2env(list(id=referenceID,type=referenceType,details=details),parent=emptyenv())
+      env <- structure(list2env(list(id=referenceID,type=referenceType,details=details),parent=emptyenv()), class="rscalaReferenceEnvironment")
       reg.finalizer(env, details[["gcFunction"]])
-      structure(env,class="rscalaReference")
+      func <- structure(function(...) {
+        scalaInvoke(details, "apply", list(..., env), withReference=TRUE)
+      },class="rscalaReference")
+      attr(func,"rscalaReferenceEnvironment")  <- env
+      func
     } else if ( tipe == TCODE_ERROR_DEF ) {
       code <- rc(socketIn)
       stop(paste0("Compilation error. Code is:\n",code))

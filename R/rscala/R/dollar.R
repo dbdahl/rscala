@@ -11,7 +11,7 @@
 #' @export
 #' 
 "$.rscalaReference" <- function(reference, snippet) {
-  details <- reference[["details"]]
+  details <- attr(reference,"rscalaReferenceEnvironment")[["details"]]
   structure(function(...) {
     scalaInvoke(details, snippet, list(...,reference), withReference=TRUE)
   },class="rscalaFunction")

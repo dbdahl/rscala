@@ -20,7 +20,7 @@ print.rscalaReference <- function(x, ...) {
 #' @export
 #
 toString.rscalaReference <- function(x, ...) {
-  paste0("rscala reference of type ",x[["type"]])
+  paste0("rscala reference of type ",attr(x,"rscalaReferenceEnvironment")[["type"]])
 }
 
 #' @export

@@ -9,7 +9,7 @@
 #' scalaType("Double")
 #' 
 scalaType <- function(type) {
-  type <- if ( inherits(type,"rscalaReference") ) type[["type"]]
+  type <- if ( inherits(type,"rscalaReference") ) attr(type,"rscalaReferenceEnvironment")[["type"]]
   else if ( ( typeof(type) == "character" ) && ( length(type) == 1 ) ) type
   else stop("Illegal argument.")
   structure(type, class="rscalaType")

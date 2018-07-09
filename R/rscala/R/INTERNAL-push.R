@@ -7,9 +7,12 @@ push <- function(what, name, socketOut) {
     what <- unclass(what)
     TRUE
   } else FALSE
-  if ( inherits(what, "rscalaReference") ) {
+  if ( inherits(what, "rscalaReferenceEnvironment") ) {
     wb(socketOut,c(pcode,TCODE_REFERENCE))
     wb(socketOut,what[["id"]])
+  } else if ( inherits(what, "rscalaReference") ) {
+    wb(socketOut,c(pcode,TCODE_REFERENCE))
+    wb(socketOut,attr(what,"rscalaReferenceEnvironment")[["id"]])
   } else if ( is.integer(what) ) {
     if ( length(what)*4 > MAXIMUM_RAW_LENGTH ) return(structure(FALSE,msg="Object exceeds maximum supported length."))
     if ( is.matrix(what) ) {

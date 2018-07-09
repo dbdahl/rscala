@@ -163,13 +163,14 @@
 #' }
 #'  
 '-.rscalaReference' <- function(rscalaReference, e2) {
-  type <- rscalaReference[["type"]] 
+  env <- attr(rscalaReference,"rscalaReferenceEnvironment")
+  type <- env[["type"]] 
   if ( type == "org.ddahl.rscala.RObject" ) {
     unserialize(rscalaReference$x())
   } else if ( type == "List[org.ddahl.rscala.RObject]" ) {
     args <- list(arr=rscalaReference)
     snippet <- '.(arr.flatMap(_.x).toArray, arr.scanLeft(1)((sum,y) => sum + y.x.length).toArray)'
-    pair <- scalaInvoke(rscalaReference[["details"]], snippet, args, withNames=TRUE)
+    pair <- scalaInvoke(env[["details"]], snippet, args, withNames=TRUE)
     bytes <- pair$"_1"()
     sizes <- pair$"_2"()
     lapply(seq_along(sizes[-1]), function(i) {
