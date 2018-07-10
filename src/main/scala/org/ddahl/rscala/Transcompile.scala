@@ -108,6 +108,56 @@ object Transcompile {
 
   def _which(x: Array[Boolean]): Array[Int] = x.zipWithIndex.filter(_._1).map(_._2)
 
+  def _equal(x: Double, y: Double): Boolean = x == y
+  def _equal(x: Array[Double], y: Double): Array[Boolean] = x map { _ == y }
+  def _equal(x: Array[Int], y: Double): Array[Boolean] = x map { _ == y }
+  def _equal(x: Double, y: Array[Double]): Array[Boolean] = y map { x == _ }
+  def _equal(x: Double, y: Array[Int]): Array[Boolean] = y map { x == _ }
+  def _equal(x: Array[Double], y: Array[Double]): Array[Boolean] = x zip y map { z => z._1 == z._2 }
+  def _equal(x: Array[Double], y: Array[Int]): Array[Boolean] = x zip y map { z => z._1 == z._2 }
+  def _equal(x: Array[Int], y: Array[Double]): Array[Boolean] = x zip y map { z => z._1 == z._2 }
+  def _equal(x: Array[Int], y: Array[Int]): Array[Boolean] = x zip y map { z => z._1 == z._2 }
+
+  def _lt(x: Double, y: Double): Boolean = x < y
+  def _lt(x: Array[Double], y: Double): Array[Boolean] = x map { _ < y }
+  def _lt(x: Array[Int], y: Double): Array[Boolean] = x map { _ < y }
+  def _lt(x: Double, y: Array[Double]): Array[Boolean] = y map { x < _ }
+  def _lt(x: Double, y: Array[Int]): Array[Boolean] = y map { x < _ }
+  def _lt(x: Array[Double], y: Array[Double]): Array[Boolean] = x zip y map { z => z._1 < z._2 }
+  def _lt(x: Array[Double], y: Array[Int]): Array[Boolean] = x zip y map { z => z._1 < z._2 }
+  def _lt(x: Array[Int], y: Array[Double]): Array[Boolean] = x zip y map { z => z._1 < z._2 }
+  def _lt(x: Array[Int], y: Array[Int]): Array[Boolean] = x zip y map { z => z._1 < z._2 }
+
+  def _le(x: Double, y: Double): Boolean = x <= y
+  def _le(x: Array[Double], y: Double): Array[Boolean] = x map { _ <= y }
+  def _le(x: Array[Int], y: Double): Array[Boolean] = x map { _ <= y }
+  def _le(x: Double, y: Array[Double]): Array[Boolean] = y map { x <= _ }
+  def _le(x: Double, y: Array[Int]): Array[Boolean] = y map { x <= _ }
+  def _le(x: Array[Double], y: Array[Double]): Array[Boolean] = x zip y map { z => z._1 <= z._2 }
+  def _le(x: Array[Double], y: Array[Int]): Array[Boolean] = x zip y map { z => z._1 <= z._2 }
+  def _le(x: Array[Int], y: Array[Double]): Array[Boolean] = x zip y map { z => z._1 <= z._2 }
+  def _le(x: Array[Int], y: Array[Int]): Array[Boolean] = x zip y map { z => z._1 <= z._2 }
+
+  def _gt(x: Double, y: Double): Boolean = x > y
+  def _gt(x: Array[Double], y: Double): Array[Boolean] = x map { _ > y }
+  def _gt(x: Array[Int], y: Double): Array[Boolean] = x map { _ > y }
+  def _gt(x: Double, y: Array[Double]): Array[Boolean] = y map { x > _ }
+  def _gt(x: Double, y: Array[Int]): Array[Boolean] = y map { x > _ }
+  def _gt(x: Array[Double], y: Array[Double]): Array[Boolean] = x zip y map { z => z._1 > z._2 }
+  def _gt(x: Array[Double], y: Array[Int]): Array[Boolean] = x zip y map { z => z._1 > z._2 }
+  def _gt(x: Array[Int], y: Array[Double]): Array[Boolean] = x zip y map { z => z._1 > z._2 }
+  def _gt(x: Array[Int], y: Array[Int]): Array[Boolean] = x zip y map { z => z._1 > z._2 }
+
+  def _ge(x: Double, y: Double): Boolean = x >= y
+  def _ge(x: Array[Double], y: Double): Array[Boolean] = x map { _ >= y }
+  def _ge(x: Array[Int], y: Double): Array[Boolean] = x map { _ >= y }
+  def _ge(x: Double, y: Array[Double]): Array[Boolean] = y map { x >= _ }
+  def _ge(x: Double, y: Array[Int]): Array[Boolean] = y map { x >= _ }
+  def _ge(x: Array[Double], y: Array[Double]): Array[Boolean] = x zip y map { z => z._1 >= z._2 }
+  def _ge(x: Array[Double], y: Array[Int]): Array[Boolean] = x zip y map { z => z._1 >= z._2 }
+  def _ge(x: Array[Int], y: Array[Double]): Array[Boolean] = x zip y map { z => z._1 >= z._2 }
+  def _ge(x: Array[Int], y: Array[Int]): Array[Boolean] = x zip y map { z => z._1 >= z._2 }
+
   def _abs(x: Int): Int = math.abs(x)
   def _abs(x: Double): Double = math.abs(x)
   def _abs(x: Array[Double]): Array[Double] = x map { math.abs }
@@ -144,6 +194,9 @@ object Transcompile {
   def _length[A](x: Array[A]): Int = x.length
   def _length(x: Double): Int = 1
   def _length(x: Int): Int = 1
+
+  def _all(x: Array[Boolean]): Boolean = x.forall(identity)
+  def _any(x: Array[Boolean]): Boolean = x.exists(identity)
 
   def _sum(x: Array[Double]): Double = x.sum
   def _sum(x: Array[Int]): Int = x.sum

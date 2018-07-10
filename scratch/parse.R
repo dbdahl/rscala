@@ -3,10 +3,15 @@ scala()
 s$showCode <- TRUE
 
 (s ^ function() {
-  x <- 1L
-  y <- 2L
-  x / y
+  1L / 2L
 })()
+
+(s ^ function() {
+  all(c(3,4,5) <= 5)
+})()
+
+
+
 
 r <- s(x=2) ^ function(y=scalaType("Double")) {
   2+3*3^2 + x + 2*y
