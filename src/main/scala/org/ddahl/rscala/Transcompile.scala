@@ -64,47 +64,26 @@ object Transcompile {
   def _asDOTcharacter(x: Array[Boolean]): Array[String] = x.map { _.toString }
   def _asDOTcharacter(x: Array[String]): Array[String] = x.clone
 
-  def _subset(x: Array[Int], index: Double): Int = x(index.toInt)
-  def _subset(x: Array[Int], index: Int): Int = x(index)
-  def _subset(x: Array[Double], index: Double): Double = x(index.toInt)
-  def _subset(x: Array[Double], index: Int): Double = x(index)
-  def _subset(x: Array[Boolean], index: Double): Boolean = x(index.toInt)
-  def _subset(x: Array[Boolean], index: Int): Boolean = x(index)
-  def _subset(x: Array[String], index: Double): String = x(index.toInt)
-  def _subset(x: Array[String], index: Int): String = x(index)
-
-  def _subset(x: Array[Double], indices: Array[Double]): Array[Double] = {
-    val set = indices.map(_.toInt).toSet
-    x.zipWithIndex.filter(z => set.contains(z._2)).map(_._1)
-  }
-  def _subset(x: Array[Int], indices: Array[Double]): Array[Int] = {
-    val set = indices.map(_.toInt).toSet
-    x.zipWithIndex.filter(z => set.contains(z._2)).map(_._1)
-  }
-  def _subset(x: Array[Boolean], indices: Array[Double]): Array[Boolean] = {
-    val set = indices.map(_.toInt).toSet
-    x.zipWithIndex.filter(z => set.contains(z._2)).map(_._1)
-  }
-  def _subset(x: Array[String], indices: Array[Double]): Array[String] = {
-    val set = indices.map(_.toInt).toSet
-    x.zipWithIndex.filter(z => set.contains(z._2)).map(_._1)
-  }
-  def _subset(x: Array[Double], indices: Array[Int]): Array[Double] = {
-    val set = indices.toSet
-    x.zipWithIndex.filter(z => set.contains(z._2)).map(_._1)
-  }
-  def _subset(x: Array[Int], indices: Array[Int]): Array[Int] = {
-    val set = indices.toSet
-    x.zipWithIndex.filter(z => set.contains(z._2)).map(_._1)
-  }
-  def _subset(x: Array[Boolean], indices: Array[Int]): Array[Boolean] = {
-    val set = indices.toSet
-    x.zipWithIndex.filter(z => set.contains(z._2)).map(_._1)
-  }
-  def _subset(x: Array[String], indices: Array[Int]): Array[String] = {
-    val set = indices.toSet
-    x.zipWithIndex.filter(z => set.contains(z._2)).map(_._1)
-  }
+  def _subset(x: Int, index: Double): Int = if ( index == 1 ) x else throw sys.error("Index out of bounds.")
+  def _subset(x: Double, index: Double): Double = if ( index == 1 ) x else throw sys.error("Index out of bounds.")
+  def _subset(x: Boolean, index: Double): Boolean = if ( index == 1 ) x else throw sys.error("Index out of bounds.")
+  def _subset(x: String, index: Double): String = if ( index == 1 ) x else throw sys.error("Index out of bounds.")
+  def _subset(x: Array[Int], index: Double): Int = x(index.toInt-1)
+  def _subset(x: Array[Int], index: Int): Int = x(index-1)
+  def _subset(x: Array[Double], index: Double): Double = x(index.toInt-1)
+  def _subset(x: Array[Double], index: Int): Double = x(index-1)
+  def _subset(x: Array[Boolean], index: Double): Boolean = x(index.toInt-1)
+  def _subset(x: Array[Boolean], index: Int): Boolean = x(index-1)
+  def _subset(x: Array[String], index: Double): String = x(index.toInt-1)
+  def _subset(x: Array[String], index: Int): String = x(index-1)
+  def _subset(x: Array[Double], indices: Array[Double]): Array[Double] = indices.map(_.toInt-1).map(x(_))
+  def _subset(x: Array[Int], indices: Array[Double]): Array[Int] = indices.map(_.toInt-1).map(x(_))
+  def _subset(x: Array[Boolean], indices: Array[Double]): Array[Boolean] = indices.map(_.toInt-1).map(x(_))
+  def _subset(x: Array[String], indices: Array[Double]): Array[String] = indices.map(_.toInt-1).map(x(_))
+  def _subset(x: Array[Double], indices: Array[Int]): Array[Double] = indices.map(_-1).map(x(_))
+  def _subset(x: Array[Int], indices: Array[Int]): Array[Int] = indices.map(_-1).map(x(_))
+  def _subset(x: Array[Boolean], indices: Array[Int]): Array[Boolean] = indices.map(_-1).map(x(_))
+  def _subset(x: Array[String], indices: Array[Int]): Array[String] = indices.map(_-1).map(x(_))
 
   def _which(x: Array[Boolean]): Array[Int] = x.zipWithIndex.filter(_._1).map(_._2)
 
@@ -117,6 +96,14 @@ object Transcompile {
   def _equal(x: Array[Double], y: Array[Int]): Array[Boolean] = x zip y map { z => z._1 == z._2 }
   def _equal(x: Array[Int], y: Array[Double]): Array[Boolean] = x zip y map { z => z._1 == z._2 }
   def _equal(x: Array[Int], y: Array[Int]): Array[Boolean] = x zip y map { z => z._1 == z._2 }
+  def _equal(x: Boolean, y: Boolean): Boolean = x == y
+  def _equal(x: Array[Boolean], y: Boolean): Array[Boolean] = x map { _ == y }
+  def _equal(x: Boolean, y: Array[Boolean]): Array[Boolean] = y map { x == _ }
+  def _equal(x: Array[Boolean], y: Array[Boolean]): Array[Boolean] = x zip y map { z => z._1 == z._2 }
+  def _equal(x: String, y: String): Boolean = x == y
+  def _equal(x: Array[String], y: String): Array[Boolean] = x map { _ == y }
+  def _equal(x: String, y: Array[String]): Array[Boolean] = y map { x == _ }
+  def _equal(x: Array[String], y: Array[String]): Array[Boolean] = x zip y map { z => z._1 == z._2 }
 
   def _lt(x: Double, y: Double): Boolean = x < y
   def _lt(x: Array[Double], y: Double): Array[Boolean] = x map { _ < y }
@@ -251,7 +238,7 @@ object Transcompile {
     }
   }
 
-  def _seq(from: Double, to: Double, by: Double): Array[Double] = {
+  def _seq(from: Double, to: Double, by: Double = 1.0): Array[Double] = {
     val length = ( ( to - from ) / by + 1 ).floor.toInt
     Array.tabulate(length) { i =>
       from + i*by

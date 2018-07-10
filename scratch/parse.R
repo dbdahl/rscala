@@ -10,6 +10,41 @@ s$showCode <- TRUE
   all(c(3,4,5) <= 5)
 })()
 
+(s ^ function() {
+  c(11,12,13)[c(1,1,2,2,2,3)]
+  c("David","Dahl","Lisa")[c(1,1,2,2,2,3)] == "David"
+})()
+
+(s ^ function() {
+  a <- 1
+  a[1]
+})()
+
+
+library(renjin)
+
+bigsum <- function(n=scalaType("Double")) {
+  sum <- 0
+  for(i in seq(1, n)) {
+    sum <- sum + i
+  }
+  sum
+}
+bigsumc <- compiler::cmpfun(bigsum) # GNU R's byte code compiler
+system.time(bigsum(1e8))
+system.time(bigsumc(1e8))
+system.time(renjin(bigsum(1e8)))
+bigsums <- s ^ bigsum
+system.time(bigsums(1e8))
+
+bigsums2 <- function(n) s(n=as.integer(n)[1]) * '
+  var sum = 0.0
+  for(i <- 1 to n) {
+    sum += i
+  }
+  sum
+'
+system.time(bigsums2(1e8))
 
 
 
