@@ -12,10 +12,14 @@ r2scala <- function(x, showCode=FALSE, symbolEnv=new.env(parent=emptyenv())) {
   }
   if ( ( typeof[1] == "symbol" ) && ( classes[1] == "name" ) ) {
     if ( ! is.list(x) && is.symbol(x) ) {
-      if ( strings[1] == "val" ) "_val" else strings[1]
+      if ( strings[1] %in% c("yield","with","var","val","type","try","true","trait","throw","this","super","sealed","protected","private","package",
+                             "override","object","null","new","match","lazy","import","implicit","forSome","finally","final","false","extends","do",
+                             "def","class","catch","case","abstract") ) {
+        paste0("_",strings[1])
+      } else strings[1]
     }
     else if ( strings[1] == "{" )  paste0("{\n",paste0(sapply(x[-1],r2scala,showCode,symbolEnv),collapse="\n"),"\n}")
-    else if ( strings[1] == "[" )  paste0(r2scalaSubs("subset"),"(",r2scala(x[[2]],showCode,symbolEnv),",",r2scala(x[[3]],showCode,symbolEnv),")")
+    else if ( strings[1] == "[" )  paste0(r2scala(x[[2]],showCode,symbolEnv),"(_ensureArray(",r2scala(x[[3]],showCode,symbolEnv),"))")
     else if ( strings[1] == "^" )  paste0(r2scalaSubs("pow"),   "(",r2scala(x[[2]],showCode,symbolEnv),",",r2scala(x[[3]],showCode,symbolEnv),")")
     else if ( strings[1] == "==" ) paste0(r2scalaSubs("equal"), "(",r2scala(x[[2]],showCode,symbolEnv),",",r2scala(x[[3]],showCode,symbolEnv),")")
     else if ( strings[1] == "<" )  paste0(r2scalaSubs("lt"),    "(",r2scala(x[[2]],showCode,symbolEnv),",",r2scala(x[[3]],showCode,symbolEnv),")")
@@ -36,6 +40,7 @@ r2scala <- function(x, showCode=FALSE, symbolEnv=new.env(parent=emptyenv())) {
     else if ( strings[1] == "*" ) paste0(r2scala(x[[2]],showCode,symbolEnv)," * ",r2scala(x[[3]],showCode,symbolEnv))
     else if ( strings[1] == "/" ) paste0(r2scalaSubs("as.numeric"),"(",r2scala(x[[2]],showCode,symbolEnv),") / ",r2scala(x[[3]],showCode,symbolEnv))
     else if ( strings[1] == "%%" ) paste0(r2scala(x[[2]],showCode,symbolEnv)," % ",r2scala(x[[3]],showCode,symbolEnv))
+    else if ( strings[1] == "c" ) paste0('_c(',paste0('_ensureArray(',sapply(x[-1],r2scala,showCode,symbolEnv),')',collapse=","),')')
     else if ( ( strings[1] == "I" ) && ( length(x) == 2 ) && ( typeof[2] == "character" ) ) paste0(strings[2])
     else if ( ( grepl("^eval[IDLRS][012]$",strings[1]) ) && ( typeof[2] == "character" ) ) {
       args <- if ( length(x) > 2 ) paste0(',',paste0(sapply(x[-(1:2)],r2scala,showCode,symbolEnv),collapse=",")) else NULL

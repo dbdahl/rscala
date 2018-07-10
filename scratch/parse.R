@@ -16,9 +16,46 @@ s$showCode <- TRUE
 })()
 
 (s ^ function() {
-  a <- 1
-  a[1]
+  a <- c(1,2,3)+10
+  a[c(1L,3)] <- 3
+  a
 })()
+
+
+(s ^ function() {
+  a <- 1
+  b <- c(2,a)
+  b <- c(as.character(c(a,b)),"David")
+  b
+})()
+
+(s ^ function() {
+  a <- 1
+  c <- c(2,a)
+  b <- c(as.character(c(a,c)),"David")
+  b
+})()
+
+(s ^ function() {
+  val <- 1
+  var <- 2
+  val + var
+})()
+
+
+
+
+r <- s ^ function(x=scalaType("Int")) {
+  a <- 1:x
+  for ( i in 2:length(a) ) {
+    cat(paste0(1,2,a,"\n"))
+    a[i] <- a[i-1] + i
+  }
+  a
+}
+r(10L)
+
+
 
 
 library(renjin)

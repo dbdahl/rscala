@@ -64,27 +64,6 @@ object Transcompile {
   def _asDOTcharacter(x: Array[Boolean]): Array[String] = x.map { _.toString }
   def _asDOTcharacter(x: Array[String]): Array[String] = x.clone
 
-  def _subset(x: Int, index: Double): Int = if ( index == 1 ) x else throw sys.error("Index out of bounds.")
-  def _subset(x: Double, index: Double): Double = if ( index == 1 ) x else throw sys.error("Index out of bounds.")
-  def _subset(x: Boolean, index: Double): Boolean = if ( index == 1 ) x else throw sys.error("Index out of bounds.")
-  def _subset(x: String, index: Double): String = if ( index == 1 ) x else throw sys.error("Index out of bounds.")
-  def _subset(x: Array[Int], index: Double): Int = x(index.toInt-1)
-  def _subset(x: Array[Int], index: Int): Int = x(index-1)
-  def _subset(x: Array[Double], index: Double): Double = x(index.toInt-1)
-  def _subset(x: Array[Double], index: Int): Double = x(index-1)
-  def _subset(x: Array[Boolean], index: Double): Boolean = x(index.toInt-1)
-  def _subset(x: Array[Boolean], index: Int): Boolean = x(index-1)
-  def _subset(x: Array[String], index: Double): String = x(index.toInt-1)
-  def _subset(x: Array[String], index: Int): String = x(index-1)
-  def _subset(x: Array[Double], indices: Array[Double]): Array[Double] = indices.map(_.toInt-1).map(x(_))
-  def _subset(x: Array[Int], indices: Array[Double]): Array[Int] = indices.map(_.toInt-1).map(x(_))
-  def _subset(x: Array[Boolean], indices: Array[Double]): Array[Boolean] = indices.map(_.toInt-1).map(x(_))
-  def _subset(x: Array[String], indices: Array[Double]): Array[String] = indices.map(_.toInt-1).map(x(_))
-  def _subset(x: Array[Double], indices: Array[Int]): Array[Double] = indices.map(_-1).map(x(_))
-  def _subset(x: Array[Int], indices: Array[Int]): Array[Int] = indices.map(_-1).map(x(_))
-  def _subset(x: Array[Boolean], indices: Array[Int]): Array[Boolean] = indices.map(_-1).map(x(_))
-  def _subset(x: Array[String], indices: Array[Int]): Array[String] = indices.map(_-1).map(x(_))
-
   def _which(x: Array[Boolean]): Array[Int] = x.zipWithIndex.filter(_._1).map(_._2)
 
   def _equal(x: Double, y: Double): Boolean = x == y
@@ -176,7 +155,10 @@ object Transcompile {
   def _pow(x: Array[Double], y: Array[Int]): Array[Double] = x zip y map { zz => math.pow(zz._1,zz._2) }
   def _pow(x: Array[Int], y: Array[Double]): Array[Double] = x zip y map { zz => math.pow(zz._1,zz._2) }
 
-  def _c[A: ClassTag](x: A*): Array[A] = x.toArray
+  def _c(x: Array[Int]*): Array[Int] = x.toArray.flatten
+  def _c(x: Array[Double]*): Array[Double] = x.toArray.flatten
+  def _c(x: Array[Boolean]*): Array[Boolean] = x.toArray.flatten
+  def _c(x: Array[String]*): Array[String] = x.toArray.flatten
 
   def _length[A](x: Array[A]): Int = x.length
   def _length(x: Double): Int = 1
@@ -222,8 +204,18 @@ object Transcompile {
   def _min(x: Array[Int]): Int = x.min
 
   def _cat(x: Any*): Unit = print(_paste(x:_*))
-  def _paste(x: Any*): String = x.mkString(" ")
-  def _paste0(x: Any*): String = x.mkString
+  def _paste(x: Any*): String = {
+    x.map { xx =>
+      if ( xx.getClass.isArray ) xx.asInstanceOf[Array[_]].map(xxx => _paste0(xxx)).mkString(" ")
+      else xx.toString
+    }.mkString(" ")
+  }
+  def _paste0(x: Any*): String = {
+    x.map { xx =>
+      if ( xx.getClass.isArray ) xx.asInstanceOf[Array[_]].map(xxx => _paste0(xxx)).mkString
+      else xx.toString
+    }.mkString
+  }
 
   def _nchar(x: String): Int = x.length
 
@@ -260,6 +252,15 @@ object Transcompile {
   def _rnorm(): Double = scala.util.Random.nextGaussian()
   def _rnorm(n: Double): Array[Double] = Array.fill(n.toInt) { scala.util.Random.nextGaussian() }
 
+  def _ensureArray(x: Int): Array[Int] = Array(x)
+  def _ensureArray(x: Double): Array[Double] = Array(x)
+  def _ensureArray(x: Boolean): Array[Boolean] = Array(x)
+  def _ensureArray(x: String): Array[String] = Array(x)
+  def _ensureArray(x: Array[Int]): Array[Int] = x
+  def _ensureArray(x: Array[Double]): Array[Double] = x
+  def _ensureArray(x: Array[Boolean]): Array[Boolean] = x
+  def _ensureArray(x: Array[String]): Array[String] = x
+
   implicit class RScalaIntArray(x: Array[Int]) {
 
     def unary_+ : Array[Int] = x.map(+_)
@@ -283,6 +284,12 @@ object Transcompile {
     def -(y: Array[Int]): Array[Int] = x zip y map { zz => zz._1 - zz._2 }
     def *(y: Array[Int]): Array[Int] = x zip y map { zz => zz._1 * zz._2 }
     def /(y: Array[Int]): Array[Double] = x zip y map { zz => zz._1.toDouble / zz._2 }
+    def update(index: Array[Int], lhs: Int): Unit = index.map(_-1).foreach(i => x(i) = lhs)
+    def update(index: Array[Double], lhs: Int): Unit = index.map(_.toInt-1).foreach(i => x(i) = lhs)
+    def update(index: Array[Int], lhs: Array[Int]): Unit = index.map(_-1).zipWithIndex.foreach(z => x(z._1) = lhs(z._2))
+    def update(index: Array[Double], lhs: Array[Int]): Unit = index.map(_.toInt-1).zipWithIndex.foreach(z => x(z._1) = lhs(z._2))
+    def apply(index: Array[Int]): Array[Int] = index.map(_-1).map(x(_))
+    def apply(index: Array[Double]): Array[Int] = index.map(_.toInt-1).map(x(_))
 
   }
 
@@ -306,6 +313,14 @@ object Transcompile {
     def -(y: Array[Int]): Array[Double] = x zip y map { zz => zz._1 - zz._2 }
     def *(y: Array[Int]): Array[Double] = x zip y map { zz => zz._1 * zz._2 }
     def /(y: Array[Int]): Array[Double] = x zip y map { zz => zz._1 / zz._2 }
+    def update(index: Array[Int], lhs: Double): Unit = index.map(_-1).foreach(i => x(i) = lhs)
+    def update(index: Array[Double], lhs: Double): Unit = index.map(_.toInt-1).foreach(i => x(i) = lhs)
+    def update(index: Array[Int], lhs: Array[Int]): Unit = index.map(_-1).zipWithIndex.foreach(z => x(z._1) = lhs(z._2))
+    def update(index: Array[Double], lhs: Array[Int]): Unit = index.map(_.toInt-1).zipWithIndex.foreach(z => x(z._1) = lhs(z._2))
+    def update(index: Array[Int], lhs: Array[Double]): Unit = index.map(_-1).zipWithIndex.foreach(z => x(z._1) = lhs(z._2))
+    def update(index: Array[Double], lhs: Array[Double]): Unit = index.map(_.toInt-1).zipWithIndex.foreach(z => x(z._1) = lhs(z._2))
+    def apply(index: Array[Int]): Array[Double] = index.map(_-1).map(x(_))
+    def apply(index: Array[Double]): Array[Double] = index.map(_.toInt-1).map(x(_))
 
   }
 
