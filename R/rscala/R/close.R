@@ -15,8 +15,8 @@ close.rscalaBridge <- function(con, ...) {
     Sys.sleep(15)
   }
   if ( details[["connected"]] ) {
-    close(details[["socketIn"]])
-    close(details[["socketOut"]])
+    tryCatch( close(details[["socketIn"]]  ), error=function(e) NULL )
+    tryCatch( close(details[["socketOut"]] ), error=function(e) NULL )
   }
   invisible()
 }

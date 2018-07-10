@@ -84,6 +84,24 @@ object Transcompile {
   def _equal(x: String, y: Array[String]): Array[Boolean] = y map { x == _ }
   def _equal(x: Array[String], y: Array[String]): Array[Boolean] = x zip y map { z => z._1 == z._2 }
 
+  def _notequal(x: Double, y: Double): Boolean = x != y
+  def _notequal(x: Array[Double], y: Double): Array[Boolean] = x map { _ != y }
+  def _notequal(x: Array[Int], y: Double): Array[Boolean] = x map { _ != y }
+  def _notequal(x: Double, y: Array[Double]): Array[Boolean] = y map { x != _ }
+  def _notequal(x: Double, y: Array[Int]): Array[Boolean] = y map { x != _ }
+  def _notequal(x: Array[Double], y: Array[Double]): Array[Boolean] = x zip y map { z => z._1 != z._2 }
+  def _notequal(x: Array[Double], y: Array[Int]): Array[Boolean] = x zip y map { z => z._1 != z._2 }
+  def _notequal(x: Array[Int], y: Array[Double]): Array[Boolean] = x zip y map { z => z._1 != z._2 }
+  def _notequal(x: Array[Int], y: Array[Int]): Array[Boolean] = x zip y map { z => z._1 != z._2 }
+  def _notequal(x: Boolean, y: Boolean): Boolean = x != y
+  def _notequal(x: Array[Boolean], y: Boolean): Array[Boolean] = x map { _ != y }
+  def _notequal(x: Boolean, y: Array[Boolean]): Array[Boolean] = y map { x != _ }
+  def _notequal(x: Array[Boolean], y: Array[Boolean]): Array[Boolean] = x zip y map { z => z._1 != z._2 }
+  def _notequal(x: String, y: String): Boolean = x != y
+  def _notequal(x: Array[String], y: String): Array[Boolean] = x map { _ != y }
+  def _notequal(x: String, y: Array[String]): Array[Boolean] = y map { x != _ }
+  def _notequal(x: Array[String], y: Array[String]): Array[Boolean] = x zip y map { z => z._1 != z._2 }
+
   def _lt(x: Double, y: Double): Boolean = x < y
   def _lt(x: Array[Double], y: Double): Array[Boolean] = x map { _ < y }
   def _lt(x: Array[Int], y: Double): Array[Boolean] = x map { _ < y }

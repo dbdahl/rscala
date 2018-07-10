@@ -34,11 +34,14 @@ r2scala <- function(x, showCode, symbolEnv) {
     else if ( strings[1] == "[" )  paste0(r2scala(x[[2]],showCode,symbolEnv),"(_ensureArray(",r2scala(x[[3]],showCode,symbolEnv),"))")
     else if ( strings[1] == "^" )  paste0(r2scalaSubs("pow"),   "(",r2scala(x[[2]],showCode,symbolEnv),",",r2scala(x[[3]],showCode,symbolEnv),")")
     else if ( strings[1] == "==" ) paste0(r2scalaSubs("equal"), "(",r2scala(x[[2]],showCode,symbolEnv),",",r2scala(x[[3]],showCode,symbolEnv),")")
+    else if ( strings[1] == "!=" ) paste0(r2scalaSubs("notequal"), "(",r2scala(x[[2]],showCode,symbolEnv),",",r2scala(x[[3]],showCode,symbolEnv),")")
     else if ( strings[1] == "<" )  paste0(r2scalaSubs("lt"),    "(",r2scala(x[[2]],showCode,symbolEnv),",",r2scala(x[[3]],showCode,symbolEnv),")")
     else if ( strings[1] == "<=" ) paste0(r2scalaSubs("le"),    "(",r2scala(x[[2]],showCode,symbolEnv),",",r2scala(x[[3]],showCode,symbolEnv),")")
     else if ( strings[1] == ">" )  paste0(r2scalaSubs("gt"),    "(",r2scala(x[[2]],showCode,symbolEnv),",",r2scala(x[[3]],showCode,symbolEnv),")")
     else if ( strings[1] == ">=" ) paste0(r2scalaSubs("ge"),    "(",r2scala(x[[2]],showCode,symbolEnv),",",r2scala(x[[3]],showCode,symbolEnv),")")
-     else if ( strings[1] == "<-" ) {
+    else if ( strings[1] == "&&" ) paste0(r2scala(x[[2]],showCode,symbolEnv)," && ",r2scala(x[[3]],showCode,symbolEnv))
+    else if ( strings[1] == "||" ) paste0(r2scala(x[[2]],showCode,symbolEnv)," || ",r2scala(x[[3]],showCode,symbolEnv))
+    else if ( ( strings[1] == "<-" ) || ( strings[1] == "=" ) ) {
       prefix <- if ( ( typeof[2] == "symbol" ) && ( ! exists(strings[2],envir=symbolEnv) ) ) {
         assign(strings[2],"TRUE",envir=symbolEnv)
         "var "
@@ -51,6 +54,7 @@ r2scala <- function(x, showCode, symbolEnv) {
     else if ( strings[1] == "-" ) if ( length(x) == 3 ) paste0(r2scala(x[[2]],showCode,symbolEnv)," - ",r2scala(x[[3]],showCode,symbolEnv)) else paste0("-",r2scala(x[[2]],showCode,symbolEnv))
     else if ( strings[1] == "*" ) paste0(r2scala(x[[2]],showCode,symbolEnv)," * ",r2scala(x[[3]],showCode,symbolEnv))
     else if ( strings[1] == "/" ) paste0(r2scalaSubs("as.numeric"),"(",r2scala(x[[2]],showCode,symbolEnv),") / ",r2scala(x[[3]],showCode,symbolEnv))
+    else if ( strings[1] == "%/%" ) paste0(r2scalaSubs("as.integer"),"(",r2scala(x[[2]],showCode,symbolEnv),") / ",r2scalaSubs("as.integer"),"(",r2scala(x[[3]],showCode,symbolEnv),")")
     else if ( strings[1] == "%%" ) paste0(r2scala(x[[2]],showCode,symbolEnv)," % ",r2scala(x[[3]],showCode,symbolEnv))
     else if ( strings[1] == "c" ) paste0('_c(',paste0('_ensureArray(',sapply(x[-1],r2scala,showCode,symbolEnv),')',collapse=","),')')
     else if ( ( strings[1] == "I" ) && ( length(x) == 2 ) && ( typeof[2] == "character" ) ) paste0(strings[2])
@@ -78,7 +82,7 @@ r2scala <- function(x, showCode, symbolEnv) {
 }
 
 r2scalaSubs <- function(x) {
-  if ( x %in% c("numeric","double","integer","logical","character","subset","which","equal","lt","le","gt","ge","abs","sqrt","log","log10","exp","pow",
+  if ( x %in% c("numeric","double","integer","logical","character","subset","which","equal","notequal","lt","le","gt","ge","abs","sqrt","log","log10","exp","pow",
                 "c","length","all","any","sum","mean","var","sd","max","min","cat","paste","paste0","nchar","rep","seq","ceiling","floor","round",
                 "runif","rnorm") ) paste0("_",x)
   else if ( x %in% c("as.numeric","as.double","as.integer","as.logical","as.character") ) paste0("_",gsub("\\.","DOT",x))
