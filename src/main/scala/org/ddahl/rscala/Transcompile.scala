@@ -342,6 +342,10 @@ object Transcompile {
     def -(y: Array[Double]): Array[Double] = y.map(x-_)
     def *(y: Array[Double]): Array[Double] = y.map(x*_)
     def /(y: Array[Double]): Array[Double] = y.map(x/_)
+    def +(y: Array[Int]): Array[Double] = y.map(x+_)
+    def -(y: Array[Int]): Array[Double] = y.map(x-_)
+    def *(y: Array[Int]): Array[Double] = y.map(x*_)
+    def /(y: Array[Int]): Array[Double] = y.map(x/_)
 
   }
 

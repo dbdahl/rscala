@@ -74,7 +74,7 @@
     internalArgs <- args[whichInternal]
     args <- args[!whichInternal]
     internalArgsList <- if ( length(internalArgs) > 0 ) paste0(names(internalArgs),": ",internalArgs,collapse=", ") else NULL
-    scalaInvoke(details, paste0(".def self(", internalArgsList, ")",returnString," = {\n", header, transcompilation, "\n}\nself _"), args, withNames=TRUE)
+    scalaInvoke(details, paste0(".",header,"def self(", internalArgsList, ")",returnString," = ", transcompilation, "\nself _"), args, withNames=TRUE)
   }
 }
 
