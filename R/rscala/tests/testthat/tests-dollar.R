@@ -14,7 +14,7 @@ test_that("references work", {
   expect_true(s(rng=rng,x=rng$.asInstanceOf_AnyRef()) * "x.equals(rng)")
   expect_identical(s$.new_String("Hotdog")$toString(),"Hotdog")
   expect_identical(s$List(1,2,3,4)$toArray(),c(1,2,3,4))
-  expect_is(s$scala.util.Random.nextDouble, "rscalaFunction")
+  expect_is(s$scala.util.Random.nextDouble, "rscalaStub")
   expect_type(s$scala.util.Random.nextDouble(), "double")
   expect_is(s$.scala.util.Random.nextDouble(), "rscalaReference")
   expect_is(s ^ "4", "rscalaReference")
