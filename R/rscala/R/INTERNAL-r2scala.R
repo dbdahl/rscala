@@ -1,4 +1,4 @@
-r2scala <- function(x, showCode=FALSE, symbolEnv=new.env(parent=emptyenv())) {
+r2scala <- function(x, showCode, symbolEnv) {
   if ( length(x) == 0 ) return("")
   typeof  <- sapply(x,function(y) typeof(y))
   classes <- sapply(x,function(y) class(y))
@@ -17,6 +17,15 @@ r2scala <- function(x, showCode=FALSE, symbolEnv=new.env(parent=emptyenv())) {
                              "def","class","catch","case","abstract") ) {
         paste0("_",strings[1])
       } else strings[1]
+    }
+    else if ( strings[1] == "return" ) {
+      if ( length(x) != 2 ) stop('Too many arguments for return statement.') 
+      paste0("return ",r2scala(x[[2]],showCode,symbolEnv))
+    }
+    else if ( strings[1] == "returnType" ) {
+      if ( length(x) != 2 ) stop('returnType statement only take one argument.')
+      assign("_returnType",eval(x[[2]]),envir=symbolEnv)
+      ""
     }
     else if ( strings[1] == "break" ) "Outer.break"
     else if ( strings[1] == "next" ) "Inner.break"

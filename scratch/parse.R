@@ -2,21 +2,45 @@ library(rscala)
 scala()
 s$showCode <- TRUE
 
+r <- s ^ function(x=scalaType("Int")) {
+  returnType("Double")
+  if ( x < 10 ) self(x+1L)
+  else return(x+3)
+}
+r(3L)
+
 (s ^ function() {
   sum <- 0.0
-  for ( i in 1:1000 ) {
-    sum <- sum + i
-    if ( sum >= 1000 ) break
+  for ( j in c("A","B") ) {
+    sum <- 0.0
+    cat(j,"\n")
+    for ( i in 1:1000 ) {
+      # if ( i %% 2 == 0 ) next
+      if ( i %% 15 == 0 ) return(31L,"Int")
+      sum <- sum + i
+      if ( sum >= 1000 ) break
+    }
+  }
+  sum.toInt
+})()
+
+f1 <- (s ^ function() {
+  sum <- 0.0
+  for ( j in c("A","B") ) {
+    sum <- 0.0
+    cat(j,"\n")
+    for ( i in 1:1000 ) {
+      # if ( i %% 2 == 0 ) next
+      sum <- sum + i
+      if ( sum >= 1000 ) break
+    }
   }
   sum
-})()
+})
 
-
-
-
-(s ^ function() {
+f2 <- (s ^ function() {
   1L / 2L
-})()
+})
 
 (s ^ function() {
   all(c(3,4,5) <= 5)

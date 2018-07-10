@@ -65,14 +65,16 @@
     args <- c(args,lapply(ast[-length(ast)],eval))
     ast <- ast[[length(ast)]]
     details <- attr(bridge,"details")
-    transcompilation <- r2scala(ast,details[["debugTranscompilation"]])
+    symbolEnv=new.env(parent=emptyenv())
+    transcompilation <- r2scala(ast,details[["debugTranscompilation"]],symbolEnv)
+    returnString <- if ( exists("_returnType",envir=symbolEnv) ) paste0(": ",get("_returnType",envir=symbolEnv)) else ""
     header <- details[["transcompilationHeader"]]
     header <- if ( length(header) > 0 ) paste0(paste0(header,collapse="\n"),"\n") else NULL
     whichInternal <- if ( length(args) == 0 ) logical(0) else sapply(args,function(x) inherits(x,"rscalaType"))
     internalArgs <- args[whichInternal]
     args <- args[!whichInternal]
     internalArgsList <- if ( length(internalArgs) > 0 ) paste0(names(internalArgs),": ",internalArgs,collapse=", ") else NULL
-    scalaInvoke(details, paste0(".(", internalArgsList, ") => {\n", header, transcompilation, "\n}"), args, withNames=TRUE)
+    scalaInvoke(details, paste0(".def self(", internalArgsList, ")",returnString," = {\n", header, transcompilation, "\n}\nself _"), args, withNames=TRUE)
   }
 }
 
