@@ -22,10 +22,11 @@ r2scala <- function(x, showCode, symbolEnv) {
       if ( length(x) != 2 ) stop('Too many arguments for return statement.') 
       paste0("return ",r2scala(x[[2]],showCode,symbolEnv))
     }
-    else if ( strings[1] == "returnType" ) {
-      if ( length(x) != 2 ) stop('returnType statement only take one argument.')
-      assign("_returnType",eval(x[[2]]),envir=symbolEnv)
-      ""
+    else if ( strings[1] == "scalaType" ) {
+      if ( length(x) != 2 ) stop('scalaType statement only take one argument.')
+      returnType <- eval(x[[2]])
+      assign("_returnType",returnType,envir=symbolEnv)
+      paste0("// Return type is declared to be ",returnType)
     }
     else if ( strings[1] == "break" ) "Outer.break"
     else if ( strings[1] == "next" ) "Inner.break"
@@ -60,6 +61,9 @@ r2scala <- function(x, showCode, symbolEnv) {
     else if ( strings[1] == "if" ) {
       ifexpression = paste0('if ( ',r2scala(x[[2]],showCode,symbolEnv),' ) ',r2scala(x[[3]],showCode,symbolEnv))
       if ( length(x) == 4 ) paste0(ifexpression,' else ',r2scala(x[[4]],showCode,symbolEnv)) else ifexpression
+    }
+    else if ( strings[1] == "while" ) {
+      paste0('val Outer = new Breaks; val Inner = new Breaks; Outer.breakable { while ( ',r2scala(x[[2]],showCode,symbolEnv),' ) Inner.breakable{ ',r2scala(x[[3]],showCode,symbolEnv),' } }')
     }
     else if ( strings[1] == "for" ) {
       paste0('val Outer = new Breaks; val Inner = new Breaks; Outer.breakable { for ( ',r2scala(x[[2]],showCode,symbolEnv),' <- ',r2scala(x[[3]],showCode,symbolEnv),' ) Inner.breakable{ ',r2scala(x[[4]],showCode,symbolEnv),' } }')

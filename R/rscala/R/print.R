@@ -25,14 +25,14 @@ toString.rscalaReference <- function(x, ...) {
 
 #' @export
 #' 
-print.rscalaFunction <- function(x, ...) {
+print.rscalaSub <- function(x, ...) {
   cat(toString(x, ...),"\n",sep="")
 }
 
 #' @export
 #
-toString.rscalaFunction <- function(x, ...) {
-  "rscala function"
+toString.rscalaSub <- function(x, ...) {
+  "rscala stub"
 }
 
 #' @export

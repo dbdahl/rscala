@@ -5,7 +5,7 @@
   details <- attr(bridge,"details")
   structure(function(...) {
     scalaInvoke(details, snippet, list(...))
-  },class="rscalaFunction")
+  },class="rscalaStub")
 }
 
 #' @export
@@ -14,7 +14,7 @@
   details <- attr(reference,"rscalaReferenceEnvironment")[["details"]]
   structure(function(...) {
     scalaInvoke(details, snippet, list(...,reference), withReference=TRUE)
-  },class="rscalaFunction")
+  },class="rscalaStub")
 }
 
 #' @export

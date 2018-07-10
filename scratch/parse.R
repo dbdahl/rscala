@@ -3,11 +3,28 @@ scala()
 s$showCode <- TRUE
 
 r <- s ^ function(x=scalaType("Int")) {
-  returnType("Double")
+  scalaType("Double")
   if ( x < 10 ) self(x+1L)
   else return(x+3)
 }
 r(3L)
+
+
+r2 <- s ^ function(x=scalaType("Int")) {
+  scalaType("Double")
+  x <- 0
+  while ( x < 10 ) {
+    x <- x + 1
+    if ( x == 8 ) next
+    cat(x," ")
+    if ( x == 9 ) return(2*x)
+  }
+  cat("\n")
+  x
+}
+r2(3L)
+
+
 
 (s ^ function() {
   sum <- 0.0
