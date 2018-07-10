@@ -18,6 +18,8 @@ r2scala <- function(x, showCode=FALSE, symbolEnv=new.env(parent=emptyenv())) {
         paste0("_",strings[1])
       } else strings[1]
     }
+    else if ( strings[1] == "break" ) "Outer.break"
+    else if ( strings[1] == "next" ) "Inner.break"
     else if ( strings[1] == "{" )  paste0("{\n",paste0(sapply(x[-1],r2scala,showCode,symbolEnv),collapse="\n"),"\n}")
     else if ( strings[1] == "[" )  paste0(r2scala(x[[2]],showCode,symbolEnv),"(_ensureArray(",r2scala(x[[3]],showCode,symbolEnv),"))")
     else if ( strings[1] == "^" )  paste0(r2scalaSubs("pow"),   "(",r2scala(x[[2]],showCode,symbolEnv),",",r2scala(x[[3]],showCode,symbolEnv),")")
@@ -51,7 +53,7 @@ r2scala <- function(x, showCode=FALSE, symbolEnv=new.env(parent=emptyenv())) {
       if ( length(x) == 4 ) paste0(ifexpression,' else ',r2scala(x[[4]],showCode,symbolEnv)) else ifexpression
     }
     else if ( strings[1] == "for" ) {
-      paste0('for ( ',r2scala(x[[2]],showCode,symbolEnv),' <- ',r2scala(x[[3]],showCode,symbolEnv),' ) ',r2scala(x[[4]],showCode,symbolEnv))
+      paste0('val Outer = new Breaks; val Inner = new Breaks; Outer.breakable { for ( ',r2scala(x[[2]],showCode,symbolEnv),' <- ',r2scala(x[[3]],showCode,symbolEnv),' ) Inner.breakable{ ',r2scala(x[[4]],showCode,symbolEnv),' } }')
     }
     else paste0(r2scalaSubs(strings[1]),"(",paste0(sapply(x[-1],r2scala,showCode,symbolEnv),collapse=","),")")
   }

@@ -3,6 +3,18 @@ scala()
 s$showCode <- TRUE
 
 (s ^ function() {
+  sum <- 0.0
+  for ( i in 1:1000 ) {
+    sum <- sum + i
+    if ( sum >= 1000 ) break
+  }
+  sum
+})()
+
+
+
+
+(s ^ function() {
   1L / 2L
 })()
 
@@ -42,6 +54,12 @@ s$showCode <- TRUE
   val + var
 })()
 
+
+(s ^ function() {
+  if ( 1 < 3 ) return(4)
+  a <- 3
+  a + 4
+})()
 
 
 
