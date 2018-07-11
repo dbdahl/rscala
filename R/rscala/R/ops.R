@@ -65,10 +65,10 @@
     args <- c(args,lapply(ast[-length(ast)],eval))
     ast <- ast[[length(ast)]]
     details <- attr(bridge,"details")
-    symbolEnv=new.env(parent=emptyenv())
-    transcompilation <- r2scala(ast,details[["debugTranscompilation"]],symbolEnv)
+    symbolEnv <- new.env(parent=emptyenv())
+    transcompilation <- r2scala(ast,details[["debugTranscompilation"]],symbolEnv,details[["transcompileSubstitute"]])
     returnString <- if ( exists("_returnType",envir=symbolEnv) ) paste0(": ",get("_returnType",envir=symbolEnv)) else ""
-    header <- details[["transcompilationHeader"]]
+    header <- details[["transcompileHeader"]]
     header <- if ( length(header) > 0 ) paste0(paste0(header,collapse="\n"),"\n") else NULL
     whichInternal <- if ( length(args) == 0 ) logical(0) else sapply(args,function(x) inherits(x,"rscalaType"))
     internalArgs <- args[whichInternal]

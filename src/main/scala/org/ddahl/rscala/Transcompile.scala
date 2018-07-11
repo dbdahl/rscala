@@ -1,7 +1,5 @@
 package org.ddahl.rscala
 
-import scala.reflect.ClassTag
-
 object Transcompile {
 
   val pi: Double = math.Pi

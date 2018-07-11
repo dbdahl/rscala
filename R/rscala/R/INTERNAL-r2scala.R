@@ -1,4 +1,4 @@
-r2scala <- function(x, showCode, symbolEnv) {
+r2scala <- function(x, showCode, symbolEnv,substituteList) {
   if ( length(x) == 0 ) return("")
   typeof  <- sapply(x,function(y) typeof(y))
   classes <- sapply(x,function(y) class(y))
@@ -20,59 +20,59 @@ r2scala <- function(x, showCode, symbolEnv) {
     }
     else if ( strings[1] == "return" ) {
       if ( length(x) != 2 ) stop('Too many arguments for return statement.') 
-      paste0("return ",r2scala(x[[2]],showCode,symbolEnv))
+      paste0("return ",r2scala(x[[2]],showCode,symbolEnv,substituteList))
     }
     else if ( strings[1] == "scalaType" ) {
       if ( length(x) != 2 ) stop('scalaType statement only take one argument.')
       returnType <- eval(x[[2]])
-      assign("_returnType",returnType,envir=symbolEnv)
+      assign("_returnType",returnType,envir=symbolEnv,substituteList)
       paste0("// Return type is declared to be ",returnType)
     }
     else if ( strings[1] == "break" ) "Outer.break"
     else if ( strings[1] == "next" ) "Inner.break"
-    else if ( strings[1] == "{" )  paste0("{\n",paste0(sapply(x[-1],r2scala,showCode,symbolEnv),collapse="\n"),"\n}")
-    else if ( strings[1] == "[" )  paste0(r2scala(x[[2]],showCode,symbolEnv),"(_ensureArray(",r2scala(x[[3]],showCode,symbolEnv),"))")
-    else if ( strings[1] == "^" )  paste0(r2scalaSubs("pow"),   "(",r2scala(x[[2]],showCode,symbolEnv),",",r2scala(x[[3]],showCode,symbolEnv),")")
-    else if ( strings[1] == "==" ) paste0(r2scalaSubs("equal"), "(",r2scala(x[[2]],showCode,symbolEnv),",",r2scala(x[[3]],showCode,symbolEnv),")")
-    else if ( strings[1] == "!=" ) paste0(r2scalaSubs("notequal"), "(",r2scala(x[[2]],showCode,symbolEnv),",",r2scala(x[[3]],showCode,symbolEnv),")")
-    else if ( strings[1] == "<" )  paste0(r2scalaSubs("lt"),    "(",r2scala(x[[2]],showCode,symbolEnv),",",r2scala(x[[3]],showCode,symbolEnv),")")
-    else if ( strings[1] == "<=" ) paste0(r2scalaSubs("le"),    "(",r2scala(x[[2]],showCode,symbolEnv),",",r2scala(x[[3]],showCode,symbolEnv),")")
-    else if ( strings[1] == ">" )  paste0(r2scalaSubs("gt"),    "(",r2scala(x[[2]],showCode,symbolEnv),",",r2scala(x[[3]],showCode,symbolEnv),")")
-    else if ( strings[1] == ">=" ) paste0(r2scalaSubs("ge"),    "(",r2scala(x[[2]],showCode,symbolEnv),",",r2scala(x[[3]],showCode,symbolEnv),")")
-    else if ( strings[1] == "&&" ) paste0(r2scala(x[[2]],showCode,symbolEnv)," && ",r2scala(x[[3]],showCode,symbolEnv))
-    else if ( strings[1] == "||" ) paste0(r2scala(x[[2]],showCode,symbolEnv)," || ",r2scala(x[[3]],showCode,symbolEnv))
+    else if ( strings[1] == "{" )  paste0("{\n",paste0(sapply(x[-1],r2scala,showCode,symbolEnv,substituteList),collapse="\n"),"\n}")
+    else if ( strings[1] == "[" )  paste0(r2scala(x[[2]],showCode,symbolEnv,substituteList),"(_ensureArray(",r2scala(x[[3]],showCode,symbolEnv,substituteList),"))")
+    else if ( strings[1] == "^" )  paste0(transcompileSubstitute("pow",substituteList),   "(",r2scala(x[[2]],showCode,symbolEnv,substituteList),",",r2scala(x[[3]],showCode,symbolEnv,substituteList),")")
+    else if ( strings[1] == "==" ) paste0(transcompileSubstitute("equal",substituteList), "(",r2scala(x[[2]],showCode,symbolEnv,substituteList),",",r2scala(x[[3]],showCode,symbolEnv,substituteList),")")
+    else if ( strings[1] == "!=" ) paste0(transcompileSubstitute("notequal",substituteList), "(",r2scala(x[[2]],showCode,symbolEnv,substituteList),",",r2scala(x[[3]],showCode,symbolEnv,substituteList),")")
+    else if ( strings[1] == "<" )  paste0(transcompileSubstitute("lt",substituteList),    "(",r2scala(x[[2]],showCode,symbolEnv,substituteList),",",r2scala(x[[3]],showCode,symbolEnv,substituteList),")")
+    else if ( strings[1] == "<=" ) paste0(transcompileSubstitute("le",substituteList),    "(",r2scala(x[[2]],showCode,symbolEnv,substituteList),",",r2scala(x[[3]],showCode,symbolEnv,substituteList),")")
+    else if ( strings[1] == ">" )  paste0(transcompileSubstitute("gt",substituteList),    "(",r2scala(x[[2]],showCode,symbolEnv,substituteList),",",r2scala(x[[3]],showCode,symbolEnv,substituteList),")")
+    else if ( strings[1] == ">=" ) paste0(transcompileSubstitute("ge",substituteList),    "(",r2scala(x[[2]],showCode,symbolEnv,substituteList),",",r2scala(x[[3]],showCode,symbolEnv,substituteList),")")
+    else if ( strings[1] == "&&" ) paste0(r2scala(x[[2]],showCode,symbolEnv,substituteList)," && ",r2scala(x[[3]],showCode,symbolEnv,substituteList))
+    else if ( strings[1] == "||" ) paste0(r2scala(x[[2]],showCode,symbolEnv,substituteList)," || ",r2scala(x[[3]],showCode,symbolEnv,substituteList))
     else if ( ( strings[1] == "<-" ) || ( strings[1] == "=" ) ) {
-      prefix <- if ( ( typeof[2] == "symbol" ) && ( ! exists(strings[2],envir=symbolEnv) ) ) {
-        assign(strings[2],"TRUE",envir=symbolEnv)
+      prefix <- if ( ( typeof[2] == "symbol" ) && ( ! exists(strings[2],envir=symbolEnv,substituteList) ) ) {
+        assign(strings[2],"TRUE",envir=symbolEnv,substituteList)
         "var "
       } else NULL
-      paste0(prefix,r2scala(x[[2]],showCode,symbolEnv)," = ",r2scala(x[[3]],showCode,symbolEnv))
+      paste0(prefix,r2scala(x[[2]],showCode,symbolEnv,substituteList)," = ",r2scala(x[[3]],showCode,symbolEnv,substituteList))
     }
-    else if ( strings[1] == ":" ) paste0('_range(',r2scala(x[[2]],showCode,symbolEnv),',',r2scala(x[[3]],showCode,symbolEnv),')')
-    else if ( strings[1] == "(" ) paste0("(",r2scala(x[[2]],showCode,symbolEnv),")")
-    else if ( strings[1] == "+" ) if ( length(x) == 3 ) paste0(r2scala(x[[2]],showCode,symbolEnv)," + ",r2scala(x[[3]],showCode,symbolEnv)) else paste0("+",r2scala(x[[2]],showCode,symbolEnv))
-    else if ( strings[1] == "-" ) if ( length(x) == 3 ) paste0(r2scala(x[[2]],showCode,symbolEnv)," - ",r2scala(x[[3]],showCode,symbolEnv)) else paste0("-",r2scala(x[[2]],showCode,symbolEnv))
-    else if ( strings[1] == "*" ) paste0(r2scala(x[[2]],showCode,symbolEnv)," * ",r2scala(x[[3]],showCode,symbolEnv))
-    else if ( strings[1] == "/" ) paste0(r2scalaSubs("as.numeric"),"(",r2scala(x[[2]],showCode,symbolEnv),") / ",r2scala(x[[3]],showCode,symbolEnv))
-    else if ( strings[1] == "%/%" ) paste0(r2scalaSubs("as.integer"),"(",r2scala(x[[2]],showCode,symbolEnv),") / ",r2scalaSubs("as.integer"),"(",r2scala(x[[3]],showCode,symbolEnv),")")
-    else if ( strings[1] == "%%" ) paste0(r2scala(x[[2]],showCode,symbolEnv)," % ",r2scala(x[[3]],showCode,symbolEnv))
-    else if ( strings[1] == "c" ) paste0('_c(',paste0('_ensureArray(',sapply(x[-1],r2scala,showCode,symbolEnv),')',collapse=","),')')
+    else if ( strings[1] == ":" ) paste0('_range(',r2scala(x[[2]],showCode,symbolEnv,substituteList),',',r2scala(x[[3]],showCode,symbolEnv,substituteList),')')
+    else if ( strings[1] == "(" ) paste0("(",r2scala(x[[2]],showCode,symbolEnv,substituteList),")")
+    else if ( strings[1] == "+" ) if ( length(x) == 3 ) paste0(r2scala(x[[2]],showCode,symbolEnv,substituteList)," + ",r2scala(x[[3]],showCode,symbolEnv,substituteList)) else paste0("+",r2scala(x[[2]],showCode,symbolEnv,substituteList))
+    else if ( strings[1] == "-" ) if ( length(x) == 3 ) paste0(r2scala(x[[2]],showCode,symbolEnv,substituteList)," - ",r2scala(x[[3]],showCode,symbolEnv,substituteList)) else paste0("-",r2scala(x[[2]],showCode,symbolEnv,substituteList))
+    else if ( strings[1] == "*" ) paste0(r2scala(x[[2]],showCode,symbolEnv,substituteList)," * ",r2scala(x[[3]],showCode,symbolEnv,substituteList))
+    else if ( strings[1] == "/" ) paste0(transcompileSubstitute("as.numeric",substituteList),"(",r2scala(x[[2]],showCode,symbolEnv,substituteList),") / ",r2scala(x[[3]],showCode,symbolEnv,substituteList))
+    else if ( strings[1] == "%/%" ) paste0(transcompileSubstitute("as.integer",substituteList),"(",r2scala(x[[2]],showCode,symbolEnv,substituteList),") / ",r2scalaSubs("as.integer"),"(",r2scala(x[[3]],showCode,symbolEnv,substituteList),")")
+    else if ( strings[1] == "%%" ) paste0(r2scala(x[[2]],showCode,symbolEnv,substituteList)," % ",r2scala(x[[3]],showCode,symbolEnv,substituteList))
+    else if ( strings[1] == "c" ) paste0('_c(',paste0('_ensureArray(',sapply(x[-1],r2scala,showCode,symbolEnv,substituteList),')',collapse=","),')')
     else if ( ( strings[1] == "I" ) && ( length(x) == 2 ) && ( typeof[2] == "character" ) ) paste0(strings[2])
     else if ( ( grepl("^eval[IDLRS][012]$",strings[1]) ) && ( typeof[2] == "character" ) ) {
-      args <- if ( length(x) > 2 ) paste0(',',paste0(sapply(x[-(1:2)],r2scala,showCode,symbolEnv),collapse=",")) else NULL
+      args <- if ( length(x) > 2 ) paste0(',',paste0(sapply(x[-(1:2)],r2scala,showCode,symbolEnv,substituteList),collapse=",")) else NULL
       paste0('R.',strings[1],'("',strings[2],'"',args,')')
     }
     else if ( strings[1] == "if" ) {
-      ifexpression = paste0('if ( ',r2scala(x[[2]],showCode,symbolEnv),' ) ',r2scala(x[[3]],showCode,symbolEnv))
-      if ( length(x) == 4 ) paste0(ifexpression,' else ',r2scala(x[[4]],showCode,symbolEnv)) else ifexpression
+      ifexpression = paste0('if ( ',r2scala(x[[2]],showCode,symbolEnv,substituteList),' ) ',r2scala(x[[3]],showCode,symbolEnv,substituteList))
+      if ( length(x) == 4 ) paste0(ifexpression,' else ',r2scala(x[[4]],showCode,symbolEnv,substituteList)) else ifexpression
     }
     else if ( strings[1] == "while" ) {
-      paste0('val Outer = new Breaks; val Inner = new Breaks; Outer.breakable { while ( ',r2scala(x[[2]],showCode,symbolEnv),' ) Inner.breakable{ ',r2scala(x[[3]],showCode,symbolEnv),' } }')
+      paste0('val Outer = new Breaks; val Inner = new Breaks; Outer.breakable { while ( ',r2scala(x[[2]],showCode,symbolEnv,substituteList),' ) Inner.breakable{ ',r2scala(x[[3]],showCode,symbolEnv,substituteList),' } }')
     }
     else if ( strings[1] == "for" ) {
-      paste0('val Outer = new Breaks; val Inner = new Breaks; Outer.breakable { for ( ',r2scala(x[[2]],showCode,symbolEnv),' <- ',r2scala(x[[3]],showCode,symbolEnv),' ) Inner.breakable{ ',r2scala(x[[4]],showCode,symbolEnv),' } }')
+      paste0('val Outer = new Breaks; val Inner = new Breaks; Outer.breakable { for ( ',r2scala(x[[2]],showCode,symbolEnv,substituteList),' <- ',r2scala(x[[3]],showCode,symbolEnv,substituteList),' ) Inner.breakable{ ',r2scala(x[[4]],showCode,symbolEnv,substituteList),' } }')
     }
-    else paste0(r2scalaSubs(strings[1]),"(",paste0(sapply(x[-1],r2scala,showCode,symbolEnv),collapse=","),")")
+    else paste0(transcompileSubstitute(strings[1],substituteList),"(",paste0(sapply(x[-1],r2scala,showCode,symbolEnv,substituteList),collapse=","),")")
   }
   else if ( typeof[1] == "integer" ) paste0("{",strings[1],":Int}")
   else if ( typeof[1] == "double" ) paste0("{",strings[1],":Double}")
@@ -81,10 +81,19 @@ r2scala <- function(x, showCode, symbolEnv) {
   else stop("33")
 }
 
-r2scalaSubs <- function(x) {
+transcompileSubstitute <- function(x, substituteList) {
   if ( x %in% c("numeric","double","integer","logical","character","subset","which","equal","notequal","lt","le","gt","ge","abs","sqrt","log","log10","exp","pow",
                 "c","length","all","any","sum","mean","var","sd","max","min","cat","paste","paste0","nchar","rep","seq","ceiling","floor","round",
                 "runif","rnorm") ) paste0("_",x)
   else if ( x %in% c("as.numeric","as.double","as.integer","as.logical","as.character") ) paste0("_",gsub("\\.","DOT",x))
-  else x
+  else {
+    y <- NULL
+    i <- 0
+    while ( i < length(substituteList) ) {
+      i <- i + 1
+      y <- substituteList[[i]](x)
+      if ( ! is.null(y) ) break
+    }
+    if ( ! is.null(y) ) y else x
+  }
 }
