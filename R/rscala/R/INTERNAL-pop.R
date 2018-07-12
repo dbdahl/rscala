@@ -1,4 +1,4 @@
-pop <- function(details, functionArgTypes=NULL) {
+pop <- function(details, transcompileInfo=NULL) {
   socketIn <- details[["socketIn"]]
   serializeOutput <- details[["serializeOutput"]]
   goAgain <- TRUE
@@ -58,30 +58,31 @@ pop <- function(details, functionArgTypes=NULL) {
     } else if ( tipe == TCODE_REFERENCE ) {
       referenceID <- rb(socketIn,RTYPE_INT)
       referenceType <- rc(socketIn)
-      env <- structure(list2env(list(id=referenceID,type=referenceType,details=details),parent=emptyenv()), class="rscalaReferenceEnvironment")
-      reg.finalizer(env, details[["gcFunction"]])
-      func <- if ( is.null(functionArgTypes) ) {
+      func <- if ( is.null(transcompileInfo) ) {
         function(...) {
           scalaInvoke(details, "apply", list(..., env), withReference=TRUE)
         }
       } else {
         function(...) {
           args <- list(...)
+          types <- transcompileInfo$argTypes
           for ( i in seq_along(args) ) {
-            args[[i]] <- if ( functionArgTypes[i] == "Double" ) as.double(args[[i]][1])
-            else if ( functionArgTypes[i] == "Int" ) as.integer(args[[i]][1])
-            else if ( functionArgTypes[i] == "Boolean" ) as.logical(args[[i]][1])
-            else if ( functionArgTypes[i] == "String" ) as.character(args[[i]][1])
-            else if ( functionArgTypes[i] == "Array[Double]" ) I(as.double(args[[i]]))
-            else if ( functionArgTypes[i] == "Array[Int]" ) I(as.integer(args[[i]]))
-            else if ( functionArgTypes[i] == "Array[Boolean]" ) I(as.logical(args[[i]]))
-            else if ( functionArgTypes[i] == "Array[String]" ) I(as.character(args[[i]]))
+            args[[i]] <- if ( types[i] == "Double" ) as.double(args[[i]][1])
+            else if ( types[i] == "Int" ) as.integer(args[[i]][1])
+            else if ( types[i] == "Boolean" ) as.logical(args[[i]][1])
+            else if ( types[i] == "String" ) as.character(args[[i]][1])
+            else if ( types[i] == "Array[Double]" ) I(as.double(args[[i]]))
+            else if ( types[i] == "Array[Int]" ) I(as.integer(args[[i]]))
+            else if ( types[i] == "Array[Boolean]" ) I(as.logical(args[[i]]))
+            else if ( types[i] == "Array[String]" ) I(as.character(args[[i]]))
             else args[[i]]
           }
           scalaInvoke(details, "apply", c(args, env), withReference=TRUE)
         }        
       }
       class(func) <- "rscalaReference"
+      env <- structure(list2env(list(id=referenceID,type=referenceType,details=details,original=transcompileInfo$original),parent=emptyenv()), class="rscalaReferenceEnvironment")
+      reg.finalizer(env, details[["gcFunction"]])
       attr(func,"rscalaReferenceEnvironment")  <- env
       func
     } else if ( tipe == TCODE_ERROR_DEF ) {

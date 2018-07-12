@@ -14,13 +14,19 @@ toString.rscalaBridge <- function(x, ...) {
 #' @export
 #' 
 print.rscalaReference <- function(x, ...) {
+  env <- attr(x,"rscalaReferenceEnvironment")
+  if ( exists("original",envir=env) ) {
+    func <- get("original",envir=env)
+    if ( ! is.null(func) ) print(func)
+  }
   cat(toString(x, ...),"\n",sep="")
 }
 
 #' @export
 #
 toString.rscalaReference <- function(x, ...) {
-  paste0("rscala reference of type ",attr(x,"rscalaReferenceEnvironment")[["type"]])
+  env <- attr(x,"rscalaReferenceEnvironment")
+  paste0("rscala reference of type ",env[["type"]])
 }
 
 #' @export
