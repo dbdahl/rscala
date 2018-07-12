@@ -23,6 +23,7 @@ scalaAddJARs <- function(bridge, JARs) {
     wb(socketOut,PCODE_ADD_TO_CLASSPATH)
     wc(socketOut,JAR)
     tryCatch(pop(details), error=function(e) stop(paste0("Failed to add ",JAR," to classpath.")))
+    assign("JARs",c(get("JARs",envir=details),JAR),env=details)
   }
   invisible() 
 }

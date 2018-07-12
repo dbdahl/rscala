@@ -56,7 +56,7 @@ r2scala <- function(x, showCode, symbolEnv,substituteList) {
     else if ( strings[1] == "-" ) if ( length(x) == 3 ) paste0(r2scala(x[[2]],showCode,symbolEnv,substituteList)," - ",r2scala(x[[3]],showCode,symbolEnv,substituteList)) else paste0("-",r2scala(x[[2]],showCode,symbolEnv,substituteList))
     else if ( strings[1] == "*" ) paste0(r2scala(x[[2]],showCode,symbolEnv,substituteList)," * ",r2scala(x[[3]],showCode,symbolEnv,substituteList))
     else if ( strings[1] == "/" ) paste0(transcompileSubstitute("as.numeric",substituteList),"(",r2scala(x[[2]],showCode,symbolEnv,substituteList),") / ",r2scala(x[[3]],showCode,symbolEnv,substituteList))
-    else if ( strings[1] == "%/%" ) paste0(transcompileSubstitute("as.integer",substituteList),"(",r2scala(x[[2]],showCode,symbolEnv,substituteList),") / ",r2scalaSubs("as.integer"),"(",r2scala(x[[3]],showCode,symbolEnv,substituteList),")")
+    else if ( strings[1] == "%/%" ) paste0(transcompileSubstitute("as.integer",substituteList),"(",r2scala(x[[2]],showCode,symbolEnv,substituteList),") / ",transcompileSubstitute("as.integer",substituteList),"(",r2scala(x[[3]],showCode,symbolEnv,substituteList),")")
     else if ( strings[1] == "%%" ) paste0(r2scala(x[[2]],showCode,symbolEnv,substituteList)," % ",r2scala(x[[3]],showCode,symbolEnv,substituteList))
     else if ( strings[1] == "c" ) paste0('_c(',paste0('_ensureArray(',sapply(x[-1],r2scala,showCode,symbolEnv,substituteList),')',collapse=","),')')
     else if ( ( strings[1] == "I" ) && ( length(x) == 2 ) && ( typeof[2] == "character" ) ) paste0(strings[2])

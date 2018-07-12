@@ -108,6 +108,7 @@ scala <- function(packages=character(),
   assign("garbage",integer(),envir=details)
   assign("scalaInfo",sInfo,envir=details)
   assign("heapMaximum",heap.maximum,envir=details)
+  assign("JARs",character(0),envir=details)
   gcFunction <- function(e) {
     garbage <- details[["garbage"]]
     garbage[length(garbage)+1] <- e[["id"]]
@@ -169,8 +170,9 @@ newSockets <- function(portsFilename, details, JARs) {
 }
 
 jarsOfPackage <- function(pkgname, major.release) {
-  jarsMajor <- list.files(file.path(system.file("java",package=pkgname),paste0("scala-",major.release)),pattern=".*\\.jar$",full.names=TRUE,recursive=FALSE)
-  jarsAny <- list.files(system.file("java",package=pkgname),pattern=".*\\.jar$",full.names=TRUE,recursive=FALSE)
+  dir <- if ( file.exists(system.file("inst",package=pkgname)) ) file.path("inst/java") else "java"
+  jarsMajor <- list.files(file.path(system.file(dir,package=pkgname),paste0("scala-",major.release)),pattern=".*\\.jar$",full.names=TRUE,recursive=FALSE)
+  jarsAny <- list.files(system.file(dir,package=pkgname),pattern=".*\\.jar$",full.names=TRUE,recursive=FALSE)
   result <- c(jarsMajor,jarsAny)
   if ( length(result) == 0 ) stop(paste0("JAR files of package '",pkgname,"' for Scala ",major.release," were requested, but no JARs were found."))
   result

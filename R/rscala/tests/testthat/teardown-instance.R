@@ -1,3 +1,3 @@
-cat("Stopping instance. **************************\n")
 close(s)
 close(s2)
+cat("Stopping instance. **************************\n")
