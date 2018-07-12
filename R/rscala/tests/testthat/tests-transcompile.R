@@ -2,14 +2,14 @@ context("transcompile")
 
 # skip("transcompile")
 
-myExpect <- function(f,args=list(),identical=TRUE) {
+myExpect <- function(f,args=list(),identical=TRUE, tolerance=sqrt(.Machine$double.eps)) {
   g <- s^f
   h <- attr(g,"rscalaReferenceEnvironment")[["original"]]
   if ( ! identical(f,h) ) stop("Not identical.")
   trans <-  do.call(g,args)
   native <- do.call(f,args)
   if ( identical ) expect_identical(trans, native)
-  else expect_equal(trans, native)
+  else expect_equal(trans, native, tolerance=tolerance)
 }
 
 test_that("Basic transcompilation works", {
