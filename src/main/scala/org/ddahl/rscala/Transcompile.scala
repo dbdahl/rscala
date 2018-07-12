@@ -249,19 +249,18 @@ object Transcompile {
 
   def _range(lower: Double, upper: Double): Array[Int] = Array.range(lower.toInt, upper.toInt + 1)
 
-  def _seq(from: Double, to: Double, length: Int): Array[Double] = {
-    val by = ( to - from ) / ( length - 1 )
-    Array.tabulate(length) { i =>
-      from + i*by
-    }
-  }
-
   def _seq(from: Double, to: Double, by: Double = 1.0): Array[Double] = {
     val length = ( ( to - from ) / by + 1 ).floor.toInt
-    Array.tabulate(length) { i =>
-      from + i*by
-    }
+    Array.tabulate(length) { from + _*by }
   }
+
+  def _seqWithLength(from: Double, to: Double, length: Double): Array[Double] = {
+    val by = ( to - from ) / ( length - 1 )
+    Array.tabulate(math.round(length).toInt) { from + _*by }
+  }
+
+  def _seq_along[A](alongWith: Array[A]): Array[Int] = Array.range(1, alongWith.length+1)
+  def _seq_len[A](lengthOut: Double): Array[Int] = Array.range(1, math.round(lengthOut).toInt+1)
 
   def _ceiling(x: Double): Double = math.ceil(x)
   def _ceiling(x: Array[Double]): Array[Double] = x map { math.ceil }
@@ -272,8 +271,8 @@ object Transcompile {
   def _round(x: Double): Double = math.round(x)
   def _round(x: Array[Double]): Array[Double] = x map { z => math.round(z).toDouble }
 
-  def _random(): Double = scala.util.Random.nextDouble()
-  def _random(n: Double): Array[Double] = Array.fill(n.toInt) { scala.util.Random.nextDouble() }
+  def _runif(): Double = scala.util.Random.nextDouble()
+  def _runif(n: Double): Array[Double] = Array.fill(n.toInt) { scala.util.Random.nextDouble() }
 
   def _ensureArray(x: Int): Array[Int] = Array(x)
   def _ensureArray(x: Double): Array[Double] = Array(x)
