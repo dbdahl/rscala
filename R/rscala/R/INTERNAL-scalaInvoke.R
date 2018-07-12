@@ -1,4 +1,4 @@
-scalaInvoke <- function(details, snippet, args, withNames=FALSE, withReference=FALSE) {
+scalaInvoke <- function(details, snippet, args, withNames=FALSE, withReference=FALSE, functionArgTypes=NULL) {
   scalaLastEngine(details)
   if ( details[["interrupted"]] ) return(invisible())
   socketOut <- details[["socketOut"]]
@@ -28,5 +28,5 @@ scalaInvoke <- function(details, snippet, args, withNames=FALSE, withReference=F
   }
   wb(socketOut,length(args))
   wc(socketOut,snippet)
-  pop(details)
+  pop(details, functionArgTypes)
 }
