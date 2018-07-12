@@ -12,6 +12,7 @@
 .Rproj.user
 .Rhistory
 .RData
+/others
 
 # User-specific stuff:
 /.idea/workspace.xml
