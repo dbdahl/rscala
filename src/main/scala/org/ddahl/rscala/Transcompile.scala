@@ -140,6 +140,16 @@ object Transcompile {
   def _ge(x: Array[Int], y: Array[Double]): Array[Boolean] = x zip y map { z => z._1 >= z._2 }
   def _ge(x: Array[Int], y: Array[Int]): Array[Boolean] = x zip y map { z => z._1 >= z._2 }
 
+  def _and(x: Array[Boolean], y: Array[Boolean]): Array[Boolean] = x zip y map { z => z._1 & z._2 }
+  def _and(x: Array[Boolean], y: Boolean): Array[Boolean] = x map { _ & y }
+  def _and(x: Boolean, y: Array[Boolean]): Array[Boolean] = y map { x & _ }
+  def _and(x: Boolean, y: Boolean): Boolean = x & y
+
+  def _or(x: Array[Boolean], y: Array[Boolean]): Array[Boolean] = x zip y map { z => z._1 | z._2 }
+  def _or(x: Array[Boolean], y: Boolean): Array[Boolean] = x map { _ | y }
+  def _or(x: Boolean, y: Array[Boolean]): Array[Boolean] = y map { x | _ }
+  def _or(x: Boolean, y: Boolean): Boolean = x | y
+
   def _abs(x: Int): Int = math.abs(x)
   def _abs(x: Double): Double = math.abs(x)
   def _abs(x: Array[Double]): Array[Double] = x map { math.abs }
@@ -262,11 +272,8 @@ object Transcompile {
   def _round(x: Double): Double = math.round(x)
   def _round(x: Array[Double]): Array[Double] = x map { z => math.round(z).toDouble }
 
-  def _runif(): Double = scala.util.Random.nextDouble()
-  def _runif(n: Double): Array[Double] = Array.fill(n.toInt) { scala.util.Random.nextDouble() }
-
-  def _rnorm(): Double = scala.util.Random.nextGaussian()
-  def _rnorm(n: Double): Array[Double] = Array.fill(n.toInt) { scala.util.Random.nextGaussian() }
+  def _random(): Double = scala.util.Random.nextDouble()
+  def _random(n: Double): Array[Double] = Array.fill(n.toInt) { scala.util.Random.nextDouble() }
 
   def _ensureArray(x: Int): Array[Int] = Array(x)
   def _ensureArray(x: Double): Array[Double] = Array(x)

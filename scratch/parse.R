@@ -5,9 +5,24 @@ s$debugTranscompilation <- FALSE
 
 
 f <- function() {
-  dnorm(rnorm(100000))
+  sample(c("A","B","C"),500000,TRUE,c(0.25,0.65,0.10))
 }
 g <- s^f
+x <- g()
+table(x)/500000
+table(f())/500000
+
+f <- function() {
+  rgamma(1000000,1,100)
+}
+summary((s^f)())
+summary(f())
+
+f <- function() {
+  rbeta(1000000,1,2)
+}
+summary((s^f)())
+summary(f())
 
 library(microbenchmark)
 microbenchmark(

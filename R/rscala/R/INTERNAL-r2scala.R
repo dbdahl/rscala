@@ -40,7 +40,9 @@ r2scala <- function(x, showCode, symbolEnv,substituteList) {
     else if ( strings[1] == ">" )  paste0(transcompileSubstitute("gt",substituteList),    "(",r2scala(x[[2]],showCode,symbolEnv,substituteList),",",r2scala(x[[3]],showCode,symbolEnv,substituteList),")")
     else if ( strings[1] == ">=" ) paste0(transcompileSubstitute("ge",substituteList),    "(",r2scala(x[[2]],showCode,symbolEnv,substituteList),",",r2scala(x[[3]],showCode,symbolEnv,substituteList),")")
     else if ( strings[1] == "&&" ) paste0(r2scala(x[[2]],showCode,symbolEnv,substituteList)," && ",r2scala(x[[3]],showCode,symbolEnv,substituteList))
+    else if ( strings[1] == "&" )  paste0(transcompileSubstitute("and",substituteList),   "(",r2scala(x[[2]],showCode,symbolEnv,substituteList),",",r2scala(x[[3]],showCode,symbolEnv,substituteList),")")
     else if ( strings[1] == "||" ) paste0(r2scala(x[[2]],showCode,symbolEnv,substituteList)," || ",r2scala(x[[3]],showCode,symbolEnv,substituteList))
+    else if ( strings[1] == "|" )  paste0(transcompileSubstitute("or",substituteList),    "(",r2scala(x[[2]],showCode,symbolEnv,substituteList),",",r2scala(x[[3]],showCode,symbolEnv,substituteList),")")
     else if ( ( strings[1] == "<-" ) || ( strings[1] == "=" ) ) {
       prefix <- if ( ( typeof[2] == "symbol" ) && ( ! exists(strings[2],envir=symbolEnv,substituteList) ) ) {
         assign(strings[2],"TRUE",envir=symbolEnv,substituteList)
@@ -82,9 +84,9 @@ r2scala <- function(x, showCode, symbolEnv,substituteList) {
 }
 
 transcompileSubstitute <- function(x, substituteList) {
-  if ( x %in% c("numeric","double","integer","logical","character","subset","which","equal","notequal","lt","le","gt","ge","abs","sqrt","log","log10","exp","pow",
-                "c","length","all","any","sum","mean","var","sd","max","min","cat","paste","paste0","nchar","rep","seq","ceiling","floor","round",
-                "runif","rnorm") ) paste0("_",x)
+  if ( x %in% c("numeric","double","integer","logical","character","subset","which","equal","notequal","lt","le","gt","ge","and","or","abs","sqrt","log","log10",
+                "exp","pow","c","length","all","any","sum","mean","var","sd","max","min","cat","paste","paste0","nchar","rep","seq","ceiling","floor","round",
+                "random") ) paste0("_",x)
   else if ( x %in% c("as.numeric","as.double","as.integer","as.logical","as.character") ) paste0("_",gsub("\\.","DOT",x))
   else {
     y <- NULL

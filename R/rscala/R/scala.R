@@ -98,10 +98,9 @@ scala <- function(packages=character(),
   assign("closed",FALSE,envir=details)
   assign("connected",FALSE,envir=details) 
   assign("interrupted",FALSE,envir=details)
-  transcompileInfo <- lapply(packages, function(p) transcompileOfPackage(p))
-  assign("transcompileHeader", c("import org.ddahl.rscala.Transcompile._","import scala.util.control.Breaks",
-         sapply(transcompileInfo,function(i) i$header)),envir=details)
-  assign("transcompileSubstitute",lapply(transcompileInfo, function(i) i$substitute),envir=details)
+  transcompileHeader <- c("import org.ddahl.rscala.Transcompile._","import scala.util.control.Breaks", unlist(lapply(packages,transcompileHeaderOfPackage)))
+  assign("transcompileHeader",transcompileHeader,envir=details)
+  assign("transcompileSubstitute",unlist(lapply(packages,transcompileSubstituteOfPackage)),envir=details)
   assign("debugTranscompilation",FALSE,envir=details)
   assign("debug",debug,envir=details)
   assign("serializeOutput",serialize.output,envir=details)
@@ -177,10 +176,12 @@ jarsOfPackage <- function(pkgname, major.release) {
   result
 }
 
-transcompileOfPackage <- function(pkgname) {
-  header <- tryCatch( getFromNamespace("rscalaTranscompileHeader", pkgname), error=function(e) NULL )
-  substitute <- tryCatch( getFromNamespace("rscalaTranscompileSubstitute", pkgname), error=function(e) NULL )
-  list(header=header, substitute=substitute)
+transcompileHeaderOfPackage <- function(pkgname) {
+  tryCatch( getFromNamespace("rscalaTranscompileHeader", pkgname), error=function(e) NULL )
+}
+
+transcompileSubstituteOfPackage <- function(pkgname) {
+  tryCatch( getFromNamespace("rscalaTranscompileSubstitute", pkgname), error=function(e) NULL )
 }
 
 getHeapMaximum <- function(heap.maximum) {

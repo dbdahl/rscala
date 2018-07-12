@@ -50,6 +50,11 @@ scalaPackage <- function(packages=character(),
       JARs <- c(JARs,unlist(lapply(packages, function(p) jarsOfPackage(p, majorVersion))))
       scalaAddJARs(s, JARs)
       assign.callback(s)
+      details <- attr(s,"details")
+      transcompileHeader <- c(get("transcompileHeader",envir=details), unlist(lapply(packages,transcompileHeaderOfPackage)))
+      assign("transcompileHeader",transcompileHeader,envir=details)
+      transcompileSubstitute <- unlist(c(get("transcompileSubstitute",envir=details),lapply(packages,transcompileSubstituteOfPackage)))
+      assign("transcompileSubstitute",transcompileSubstitute,envir=details)
       s
     },assign.env=pkgEnv)
   }
