@@ -47,7 +47,7 @@ test_that("Basic transcompilation works", {
   myExpect(function() paste0(1.2,"David"))
   myExpect(function() nchar("David"))
   myExpect(function() seq(0,1,0.13))
-  myExpect(function() seq_along(runif(5)))
+  myExpect(function() seq_along(c("A","Z","M","P")))
   myExpect(function() seq_len(7))
   myExpect(function() ceiling(1.45))
   myExpect(function() floor(1.45))
@@ -93,6 +93,8 @@ test_that("Misc. items work as expected", {
   expect_output({r <- s(x=scalaType("String")) ^ function() { cat(x*3L) }; r("David")}, "DavidDavidDavid")
   expect_identical({r <- s(x=scalaType("Int")) ^ function() { a <- 2:x; I("a.getClass.getName") }; r(10L)}, "[I")
   expect_identical({r <- s^function(x=scalaType("D0")) seqWithLength(0,1,x); r(76)}, seq(0,1,length=76))
+  expect_true({r <- s^function() random(); x <- r(); ( 0.0 < x ) && ( x < 1.0 )})
+  expect_true({r <- s^function(n=scalaType("D0")) random(n); x <- r(100); all( 0.0 < x ) && all( x < 1.0 )})
 })  
   
 test_that("Scala snippets can be embedded", {

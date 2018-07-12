@@ -271,8 +271,8 @@ object Transcompile {
   def _round(x: Double): Double = math.round(x)
   def _round(x: Array[Double]): Array[Double] = x map { z => math.round(z).toDouble }
 
-  def _runif(): Double = scala.util.Random.nextDouble()
-  def _runif(n: Double): Array[Double] = Array.fill(n.toInt) { scala.util.Random.nextDouble() }
+  def _random(): Double = scala.util.Random.nextDouble()
+  def _random(n: Double): Array[Double] = Array.fill(n.toInt) { scala.util.Random.nextDouble() }
 
   def _ensureArray(x: Int): Array[Int] = Array(x)
   def _ensureArray(x: Double): Array[Double] = Array(x)

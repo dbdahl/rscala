@@ -1,7 +1,7 @@
 name := "rscala"
 
-//version := "3.0.3"
-version := "3.0.2-SNAPSHOT"
+version := "3.1.0"
+//version := "3.1.0-SNAPSHOT"
 
 scalaVersion := "2.12.6"
 
