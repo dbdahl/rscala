@@ -178,10 +178,14 @@ jarsOfPackage <- function(pkgname, major.release) {
   result
 }
 
+#' @importFrom utils getFromNamespace
+#' 
 transcompileHeaderOfPackage <- function(pkgname) {
   tryCatch( getFromNamespace("rscalaTranscompileHeader", pkgname), error=function(e) NULL )
 }
 
+#' @importFrom utils getFromNamespace
+#' 
 transcompileSubstituteOfPackage <- function(pkgname) {
   tryCatch( getFromNamespace("rscalaTranscompileSubstitute", pkgname), error=function(e) NULL )
 }
