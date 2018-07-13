@@ -59,7 +59,7 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] microbenchmark_1.4-4       rscala_3.0.2-20180709-0901
+[1] microbenchmark_1.4-4 rscala_3.1.0        
 
 loaded via a namespace (and not attached):
 [1] compiler_3.5.0
@@ -77,8 +77,8 @@ loaded via a namespace (and not attached):
 + )
 Unit: milliseconds
              expr      min       lq     mean   median       uq      max neval
-   s(x = big)^"x" 119.6595 124.1288 138.1219 126.8389 130.9683 627.7648   100
- s(x = big) * "x" 303.8886 314.2797 351.6087 330.8167 365.4450 616.7283   100
+   s(x = big)^"x" 118.2026 123.9259 135.6503 125.5192 134.1786 507.3884   100
+ s(x = big) * "x" 303.4362 314.6743 352.6122 332.5861 382.3718 668.4673   100
 >  
 > s * "true"    # Is everything still okay?
 [1] TRUE
@@ -86,4 +86,4 @@ Unit: milliseconds
 > 
 > proc.time()
    user  system elapsed 
- 13.460  11.124  52.726 
+ 13.124  11.800  52.466 
