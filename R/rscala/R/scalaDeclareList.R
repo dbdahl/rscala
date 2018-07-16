@@ -57,16 +57,24 @@ scalaSerialize.list <- function(x, bridge, name=NULL, verbose=FALSE) {
   f <- eval(parse(text=paste0("bridge$.new_",name)))
   args <- lapply(seq_len(length(l)), function(j) l[[j]])
   reference <- do.call(f,args)
-  assign("unserializer",scalaUnserialize.list,envir=attr(reference,"rscalaReferenceEnvironment"))
+  env <- attr(reference,"rscalaReferenceEnvironment")
+  assign("original",x,envir=env)
+  assign("unserializer",scalaUnserialize.list,envir=env)
   reference
 }
 
 #' @export
 #' 
-scalaUnserialize <- function(reference) {
+scalaUnserialize <- function(reference, use.original=TRUE) {
   if ( ! inherits(reference,"rscalaReference") ) stop("An rscala reference is required.")
-  unserialize <- get("unserializer",envir=attr(reference,"rscalaReferenceEnvironment"))
-  unserialize(reference)
+  env <- attr(reference,"rscalaReferenceEnvironment")
+  original <- get("original",envir=env)
+  if ( ( ! is.null(original) ) && ( use.original ) ) original
+  else {
+    if ( ! exists("unserializer",envir=env) ) stop("No unserializer is registered for this object.")
+    unserialize <- get("unserializer",envir=env)
+    unserialize(reference)
+  }
 }
 
 #' @export
