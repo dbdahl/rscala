@@ -5,14 +5,15 @@ scalaSerialize <- function(x, bridge, ..., verbose=FALSE) UseMethod("scalaSerial
 #' @export
 #' 
 scalaSerialize.data.frame <- function(x, bridge, name=NULL, verbose=FALSE) {
+  name <- if ( is.null(name) ) gsub("\\W","_",deparse(substitute(x))) else name
   scalaSerialize.list(x, bridge, name, verbose)
 }
 
 #' @export
 #' 
 scalaSerialize.list <- function(x, bridge, name=NULL, verbose=FALSE) {
+  name <- if ( is.null(name) ) gsub("\\W","_",deparse(substitute(x))) else name
   l <- x
-  name <- if ( is.null(name) ) gsub("\\W","_",deparse(substitute(l,env=parent.frame(2)))) else name
   names(l) <- gsub("\\.","_",names(l))  
   asIs <- lapply(l,function(y) if ( inherits(y,"AsIs") ) "true" else "false")
   types <- lapply(l,function(y) {
@@ -61,7 +62,15 @@ scalaSerialize.list <- function(x, bridge, name=NULL, verbose=FALSE) {
 
 #' @export
 #' 
-scalaUnserializeList <- function(reference) {
+scalaUnserialize <- function(reference) {
+  if ( ! inherits(reference,"rscalaReference") ) stop("An rscala reference is required.")
+  functionName <- reference$unserializer()
+  do.call(functionName,list(reference))
+}
+
+#' @export
+#' 
+scalaUnserialize.list <- function(reference) {
   names <- reference$names()
   namesOriginal <- reference$namesOriginal()
   asIs <- reference$asIs()
