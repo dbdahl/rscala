@@ -27,34 +27,33 @@ shapes <- function(x) {
   })
 }
 
-scalaDeclareDataFrame <- function(bridge, data.frame, name, andConvert=TRUE, verbose=TRUE) {
-  df <- data.frame
-  names(df) <- sanitize(names(df))
-  types <- types(df)
-  names <- names(types)
-  definition <- paste0("class ",name,"(\n",paste0("  val ",names,": Array[",types,"]",collapse=",\n"),"\n)")
-  if ( verbose ) {
-    cat("Generated code:\n")
-    cat(definition,"\n")
-  }
-  bridge + definition
-  if ( andConvert ) {
-    scalaConvertDataFrame(bridge, data.frame, name)
-  } else invisible()
-}
-
-scalaConvertDataFrame <- function(bridge, data.frame, name) {
-  f <- eval(parse(text=paste0("bridge$.new_",name)))
-  args <- lapply(seq_len(ncol(data.frame)), function(j) data.frame[,j])
-  do.call(f,args)
-}
-
-a <- scalaDeclareDataFrame(s, iris[,-5], "Iris")
-a <- scalaConvertDataFrame(s, iris[,-5], "Iris")
-
-a <- scalaDeclareDataFrame(s, mtcars, "MTCars")
-a <- scalaConvertDataFrame(s, mtcars, "MTCars")
-
+# scalaDeclareDataFrame <- function(bridge, data.frame, name, andConvert=TRUE, verbose=TRUE) {
+#   df <- data.frame
+#   names(df) <- sanitize(names(df))
+#   types <- types(df)
+#   names <- names(types)
+#   definition <- paste0("class ",name,"(\n",paste0("  val ",names,": Array[",types,"]",collapse=",\n"),"\n)")
+#   if ( verbose ) {
+#     cat("Generated code:\n")
+#     cat(definition,"\n")
+#   }
+#   bridge + definition
+#   if ( andConvert ) {
+#     scalaConvertDataFrame(bridge, data.frame, name)
+#   } else invisible()
+# }
+# 
+# scalaConvertDataFrame <- function(bridge, data.frame, name) {
+#   f <- eval(parse(text=paste0("bridge$.new_",name)))
+#   args <- lapply(seq_len(ncol(data.frame)), function(j) data.frame[,j])
+#   do.call(f,args)
+# }
+# 
+# a <- scalaDeclareDataFrame(s, iris[,-5], "Iris")
+# a <- scalaConvertDataFrame(s, iris[,-5], "Iris")
+# 
+# a <- scalaDeclareDataFrame(s, mtcars, "MTCars")
+# a <- scalaConvertDataFrame(s, mtcars, "MTCars")
 
 
 
@@ -65,7 +64,11 @@ scalaDeclareList <- function(bridge, list, name, andConvert=TRUE, verbose=TRUE) 
   shapes <- shapes(l)
   fullTypes <- lapply(seq_along(types),function(i) paste0(shapes[[i]][1],types[[i]],shapes[[i]][2]))
   names <- names(types)
-  definition <- paste0("class ",name,"(\n",paste0("  val ",names,": ",fullTypes,collapse=",\n"),"\n)")
+  definition <- paste0("class ",name,"(\n",paste0("  val ",names,": ",fullTypes,collapse=",\n"),"\n) extends org.ddahl.rscala.RList {\n",
+                       "  val names = Array(",paste0('"',names,'"',collapse=","),")\n",
+                       "  val namesOriginal = Array(",paste0('"',names(list),'"',collapse=","),")\n",
+                       "  val isDataFrame = ",if (is.data.frame(list)) "true" else "false","\n",
+                       "}")
   if ( verbose ) {
     cat("Generated code:\n")
     cat(definition,"\n")
@@ -82,66 +85,41 @@ scalaConvertList <- function(bridge, list, name) {
   do.call(f,args)
 }
 
+scalaUnconvertList <- function(reference) {
+  names <- reference$names()
+  namesOriginal <- reference$namesOriginal()
+  l <- lapply(seq_along(names),function(i) {
+    eval(parse(text=paste0("reference$",names[i],"()")))
+  })
+  names(l) <- namesOriginal
+  if ( reference$isDataFrame() ) as.data.frame(l) else l
+}
+
 myList <- list(a=1, b=c(TRUE,FALSE), c=I(3.0))
 scalaDeclareList(s, myList, "MyList", andConvert=FALSE)
 a <- scalaConvertList(s, myList, "MyList")
 a$a()
+a$length()
+identical(scalaUnconvertList(a),myList)
 
 scalaDeclareList(s, iris[,-5], "IrisAsList", andConvert=FALSE)
 a <- scalaConvertList(s, iris[,-5], "IrisAsList")
-
-
-
-
-
-
-
-big <- rbind(iris[,-5])
-big <- rbind(big,big,big,big)
-big <- rbind(big,big,big,big)
-big <- rbind(big,big,big,big)
-big <- rbind(big,big,big,big)
-big <- rbind(big,big,big,big)
-
-a <- scalaConvertDataFrame(s, big, "Iris")
-  
+a$length()
+a$isDataFrame()
+a$nrow()
 a$Sepal_Length()
-a$Sepal_Width()
-a$Petal_Width()
+identical(scalaUnconvertList(a),iris[,-5])
 
 
 
-s$showCode <- TRUE
+
 big <- rbind(iris[,-5])
 big <- rbind(big,big,big,big)
 big <- rbind(big,big,big,big)
 big <- rbind(big,big,big,big)
 big <- rbind(big,big,big,big)
-nrow(big)
-
-a <- df2scala(s,big,"Iris",define=FALSE)
-a(4L)$toString()
-
-a[[5]]$toString()
-a[[1]]$Sepal_Width()
-a[[150]]$Sepal_Length()
-
-sapply(seq_along(a), function(i) a[[i]]$Sepal_Length())
+big <- rbind(big,big,big,big)
+a <- scalaConvertList(s, big, "IrisAsList")
 
 
-names <- names(iris)
-types <- lapply(iris,typeof)
 
-a <- s + '
-  case class Iris(
-    SepalLength: Option[Double],
-    SepalWidth: Option[Double],
-    PetalLength: Option[Double],
-    PetalWidth: Option[Double],
-    Species: String
-  )
-'
-
-a <- s ^ '
-  MTCars(1.2,2.3,3.4,22,"Iris")
-'
