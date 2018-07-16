@@ -276,8 +276,7 @@ class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rsca
       val jvmFunction = intp.valueOfTerm(functionName).get
       val resultType = {
         val r = intp.symbolOfLine(functionName).info.toString.substring(6)  // Drop "() => " in the return type.
-        if ( r.startsWith("iw$") ) r.substring(3)
-        else r
+        r.replace("iw$","")
       }
       if ( debugger.on ) debugger("function definition is okay, result type " + resultType + ".")
       val tuple = (jvmFunction, resultType)
