@@ -38,7 +38,6 @@ scalaSerialize.list <- function(x, bridge, name=NULL, verbose=FALSE) {
     paste0("Some(Array(",paste0('"',row.names(l),'"',collapse=","),"))")
   } else "None"
   definition <- paste0("class ",name,"(\n",paste0("  val ",names,": ",fullTypes,collapse=",\n"),"\n) {\n",
-                       '  val unserializer = "','scalaUnserialize.list','"\n',
                        "  val names = Array(",paste0('"',names,'"',collapse=","),")\n",
                        "  val namesOriginal = Array(",paste0('"',names(x),'"',collapse=","),")\n",
                        "  val asIs = Array(",paste0(asIs,collapse=","),")\n",
@@ -57,15 +56,17 @@ scalaSerialize.list <- function(x, bridge, name=NULL, verbose=FALSE) {
   }
   f <- eval(parse(text=paste0("bridge$.new_",name)))
   args <- lapply(seq_len(length(l)), function(j) l[[j]])
-  do.call(f,args)
+  reference <- do.call(f,args)
+  assign("unserializer",scalaUnserialize.list,envir=attr(reference,"rscalaReferenceEnvironment"))
+  reference
 }
 
 #' @export
 #' 
 scalaUnserialize <- function(reference) {
   if ( ! inherits(reference,"rscalaReference") ) stop("An rscala reference is required.")
-  functionName <- reference$unserializer()
-  do.call(functionName,list(reference))
+  unserialize <- get("unserializer",envir=attr(reference,"rscalaReferenceEnvironment"))
+  unserialize(reference)
 }
 
 #' @export
