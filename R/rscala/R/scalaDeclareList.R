@@ -1,8 +1,18 @@
 #' @export
 #' 
-scalaSerializeList <- function(bridge, list, name=NULL, verbose=FALSE) {
-  name <- if ( is.null(name) ) gsub("\\W","_",deparse(substitute(list))) else name
-  l <- list
+scalaSerialize <- function(x, bridge, ..., verbose=FALSE) UseMethod("scalaSerialize")
+
+#' @export
+#' 
+scalaSerialize.data.frame <- function(x, bridge, name=NULL, verbose=FALSE) {
+  scalaSerialize.list(x, bridge, name, verbose)
+}
+
+#' @export
+#' 
+scalaSerialize.list <- function(x, bridge, name=NULL, verbose=FALSE) {
+  l <- x
+  name <- if ( is.null(name) ) gsub("\\W","_",deparse(substitute(l,env=parent.frame(2)))) else name
   names(l) <- gsub("\\.","_",names(l))  
   asIs <- lapply(l,function(y) if ( inherits(y,"AsIs") ) "true" else "false")
   types <- lapply(l,function(y) {
@@ -23,28 +33,29 @@ scalaSerializeList <- function(bridge, list, name=NULL, verbose=FALSE) {
   })
   fullTypes <- lapply(seq_along(types),function(i) paste0(shapes[[i]][1],types[[i]],shapes[[i]][2]))
   names <- names(types)
-  rowNameStr <- if ( is.data.frame(list) && ! all(row.names(list) == as.character(seq_len(nrow(list)))) ) {
-    paste0("Some(Array(",paste0('"',row.names(list),'"',collapse=","),"))")
+  rowNameStr <- if ( is.data.frame(l) && ! all(row.names(l) == as.character(seq_len(nrow(l)))) ) {
+    paste0("Some(Array(",paste0('"',row.names(l),'"',collapse=","),"))")
   } else "None"
   definition <- paste0("class ",name,"(\n",paste0("  val ",names,": ",fullTypes,collapse=",\n"),"\n) {\n",
+                       '  val unserializer = "','scalaUnserialize.list','"\n',
                        "  val names = Array(",paste0('"',names,'"',collapse=","),")\n",
-                       "  val namesOriginal = Array(",paste0('"',names(list),'"',collapse=","),")\n",
+                       "  val namesOriginal = Array(",paste0('"',names(x),'"',collapse=","),")\n",
                        "  val asIs = Array(",paste0(asIs,collapse=","),")\n",
-                       "  val isDataFrame = ",if (is.data.frame(list)) "true" else "false","\n",
+                       "  val isDataFrame = ",if (is.data.frame(l)) "true" else "false","\n",
                        "  val rowNames: Option[Array[String]] = ",rowNameStr,"\n",
                        "}")
   declarationsCache <- get("declarationsCache",envir=attr(bridge,"details"))
   key <- paste0("scalaSerializeList.",name)
+  if ( verbose ) {
+    cat("Generated code:\n")
+    cat(definition,"\n")
+  }
   if ( ! exists(key,envir=declarationsCache) ) {
-    if ( verbose ) {
-      cat("Generated code:\n")
-      cat(definition,"\n")
-    }
     bridge + definition
     assign(key,TRUE,envir=declarationsCache)
   }
   f <- eval(parse(text=paste0("bridge$.new_",name)))
-  args <- lapply(seq_len(length(list)), function(j) list[[j]])
+  args <- lapply(seq_len(length(l)), function(j) l[[j]])
   do.call(f,args)
 }
 
