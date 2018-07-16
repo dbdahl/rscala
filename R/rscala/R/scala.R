@@ -104,6 +104,7 @@ scala <- function(packages=character(),
   assign("debugTranscompilation",FALSE,envir=details)
   assign("debug",debug,envir=details)
   assign("serializeOutput",serialize.output,envir=details)
+  assign("declarationsCache",new.env(parent=emptyenv()),envir=details)
   assign("last",NULL,envir=details)
   assign("garbage",integer(),envir=details)
   assign("scalaInfo",sInfo,envir=details)

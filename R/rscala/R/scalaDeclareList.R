@@ -1,6 +1,7 @@
 #' @export
 #' 
-scalaDeclareList <- function(bridge, list, name, andConvert=TRUE, verbose=TRUE) {
+scalaSerializeList <- function(bridge, list, name=NULL, verbose=FALSE) {
+  name <- if ( is.null(name) ) gsub("\\W","_",deparse(substitute(list))) else name
   l <- list
   names(l) <- gsub("\\.","_",names(l))  
   asIs <- lapply(l,function(y) if ( inherits(y,"AsIs") ) "true" else "false")
@@ -32,17 +33,16 @@ scalaDeclareList <- function(bridge, list, name, andConvert=TRUE, verbose=TRUE) 
                        "  val isDataFrame = ",if (is.data.frame(list)) "true" else "false","\n",
                        "  val rowNames: Option[Array[String]] = ",rowNameStr,"\n",
                        "}")
-  if ( verbose ) {
-    cat("Generated code:\n")
-    cat(definition,"\n")
+  declarationsCache <- get("declarationsCache",envir=attr(bridge,"details"))
+  key <- paste0("scalaSerializeList.",name)
+  if ( ! exists(key,envir=declarationsCache) ) {
+    if ( verbose ) {
+      cat("Generated code:\n")
+      cat(definition,"\n")
+    }
+    bridge + definition
+    assign(key,TRUE,envir=declarationsCache)
   }
-  bridge + definition
-  if ( andConvert ) scalaSerializeList(bridge, list, name) else invisible()
-}
-
-#' @export
-#' 
-scalaSerializeList <- function(bridge, list, name) {
   f <- eval(parse(text=paste0("bridge$.new_",name)))
   args <- lapply(seq_len(length(list)), function(j) list[[j]])
   do.call(f,args)
