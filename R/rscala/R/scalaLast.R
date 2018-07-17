@@ -12,7 +12,7 @@
 #' close(e)
 #' }
 #' 
-scalaLast <- function(bridge) {
+scalaLast <- function(bridge=scalaFindBridge()) {
   details <- attr(bridge,"details")
   last <- scalaLastEngine(details)
   if ( details[["interrupted"]] ) invisible() else last

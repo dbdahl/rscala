@@ -1,0 +1,9 @@
+even code to + is cached.
+scalaDeclareList rename.
+don't mangle names of data frame variable (for the sake speed).
+check
+write tests for serialization
+serialize partitions
+
+can bridge + definition and the call be combined into one?
+scalaFindBridge applied to other places?
