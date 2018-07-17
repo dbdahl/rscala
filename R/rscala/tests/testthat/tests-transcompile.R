@@ -2,7 +2,7 @@ context("transcompile")
 
 # skip("transcompile")
 
-myExpect <- function(f,args=list(),identical=TRUE, tolerance=sqrt(.Machine$double.eps)) {
+myExpect <- function(f,args=list(),identical=TRUE,tolerance=sqrt(.Machine$double.eps)) {
   g <- s^f
   h <- attr(g,"rscalaReferenceEnvironment")[["original"]]
   if ( ! identical(f,h) ) stop("Not identical.")

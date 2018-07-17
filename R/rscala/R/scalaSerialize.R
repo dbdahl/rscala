@@ -1,18 +1,17 @@
 #' @export
 #' 
-scalaSerialize <- function(x, bridge, ...) UseMethod("scalaSerialize")
+scalaSerialize <- function(x, bridge=scalaFindBridge(), ...) UseMethod("scalaSerialize")
 
 #' @export
 #' 
-scalaSerialize.data.frame <- function(x, bridge, name=NULL) {
+scalaSerialize.data.frame <- function(x, bridge=scalaFindBridge(), name=NULL) {
   name <- if ( is.null(name) ) gsub("\\W","_",deparse(substitute(x))) else name
   scalaSerialize.list(x, bridge, name)
 }
 
 #' @export
 #' 
-scalaSerialize.list <- function(x, bridge, name=NULL) {
-  name <- if ( is.null(name) ) gsub("\\W","_",deparse(substitute(x))) else name
+scalaSerialize.list <- function(x, bridge=scalaFindBridge(), name=NULL) {
   if ( any(grepl("\\W",names(x))) ) {
     stop(paste0("The following variable names are problematic: ",paste0(names(x)[grepl("\\W",names(x))],collapse=", "),"\n"))
   }
@@ -38,12 +37,14 @@ scalaSerialize.list <- function(x, bridge, name=NULL) {
   rowNameStr <- if ( is.data.frame(x) && ! all(row.names(x) == as.character(seq_len(nrow(x)))) ) {
     paste0("Some(Array(",paste0('"',row.names(x),'"',collapse=","),"))")
   } else "None"
-  definition <- paste0("class ",name,"(\n",paste0("  val ",names,": ",fullTypes,collapse=",\n"),"\n) {\n",
+  definition <- paste0("(\n",paste0("  val ",names,": ",fullTypes,collapse=",\n"),"\n) {\n",
                        "  val names = Array(",paste0('"',names,'"',collapse=","),")\n",
                        "  val asIs = Array(",paste0(asIs,collapse=","),")\n",
                        "  val isDataFrame = ",if (is.data.frame(x)) "true" else "false","\n",
                        "  val rowNames: Option[Array[String]] = ",rowNameStr,"\n",
                        "}")
+  name <- if ( ! is.null(name) ) name else paste0("List",bridge(x=definition) * 'math.abs(x.hashCode).toString')
+  definition <- paste0("class ",name,definition)
   bridge + definition
   f <- eval(parse(text=paste0("bridge$.new_",name)))
   args <- lapply(seq_len(length(x)), function(j) x[[j]])
