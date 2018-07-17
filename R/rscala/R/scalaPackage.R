@@ -48,7 +48,7 @@ scalaPackage <- function(packages=character(),
       s <- eval(parse(text=mode))
       majorVersion <- attr(s,"details")[["scalaInfo"]]$majorVersion
       JARs <- c(JARs,unlist(lapply(packages, function(p) jarsOfPackage(p, majorVersion))))
-      scalaAddJARs(s, JARs)
+      scalaAddJARs(JARs, s)
       assign.callback(s)
       details <- attr(s,"details")
       transcompileHeader <- c(get("transcompileHeader",envir=details), unlist(lapply(packages,transcompileHeaderOfPackage)))

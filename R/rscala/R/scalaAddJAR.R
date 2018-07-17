@@ -1,7 +1,7 @@
 #' Add JAR Files to Classpath
 #'
-#' @param bridge An rscala bridge from the \code{scala} function.
 #' @param JARs Paths to JAR files, as a character vector.
+#' @param bridge An rscala bridge from the \code{scala} function.
 #'
 #' @return Returns \code{NULL}, invisibly.
 #' 
@@ -9,9 +9,9 @@
 #'
 #' @examples \dontrun{
 #' 
-#' scalaAddJARs(e, "PATH/TO/jarFileToLoad.jar")
+#' scalaAddJARs("PATH/TO/jarFileToLoad.jar", e)
 #' }
-scalaAddJARs <- function(bridge, JARs) {
+scalaAddJARs <- function(JARs, bridge=scalaFindBridge()) {
   if ( ! is.character(JARs) ) stop("'JARs' should be a character vector.")
   JARs <- path.expand(JARs)
   details <- if ( inherits(bridge,"rscalaBridge") ) attr(bridge,"details") else bridge

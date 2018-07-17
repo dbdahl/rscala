@@ -166,7 +166,7 @@ newSockets <- function(portsFilename, details, JARs) {
   assign("socketIn",socketIn,envir=details)
   assign("socketOut",socketOut,envir=details)
   assign("connected",TRUE,envir=details)
-  if ( length(JARs) > 0 ) scalaAddJARs(details, JARs)
+  if ( length(JARs) > 0 ) scalaAddJARs(JARs, details)
 }
 
 jarsOfPackage <- function(pkgname, major.release) {
