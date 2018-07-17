@@ -16,17 +16,16 @@ scalaUnserialize <- function(reference, use.original=TRUE) {
 #' 
 scalaUnserialize.list <- function(reference) {
   names <- reference$names()
-  namesOriginal <- reference$namesOriginal()
   asIs <- reference$asIs()
-  l <- lapply(seq_along(names),function(i) {
+  x <- lapply(seq_along(names),function(i) {
     x <- eval(parse(text=paste0("reference$",names[i],"()")))
     if ( asIs[i] ) I(x) else x
   })
-  names(l) <- namesOriginal
-  if ( ! reference$isDataFrame() ) l
+  names(x) <- names
+  if ( ! reference$isDataFrame() ) x
   else {
     rowNamesOptions <- reference$rowNames()
     rowNames <- if ( rowNamesOptions$isDefined() ) rowNamesOptions$get() else NULL
-    as.data.frame(l,row.names=rowNames,stringsAsFactors=FALSE)
+    as.data.frame(x,row.names=rowNames,stringsAsFactors=FALSE)
   }
 }
