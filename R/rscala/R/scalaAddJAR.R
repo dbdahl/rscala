@@ -6,6 +6,7 @@
 #' @return Returns \code{NULL}, invisibly.
 #' 
 #' @export
+#' @seealso \code{\link{scalaFindBridge}}
 #'
 #' @examples \dontrun{
 #' 

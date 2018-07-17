@@ -5,6 +5,8 @@
 #' @param bridge An rscala bridge
 #'
 #' @export
+#' @seealso \code{\link{scalaFindBridge}}
+#' 
 #' @examples \donttest{
 #' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
 #' e * "2+3"

@@ -146,12 +146,14 @@
 }
 
 #' Operator to Reconstitute an R object
-#' 
-#' This operator reconstitutes an R object that has been created by the binary minus
-#' operator \code{\link{-.rscalaReference}} on a scala bridge.
 #'
-#' @param rscalaReference An rscala reference of type \code{org.ddahl.rscala.RObject}.
-#' @param e2 Ignored since only the unary minus operator is supported for rscala references.
+#' This operator reconstitutes an R object that has been created by the binary
+#' minus operator \code{\link{-.rscalaReference}} on a scala bridge.
+#'
+#' @param rscalaReference An rscala reference of type
+#'   \code{org.ddahl.rscala.RObject}.
+#' @param e2 Ignored since only the unary minus operator is supported for rscala
+#'   references.  See the examples below.
 #'
 #' @aliases unaryMinus
 #' @export
