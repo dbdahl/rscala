@@ -112,8 +112,7 @@
 #' }
 #' 
 '+.rscalaBridge' <- function(bridge, snippet) {
-  details <- attr(bridge,"details")
-  scalaEvaluate(details, snippet)
+  scalaInvoke(attr(bridge,"details"), snippet, NULL)
 }
 
 #' Operator to Make an R Object Reference

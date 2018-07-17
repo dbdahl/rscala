@@ -1,17 +1,17 @@
 #' @export
 #' 
-scalaSerialize <- function(x, bridge, ..., verbose=FALSE) UseMethod("scalaSerialize")
+scalaSerialize <- function(x, bridge, ...) UseMethod("scalaSerialize")
 
 #' @export
 #' 
-scalaSerialize.data.frame <- function(x, bridge, name=NULL, verbose=FALSE) {
+scalaSerialize.data.frame <- function(x, bridge, name=NULL) {
   name <- if ( is.null(name) ) gsub("\\W","_",deparse(substitute(x))) else name
-  scalaSerialize.list(x, bridge, name, verbose)
+  scalaSerialize.list(x, bridge, name)
 }
 
 #' @export
 #' 
-scalaSerialize.list <- function(x, bridge, name=NULL, verbose=FALSE) {
+scalaSerialize.list <- function(x, bridge, name=NULL) {
   name <- if ( is.null(name) ) gsub("\\W","_",deparse(substitute(x))) else name
   l <- x
   names(l) <- gsub("\\.","_",names(l))  
@@ -44,16 +44,7 @@ scalaSerialize.list <- function(x, bridge, name=NULL, verbose=FALSE) {
                        "  val isDataFrame = ",if (is.data.frame(l)) "true" else "false","\n",
                        "  val rowNames: Option[Array[String]] = ",rowNameStr,"\n",
                        "}")
-  declarationsCache <- get("declarationsCache",envir=attr(bridge,"details"))
-  key <- paste0("scalaSerializeList.",name)
-  if ( verbose ) {
-    cat("Generated code:\n")
-    cat(definition,"\n")
-  }
-  if ( ! exists(key,envir=declarationsCache) ) {
-    bridge + definition
-    assign(key,TRUE,envir=declarationsCache)
-  }
+  bridge + definition
   f <- eval(parse(text=paste0("bridge$.new_",name)))
   args <- lapply(seq_len(length(l)), function(j) l[[j]])
   reference <- do.call(f,args)

@@ -19,10 +19,10 @@ scalaInstall <- function(majorVersion="2.12") {
   if ( length(majorVersion) == 0 ) stop("At least one major release must be supplied.")
   javaVersion <- javaVersion(findJava())
   if ( ( javaVersion <= 7 ) && ( utils::compareVersion("2.11",majorVersion) < 0 ) ) {
-    cat("It appears you are using an Java version <= 7, so Scala 2.11 will be installed.\n")
+    cat("\n\nIt appears you are using an Java version <= 7, so Scala 2.11 will be installed.\n\n\n")
     return(scalaInstall("2.11"))
   } else if ( ( javaVersion >= 9 ) && ( utils::compareVersion("2.12",majorVersion) > 0 ) ) {
-    cat("It appears you are using an Java version >= 9, so Scala 2.12 will be installed.\n")
+    cat("\n\nIt appears you are using an Java version >= 9, so Scala 2.12 will be installed.\n\n\n")
     return(scalaInstall("2.12"))
   }
   if ( majorVersion == "2.12" ) version <- SCALA_212_VERSION

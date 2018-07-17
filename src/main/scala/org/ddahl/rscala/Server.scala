@@ -231,34 +231,42 @@ class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rsca
     val snippet = readString()
     val header = conduit.mkHeader(nArgs)
     val sb = new java.lang.StringBuilder()
-    sb.append("() => {\n")
-    sb.append(header)
-    if ( withReference ) {
-      sb.append("x")
-      sb.append(nArgs)
-      sb.append(".")
-    }
-    val forceReference = if ( snippet.startsWith(".") ) {
-      if ( snippet.startsWith(".new_") ) {
-        sb.append("new ")
-        sb.append(snippet.substring(5))
-      } else if ( snippet.startsWith(".null_") ) {
-        sb.append("null: ")
-        sb.append(snippet.substring(6))
-      } else if ( snippet.startsWith(".asInstanceOf_") ) {
-        sb.append("asInstanceOf[")
-        sb.append(snippet.substring(14))
-        sb.append("]")
-      } else {
-        sb.append(snippet.substring(1))
-      }
+    val globalDefinitionOnly = ( nArgs == -1 )
+    val forceReference = if ( globalDefinitionOnly ) {
+      sb.append(snippet)
+      sb.append("\n")
       true
     } else {
-      sb.append(snippet)
-      false
+      sb.append("() => {\n")
+      sb.append(header)
+      if (withReference) {
+        sb.append("x")
+        sb.append(nArgs)
+        sb.append(".")
+      }
+      val force = if (snippet.startsWith(".")) {
+        if (snippet.startsWith(".new_")) {
+          sb.append("new ")
+          sb.append(snippet.substring(5))
+        } else if (snippet.startsWith(".null_")) {
+          sb.append("null: ")
+          sb.append(snippet.substring(6))
+        } else if (snippet.startsWith(".asInstanceOf_")) {
+          sb.append("asInstanceOf[")
+          sb.append(snippet.substring(14))
+          sb.append("]")
+        } else {
+          sb.append(snippet.substring(1))
+        }
+        true
+      } else {
+        sb.append(snippet)
+        false
+      }
+      if (!freeForm) sb.append(conduit.argsList(nArgs, withReference))
+      sb.append("\n}")
+      force
     }
-    if ( ! freeForm ) sb.append(conduit.argsList(nArgs, withReference))
-    sb.append("\n}")
     val body = sb.toString
     val (jvmFunction, resultType) = functionMap.getOrElse(body, {
       if ( conduit.showCode || debugger.on ) {
@@ -272,69 +280,58 @@ class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rsca
         pop(Datum(body,TCODE_ERROR_DEF,None))
         return
       }
-      val functionName = intp.mostRecentVar
-      val jvmFunction = intp.valueOfTerm(functionName).get
-      val resultType = {
-        val r = intp.symbolOfLine(functionName).info.toString.substring(6)  // Drop "() => " in the return type.
-        r.replace("iw$","")
+      if ( ! globalDefinitionOnly ) {
+        val functionName = intp.mostRecentVar
+        val jvmFunction = intp.valueOfTerm(functionName).get
+        val resultType = {
+          val r = intp.symbolOfLine(functionName).info.toString.substring(6) // Drop "() => " in the return type.
+          r.replace("iw$", "")
+        }
+        if (debugger.on) debugger("function definition is okay, result type " + resultType + ".")
+        val tuple = (jvmFunction, resultType)
+        functionMap(body) = tuple
+        tuple
+      } else {
+        val tuple = (None, "")
+        functionMap(body) = tuple
+        tuple
       }
-      if ( debugger.on ) debugger("function definition is okay, result type " + resultType + ".")
-      val tuple = (jvmFunction, resultType)
-      functionMap(body) = tuple
-      tuple
     })
-    if ( debugger.on ) debugger("starting function invocation.")
-    val result = try {
-      wrap(unary.invoke(jvmFunction))
-    } catch {
-      case e: Throwable =>
-        prntWrtr.println(e)
-        if ( e.getCause != null ) e.getCause.printStackTrace(prntWrtr) else e.printStackTrace(prntWrtr)
-        if ( debugger.on ) debugger("error in executing function.")
-        pop(Datum(e,TCODE_ERROR_INVOKE,None))
-        return
-    }
-    if ( debugger.on ) debugger("function invocation is okay.")
-    val tipe = if ( ( ! forceReference ) && typeMapper2.contains(resultType) ) {
-      val tipe = typeMapper2.get(resultType).get
-      tipe match {
-        case TCODE_INT_2 | TCODE_DOUBLE_2 | TCODE_LOGICAL_2 | TCODE_CHARACTER_2 =>
-          val a = result.asInstanceOf[Array[Array[_]]]
-          if ( a.length == 0 ) TCODE_REFERENCE
-          else {
-            val nColumns = a(0).length
-            if ( a.forall(_.length == nColumns) ) tipe else TCODE_REFERENCE
-          }
-        case _ =>
-          tipe
-      }
-    } else TCODE_REFERENCE
-    if ( tipe == TCODE_REFERENCE ) {
-      pop(Datum(result, tipe, Some(resultType)))
+    if ( globalDefinitionOnly ) {
+      pop(Datum((), TCODE_UNIT, None))
     } else {
-      pop(Datum(result, tipe, None))
-    }
-  }
-
-  private def evaluate(): Unit = {
-    if ( debugger.on ) debugger("evaluate.")
-    val body = readString()
-    try {
-      val result = wrap(intp.interpret(body))
-      if ( result != Success ) {
-        if ( debugger.on ) debugger("error in defining evaluation.")
-        pop(Datum(body,TCODE_ERROR_DEF,None))
-        return
+      if (debugger.on) debugger("starting function invocation.")
+      val result = try {
+        wrap(unary.invoke(jvmFunction))
+      } catch {
+        case e: Throwable =>
+          prntWrtr.println(e)
+          if (e.getCause != null) e.getCause.printStackTrace(prntWrtr) else e.printStackTrace(prntWrtr)
+          if (debugger.on) debugger("error in executing function.")
+          pop(Datum(e, TCODE_ERROR_INVOKE, None))
+          return
       }
-    } catch {
-      case e: Throwable =>
-        prntWrtr.println(e)
-        if ( e.getCause != null ) e.getCause.printStackTrace(prntWrtr) else e.printStackTrace(prntWrtr)
-        if ( debugger.on ) debugger("error in executing evaluation.")
-        pop(Datum(e,TCODE_ERROR_INVOKE,None))
-        return
+      if (debugger.on) debugger("function invocation is okay.")
+      val tipe = if ((!forceReference) && typeMapper2.contains(resultType)) {
+        val tipe = typeMapper2.get(resultType).get
+        tipe match {
+          case TCODE_INT_2 | TCODE_DOUBLE_2 | TCODE_LOGICAL_2 | TCODE_CHARACTER_2 =>
+            val a = result.asInstanceOf[Array[Array[_]]]
+            if (a.length == 0) TCODE_REFERENCE
+            else {
+              val nColumns = a(0).length
+              if (a.forall(_.length == nColumns)) tipe else TCODE_REFERENCE
+            }
+          case _ =>
+            tipe
+        }
+      } else TCODE_REFERENCE
+      if (tipe == TCODE_REFERENCE) {
+        pop(Datum(result, tipe, Some(resultType)))
+      } else {
+        pop(Datum(result, tipe, None))
+      }
     }
-    pop(Datum((),TCODE_UNIT,None))
   }
 
   private def addToClasspath(): Unit = {
@@ -393,7 +390,6 @@ class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rsca
       case PCODE_INVOKE => invoke(false, false)
       case PCODE_INVOKE_WITH_REFERENCE => invoke(true,false)
       case PCODE_INVOKE_FREEFORM => invoke(false,true)
-      case PCODE_EVALUATE => evaluate()
       case PCODE_ADD_TO_CLASSPATH => addToClasspath()
       case PCODE_GARBAGE_COLLECT => gc()
       case _ =>
