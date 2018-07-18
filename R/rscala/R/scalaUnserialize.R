@@ -9,27 +9,30 @@
 #' ref <- scalaSerialize(mtcars, e)
 #' ref$mpg()
 #' mtcars2 <- scalaUnserialize(ref)
-#' mtcars2 <- scalaUnserialize(ref)
 #' identical(mtcars, mtcars2)
 #' close(e)
 #' }
 #' 
-scalaUnserialize <- function(reference, use.original=TRUE) {
+scalaUnserialize <- function(reference, use.original=TRUE, ...) {
   if ( ! inherits(reference,"rscalaReference") ) stop("An rscala reference is required.")
-  env <- attr(reference,"rscalaReferenceEnvironment")
-  original <- get("original",envir=env)
-  if ( ( ! is.null(original) ) && ( use.original ) ) original
+  envOfReference <- attr(reference,"rscalaReferenceEnvironment")
+  if ( ( use.original ) && ( exists("object",envir=envOfReference) ) ) get("object",envir=env)
   else {
-    if ( ! exists("unserializer",envir=env) ) stop("No unserializer is registered for this object.")
-    unserialize <- get("unserializer",envir=env)
-    unserialize(reference)
+    if ( ! exists("unserializer",envir=envOfReference) ) stop("No unserializer is registered for this reference.")
+    unserialize <- get("unserializer",envir=envOfReference)
+    original <- unserialize(reference, ...)
+    envOfObject <- new.env(parent=emptyenv())
+    attr(original,"rscalaObjectEnvironment") <- envOfObject
+    assign("reference",reference,envir=envOfObject)
+    assign("original",original,envir=envOfReference)
+    original
   }
 }
 
 #' @describeIn scalaUnserialize Unserialize List or Data Frame from Scala to R
 #' @export
 #' 
-scalaUnserialize.list <- function(reference) {
+scalaUnserialize.list <- function(reference, ...) {
   names <- reference$names()
   asIs <- reference$asIs()
   x <- lapply(seq_along(names),function(i) {

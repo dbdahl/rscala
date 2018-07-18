@@ -102,6 +102,7 @@ scala <- function(packages=character(),
   assign("transcompileHeader",transcompileHeader,envir=details)
   assign("transcompileSubstitute",unlist(lapply(packages,transcompileSubstituteOfPackage)),envir=details)
   assign("debugTranscompilation",FALSE,envir=details)
+  assign("serializers",list(scalaSerialize.list,scalaSerialize.generic),envir=details)
   assign("debug",debug,envir=details)
   assign("serializeOutput",serialize.output,envir=details)
   assign("last",NULL,envir=details)

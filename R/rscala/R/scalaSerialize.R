@@ -16,24 +16,53 @@
 #' close(e)
 #' }
 #'  
-scalaSerialize <- function(x, bridge=scalaFindBridge(), ...) {
-  UseMethod("scalaSerialize")
+scalaSerialize <- function(x, bridge=scalaFindBridge(), verbose=FALSE, ...) {
+  reference <- NULL
+  serializers <- get("serializers",env=attr(bridge,"details"))
+  for ( serializer in serializers ) {
+    reference <- serializer(x, bridge, verbose, ...)
+    if ( ! is.null(reference) ) break
+  }
+  if ( is.null(reference) ) stop("No matching serializer was found.")
+  reference
 }
 
-#' @describeIn scalaSerialize Serialize Data Frame from R to Scala
 #' @export
 #' 
-scalaSerialize.data.frame <- function(x, bridge=scalaFindBridge(), name=NULL, ...) {
-  name <- if ( is.null(name) ) gsub("\\W","_",deparse(substitute(x))) else name
-  scalaSerialize.list(x, bridge, name)
+scalaSerialize.generic <- function(x, bridge=scalaFindBridge(), verbose=FALSE, as.is=FALSE) {
+  if ( verbose ) cat("scalaSerialize.generic: Trying...\n")
+  if ( is.list(x) && ( ! as.is ) ) {
+    if ( verbose ) cat("scalaSerialize.generic: List detected.\n")
+    if ( verbose ) cat("scalaSerialize.generic: Success.\n")
+    bridge(len=length(x)) ^ '
+      List.tabulate(len) { i =>
+        R.evalObject("x[[%-]]",i+1)
+      }
+    '
+  } else {
+    if ( verbose ) cat("scalaSerialize.generic: Nonlist detected.\n")
+    if ( verbose ) cat("scalaSerialize.generic: Success.\n")
+    bridge$.R.evalObject('x')
+  }
 }
 
 #' @describeIn scalaSerialize Serialize List from R to Scala
 #' @export
 #' 
-scalaSerialize.list <- function(x, bridge=scalaFindBridge(), name=NULL, ...) {
-  if ( any(grepl("\\W",names(x))) ) {
-    stop(paste0("The following variable names are problematic: ",paste0(names(x)[grepl("\\W",names(x))],collapse=", "),"\n"))
+scalaSerialize.list <- function(x, bridge=scalaFindBridge(), verbose=FALSE, name=NULL) {
+  if ( verbose ) cat("scalaSerialize.list: Trying...\n")
+  if ( ! is.list(x) ) {
+    if ( verbose ) cat("scalaSerialize.list: Object is not a list.\n")
+    return(NULL)
+  }
+  uniqueNames <- unique(names(x))
+  if ( ( length(uniqueNames) != length(x) ) || ( any(uniqueNames=="") ) ) {
+    if ( verbose ) cat(paste0("scalaSerialize.list: All items must be named.\n"))
+    return(NULL)   
+  }
+  if ( any(grepl("\\W",uniqueNames)) ) {
+    if ( verbose ) cat(paste0("scalaSerialize.list: The following variable names are problematic: ",paste0(uniqueNames[grepl("\\W",uniqueNames)],collapse=", "),"\n"))
+    return(NULL)
   }
   asIs <- lapply(x,function(y) if ( inherits(y,"AsIs") ) "true" else "false")
   types <- lapply(x,function(y) {
@@ -42,7 +71,10 @@ scalaSerialize.list <- function(x, bridge=scalaFindBridge(), name=NULL, ...) {
     else if ( type == "integer" ) "Int"
     else if ( type == "logical" ) "Boolean"
     else if ( type == "character" ) "String"
-    else stop("Unsupported type.")
+    else {
+      if ( verbose ) cat("scalaSerialize.list: Unsupported type.\n")
+      return(NULL)
+    }
   })
   shapes <- lapply(x,function(y) {
     if ( is.matrix(y) ) c("Array[Array[","]]")
@@ -69,8 +101,6 @@ scalaSerialize.list <- function(x, bridge=scalaFindBridge(), name=NULL, ...) {
   f <- eval(parse(text=paste0("bridge$.new_",name)))
   args <- lapply(seq_len(length(x)), function(j) x[[j]])
   reference <- do.call(f,args)
-  env <- attr(reference,"rscalaReferenceEnvironment")
-  assign("original",x,envir=env)
-  assign("unserializer",scalaUnserialize.list,envir=env)
+  if ( verbose ) cat("scalaSerialize.list: Success.\n")
   reference
 }
