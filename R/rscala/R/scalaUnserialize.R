@@ -7,6 +7,8 @@
 #' @examples \donttest{
 #' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
 #' ref <- scalaSerialize(mtcars, e)
+#' ref$mpg()
+#' mtcars2 <- scalaUnserialize(ref)
 #' mtcars2 <- scalaUnserialize(ref)
 #' identical(mtcars, mtcars2)
 #' close(e)

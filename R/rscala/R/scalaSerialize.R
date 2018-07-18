@@ -5,10 +5,12 @@
 #' @param name Name of the Scala type which may or may not be used by specialize functions.
 #' @param ... Other arguments passed to the function for the type of \code{x}.
 #'
+#' @seealso \code{\link{scalaFindBridge}}
 #' @export
 #' @examples \donttest{
 #' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
 #' ref <- scalaSerialize(mtcars, e)
+#' ref$mpg()
 #' mtcars2 <- scalaUnserialize(ref)
 #' identical(mtcars, mtcars2)
 #' close(e)
