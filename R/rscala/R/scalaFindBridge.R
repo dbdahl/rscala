@@ -1,5 +1,10 @@
+#' Find a Scala Bridge
+#'
+#' This functions attempts to find an instance of an rscala bridge in the environment path.
+#'
+#' @return An rscala bridge.
 #' @export
-#' 
+#'
 scalaFindBridge <- function() {
   counter <- 2
   while ( TRUE ) {

@@ -1,17 +1,35 @@
+#' Serialize Object from R to Scala
+#'
+#' @param x An R object.
+#' @param bridge An rscala bridge.
+#' @param name Name of the Scala type which may or may not be used by specialize functions.
+#' @param ... Other arguments passed to the function for the type of \code{x}.
+#'
 #' @export
-#' 
-scalaSerialize <- function(x, bridge=scalaFindBridge(), ...) UseMethod("scalaSerialize")
+#' @examples \donttest{
+#' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
+#' ref <- scalaSerialize(mtcars, e)
+#' mtcars2 <- scalaUnserialize(ref)
+#' identical(mtcars, mtcars2)
+#' close(e)
+#' }
+#'  
+scalaSerialize <- function(x, bridge=scalaFindBridge(), ...) {
+  UseMethod("scalaSerialize")
+}
 
+#' @describeIn scalaSerialize Serialize Data Frame from R to Scala
 #' @export
 #' 
-scalaSerialize.data.frame <- function(x, bridge=scalaFindBridge(), name=NULL) {
+scalaSerialize.data.frame <- function(x, bridge=scalaFindBridge(), name=NULL, ...) {
   name <- if ( is.null(name) ) gsub("\\W","_",deparse(substitute(x))) else name
   scalaSerialize.list(x, bridge, name)
 }
 
+#' @describeIn scalaSerialize Serialize List from R to Scala
 #' @export
 #' 
-scalaSerialize.list <- function(x, bridge=scalaFindBridge(), name=NULL) {
+scalaSerialize.list <- function(x, bridge=scalaFindBridge(), name=NULL, ...) {
   if ( any(grepl("\\W",names(x))) ) {
     stop(paste0("The following variable names are problematic: ",paste0(names(x)[grepl("\\W",names(x))],collapse=", "),"\n"))
   }

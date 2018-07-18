@@ -1,4 +1,16 @@
+#' Unserialize Object from Scala to R
+#' 
+#' @param reference An rscala reference.
+#' @param use.original If available from a previous serialization to Scala, should the original R object be returned?
+#'
 #' @export
+#' @examples \donttest{
+#' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
+#' ref <- scalaSerialize(mtcars, e)
+#' mtcars2 <- scalaUnserialize(ref)
+#' identical(mtcars, mtcars2)
+#' close(e)
+#' }
 #' 
 scalaUnserialize <- function(reference, use.original=TRUE) {
   if ( ! inherits(reference,"rscalaReference") ) stop("An rscala reference is required.")
@@ -12,6 +24,7 @@ scalaUnserialize <- function(reference, use.original=TRUE) {
   }
 }
 
+#' @describeIn scalaUnserialize Unserialize List or Data Frame from Scala to R
 #' @export
 #' 
 scalaUnserialize.list <- function(reference) {
