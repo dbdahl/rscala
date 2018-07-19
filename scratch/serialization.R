@@ -2,10 +2,19 @@ library(rscala)
 scala()
 s
 
-verbose <- FALSE
-a <- scalaSerialize(c(1,2,3),verbose=verbose)
+verbose <- TRUE
+x <- c(1,2,3)
+a <- scalaSerialize(x,verbose=verbose)
+x2 <- scalaUnserialize.generic(a,verbose=verbose)
+identical(x,x2)
+
+
 b1 <- scalaSerialize(list(a=1,b=2,c=3),verbose=verbose)
-b2 <- scalaSerialize.generic(list(a=1,b=2,c=3),verbose=verbose)
+
+x <- list(1,2,3)
+b2 <- scalaSerialize.generic(x,verbose=verbose)
+x2 <- scalaUnserialize.generic(b2)
+identical(x,x2)
 
 c <- scalaSerialize(mtcars,verbose=verbose)
 d <- scalaSerialize(iris,verbose=TRUE)

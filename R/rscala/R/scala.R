@@ -116,19 +116,8 @@ scala <- function(packages=character(),
     assign("garbage",garbage,envir=details)
   }
   assign("gcFunction",gcFunction,envir=details)
-  bridge <- function(...) {
-    bridge2 <- list(...)
-    argnames <- names(bridge2)
-    if ( ( length(bridge2) > 0 )  && ( is.null(argnames) || ! all(grepl("^\\w+$",argnames,perl=TRUE)) ) ) {
-      stop("Names must be given in parameter list and they consist only of alphanumeric & underscore characters.")
-    }
-    attr(bridge2,"details") <- details
-    class(bridge2) <- "rscalaBridge"
-    bridge2
-  }
-  attr(bridge,"details") <- details
-  class(bridge) <- "rscalaBridge"    
   reg.finalizer(details,close.rscalaBridge,onexit=TRUE)
+  bridge <- mkBridge(details)
   if ( ! is.null(assign.name) && ( assign.name != "" ) ) {
     if ( interactive() ) {
       delayedAssign(assign.name,{
@@ -148,6 +137,22 @@ scala <- function(packages=character(),
     assign.callback(bridge)
     bridge
   }
+}
+
+mkBridge <- function(details) {
+  bridge <- function(...) {
+    bridge2 <- list(...)
+    argnames <- names(bridge2)
+    if ( ( length(bridge2) > 0 )  && ( is.null(argnames) || ! all(grepl("^\\w+$",argnames,perl=TRUE)) ) ) {
+      stop("Names must be given in parameter list and they consist only of alphanumeric & underscore characters.")
+    }
+    attr(bridge2,"details") <- details
+    class(bridge2) <- "rscalaBridge"
+    bridge2
+  }
+  attr(bridge,"details") <- details
+  class(bridge) <- "rscalaBridge"    
+  bridge
 }
 
 newSockets <- function(portsFilename, details, JARs) {

@@ -29,10 +29,32 @@ scalaUnserialize <- function(reference, use.original=TRUE, ...) {
   }
 }
 
+#' @export
+#' 
+scalaUnserialize.generic <- function(reference, verbose=FALSE, ...) {
+  if ( verbose ) cat("scalaUnserialize.generic: Trying...\n")
+  type <- scalaType(reference)
+  if ( type == "org.ddahl.rscala.RObject" ) {
+    if ( verbose ) cat("scalaUnserialize.generic: Success on single element.\n")
+    unserialize(reference$x())
+  }
+  else if ( type == "List[org.ddahl.rscala.RObject]" ) {
+    bridge <- scalaFindBridge(reference)
+    pair <- bridge(arr=reference) ^ '(arr.flatMap(_.x).toArray, arr.scanLeft(1)((sum,y) => sum + y.x.length).toArray)'
+    bytes <- pair$"_1"()
+    sizes <- pair$"_2"()
+    if ( verbose ) cat("scalaUnserialize.generic: Success on list of elements.\n")
+    lapply(seq_along(sizes[-1]), function(i) {
+      unserialize(bytes[sizes[i]:(sizes[i+1]-1)])
+    }) 
+  } else NULL
+}
+
 #' @describeIn scalaUnserialize Unserialize List or Data Frame from Scala to R
 #' @export
 #' 
 scalaUnserialize.list <- function(reference, ...) {
+  
   names <- reference$names()
   asIs <- reference$asIs()
   x <- lapply(seq_along(names),function(i) {
