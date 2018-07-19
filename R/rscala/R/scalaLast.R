@@ -21,7 +21,7 @@ scalaLast <- function(bridge=scalaFindBridge()) {
 }
 
 scalaLastEngine <- function(details) {
-  if ( details[["closed"]] ) stop("Bridge is closed.")
+  checkConnection(details)
   if ( details[["interrupted"]] ) {
     cat("<< waiting for previously interrupted computation to finish >>\n")
     assign("interrupted",FALSE,envir=details)

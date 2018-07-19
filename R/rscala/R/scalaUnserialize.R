@@ -1,45 +1,86 @@
-#' Unserialize Object from Scala to R
+#' Unserialize a Scala Reference from Scala to R
+#' 
+#' This function tries to unserialize an rscala reference from Scala to R.  A few built unserializers are provided.  More may be added using the function \code{\link{scalaRegisterUnserializer}}.  Package developers will likely want to execute the \code{\link{scalaRegisterUnserializer}} function in the function \code{assign.callback} passed to the function \code{\link{scalaPackage}}.
 #' 
 #' @param reference An rscala reference.
-#' @param use.original If available from a previous serialization to Scala, should the original R object be returned?
+#' @param type The type of the rscala reference.  This is computed by the default argument, but may be set for efficency or customization.
+#' @param bridge The rscala bridge associated the rscala reference.  This is computed by the default argument, but may be set for efficency.
+#' @param verbose Should details of the search for an appropriate unserializer function be shown?
 #'
+#' @seealso \code{\link{scalaSerialize}}, \code{\link{scalaPackage}}
 #' @export
 #' @examples \donttest{
 #' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
-#' ref <- scalaSerialize(mtcars, e)
-#' ref$mpg()
-#' mtcars2 <- scalaUnserialize(ref)
+#' 
+#' mtcarsRef <- scalaSerialize(mtcars, e)
+#' mtcarsRef$names()
+#' mtcarsRef$mpg()
+#' mtcars2 <- scalaUnserialize(mtcarsRef)
 #' identical(mtcars, mtcars2)
+#' 
+#' ref <- scalaSerialize(iris, e, verbose=TRUE)
+#' scalaType(ref)
+#' scalaUnserialize(ref)  # Oops, variable names are lost.
+#' 
+#' irisCleaned <- iris
+#' names(irisCleaned) <- gsub("\\W","_",names(iris))
+#' irisCleaned$Species <- as.character(iris$Species)
+#' ref2 <- scalaSerialize(irisCleaned, e, verbose=TRUE)
+#' scalaType(ref2)
+#' ref2$Sepal_Length()
+#' irisCleaned2 <- scalaUnserialize(ref2)
+#' identical(irisCleaned, irisCleaned2)
+#' 
 #' close(e)
+#' 
 #' }
 #' 
-scalaUnserialize <- function(reference, use.original=TRUE, ...) {
+scalaUnserialize <- function(reference, type=scalaType(reference), bridge=scalaFindBridge(reference), verbose=FALSE, ...) {
   if ( ! inherits(reference,"rscalaReference") ) stop("An rscala reference is required.")
-  envOfReference <- attr(reference,"rscalaReferenceEnvironment")
-  if ( ( use.original ) && ( exists("object",envir=envOfReference) ) ) get("object",envir=env)
+  object <- NULL
+  unserializers <- get("unserializers",env=attr(bridge,"details"))
+  for ( unserializer in unserializers ) {
+    object <- unserializer(reference, type, bridge, verbose, ...)
+    if ( ! is.null(object) ) break
+  }
+  if ( is.null(object) ) stop("No matching unserializer was found.")
+  object
+}
+#' @describeIn scalaUnserialize Unserialize an R List or Data Frame from Scala to R
+#' @export
+#' 
+scalaUnserialize.list <- function(reference, type=scalaType(reference), bridge=scalaFindBridge(reference), verbose=FALSE) {
+  if ( verbose ) cat("scalaUnserialize.list: Trying...\n")
+  if ( ! grepl("List\\d+",type) ) return(NULL)
+  names <- reference$names()
+  asIs <- reference$asIs()
+  x <- lapply(seq_along(names),function(i) {
+    x <- eval(parse(text=paste0("reference$",names[i],"()")))
+    if ( asIs[i] ) I(x) else x
+  })
+  names(x) <- names
+  if ( ! reference$isDataFrame() ) {
+    if ( verbose ) cat("scalaUnserialize.list: Success with general list.\n")
+    x
+  }
   else {
-    if ( ! exists("unserializer",envir=envOfReference) ) stop("No unserializer is registered for this reference.")
-    unserialize <- get("unserializer",envir=envOfReference)
-    original <- unserialize(reference, ...)
-    envOfObject <- new.env(parent=emptyenv())
-    attr(original,"rscalaObjectEnvironment") <- envOfObject
-    assign("reference",reference,envir=envOfObject)
-    assign("original",original,envir=envOfReference)
-    original
+    rowNamesOptions <- reference$rowNames()
+    rowNames <- if ( rowNamesOptions$isDefined() ) rowNamesOptions$get() else NULL
+    if ( verbose ) cat("scalaUnserialize.list: Success with data frame.\n")
+    as.data.frame(x,row.names=rowNames,stringsAsFactors=FALSE)
   }
 }
 
+#' @describeIn scalaUnserialize Unserialize an \code{RObject} or List of \code{RObject}'s from Scala to R
 #' @export
 #' 
-scalaUnserialize.generic <- function(reference, verbose=FALSE, ...) {
+scalaUnserialize.generic <- function(reference, type=scalaType(reference), bridge=scalaFindBridge(reference), verbose=FALSE) {
   if ( verbose ) cat("scalaUnserialize.generic: Trying...\n")
-  type <- scalaType(reference)
   if ( type == "org.ddahl.rscala.RObject" ) {
     if ( verbose ) cat("scalaUnserialize.generic: Success on single element.\n")
     unserialize(reference$x())
   }
   else if ( type == "List[org.ddahl.rscala.RObject]" ) {
-    bridge <- scalaFindBridge(reference)
     pair <- bridge(arr=reference) ^ '(arr.flatMap(_.x).toArray, arr.scanLeft(1)((sum,y) => sum + y.x.length).toArray)'
     bytes <- pair$"_1"()
     sizes <- pair$"_2"()
@@ -48,24 +89,4 @@ scalaUnserialize.generic <- function(reference, verbose=FALSE, ...) {
       unserialize(bytes[sizes[i]:(sizes[i+1]-1)])
     }) 
   } else NULL
-}
-
-#' @describeIn scalaUnserialize Unserialize List or Data Frame from Scala to R
-#' @export
-#' 
-scalaUnserialize.list <- function(reference, ...) {
-  
-  names <- reference$names()
-  asIs <- reference$asIs()
-  x <- lapply(seq_along(names),function(i) {
-    x <- eval(parse(text=paste0("reference$",names[i],"()")))
-    if ( asIs[i] ) I(x) else x
-  })
-  names(x) <- names
-  if ( ! reference$isDataFrame() ) x
-  else {
-    rowNamesOptions <- reference$rowNames()
-    rowNames <- if ( rowNamesOptions$isDefined() ) rowNamesOptions$get() else NULL
-    as.data.frame(x,row.names=rowNames,stringsAsFactors=FALSE)
-  }
 }

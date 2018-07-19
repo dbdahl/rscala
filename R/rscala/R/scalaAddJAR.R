@@ -13,6 +13,7 @@
 #' scalaAddJARs("PATH/TO/jarFileToLoad.jar", e)
 #' }
 scalaAddJARs <- function(JARs, bridge=scalaFindBridge()) {
+  checkConnection(details)
   if ( ! is.character(JARs) ) stop("'JARs' should be a character vector.")
   JARs <- path.expand(JARs)
   details <- if ( inherits(bridge,"rscalaBridge") ) attr(bridge,"details") else bridge

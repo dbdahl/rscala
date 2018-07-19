@@ -2,8 +2,8 @@
 #'
 #' @param x An R object.
 #' @param bridge An rscala bridge.
-#' @param name Name of the Scala type which may or may not be used by specialize functions.
-#' @param ... Other arguments passed to the function for the type of \code{x}.
+#' @param verbose Should details of the search for an appropriate serializer function be shown?
+#' @param ... Other arguments passed to specialized serialization functions.
 #'
 #' @seealso \code{\link{scalaFindBridge}}
 #' @export
@@ -101,6 +101,6 @@ scalaSerialize.list <- function(x, bridge=scalaFindBridge(), verbose=FALSE, name
   f <- eval(parse(text=paste0("bridge$.new_",name)))
   args <- lapply(seq_len(length(x)), function(j) x[[j]])
   reference <- do.call(f,args)
-  if ( verbose ) cat("scalaSerialize.list: Success.\n")
+  if ( verbose ) cat("scalaSerialize.list: Success with list or data frame.\n")
   reference
 }

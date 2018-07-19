@@ -5,7 +5,7 @@ s
 verbose <- TRUE
 x <- c(1,2,3)
 a <- scalaSerialize(x,verbose=verbose)
-x2 <- scalaUnserialize.generic(a,verbose=verbose)
+x2 <- scalaUnserialize(a,verbose=verbose)
 identical(x,x2)
 
 
@@ -28,10 +28,27 @@ scalaSerialize.character <- function(x, bridge=scalaFindBridge(), verbose=FALSE)
   if ( is.character(x) ) {
     cat("scalaSerializer.character: Success.\n")
     bridge(x=x) ^ 'x'
-  }
+  } else NULL
 }
 
 scalaRegisterSerializer(scalaSerialize.character)
 
 e2 <- scalaSerialize("David",verbose=TRUE)
 e3 <- scalaSerialize.generic("David",verbose=TRUE)
+
+
+
+scalaUnserialize(e2)
+
+scalaUnserialize.character <- function(reference, type=scalaType(reference), bridge=scalaFindBridge(reference), verbose=FALSE) {
+  if ( verbose ) cat("scalaUnserializer.character: Trying...\n")
+  if ( type == "String" ) {
+    cat("scalaUnserializer.character: Success.\n")
+    reference$toString()
+  } else NULL
+}
+scalaRegisterUnserializer(scalaUnserialize.character)
+
+scalaUnserialize(e2)
+
+
