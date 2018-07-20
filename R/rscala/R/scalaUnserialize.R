@@ -1,13 +1,14 @@
 #' Unserialize a Scala Reference from Scala to R
 #' 
-#' This function tries to unserialize an rscala reference from Scala to R.  A few built unserializers are provided.  More may be added using the function \code{\link{scalaRegisterUnserializer}}.  Package developers will likely want to execute the \code{\link{scalaRegisterUnserializer}} function in the function \code{assign.callback} passed to the function \code{\link{scalaPackage}}.
+#' This function tries to unserialize an rscala reference from Scala to R.  A few built unserializers are provided and more may be added using the function \code{\link{scalaUnserializeRegister}}.
 #' 
 #' @param reference An rscala reference.
 #' @param type The type of the rscala reference.  This is computed by the default argument, but may be set for efficency or customization.
 #' @param bridge The rscala bridge associated the rscala reference.  This is computed by the default argument, but may be set for efficency.
 #' @param verbose Should details of the search for an appropriate unserializer function be shown?
+#' @param ... Extra arguments passed to type-specific unserializers.
 #'
-#' @seealso \code{\link{scalaSerialize}}, \code{\link{scalaPackage}}
+#' @seealso \code{\link{scalaSerialize}}, \code{\link{scalaUnserializeRegister}}, \code{\link{scalaFindBridge}}
 #' @export
 #' @examples \donttest{
 #' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
@@ -32,13 +33,12 @@
 #' identical(irisCleaned, irisCleaned2)
 #' 
 #' close(e)
-#' 
 #' }
 #' 
 scalaUnserialize <- function(reference, type=scalaType(reference), bridge=scalaFindBridge(reference), verbose=FALSE, ...) {
   if ( ! inherits(reference,"rscalaReference") ) stop("An rscala reference is required.")
   object <- NULL
-  unserializers <- get("unserializers",env=attr(bridge,"details"))
+  unserializers <- get("unserializers",envir=attr(bridge,"details"))
   for ( unserializer in unserializers ) {
     object <- unserializer(reference, type, bridge, verbose, ...)
     if ( ! is.null(object) ) break
@@ -46,6 +46,7 @@ scalaUnserialize <- function(reference, type=scalaType(reference), bridge=scalaF
   if ( is.null(object) ) stop("No matching unserializer was found.")
   object
 }
+
 #' @describeIn scalaUnserialize Unserialize an R List or Data Frame from Scala to R
 #' @export
 #' 

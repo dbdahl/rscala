@@ -2,10 +2,12 @@
 #'
 #' @param x An R object.
 #' @param bridge An rscala bridge.
-#' @param verbose Should details of the search for an appropriate serializer function be shown?
+#' @param verbose Should details of the search for an appropriate serializer
+#'   function be shown?
 #' @param ... Other arguments passed to specialized serialization functions.
 #'
-#' @seealso \code{\link{scalaFindBridge}}
+#' @seealso \code{\link{scalaUnserialize}},
+#'   \code{\link{scalaSerializeRegister}}, \code{\link{scalaFindBridge}}
 #' @export
 #' @examples \donttest{
 #' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
@@ -18,7 +20,7 @@
 #'  
 scalaSerialize <- function(x, bridge=scalaFindBridge(), verbose=FALSE, ...) {
   reference <- NULL
-  serializers <- get("serializers",env=attr(bridge,"details"))
+  serializers <- get("serializers",envir=attr(bridge,"details"))
   for ( serializer in serializers ) {
     reference <- serializer(x, bridge, verbose, ...)
     if ( ! is.null(reference) ) break
@@ -27,6 +29,12 @@ scalaSerialize <- function(x, bridge=scalaFindBridge(), verbose=FALSE, ...) {
   reference
 }
 
+#' @describeIn scalaSerialize Serialize Arbitrary Object from R to Scala
+#'
+#' @param as.is If \code{x} is a list, \code{TRUE} causes the list to serialized
+#'   as a single object and \code{FALSE} causes each element of the list to the
+#'   serialized individually.
+#'
 #' @export
 #' 
 scalaSerialize.generic <- function(x, bridge=scalaFindBridge(), verbose=FALSE, as.is=FALSE) {
@@ -47,6 +55,9 @@ scalaSerialize.generic <- function(x, bridge=scalaFindBridge(), verbose=FALSE, a
 }
 
 #' @describeIn scalaSerialize Serialize List from R to Scala
+#'
+#' This is more information on the list version. 
+#' 
 #' @export
 #' 
 scalaSerialize.list <- function(x, bridge=scalaFindBridge(), verbose=FALSE) {

@@ -1,10 +1,14 @@
 #' Find a Scala Bridge
 #'
-#' This functions attempts to find an instance of an rscala bridge in the environment path.
+#' This function attempts to find an instance of an rscala bridge based on an
+#' rscala reference or by searching the environment path.
+#'
+#' @param reference Either: i. An rscala reference, or ii. \code{NULL} (in which
+#'   case the environment path is searched).
 #'
 #' @return An rscala bridge.
 #' @export
-#'
+#' 
 scalaFindBridge <- function(reference=NULL) {
   if ( ! is.null(reference) ) {
     mkBridge(attr(reference,"rscalaReferenceEnvironment")[["details"]])
@@ -20,4 +24,3 @@ scalaFindBridge <- function(reference=NULL) {
     }
   }
 }
-
