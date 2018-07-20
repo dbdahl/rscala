@@ -49,7 +49,7 @@ scalaSerialize.generic <- function(x, bridge=scalaFindBridge(), verbose=FALSE, a
 #' @describeIn scalaSerialize Serialize List from R to Scala
 #' @export
 #' 
-scalaSerialize.list <- function(x, bridge=scalaFindBridge(), verbose=FALSE, name=NULL) {
+scalaSerialize.list <- function(x, bridge=scalaFindBridge(), verbose=FALSE) {
   if ( verbose ) cat("scalaSerialize.list: Trying...\n")
   if ( ! is.list(x) ) {
     if ( verbose ) cat("scalaSerialize.list: Object is not a list.\n")
@@ -95,7 +95,7 @@ scalaSerialize.list <- function(x, bridge=scalaFindBridge(), verbose=FALSE, name
                        "  val isDataFrame = ",if (is.data.frame(x)) "true" else "false","\n",
                        "  val rowNames: Option[Array[String]] = ",rowNameStr,"\n",
                        "}")
-  name <- if ( ! is.null(name) ) name else paste0("List",bridge(x=definition) * 'math.abs(x.hashCode).toString')
+  name <- paste0("List",bridge(x=definition) * 'math.abs(x.hashCode).toString')
   definition <- paste0("class ",name,definition)
   bridge + definition
   f <- eval(parse(text=paste0("bridge$.new_",name)))
