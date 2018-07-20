@@ -9,4 +9,5 @@ bin/package
 cd R
 
 R CMD check --as-cran --run-donttest $(ls -1t *.tar.gz | head -1)
+# R CMD check $(ls -1t *.tar.gz | head -1)
 
