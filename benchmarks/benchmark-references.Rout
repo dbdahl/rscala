@@ -1,5 +1,5 @@
 
-R version 3.5.0 (2018-04-23) -- "Joy in Playing"
+R version 3.5.1 (2018-07-02) -- "Feather Spray"
 Copyright (C) 2018 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -39,9 +39,9 @@ $majorVersion
 [1] "2.12"
 
 > sessionInfo()
-R version 3.5.0 (2018-04-23)
+R version 3.5.1 (2018-07-02)
 Platform: x86_64-pc-linux-gnu (64-bit)
-Running under: Ubuntu 16.04.4 LTS
+Running under: Ubuntu 16.04.5 LTS
 
 Matrix products: default
 BLAS: /usr/lib/libblas/libblas.so.3.6.0
@@ -59,10 +59,10 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] microbenchmark_1.4-4 rscala_3.1.0        
+[1] microbenchmark_1.4-4       rscala_3.1.0-20180720-1400
 
 loaded via a namespace (and not attached):
-[1] compiler_3.5.0
+[1] compiler_3.5.1
 > 
 > scala()
 > nReps <- 10000
@@ -71,12 +71,12 @@ loaded via a namespace (and not attached):
 > 
 > rng <- s$.new_scala.util.Random()
 > rng$nextInt()      # First-time compilation
-[1] -808516746
+[1] -1474794803
 > rng$nextInt(1L)    # First-time compilation
 [1] 0
 > nextInt <- rng$nextInt
 > nextInt()          # Alreary compiled
-[1] -1075481023
+[1] -308437023
 > nextInt(1L)        # Alreary compiled
 [1] 0
 > 
@@ -93,24 +93,24 @@ loaded via a namespace (and not attached):
 + )
 Unit: microseconds
                            expr     min       lq     mean   median       uq
-   s(rng = rng)^"rng.nextInt()" 150.125 178.0310 224.2803 180.8635 194.4460
- s(rng = rng) * "rng.nextInt()" 114.907 139.2480 154.1510 141.5260 151.1940
-                 rng$.nextInt() 131.101 144.7485 163.5066 147.5930 172.4000
-                  rng$nextInt() 100.807 110.6620 124.2151 112.4420 124.3000
-                      nextInt()  90.600 100.1830 112.6292 102.4020 112.2610
-             rng$.nextInt(100L) 141.883 165.7015 187.4541 168.8365 197.6600
-              rng$nextInt(100L) 110.945 131.4235 147.3682 133.5915 141.8665
-                  nextInt(100L) 100.698 120.8885 135.6540 123.4140 131.1945
+   s(rng = rng)^"rng.nextInt()" 155.267 180.7070 244.2500 186.9875 225.3735
+ s(rng = rng) * "rng.nextInt()" 117.237 139.5205 162.6397 145.5080 175.4345
+                 rng$.nextInt() 132.372 148.9345 175.9914 154.7555 186.2450
+                  rng$nextInt()  98.244 112.9460 131.9130 117.3400 141.4025
+                      nextInt()  88.245 102.1840 118.7588 106.6755 129.4380
+             rng$.nextInt(100L) 147.600 171.4315 199.6620 177.5115 216.6530
+              rng$nextInt(100L) 113.478 135.0985 157.1004 139.5085 171.8145
+                  nextInt(100L) 102.700 123.9570 144.0798 128.5310 159.4830
         max neval
- 258846.912 10000
-   3585.397 10000
-   4664.093 10000
-   3712.266 10000
-   2296.801 10000
-  15053.805 10000
-   8887.438 10000
-   2054.492 10000
+ 342004.696 10000
+  16383.560 10000
+  16062.986 10000
+   1838.680 10000
+   2208.259 10000
+   1974.700 10000
+   2527.175 10000
+   2473.935 10000
 > 
 > proc.time()
    user  system elapsed 
-  8.212   4.340  16.567 
+  8.968   4.336  17.559 

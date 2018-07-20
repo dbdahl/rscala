@@ -1,5 +1,5 @@
 
-R version 3.5.0 (2018-04-23) -- "Joy in Playing"
+R version 3.5.1 (2018-07-02) -- "Feather Spray"
 Copyright (C) 2018 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -39,9 +39,9 @@ $majorVersion
 [1] "2.12"
 
 > sessionInfo()
-R version 3.5.0 (2018-04-23)
+R version 3.5.1 (2018-07-02)
 Platform: x86_64-pc-linux-gnu (64-bit)
-Running under: Ubuntu 16.04.4 LTS
+Running under: Ubuntu 16.04.5 LTS
 
 Matrix products: default
 BLAS: /usr/lib/libblas/libblas.so.3.6.0
@@ -59,10 +59,10 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] microbenchmark_1.4-4 rscala_3.1.0        
+[1] microbenchmark_1.4-4       rscala_3.1.0-20180720-1400
 
 loaded via a namespace (and not attached):
-[1] compiler_3.5.0
+[1] compiler_3.5.1
 > 
 > scala()
 > nReps <- 100
@@ -77,14 +77,14 @@ loaded via a namespace (and not attached):
 +   times=nReps
 + )
 Unit: microseconds
-                                    expr       min        lq        mean
- s * sample.int(.Machine$integer.max, 1) 83830.184 87904.449 105765.9623
-                          s * 2056700609    87.942   117.832    176.3625
-   median         uq      max neval
- 92591.19 105745.281 265896.8   100
-   193.34    214.605    410.5   100
+                                    expr       min         lq        mean
+ s * sample.int(.Machine$integer.max, 1) 84616.768 90359.8470 110364.7448
+                          s * 2056700609   112.941   140.5855    195.0551
+     median         uq        max neval
+ 99123.5960 117978.230 317850.652   100
+   195.9745    222.567    495.317   100
 > 
 > 
 > proc.time()
    user  system elapsed 
-  0.244   0.116  13.716 
+  0.256   0.124  14.325 
