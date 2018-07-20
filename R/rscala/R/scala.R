@@ -21,8 +21,10 @@
 #'   this function finishes. This is where setup code goes, like \emph{global}
 #'   imports, objects, classes, methods, etc.  For example, it might equal
 #'   \code{function(s) { s + 'import scala.util.Random' }}.  \strong{Note} the
-#'   use of the execution operator \code{+} instead of the evaluation operator
-#'   \code{*}.
+#'   use of the declaration operator \code{+} instead of the operators \code{*}
+#'   or \code{^}.  This function might also include calls to
+#'   \code{\link{scalaSerializeRegister}} and
+#'   \code{\link{scalaUnserializeRegister}}.
 #' @param assign.name The name of the (promise of the) bridge to be assigned in
 #'   the environment given by the \code{assign.env} argument.
 #' @param JARs Character vector whose elements are individual JAR files to be
@@ -50,6 +52,8 @@
 #' @return Returns an rscala bridge.
 #' @seealso \code{\link{close.rscalaBridge}}, \code{\link{scalaPackage}},
 #'   \code{\link{scalaPackageUnload}}, \code{\link{scalaHeapMaximum}}
+#'   \code{\link{scalaSerializeRegister}},
+#'   \code{\link{scalaUnserializeRegister}}
 #' @export
 #'
 #' @examples \donttest{

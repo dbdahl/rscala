@@ -79,7 +79,7 @@
   }
 }
 
-#' Execution Operator
+#' Declaration Operator
 #'
 #' This operator compiles and executes a snippet of Scala code \emph{in Scala's
 #' global environment}, where subsequent uses of the same code snippet do
@@ -113,74 +113,6 @@
 #' 
 '+.rscalaBridge' <- function(bridge, snippet) {
   scalaInvoke(attr(bridge,"details"), snippet, NULL)
-}
-
-#' Operator to Make an R Object Reference
-#'
-#' This operator creates an rscala reference from an arbitrary R object.  This reference
-#' can be passed as an argument to a method call of the embedded \code{RClient} or
-#' may be reconstituted using the unary minus operator \code{\link{-.rscalaReference}}.
-#'
-#' @param bridge An rscala bridge
-#' @param rObject An arbitrary R object
-#' 
-#' @seealso \code{\link{-.rscalaReference}}
-#' @export
-#' @examples \donttest{
-#' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
-#' wrappedFunction <- e - rnorm
-#' (-wrappedFunction)(10)
-#' close(e)
-#' }
-#' 
-'-.rscalaBridge' <- function(bridge,rObject) {
-  if ( is.list(rObject) && ( ! inherits(rObject,"AsIs") ) ) {
-    bridge(len=length(rObject)) ^ '
-      List.tabulate(len) { i =>
-        R.evalObject("rObject[[%-]]",i+1)
-      }
-    '
-  } else {
-    bridge$.R.evalObject('rObject')
-  }
-}
-
-#' Operator to Reconstitute an R object
-#'
-#' This operator reconstitutes an R object that has been created by the binary
-#' minus operator \code{\link{-.rscalaReference}} on a scala bridge.
-#'
-#' @param rscalaReference An rscala reference of type
-#'   \code{org.ddahl.rscala.RObject}.
-#' @param e2 Ignored since only the unary minus operator is supported for rscala
-#'   references.  See the examples below.
-#'
-#' @aliases unaryMinus
-#' @export
-#' @seealso \code{\link{-.rscalaBridge}}
-#' @examples \donttest{
-#' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
-#' e(func=e-rnorm, arg=10) * 'R.evalD1("%-(%-)",func,arg)'
-#' wrappedFunction <- e - dnorm
-#' identical((-wrappedFunction)(1.0), dnorm(1.0))
-#' close(e)
-#' }
-#'  
-'-.rscalaReference' <- function(rscalaReference, e2) {
-  env <- attr(rscalaReference,"rscalaReferenceEnvironment")
-  type <- env[["type"]] 
-  if ( type == "org.ddahl.rscala.RObject" ) {
-    unserialize(rscalaReference$x())
-  } else if ( type == "List[org.ddahl.rscala.RObject]" ) {
-    args <- list(arr=rscalaReference)
-    snippet <- '.(arr.flatMap(_.x).toArray, arr.scanLeft(1)((sum,y) => sum + y.x.length).toArray)'
-    pair <- scalaInvoke(env[["details"]], snippet, args, withNames=TRUE)
-    bytes <- pair$"_1"()
-    sizes <- pair$"_2"()
-    lapply(seq_along(sizes[-1]), function(i) {
-      unserialize(bytes[sizes[i]:(sizes[i+1]-1)])
-    }) 
-  } else stop("Only references to RObject or List[RObject] are allowed.")
 }
 
 #' @export
