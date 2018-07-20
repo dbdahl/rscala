@@ -39,9 +39,9 @@
 #'
 #' scalaUnserialize.character <- function(reference, type=scalaType(reference),
 #'                                        bridge=scalaFindBridge(reference), verbose=FALSE) {
-#'   if ( verbose ) cat("scalaUnserializer.character: Trying...\n")
+#'   if ( verbose ) cat("scalaUnserialize.character: Trying...\n")
 #'   if ( type == "String" ) {
-#'     if ( verbose ) cat("scalaUnserializer.character: Success.\n")
+#'     if ( verbose ) cat("scalaUnserialize.character: Success.\n")
 #'     reference$toString()
 #'   } else NULL
 #' }

@@ -1,20 +1,38 @@
-#' Serialize Object from R to Scala
+#' Serialization Between R and Scala
+#'
+#' These functions attempt to i. serialize an R object to Scala or ii. unserialize an rscala reference to R.  A few built serializers and unserializers are provided and more may be added using the functions \code{\link{scalaSerializeRegister}} and \code{\link{scalaUnserializeRegister}}.
 #'
 #' @param x An R object.
 #' @param bridge An rscala bridge.
-#' @param verbose Should details of the search for an appropriate serializer
-#'   function be shown?
-#' @param ... Other arguments passed to specialized serialization functions.
+#' @param verbose Should details of the search for an appropriate serializer or unserializer
+#'   be shown?
+#' @param ... Other arguments passed to specialized functions.
 #'
-#' @seealso \code{\link{scalaUnserialize}},
-#'   \code{\link{scalaSerializeRegister}}, \code{\link{scalaFindBridge}}
+#' @seealso \code{\link{scalaSerializeRegister}}
 #' @export
+#' @describeIn scalaSerialize Serialize Object from R to Scala
 #' @examples \donttest{
 #' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
-#' ref <- scalaSerialize(mtcars, e)
-#' ref$mpg()
-#' mtcars2 <- scalaUnserialize(ref)
+#' 
+#' mtcarsRef <- scalaSerialize(mtcars, e)
+#' mtcarsRef$names()
+#' mtcarsRef$mpg()
+#' mtcars2 <- scalaUnserialize(mtcarsRef)
 #' identical(mtcars, mtcars2)
+#' 
+#' ref <- scalaSerialize(iris, e, verbose=TRUE)
+#' scalaType(ref)
+#' scalaUnserialize(ref)  # Oops, variable names are lost.
+#' 
+#' irisCleaned <- iris
+#' names(irisCleaned) <- gsub("\\W","_",names(iris))
+#' irisCleaned$Species <- as.character(iris$Species)
+#' ref2 <- scalaSerialize(irisCleaned, e, verbose=TRUE)
+#' scalaType(ref2)
+#' ref2$Sepal_Length()
+#' irisCleaned2 <- scalaUnserialize(ref2)
+#' identical(irisCleaned, irisCleaned2)
+#' 
 #' close(e)
 #' }
 #'  
@@ -31,6 +49,8 @@ scalaSerialize <- function(x, bridge=scalaFindBridge(), verbose=FALSE, ...) {
 
 #' @describeIn scalaSerialize Serialize Arbitrary Object from R to Scala
 #'
+#' This function serializes an arbitrary R object to an instance of \code{RObject} in Scala.  Since the \code{RObject} merely contains an array of bytes, the \code{RObject} is really only useful as storage for later unserialization.
+#' 
 #' @param as.is If \code{x} is a list, \code{TRUE} causes the list to serialized
 #'   as a single object and \code{FALSE} causes each element of the list to the
 #'   serialized individually.
@@ -56,8 +76,6 @@ scalaSerialize.generic <- function(x, bridge=scalaFindBridge(), verbose=FALSE, a
 
 #' @describeIn scalaSerialize Serialize List from R to Scala
 #'
-#' This is more information on the list version. 
-#' 
 #' @export
 #' 
 scalaSerialize.list <- function(x, bridge=scalaFindBridge(), verbose=FALSE) {
