@@ -1,4 +1,4 @@
-r2scala <- function(x, showCode, symbolEnv,substituteList) {
+r2scala <- function(x, showCode, symbolEnv, substituteList) {
   if ( length(x) == 0 ) return("")
   typeof  <- sapply(x,function(y) typeof(y))
   classes <- sapply(x,function(y) class(y))
@@ -8,6 +8,7 @@ r2scala <- function(x, showCode, symbolEnv,substituteList) {
     print(typeof)
     print(classes)
     print(strings)
+    print(names(strings))
     cat(">>\n")
   }
   if ( ( typeof[1] == "symbol" ) && ( classes[1] == "name" ) ) {
@@ -74,13 +75,20 @@ r2scala <- function(x, showCode, symbolEnv,substituteList) {
     else if ( strings[1] == "for" ) {
       paste0('val Outer = new Breaks; val Inner = new Breaks; Outer.breakable { for ( ',r2scala(x[[2]],showCode,symbolEnv,substituteList),' <- ',r2scala(x[[3]],showCode,symbolEnv,substituteList),' ) Inner.breakable{ ',r2scala(x[[4]],showCode,symbolEnv,substituteList),' } }')
     }
-    else paste0(transcompileSubstitute(strings[1],substituteList),"(",paste0(sapply(x[-1],r2scala,showCode,symbolEnv,substituteList),collapse=","),")")
+    else {
+      args <- paste0(sapply(x[-1],r2scala,showCode,symbolEnv,substituteList))
+      names <- if ( is.null(names(strings)) ) NULL else paste0(sapply(names(strings)[-1],function(n) {
+        if ( n == "" ) "" else paste0(n,"=")
+      }))
+      args <- paste0(names,args,collapse=",")
+      paste0(transcompileSubstitute(strings[1],substituteList),"(",args,")")
+    }
   }
   else if ( typeof[1] == "integer" ) paste0("{",strings[1],":Int}")
   else if ( typeof[1] == "double" ) paste0("{",strings[1],":Double}")
   else if ( typeof[1] == "logical" ) if (x[[1]]) "true" else "false"
   else if ( typeof[1] == "character" ) paste0('"""',strings[1],'"""')
-  else stop("33")
+  else stop("Unsupported syntax.")
 }
 
 transcompileSubstitute <- function(x, substituteList) {
