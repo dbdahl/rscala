@@ -2,6 +2,12 @@ package org.ddahl.rscala
 
 object Transcompile {
 
+  import scala.Double.NaN
+  import java.lang.Double.isNaN
+  private def r2int(x: Double) = math.round(x).toInt
+  private def f2int(x: Double) = math.floor(x).toInt
+  private def c2int(x: Double) = math.ceil(x).toInt
+
   val pi: Double = math.Pi
   val T: Boolean = true
   val F: Boolean = false
@@ -245,22 +251,39 @@ object Transcompile {
 
   def _nchar(x: String): Int = x.length
 
-  def _rep(x: Double, n: Double): Array[Double] = Array.fill(n.toInt)(x)
+  def _rep(x: Double, times: Double): Array[Double] = {
+    Array.fill(r2int(times))(x)
+  }
+
+  def _rep(x: Array[Double], times: Array[Double] = null, each: Double = NaN): Array[Double] = {
+    val count = ( if ( times == null ) 0 else 1 ) + ( if ( isNaN(each) ) 0 else 1 )
+    if ( count != 1 ) sys.error("Exactly one of 'times' and 'each' should be provided." )
+    if ( times != null ) {
+      x.zip(times).flatMap { y => Array.fill(f2int(y._2))(y._1) }
+    } else {
+      x.flatMap(y => Array.fill(f2int(each))(y))
+    }
+  }
 
   def _range(lower: Double, upper: Double): Array[Int] = Array.range(lower.toInt, upper.toInt + 1)
 
-  def _seq(from: Double, to: Double, by: Double = 1.0): Array[Double] = {
-    val length = ( ( to - from ) / by + 1 ).floor.toInt
-    Array.tabulate(length) { from + _*by }
-  }
-
-  def _seqWithLength(from: Double, to: Double, length: Double): Array[Double] = {
-    val by = ( to - from ) / ( length - 1 )
-    Array.tabulate(math.round(length).toInt) { from + _*by }
+  def _seq(from: Double, to: Double, by: Double = NaN, length_out: Double = NaN, along_with: Array[_] = null): Array[Double] = {
+    val count = ( if ( isNaN(by) ) 0 else 1 ) + ( if ( isNaN(length_out) ) 0 else 1 ) + ( if ( along_with == null ) 0 else 1 )
+    if ( count != 1 ) sys.error("Exactly one of 'by', 'length.out', and 'along.with' should be provided." )
+    val (by2,length2) = if ( ! isNaN(by) ) {
+      (by, f2int( ( to - from ) / by + 1 ))
+    } else if ( ! isNaN(length_out) ) {
+      val len = c2int(length_out)
+      (( to - from ) / ( len - 1 ), len)
+    } else {
+      val len = along_with.length
+      (( to - from ) / ( len - 1 ), len)
+    }
+    Array.tabulate(length2) { from + _*by2 }
   }
 
   def _seq_along[A](alongWith: Array[A]): Array[Int] = Array.range(1, alongWith.length+1)
-  def _seq_len[A](lengthOut: Double): Array[Int] = Array.range(1, math.round(lengthOut).toInt+1)
+  def _seq_len[A](lengthOut: Double): Array[Int] = Array.range(1, f2int(lengthOut)+1)
 
   def _ceiling(x: Double): Double = math.ceil(x)
   def _ceiling(x: Array[Double]): Array[Double] = x map { math.ceil }

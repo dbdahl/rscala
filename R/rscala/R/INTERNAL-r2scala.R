@@ -78,7 +78,7 @@ r2scala <- function(x, showCode, symbolEnv, substituteList) {
     else {
       args <- paste0(sapply(x[-1],r2scala,showCode,symbolEnv,substituteList))
       names <- if ( is.null(names(strings)) ) NULL else paste0(sapply(names(strings)[-1],function(n) {
-        if ( n == "" ) "" else paste0(n,"=")
+        if ( n == "" ) "" else paste0(gsub("\\W","_",n),"=")
       }))
       args <- paste0(names,args,collapse=",")
       paste0(transcompileSubstitute(strings[1],substituteList),"(",args,")")
