@@ -1,4 +1,4 @@
-#' Work with Scala Types
+#' Get or Provide a Scala Type
 #'
 #' @param type An rscala reference or a character vector of length one giving a Scala type.
 #'
@@ -12,7 +12,7 @@
 #' scalaType("S1")
 #' 
 scalaType <- function(type) {
-  type <- if ( inherits(type,"rscalaReference") ) attr(type,"rscalaReferenceEnvironment")[["type"]]
+  type <- if ( is.scalaReference(type) ) attr(type,"rscalaReferenceEnvironment")[["type"]]
   else if ( ( typeof(type) == "character" ) && ( length(type) == 1 ) ) {
     if ( nchar(type) == 2 ) {
       if ( FALSE ) ""

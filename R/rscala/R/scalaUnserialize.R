@@ -6,7 +6,7 @@
 #' @export
 #' 
 scalaUnserialize <- function(reference, type=scalaType(reference), bridge=scalaFindBridge(reference), verbose=FALSE, ...) {
-  if ( ! inherits(reference,"rscalaReference") ) stop("An rscala reference is required.")
+  if ( ! is.scalaReference(reference) ) stop("An rscala reference is required.")
   object <- NULL
   unserializers <- get("unserializers",envir=attr(bridge,"details"))
   for ( unserializer in unserializers ) {
