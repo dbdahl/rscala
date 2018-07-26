@@ -63,8 +63,26 @@ test_that("Basic transcompilation works", {
   myExpect(function() round(1.45))
   myExpect(function() { var <- 2; val <- 1; val + var })
   myExpect(function() c(11,12,13)[c(1,1,2,2,2,3)])
+  myExpect(function() c(11,12,13)[2])
   myExpect(function() { a <- c(1,2,3)+10; a[c(1,3)] <- 3; a})
-  
+  myExpect(function() { a <- c(1,2,3)+10; a[3] <- 3; a})
+  myExpect(function(i=scalaType("I0"),let=letters) let[i],list(2))
+  myExpect(function(i=scalaType("I0"),let=letters) let[i],list(2L))
+  myExpect(function(i=scalaType("I0"),let=letters) { let[i] <- "3"; let[i] },list(2))
+  myExpect(function(i=scalaType("I0"),let=letters) { let[i] <- "3"; let[i] },list(2L))
+  myExpect(function(i=scalaType("I1"),let=letters) let[i],list(2))
+  myExpect(function(i=scalaType("I1"),let=letters) let[i],list(2L))
+  myExpect(function(i=scalaType("I1"),let=letters) { let[i] <- "3"; let[i] },list(c(2,3)))
+  myExpect(function(i=scalaType("I1"),let=letters) { let[i] <- "3"; let[i] },list(c(2L,3L)))
+  myExpect(function(i=scalaType("I0"),let=c(T,T,F,T,F)) let[i],list(2))
+  myExpect(function(i=scalaType("I0"),let=c(T,T,F,T,F)) let[i],list(2L))
+  myExpect(function(i=scalaType("I0"),let=c(T,T,F,T,F)) { let[i] <- TRUE; let[i] },list(2))
+  myExpect(function(i=scalaType("I0"),let=c(T,T,F,T,F)) { let[i] <- TRUE; let[i] },list(2L))
+  myExpect(function(i=scalaType("I1"),let=c(T,T,F,T,F)) let[i],list(2))
+  myExpect(function(i=scalaType("I1"),let=c(T,T,F,T,F)) let[i],list(2L))
+  myExpect(function(i=scalaType("I1"),let=c(T,T,F,T,F)) { let[i] <- FALSE; let[i] },list(c(2,3)))
+  myExpect(function(i=scalaType("I1"),let=c(T,T,F,T,F)) { let[i] <- FALSE; let[i] },list(c(2L,3L)))
+     
   f <- function(exclusive=scalaType("Boolean"), all=scalaType("Boolean")) {
     x = c(3,4,5)
     threshold <- 5

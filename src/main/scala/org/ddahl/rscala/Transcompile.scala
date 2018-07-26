@@ -369,6 +369,28 @@ object Transcompile {
 
   }
 
+  implicit class RScalaBooleanArray(x: Array[Boolean]) {
+
+    def update(index: Array[Int], lhs: Boolean): Unit = index.map(_-1).foreach(i => x(i) = lhs)
+    def update(index: Array[Double], lhs: Boolean): Unit = index.map(_.toInt-1).foreach(i => x(i) = lhs)
+    def update(index: Array[Int], lhs: Array[Boolean]): Unit = index.map(_-1).zipWithIndex.foreach(z => x(z._1) = lhs(z._2))
+    def update(index: Array[Double], lhs: Array[Boolean]): Unit = index.map(_.toInt-1).zipWithIndex.foreach(z => x(z._1) = lhs(z._2))
+    def apply(index: Array[Int]): Array[Boolean] = index.map(_-1).map(x(_))
+    def apply(index: Array[Double]): Array[Boolean] = index.map(_.toInt-1).map(x(_))
+
+  }
+
+  implicit class RScalaStringArray(x: Array[String]) {
+
+    def update(index: Array[Int], lhs: String): Unit = index.map(_-1).foreach(i => x(i) = lhs)
+    def update(index: Array[Double], lhs: String): Unit = index.map(_.toInt-1).foreach(i => x(i) = lhs)
+    def update(index: Array[Int], lhs: Array[String]): Unit = index.map(_-1).zipWithIndex.foreach(z => x(z._1) = lhs(z._2))
+    def update(index: Array[Double], lhs: Array[String]): Unit = index.map(_.toInt-1).zipWithIndex.foreach(z => x(z._1) = lhs(z._2))
+    def apply(index: Array[Int]): Array[String] = index.map(_-1).map(x(_))
+    def apply(index: Array[Double]): Array[String] = index.map(_.toInt-1).map(x(_))
+
+  }
+
   implicit class RScalaInt(x: Int) {
 
     def +(y: Array[Int]): Array[Int] = y.map(x+_)
