@@ -93,16 +93,16 @@ test_that("Basic transcompilation works", {
 })
  
 test_that("Misc. items work as expected", {
-  expect_identical(x <- {r <- s(x=scalaType("Array[Boolean]")) ^ function() { mean(x) }; r(c(T,F,T,T,F))}, mean(c(T,F,T,T,F)))
-  expect_identical({r <- s(x=scalaType("Array[Boolean]")) ^ function() { mean(x) }; r(c(T,F,T,T,F))}, mean(c(T,F,T,T,F)))
-  expect_identical({r <- s(x=scalaType("Array[Boolean]")) ^ function() { var(x) }; r(c(T,F,T,T,F))}, var(c(T,F,T,T,F)))
-  expect_identical({r <- s(x=scalaType("Array[Boolean]")) ^ function() { sd(x) }; r(c(T,F,T,T,F))}, sd(c(T,F,T,T,F)))
-  expect_identical({r <- s(x=scalaType("Double"),y=3) ^ function() { max(c(x,y,3,4))}; r(-1)}, max(c(-1,3,3,4)))
-  expect_identical({r <- s(x=scalaType("Double"),y=3) ^ function() { min(c(x,y,3,4))}; r(-1)}, min(c(-1,3,3,4)))
-  expect_output({r <- s(x=scalaType("String")) ^ function() { cat(x*3L) }; r("David")}, "DavidDavidDavid")
-  expect_identical({r <- s(x=scalaType("Int")) ^ function() { a <- 2:x; I("a.getClass.getName") }; r(10L)}, "[I")
-  expect_true({r <- s^function() random(); x <- r(); ( 0.0 < x ) && ( x < 1.0 )})
-  expect_true({r <- s^function(n=scalaType("D0")) random(n); x <- r(100); all( 0.0 < x ) && all( x < 1.0 )})
+  expect_identical(x <- {r <- s() ^ function(x=scalaType("Array[Boolean]")) { mean(x) }; r(c(T,F,T,T,F))}, mean(c(T,F,T,T,F)))
+  expect_identical({r <- s ^ function(x=scalaType("Array[Boolean]")) { mean(x) }; r(c(T,F,T,T,F))}, mean(c(T,F,T,T,F)))
+  expect_identical({r <- s ^ function(x=scalaType("Array[Boolean]")) { var(x) }; r(c(T,F,T,T,F))}, var(c(T,F,T,T,F)))
+  expect_identical({r <- s ^ function(x=scalaType("Array[Boolean]")) { sd(x) }; r(c(T,F,T,T,F))}, sd(c(T,F,T,T,F)))
+  expect_identical({r <- s ^ function(x=scalaType("Double"),y=3) { max(c(x,y,3,4))}; r(-1)}, max(c(-1,3,3,4)))
+  expect_identical({r <- s(y=3) ^ function(x=scalaType("Double")) { min(c(x,y,3,4))}; r(-1)}, min(c(-1,3,3,4)))
+  expect_output({r <- s() ^ function(x=scalaType("String")) { cat(x*3L) }; r("David")}, "DavidDavidDavid")
+  expect_identical({r <- s() ^ function(x=scalaType("Int")) { a <- 2:x; I("a.getClass.getName") }; r(10L)}, "[I")
+  expect_true({r <- s ^ function() random(); x <- r(); ( 0.0 < x ) && ( x < 1.0 )})
+  expect_true({r <- s ^ function(n=scalaType("D0")) random(n); x <- r(100); all( 0.0 < x ) && all( x < 1.0 )})
 })  
   
 test_that("Scala snippets can be embedded", {

@@ -61,8 +61,9 @@
   args <- if ( is.function(bridge) ) list() else bridge
   if ( ! is.function(snippet) ) scalaInvoke(details, paste0(".",snippet), args, withNames=TRUE)
   else {
+    if ( any(sapply(args,function(x) inherits(x,"rscalaType"))) ) stop("'scalaType' arguments must be in the function itself, not the rscala bridge.")
     ast <- as.list(snippet)
-    args <- c(args,lapply(ast[-length(ast)],eval))
+    args2 <- lapply(ast[-length(ast)],eval,envir=parent.frame())
     ast <- ast[[length(ast)]]
     details <- attr(bridge,"details")
     symbolEnv <- new.env(parent=emptyenv())
@@ -70,9 +71,9 @@
     returnString <- if ( exists("_returnType",envir=symbolEnv) ) paste0(": ",get("_returnType",envir=symbolEnv)) else ""
     header <- details[["transcompileHeader"]]
     header <- if ( length(header) > 0 ) paste0(paste0(header,collapse="\n"),"\n") else NULL
-    whichInternal <- if ( length(args) == 0 ) logical(0) else sapply(args,function(x) inherits(x,"rscalaType"))
-    internalArgs <- args[whichInternal]
-    args <- args[!whichInternal]
+    whichInternal <- if ( length(args2) == 0 ) logical(0) else sapply(args2,function(x) inherits(x,"rscalaType"))
+    internalArgs <- args2[whichInternal]
+    args <- c(args,args2[!whichInternal])
     internalArgsList <- if ( length(internalArgs) > 0 ) paste0(names(internalArgs),": ",internalArgs,collapse=", ") else NULL
     scalaInvoke(details, paste0(".",header,"def self(", internalArgsList, ")",returnString," = ", transcompilation, "\nself _"), args, withNames=TRUE,
                 transcompileInfo=list(argTypes=internalArgs,original=snippet))
