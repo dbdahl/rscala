@@ -14,7 +14,7 @@
 #' @examples \donttest{
 #' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
 #' 
-#' s(rn=scalaSerialize(rnorm)) * 'R.evalD1("%-(%-)",rn,5)'
+#' e(rn=scalaSerialize(rnorm)) * 'R.evalD1("%-(%-)",rn,5)'
 #' 
 #' mtcarsRef <- scalaSerialize(mtcars, e)
 #' mtcarsRef$names()
