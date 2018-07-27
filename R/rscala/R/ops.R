@@ -63,7 +63,7 @@
   else {
     if ( any(sapply(args,function(x) inherits(x,"rscalaType"))) ) stop("'scalaType' arguments must be in the function itself, not the rscala bridge.")
     ast <- as.list(snippet)
-    args2 <- lapply(ast[-length(ast)],eval,envir=parent.frame())
+    args2 <- lapply(ast[-length(ast)],eval,envir=environment(snippet))
     ast <- ast[[length(ast)]]
     details <- attr(bridge,"details")
     symbolEnv <- new.env(parent=emptyenv())
