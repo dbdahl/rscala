@@ -32,7 +32,7 @@ r2scala <- function(x, showCode, symbolEnv, substituteList) {
     else if ( strings[1] == "break" ) "Outer.break"
     else if ( strings[1] == "next" ) "Inner.break"
     else if ( strings[1] == "{" )  paste0("{\n",paste0(sapply(x[-1],r2scala,showCode,symbolEnv,substituteList),collapse="\n"),"\n}")
-    else if ( strings[1] == "[" )  paste0(r2scala(x[[2]],showCode,symbolEnv,substituteList),"(_ensureArray(",r2scala(x[[3]],showCode,symbolEnv,substituteList),"))")
+    else if ( strings[1] == "[" )  paste0(r2scala(x[[2]],showCode,symbolEnv,substituteList),"(_mkIndex(",r2scala(x[[3]],showCode,symbolEnv,substituteList),"))")
     else if ( strings[1] == "^" )  paste0(transcompileSubstitute("pow",substituteList),   "(",r2scala(x[[2]],showCode,symbolEnv,substituteList),",",r2scala(x[[3]],showCode,symbolEnv,substituteList),")")
     else if ( strings[1] == "==" ) paste0(transcompileSubstitute("equal",substituteList), "(",r2scala(x[[2]],showCode,symbolEnv,substituteList),",",r2scala(x[[3]],showCode,symbolEnv,substituteList),")")
     else if ( strings[1] == "!=" ) paste0(transcompileSubstitute("notequal",substituteList), "(",r2scala(x[[2]],showCode,symbolEnv,substituteList),",",r2scala(x[[3]],showCode,symbolEnv,substituteList),")")
