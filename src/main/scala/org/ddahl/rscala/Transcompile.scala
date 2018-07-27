@@ -189,6 +189,12 @@ object Transcompile {
   def _pow(x: Array[Double], y: Array[Int]): Array[Double] = x zip y map { zz => math.pow(zz._1,zz._2) }
   def _pow(x: Array[Int], y: Array[Double]): Array[Double] = x zip y map { zz => math.pow(zz._1,zz._2) }
 
+  def _c(x: Array[Double], y: Array[Int]): Array[Double] = x ++ y.map(_.toDouble)
+  def _c(x: Array[Int], y: Array[Double]): Array[Double] = x.map(_.toDouble) ++ y
+  def _c(x: Array[Double], y: Array[String]): Array[String] = x.map(_.toString) ++ y
+  def _c(x: Array[Int], y: Array[String]): Array[String] = x.map(_.toString) ++ y
+  def _c(x: Array[String], y: Array[Int]): Array[String] = x ++ y.map(_.toString)
+  def _c(x: Array[String], y: Array[Double]): Array[String] = x ++ y.map(_.toString)
   def _c(x: Array[Int]*): Array[Int] = x.toArray.flatten
   def _c(x: Array[Double]*): Array[Double] = x.toArray.flatten
   def _c(x: Array[Boolean]*): Array[Boolean] = x.toArray.flatten

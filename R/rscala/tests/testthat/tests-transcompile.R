@@ -62,6 +62,10 @@ test_that("Basic transcompilation works", {
   myExpect(function() floor(1.45))
   myExpect(function() round(1.45))
   myExpect(function() { var <- 2; val <- 1; val + var })
+  myExpect(function() { c(1,c(3L,4L)) })
+  myExpect(function() { c(1L,c(3,4L)) })
+  myExpect(function() { c("David",3L) })
+  myExpect(function() { c(c(1,3L),"David") })
 })
 
 test_that("Apply and update work", {
