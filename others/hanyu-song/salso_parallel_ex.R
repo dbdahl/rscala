@@ -1,4 +1,4 @@
-rscala::.rscalaOptions(heap.maximum="2G")
+rscala::scalaHeapMaximum(heap.maximum="2G")
 library(sdols)
 library(parallel)
 load('psm_ex.RData')
