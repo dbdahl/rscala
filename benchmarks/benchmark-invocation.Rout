@@ -59,7 +59,7 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] microbenchmark_1.4-4       rscala_3.1.0-20180720-1400
+[1] microbenchmark_1.4-4       rscala_3.1.0-20180729-0155
 
 loaded via a namespace (and not attached):
 [1] compiler_3.5.1
@@ -75,9 +75,9 @@ loaded via a namespace (and not attached):
 +   times=10
 + )
 Unit: seconds
-           expr      min       lq     mean   median       uq      max neval
- openAndClose() 2.831455 2.930892 3.007392 2.997981 3.063818 3.239073    10
+           expr     min       lq     mean   median      uq      max neval
+ openAndClose() 2.85401 2.863454 2.971858 2.952123 3.08477 3.107882    10
 > 
 > proc.time()
    user  system elapsed 
-  0.300   0.148  30.345 
+  0.272   0.156  29.986 

@@ -59,7 +59,7 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] microbenchmark_1.4-4       rscala_3.1.0-20180720-1400
+[1] microbenchmark_1.4-4       rscala_3.1.0-20180729-0155
 
 loaded via a namespace (and not attached):
 [1] compiler_3.5.1
@@ -71,12 +71,12 @@ loaded via a namespace (and not attached):
 > 
 > rng <- s$.new_scala.util.Random()
 > rng$nextInt()      # First-time compilation
-[1] -1474794803
+[1] 48428312
 > rng$nextInt(1L)    # First-time compilation
 [1] 0
 > nextInt <- rng$nextInt
 > nextInt()          # Alreary compiled
-[1] -308437023
+[1] -2083234442
 > nextInt(1L)        # Alreary compiled
 [1] 0
 > 
@@ -93,24 +93,24 @@ loaded via a namespace (and not attached):
 + )
 Unit: microseconds
                            expr     min       lq     mean   median       uq
-   s(rng = rng)^"rng.nextInt()" 155.267 180.7070 244.2500 186.9875 225.3735
- s(rng = rng) * "rng.nextInt()" 117.237 139.5205 162.6397 145.5080 175.4345
-                 rng$.nextInt() 132.372 148.9345 175.9914 154.7555 186.2450
-                  rng$nextInt()  98.244 112.9460 131.9130 117.3400 141.4025
-                      nextInt()  88.245 102.1840 118.7588 106.6755 129.4380
-             rng$.nextInt(100L) 147.600 171.4315 199.6620 177.5115 216.6530
-              rng$nextInt(100L) 113.478 135.0985 157.1004 139.5085 171.8145
-                  nextInt(100L) 102.700 123.9570 144.0798 128.5310 159.4830
+   s(rng = rng)^"rng.nextInt()" 153.834 178.1060 221.7817 182.1225 185.4355
+ s(rng = rng) * "rng.nextInt()" 118.394 138.9330 150.8085 142.8995 145.7380
+                 rng$.nextInt() 131.264 145.5260 158.7642 148.6460 151.4750
+                  rng$nextInt() 102.282 110.4810 121.4704 113.6335 115.6735
+                      nextInt()  91.335 100.3425 109.5636 102.9990 105.7470
+             rng$.nextInt(100L) 148.023 167.9125 182.2078 170.9015 173.9970
+              rng$nextInt(100L) 111.896 132.2665 143.2271 135.5755 137.8155
+                  nextInt(100L) 101.607 122.1010 133.3152 124.9955 127.8665
         max neval
- 342004.696 10000
-  16383.560 10000
-  16062.986 10000
-   1838.680 10000
-   2208.259 10000
-   1974.700 10000
-   2527.175 10000
-   2473.935 10000
+ 283906.065 10000
+   4063.299 10000
+   2165.432 10000
+  14591.017 10000
+   1977.940 10000
+   3919.841 10000
+   2012.519 10000
+   4147.308 10000
 > 
 > proc.time()
    user  system elapsed 
-  8.968   4.336  17.559 
+  8.104   4.164  16.502 
