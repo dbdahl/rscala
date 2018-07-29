@@ -149,8 +149,13 @@ mkBridge <- function(details) {
   bridge <- function(...) {
     bridge2 <- list(...)
     argnames <- names(bridge2)
-    if ( ( length(bridge2) > 0 )  && ( is.null(argnames) || ! all(grepl("^\\w+$",argnames,perl=TRUE)) ) ) {
-      stop("Names must be given in parameter list and they consist only of alphanumeric & underscore characters.")
+    w <- if ( is.null(argnames) ) rep(TRUE,length(bridge2)) else argnames == ""
+    if ( any(w) ) {
+      argnames[w] <- sapply(substitute(list(...))[-1], deparse)[w]
+      names(bridge2) <- argnames
+    }
+    if( ( length(bridge2) > 0 )  && ( is.null(argnames) || ! all(grepl("^[a-zA-Z]\\w*$",argnames,perl=TRUE)) ) ) {
+      stop("Every argument must be a named (e.g, x=3) or a symbol (e.g., x) and not a literal (e.g., 3).")
     }
     attr(bridge2,"details") <- details
     class(bridge2) <- "rscalaBridge"

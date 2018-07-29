@@ -1,0 +1,5 @@
+library(rscala)
+scala()
+s
+
+

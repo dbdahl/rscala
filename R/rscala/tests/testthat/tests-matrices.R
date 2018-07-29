@@ -13,7 +13,8 @@ test_that("regular matrices transfer to Scala as expected by rows", {
   expect_identical(s(m=mi2by3) * "m(0)", mi2by3[1,])
   expect_identical(s(m=ml2by3) * "m(0)", ml2by3[1,])
   expect_identical(s(m=mr2by3) * "m(0)", mr2by3[1,])
-  expect_identical(s(m=mc2by3) * "m(0)", mc2by3[1,])
+  expect_identical(s(mc2by3) * "mc2by3(0)", mc2by3[1,])
+  expect_identical(s(mc2by3,letters,dummy=pi) * "val dummy2 = dummy; mc2by3(0)", mc2by3[1,])
 })
 
 test_that("regular matrices transfer to Scala as expected in full", {
