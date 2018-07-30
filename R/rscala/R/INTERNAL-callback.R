@@ -1,8 +1,9 @@
-callback <- function(details) {
+callback <- function(details, envir) {
   socketIn <- details[["socketIn"]]
   snippet <- rc(socketIn)
   nArgs <- rb(socketIn,RTYPE_INT)
-  env <- parent.frame(4)   ### This is very fragile!
+  # env <- parent.frame(4)   ### This is very fragile!
+  env <- envir
   args <- vector(mode="list", length=nArgs)
   while ( TRUE ) {
     argsListName <- paste0(".rs",sample.int(.Machine$integer.max,1L))

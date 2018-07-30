@@ -1,4 +1,4 @@
-pop <- function(details, transcompileInfo=NULL) {
+pop <- function(details, transcompileInfo=NULL, envir=NULL) {
   socketIn <- details[["socketIn"]]
   serializeOutput <- details[["serializeOutput"]]
   goAgain <- TRUE
@@ -60,7 +60,7 @@ pop <- function(details, transcompileInfo=NULL) {
       referenceType <- rc(socketIn)
       func <- if ( is.null(transcompileInfo) ) {
         function(...) {
-          scalaInvoke(details, "apply", list(..., env), withReference=TRUE)
+          scalaInvoke(details, "apply", list(..., env), envir, withReference=TRUE)
         }
       } else {
         function(...) {
@@ -77,11 +77,11 @@ pop <- function(details, transcompileInfo=NULL) {
             else if ( types[i] == "Array[String]" ) I(as.character(args[[i]]))
             else args[[i]]
           }
-          scalaInvoke(details, "apply", c(args, env), withReference=TRUE)
+          scalaInvoke(details, "apply", c(args, env), envir, withReference=TRUE)
         }        
       }
       class(func) <- "rscalaReference"
-      env <- structure(list2env(list(id=referenceID,type=referenceType,details=details,original=transcompileInfo$original),parent=emptyenv()), class="rscalaReferenceEnvironment")
+      env <- structure(list2env(list(id=referenceID,type=referenceType,details=details,original=transcompileInfo$original,envir=envir),parent=emptyenv()), class="rscalaReferenceEnvironment")
       reg.finalizer(env, details[["gcFunction"]])
       attr(func,"rscalaReferenceEnvironment")  <- env
       func
@@ -95,7 +95,7 @@ pop <- function(details, transcompileInfo=NULL) {
       assign("interrupted",TRUE,envir=details)
       return(invisible())
     } else if ( tipe == TCODE_CALLBACK ) {
-      callback(details)
+      callback(details, envir)
       goAgain <- TRUE
     } else stop(paste0("Unsupported type: ",tipe))
   }
