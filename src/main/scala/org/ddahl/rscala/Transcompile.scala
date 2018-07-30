@@ -339,9 +339,9 @@ object Transcompile {
     val x: Array[A]
     def apply(index: Indices): Array[A] = index.x.map(x(_))
     def apply(index: Index): A = x(index.x)
-    def update(index: Indices, lhs: A): Unit = index.x.foreach(i => x(i) = lhs)
-    def update[X: ClassTag](index: Indices, lhs: Array[A]): Unit = index.x.zipWithIndex.foreach(z => x(z._1) = lhs(z._2))
-    def update(index: Index, lhs: A): Unit = x(index.x) = lhs
+    def update(index: Indices, rhs: A): Unit = index.x.foreach(i => x(i) = rhs)
+    def update[X: ClassTag](index: Indices, rhs: Array[A]): Unit = index.x.zipWithIndex.foreach(z => x(z._1) = rhs(z._2))
+    def update(index: Index, rhs: A): Unit = x(index.x) = rhs
   }
 
   implicit class RScalaBooleanArray(val x: Array[Boolean]) extends ApplyOrUpdate[Boolean]
