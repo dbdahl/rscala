@@ -8,6 +8,6 @@
   '
   env <- attr(x,"rscalaReferenceEnvironment")
   snippet <- sub("@\\{type\\}",env[['type']],snippet)
-  methods <- scalaInvoke(env[['details']], snippet, list())
+  methods <- scalaInvoke(env[['details']], snippet, list(), parent.frame(1))
   grep(pattern, methods, value=TRUE)
 }
