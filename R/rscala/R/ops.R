@@ -24,7 +24,7 @@
 '*.rscalaBridge' <- function(bridge, snippet) {
   details <- attr(bridge,"details")
   args <- if ( is.function(bridge) ) list() else bridge
-  scalaInvoke(details, snippet, args, parent.frame(2), withNames=TRUE)
+  scalaInvoke(details, snippet, args, parent.frame(1), withNames=TRUE)
 }
 
 #' Evaluation Operator Returning a Reference and Transcompile Operator
@@ -59,7 +59,7 @@
 '^.rscalaBridge' <- function(bridge, snippet) {
   details <- attr(bridge,"details")
   args <- if ( is.function(bridge) ) list() else bridge
-  if ( ! is.function(snippet) ) scalaInvoke(details, paste0(".",snippet), args, parent.frame(2), withNames=TRUE)
+  if ( ! is.function(snippet) ) scalaInvoke(details, paste0(".",snippet), args, parent.frame(1), withNames=TRUE)
   else {
     if ( any(sapply(args,function(x) inherits(x,"rscalaType"))) ) stop("'scalaType' arguments must be in the function itself, not the rscala bridge.")
     ast <- as.list(snippet)
@@ -75,7 +75,7 @@
     internalArgs <- args2[whichInternal]
     args <- c(args,args2[!whichInternal])
     internalArgsList <- if ( length(internalArgs) > 0 ) paste0(names(internalArgs),": ",internalArgs,collapse=", ") else NULL
-    scalaInvoke(details, paste0(".",header,"def self(", internalArgsList, ")",returnString," = ", transcompilation, "\nself _"), args, parent.frame(2), withNames=TRUE,
+    scalaInvoke(details, paste0(".",header,"def self(", internalArgsList, ")",returnString," = ", transcompilation, "\nself _"), args, parent.frame(1), withNames=TRUE,
                 transcompileInfo=list(argTypes=internalArgs,original=snippet))
   }
 }
@@ -113,7 +113,7 @@
 #' }
 #' 
 '+.rscalaBridge' <- function(bridge, snippet) {
-  scalaInvoke(attr(bridge,"details"), snippet, NULL, parent.frame(2))
+  scalaInvoke(attr(bridge,"details"), snippet, NULL, parent.frame(1))
 }
 
 #' @export
