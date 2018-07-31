@@ -305,6 +305,9 @@ object Transcompile {
   def _random(): Double = scala.util.Random.nextDouble()
   def _random(n: Double): Array[Double] = Array.fill(n.toInt) { scala.util.Random.nextDouble() }
 
+  def _stop(msg: String = ""): Unit = throw new RuntimeException("Error: "+msg)
+  def _warning(msg: String = ""): Unit = println("Warning message:\n"+msg)
+
   def _ensureArray(x: Int): Array[Int] = Array(x)
   def _ensureArray(x: Double): Array[Double] = Array(x)
   def _ensureArray(x: Boolean): Array[Boolean] = Array(x)
