@@ -43,6 +43,12 @@ toString.rscalaSub <- function(x, ...) {
 
 #' @export
 #' 
+toString.rscalaType <- function(x, ...) {
+  paste0(unclass(x))
+}
+
+#' @export
+#' 
 print.rscalaType <- function(x, ...) {
-  print(unclass(x), ...)
+  cat(toString(x, ...),"\n",sep="")
 }

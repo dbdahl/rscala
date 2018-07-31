@@ -1,0 +1,219 @@
+\begin{thebibliography}{29}
+\newcommand{\enquote}[1]{``#1''}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi:\discretionary{}{}{}#1}\else
+  \providecommand{\doi}{doi:\discretionary{}{}{}\begingroup
+  \urlstyle{rm}\Url}\fi
+\providecommand{\eprint}[2][]{\url{#2}}
+
+\bibitem[{Bell(1938)}]{bell}
+Bell ET (1938).
+\newblock \enquote{The iterated exponential integers.}
+\newblock \emph{Annals of Mathematics}, \textbf{39}, 539--557.
+\newblock
+  \urlprefix\url{http://www.jstor.org/stable/1968633?seq=1#page_scan_tab_contents}.
+
+\bibitem[{Bugnion(2016)}]{a9781785281372}
+Bugnion P (2016).
+\newblock \emph{Scala for Data Science}.
+\newblock Packt Publishing.
+\newblock
+  \urlprefix\url{https://www.amazon.com/Scala-Data-Science-Pascal-Bugnion-ebook/dp/B011V2NPYI?SubscriptionId=0JYN1NVW651KCA56C102&tag=techkie-20&linkCode=xm2&camp=2025&creative=165953&creativeASIN=B011V2NPYI}.
+
+\bibitem[{Casella \emph{et~al.}(2014)Casella, Moreno, and
+  Gir\'{o}n}]{casella2014}
+Casella G, Moreno E, Gir\'{o}n FJ (2014).
+\newblock \enquote{Cluster Analysis, Model Selection, and Prior Distributions
+  on Models.}
+\newblock \emph{Bayesian Anal.}, \textbf{9}(3), 613--658.
+\newblock \doi{10.1214/14-BA869}.
+\newblock \urlprefix\url{http://dx.doi.org/10.1214/14-BA869}.
+
+\bibitem[{Chang \emph{et~al.}(2017)Chang, Cheng, Allaire, Xie, and
+  McPherson}]{shiny}
+Chang W, Cheng J, Allaire J, Xie Y, McPherson J (2017).
+\newblock \emph{\pkg{shiny}: Web Application Framework for \R}.
+\newblock R package version 1.0.4,
+  \urlprefix\url{https://CRAN.R-project.org/package=shiny}.
+
+\bibitem[{Dahl(2017{\natexlab{a}})}]{bambooSoftware}
+Dahl DB (2017{\natexlab{a}}).
+\newblock \emph{\pkg{bamboo}: Protein Secondary Structure Prediction Using the
+  {B}amboo Method}.
+\newblock \R package version 0.9.18,
+  \urlprefix\url{https://CRAN.R-project.org/package=bamboo}.
+
+\bibitem[{Dahl(2017{\natexlab{b}})}]{shallotSoftware}
+Dahl DB (2017{\natexlab{b}}).
+\newblock \emph{\pkg{shallot}: Random Partition Distribution Indexed by
+  Pairwise Information}.
+\newblock \R package version 0.3.2,
+  \urlprefix\url{https://CRAN.R-project.org/package=shallot}.
+
+\bibitem[{Dahl(2017{\natexlab{c}})}]{rscala}
+Dahl DB (2017{\natexlab{c}}).
+\newblock \emph{\rscala: Bi-Directional Interface Between \R and \Scala with
+  Callbacks}.
+\newblock \R package version 2.3.1,
+  \urlprefix\url{https://CRAN.R-project.org/package=rscala}.
+
+\bibitem[{Dahl \emph{et~al.}(2017)Dahl, Day, and Tsai}]{shallotPaper}
+Dahl DB, Day R, Tsai JW (2017).
+\newblock \enquote{Random Partition Distribution Indexed by Pairwise
+  Information.}
+\newblock \emph{Journal of the American Statistical Association},
+  \textbf{in~press}.
+\newblock \doi{10.1080/01621459.2016.1165103}.
+\newblock \urlprefix\url{http://dx.doi.org/10.1080/01621459.2016.1165103}.
+
+\bibitem[{Eddelbuettel and Fran\c{c}ois(2011)}]{rcpp}
+Eddelbuettel D, Fran\c{c}ois R (2011).
+\newblock \enquote{\pkg{Rcpp}: Seamless \proglang{R} and \proglang{C++}
+  Integration.}
+\newblock \emph{Journal of Statistical Software}, \textbf{40}(8), 1--18.
+\newblock \urlprefix\url{http://www.jstatsoft.org/v40/i08/}.
+
+\bibitem[{Firth(2003)}]{cgi}
+Firth D (2003).
+\newblock \enquote{\pkg{CGIwithR}: Facilities for processing web forms using
+  \proglang{R}.}
+\newblock \emph{Journal of Statistical Software}, \textbf{8}, 1--8.
+\newblock \proglang{R}~package version~0.50,
+  \urlprefix\url{http://www.omegahat.org/CGIwithR/}.
+
+\bibitem[{Gouy(2017)}]{languageShootout}
+Gouy I (2017).
+\newblock \enquote{The Computer Language Benchmarks Game.}
+\newblock \url{http://benchmarksgame.alioth.debian.org/u32/scala.html}.
+\newblock Accessed: 2017-08-08.
+
+\bibitem[{Horner(2013)}]{rapache}
+Horner J (2013).
+\newblock \emph{\pkg{rApache}: Web application development with \R and
+  \pkg{Apache}}.
+\newblock \urlprefix\url{http://www.rapache.net/}.
+
+\bibitem[{Jancauskas(2016)}]{a9781785886942}
+Jancauskas V (2016).
+\newblock \emph{Scientific Computing with Scala}.
+\newblock Packt Publishing.
+\newblock
+  \urlprefix\url{https://www.amazon.com/Scientific-Computing-Scala-Vytautas-Jancauskas-ebook/dp/B01ARXUY78?SubscriptionId=0JYN1NVW651KCA56C102&tag=techkie-20&linkCode=xm2&camp=2025&creative=165953&creativeASIN=B01ARXUY78}.
+
+\bibitem[{Li \emph{et~al.}(2014)Li, Dahl, Vannucci, Joo, and
+  Tsai}]{bambooPaper}
+Li Q, Dahl DB, Vannucci M, Joo H, Tsai JW (2014).
+\newblock \enquote{Bayesian Model of Protein Primary Sequence for Secondary
+  Structure Prediction.}
+\newblock \emph{PLOS ONE}, \textbf{9}(10), 1--12.
+\newblock \doi{10.1371/journal.pone.0109832}.
+\newblock \urlprefix\url{https://doi.org/10.1371/journal.pone.0109832}.
+
+\bibitem[{Nicolas(2014)}]{a9781783558742}
+Nicolas PR (2014).
+\newblock \emph{Scala for Machine Learning}.
+\newblock Packt Publishing.
+\newblock
+  \urlprefix\url{https://www.amazon.com/Scala-Machine-Learning-Patrick-Nicolas-ebook/dp/B00R6585KO?SubscriptionId=0JYN1NVW651KCA56C102&tag=techkie-20&linkCode=xm2&camp=2025&creative=165953&creativeASIN=B00R6585KO}.
+
+\bibitem[{Odersky \emph{et~al.}(2016)Odersky, Spoon, and Venners}]{scalabook}
+Odersky M, Spoon L, Venners B (2016).
+\newblock \emph{Programming in \Scala: {U}pdated for \Scala 2.12}.
+\newblock 3rd edition. Artima Press.
+\newblock ISBN 0981531687.
+\newblock
+  \urlprefix\url{https://www.amazon.com/Programming-Scala-Updated-2-12/dp/0981531687?SubscriptionId=0JYN1NVW651KCA56C102&tag=techkie-20&linkCode=xm2&camp=2025&creative=165953&creativeASIN=0981531687}.
+
+\bibitem[{Odersky \emph{et~al.}(2004)}]{scala}
+Odersky M, \emph{et~al.} (2004).
+\newblock \enquote{An Overview of the \Scala Programming Language.}
+\newblock \emph{Technical Report IC/2004/64}, EPFL, Lausanne, Switzerland.
+
+\bibitem[{Pfeffer(2016)}]{a9781617292330}
+Pfeffer A (2016).
+\newblock \emph{Practical Probabilistic Programming}.
+\newblock Manning Publications.
+\newblock ISBN 1617292338.
+\newblock
+  \urlprefix\url{https://www.amazon.com/Practical-Probabilistic-Programming-Avi-Pfeffer/dp/1617292338?SubscriptionId=0JYN1NVW651KCA56C102&tag=techkie-20&linkCode=xm2&camp=2025&creative=165953&creativeASIN=1617292338}.
+
+\bibitem[{Premraj(2015)}]{mailr}
+Premraj R (2015).
+\newblock \emph{\pkg{mailR}: A Utility to Send Emails from \R}.
+\newblock R package version 0.4.1,
+  \urlprefix\url{https://CRAN.R-project.org/package=mailR}.
+
+\bibitem[{{R Core Team}(2017)}]{r}
+{R Core Team} (2017).
+\newblock \emph{\R: A Language and Environment for Statistical Computing}.
+\newblock R Foundation for Statistical Computing, Vienna, Austria.
+\newblock \urlprefix\url{https://www.R-project.org/}.
+
+\bibitem[{Rudis(2017)}]{darksky}
+Rudis B (2017).
+\newblock \emph{darksky: Tools to Work with the 'Dark Sky' 'API'}.
+\newblock R package version 1.3.0,
+  \urlprefix\url{https://CRAN.R-project.org/package=darksky}.
+
+\bibitem[{Satman(2014)}]{rcaller}
+Satman MH (2014).
+\newblock \enquote{RCaller: A Software Library for Calling R from Java.}
+\newblock \emph{British Journal of Mathematics \& Computer Science},
+  \textbf{4}(15), 2188--2196.
+
+\bibitem[{Sklyar \emph{et~al.}(2015)Sklyar, Murdoch, Smith, Eddelbuettel,
+  Francois, and Soetaert}]{inline}
+Sklyar O, Murdoch D, Smith M, Eddelbuettel D, Francois R, Soetaert K (2015).
+\newblock \emph{\pkg{inline}: Functions to Inline C, C++, Fortran Function
+  Calls from R}.
+\newblock \R package version 0.3.14,
+  \urlprefix\url{https://CRAN.R-project.org/package=inline}.
+
+\bibitem[{{The Apache Software Foundation}(2017)}]{commonsMathSoftware}
+{The Apache Software Foundation} (2017).
+\newblock \emph{\pkg{commonsMath}: {JAR} Files of the {A}pache {C}ommons
+  {M}athematics {L}ibrary}.
+\newblock \R package version 1.0.0,
+  \urlprefix\url{https://CRAN.R-project.org/package=commonsMath}.
+
+\bibitem[{Urbanek(2013)}]{rserve}
+Urbanek S (2013).
+\newblock \emph{\Rserve: Binary \R server}.
+\newblock \R package version 1.7-3,
+  \urlprefix\url{https://CRAN.R-project.org/package=Rserve}.
+
+\bibitem[{Urbanek(2016)}]{rJava}
+Urbanek S (2016).
+\newblock \emph{\rJava: Low-Level \R to \Java Interface}.
+\newblock \R package version 0.9-8,
+  \urlprefix\url{https://CRAN.R-project.org/package=rJava}.
+
+\bibitem[{Wickham(2009)}]{ggplot22}
+Wickham H (2009).
+\newblock \emph{\pkg{ggplot2}: Elegant Graphics for Data Analysis}.
+\newblock Springer-Verlag New York.
+\newblock ISBN 978-0-387-98140-6.
+\newblock \urlprefix\url{http://ggplot2.org}.
+
+\bibitem[{Wickham(2017)}]{httr}
+Wickham H (2017).
+\newblock \emph{httr: Tools for Working with URLs and HTTP}.
+\newblock R package version 1.3.1,
+  \urlprefix\url{https://CRAN.R-project.org/package=httr}.
+
+\bibitem[{Zaharia \emph{et~al.}(2016)Zaharia, Xin, Wendell, Das, Armbrust,
+  Dave, Meng, Rosen, Venkataraman, Franklin, Ghodsi, Gonzalez, Shenker, and
+  Stoica}]{spark}
+Zaharia M, Xin RS, Wendell P, Das T, Armbrust M, Dave A, Meng X, Rosen J,
+  Venkataraman S, Franklin MJ, Ghodsi A, Gonzalez J, Shenker S, Stoica I
+  (2016).
+\newblock \enquote{Apache Spark: A Unified Engine for Big Data Processing.}
+\newblock \emph{Commun. ACM}, \textbf{59}(11), 56--65.
+\newblock ISSN 0001-0782.
+\newblock \doi{10.1145/2934664}.
+\newblock \urlprefix\url{http://doi.acm.org/10.1145/2934664}.
+
+\end{thebibliography}
