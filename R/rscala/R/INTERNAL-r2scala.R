@@ -25,7 +25,7 @@ r2scala <- function(x, showCode, symbolEnv, substituteList) {
     }
     else if ( strings[1] == "scalaType" ) {
       if ( length(x) != 2 ) stop('scalaType statement only take one argument.')
-      returnType <- eval(x[[2]])
+      returnType <- toString(scalaType(eval(x[[2]])))
       assign("_returnType",returnType,envir=symbolEnv,substituteList)
       paste0("// Return type is declared to be ",returnType)
     }
