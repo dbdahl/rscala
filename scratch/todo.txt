@@ -1,3 +1,8 @@
 serialize partitions
 
 what if Java is not installed and I install a package like sdols?
+Support stop?     (with exception)
+Support warning?  (with cat)
+a <- b <- 2       (Cannot do!)
+scalaType("D0") inside a Scala transcompiled function should work!
+bell.version1b gives different results than native R!
