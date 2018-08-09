@@ -113,6 +113,7 @@
 #' }
 #' 
 '+.rscalaBridge' <- function(bridge, snippet) {
+  if ( ( ! is.function(bridge) ) && ( length(bridge) > 0 ) ) stop("When using the `+` operator, no arguments may be supplied to the bridge.")
   scalaInvoke(attr(bridge,"details"), snippet, NULL, parent.frame(1))
 }
 
