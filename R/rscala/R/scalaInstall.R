@@ -1,3 +1,4 @@
+SCALA_213_VERSION <- "2.13.0-M4"
 SCALA_212_VERSION <- "2.12.6"
 SCALA_211_VERSION <- "2.11.12"
 
@@ -25,7 +26,8 @@ scalaInstall <- function(majorVersion="2.12") {
     cat("\n\nIt appears you are using an Java version >= 9, so Scala 2.12 will be installed.\n\n\n")
     return(scalaInstall("2.12"))
   }
-  if ( majorVersion == "2.12" ) version <- SCALA_212_VERSION
+  if ( majorVersion == "2.13" ) version <- SCALA_213_VERSION
+  else if ( majorVersion == "2.12" ) version <- SCALA_212_VERSION
   else if ( majorVersion == "2.11" ) version <- SCALA_211_VERSION
   else stop("Unsupported major version.")
   installPath <- file.path("~",".rscala")

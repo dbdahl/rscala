@@ -81,8 +81,8 @@ verifyCandidate <- function(candidate, message, verbose) {
       return(NULL)
     }
     majorVersion <- gsub("(^[23]\\.[0-9]+)\\..*","\\1",fullVersion)
-    if ( ! ( majorVersion %in% c("2.11","2.12") ) ) {
-      if ( verbose ) cat("    ... but the version number is not supported.\n")
+    if ( ! ( majorVersion %in% c("2.11","2.12","2.13") ) ) {
+      if ( verbose ) cat(paste0("    ... but the version number ",majorVersion," is not supported.\n"))
       invisible(NULL)
     } else {
       list(cmd=candidate, fullVersion=fullVersion, majorVersion=majorVersion)

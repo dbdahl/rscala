@@ -1,7 +1,7 @@
 package org.ddahl.rscala
 
 import scala.collection.mutable.HashMap
-import scala.tools.nsc.interpreter.{ILoop, IMain}
+import scala.tools.nsc.interpreter.IMain
 import scala.tools.nsc.Settings
 import java.io.{BufferedOutputStream, ByteArrayOutputStream, DataInputStream, DataOutputStream, File, PrintWriter}
 import java.net.ServerSocket
@@ -81,13 +81,7 @@ object Main extends App {
   settings.unchecked.value = true
   settings.language.add("reflectiveCalls")
 
-  val intp = new IMain(settings, prntWrtr)
-  // Don't be chatty
-  locally {
-    val iloop = new ILoop()
-    iloop.intp = intp
-    iloop.verbosity()
-  }
+  val intp = Stub.mkIMain(settings, prntWrtr)
 
   // Set up interpreter
   val referenceMap = new HashMap[Int, (Any,String)]()

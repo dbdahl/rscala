@@ -1,8 +1,8 @@
 package org.ddahl.rscala
 
 import Protocol._
+import Stub.Success
 import scala.tools.nsc.interpreter.IMain
-import scala.tools.nsc.interpreter.IR.Success
 import scala.annotation.tailrec
 import scala.collection.mutable.HashMap
 import scala.reflect.ClassTag

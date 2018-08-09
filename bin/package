@@ -68,10 +68,15 @@ sbt +package +packageSrc
 JARDIR="$PKG_HOME"/R/${PKG_NAME}/inst/java
 rm -rf "$JARDIR"
 shopt -s extglob
-for i in 2.11 2.12
+for i in 2.11 2.12 2.13
 do
   mkdir -p "$JARDIR"/scala-$i
-  find "$PKG_HOME"/target -regex '.*/'${PKG_NAME}_$i'-.*[^a-zA-Z]+\(-SNAPSHOT\)?\.jar' | xargs ls -1t | head -1 | xargs -i cp '{}' "$JARDIR"/scala-$i
+  j=$i
+  if [[ "$j" == "2.13" ]]
+  then
+    j=${j}.0-M4
+  fi
+  find "$PKG_HOME"/target -regex '.*/'${PKG_NAME}_$j'-.*[^a-zA-Z]+\(-SNAPSHOT\)?\.jar' | xargs ls -1t | head -1 | xargs -i cp '{}' "$JARDIR"/scala-$i
 done
 
 SRCDIR="$PKG_HOME"/R/${PKG_NAME}/java

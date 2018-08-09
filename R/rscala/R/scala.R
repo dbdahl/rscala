@@ -193,6 +193,7 @@ newSockets <- function(portsFilename, details, JARs) {
 
 jarsOfPackage <- function(pkgname, major.release) {
   dir <- if ( file.exists(system.file("inst",package=pkgname)) ) file.path("inst/java") else "java"
+  if ( major.release == "2.13" ) major.release <- paste0(major.release,".0-M4")
   jarsMajor <- list.files(file.path(system.file(dir,package=pkgname),paste0("scala-",major.release)),pattern=".*\\.jar$",full.names=TRUE,recursive=FALSE)
   jarsAny <- list.files(system.file(dir,package=pkgname),pattern=".*\\.jar$",full.names=TRUE,recursive=FALSE)
   result <- c(jarsMajor,jarsAny)
