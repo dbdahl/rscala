@@ -30,8 +30,7 @@ scalaInstall <- function(majorVersion="2.12") {
   else if ( majorVersion == "2.12" ) version <- SCALA_212_VERSION
   else if ( majorVersion == "2.11" ) version <- SCALA_211_VERSION
   else stop("Unsupported major version.")
-  installPath <- file.path("~",".rscala")
-  installPath <- normalizePath(installPath, mustWork=FALSE)
+  installPath <- normalizePath(file.path("~",".rscala"), mustWork=FALSE)
   url <- sprintf("https://downloads.lightbend.com/scala/%s/scala-%s.tgz",version,version)
   dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
   destfile <- file.path(installPath,basename(url))
@@ -44,46 +43,122 @@ scalaInstall <- function(majorVersion="2.12") {
   unlink(destfile)
   if ( result == 0 ) {
     cat("Successfully installed Scala in ",file.path(installPath,sprintf("scala-%s",version)),"\n\n",sep="")
-    execName <- if ( .Platform$OS.type == "windows" ) "scala.bat" else "scala"
-    file.path(installPath,sprintf("scala-%s",version),"bin",execName)
+    scalaName <- if ( .Platform$OS.type == "windows" ) "scala.bat" else "scala"
+    file.path(installPath,sprintf("scala-%s",version),"bin",scalaName)
   } else {
     cat("Failed to extract installation.\n")
     invisible(NULL)
   }
 }
 
-isOS64bit <- function() {
-  if ( identical(.Platform$OS.type,"windows") ) {
-    out <- system2("wmic",c("/locale:ms_409","OS","get","osarchitecture","/VALUE"),stdout=TRUE)
-    any("OSArchitecture=64-bit"==trimws(out))
-  } else identical(system2("uname","-m",stdout=TRUE),"x86_64")
+scalaConfig <- function(verbose=TRUE, overwrite=FALSE, force=FALSE) {
+  installPath <- normalizePath(file.path("~",".rscala"), mustWork=FALSE)
+  configPath  <- file.path(installPath,"config.R")
+  if ( !overwrite && file.exists(installPath) ) {
+    if ( verbose ) cat(paste0("Read existing configuration file: ",configPath,"\n\n"))
+    source(configPath,chdir=TRUE)
+    config
+  } else {
+    unlink(installPath,recursive=TRUE)
+    if ( force ) {
+      javaConf <- installJava(installPath)
+      scalaConf <- installScala(installPath)
+    } else {
+      javaConf <- findExecutable("java",javaVersion,verbose)
+      scalaConf <- findExecutable("scala",scalaVersion,verbose)
+    }
+    isOS64bit <- if ( identical(.Platform$OS.type,"windows") ) {
+      out <- system2("wmic",c("/locale:ms_409","OS","get","osarchitecture","/VALUE"),stdout=TRUE)
+      any("OSArchitecture=64-bit"==trimws(out))
+    } else identical(system2("uname","-m",stdout=TRUE),"x86_64")
+    config <- c(scalaConf,javaConf,osArchitecture=if ( isOS64bit ) 64 else 32)
+    writeConfig <- force || !config$javaIsExternal || !config$scalaIsExternal || offerInstall(paste0("File '",configPath,"' is not found."))
+    if ( writeConfig ) {
+      dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
+      outFile <- file(configPath,open="w")
+      dump("config",file=outFile)
+      close(outFile)
+      if ( verbose ) cat(paste0("Wrote configuration file: ",configPath,"\n\n"))
+    } else if ( verbose ) cat("\n")
+    config
+  }
 }
 
-findJava <- function() {  ## Mimic how the 'scala' shell script finds Java.
-  javaName <- if ( .Platform$OS.type == "windows" ) "java.exe" else "java"
-  fromPath <- function() {
-    candidate <- Sys.which(javaName)[[javaName]]
-    if ( ! file.exists(candidate) ) stop(paste0("Cannot find Java.\nPlease download the ",(if ( isOS64bit() ) "64" else "32"),"-bit version of Java here: https://www.java.com.\nThen restart R and try again."))
-    candidate
-  }
-  candidate <- Sys.getenv("JAVACMD",NA)
-  if ( ! is.na(candidate) && file.exists(candidate) ) normalizePath(candidate)
-  else {
-    javaHome <- Sys.getenv("JAVA_HOME",NA)
-    if ( ! is.na(javaHome) ) {
-      candidate <- file.path(javaHome,"bin",javaName)
-      if ( file.exists(candidate) ) normalizePath(candidate)
-      else fromPath()
-    } else fromPath()
-  }
+offerInstall <- function(msg) {
+  if ( interactive() ) {
+    while ( TRUE ) {
+      cat("\n")
+      response <- toupper(trimws(readline(prompt=paste0(msg,"  Would you like to install it now? [Y/n] "))))
+      if ( response == "N" ) return(FALSE)
+      if ( response %in% c("Y","") ) return(TRUE)
+    }
+  } else FALSE
 }
 
-latestVersion <- function(majorVersion) {
-  max <- majorVersion[1]
-  for ( i in majorVersion[-1] ) {
-    if ( utils::compareVersion(max,i) < 0 ) max <- i
+findExecutable <- function(mode,extraInfoFunction,verbose=TRUE) {  ## Mimic how the 'scala' script finds Java.
+  titleCaps <- paste0(toupper(substring(mode,1,1)),substring(mode,2))
+  allCaps <- toupper(mode)
+  if ( verbose ) cat(paste0("\nSearching the system for ",titleCaps,".\n"))
+  metaData <- function(execCmd) {
+    execCmd <- normalizePath(execCmd)
+    result <- list(IsExternal=TRUE,Cmd=execCmd)
+    names(result) <- paste0(mode,names(result))
+    result <- c(result,extraInfoFunction(execCmd))
+    result
   }
-  max
+  label <- paste0(allCaps,"CMD environment variable")
+  candidate <- Sys.getenv(paste0(allCaps,"CMD"))
+  if ( candidate != "" && file.exists(candidate) ) {
+    if ( verbose ) cat(paste0("  Success with ",label,".\n"))
+    return(metaData(candidate))
+  } else {
+    if ( verbose ) cat(paste0("  Failure with ",label,".\n"))
+  }
+  label <- paste0(allCaps,"_HOME environment variable")
+  home <- Sys.getenv(paste0(allCaps,"_HOME"))
+  if ( home != "" ) {
+    candidate <- file.path(home,"bin",mode) 
+    if ( file.exists(candidate) ) {
+      if ( verbose ) cat(paste0("  Success with ",label,".\n"))
+      return(metaData(candidate))
+    } else {
+      if ( verbose ) cat(paste0("  Failure with ",label,".\n"))
+    }
+  } else {
+    if ( verbose ) cat(paste0("  Failure with ",label,".\n"))
+  }
+  label <- "PATH environment variable"
+  candidate <- Sys.which(mode)[[mode]]
+  if ( file.exists(candidate) ) {
+    if ( verbose ) cat(paste0("  Success with ",label,".\n"))
+    return(metaData(candidate))
+  } else {
+    if ( verbose ) cat(paste0("  Failure with ",label,".\n"))
+  }
+  NULL
+}
+
+installJava <- function(installPath, verbose=TRUE) {
+  dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
+  sapply(list.files(installPath,"jdk-.*"), function(x) unlink(x,recursive=TRUE))  # Delete older versions
+  if ( verbose ) cat("Downloading Java.\n")
+  url <- sprintf("https://download.java.net/java/GA/jdk10/10.0.2/19aef61b38124481863b1413dce1855f/13/openjdk-10.0.2_%s-x64_bin.tar.gz",osType())
+  destfile <- file.path(installPath,basename(url))
+  result <- utils::download.file(url,destfile)
+  if ( result != 0 ) {
+    unlink(destfile)
+    stop("Failed to download installation.")
+  }
+  result <- utils::untar(destfile,exdir=installPath,tar="internal")    # Use internal to avoid problems on a Mac.
+  unlink(destfile)
+  if ( result == 0 ) {
+    if ( verbose ) cat("Successfully installed Java in ",file.path(installPath,sprintf("scala-%s",version)),"\n\n",sep="")
+    javaHome <-  list.files(installPath,"jdk-.*")
+    javaName <- if ( osType() == "windows" ) "java.exe" else "java"
+    file.path(javaHome,"bin",javaName)
+  } else {
+    stop("Failed to extract installation.")
+  }
 }
 
 javaVersion <- function(javaCmd) {
@@ -103,6 +178,15 @@ javaVersion <- function(javaCmd) {
   # Determine if 32 or 64 bit
   bit <- if ( any(grepl('^(Java HotSpot|OpenJDK).* 64-Bit (Server|Client) VM.*$',response)) ||
               any(grepl('^IBM .* amd64-64 .*$',response)) ) 64 else 32
-  c(versionNumber,bit)
+  list(javaMajorVersion=versionNumber,javaArchitecture=bit)
 }
 
+scalaVersion <- function(scalaCmd) {
+  fullVersion <- system2(scalaCmd,c("-e",shQuote("print(util.Properties.versionNumberString)")),stdout=TRUE)
+  majorVersion <- gsub("(^[23]\\.[0-9]+)\\..*","\\1",fullVersion)
+  if ( ! ( majorVersion %in% c("2.11","2.12","2.13") ) ) {
+    stop(paste0("Version number ",majorVersion," is not supported."))
+  } else {
+    list(scalaFullVersion=fullVersion, scalaMajorVersion=majorVersion)
+  }
+}

@@ -213,24 +213,31 @@ transcompileSubstituteOfPackage <- function(pkgname) {
   tryCatch( getFromNamespace("rscalaTranscompileSubstitute", pkgname), error=function(e) NULL )
 }
 
+osType <- function() {
+  if ( .Platform$OS.type == "windows" ) "windows"
+  else if ( Sys.info()["sysname"] == "Darwin" ) "osx"
+  else "linux"
+}
+
 getHeapMaximum <- function(heap.maximum) {
   if ( ! is.null(heap.maximum) ) return(heap.maximum)
   heap.maximum <- getOption("rscala.heap.maximum")
   if ( ! is.null(heap.maximum) ) return(heap.maximum)
   memoryPercentage <- 0.90
-  bytes <- if ( file.exists("/proc/meminfo") ) {  # Linux
+  os <- osType()
+  bytes <- if ( os == "linux" ) {
     outTemp <- readLines("/proc/meminfo")
     outTemp <- outTemp[grepl("^MemAvailable:\\s*",outTemp)]
     outTemp <- gsub("^MemAvailable:\\s*","",outTemp)
     outTemp <- gsub("\\s*kB$","",outTemp)
     as.numeric(outTemp) * 1024
-  } else if ( .Platform$OS.type=="windows" ) {    # Windows
+  } else if ( os == "windows" ) {
     outTemp <- system2("wmic",c("/locale:ms_409","OS","get","FreePhysicalMemory","/VALUE"),stdout=TRUE)
     outTemp <- outTemp[outTemp != "\r"]
     outTemp <- gsub("^FreePhysicalMemory=","",outTemp)
     outTemp <- gsub("\r","",outTemp)
     as.numeric(outTemp) * 1024
-  } else if ( grepl("^darwin", R.version$os) ) {  # Mac OS X
+  } else if ( os == "osx" ) {
     outTemp <- system2("vm_stat",stdout=TRUE)
     outTemp <- outTemp[grepl("(Pages free|Pages inactive|Pages speculative):.*",outTemp)]
     sum(sapply(strsplit(outTemp,":"),function(x) as.numeric(x[2]))) * 4096

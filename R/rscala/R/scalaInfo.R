@@ -64,30 +64,3 @@ noCandidate <- function(message, verbose) {
   NULL
 }
 
-verifyCandidate <- function(candidate, message, verbose) {
-  if ( verbose ) cat("    Looking for Scala using ",message,".\n",sep="")
-  candidate <- normalizePath(candidate, mustWork=FALSE)
-  if ( file.exists(candidate) ) {
-    if ( verbose ) cat("    Found 'scala' at ",candidate,".\n",sep="")
-    fullVersion <- tryCatch({
-      jars <- list.files(file.path(dirname(dirname(candidate)),"lib"),".*.jar$",full.names=TRUE)
-      libraryJar <- jars[which(basename(jars) == "scala-library.jar")[1]]
-      fn <- unz(libraryJar,"library.properties")
-      lines <- readLines(fn)
-      sub("^version.number=","",lines[grepl("^version.number=",lines)])[1]
-    }, warning=function(e) { NULL }, error=function(e) { NULL }, finally = { close(fn) })
-    if ( is.null(fullVersion) ) {
-      if ( verbose ) cat("    ... but the version number is unknown.\n")
-      return(NULL)
-    }
-    majorVersion <- gsub("(^[23]\\.[0-9]+)\\..*","\\1",fullVersion)
-    if ( ! ( majorVersion %in% c("2.11","2.12","2.13") ) ) {
-      if ( verbose ) cat(paste0("    ... but the version number ",majorVersion," is not supported.\n"))
-      invisible(NULL)
-    } else {
-      list(cmd=candidate, fullVersion=fullVersion, majorVersion=majorVersion)
-    }
-  } else {
-    invisible(NULL)
-  }
-}
