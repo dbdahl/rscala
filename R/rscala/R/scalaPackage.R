@@ -46,7 +46,7 @@ scalaPackage <- function(packages=character(),
     assign("rscalaBridgeOwner",FALSE,envir=pkgEnv)
     delayedAssign(assign.name,{
       s <- eval(parse(text=mode))
-      majorVersion <- attr(s,"details")[["scalaInfo"]]$majorVersion
+      majorVersion <- attr(s,"details")[["config"]]$scalaMajorVersion
       JARs <- c(JARs,unlist(lapply(packages, function(p) jarsOfPackage(p, majorVersion))))
       scalaAddJARs(JARs, s)
       assign.callback(s)

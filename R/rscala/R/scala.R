@@ -85,18 +85,18 @@ scala <- function(packages=character(),
   port <- as.integer(port[1])
   if ( debug && serialize.output ) stop("When debug is TRUE, serialize.output must be FALSE.")
   if ( debug && ( identical(stdout,FALSE) || identical(stdout,NULL) || identical(stderr,FALSE) || identical(stderr,NULL) ) ) stop("When debug is TRUE, stdout and stderr must not be discarded.")
-  sInfo <- scalaConfig(FALSE)
-  scalaMajor <- sInfo$scalaMajorVersion
+  sConfig <- scalaConfig(FALSE)
+  scalaMajor <- sConfig$scalaMajorVersion
   JARs <- c(JARs,unlist(lapply(packages, function(p) jarsOfPackage(p, scalaMajor))))
   rscalaJAR <- shQuote(list.files(system.file(file.path("java",paste0("scala-",scalaMajor)),package="rscala",mustWork=TRUE),full.names=TRUE))
-  heap.maximum <- getHeapMaximum(heap.maximum,sInfo$javaArchitecture == 32)
+  heap.maximum <- getHeapMaximum(heap.maximum,sConfig$javaArchitecture == 32)
   command.line.options <- if ( is.null(heap.maximum) ) NULL
   else shQuote(paste0("-J-Xmx",heap.maximum))
   sessionFilename <- tempfile("rscala-session-")
   writeLines(character(),sessionFilename)
   portsFilename <- tempfile("rscala-ports-")
   args <- c(command.line.options,"-classpath",rscalaJAR,"org.ddahl.rscala.Main",rscalaJAR,port,portsFilename,sessionFilename,debug,serialize.output,FALSE)
-  system2(normalizePath(sInfo$scalaCmd,mustWork=TRUE),args,wait=FALSE,env=paste0("JAVACMD=",sInfo$javaCmd),stdout=stdout,stderr=stderr)
+  system2(normalizePath(sConfig$scalaCmd,mustWork=TRUE),args,wait=FALSE,env=paste0("JAVACMD=",sConfig$javaCmd),stdout=stdout,stderr=stderr)
   details <- new.env(parent=emptyenv())
   assign("sessionFilename",sessionFilename,envir=details)
   assign("closed",FALSE,envir=details)
@@ -113,7 +113,7 @@ scala <- function(packages=character(),
   assign("serializeOutput",serialize.output,envir=details)
   assign("last",NULL,envir=details)
   assign("garbage",integer(),envir=details)
-  assign("scalaInfo",sInfo,envir=details)
+  assign("config",sConfig,envir=details)
   assign("heapMaximum",heap.maximum,envir=details)
   assign("JARs",character(0),envir=details)
   gcFunction <- function(e) {

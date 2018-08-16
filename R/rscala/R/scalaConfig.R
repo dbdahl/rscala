@@ -3,24 +3,34 @@
 #' This function installs Scala in the user's \code{~/.rscala} directory.
 #'
 #' @param verbose Should details of the search for Scala and Java be provided?
-#' @param reconfig Should the '~/.rscala/config.R' script be rewritten based on a new search for Scala and Java?
-#' @param downloal.java Should Java be downloaded and installed in '~/.rscala/java'?
-#' @param downloal.scala Should Scala be downloaded and installed in '~/.rscala/scala'?
+#'   Or, an rscala bridge, in which case, a list of details associated with the
+#'   supplied bridge is returned.
+#' @param reconfig Should the '~/.rscala/config.R' script be rewritten based on
+#'   a new search for Scala and Java?
+#' @param downloal.java Should Java be downloaded and installed in
+#'   '~/.rscala/java'?
+#' @param downloal.scala Should Scala be downloaded and installed in
+#'   '~/.rscala/scala'?
 #'
 #' @return Returns a list of details of the Scala and Java binaries.
 #' @export
 #' @examples \dontrun{
-#' 
+#'
 #' scalaConfig()
 #' }
 scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, download.scala=FALSE) {
+  if ( inherits(verbose,"rscalaBridge") ) return(attr(verbose,"details")$config)
   installPath <- file.path("~",".rscala")
   configPath  <- file.path(installPath,"config.R")
   consent <- reconfig || download.java || download.scala
   if ( !reconfig && file.exists(configPath) && !download.java && !download.scala ) {
     if ( verbose ) cat(paste0("Read existing configuration file: ",configPath,"\n\n"))
     source(configPath,chdir=TRUE)
-    config
+    if ( ! all(file.exists(c(config$javaCmd,config$scalaCmd))) ) {
+      if ( verbose ) cat("The 'config.R' is out-of-date.  Reconfiguring...\n")
+      unlink(configPath)
+      scalaConfig(verbose)
+    } else config
   } else {
     if ( download.java ) installJava(installPath,verbose)
     javaConf <- findExecutable("java",installPath,javaSpecifics,verbose)
