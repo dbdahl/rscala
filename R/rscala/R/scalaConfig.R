@@ -5,11 +5,15 @@
 #' @param verbose Should details of the search for Scala and Java be provided?
 #'   Or, an rscala bridge, in which case, a list of details associated with the
 #'   supplied bridge is returned.
-#' @param reconfig Should the '~/.rscala/config.R' script be rewritten based on
-#'   a new search for Scala and Java?
-#' @param downloal.java Should Java be downloaded and installed in
+#' @param reconfig If \code{TRUE}, the script \code{~/.rscala/config.R} is
+#'   rewritten based on a new search for Scala and Java.  If \code{FALSE}, the
+#'   previous configuration is sourced from the script
+#'   \code{~/.rscala/config.R}.  If \code{"live"}, a new search for Scala and
+#'   Java is performed, but the results do not overwrite the previous
+#'   configuration script.
+#' @param download.java Should Java be downloaded and installed in
 #'   '~/.rscala/java'?
-#' @param downloal.scala Should Scala be downloaded and installed in
+#' @param download.scala Should Scala be downloaded and installed in
 #'   '~/.rscala/scala'?
 #'
 #' @return Returns a list of details of the Scala and Java binaries.
@@ -20,10 +24,19 @@
 #' }
 scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, download.scala=FALSE) {
   if ( inherits(verbose,"rscalaBridge") ) return(attr(verbose,"details")$config)
+  offerInstall <- function(msg) {
+    if ( !identical(reconfig,"live") && interactive() ) {
+      while ( TRUE ) {
+        response <- toupper(trimws(readline(prompt=paste0(msg,"  Would you like to install it now? [Y/n] "))))
+        if ( response == "N" ) return(FALSE)
+        if ( response %in% c("Y","") ) return(TRUE)
+      }
+    } else FALSE
+  }
   installPath <- file.path("~",".rscala")
   configPath  <- file.path(installPath,"config.R")
-  consent <- reconfig || download.java || download.scala
-  if ( !reconfig && file.exists(configPath) && !download.java && !download.scala ) {
+  consent <- identical(reconfig,TRUE) || download.java || download.scala
+  if ( identical(reconfig,FALSE) && file.exists(configPath) && !download.java && !download.scala ) {
     if ( verbose ) cat(paste0("Read existing configuration file: ",configPath,"\n\n"))
     source(configPath,chdir=TRUE)
     if ( ! all(file.exists(c(config$javaCmd,config$scalaCmd))) ) {
@@ -35,24 +48,26 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
     if ( download.java ) installJava(installPath,verbose)
     javaConf <- findExecutable("java",installPath,javaSpecifics,verbose)
     if ( is.null(javaConf) ) {
+      if ( verbose ) cat("\n")
       consent2 <- offerInstall(paste0("Java is not found.")) 
       if ( consent2 ) {
         installJava(installPath,verbose)
         javaConf <- findExecutable("java",installPath,javaSpecifics,verbose)
         if ( is.null(javaConf) ) stop("Java is not found and cannot be successfully installed.")
-      } else stop("Java is not found.  Please run 'scalaConfig(reconfig=TRUE, download.java=TRUE)'.")
+      } else stop("Java is not found.  Please run 'scalaConfig(download.java=TRUE)'.")
       consent <- consent || consent2
     }
     if ( download.scala ) installScala(installPath,javaConf,verbose)
     scalaSpecifics2 <- function(x) scalaSpecifics(x,javaConf)
     scalaConf <- findExecutable("scala",installPath,scalaSpecifics2,verbose)
     if ( is.null(scalaConf) ) {
+      if ( verbose ) cat("\n")
       consent2 <- offerInstall(paste0("Scala is not found.")) 
       if ( consent2 ) {
         installScala(installPath,javaConf,verbose)
         scalaConf <- findExecutable("scala",installPath,scalaSpecifics2,verbose)
         if ( is.null(scalaConf) ) stop("Scala is not found and cannot be successfully installed.")
-      } else stop("Scala is not found.  Please run 'scalaConfig(reconfig=TRUE, download.scala=TRUE)'.")
+      } else stop("Scala is not found.  Please run 'scalaConfig(download.scala=TRUE)'.")
       consent <- consent || consent2
     }
     isOS64bit <- if ( identical(.Platform$OS.type,"windows") ) {
@@ -64,6 +79,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
       warning("32-bit Java is paired with a 64-bit operating system.  Consider installing 64-bit Java to access more memory.")
     }
     config <- c(scalaConf,javaConf,osArchitecture=osArchitecture)
+    if ( !consent && verbose ) cat("\n")
     writeConfig <- consent || offerInstall(paste0("File '",configPath,"' is not found."))
     if ( writeConfig ) {
       dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
@@ -76,16 +92,6 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
   }
 }
 
-offerInstall <- function(msg) {
-  if ( interactive() ) {
-    while ( TRUE ) {
-      cat("\n")
-      response <- toupper(trimws(readline(prompt=paste0(msg,"  Would you like to install it now? [Y/n] "))))
-      if ( response == "N" ) return(FALSE)
-      if ( response %in% c("Y","") ) return(TRUE)
-    }
-  } else FALSE
-}
 
 findExecutable <- function(mode,installPath,mapper,verbose=TRUE) {  ## Mimic how the 'scala' script finds Java.
   tryCandidate <- function(candidate) {
@@ -107,7 +113,11 @@ findExecutable <- function(mode,installPath,mapper,verbose=TRUE) {  ## Mimic how
   ###
   label <- "user directory"
   candidate <- if ( mode == "java" ) {
-    file.path(installPath,"java","bin",paste0("java",if ( .Platform$OS.type == "windows" ) ".exe" else ""))
+    os <- osType()
+    if ( os == "linux" ) file.path(installPath,"java","bin","java")
+    else if ( os == "osx" ) file.path(installPath,"java","Contents","Home","bin","java")
+    else if ( os == "darwin" ) file.path(installPath,"java","bin","java.exe")
+    else stop("Unsupported operating system.")
   } else if ( mode == "scala" ) {
     file.path("~",".rscala","scala","bin",paste0("scala",if ( .Platform$OS.type == "windows" ) ".bat" else ""))
   } else stop("Unsupported mode.")
@@ -207,7 +217,8 @@ javaSpecifics <- function(javaCmd) {
 }
 
 scalaSpecifics <- function(scalaCmd,javaConf) {
-  fullVersion <- system2(normalizePath(scalaCmd,mustWork=TRUE),c("-e",shQuote("print(util.Properties.versionNumberString)")),env=paste0("JAVACMD=",javaConf$javaCmd),stdout=TRUE)
+  fullVersion <- system2(normalizePath(scalaCmd,mustWork=TRUE),c("-nc","-e",shQuote("print(util.Properties.versionNumberString)")),
+                         env=paste0("JAVACMD=",normalizePath(javaConf$javaCmd,mustWork=TRUE)),stdout=TRUE)
   majorVersion <- gsub("(^[23]\\.[0-9]+)\\..*","\\1",fullVersion)
   if ( ! ( majorVersion %in% c("2.11","2.12","2.13") ) ) {
     return(paste0("unsupport Scala version: ",majorVersion))

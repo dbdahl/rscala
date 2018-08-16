@@ -95,8 +95,9 @@ scala <- function(packages=character(),
   sessionFilename <- tempfile("rscala-session-")
   writeLines(character(),sessionFilename)
   portsFilename <- tempfile("rscala-ports-")
-  args <- c(command.line.options,"-classpath",rscalaJAR,"org.ddahl.rscala.Main",rscalaJAR,port,portsFilename,sessionFilename,debug,serialize.output,FALSE)
-  system2(normalizePath(sConfig$scalaCmd,mustWork=TRUE),args,wait=FALSE,env=paste0("JAVACMD=",sConfig$javaCmd),stdout=stdout,stderr=stderr)
+  args <- c(command.line.options,"-nc","-classpath",rscalaJAR,"org.ddahl.rscala.Main",rscalaJAR,port,portsFilename,sessionFilename,debug,serialize.output,FALSE)
+  system2(normalizePath(sConfig$scalaCmd,mustWork=TRUE),args,wait=FALSE,
+          env=paste0("JAVACMD=",normalizePath(sConfig$javaCmd,mustWork=TRUE)),stdout=stdout,stderr=stderr)
   details <- new.env(parent=emptyenv())
   assign("sessionFilename",sessionFilename,envir=details)
   assign("closed",FALSE,envir=details)
