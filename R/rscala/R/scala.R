@@ -85,18 +85,18 @@ scala <- function(packages=character(),
   port <- as.integer(port[1])
   if ( debug && serialize.output ) stop("When debug is TRUE, serialize.output must be FALSE.")
   if ( debug && ( identical(stdout,FALSE) || identical(stdout,NULL) || identical(stderr,FALSE) || identical(stderr,NULL) ) ) stop("When debug is TRUE, stdout and stderr must not be discarded.")
-  sInfo <- scalaInfo(FALSE)
-  scalaMajor <- sInfo$majorVersion
+  sInfo <- scalaConfig(FALSE)
+  scalaMajor <- sInfo$scalaMajorVersion
   JARs <- c(JARs,unlist(lapply(packages, function(p) jarsOfPackage(p, scalaMajor))))
   rscalaJAR <- shQuote(list.files(system.file(file.path("java",paste0("scala-",scalaMajor)),package="rscala",mustWork=TRUE),full.names=TRUE))
-  heap.maximum <- getHeapMaximum(heap.maximum)
+  heap.maximum <- getHeapMaximum(heap.maximum,sInfo$javaArchitecture == 32)
   command.line.options <- if ( is.null(heap.maximum) ) NULL
   else shQuote(paste0("-J-Xmx",heap.maximum))
   sessionFilename <- tempfile("rscala-session-")
   writeLines(character(),sessionFilename)
   portsFilename <- tempfile("rscala-ports-")
   args <- c(command.line.options,"-classpath",rscalaJAR,"org.ddahl.rscala.Main",rscalaJAR,port,portsFilename,sessionFilename,debug,serialize.output,FALSE)
-  system2(sInfo$cmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
+  system2(normalizePath(sInfo$scalaCmd,mustWork=TRUE),args,wait=FALSE,env=paste0("JAVACMD=",sInfo$javaCmd),stdout=stdout,stderr=stderr)
   details <- new.env(parent=emptyenv())
   assign("sessionFilename",sessionFilename,envir=details)
   assign("closed",FALSE,envir=details)
@@ -219,7 +219,7 @@ osType <- function() {
   else "linux"
 }
 
-getHeapMaximum <- function(heap.maximum) {
+getHeapMaximum <- function(heap.maximum,is32bit) {
   if ( ! is.null(heap.maximum) ) return(heap.maximum)
   heap.maximum <- getOption("rscala.heap.maximum")
   if ( ! is.null(heap.maximum) ) return(heap.maximum)
@@ -243,11 +243,7 @@ getHeapMaximum <- function(heap.maximum) {
     sum(sapply(strsplit(outTemp,":"),function(x) as.numeric(x[2]))) * 4096
   } else NA                                       # Unknown, so do not do anything.
   if ( ! is.na(bytes) ) {
-    javaVersionInfo <- javaVersion(findJava())
-    if ( javaVersionInfo[2] == 32 ) {
-      bytes <- min(c(1.35*1024^3,bytes))   # 32 binaries have limited memory.
-      if ( isOS64bit() ) warning("You are running 32-bit Java on a 64-bit operating system.  Consider installing a 64-bit version of Java to be able to access more memory.")
-    }
+    if ( is32bit ) bytes <- min(c(1.35*1024^3,bytes))   # 32 binaries have limited memory.
     paste0(max(32,as.integer(memoryPercentage * (bytes / 1024^2))),"M")  # At least 32M
   } else NULL
 }
