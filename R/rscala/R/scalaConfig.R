@@ -116,7 +116,7 @@ findExecutable <- function(mode,installPath,mapper,verbose=TRUE) {  ## Mimic how
     os <- osType()
     if ( os == "linux" ) file.path(installPath,"java","bin","java")
     else if ( os == "osx" ) file.path(installPath,"java","Contents","Home","bin","java")
-    else if ( os == "darwin" ) file.path(installPath,"java","bin","java.exe")
+    else if ( os == "windows" ) file.path(installPath,"java","bin","java.exe")
     else stop("Unsupported operating system.")
   } else if ( mode == "scala" ) {
     file.path("~",".rscala","scala","bin",paste0("scala",if ( .Platform$OS.type == "windows" ) ".bat" else ""))
