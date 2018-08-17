@@ -142,60 +142,84 @@ findExecutable <- function(mode,installPath,mapper,verbose=TRUE) {  ## Mimic how
   NULL
 }
 
-installJava <- function(installPath, verbose) {
+installJava <- function(installPath, verbose, useFallBack=FALSE) {
   if ( verbose ) cat("\nDownloading Java...\n")
   dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
   unlink(file.path(installPath,"java"),recursive=TRUE)  # Delete older version
-  url <- sprintf("https://download.java.net/java/GA/jdk10/10.0.2/19aef61b38124481863b1413dce1855f/13/openjdk-10.0.2_%s-x64_bin.tar.gz",osType())
+  os <- osType()
+  url <- sprintf("https://download.java.net/java/GA/jdk10/10.0.2/19aef61b38124481863b1413dce1855f/13/openjdk-10.0.2_%s-x64_bin.tar.gz",os)
+  url2 <- if ( os == "linux" ) "https://byu.box.com/shared/static/3sfzfpcj3twikcqijpndwxds1mlwqbtx.gz"
+  else if ( os == "osx" ) "https://byu.box.com/shared/static/ix9r2k43s2zardixc7t5bswpe9z7rs2t.gz"
+  else if ( os == "windows" ) "https://byu.box.com/shared/static/lt22qowqnt6trmxcy1qyydfrntu18bvw.gz"
+  else stop("Unsupported operating system.")
   destfile <- file.path(installPath,basename(url))
-  result <- utils::download.file(url,destfile)
+  result <- tryCatch( utils::download.file(if ( !useFallBack ) url else url2, destfile), error=function(e) 1, warning=function(e) 1)
   if ( result != 0 ) {
     unlink(destfile)
-    stop("Failed to download installation.")
+    msg <- "Failed to download installation."
+    if ( ! useFallBack ) {
+      if ( verbose ) cat(paste0(msg,"\n"))
+      installJava(installPath,verbose,TRUE)
+      return(NULL)
+    } else stop(msg)
   }
   result <- utils::untar(destfile,exdir=installPath,tar="internal")    # Use internal to avoid problems on a Mac.
   unlink(destfile)
   if ( result == 0 ) {
     destdir <- file.path(installPath,"java")
-    javaHome <- list.files(installPath,"jdk-.*",full.names=TRUE)
+    javaHome <- list.files(installPath,"^jdk-.*",full.names=TRUE)
+    javaHome <- javaHome[dir.exists(javaHome)]
+    if ( length(javaHome) != 1 ) stop(paste0("Problem extracting Java.  Clean delete the directory '",path.expand(installPath),"' and try again."))
     file.rename(javaHome,destdir)
     if ( verbose ) cat("Successfully installed Java at ",destdir,"\n",sep="")
   } else {
     stop("Failed to extract installation.")
   }
+  NULL
 }
 
-installScala <- function(installPath, javaConf, verbose) {
+installScala <- function(installPath, javaConf, verbose, useFallBack=FALSE) {
   if ( verbose ) cat("\nDownloading Scala...\n")
   SCALA_213_VERSION <- "2.13.0-M4"
   SCALA_212_VERSION <- "2.12.6"
   SCALA_211_VERSION <- "2.11.12"
   dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
   unlink(file.path(installPath,"scala"),recursive=TRUE)  # Delete older version
-  if ( javaConf$javaMajorVersion <= 7 ) majorVersion <- "2.11"
-  majorVersion <- "2.12"
+  if ( javaConf$javaMajorVersion <= 7 ) majorVersion <- "2.11" else majorVersion <- "2.12"
   if ( majorVersion == "2.13" ) version <- SCALA_213_VERSION
   else if ( majorVersion == "2.12" ) version <- SCALA_212_VERSION
   else if ( majorVersion == "2.11" ) version <- SCALA_211_VERSION
   else stop("Unsupported major version.")
   url <- sprintf("https://downloads.lightbend.com/scala/%s/scala-%s.tgz",version,version)
+  url2 <- if ( version == SCALA_213_VERSION ) "https://byu.box.com/shared/static/tctag0lirhhf9z3n0yq2gmdpo2poqlsk.tgz"
+  else if ( version == SCALA_212_VERSION ) "https://byu.box.com/shared/static/ix0lkraln4sf17191r30jooo3qb3bz19.tgz"
+  else if ( version == SCALA_211_VERSION ) "https://byu.box.com/shared/static/kh0pew26qbai9mznyp6jvq3ve8g8gwuh.tgz"
+  else stop("Unsupported version.")
   dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
   destfile <- file.path(installPath,basename(url))
-  result <- utils::download.file(url,destfile)
+  result <- tryCatch( utils::download.file(if ( !useFallBack ) url else url2, destfile), error=function(e) 1, warning=function(e) 1)
   if ( result != 0 ) {
     unlink(destfile)
-    stop("Failed to download installation.")   
+    msg <- "Failed to download installation."
+    if ( ! useFallBack ) {
+      if ( verbose ) cat(paste0(msg,"\n"))
+      installScala(installPath,javaConf,verbose,TRUE)
+      return(NULL)
+    } else stop(msg)
   }
   result <- utils::untar(destfile,exdir=installPath,tar="internal")    # Use internal to avoid problems on a Mac.
   unlink(destfile)
   if ( result == 0 ) {
     destdir <- file.path(installPath,"scala")
     scalaHome <- file.path(installPath,sprintf("scala-%s",version))
+    scalaHome <- scalaHome[dir.exists(scalaHome)]
+    if ( length(scalaHome) != 1 ) stop(paste0("Problem extracting Scala.  Clean delete the directory '",path.expand(installPath),"' and try again."))
     file.rename(scalaHome,destdir)
     if ( verbose ) cat("Successfully installed Scala at ",destdir,"\n",sep="")   
   } else {
     stop("Failed to extract installation.")
   }
+  NULL
 }
 
 javaSpecifics <- function(javaCmd,verbose) {
