@@ -1,12 +1,12 @@
-install-R --devel
-Bump version number in
-  build.sbt
+Run 'install-R --devel'
+Bump version number in build.sbt
 Update R/rscala/NEWS detailing changes (including the date)
 Try to bump to latest sbt version in project/build.properties.
-./bin/check
-./bin/post
-test on Linux, Mac OS, and Windows (use https://win-builder.r-project.org/)
-test depending packages: shallot, sdols, bamboo, commonsMath
+Run './bin/check'
+Run './bin/post'
+Rerun benchmarks: cd benchmarks; ./all
+Test on Linux, Mac OS, and Windows (use https://win-builder.r-project.org/)
+Test depending packages: shallot, sdols, bamboo, commonsMath
 Commit everything to Git.
 Tag in Git the version using "bin/tag" script.
 Submit to CRAN

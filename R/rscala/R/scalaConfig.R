@@ -143,7 +143,7 @@ findExecutable <- function(mode,installPath,mapper,verbose=TRUE) {  ## Mimic how
 }
 
 installJava <- function(installPath, verbose, useFallBack=FALSE) {
-  if ( verbose ) cat("\nDownloading Java...\n")
+  if ( verbose ) cat("\nDownloading Java.\n")
   dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
   unlink(file.path(installPath,"java"),recursive=TRUE)  # Delete older version
   os <- osType()
@@ -163,6 +163,7 @@ installJava <- function(installPath, verbose, useFallBack=FALSE) {
       return(NULL)
     } else stop(msg)
   }
+  if ( verbose ) cat("\nExtracting Java.\n")
   result <- utils::untar(destfile,exdir=installPath,tar="internal")    # Use internal to avoid problems on a Mac.
   unlink(destfile)
   if ( result == 0 ) {
@@ -179,7 +180,7 @@ installJava <- function(installPath, verbose, useFallBack=FALSE) {
 }
 
 installScala <- function(installPath, javaConf, verbose, useFallBack=FALSE) {
-  if ( verbose ) cat("\nDownloading Scala...\n")
+  if ( verbose ) cat("\nDownloading Scala.\n")
   SCALA_213_VERSION <- "2.13.0-M4"
   SCALA_212_VERSION <- "2.12.6"
   SCALA_211_VERSION <- "2.11.12"
@@ -207,6 +208,7 @@ installScala <- function(installPath, javaConf, verbose, useFallBack=FALSE) {
       return(NULL)
     } else stop(msg)
   }
+  if ( verbose ) cat("\nExtracting Scala.\n")
   result <- utils::untar(destfile,exdir=installPath,tar="internal")    # Use internal to avoid problems on a Mac.
   unlink(destfile)
   if ( result == 0 ) {

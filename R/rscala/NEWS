@@ -3,9 +3,23 @@
     user find, download, and install a compatible version).
   * Function 'scalaConfig' replaces functions 'scalaInfo' and 'scalaInstall'.
   * Function 'scalaMemory' replaces functions 'scalaHeapMaximum'.
+  * Automatic detection of available RAM and set the Java heap maximum to a
+    reasonable default to avoid 'java.lang.OutOfMemoryError'.  Users can still
+    explicitly set it using the argument 'heap.maximum' of the function
+    'scala' or through the function 'scalaMemory'.
+  * To aid in transferring rich objects between R and Scala, added functions
+    'scalaSerialize', 'scalaUnserialize', 'scalaSerializeRegister' and
+    'scalaUnserializeRegister'.
+  * Support named arguments in transcompiled functions.
+  * Added helpful functions 'is.scalaReference' and 'scalaFindBridge'.
+  * Support for upcoming release of Scala 2.13.
+  * Avoid Window's firewall pop up window.
+  * Detection of trying to use a bridge across R instances and more helpful
+    error message.
+  * Bug fix regarding callbacks and lexical scoping.
 
 3.1.0 (2018-07-12)
-  * Preliminary support for transcompling a (subset of) R code to Scala code.
+  * Preliminary support for transcompiling a (subset of) R code to Scala code.
   * Support for passing arbitrary R objects between R and Scala.
   * Bug fix: Close dangling connection on error from scalaInfo function.
 
