@@ -4,9 +4,9 @@ import scala.collection.mutable.HashMap
 import scala.tools.nsc.interpreter.IMain
 import scala.tools.nsc.Settings
 import java.io.{BufferedOutputStream, ByteArrayOutputStream, DataInputStream, DataOutputStream, File, PrintWriter}
-import java.net.ServerSocket
+import java.net.{InetAddress, ServerSocket}
 import java.util.concurrent.TimeUnit
-import java.nio.file.{FileSystems, Files, Paths, StandardWatchEventKinds, NoSuchFileException}
+import java.nio.file.{FileSystems, Files, NoSuchFileException, Paths, StandardWatchEventKinds}
 
 object Main extends App {
 
@@ -97,8 +97,9 @@ object Main extends App {
   // Start server
   if ( debugger.on ) debugger("starting server.")
   val ( portS2R, portR2S) = if ( port == 0 ) (0, 0) else (port, port+1)
-  val serverOut = new ServerSocket(portS2R)
-  val serverIn = new ServerSocket(portR2S)
+  val localhost = InetAddress.getByName(null)
+  val serverOut = new ServerSocket(portS2R,0, localhost)
+  val serverIn = new ServerSocket(portR2S,0, localhost)
   try {
     val portsFile = new File(portsFilename)
     val p = new PrintWriter(portsFile)

@@ -58,7 +58,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
       consent <- consent || consent2
     }
     if ( download.scala ) installScala(installPath,javaConf,verbose)
-    scalaSpecifics2 <- function(x) scalaSpecifics(x,javaConf)
+    scalaSpecifics2 <- function(x,y) scalaSpecifics(x,javaConf,y)
     scalaConf <- findExecutable("scala",installPath,scalaSpecifics2,verbose)
     if ( is.null(scalaConf) ) {
       if ( verbose ) cat("\n")
@@ -70,14 +70,17 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
       } else stop("Scala is not found.  Please run 'scalaConfig(download.scala=TRUE)'.")
       consent <- consent || consent2
     }
-    isOS64bit <- if ( identical(.Platform$OS.type,"windows") ) {
-      out <- system2("wmic",c("/locale:ms_409","OS","get","osarchitecture","/VALUE"),stdout=TRUE)
-      any("OSArchitecture=64-bit"==trimws(out))
-    } else identical(system2("uname","-m",stdout=TRUE),"x86_64")
-    osArchitecture <- if ( isOS64bit ) 64 else 32
-    if ( ( javaConf$javaArchitecture == 32 ) && ( osArchitecture == 64 ) ) {
-      warning("32-bit Java is paired with a 64-bit operating system.  Consider installing 64-bit Java to access more memory.")
-    }
+    osArchitecture <- if ( javaConf$javaArchitecture == 32 ) {
+      isOS64bit <- if ( identical(.Platform$OS.type,"windows") ) {
+        out <- system2("wmic",c("/locale:ms_409","OS","get","osarchitecture","/VALUE"),stdout=TRUE)
+        any("OSArchitecture=64-bit"==trimws(out))
+      } else identical(system2("uname","-m",stdout=TRUE),"x86_64")
+      osArchitecture <- if ( isOS64bit ) 64 else 32
+      if ( osArchitecture == 64 ) {
+        warning("32-bit Java is paired with a 64-bit operating system.  To access more memory, please run 'scalaConfig(download.java=TRUE)'.")
+      }
+      osArchitecture
+    } else javaConf$javaArchitecture
     config <- c(scalaConf,javaConf,osArchitecture=osArchitecture)
     if ( !consent && verbose ) cat("\n")
     writeConfig <- consent || offerInstall(paste0("File '",configPath,"' is not found."))
@@ -92,12 +95,11 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
   }
 }
 
-
 findExecutable <- function(mode,installPath,mapper,verbose=TRUE) {  ## Mimic how the 'scala' script finds Java.
   tryCandidate <- function(candidate) {
     if ( candidate != "" && file.exists(candidate) ) {
       if ( verbose ) cat(paste0("  Success with ",label,".\n"))
-      result <- mapper(candidate)
+      result <- mapper(candidate,verbose)
       if ( is.character(result) ) {
         cat(paste0("  ... but ",result,"\n"))
         NULL
@@ -196,8 +198,9 @@ installScala <- function(installPath, javaConf, verbose) {
   }
 }
 
-javaSpecifics <- function(javaCmd) {
-  response <- system2(normalizePath(javaCmd,mustWork=TRUE),"-version",stdout=TRUE,stderr=TRUE)
+javaSpecifics <- function(javaCmd,verbose) {
+  if ( verbose ) cat("\nQuerying Java specifics.\n")
+  response <- system2(path.expand(javaCmd),"-version",stdout=TRUE,stderr=TRUE)
   # Get version information
   versionRegexp <- '(java|openjdk) version "([^"]*)".*'
   line <- response[grepl(versionRegexp,response)]
@@ -216,9 +219,12 @@ javaSpecifics <- function(javaCmd) {
   list(javaCmd=javaCmd, javaMajorVersion=versionNumber, javaArchitecture=bit)
 }
 
-scalaSpecifics <- function(scalaCmd,javaConf) {
-  fullVersion <- system2(normalizePath(scalaCmd,mustWork=TRUE),c("-nc","-e",shQuote("print(util.Properties.versionNumberString)")),
-                         env=paste0("JAVACMD=",normalizePath(javaConf$javaCmd,mustWork=TRUE)),stdout=TRUE)
+scalaSpecifics <- function(scalaCmd,javaConf,verbose) {
+  if ( verbose ) cat("\nQuerying Scala specifics.\n")
+  oldJAVACMD <- Sys.getenv("JAVACMD")
+  Sys.setenv(JAVACMD=path.expand(javaConf$javaCmd))
+  fullVersion <- system2(path.expand(scalaCmd),c("-nc","-e",shQuote("print(util.Properties.versionNumberString)")),stdout=TRUE)
+  Sys.setenv(JAVACMD=oldJAVACMD)
   majorVersion <- gsub("(^[23]\\.[0-9]+)\\..*","\\1",fullVersion)
   if ( ! ( majorVersion %in% c("2.11","2.12","2.13") ) ) {
     return(paste0("unsupport Scala version: ",majorVersion))
