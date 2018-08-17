@@ -1,3 +1,9 @@
+3.2.0 (2018-08-17)
+  * Support for downloading and installing Java within R (instead of making the
+    user find, download, and install a compatible version).
+  * Function 'scalaConfig' replaces functions 'scalaInfo' and 'scalaInstall'.
+  * Function 'scalaMemory' replaces functions 'scalaHeapMaximum'.
+
 3.1.0 (2018-07-12)
   * Preliminary support for transcompling a (subset of) R code to Scala code.
   * Support for passing arbitrary R objects between R and Scala.

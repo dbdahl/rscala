@@ -9,14 +9,18 @@ exploit each language's respective strengths in a single project. The rscala
 package brings Scala and Java libraries into R with a simple interface.
 Specifically, Scala classes can be instantiated and methods of Scala classes
 can be called directly. Furthermore, arbitrary Scala code can be executed on
-the fly from within R and callbacks to R are supported.  The rscala package is
-available on CRAN and requires no special installations or configurations of R
-or Scala. 
+the fly from within R and callbacks to R are supported.
 
 Install the package in R by executing:
 
 ```R
 install.packages("rscala") 
+```
+
+To install -- or check the compatability of your existing installation of --- Scala and Java, please execute:
+
+```R
+rscala::scalaConfig()
 ```
 
 A paper describing an older version of the software is awaiting peer review at
