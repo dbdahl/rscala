@@ -4,7 +4,7 @@
 #' connections.  The primary place where this function is used is at the end of
 #' examples of packages that depend on rscala (because, under some versions of
 #' R, "\code{R CMD check --as-cran}" does not permit connections to persist
-#' after examples end.
+#' after an example ends).
 #'
 #' @param bridge An rscala bridge.
 
