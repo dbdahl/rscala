@@ -18,7 +18,7 @@
 #'
 #' @return Returns \code{NULL}, invisibly.
 #'
-#' @seealso \code{\link{scalaPackageUnload}}, \code{\link{scala}}
+#' @seealso \code{\link{scalaPackageUnload}}, \code{\link{scalaSuspend}}, \code{\link{scala}}
 #' @export
 #'
 #' @examples \dontrun{
@@ -39,7 +39,7 @@ scalaPackage <- function(packages=character(),
   if ( is.null(assign.name) || ( assign.name == "" ) ) stop("'assign.name' must be supplied.")
   assign.callback2 <- function(s) {
     assign.callback(s)
-    scalaPackageSuspend(s)
+    scalaSuspend(s)
   }
   if ( mode == "" ) {
     assign("rscalaBridgeOwner",TRUE,envir=pkgEnv)
