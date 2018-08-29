@@ -1,4 +1,5 @@
 scalaInvoke <- function(details, snippet, args, envir, withNames=FALSE, withReference=FALSE, transcompileInfo=NULL) {
+  if ( details[["suspended"]] ) scalaPackageResume(details)
   scalaLastEngine(details)
   if ( details[["interrupted"]] ) return(invisible())
   socketOut <- details[["socketOut"]]

@@ -1,5 +1,19 @@
 library(rscala)
 scala()
+showConnections()
+s * "3+4"
+showConnections()
+scala()
+showConnections()
+gc()
+showConnections()
+
+
+
+
+
+
+
 s
 s$showCode <- TRUE
 

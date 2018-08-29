@@ -15,7 +15,8 @@
 #' @seealso \code{\link{scala}}
 #'
 #' @examples \dontrun{
-#' scalaHeapMaximum("1G")
+#' 
+#' scalaMemory("1G")
 #' }
 scalaMemory <- function(x) {
   if ( missing(x) ) getOption("rscala.heap.maximum")
@@ -25,4 +26,29 @@ scalaMemory <- function(x) {
     options(rscala.heap.maximum=as.character(x)[1])
     invisible()
   }
+}
+
+#' @export
+scalaPackageSuspend <- function(s) {
+  details <- attr(s,"details")
+  if ( details[["suspended"]] ) return(invisible())
+  scalaLastEngine(details)
+  if ( details[["interrupted"]] ) return(invisible())
+  socketOut <- details[["socketOut"]]
+  socketIn  <- details[["socketIn"]]
+  wb(socketOut,PCODE_SUSPEND)
+  close(socketIn)
+  close(socketOut)
+  assign("suspended",TRUE,envir=details)
+  invisible()
+}
+
+#' @export
+scalaPackageResume <- function(details) {
+  socketIn  <- socketConnection(host="localhost", port=details[['socketInPort']], server=FALSE, blocking=TRUE, open="rb", timeout=2678400L)
+  socketOut <- socketConnection(host="localhost", port=details[['socketOutPort']], server=FALSE, blocking=TRUE, open="ab", timeout=2678400L)
+  assign("socketIn",socketIn,envir=details)
+  assign("socketOut",socketOut,envir=details)
+  assign("suspended",FALSE,envir=details)
+  invisible()
 }

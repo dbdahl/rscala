@@ -16,6 +16,7 @@ object Protocol {
   val PCODE_INVOKE_FREEFORM       = 17.toByte
   val PCODE_ADD_TO_CLASSPATH      = 18.toByte
   val PCODE_GARBAGE_COLLECT       = 19.toByte
+  val PCODE_SUSPEND               = 20.toByte
 
   // type codes
 

@@ -9,7 +9,7 @@ import scala.reflect.ClassTag
 import java.io.{ByteArrayOutputStream, DataInputStream, DataOutputStream, File, PrintWriter}
 import java.nio.ByteBuffer
 
-class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rscala] val conduit: Conduit, out: DataOutputStream, in: DataInputStream, val debugger: Debugger, val serializeOutput: Boolean, prntWrtr: PrintWriter, baos: ByteArrayOutputStream) {
+class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rscala] val conduit: Conduit, private var out: DataOutputStream, private var in: DataInputStream, val debugger: Debugger, val serializeOutput: Boolean, prntWrtr: PrintWriter, baos: ByteArrayOutputStream) {
 
   private val zero = 0.toByte
   private val one = 1.toByte
@@ -359,6 +359,13 @@ class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rsca
     }
   }
 
+  private def suspend(): Unit = {
+    exit()
+    val (out2, in2) = Main.acceptAndSetup()
+    out = out2
+    in = in2
+  }
+
   private[rscala] def getCmd(): Byte = {
     try {
       in.readByte()
@@ -392,6 +399,7 @@ class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rsca
       case PCODE_INVOKE_FREEFORM => invoke(false,true)
       case PCODE_ADD_TO_CLASSPATH => addToClasspath()
       case PCODE_GARBAGE_COLLECT => gc()
+      case PCODE_SUSPEND => suspend()
       case _ =>
         throw new IllegalStateException("Unsupported command: "+request)
     }

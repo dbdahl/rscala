@@ -106,6 +106,7 @@ scala <- function(packages=character(),
   assign("connected",FALSE,envir=details) 
   assign("pid",Sys.getpid(),envir=details)
   assign("interrupted",FALSE,envir=details)
+  assign("suspended",FALSE,envir=details)
   transcompileHeader <- c("import org.ddahl.rscala.Transcompile._","import scala.util.control.Breaks", unlist(lapply(packages,transcompileHeaderOfPackage)))
   assign("transcompileHeader",transcompileHeader,envir=details)
   assign("transcompileSubstitute",unlist(lapply(packages,transcompileSubstituteOfPackage)),envir=details)
@@ -188,8 +189,20 @@ newSockets <- function(portsFilename, details, JARs) {
   unlink(portsFilename)
   socketIn  <- socketConnection(host="localhost", port=ports[1], server=FALSE, blocking=TRUE, open="rb", timeout=2678400L)
   socketOut <- socketConnection(host="localhost", port=ports[2], server=FALSE, blocking=TRUE, open="ab", timeout=2678400L)
+#  socketInDescription <- summary(socketIn)$description
+#  socketOutDescription <- summary(socketOut)$description
+#  reg.finalizer(attr(socketIn,"conn_id"),function(x) {
+#    cat(paste0(socketInDescription," ",summary(socketIn)$description,"\n"))
+#    close(socketIn)
+#  })
+#  reg.finalizer(attr(socketOut,"conn_id"),function(x) {
+#    cat(paste0(socketOutDescription," ",summary(socketOut)$description,"\n"))
+#    close(socketOut)
+#  })
   assign("socketIn",socketIn,envir=details)
+  assign("socketInPort",ports[1],envir=details)
   assign("socketOut",socketOut,envir=details)
+  assign("socketOutPort",ports[2],envir=details)
   assign("connected",TRUE,envir=details)
   if ( length(JARs) > 0 ) scalaAddJARs(JARs, details)
 }

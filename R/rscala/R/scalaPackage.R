@@ -37,10 +37,14 @@ scalaPackage <- function(packages=character(),
                          mode="",...) {
   pkgEnv <- parent.env(parent.frame())    # Environment of depending package (assuming this function is only called in .onLoad function).
   if ( is.null(assign.name) || ( assign.name == "" ) ) stop("'assign.name' must be supplied.")
+  assign.callback2 <- function(s) {
+    assign.callback(s)
+    scalaPackageSuspend(s)
+  }
   if ( mode == "" ) {
     assign("rscalaBridgeOwner",TRUE,envir=pkgEnv)
     assign("rscalaBridgeName",assign.name,envir=pkgEnv)
-    scala(packages,assign.callback,assign.name,JARs,assign.env=pkgEnv,...)
+    scala(packages,assign.callback2,assign.name,JARs,assign.env=pkgEnv,...)
   }
   else {
     assign("rscalaBridgeOwner",FALSE,envir=pkgEnv)
@@ -49,7 +53,7 @@ scalaPackage <- function(packages=character(),
       majorVersion <- attr(s,"details")[["config"]]$scalaMajorVersion
       JARs <- c(JARs,unlist(lapply(packages, function(p) jarsOfPackage(p, majorVersion))))
       scalaAddJARs(JARs, s)
-      assign.callback(s)
+      assign.callback2(s)
       details <- attr(s,"details")
       transcompileHeader <- c(get("transcompileHeader",envir=details), unlist(lapply(packages,transcompileHeaderOfPackage)))
       assign("transcompileHeader",transcompileHeader,envir=details)

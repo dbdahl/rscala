@@ -14,6 +14,7 @@
 #' }
 scalaAddJARs <- function(JARs, bridge=scalaFindBridge()) {
   details <- if ( inherits(bridge,"rscalaBridge") ) attr(bridge,"details") else bridge
+  if ( details[["suspended"]] ) scalaPackageResume(details)
   checkConnection(details)
   if ( ! is.character(JARs) ) stop("'JARs' should be a character vector.")
   JARs <- path.expand(JARs)
