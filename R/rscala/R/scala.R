@@ -201,8 +201,8 @@ scalaResume <- function(details) {
   assign("suspended",FALSE,envir=details)
   socketInDescription <- summary(socketIn)$description
   socketOutDescription <- summary(socketOut)$description
-  reg.finalizer(attr(socketIn, "conn_id"),function(x) close(socketIn))
-  reg.finalizer(attr(socketOut,"conn_id"),function(x) close(socketOut))
+  reg.finalizer(attr(socketIn, "conn_id"),function(x) close(socketIn), onexit=TRUE)
+  reg.finalizer(attr(socketOut,"conn_id"),function(x) close(socketOut),onexit=TRUE)
   invisible()
 }
 
