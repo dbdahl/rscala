@@ -22,21 +22,29 @@ Type 'q()' to quit R.
 > 
 > cat(system2("hostname",stdout=TRUE),"\n",sep="")
 ramah
-> scalaInfo()
+> scalaConfig()
+Read existing configuration file: ~/.rscala/config.R
 
-Search details:
-    SCALA_HOME environment variable is not set.
-    Looking for Scala using PATH environment variable.
-    Found 'scala' at /home/dahl/local/scala/scala/scala-2.12.6/bin/scala.
+$scalaCmd
+[1] "/home/dahl/local/bin/scala"
 
-$cmd
-[1] "/home/dahl/local/scala/scala/scala-2.12.6/bin/scala"
+$scalaMajorVersion
+[1] "2.12"
 
-$fullVersion
+$scalaFullVersion
 [1] "2.12.6"
 
-$majorVersion
-[1] "2.12"
+$javaCmd
+[1] "/home/dahl/local/bin/java"
+
+$javaMajorVersion
+[1] 8
+
+$javaArchitecture
+[1] 64
+
+$osArchitecture
+[1] 64
 
 > sessionInfo()
 R version 3.5.1 (2018-07-02)
@@ -59,7 +67,7 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] microbenchmark_1.4-4       rscala_3.1.0-20180729-0155
+[1] microbenchmark_1.4-4 rscala_3.2.0        
 
 loaded via a namespace (and not attached):
 [1] compiler_3.5.1
@@ -78,13 +86,13 @@ loaded via a namespace (and not attached):
 + )
 Unit: microseconds
                                     expr       min         lq        mean
- s * sample.int(.Machine$integer.max, 1) 83176.571 87073.9650 108526.2664
-                          s * 2056700609   104.483   153.5365    190.2524
+ s * sample.int(.Machine$integer.max, 1) 82947.907 87646.8575 107974.5427
+                          s * 2056700609    91.313   135.2995    182.4959
      median         uq        max neval
- 95023.4460 108388.332 349501.031   100
-   200.4685    217.371    284.253   100
+ 92241.3210 105647.220 291015.890   100
+   190.8175    216.998    386.688   100
 > 
 > 
 > proc.time()
    user  system elapsed 
-  0.216   0.152  14.051 
+  0.208   0.128  13.949 

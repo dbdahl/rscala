@@ -2,7 +2,7 @@ library(rscala)
 library(microbenchmark)
 
 cat(system2("hostname",stdout=TRUE),"\n",sep="")
-scalaInfo()
+scalaConfig()
 sessionInfo()
 
 openAndClose <- function() {
