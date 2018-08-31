@@ -74,7 +74,7 @@ do
   j=$i
   if [[ "$j" == "2.13" ]]
   then
-    j=${j}.0-M4
+    j=${j}.0-M5
   fi
   find "$PKG_HOME"/target -regex '.*/'${PKG_NAME}_$j'-.*[^a-zA-Z]+\(-SNAPSHOT\)?\.jar' | xargs ls -1t | head -1 | xargs -i cp '{}' "$JARDIR"/scala-$i
 done

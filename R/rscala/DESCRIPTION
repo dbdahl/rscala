@@ -2,7 +2,7 @@ Package: rscala
 Type: Package
 Title: Bridge Between 'R' and 'Scala' with Callbacks
 Version: 3.2.0
-Date: 2018-08-29
+Date: 2018-08-31
 Authors@R: person(given="David B.",family="Dahl",role=c("aut","cre"),email="dahl@stat.byu.edu")
 URL: https://github.com/dbdahl/rscala
 BugReports: https://github.com/dbdahl/rscala/issues

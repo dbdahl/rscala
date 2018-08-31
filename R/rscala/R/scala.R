@@ -206,7 +206,7 @@ scalaResume <- function(details) {
 
 jarsOfPackage <- function(pkgname, major.release) {
   dir <- if ( file.exists(system.file("inst",package=pkgname)) ) file.path("inst/java") else "java"
-  if ( major.release == "2.13" ) major.release <- paste0(major.release,".0-M4")
+  if ( major.release == "2.13" ) major.release <- paste0(major.release,".0-M5")
   jarsMajor <- list.files(file.path(system.file(dir,package=pkgname),paste0("scala-",major.release)),pattern=".*\\.jar$",full.names=TRUE,recursive=FALSE)
   jarsAny <- list.files(system.file(dir,package=pkgname),pattern=".*\\.jar$",full.names=TRUE,recursive=FALSE)
   result <- c(jarsMajor,jarsAny)
@@ -228,7 +228,7 @@ transcompileSubstituteOfPackage <- function(pkgname) {
 
 osType <- function() {
   if ( .Platform$OS.type == "windows" ) "windows"
-  else if ( Sys.info()["sysname"] == "Darwin" ) "osx"
+  else if ( Sys.info()["sysname"] == "Darwin" ) "mac"
   else "linux"
 }
 
@@ -250,7 +250,7 @@ getHeapMaximum <- function(heap.maximum,is32bit) {
     outTemp <- gsub("^FreePhysicalMemory=","",outTemp)
     outTemp <- gsub("\r","",outTemp)
     as.numeric(outTemp) * 1024
-  } else if ( os == "osx" ) {
+  } else if ( os == "mac" ) {
     outTemp <- system2("vm_stat",stdout=TRUE)
     outTemp <- outTemp[grepl("(Pages free|Pages inactive|Pages speculative):.*",outTemp)]
     sum(sapply(strsplit(outTemp,":"),function(x) as.numeric(x[2]))) * 4096

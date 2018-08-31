@@ -115,13 +115,9 @@ findExecutable <- function(mode,installPath,mapper,verbose=TRUE) {  ## Mimic how
   ###
   label <- "user directory"
   candidate <- if ( mode == "java" ) {
-    os <- osType()
-    if ( os == "linux" ) file.path(installPath,"java","bin","java")
-    else if ( os == "osx" ) file.path(installPath,"java","Contents","Home","bin","java")
-    else if ( os == "windows" ) file.path(installPath,"java","bin","java.exe")
-    else stop("Unsupported operating system.")
+    file.path(installPath,"java","bin",paste0("java",if ( .Platform$OS.type == "windows" ) ".exe" else ""))
   } else if ( mode == "scala" ) {
-    file.path("~",".rscala","scala","bin",paste0("scala",if ( .Platform$OS.type == "windows" ) ".bat" else ""))
+    file.path(installPath,"scala","bin",paste0("scala",if ( .Platform$OS.type == "windows" ) ".bat" else ""))
   } else stop("Unsupported mode.")
   conf <- tryCandidate(candidate)
   if ( ! is.null(conf) ) return(conf)
@@ -145,22 +141,21 @@ findExecutable <- function(mode,installPath,mapper,verbose=TRUE) {  ## Mimic how
 installJava <- function(installPath, verbose, urlCounter=1) {
   if ( verbose ) cat("\nDownloading Java.\n")
   dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
-  unlink(file.path(installPath,"java"),recursive=TRUE)  # Delete older version
+  unlink(file.path(installPath,"java"),recursive=TRUE,force=TRUE)  # Delete older version
   os <- osType()
-  url <- if ( urlCounter == 1 ) sprintf("https://api.adoptopenjdk.net/v2/binary/releases/openjdk10?openjdk_impl=hotspot&os=%s&arch=x64&release=latest&type=jdk",ifelse(os=="osx","mac",os))
-  else if ( urlCounter == 2 ) sprintf("https://download.java.net/java/GA/jdk10/10.0.2/19aef61b38124481863b1413dce1855f/13/openjdk-10.0.2_%s-x64_bin.tar.gz",os)
-  else if ( urlCounter == 3 ) {
-    if ( os == "linux" ) "https://byu.box.com/shared/static/3sfzfpcj3twikcqijpndwxds1mlwqbtx.gz"
-    else if ( os == "osx" ) "https://byu.box.com/shared/static/ix9r2k43s2zardixc7t5bswpe9z7rs2t.gz"
-    else if ( os == "windows" ) "https://byu.box.com/shared/static/lt22qowqnt6trmxcy1qyydfrntu18bvw.gz"
+  url <- if ( urlCounter == 1 ) sprintf("https://api.adoptopenjdk.net/v2/binary/releases/openjdk8?openjdk_impl=hotspot&os=%s&arch=x64&release=latest&type=jdk",os)
+  else if ( urlCounter == 2 ) {
+    if ( os == "linux" ) "https://byu.box.com/shared/static/0t29ifd8l023fd91g1vh8p70hx5v7lg0.gz"
+    else if ( os == "mac" ) "https://byu.box.com/shared/static/s3l05yhi8ez7tuoe7732hsr53imxdc5u.gz"
+    else if ( os == "windows" ) "https://byu.box.com/shared/static/wfhgu72szx3y2m05sdreje0dlfzhnag2.zip"
     else stop("Unsupported operating system.")
   }
-  destfile <- tempfile(os,tmpdir=installPath,fileext=ifelse(os=="windows" && urlCounter==1,".zip",".tar.gz"))
-  result <- tryCatch( utils::download.file(url, destfile), error=function(e) 1, warning=function(e) 1)
+  destfile <- tempfile(os,tmpdir=installPath,fileext=ifelse(os=="windows",".zip",".tar.gz"))
+  result <- tryCatch( utils::download.file(url, destfile, mode="wb"), error=function(e) 1, warning=function(e) 1)
   if ( result != 0 ) {
-    unlink(destfile)
+    unlink(destfile,force=TRUE)
     msg <- "Failed to download installation."
-    if ( urlCounter < 3 ) {
+    if ( urlCounter < 2 ) {
       if ( verbose ) cat(paste0(msg,"\n"))
       installJava(installPath,verbose,urlCounter+1)
       return(NULL)
@@ -171,24 +166,20 @@ installJava <- function(installPath, verbose, urlCounter=1) {
   func <- if ( ext == "zip" ) function(x) utils::unzip(x,exdir=installPath,unzip="internal")
   else if ( ext == "gz" ) function(x) utils::untar(x,exdir=installPath,tar="internal")
   else stop(paste0("Unsupported extension '",ext,"' for ",destfile))
-  result <- func(destfile)
-  unlink(destfile)
-  if ( result == 0 ) {
-    destdir <- file.path(installPath,"java")
-    javaHome <- list.files(installPath,"^jdk-.*",full.names=TRUE)
-    javaHome <- javaHome[dir.exists(javaHome)]
-    if ( length(javaHome) != 1 ) stop(paste0("Problem extracting Java.  Clean delete the directory '",path.expand(installPath),"' and try again."))
-    file.rename(javaHome,destdir)
-    if ( verbose ) cat("Successfully installed Java at ",destdir,"\n",sep="")
-  } else {
-    stop("Failed to extract installation.")
-  }
+  func(destfile)
+  unlink(destfile,force=TRUE)
+  destdir <- file.path(installPath,"java")
+  javaHome <- list.files(installPath,"^jdk.*",full.names=TRUE,recursive=FALSE)
+  javaHome <- javaHome[dir.exists(javaHome)]
+  if ( length(javaHome) != 1 ) stop(paste0("Problem extracting Java.  Clean delete the directory '",path.expand(installPath),"' and try again."))
+  file.rename(javaHome,destdir)
+  if ( verbose ) cat("Successfully installed Java at ",destdir,"\n",sep="")
   NULL
 }
 
 installScala <- function(installPath, javaConf, verbose, useFallBack=FALSE) {
   if ( verbose ) cat("\nDownloading Scala.\n")
-  SCALA_213_VERSION <- "2.13.0-M4"
+  SCALA_213_VERSION <- "2.13.0-M5"
   SCALA_212_VERSION <- "2.12.6"
   SCALA_211_VERSION <- "2.11.12"
   dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
