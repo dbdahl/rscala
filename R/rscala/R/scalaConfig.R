@@ -142,29 +142,36 @@ findExecutable <- function(mode,installPath,mapper,verbose=TRUE) {  ## Mimic how
   NULL
 }
 
-installJava <- function(installPath, verbose, useFallBack=FALSE) {
+installJava <- function(installPath, verbose, urlCounter=1) {
   if ( verbose ) cat("\nDownloading Java.\n")
   dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
   unlink(file.path(installPath,"java"),recursive=TRUE)  # Delete older version
   os <- osType()
-  url <- sprintf("https://download.java.net/java/GA/jdk10/10.0.2/19aef61b38124481863b1413dce1855f/13/openjdk-10.0.2_%s-x64_bin.tar.gz",os)
-  url2 <- if ( os == "linux" ) "https://byu.box.com/shared/static/3sfzfpcj3twikcqijpndwxds1mlwqbtx.gz"
-  else if ( os == "osx" ) "https://byu.box.com/shared/static/ix9r2k43s2zardixc7t5bswpe9z7rs2t.gz"
-  else if ( os == "windows" ) "https://byu.box.com/shared/static/lt22qowqnt6trmxcy1qyydfrntu18bvw.gz"
-  else stop("Unsupported operating system.")
-  destfile <- file.path(installPath,basename(url))
-  result <- tryCatch( utils::download.file(if ( !useFallBack ) url else url2, destfile), error=function(e) 1, warning=function(e) 1)
+  url <- if ( urlCounter == 1 ) sprintf("https://api.adoptopenjdk.net/v2/binary/releases/openjdk10?openjdk_impl=hotspot&os=%s&arch=x64&release=latest&type=jdk",ifelse(os=="osx","mac",os))
+  else if ( urlCounter == 2 ) sprintf("https://download.java.net/java/GA/jdk10/10.0.2/19aef61b38124481863b1413dce1855f/13/openjdk-10.0.2_%s-x64_bin.tar.gz",os)
+  else if ( urlCounter == 3 ) {
+    if ( os == "linux" ) "https://byu.box.com/shared/static/3sfzfpcj3twikcqijpndwxds1mlwqbtx.gz"
+    else if ( os == "osx" ) "https://byu.box.com/shared/static/ix9r2k43s2zardixc7t5bswpe9z7rs2t.gz"
+    else if ( os == "windows" ) "https://byu.box.com/shared/static/lt22qowqnt6trmxcy1qyydfrntu18bvw.gz"
+    else stop("Unsupported operating system.")
+  }
+  destfile <- tempfile(os,tmpdir=installPath,fileext=ifelse(os=="windows" && urlCounter==1,".zip",".tar.gz"))
+  result <- tryCatch( utils::download.file(url, destfile), error=function(e) 1, warning=function(e) 1)
   if ( result != 0 ) {
     unlink(destfile)
     msg <- "Failed to download installation."
-    if ( ! useFallBack ) {
+    if ( urlCounter < 3 ) {
       if ( verbose ) cat(paste0(msg,"\n"))
-      installJava(installPath,verbose,TRUE)
+      installJava(installPath,verbose,urlCounter+1)
       return(NULL)
     } else stop(msg)
   }
   if ( verbose ) cat("\nExtracting Java.\n")
-  result <- utils::untar(destfile,exdir=installPath,tar="internal")    # Use internal to avoid problems on a Mac.
+  ext <- tools::file_ext(destfile)
+  func <- if ( ext == "zip" ) function(x) utils::unzip(x,exdir=installPath,unzip="internal")
+  else if ( ext == "gz" ) function(x) utils::untar(x,exdir=installPath,tar="internal")
+  else stop(paste0("Unsupported extension '",ext,"' for ",destfile))
+  result <- func(destfile)
   unlink(destfile)
   if ( result == 0 ) {
     destdir <- file.path(installPath,"java")
