@@ -141,7 +141,6 @@ findExecutable <- function(mode,installPath,mapper,verbose=TRUE) {  ## Mimic how
 installJava <- function(installPath, verbose, urlCounter=1) {
   if ( verbose ) cat("\nDownloading Java.\n")
   dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
-  unlink(file.path(installPath,"java"),recursive=TRUE,force=TRUE)  # Delete older version
   os <- osType()
   url <- if ( urlCounter == 1 ) sprintf("https://api.adoptopenjdk.net/v2/binary/releases/openjdk8?openjdk_impl=hotspot&os=%s&arch=x64&release=latest&type=jdk",os)
   else if ( urlCounter == 2 ) {
@@ -150,8 +149,11 @@ installJava <- function(installPath, verbose, urlCounter=1) {
     else if ( os == "windows" ) "https://byu.box.com/shared/static/wfhgu72szx3y2m05sdreje0dlfzhnag2.zip"
     else stop("Unsupported operating system.")
   }
-  destfile <- tempfile(os,tmpdir=installPath,fileext=ifelse(os=="windows",".zip",".tar.gz"))
-  result <- tryCatch( utils::download.file(url, destfile, mode="wb"), error=function(e) 1, warning=function(e) 1)
+  installPathTemp <- file.path(installPath,"tmp")
+  unlink(installPathTemp,recursive=TRUE,force=TRUE)
+  dir.create(installPathTemp,showWarnings=FALSE,recursive=TRUE)
+  destfile <- tempfile("jdk",tmpdir=installPathTemp)
+  result <- tryCatch(utils::download.file(url, destfile, mode="wb"), error=function(e) 1, warning=function(e) 1)
   if ( result != 0 ) {
     unlink(destfile,force=TRUE)
     msg <- "Failed to download installation."
@@ -162,17 +164,17 @@ installJava <- function(installPath, verbose, urlCounter=1) {
     } else stop(msg)
   }
   if ( verbose ) cat("\nExtracting Java.\n")
-  ext <- tools::file_ext(destfile)
-  func <- if ( ext == "zip" ) function(x) utils::unzip(x,exdir=installPath,unzip="internal")
-  else if ( ext == "gz" ) function(x) utils::untar(x,exdir=installPath,tar="internal")
-  else stop(paste0("Unsupported extension '",ext,"' for ",destfile))
+  func <- if ( os == "windows" ) function(x) utils::unzip(x,exdir=installPathTemp,unzip="internal")
+  else function(x) utils::untar(x,exdir=installPathTemp,tar="internal")
   func(destfile)
   unlink(destfile,force=TRUE)
   destdir <- file.path(installPath,"java")
-  javaHome <- list.files(installPath,"^jdk.*",full.names=TRUE,recursive=FALSE)
+  unlink(destdir,recursive=TRUE,force=TRUE)  # Delete older version
+  javaHome <- list.files(installPathTemp,full.names=TRUE,recursive=FALSE)
   javaHome <- javaHome[dir.exists(javaHome)]
   if ( length(javaHome) != 1 ) stop(paste0("Problem extracting Java.  Clean delete the directory '",path.expand(installPath),"' and try again."))
   file.rename(javaHome,destdir)
+  unlink(installPathTemp,recursive=TRUE,force=TRUE)
   if ( verbose ) cat("Successfully installed Java at ",destdir,"\n",sep="")
   NULL
 }
