@@ -54,7 +54,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
         installJava(installPath,verbose)
         javaConf <- findExecutable("java",installPath,javaSpecifics,verbose)
         if ( is.null(javaConf) ) stop("Java is not found and cannot be successfully installed.")
-      } else stop("\n\n<<<<<<<<<<\n\nJava is not found!  Please run 'rscala::scalaConfig(download.java=TRUE)'\n\n>>>>>>>>>>\n")
+      } else stop("\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nJava is not found!  Please run 'rscala::scalaConfig(download.java=TRUE)'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n")
       consent <- consent || consent2
     }
     if ( download.scala ) installScala(installPath,javaConf,verbose)
@@ -67,7 +67,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
         installScala(installPath,javaConf,verbose)
         scalaConf <- findExecutable("scala",installPath,scalaSpecifics2,verbose)
         if ( is.null(scalaConf) ) stop("Scala is not found and cannot be successfully installed.")
-      } else stop("\n\n<<<<<<<<<<\n\nScala is not found!  Please run 'rscala::scalaConfig(download.scala=TRUE)'\n\n>>>>>>>>>>\n")
+      } else stop("\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nScala is not found!  Please run 'rscala::scalaConfig(download.scala=TRUE)'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n")
       consent <- consent || consent2
     }
     osArchitecture <- if ( javaConf$javaArchitecture == 32 ) {
