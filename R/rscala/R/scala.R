@@ -25,8 +25,6 @@
 #'   or \code{^}.  This function might also include calls to
 #'   \code{\link{scalaSerializeRegister}} and
 #'   \code{\link{scalaUnserializeRegister}}.
-#' @param assign.name The name of the (promise of the) bridge to be assigned in
-#'   the environment given by the \code{assign.env} argument.
 #' @param JARs Character vector whose elements are individual JAR files to be
 #'   added to the runtime classpath.
 #' @param serialize.output Logical indicating whether Scala output should be
@@ -44,8 +42,6 @@
 #'   Without this being set in either \code{\link{scala}} or
 #'   \code{\link{scalaMemory}}, the heap maximum will be 90\% of the available
 #'   RAM.
-#' @param assign.env (Developer use only.) The environment in which the (promise
-#'   of the) bridge is assigned.
 #' @param debug (Developer use only.)  Logical indicating whether debugging
 #'   should be enabled.
 #'
@@ -57,26 +53,24 @@
 #' @export
 #'
 #' @examples \donttest{
-#' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
-#' rng <- e $ .new_scala.util.Random()
+#' s <- scala()
+#' rng <- s $ .new_scala.util.Random()
 #' rng $ alphanumeric() $ take(15L) $ mkString(',')
-#' e * '2+3'
-#' h <- e(x=2, y=3) ^ 'x+y'
+#' s * '2+3'
+#' h <- s(x=2, y=3) ^ 'x+y'
 #' h $ toString()
-#' e(mean=h, sd=2, r=rng) * 'mean + sd * r.nextGaussian()'
-#' close(e)
+#' s(mean=h, sd=2, r=rng) * 'mean + sd * r.nextGaussian()'
+#' close(s)
 #' }
 #' 
 scala <- function(packages=character(),
                   assign.callback=function(s) {},
-                  assign.name="s",
                   JARs=character(),
                   serialize.output=.Platform$OS.type=="windows",
                   stdout=TRUE,
                   stderr=TRUE,
                   port=0L,
                   heap.maximum=NULL,
-                  assign.env=parent.frame(),
                   debug=FALSE) {
   if ( identical(stdout,TRUE) ) stdout <- ""
   if ( identical(stderr,TRUE) ) stderr <- ""
@@ -104,6 +98,7 @@ scala <- function(packages=character(),
   assign("sessionFilename",sessionFilename,envir=details)
   assign("closed",FALSE,envir=details)
   assign("connected",FALSE,envir=details) 
+  assign("suspended",TRUE,envir=details) 
   assign("pid",Sys.getpid(),envir=details)
   assign("interrupted",FALSE,envir=details)
   transcompileHeader <- c("import org.ddahl.rscala.Transcompile._","import scala.util.control.Breaks", unlist(lapply(packages,transcompileHeaderOfPackage)))
@@ -118,6 +113,9 @@ scala <- function(packages=character(),
   assign("garbage",integer(),envir=details)
   assign("config",sConfig,envir=details)
   assign("heapMaximum",heap.maximum,envir=details)
+  assign("portsFilename",portsFilename,envir=details)
+  assign("initialJARs",JARs,envir=details)
+  assign("assign.callback.list",list(assign.callback),envir=details)
   assign("JARs",character(0),envir=details)
   gcFunction <- function(e) {
     garbage <- details[["garbage"]]
@@ -126,26 +124,7 @@ scala <- function(packages=character(),
   }
   assign("gcFunction",gcFunction,envir=details)
   reg.finalizer(details,close.rscalaBridge,onexit=TRUE)
-  bridge <- mkBridge(details)
-  if ( ! is.null(assign.name) && ( assign.name != "" ) ) {
-    if ( interactive() ) {
-      delayedAssign(assign.name,{
-        newSockets(portsFilename, details, JARs)
-        assign.callback(bridge)
-        bridge
-      },assign.env=assign.env)
-    } else {
-      assign(assign.name,{
-        newSockets(portsFilename, details, JARs)
-        assign.callback(bridge)
-        bridge
-      },envir=assign.env)
-    }
-  } else {
-    newSockets(portsFilename, details, JARs)
-    assign.callback(bridge)
-    bridge
-  }
+  mkBridge(details)
 }
 
 mkBridge <- function(details) {
@@ -174,33 +153,41 @@ mkBridge <- function(details) {
   bridge
 }
 
-newSockets <- function(portsFilename, details, JARs) {
-  ports <- local({
-    delay <- 0.01
-    while ( TRUE ) {
-      if ( file.exists(portsFilename) ) {
-        line <- scan(portsFilename,n=2,what=character(),quiet=TRUE)
-        if ( length(line) > 0 ) return(as.numeric(line))
-      }
-      Sys.sleep(delay)
-    }
-  })
-  unlink(portsFilename)
-  assign("socketInPort",ports[1],envir=details)
-  assign("socketOutPort",ports[2],envir=details)
-  scalaResume(details)
-  if ( length(JARs) > 0 ) scalaAddJARs(JARs, details)
-}
-
 scalaResume <- function(details) {
+  if ( ! exists("socketInPort",envir=details) ) {
+    portsFilename <- get("portsFilename",envir=details)
+    ports <- local({
+      delay <- 0.01
+      while ( TRUE ) {
+        if ( file.exists(portsFilename) ) {
+          line <- scan(portsFilename,n=2,what=character(),quiet=TRUE)
+          if ( length(line) > 0 ) return(as.numeric(line))
+        }
+        Sys.sleep(delay)
+      }
+    })
+    unlink(portsFilename)
+    rm("portsFilename",envir=details)
+    assign("socketInPort",ports[1],envir=details)
+    assign("socketOutPort",ports[2],envir=details) 
+    TRUE
+  } else FALSE
   socketIn  <- socketConnection(host="localhost", port=details[['socketInPort']],  server=FALSE, blocking=TRUE, open="rb", timeout=2678400L)
   socketOut <- socketConnection(host="localhost", port=details[['socketOutPort']], server=FALSE, blocking=TRUE, open="ab", timeout=2678400L)
   assign("socketIn",socketIn,envir=details)
   assign("socketOut",socketOut,envir=details)
   assign("connected",TRUE,envir=details)
   assign("suspended",FALSE,envir=details)
-  socketInDescription <- summary(socketIn)$description
-  socketOutDescription <- summary(socketOut)$description
+  if ( exists("initialJARs",envir=details) ) {
+    JARs <- get("initialJARs",envir=details)
+    if ( length(JARs) > 0 ) scalaAddJARs(JARs, details)
+    rm("initialJARs",envir=details)
+  }
+  if ( exists("assign.callback.list",envir=details) ) {
+    bridge <- mkBridge(details)
+    lapply(get("assign.callback.list",envir=details), function(f) f(bridge))
+    rm("assign.callback.list",envir=details)
+  }
   invisible()
 }
 

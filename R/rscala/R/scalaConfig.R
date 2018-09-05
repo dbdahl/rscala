@@ -38,7 +38,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
   consent <- identical(reconfig,TRUE) || download.java || download.scala
   if ( identical(reconfig,FALSE) && file.exists(configPath) && !download.java && !download.scala ) {
     if ( verbose ) cat(paste0("Read existing configuration file: ",configPath,"\n\n"))
-    source(configPath,chdir=TRUE)
+    source(configPath,chdir=TRUE,local=TRUE)
     if ( ! all(file.exists(c(config$javaCmd,config$scalaCmd))) ) {
       if ( verbose ) cat("The 'config.R' is out-of-date.  Reconfiguring...\n")
       unlink(configPath)

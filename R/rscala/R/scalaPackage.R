@@ -29,8 +29,13 @@
 #'   ")
 #' }
 #' }
-#' 
-scalaPackage <- function(packages=character(),
+#'
+scalaPackage <- function(bridge, name=deparse(substitute(bridge))) {
+  pkgEnv <- parent.env(parent.frame())    # Environment of depending package (assuming this function is only called in .onLoad function).
+  assign(name,bridge,envir=pkgEnv)
+}
+
+scalaPackageOff <- function(packages=character(),
                          assign.callback=function(s) {},
                          assign.name="s",
                          JARs=character(),
