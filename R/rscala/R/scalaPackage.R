@@ -30,8 +30,9 @@
 #' }
 #' }
 #'
-scalaPackage <- function(bridge, name=deparse(substitute(bridge))) {
+scalaExportToPackage <- function(bridge, name) {
   pkgEnv <- parent.env(parent.frame())    # Environment of depending package (assuming this function is only called in .onLoad function).
+  if ( missing(name) ) name <- deparse(substitute(bridge))
   assign(name,bridge,envir=pkgEnv)
 }
 

@@ -63,9 +63,7 @@
 #' close(s)
 #' }
 #' 
-scala <- function(packages=character(),
-                  assign.callback=function(s) {},
-                  JARs=character(),
+scala <- function(JARs=character(),
                   serialize.output=.Platform$OS.type=="windows",
                   stdout=TRUE,
                   stderr=TRUE,
@@ -81,7 +79,6 @@ scala <- function(packages=character(),
   if ( debug && ( identical(stdout,FALSE) || identical(stdout,NULL) || identical(stderr,FALSE) || identical(stderr,NULL) ) ) stop("When debug is TRUE, stdout and stderr must not be discarded.")
   sConfig <- scalaConfig(FALSE)
   scalaMajor <- sConfig$scalaMajorVersion
-  JARs <- c(JARs,unlist(lapply(packages, function(p) jarsOfPackage(p, scalaMajor))))
   rscalaJAR <- shQuote(list.files(system.file(file.path("java",paste0("scala-",scalaMajor)),package="rscala",mustWork=TRUE),full.names=TRUE))
   heap.maximum <- getHeapMaximum(heap.maximum,sConfig$javaArchitecture == 32)
   command.line.options <- if ( is.null(heap.maximum) ) NULL
@@ -101,9 +98,9 @@ scala <- function(packages=character(),
   assign("suspended",TRUE,envir=details) 
   assign("pid",Sys.getpid(),envir=details)
   assign("interrupted",FALSE,envir=details)
-  transcompileHeader <- c("import org.ddahl.rscala.Transcompile._","import scala.util.control.Breaks", unlist(lapply(packages,transcompileHeaderOfPackage)))
+  transcompileHeader <- c("import org.ddahl.rscala.Transcompile._","import scala.util.control.Breaks")
   assign("transcompileHeader",transcompileHeader,envir=details)
-  assign("transcompileSubstitute",unlist(lapply(packages,transcompileSubstituteOfPackage)),envir=details)
+  assign("transcompileSubstitute",list(),envir=details)
   assign("debugTranscompilation",FALSE,envir=details)
   assign("serializers",list(scalaSerialize.list,scalaSerialize.generic),envir=details)
   assign("unserializers",list(scalaUnserialize.list,scalaUnserialize.generic),envir=details)
@@ -113,10 +110,10 @@ scala <- function(packages=character(),
   assign("garbage",integer(),envir=details)
   assign("config",sConfig,envir=details)
   assign("heapMaximum",heap.maximum,envir=details)
-  assign("portsFilename",portsFilename,envir=details)
-  assign("initialJARs",JARs,envir=details)
-  assign("assign.callback.list",list(assign.callback),envir=details)
   assign("JARs",character(0),envir=details)
+  assign("portsFilename",portsFilename,envir=details)
+  assign("pendingJARs",character(0),envir=details)
+  assign("pendingCallbacks",list(),envir=details)
   gcFunction <- function(e) {
     garbage <- details[["garbage"]]
     garbage[length(garbage)+1] <- e[["id"]]
@@ -124,6 +121,7 @@ scala <- function(packages=character(),
   }
   assign("gcFunction",gcFunction,envir=details)
   reg.finalizer(details,close.rscalaBridge,onexit=TRUE)
+  scalaJARs(JARs,details)
   mkBridge(details)
 }
 
@@ -178,39 +176,17 @@ scalaResume <- function(details) {
   assign("socketOut",socketOut,envir=details)
   assign("connected",TRUE,envir=details)
   assign("suspended",FALSE,envir=details)
-  if ( exists("initialJARs",envir=details) ) {
-    JARs <- get("initialJARs",envir=details)
-    if ( length(JARs) > 0 ) scalaAddJARs(JARs, details)
-    rm("initialJARs",envir=details)
+  JARs <- get("pendingJARs",envir=details)
+  if ( length(JARs) > 0 ) {
+    scalaJARsEngine(JARs, details)
+    assign("pendingJARs",character(0),envir=details)
   }
-  if ( exists("assign.callback.list",envir=details) ) {
-    bridge <- mkBridge(details)
-    lapply(get("assign.callback.list",envir=details), function(f) f(bridge))
-    rm("assign.callback.list",envir=details)
+  pendingCallbacks <- get("pendingCallbacks",envir=details)
+  if ( length(pendingCallbacks) > 0 ) {
+    scalaLazy(pendingCallbacks, details)
+    assign("pendingCallbacks",list(),envir=details)
   }
   invisible()
-}
-
-jarsOfPackage <- function(pkgname, major.release) {
-  dir <- if ( file.exists(system.file("inst",package=pkgname)) ) file.path("inst/java") else "java"
-  if ( major.release == "2.13" ) major.release <- paste0(major.release,".0-M5")
-  jarsMajor <- list.files(file.path(system.file(dir,package=pkgname),paste0("scala-",major.release)),pattern=".*\\.jar$",full.names=TRUE,recursive=FALSE)
-  jarsAny <- list.files(system.file(dir,package=pkgname),pattern=".*\\.jar$",full.names=TRUE,recursive=FALSE)
-  result <- c(jarsMajor,jarsAny)
-  if ( length(result) == 0 ) stop(paste0("JAR files of package '",pkgname,"' for Scala ",major.release," were requested, but no JARs were found."))
-  result
-}
-
-#' @importFrom utils getFromNamespace
-#' 
-transcompileHeaderOfPackage <- function(pkgname) {
-  tryCatch( getFromNamespace("rscalaTranscompileHeader", pkgname), error=function(e) NULL )
-}
-
-#' @importFrom utils getFromNamespace
-#' 
-transcompileSubstituteOfPackage <- function(pkgname) {
-  tryCatch( getFromNamespace("rscalaTranscompileSubstitute", pkgname), error=function(e) NULL )
 }
 
 osType <- function() {
