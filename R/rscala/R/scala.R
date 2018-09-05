@@ -77,8 +77,7 @@ scala <- function(JARs=character(),
   details <- new.env(parent=emptyenv())
   assign("sessionFilename",sessionFilename,envir=details)
   assign("closed",FALSE,envir=details)
-  assign("connected",FALSE,envir=details) 
-  assign("suspended",TRUE,envir=details) 
+  assign("disconnected",TRUE,envir=details) 
   assign("pid",Sys.getpid(),envir=details)
   assign("interrupted",FALSE,envir=details)
   transcompileHeader <- c("import org.ddahl.rscala.Transcompile._","import scala.util.control.Breaks")
@@ -134,7 +133,7 @@ mkBridge <- function(details) {
   bridge
 }
 
-scalaResume <- function(details) {
+scalaConnect <- function(details) {
   if ( ! exists("socketInPort",envir=details) ) {
     portsFilename <- get("portsFilename",envir=details)
     ports <- local({
@@ -157,8 +156,7 @@ scalaResume <- function(details) {
   socketOut <- socketConnection(host="localhost", port=details[['socketOutPort']], server=FALSE, blocking=TRUE, open="ab", timeout=2678400L)
   assign("socketIn",socketIn,envir=details)
   assign("socketOut",socketOut,envir=details)
-  assign("connected",TRUE,envir=details)
-  assign("suspended",FALSE,envir=details)
+  assign("disconnected",FALSE,envir=details)
   JARs <- get("pendingJARs",envir=details)
   if ( length(JARs) > 0 ) {
     scalaJARsEngine(JARs, details)

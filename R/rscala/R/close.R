@@ -14,7 +14,7 @@ close.rscalaBridge <- function(con, ...) {
   if ( identical(.Platform$OS.type,"windows") && ( ! interactive() ) ) {
     Sys.sleep(15)
   }
-  if ( details[["connected"]] ) {
+  if ( ! details[["disconnected"]] ) {
     tryCatch( close(details[["socketIn"]]  ), error=function(e) NULL )
     tryCatch( close(details[["socketOut"]] ), error=function(e) NULL )
   }

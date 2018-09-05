@@ -35,7 +35,7 @@ scalaJARs <- function(JARs, bridge=scalaFindBridge()) {
   if ( is.null(JARs) ) JARs <- character(0)
   JARs <- path.expand(JARs)
   sapply(JARs, function(JAR) if ( ! file.exists(JAR) ) stop(paste0('File or package "',JAR,'" does not exist.')))
-  if ( details[["suspended"]] ) {
+  if ( details[["disconnected"]] ) {
     assign("pendingJARs",c(get("pendingJARs",envir=details),JARs),envir=details)
   } else scalaJARsEngine(JARs, details)
 }

@@ -20,7 +20,7 @@
 #' }
 scalaLazy <- function(functions, bridge=scalaFindBridge()) {
   details <- if ( inherits(bridge,"rscalaBridge") ) attr(bridge,"details") else bridge
-  if ( details[["suspended"]] ) {
+  if ( details[["disconnected"]] ) {
     assign("pendingCallbacks",c(get("pendingCallbacks",envir=details),functions),envir=details)
   } else {
     bridge2 <- if ( inherits(bridge,"rscalaBridge") ) bridge else mkBridge(bridge)
