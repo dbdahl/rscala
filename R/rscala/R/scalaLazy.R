@@ -1,6 +1,12 @@
-#' Add JAR Files to Classpath
+#' Lazily Execute Functions on a Scala Bridge
 #'
-#' @param JARs Paths to JAR files, as a character vector.
+#' @param functions A single function or list of functions.  Each function takes a Scala bridge as its only argument.
+#'   These functions are called immediately after the next time the bridge is connected.
+#'   These functions are where setup code should go, like \emph{global}
+#'   imports, objects, classes, methods, etc.  For example, it might equal
+#'   \code{function(s) { s + 'import scala.util.Random' }}.  \strong{Note} the
+#'   use of the declaration operator \code{+} instead of the operators \code{*}
+#'   or \code{^}.
 #' @param bridge An rscala bridge from the \code{scala} function.
 #'
 #' @return Returns \code{NULL}, invisibly.
@@ -10,7 +16,7 @@
 #'
 #' @examples \dontrun{
 #' 
-#' scalaJARs("PATH/TO/jarFileToLoad.jar", e)
+#' scalaLazy(function(s) { s + 'import scala.util.Random' })
 #' }
 scalaLazy <- function(functions, bridge=scalaFindBridge()) {
   details <- if ( inherits(bridge,"rscalaBridge") ) attr(bridge,"details") else bridge

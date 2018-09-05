@@ -7,22 +7,19 @@
 #' after an example ends).
 #'
 #' @param bridge An rscala bridge.
-
 #' @export
-#' @seealso \code{\link{scalaPackage}}
-#'
 #' @examples \dontrun{
 #' 
 #' showConnections()
-#' scala(assign.name="e")
+#' s <- scala()
 #' showConnections()         # No additional connections yet.
-#' e * "3+4"
+#' s * "3+4"
 #' showConnections()         # Now there are two additional connections.
 #' scalaSuspend()
 #' showConnections()         # The new connections are gone.
-#' e * "3+4"
+#' s * "3+4"
 #' showConnections()         # New connections are established as needed.
-#' close(e)
+#' close(s)
 #' }
 scalaSuspend <- function(bridge=scalaFindBridge()) {
   details <- attr(bridge,"details")

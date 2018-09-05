@@ -12,30 +12,30 @@
 #' @export
 #' @describeIn scalaSerialize Serialize Object from R to Scala
 #' @examples \donttest{
-#' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
+#' s <- scala()
 #' 
-#' e(rn=scalaSerialize(rnorm)) * 'R.evalD1("%-(%-)",rn,5)'
+#' s(rn=scalaSerialize(rnorm)) * 'R.evalD1("%-(%-)",rn,5)'
 #' 
-#' mtcarsRef <- scalaSerialize(mtcars, e)
+#' mtcarsRef <- scalaSerialize(mtcars, s)
 #' mtcarsRef$names()
 #' mtcarsRef$mpg()
 #' mtcars2 <- scalaUnserialize(mtcarsRef)
 #' identical(mtcars, mtcars2)
 #' 
-#' ref <- scalaSerialize(iris, e, verbose=TRUE)
+#' ref <- scalaSerialize(iris, s, verbose=TRUE)
 #' scalaType(ref)
 #' scalaUnserialize(ref)  # Oops, variable names are lost.
 #' 
 #' irisCleaned <- iris
 #' names(irisCleaned) <- gsub("\\W","_",names(iris))
 #' irisCleaned$Species <- as.character(iris$Species)
-#' ref2 <- scalaSerialize(irisCleaned, e, verbose=TRUE)
+#' ref2 <- scalaSerialize(irisCleaned, s, verbose=TRUE)
 #' scalaType(ref2)
 #' ref2$Sepal_Length()
 #' irisCleaned2 <- scalaUnserialize(ref2)
 #' identical(irisCleaned, irisCleaned2)
 #' 
-#' close(e)
+#' close(s)
 #' }
 #'  
 scalaSerialize <- function(x, bridge=scalaFindBridge(), verbose=FALSE, ...) {

@@ -8,10 +8,10 @@
 #' @seealso \code{\link{scalaFindBridge}}
 #' 
 #' @examples \donttest{
-#' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
-#' e * "2+3"
-#' scalaLast(e)
-#' close(e)
+#' s <- scala()
+#' s * "2+3"
+#' scalaLast(s)
+#' close(s)
 #' }
 #' 
 scalaLast <- function(bridge=scalaFindBridge()) {

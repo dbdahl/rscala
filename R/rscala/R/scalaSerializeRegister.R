@@ -4,8 +4,7 @@
 #' unserializing Scala references to R.  These registration functions allows
 #' additional, more-specialized serializers and unserializers to be added.
 #' Package developers may want to call these registration functions in the
-#' function \code{assign.callback} passed to the function
-#' \code{\link{scalaPackage}}.
+#' \code{\link{.onLoad}} function.
 #'
 #' @param serializer A function whose first arguments as documented in
 #'   \code{\link{scalaSerialize}}.  Other arguments can be used as additional
@@ -14,12 +13,11 @@
 #'   \code{\link{scalaUnserialize}}.  Other arguments can be used as additional
 #'   arguments.
 #' @param bridge An rscala bridge.
-#' @seealso \code{\link{scalaSerialize}}, \code{\link{scalaUnserialize}},
-#'   \code{\link{scalaPackage}}
+#' @seealso \code{\link{scalaSerialize}}, \code{\link{scalaUnserialize}}
 #' @export
 #'
 #' @examples \donttest{
-#' scala(assign.name='e')      # Implicitly defines the bridge 'e'.
+#' s <- scala()
 #'
 #' name <- "Grace"
 #' nameAsRObject <- scalaSerialize(name)   # Basic serialization
@@ -48,7 +46,7 @@
 #' scalaUnserializeRegister(scalaUnserialize.character)
 #' identical(name,scalaUnserialize(nameAsString))
 #'
-#' close(e)
+#' close(s)
 #' }
 #' 
 scalaSerializeRegister <- function(serializer, bridge=scalaFindBridge()) {
