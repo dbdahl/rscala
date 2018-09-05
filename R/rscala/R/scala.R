@@ -60,22 +60,25 @@ scala <- function(JARs=character(),
   port <- as.integer(port[1])
   if ( debug && serialize.output ) stop("When debug is TRUE, serialize.output must be FALSE.")
   if ( debug && ( identical(stdout,FALSE) || identical(stdout,NULL) || identical(stderr,FALSE) || identical(stderr,NULL) ) ) stop("When debug is TRUE, stdout and stderr must not be discarded.")
-  sConfig <- scalaConfig(FALSE)
-  scalaMajor <- sConfig$scalaMajorVersion
-  rscalaJAR <- shQuote(list.files(system.file(file.path("java",paste0("scala-",scalaMajor)),package="rscala",mustWork=TRUE),full.names=TRUE))
-  heap.maximum <- getHeapMaximum(heap.maximum,sConfig$javaArchitecture == 32)
-  command.line.options <- if ( is.null(heap.maximum) ) NULL
-  else shQuote(paste0("-J-Xmx",heap.maximum))
-  sessionFilename <- tempfile("rscala-session-")
-  writeLines(character(),sessionFilename)
-  portsFilename <- tempfile("rscala-ports-")
-  args <- c(command.line.options,"-nc","-classpath",rscalaJAR,"org.ddahl.rscala.Main",rscalaJAR,port,portsFilename,sessionFilename,debug,serialize.output,FALSE)
-  oldJAVACMD <- Sys.getenv("JAVACMD")
-  Sys.setenv(JAVACMD=path.expand(sConfig$javaCmd))
-  system2(path.expand(sConfig$scalaCmd),args,wait=FALSE,stdout=stdout,stderr=stderr)
-  Sys.setenv(JAVACMD=oldJAVACMD)
   details <- new.env(parent=emptyenv())
-  assign("sessionFilename",sessionFilename,envir=details)
+  sConfig <- tryCatch(scalaConfig(FALSE), error=function(e) list(error=e))
+  if ( is.null(sConfig$error) ) {
+    scalaMajor <- sConfig$scalaMajorVersion
+    rscalaJAR <- shQuote(list.files(system.file(file.path("java",paste0("scala-",scalaMajor)),package="rscala",mustWork=TRUE),full.names=TRUE))
+    heap.maximum <- getHeapMaximum(heap.maximum,sConfig$javaArchitecture == 32)
+    command.line.options <- if ( is.null(heap.maximum) ) NULL
+    else shQuote(paste0("-J-Xmx",heap.maximum))
+    sessionFilename <- tempfile("rscala-session-")
+    writeLines(character(),sessionFilename)
+    portsFilename <- tempfile("rscala-ports-")
+    args <- c(command.line.options,"-nc","-classpath",rscalaJAR,"org.ddahl.rscala.Main",rscalaJAR,port,portsFilename,sessionFilename,debug,serialize.output,FALSE)
+    oldJAVACMD <- Sys.getenv("JAVACMD")
+    Sys.setenv(JAVACMD=path.expand(sConfig$javaCmd))
+    system2(path.expand(sConfig$scalaCmd),args,wait=FALSE,stdout=stdout,stderr=stderr)
+    Sys.setenv(JAVACMD=oldJAVACMD)
+    assign("sessionFilename",sessionFilename,envir=details)
+    assign("portsFilename",portsFilename,envir=details)
+  }
   assign("closed",FALSE,envir=details)
   assign("disconnected",TRUE,envir=details) 
   assign("pid",Sys.getpid(),envir=details)
@@ -93,7 +96,6 @@ scala <- function(JARs=character(),
   assign("config",sConfig,envir=details)
   assign("heapMaximum",heap.maximum,envir=details)
   assign("JARs",character(0),envir=details)
-  assign("portsFilename",portsFilename,envir=details)
   assign("pendingJARs",character(0),envir=details)
   assign("pendingCallbacks",list(),envir=details)
   gcFunction <- function(e) {
@@ -134,6 +136,7 @@ mkBridge <- function(details) {
 }
 
 scalaConnect <- function(details) {
+  if ( ! is.null(details[["config"]]$error) ) stop(details[["config"]]$error$message)
   if ( ! exists("socketInPort",envir=details) ) {
     portsFilename <- get("portsFilename",envir=details)
     ports <- local({
