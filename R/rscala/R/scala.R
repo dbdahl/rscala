@@ -104,8 +104,10 @@ scala <- function(JARs=character(),
     assign("garbage",garbage,envir=details)
   }
   assign("gcFunction",gcFunction,envir=details)
-  reg.finalizer(details,close.rscalaBridge,onexit=TRUE)
-  scalaJARs(JARs,details)
+  if ( is.null(sConfig$error) ) {
+    reg.finalizer(details,close.rscalaBridge,onexit=TRUE)
+    scalaJARs(JARs,details)
+  }
   mkBridge(details)
 }
 
