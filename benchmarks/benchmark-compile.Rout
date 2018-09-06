@@ -1,5 +1,5 @@
 
-R version 3.5.1 (2018-07-02) -- "Feather Spray"
+R Under development (unstable) (2018-08-31 r75222) -- "Unsuffered Consequences"
 Copyright (C) 2018 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -26,7 +26,7 @@ ramah
 Read existing configuration file: ~/.rscala/config.R
 
 $scalaCmd
-[1] "/home/dahl/local/bin/scala"
+[1] "~/.rscala/scala/bin/scala"
 
 $scalaMajorVersion
 [1] "2.12"
@@ -35,7 +35,7 @@ $scalaFullVersion
 [1] "2.12.6"
 
 $javaCmd
-[1] "/home/dahl/local/bin/java"
+[1] "~/.rscala/java/bin/java"
 
 $javaMajorVersion
 [1] 8
@@ -47,7 +47,7 @@ $osArchitecture
 [1] 64
 
 > sessionInfo()
-R version 3.5.1 (2018-07-02)
+R Under development (unstable) (2018-08-31 r75222)
 Platform: x86_64-pc-linux-gnu (64-bit)
 Running under: Ubuntu 16.04.5 LTS
 
@@ -70,9 +70,9 @@ other attached packages:
 [1] microbenchmark_1.4-4 rscala_3.2.0        
 
 loaded via a namespace (and not attached):
-[1] compiler_3.5.1
+[1] compiler_3.6.0
 > 
-> scala()
+> s <- scala()
 > nReps <- 100
 > 
 > #####
@@ -86,13 +86,13 @@ loaded via a namespace (and not attached):
 + )
 Unit: microseconds
                                     expr       min         lq        mean
- s * sample.int(.Machine$integer.max, 1) 82947.907 87646.8575 107974.5427
-                          s * 2056700609    91.313   135.2995    182.4959
-     median         uq        max neval
- 92241.3210 105647.220 291015.890   100
-   190.8175    216.998    386.688   100
+ s * sample.int(.Machine$integer.max, 1) 94465.277 100540.931 121082.7685
+                          s * 2056700609   121.733    166.578    207.9678
+     median          uq        max neval
+ 106240.654 123491.4055 292549.610   100
+    217.058    244.4745    469.477   100
 > 
 > 
 > proc.time()
    user  system elapsed 
-  0.208   0.128  13.949 
+  0.204   0.144  15.446 

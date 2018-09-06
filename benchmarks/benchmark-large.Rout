@@ -1,5 +1,5 @@
 
-R version 3.5.1 (2018-07-02) -- "Feather Spray"
+R Under development (unstable) (2018-08-31 r75222) -- "Unsuffered Consequences"
 Copyright (C) 2018 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -26,7 +26,7 @@ ramah
 Read existing configuration file: ~/.rscala/config.R
 
 $scalaCmd
-[1] "/home/dahl/local/bin/scala"
+[1] "~/.rscala/scala/bin/scala"
 
 $scalaMajorVersion
 [1] "2.12"
@@ -35,7 +35,7 @@ $scalaFullVersion
 [1] "2.12.6"
 
 $javaCmd
-[1] "/home/dahl/local/bin/java"
+[1] "~/.rscala/java/bin/java"
 
 $javaMajorVersion
 [1] 8
@@ -47,7 +47,7 @@ $osArchitecture
 [1] 64
 
 > sessionInfo()
-R version 3.5.1 (2018-07-02)
+R Under development (unstable) (2018-08-31 r75222)
 Platform: x86_64-pc-linux-gnu (64-bit)
 Running under: Ubuntu 16.04.5 LTS
 
@@ -70,9 +70,9 @@ other attached packages:
 [1] microbenchmark_1.4-4 rscala_3.2.0        
 
 loaded via a namespace (and not attached):
-[1] compiler_3.5.1
+[1] compiler_3.6.0
 > 
-> scala()
+> s <- scala()
 > nReps <- 100
 > 
 > #####
@@ -84,9 +84,9 @@ loaded via a namespace (and not attached):
 +   times=nReps
 + )
 Unit: milliseconds
-             expr      min       lq     mean   median       uq      max neval
-   s(x = big)^"x" 119.0714 124.7365 133.4189 126.4494 129.1398 260.4482   100
- s(x = big) * "x" 308.6632 314.9637 356.9011 332.6372 372.7850 894.2936   100
+             expr      min       lq     mean   median       uq       max neval
+   s(x = big)^"x" 122.3200 126.3251 158.7674 128.7122 133.8997 2558.0270   100
+ s(x = big) * "x" 309.4413 318.5718 360.7113 341.7464 388.8982  699.4951   100
 >  
 > s * "true"    # Is everything still okay?
 [1] TRUE
@@ -94,4 +94,4 @@ Unit: milliseconds
 > 
 > proc.time()
    user  system elapsed 
- 13.408  11.352  52.726 
+ 13.808  12.184  53.078 

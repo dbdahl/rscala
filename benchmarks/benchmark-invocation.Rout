@@ -1,5 +1,5 @@
 
-R version 3.5.1 (2018-07-02) -- "Feather Spray"
+R Under development (unstable) (2018-08-31 r75222) -- "Unsuffered Consequences"
 Copyright (C) 2018 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -26,7 +26,7 @@ ramah
 Read existing configuration file: ~/.rscala/config.R
 
 $scalaCmd
-[1] "/home/dahl/local/bin/scala"
+[1] "~/.rscala/scala/bin/scala"
 
 $scalaMajorVersion
 [1] "2.12"
@@ -35,7 +35,7 @@ $scalaFullVersion
 [1] "2.12.6"
 
 $javaCmd
-[1] "/home/dahl/local/bin/java"
+[1] "~/.rscala/java/bin/java"
 
 $javaMajorVersion
 [1] 8
@@ -47,7 +47,7 @@ $osArchitecture
 [1] 64
 
 > sessionInfo()
-R version 3.5.1 (2018-07-02)
+R Under development (unstable) (2018-08-31 r75222)
 Platform: x86_64-pc-linux-gnu (64-bit)
 Running under: Ubuntu 16.04.5 LTS
 
@@ -70,22 +70,22 @@ other attached packages:
 [1] microbenchmark_1.4-4 rscala_3.2.0        
 
 loaded via a namespace (and not attached):
-[1] compiler_3.5.1
+[1] compiler_3.6.0
 > 
 > openAndClose <- function() {
-+   scala()
++   s <- scala()
 +   s * "3"
 +   close(s)
 + }
 > 
 > microbenchmark(
 +   openAndClose(),
-+   times=10
++   times=25
 + )
 Unit: seconds
            expr      min       lq     mean   median       uq      max neval
- openAndClose() 2.811265 2.890993 3.025818 3.000126 3.099613 3.368609    10
+ openAndClose() 3.034395 3.104239 3.207712 3.199061 3.286917 3.424597    25
 > 
 > proc.time()
    user  system elapsed 
-  0.280   0.140  30.524 
+  0.452   0.216  80.478 

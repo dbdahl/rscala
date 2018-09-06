@@ -1,4 +1,4 @@
-3.2.0 (2018-08-17)
+3.2.0 (2018-09-06)
   * Support for downloading and installing Java within R (instead of making the
     user find, download, and install a compatible version).
   * Function 'scalaConfig' replaces functions 'scalaInfo' and 'scalaInstall'.
@@ -11,6 +11,10 @@
     'scalaSerialize', 'scalaUnserialize', 'scalaSerializeRegister' and
     'scalaUnserializeRegister'.
   * Support named arguments in transcompiled functions.
+  * Renamed functon 'scalaAddJAR' to 'scalaJARs'.
+  * Added function 'scalaDisconnect' to temporarily disconnect sockets between
+    R and Scala.  Sockets are automatically re-established as needed.
+  * Removed unnecessary functions 'scalaPackage' and 'scalaPackageUnload'.
   * Added helpful functions 'is.scalaReference' and 'scalaFindBridge'.
   * Support for upcoming release of Scala 2.13.
   * Avoid Window's firewall pop up window.
