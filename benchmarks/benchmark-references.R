@@ -5,7 +5,7 @@ cat(system2("hostname",stdout=TRUE),"\n",sep="")
 scalaConfig()
 sessionInfo()
 
-scala()
+s <- scala()
 nReps <- 10000
 
 #####

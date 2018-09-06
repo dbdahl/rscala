@@ -6,12 +6,12 @@ scalaConfig()
 sessionInfo()
 
 openAndClose <- function() {
-  scala()
+  s <- scala()
   s * "3"
   close(s)
 }
 
 microbenchmark(
   openAndClose(),
-  times=10
+  times=25
 )
