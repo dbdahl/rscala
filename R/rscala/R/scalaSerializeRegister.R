@@ -6,10 +6,10 @@
 #' Package developers may want to call these registration functions in the
 #' \code{\link{.onLoad}} function.
 #'
-#' @param serializer A function whose first arguments as documented in
+#' @param serializer A function whose first arguments are documented in
 #'   \code{\link{scalaSerialize}}.  Other arguments can be used as additional
 #'   arguments.
-#' @param unserializer A function whose first arguments as documented in
+#' @param unserializer A function whose first arguments are documented in
 #'   \code{\link{scalaUnserialize}}.  Other arguments can be used as additional
 #'   arguments.
 #' @param bridge An rscala bridge.

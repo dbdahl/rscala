@@ -1,7 +1,7 @@
 #' Evaluation Operator
 #'
 #' This operator compiles and executes a snippet of Scala code.  All definitions
-#' are \emph{local} to Scala snippet itself.  Subsequent uses of the same code
+#' are \emph{local} to the supplied Scala snippet.  Subsequent uses of the same code
 #' snippet skips the time-consuming compilation step.  The return value is a
 #' vector or matrix of \R's basic types (if possible) or an rscala reference
 #' (otherwise).

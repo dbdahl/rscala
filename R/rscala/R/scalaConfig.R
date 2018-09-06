@@ -1,10 +1,11 @@
 #' Configure Scala and Java
 #'
-#' This function installs Scala in the user's \code{~/.rscala} directory.
+#' This function installs Scala and/or Java in the user's \code{~/.rscala}
+#' directory.
 #'
 #' @param verbose Should details of the search for Scala and Java be provided?
-#'   Or, an rscala bridge, in which case, a list of details associated with the
-#'   supplied bridge is returned.
+#'   Or, if an rscala bridge is provided instead of a logical, the function
+#'   returns a list of details associated with the supplied bridge.
 #' @param reconfig If \code{TRUE}, the script \code{~/.rscala/config.R} is
 #'   rewritten based on a new search for Scala and Java.  If \code{FALSE}, the
 #'   previous configuration is sourced from the script

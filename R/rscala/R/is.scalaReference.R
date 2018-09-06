@@ -1,6 +1,6 @@
 #' Test for Scala Reference
 #'
-#' @param x A arbitrary R object.
+#' @param x An arbitrary R object.
 #'
 #' @return Logical indicating whether \code{x} is an rscala reference.
 #' @export
