@@ -4,6 +4,8 @@ set -e
 
 cd $(dirname $(readlink -f "$0"))/..
 
+bin/package
+
 cd R
 TGZ_NAME=$(ls -1t *.tar.gz | head -1)
 R CMD check --as-cran $TGZ_NAME

@@ -17,6 +17,16 @@
 scalaJARs <- function(JARs, bridge=scalaFindBridge()) {
   details <- if ( inherits(bridge,"rscalaBridge") ) attr(bridge,"details") else bridge
   if ( ! is.character(JARs) ) stop("'JARs' should be a character vector.")
+  if ( details[["disconnected"]] ) {
+    assign("pendingJARs",c(get("pendingJARs",envir=details),JARs),envir=details)
+  } else scalaJARsEngine(JARs, details)
+}
+
+scalaJARsEngine <- function(JARs, details) {
+  checkConnection(details)
+  socketOut <- details[["socketOut"]]
+  scalaLastEngine(details)
+  if ( details[["interrupted"]] ) return(invisible())
   JARs <- unlist(lapply(JARs, function(x) {
     if ( ! identical(find.package(x,quiet=TRUE),character(0)) ) {
       newHeaders <- unlist(lapply(x,transcompileHeaderOfPackage))
@@ -35,16 +45,6 @@ scalaJARs <- function(JARs, bridge=scalaFindBridge()) {
   if ( is.null(JARs) ) JARs <- character(0)
   JARs <- path.expand(JARs)
   sapply(JARs, function(JAR) if ( ! file.exists(JAR) ) stop(paste0('File or package "',JAR,'" does not exist.')))
-  if ( details[["disconnected"]] ) {
-    assign("pendingJARs",c(get("pendingJARs",envir=details),JARs),envir=details)
-  } else scalaJARsEngine(JARs, details)
-}
-
-scalaJARsEngine <- function(JARs, details) {
-  checkConnection(details)
-  socketOut <- details[["socketOut"]]
-  scalaLastEngine(details)
-  if ( details[["interrupted"]] ) return(invisible())
   for ( JAR in JARs ) {
     wb(socketOut,PCODE_ADD_TO_CLASSPATH)
     wc(socketOut,JAR)
