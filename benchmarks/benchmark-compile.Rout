@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2018-08-31 r75222) -- "Unsuffered Consequences"
+R version 3.5.1 (2018-07-02) -- "Feather Spray"
 Copyright (C) 2018 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -47,7 +47,7 @@ $osArchitecture
 [1] 64
 
 > sessionInfo()
-R Under development (unstable) (2018-08-31 r75222)
+R version 3.5.1 (2018-07-02)
 Platform: x86_64-pc-linux-gnu (64-bit)
 Running under: Ubuntu 16.04.5 LTS
 
@@ -70,7 +70,7 @@ other attached packages:
 [1] microbenchmark_1.4-4 rscala_3.2.0        
 
 loaded via a namespace (and not attached):
-[1] compiler_3.6.0
+[1] compiler_3.5.1
 > 
 > s <- scala()
 > nReps <- 100
@@ -86,13 +86,13 @@ loaded via a namespace (and not attached):
 + )
 Unit: microseconds
                                     expr       min         lq        mean
- s * sample.int(.Machine$integer.max, 1) 94465.277 100540.931 121082.7685
-                          s * 2056700609   121.733    166.578    207.9678
-     median          uq        max neval
- 106240.654 123491.4055 292549.610   100
-    217.058    244.4745    469.477   100
+ s * sample.int(.Machine$integer.max, 1) 92899.211 97681.9715 122189.2520
+                          s * 2056700609   116.877   180.4895    212.6496
+    median         uq        max neval
+ 106095.31 122164.270 331537.669   100
+    208.04    239.953    462.469   100
 > 
 > 
 > proc.time()
    user  system elapsed 
-  0.204   0.144  15.446 
+  0.200   0.148  15.677 

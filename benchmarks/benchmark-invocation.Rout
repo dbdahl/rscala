@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2018-08-31 r75222) -- "Unsuffered Consequences"
+R version 3.5.1 (2018-07-02) -- "Feather Spray"
 Copyright (C) 2018 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -47,7 +47,7 @@ $osArchitecture
 [1] 64
 
 > sessionInfo()
-R Under development (unstable) (2018-08-31 r75222)
+R version 3.5.1 (2018-07-02)
 Platform: x86_64-pc-linux-gnu (64-bit)
 Running under: Ubuntu 16.04.5 LTS
 
@@ -70,7 +70,7 @@ other attached packages:
 [1] microbenchmark_1.4-4 rscala_3.2.0        
 
 loaded via a namespace (and not attached):
-[1] compiler_3.6.0
+[1] compiler_3.5.1
 > 
 > openAndClose <- function() {
 +   s <- scala()
@@ -83,9 +83,9 @@ loaded via a namespace (and not attached):
 +   times=25
 + )
 Unit: seconds
-           expr      min       lq     mean   median       uq      max neval
- openAndClose() 3.034395 3.104239 3.207712 3.199061 3.286917 3.424597    25
+           expr      min       lq     mean   median       uq     max neval
+ openAndClose() 3.001581 3.119066 3.237405 3.228103 3.324367 3.58476    25
 > 
 > proc.time()
    user  system elapsed 
-  0.452   0.216  80.478 
+  0.424   0.232  81.213 

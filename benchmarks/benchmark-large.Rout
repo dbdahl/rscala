@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2018-08-31 r75222) -- "Unsuffered Consequences"
+R version 3.5.1 (2018-07-02) -- "Feather Spray"
 Copyright (C) 2018 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -47,7 +47,7 @@ $osArchitecture
 [1] 64
 
 > sessionInfo()
-R Under development (unstable) (2018-08-31 r75222)
+R version 3.5.1 (2018-07-02)
 Platform: x86_64-pc-linux-gnu (64-bit)
 Running under: Ubuntu 16.04.5 LTS
 
@@ -70,7 +70,7 @@ other attached packages:
 [1] microbenchmark_1.4-4 rscala_3.2.0        
 
 loaded via a namespace (and not attached):
-[1] compiler_3.6.0
+[1] compiler_3.5.1
 > 
 > s <- scala()
 > nReps <- 100
@@ -85,8 +85,8 @@ loaded via a namespace (and not attached):
 + )
 Unit: milliseconds
              expr      min       lq     mean   median       uq       max neval
-   s(x = big)^"x" 122.3200 126.3251 158.7674 128.7122 133.8997 2558.0270   100
- s(x = big) * "x" 309.4413 318.5718 360.7113 341.7464 388.8982  699.4951   100
+   s(x = big)^"x" 120.4796 124.0669 134.4285 126.7570 129.0721  270.0679   100
+ s(x = big) * "x" 310.2352 319.9519 385.5033 340.2112 382.9793 3171.5325   100
 >  
 > s * "true"    # Is everything still okay?
 [1] TRUE
@@ -94,4 +94,4 @@ Unit: milliseconds
 > 
 > proc.time()
    user  system elapsed 
- 13.808  12.184  53.078 
+ 13.524  12.216  53.106 
