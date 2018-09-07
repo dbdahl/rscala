@@ -83,9 +83,9 @@ loaded via a namespace (and not attached):
 +   times=25
 + )
 Unit: seconds
-           expr      min       lq     mean   median       uq     max neval
- openAndClose() 3.001581 3.119066 3.237405 3.228103 3.324367 3.58476    25
+           expr      min       lq     mean   median       uq    max neval
+ openAndClose() 3.009714 3.097216 3.205497 3.201338 3.299667 3.4924    25
 > 
 > proc.time()
    user  system elapsed 
-  0.424   0.232  81.213 
+  0.372   0.276  80.416 

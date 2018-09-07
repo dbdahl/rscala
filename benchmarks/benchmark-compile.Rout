@@ -86,13 +86,13 @@ loaded via a namespace (and not attached):
 + )
 Unit: microseconds
                                     expr       min         lq        mean
- s * sample.int(.Machine$integer.max, 1) 92899.211 97681.9715 122189.2520
-                          s * 2056700609   116.877   180.4895    212.6496
-    median         uq        max neval
- 106095.31 122164.270 331537.669   100
-    208.04    239.953    462.469   100
+ s * sample.int(.Machine$integer.max, 1) 93539.057 99459.1670 121399.7153
+                          s * 2056700609   123.607   177.6985    204.1744
+      median         uq        max neval
+ 107374.9310 119410.457 293349.778   100
+    205.4005    220.689    796.404   100
 > 
 > 
 > proc.time()
    user  system elapsed 
-  0.200   0.148  15.677 
+  0.228   0.112  15.697 
