@@ -87,7 +87,7 @@ object Main extends App {
   val referenceMap = new HashMap[Int, (Any,String)]()
 
   if ( debugger.on ) debugger("binding conduit.")
-  val conduit = new Conduit(referenceMap, debugger)
+  val conduit = new Conduit(debugger)
   intp.bind("conduit",conduit)
 
   if ( debugger.on ) debugger("binding r client.")

@@ -4,7 +4,7 @@ import Protocol._
 
 import scala.collection.mutable.HashMap
 
-class Conduit(referenceMap: HashMap[Int, (Any,String)], debugger: Debugger) {
+class Conduit(debugger: Debugger) {
 
   private val maxNArgs: Int = 50
   private val argsNames = Array.range(1,maxNArgs+1).map("x"+_)
