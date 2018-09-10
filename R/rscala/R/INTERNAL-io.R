@@ -9,6 +9,7 @@ wc <- function(con,x) {
 }
 
 rbyte <- function(con) {
+  counter <- 0L
   while ( TRUE ) {
     x <- tryCatch({
       readBin(con,RTYPE_RAW,endian="big")
@@ -16,6 +17,8 @@ rbyte <- function(con) {
       TCODE_INTERRUPTED
     })
     if ( length(x) > 0 ) return(x)
+    if ( counter >= 100L ) stop("Connection isn't providing data.")
+    counter <- counter + 1L
   }
 }
 
@@ -32,7 +35,7 @@ rb <- function(con,v,n=1L) {
     else {
       counter <- 0L
       while ( length(r) != n ) {
-        if ( counter >= 100 ) stop("Connection isn't providing data.")
+        if ( counter >= 100L ) stop("Connection isn't providing data.")
         counter <- counter + 1L
         r <- c(r,readBin(con,v,n-length(r),endian="big"))
       }

@@ -1,6 +1,7 @@
 package org.ddahl.rscala
 
 import Protocol._
+import scala.sys.process.Process
 
 final class RObject private[rscala] (val x: Array[Byte]) {
 
@@ -56,6 +57,12 @@ final class RObject private[rscala] (val x: Array[Byte]) {
 class RClient private[rscala] () {
 
   private[rscala] var server: Server = null
+  private[rscala] var rProcessInstance: Process = null
+
+  def quit(): Unit = {
+    if ( rProcessInstance == null ) throw new IllegalStateException("The 'quit' method can only be called when R is embedded in Scala.")
+    rProcessInstance.destroy()
+  }
 
   def eval  (template: String, values: Any*): Unit                  = evalWithoutResult                     (template, values)
 
@@ -222,11 +229,11 @@ object RClient {
     throw new RuntimeException("Cannot locate R using Windows registry.  Please explicitly specify its path.")
   }
 
-  private def reader(debugger: Debugger, label: String)(input: InputStream) = {
+  private def reader(echo: Boolean, label: String)(input: InputStream) = {
     val in = new BufferedReader(new InputStreamReader(input))
     var line = in.readLine()
     while ( line != null ) {
-      if ( debugger.on ) println(label+line)
+      if ( echo ) println(label+line)
       line = in.readLine()
     }
     in.close()
@@ -244,8 +251,8 @@ object RClient {
     val processCmd = Process(command)
     val processIO = new ProcessIO(
       o => { cmd = new PrintWriter(o) },
-      reader(debugger,""),
-      reader(debugger,""),
+      reader(true,""),
+      reader(true,""),
       true
     )
     val rProcessInstance = processCmd.run(processIO)
@@ -270,6 +277,7 @@ object RClient {
     val server = new Server(null, sockets, null, conduit, out, in, debugger, false, prntWrtr, null)
     val rClient = new RClient()
     rClient.server = server
+    rClient.rProcessInstance = rProcessInstance
     rClient
   }
 

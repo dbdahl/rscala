@@ -376,7 +376,8 @@ class Server(intp: IMain, sockets: Sockets, referenceMap: HashMap[Int, (Any,Stri
           e.printStackTrace(prntWrtr)
           debugger("fatal error at loop main.")
         }
-        sys.exit(0)
+        if ( intp != null ) sys.exit(0)
+        else throw new IllegalStateException("Bridge is closed.")
     }
   }
 
