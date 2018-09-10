@@ -9,7 +9,7 @@ import scala.reflect.ClassTag
 import java.io.{ByteArrayOutputStream, DataInputStream, DataOutputStream, File, PrintWriter}
 import java.nio.ByteBuffer
 
-class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rscala] val conduit: Conduit, private var out: DataOutputStream, private var in: DataInputStream, val debugger: Debugger, val serializeOutput: Boolean, prntWrtr: PrintWriter, baos: ByteArrayOutputStream) {
+class Server(intp: IMain, sockets: Sockets, referenceMap: HashMap[Int, (Any,String)], private[rscala] val conduit: Conduit, private var out: DataOutputStream, private var in: DataInputStream, val debugger: Debugger, val serializeOutput: Boolean, prntWrtr: PrintWriter, baos: ByteArrayOutputStream) {
 
   private val zero = 0.toByte
   private val one = 1.toByte
@@ -361,7 +361,7 @@ class Server(intp: IMain, referenceMap: HashMap[Int, (Any,String)], private[rsca
 
   private def suspend(): Unit = {
     exit()
-    val (out2, in2) = Main.acceptAndSetup()
+    val (out2, in2) = sockets.acceptAndSetup()
     out = out2
     in = in2
   }

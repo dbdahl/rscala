@@ -94,44 +94,13 @@ object Main extends App {
   val rClient = new RClient()
   intp.bind("R",rClient)
 
-  // Start server
-  if ( debugger.on ) debugger("starting server.")
-  val ( portS2R, portR2S) = if ( port == 0 ) (0, 0) else (port, port+1)
-  val localhost = InetAddress.getByName(null)
-  val serverOut = new ServerSocket(portS2R,0, localhost)
-  val serverIn = new ServerSocket(portR2S,0, localhost)
-  try {
-    val portsFile = new File(portsFilename)
-    val p = new PrintWriter(portsFile)
-    p.println(serverOut.getLocalPort + " " + serverIn.getLocalPort)
-    p.close()
-  } catch {
-    case e: Throwable =>     // R has already exited?
-      if ( debugger.on ) {
-        prntWrtr.println(e)
-        e.printStackTrace(prntWrtr)
-        debugger("cannot write to ports file, exiting...")
-      }
-      sys.exit(0)
-  }
-
-  def acceptAndSetup(): (DataOutputStream, DataInputStream) = {
-    if (debugger.on) debugger("socket S2R waiting for client on port " + serverOut.getLocalPort + ".")
-    val sOut = serverOut.accept()
-    if (debugger.on) debugger("socket R2S waiting for client on port " + serverIn.getLocalPort + ".")
-    val sIn = serverIn.accept()
-    val bos = if ( buffer ) new BufferedOutputStream(sOut.getOutputStream) else sOut.getOutputStream
-    val out = new DataOutputStream(bos)
-    val in = new DataInputStream(sIn.getInputStream)
-    if ( debugger.on ) debugger("connections established.")
-    (out,in)
-  }
-
-  val (out,in) = acceptAndSetup()
+  val sockets = new Sockets(port, buffer, debugger)
+  sockets.writePortsFile(portsFilename,prntWrtr)
+  val (out,in) = sockets.acceptAndSetup()
 
   // Start main loop
   if ( debugger.on ) debugger("entering main loop.")
-  val server = new Server(intp, referenceMap, conduit, out, in, debugger, serializeOutput, prntWrtr, baos)
+  val server = new Server(intp, sockets, referenceMap, conduit, out, in, debugger, serializeOutput, prntWrtr, baos)
   rClient.server = server
   server.run()
 

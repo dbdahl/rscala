@@ -60,6 +60,10 @@ set -e
 setversion $PKG_VERSION $(date +'%Y-%m-%d')
 
 
+# List R resources in the JAR
+cd src/main/resources
+ls R | awk '{print "/R/" $0}' >| Rscripts
+cd ../../..
 
 # Compile Scala
 

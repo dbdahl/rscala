@@ -9,6 +9,7 @@
 /R/rscala/.Rproj.user
 /R/rscala_*.tar.gz
 /R/rscala.Rcheck
+/src/main/resources/Rscripts
 .Rproj.user
 .Rhistory
 .RData

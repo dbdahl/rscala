@@ -135,6 +135,19 @@ mkBridge <- function(details) {
   bridge
 }
 
+embeddedR <- function(ports,debug=FALSE) {
+  details <- new.env(parent=emptyenv())
+  assign("config",list(),envir=details)
+  assign("serializeOutput",FALSE,envir=details)
+  assign("debug",debug,envir=details)
+  assign("socketInPort",ports[1],envir=details)
+  assign("socketOutPort",ports[2],envir=details) 
+  assign("pendingJARs",character(0),envir=details)
+  assign("pendingCallbacks",character(0),envir=details)
+  scalaConnect(details)
+  pop(details,NULL,.GlobalEnv)
+}
+
 scalaConnect <- function(details) {
   if ( ! is.null(details[["config"]]$error) ) stop(details[["config"]]$error$message)
   if ( ! exists("socketInPort",envir=details) ) {

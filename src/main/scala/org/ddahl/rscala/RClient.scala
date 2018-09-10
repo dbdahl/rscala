@@ -15,7 +15,45 @@ final class RObject private[rscala] (val x: Array[Byte]) {
 
 }
 
-class RClient() {
+/** An interface to an R interpreter.
+  *
+  * An object `R` is the instance of this class available in a Scala interpreter created by calling the function
+  * `scala` from the package [[http://cran.r-project.org/package=rscala rscala]].  It is through this instance `R` that
+  * callbacks to the original [[http://www.r-project.org R]] interpreter are possible.
+  *
+  * In a Scala application, an instance of this class is created using its companion object.  See below.  The paths of the
+  * rscala's JARs (for all supported versions of Scala) are available from [[http://www.r-project.org R]] using `rscala::.rscalaJar()`.
+  * To get just the JAR for Scala 2.12, for example, use `rscala::.rscalaJar("2.12")`.
+  *
+  * This class is threadsafe.
+  *
+  * {{{
+  * val R = org.ddahl.rscala.RClient()
+
+  * val a = R.evalD0("rnorm(8)")
+  * val b = R.evalD1("rnorm(8)")
+  * val c = R.evalD2("matrix(rnorm(8),nrow=4)")
+
+  * R.set("ages", Array(4,2,7,9))
+  * R.ages = Array(4,2,7,9)
+  * println(R.getI1("ages").mkString("<",", ",">"))
+
+  * R eval """
+  *   v <- rbinom(8,size=10,prob=0.4)
+  *   m <- matrix(v,nrow=4)
+  * """
+
+  * val v1 = R.get("v")
+  * val v2 = R.get("v")._1.asInstanceOf[Array[Int]]   // This works, but is not very convenient
+  * val v3 = R.v._1.asInstanceOf[Array[Int]]          // Slightly better
+  * val v4 = R.getI0("v")   // Get the first element of R's "v" as a Int
+  * val v5 = R.getI1("v")   // Get R's "v" as an Array[Int]
+  * val v6 = R.getI2("m")   // Get R's "m" as an Array[Array[Int]]
+  * }}}
+  *
+  * @author David B. Dahl
+  */
+class RClient private[rscala] () {
 
   private[rscala] var server: Server = null
 
@@ -95,6 +133,144 @@ class RClient() {
     }
     if ( tipe == TCODE_ROBJECT ) Datum(any.asInstanceOf[RObject].x, tipe, None)
     else Datum(any, tipe, None)
+  }
+
+}
+
+
+/** The companion object to the [[RClient]] class used to create an instance of the [[RClient]] class in a Scala application.
+  *
+  * An object `R` is an [[RClient]] instance available in a Scala interpreter created by calling the function
+  * `scala` from the package [[http://cran.r-project.org/package=rscala rscala]].  It is through this instance
+  * `R` that callbacks to the original [[http://www.r-project.org R]] interpreter are possible.
+  *
+  * The paths of the rscala's JARs are available from [[http://www.r-project.org R]] using
+  * `rscala::.rscalaJar()`.  To get just the JAR for Scala 2.12, for example, use `rscala::.rscalaJar("2.12")`.
+  *
+  * {{{ val R = org.ddahl.rscala.RClient() }}}
+  */
+object RClient {
+
+  import scala.sys.process._
+  import java.io.{File, FileWriter, PrintWriter, BufferedReader, InputStreamReader, InputStream}
+  import scala.language.dynamics
+  import scala.sys.process.Process
+
+  private val isWindows = scala.util.Properties.isWin
+
+  private val defaultArguments = isWindows match {
+    case true  => Array[String]("--no-save","--no-restore","--silent","--slave")
+    case false => Array[String]("--no-save","--no-restore","--silent","--slave")
+  }
+
+  private val interactiveArguments = isWindows match {
+    case true  => Array[String]("--ess")
+    case false => Array[String]("--interactive")
+  }
+
+  def defaultRCmd = isWindows match {
+    case true  => findROnWindows
+    case false => """R"""
+  }
+
+  def findROnWindows: String = {
+    def checkValidPath(path: String) = {
+      val file = new java.io.File(path + """\bin\R.exe""")
+      if ( file.exists && file.isFile ) file.getAbsolutePath
+      else ""
+    }
+    def versionCompare(a: String, b: String): Boolean = {
+      val Seq(aa,bb) = Seq(a,b).map(_.takeWhile(_!='.'))
+      val Seq(al,bl) = Seq(a,b).map(_.length)
+      val Seq(aaa,bbb) = Seq(aa,bb).map(_.toInt)
+      val Seq(aal,bbl) = Seq(aa,bb).map(_.length)
+      if ( aaa == bbb ) {
+        if ( ( al == aal ) && ( bl == bbl ) ) false
+        else if ( ( al == aal ) && ( bl != bbl ) ) true
+        else if ( ( al != aal ) && ( bl == bbl ) ) false
+        else versionCompare(a.substring(aal+1),b.substring(bbl+1))
+      }
+      else aaa < bbb
+    }
+    def getPath(key: String): Option[String] = {
+      val cmd = "reg query " + key
+      try {
+        val result1 = cmd.!!.trim.split("\\r\\n").map(_.trim)
+        val result2 = result1.filter(_.matches("^\\s*InstallPath.*"))
+        if ( result2.length == 1 ) {
+          val result3 = checkValidPath(result2(0).split("REG_SZ")(1).trim)
+          if ( result3 != "" ) Some(result3)
+          else None
+        } else {
+          val dir = result1.length match {
+            case 0 => ""
+            case 1 => result1.head
+            case _ => result1.zip(result1.map(x => new File(x).getName)).sortWith( (x,y) => {
+              versionCompare(x._2,y._2)
+            }).last._1
+          }
+          getPath(dir)
+        }
+      } catch {
+        case _: Throwable => None
+      }
+    }
+    for ( root <- List("HKEY_LOCAL_MACHINE","HKEY_CURRENT_USER") ) {
+      val result = getPath(root+"""\SOFTWARE\R-core\R""")
+      if ( result.isDefined ) return result.get
+    }
+    throw new RuntimeException("Cannot locate R using Windows registry.  Please explicitly specify its path.")
+  }
+
+  private def reader(debugger: Debugger, label: String)(input: InputStream) = {
+    val in = new BufferedReader(new InputStreamReader(input))
+    var line = in.readLine()
+    while ( line != null ) {
+      if ( debugger.on ) println(label+line)
+      line = in.readLine()
+    }
+    in.close()
+  }
+
+  /** Returns an instance of the [[RClient]] class, using the path specified by `rCmd` and specifying whether output
+    * should be serialized, whether matrices are row major, whether debugging output should be displayed,
+    * and the port number.  Two sockets are establised using: 1. the specified port and 2. the specified port plus one.
+    */
+  def apply(rCmd: String = defaultRCmd, port: Int = 0, debug: Boolean = false): RClient = {
+    val debugger = new Debugger(debug,new PrintWriter(System.out),"Scala",false)
+    val sockets = new Sockets(port, true, debugger)
+    var cmd: PrintWriter = null
+    val command = rCmd +: ( defaultArguments ++ interactiveArguments )
+    val processCmd = Process(command)
+    val processIO = new ProcessIO(
+      o => { cmd = new PrintWriter(o) },
+      reader(debugger,""),
+      reader(debugger,""),
+      true
+    )
+    val rProcessInstance = processCmd.run(processIO)
+    val scripts = scala.io.Source.fromInputStream(getClass.getResourceAsStream("/Rscripts")).getLines
+    val codeInR = scripts.map(resource => {
+      scala.io.Source.fromInputStream(getClass.getResourceAsStream(resource)).getLines.mkString("\n")
+    }).mkString("\n\n")
+    val snippet = s"""
+      rscala <- local({
+        ${codeInR}
+        environment()
+      })
+      rscala[['embeddedR']](c(${sockets.outPort},${sockets.inPort}),${if ( debugger.on ) "TRUE" else "FALSE"})
+      q(save='no')
+    """.stripMargin
+    while ( cmd == null ) Thread.sleep(100)
+    cmd.println(snippet)
+    cmd.flush()
+    val (out,in) = sockets.acceptAndSetup()
+    val conduit = new Conduit(debugger)
+    val prntWrtr = new PrintWriter(System.out)
+    val server = new Server(null, sockets, null, conduit, out, in, debugger, false, prntWrtr, null)
+    val rClient = new RClient()
+    rClient.server = server
+    rClient
   }
 
 }
