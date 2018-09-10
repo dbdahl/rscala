@@ -1,0 +1,14 @@
+#!/bin/bash
+
+exec scala -nc -cp R/rscala/inst/java/scala-2.12/rscala_2.12-3.2.0.jar
+#scala -nc -cp R/rscala/inst/java/scala-2.12/rscala_2.12-3.2.0.jar
+
+!#
+
+// val R = org.ddahl.rscala.RClient("R",0,false)
+val R = org.ddahl.rscala.RClient()
+
+val a = R.evalD0("3+4")
+
+R.evalD0("3+4")
+
