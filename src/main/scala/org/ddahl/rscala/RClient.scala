@@ -229,16 +229,16 @@ object RClient {
     throw new RuntimeException("Cannot locate R using Windows registry.  Please explicitly specify its path.")
   }
 
-  private var echo = false
-
-  private def reader(label: String)(input: InputStream) = {
-    val in = new BufferedReader(new InputStreamReader(input))
-    var line = in.readLine()
-    while ( line != null ) {
-      if ( echo ) println(label+line)
-      line = in.readLine()
-    }
-    in.close()
+  lazy val allCodeInR = {
+    val scripts = scala.io.Source.fromInputStream(getClass.getResourceAsStream("/Rscripts")).getLines
+    val codeInR = scripts.map(resource => {
+      scala.io.Source.fromInputStream(getClass.getResourceAsStream(resource)).getLines.mkString("\n")
+    }).mkString("\n\n")
+    s"""
+    rscala <- local({
+      ${codeInR}
+      environment()
+    })"""
   }
 
   /** Returns an instance of the [[RClient]] class, using the path specified by `rCmd` and specifying whether output
@@ -251,6 +251,16 @@ object RClient {
     var cmd: PrintWriter = null
     val command = rCmd +: ( defaultArguments ++ interactiveArguments )
     val processCmd = Process(command)
+    var echo = false
+    def reader(label: String)(input: InputStream) = {
+      val in = new BufferedReader(new InputStreamReader(input))
+      var line = in.readLine()
+      while ( line != null ) {
+        if ( echo ) println(label+line)
+        line = in.readLine()
+      }
+      in.close()
+    }
     val processIO = new ProcessIO(
       o => { cmd = new PrintWriter(o) },
       reader(""),
@@ -258,15 +268,15 @@ object RClient {
       true
     )
     val rProcessInstance = processCmd.run(processIO)
-    val scripts = scala.io.Source.fromInputStream(getClass.getResourceAsStream("/Rscripts")).getLines
-    val codeInR = scripts.map(resource => {
-      scala.io.Source.fromInputStream(getClass.getResourceAsStream(resource)).getLines.mkString("\n")
-    }).mkString("\n\n")
+    val sourceFile = File.createTempFile("rscala-","")
+    val sourceFileNameForR = sourceFile.getAbsolutePath.replace(File.separator,"/")
+    val writer = new FileWriter(sourceFile)
+    writer.write(allCodeInR)
+    writer.flush()
+    writer.close()
     val snippet = s"""
-      rscala <- local({
-        ${codeInR}
-        environment()
-      })
+      source("${sourceFileNameForR}")
+      file.remove("${sourceFileNameForR}")
       rscala[['embeddedR']](c(${sockets.outPort},${sockets.inPort}),${if ( debugger.on ) "TRUE" else "FALSE"})
       q(save='no')
     """.stripMargin
@@ -280,6 +290,7 @@ object RClient {
     val rClient = new RClient()
     rClient.server = server
     rClient.rProcessInstance = rProcessInstance
+    while ( sourceFile.exists() ) Thread.sleep(100)
     echo = true
     rClient
   }
