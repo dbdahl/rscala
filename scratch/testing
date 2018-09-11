@@ -12,3 +12,16 @@ val a = R.evalD0("3+4")
 R.eval("cat(3+4,'\n')")
 R.quit()
 
+
+R.eval("b <- %-",Array(1,2,3,4,5))
+R.evalD1("b")
+
+val a = R.evalObject("function(x) 2*x")
+R.evalD0("%-(5)",a)
+
+val a = R.evalObject("function(x) stop('b')")
+R.eval("%-(5)",a)
+
+R.eval("b <- %-",Array(1,2,3,4,5))
+R.evalD0("b")
+

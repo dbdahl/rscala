@@ -8,7 +8,7 @@ final class RObject private[rscala] (val x: Array[Byte]) {
   private def canEqual(a: Any): Boolean = a.isInstanceOf[RObject]
 
   override def equals(that: Any): Boolean = that match {
-    case that: RObject => that.canEqual(this) && this.hashCode == that.hashCode
+    case that: RObject => that.canEqual(this) && ( this.hashCode == that.hashCode ) && this.x.sameElements(that.x)
     case _ => false
   }
 
@@ -104,8 +104,9 @@ class RClient private[rscala] () {
   }
 
   private def evalEngine(template: String, values: Seq[Any]): Unit = {
+    val values2 = values.map(v => any2Datum(v))
     server.pop(Datum(values.length, TCODE_CALLBACK, Some(template)))
-    values.foreach(v => server.pop(any2Datum(v)))
+    values2.foreach(server.pop)
     server.run()
     if ( server.getCmd() != PCODE_PUSH_WITHOUT_NAME ) throw new RuntimeException("Protocol error.")
     server.push(false)
