@@ -1,4 +1,4 @@
-package org.ddahl.rscala
+package org.ddahl.rscala.server
 
 class Debugger(var on: Boolean, out: java.io.PrintWriter, val label: String, val withTime: Boolean) {
 

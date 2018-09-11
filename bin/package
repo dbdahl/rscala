@@ -67,7 +67,7 @@ cd ../../..
 
 # Compile Scala
 
-sbt +package +packageSrc
+sbt +package +packageSrc +packageDoc
 
 JARDIR="$PKG_HOME"/R/${PKG_NAME}/inst/java
 rm -rf "$JARDIR"

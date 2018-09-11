@@ -1,4 +1,4 @@
-package org.ddahl.rscala
+package org.ddahl.rscala.server
 
 object Protocol {
 

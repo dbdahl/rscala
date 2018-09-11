@@ -8,20 +8,15 @@ exec scala -nc -cp ../R/rscala/inst/java/scala-2.12/rscala_2.12-3.2.0.jar
 // val R = org.ddahl.rscala.RClient("R",0,true)
 val R = org.ddahl.rscala.RClient()
 
-val a = R.evalD0("3+4")
-R.eval("cat(3+4,'\n')")
+val a = R.evalD0("sd(rnorm(1000, mean=%-, sd=%-))", 1.0, 2.0)
+R.eval("primes <- %-", Array(2, 3, 5, 7, 11, 13, 17, 19, 23))
+
+val rFunction = R.evalObject("function(x) x*primes")
+val primesTimesTwo = R.evalI1("%-(2)", rFunction)
+
+val m = R.evalI2("matrix(rbinom(8, size=10, prob=0.5), nrow=%-)", 4)
+
 R.quit()
 
 
-R.eval("b <- %-",Array(1,2,3,4,5))
-R.evalD1("b")
-
-val a = R.evalObject("function(x) 2*x")
-R.evalD0("%-(5)",a)
-
-val a = R.evalObject("function(x) stop('b')")
-R.eval("%-(5)",a)
-
-R.eval("b <- %-",Array(1,2,3,4,5))
-R.evalD0("b")
 

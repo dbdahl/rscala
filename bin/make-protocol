@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-protocolFilename <- "../src/main/scala/org/ddahl/rscala/Protocol.scala"
+protocolFilename <- "../src/main/scala/org/ddahl/rscala/server/Protocol.scala"
 
 lines <- scan(protocolFilename,what=character(0),sep="\n",quiet=TRUE)
 lines <- lines[grep("^\\s*val\\s+[A-Z_0-9]+\\s*=\\s*.*\\.toByte",lines)]

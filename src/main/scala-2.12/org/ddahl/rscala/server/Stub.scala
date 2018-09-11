@@ -1,4 +1,4 @@
-package org.ddahl.rscala
+package org.ddahl.rscala.server
 
 import scala.tools.nsc.interpreter.IMain
 import scala.tools.nsc.interpreter.ILoop

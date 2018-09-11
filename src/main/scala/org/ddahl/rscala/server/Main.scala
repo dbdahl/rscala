@@ -1,4 +1,4 @@
-package org.ddahl.rscala
+package org.ddahl.rscala.server
 
 import scala.collection.mutable.HashMap
 import scala.tools.nsc.interpreter.IMain
@@ -91,7 +91,7 @@ object Main extends App {
   intp.bind("conduit",conduit)
 
   if ( debugger.on ) debugger("binding r client.")
-  val rClient = new RClient()
+  val rClient = new org.ddahl.rscala.RClient()
   intp.bind("R",rClient)
 
   val sockets = new Sockets(port, buffer, debugger)

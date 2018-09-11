@@ -1,5 +1,6 @@
 package org.ddahl.rscala
 
+import server._
 import Protocol._
 import scala.sys.process.Process
 
@@ -16,40 +17,32 @@ final class RObject private[rscala] (val x: Array[Byte]) {
 
 }
 
-/** An interface to an R interpreter.
+/** A bridge to R.
   *
-  * An object `R` is the instance of this class available in a Scala interpreter created by calling the function
-  * `scala` from the package [[http://cran.r-project.org/package=rscala rscala]].  It is through this instance `R` that
+  * In a Scala application, an instance of this class is created using its companion object as shown below.
+  *
+  * In an R script, the object `R` is an instance of this class available in an rscala bridge created by calling the function
+  * `scala` from the package [[http://cran.r-project.org/package=rscala rscala]].  It is through this instance that
   * callbacks to the original [[http://www.r-project.org R]] interpreter are possible.
   *
-  * In a Scala application, an instance of this class is created using its companion object.  See below.  The paths of the
-  * rscala's JARs (for all supported versions of Scala) are available from [[http://www.r-project.org R]] using `rscala::.rscalaJar()`.
-  * To get just the JAR for Scala 2.12, for example, use `rscala::.rscalaJar("2.12")`.
+  * All of the evaluation methods of this class have the same signature.  The first argument is a template for an R expression, where
+  * `%-` is a placeholder for items that are provided as variable arguments.  The result type is indicated by the suffix of
+  * the method name.  See examples below.
   *
   * This class is threadsafe.
   *
   * {{{
   * val R = org.ddahl.rscala.RClient()
-
-  * val a = R.evalD0("rnorm(8)")
-  * val b = R.evalD1("rnorm(8)")
-  * val c = R.evalD2("matrix(rnorm(8),nrow=4)")
-
-  * R.set("ages", Array(4,2,7,9))
-  * R.ages = Array(4,2,7,9)
-  * println(R.getI1("ages").mkString("<",", ",">"))
-
-  * R eval """
-  *   v <- rbinom(8,size=10,prob=0.4)
-  *   m <- matrix(v,nrow=4)
-  * """
-
-  * val v1 = R.get("v")
-  * val v2 = R.get("v")._1.asInstanceOf[Array[Int]]   // This works, but is not very convenient
-  * val v3 = R.v._1.asInstanceOf[Array[Int]]          // Slightly better
-  * val v4 = R.getI0("v")   // Get the first element of R's "v" as a Int
-  * val v5 = R.getI1("v")   // Get R's "v" as an Array[Int]
-  * val v6 = R.getI2("m")   // Get R's "m" as an Array[Array[Int]]
+  *
+  * val a = R.evalD0("sd(rnorm(1000, mean=%-, sd=%-))", 1.0, 2.0)
+  *
+  * R.eval("primes <- %-", Array(2, 3, 5, 7, 11, 13, 17, 19, 23))
+  * val rFunction = R.evalObject("function(x) x*primes")
+  * val primesTimesTwo = R.evalI1("%-(2)", rFunction)
+  *
+  * val m = R.evalI2("matrix(rbinom(%-, size=10, prob=0.5), nrow=2)", 8)
+  *
+  * R.quit()
   * }}}
   *
   * @author David B. Dahl
@@ -59,7 +52,7 @@ class RClient private[rscala] () {
   private[rscala] var server: Server = null
   private[rscala] var rProcessInstance: Process = null
 
-  def quit(): Unit = {
+  def quit(): Unit = synchronized {
     if ( rProcessInstance == null ) throw new IllegalStateException("The 'quit' method can only be called when R is embedded in Scala.")
     rProcessInstance.destroy()
   }
@@ -86,24 +79,24 @@ class RClient private[rscala] () {
   def evalS1(template: String, values: Any*): Array[String]         = evalWithResult[Array[String]]         (template, values, "storage.mode(.rs) <- 'character'; I(.rs)")
   def evalS2(template: String, values: Any*): Array[Array[String]]  = evalWithResult[Array[Array[String]]]  (template, values, "storage.mode(.rs) <- 'character'; .rs")
 
-  def evalObject(template: String, values: Any*): RObject = {
+  def evalObject(template: String, values: Any*): RObject = synchronized {
     val template2 = "I(serialize({" + template + "},NULL))"
     evalEngine(template2, values)
     val x = server.conduit.pop[Array[Byte]]
     new RObject(x)
   }
 
-  private def evalWithoutResult[A](template: String, values: Seq[Any]): Unit = {
+  private def evalWithoutResult[A](template: String, values: Seq[Any]): Unit = synchronized {
     evalEngine(template + "; NULL", values)
     server.conduit.pop[Any]()
   }
 
-  private def evalWithResult[A](template: String, values: Seq[Any], casting: String): A = {
+  private def evalWithResult[A](template: String, values: Seq[Any], casting: String): A = synchronized {
     evalEngine(".rs <- {" + template + "}; " + casting, values)
     server.conduit.pop[A]
   }
 
-  private def evalEngine(template: String, values: Seq[Any]): Unit = {
+  private def evalEngine(template: String, values: Seq[Any]): Unit = synchronized {
     val values2 = values.map(v => any2Datum(v))
     server.pop(Datum(values.length, TCODE_CALLBACK, Some(template)))
     values2.foreach(server.pop)
@@ -146,14 +139,7 @@ class RClient private[rscala] () {
 }
 
 
-/** The companion object to the [[RClient]] class used to create an instance of the [[RClient]] class in a Scala application.
-  *
-  * An object `R` is an [[RClient]] instance available in a Scala interpreter created by calling the function
-  * `scala` from the package [[http://cran.r-project.org/package=rscala rscala]].  It is through this instance
-  * `R` that callbacks to the original [[http://www.r-project.org R]] interpreter are possible.
-  *
-  * The paths of the rscala's JARs are available from [[http://www.r-project.org R]] using
-  * `rscala::.rscalaJar()`.  To get just the JAR for Scala 2.12, for example, use `rscala::.rscalaJar("2.12")`.
+/** The companion object to the [[RClient]] class used to create an instance in a Scala application.
   *
   * {{{ val R = org.ddahl.rscala.RClient() }}}
   */
@@ -181,7 +167,7 @@ object RClient {
     case false => """R"""
   }
 
-  def findROnWindows: String = {
+  private def findROnWindows: String = {
     def checkValidPath(path: String) = {
       val file = new java.io.File(path + """\bin\R.exe""")
       if ( file.exists && file.isFile ) file.getAbsolutePath
@@ -230,7 +216,7 @@ object RClient {
     throw new RuntimeException("Cannot locate R using Windows registry.  Please explicitly specify its path.")
   }
 
-  lazy val allCodeInR = {
+  private lazy val allCodeInR = {
     val scripts = scala.io.Source.fromInputStream(getClass.getResourceAsStream("/Rscripts")).getLines
     val codeInR = scripts.map(resource => {
       scala.io.Source.fromInputStream(getClass.getResourceAsStream(resource)).getLines.mkString("\n")
@@ -242,9 +228,10 @@ object RClient {
     })"""
   }
 
-  /** Returns an instance of the [[RClient]] class, using the path specified by `rCmd` and specifying whether output
-    * should be serialized, whether matrices are row major, whether debugging output should be displayed,
-    * and the port number.  Two sockets are establised using: 1. the specified port and 2. the specified port plus one.
+  /** Returns an instance of the [[RClient]] class, using the path to the executable specified by `rCmd`.
+    * If `port == 0`, the ports are randomly chosen.  Otherwise, the specified port and that port plus one are used.
+    *
+    * {{{val R = org.ddahl.rscala.RClient()}}}
     */
   def apply(rCmd: String = defaultRCmd, port: Int = 0, debug: Boolean = false): RClient = {
     val debugger = new Debugger(debug,new PrintWriter(System.out),"Scala",false)

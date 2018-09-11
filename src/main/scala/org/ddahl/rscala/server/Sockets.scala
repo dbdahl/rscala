@@ -1,4 +1,4 @@
-package org.ddahl.rscala
+package org.ddahl.rscala.server
 
 import java.io.{File, PrintWriter, DataOutputStream, DataInputStream, BufferedOutputStream}
 import java.net.{InetAddress, ServerSocket}
