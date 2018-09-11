@@ -229,7 +229,9 @@ object RClient {
     throw new RuntimeException("Cannot locate R using Windows registry.  Please explicitly specify its path.")
   }
 
-  private def reader(echo: Boolean, label: String)(input: InputStream) = {
+  private var echo = false
+
+  private def reader(label: String)(input: InputStream) = {
     val in = new BufferedReader(new InputStreamReader(input))
     var line = in.readLine()
     while ( line != null ) {
@@ -251,8 +253,8 @@ object RClient {
     val processCmd = Process(command)
     val processIO = new ProcessIO(
       o => { cmd = new PrintWriter(o) },
-      reader(true,""),
-      reader(true,""),
+      reader(""),
+      reader(""),
       true
     )
     val rProcessInstance = processCmd.run(processIO)
@@ -278,6 +280,7 @@ object RClient {
     val rClient = new RClient()
     rClient.server = server
     rClient.rProcessInstance = rProcessInstance
+    echo = true
     rClient
   }
 
