@@ -6,7 +6,7 @@ Run './bin/check'
 Rerun benchmarks on an otherwise idle machine: cd benchmarks; ./all
 Run './bin/post'
 Test on Linux, Mac OS, and Windows (use https://win-builder.r-project.org/)
-Test depending packages: shallot, sdols, bamboo, commonsMath
+Test depending packages: cd reverse-dependencies; ./check
 Commit everything to Git.
 Tag in Git the version using "bin/tag" script.
 sbt +publishSigned
