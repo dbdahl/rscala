@@ -6,12 +6,11 @@
 #' @export
 #' 
 `[[.rscalaReference` <- function(x, condition) {
-  .Deprecated()
   if ( condition == "type" ) scalaType(x)
   else stop("Not supported.")
 }
 
-#' (Deprecated) Embed a Scala Bridge in a Package
+#' Embed a Scala Bridge in a Package
 #'
 #' This function is deprecated.
 #'
@@ -22,6 +21,8 @@
 #' package. Package developers should call this function in the package's
 #' \code{\link{.onLoad}} function. The \code{\link{scalaPackageUnload}} function
 #' should be called in the package's \code{\link{.onUnload}} function.
+#'
+#' This function is deprecated.
 #'
 #' @param packages A character vector of package names whose JARs should be included in the classpath.
 #' @param assign.callback A function.
@@ -35,7 +36,6 @@
 #' @export
 #'
 scalaPackage <- function(packages, assign.callback, mode="") {
-  .Deprecated()
   env <- parent.env(parent.frame())
   if ( mode == "" ) {
     s <- scala()
@@ -48,7 +48,7 @@ scalaPackage <- function(packages, assign.callback, mode="") {
   assign("s",s,envir=env)
 }
 
-#' (Deprecated) Clean up an Embedded Scala Bridge of a Package
+#' Clean up an Embedded Scala Bridge of a Package
 #'
 #' This function is deprecated.
 #' 
@@ -57,12 +57,13 @@ scalaPackage <- function(packages, assign.callback, mode="") {
 #' \code{\link{scalaPackage}}, the argument \code{mode=""} was used.  It has no
 #' effect otherwise.
 #'
+#' This function is deprecated.
+#'
 #' @return Returns \code{NULL}, invisibly.
 #'
 #' @export
 #'
 scalaPackageUnload <- function() {
-  .Deprecated()
   if ( exists(".rscalaBorrowed") ) {
     s <- get("s",envir=parent.env(parent.frame()))
     close(s)
