@@ -19,7 +19,7 @@ class Sockets(val port: Int, val buffer: Boolean, val debugger: Debugger) {
     try {
       val portsFile = new File(portsFilename)
       val p = new PrintWriter(portsFile)
-      p.println(outPort + " " + inPort)
+      p.println("" + outPort + " " + inPort)
       p.close()
     } catch {
       case e: Throwable => // R has already exited?

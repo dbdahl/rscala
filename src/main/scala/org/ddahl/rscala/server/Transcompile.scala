@@ -2,10 +2,11 @@ package org.ddahl.rscala.server
 
 import scala.reflect.ClassTag
 
-object Transcompile {
+object Transcompile extends TranscompileStub {
 
   import scala.Double.NaN
   import java.lang.Double.isNaN
+
   private def r2int(x: Double) = math.round(x).toInt
   private def f2int(x: Double) = math.floor(x).toInt
   private def c2int(x: Double) = math.ceil(x).toInt

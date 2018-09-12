@@ -81,7 +81,7 @@ object Main extends App {
   settings.unchecked.value = true
   settings.language.add("reflectiveCalls")
 
-  val intp = Stub.mkIMain(settings, prntWrtr)
+  val intp = ServerStub.mkIMain(settings, prntWrtr)
 
   // Set up interpreter
   val referenceMap = new HashMap[Int, (Any,String)]()

@@ -5,7 +5,7 @@ import scala.tools.nsc.interpreter.ILoop
 import scala.tools.nsc.Settings
 import java.io.PrintWriter
 
-object Stub {
+object ServerStub {
 
   val Success = scala.tools.nsc.interpreter.IR.Success
 

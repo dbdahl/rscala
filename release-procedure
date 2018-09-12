@@ -1,14 +1,16 @@
 Run 'install-R --devel'
 Bump version number in build.sbt
 Update R/rscala/NEWS detailing changes (including the date)
-Try to bump to latest sbt version in project/build.properties.
+Try to bump to latest versions in project/build.properties, project/plugins.sbt
 Run './bin/check'
+Rerun benchmarks on an otherwise idle machine: cd benchmarks; ./all
 Run './bin/post'
-Rerun benchmarks: cd benchmarks; ./all
 Test on Linux, Mac OS, and Windows (use https://win-builder.r-project.org/)
 Test depending packages: shallot, sdols, bamboo, commonsMath
 Commit everything to Git.
 Tag in Git the version using "bin/tag" script.
+sbt +publishSigned
+sbt +sonatypeRelease
 Submit to CRAN
-# Update webpage using bin/deploy-html
+Update the temperature webapp
 Bump (development) version number in build.sbt

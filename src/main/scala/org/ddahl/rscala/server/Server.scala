@@ -1,7 +1,7 @@
 package org.ddahl.rscala.server
 
 import Protocol._
-import Stub.Success
+import ServerStub.Success
 import scala.tools.nsc.interpreter.IMain
 import scala.annotation.tailrec
 import scala.collection.mutable.HashMap

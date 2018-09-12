@@ -5,7 +5,7 @@ import scala.tools.nsc.interpreter.shell.{ShellConfig, ReplReporterImpl}
 import scala.tools.nsc.{Settings, NewLinePrintWriter}
 import java.io.PrintWriter
 
-object Stub {
+object ServerStub {
 
   val Success = scala.tools.nsc.interpreter.Results.Success
 
