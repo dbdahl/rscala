@@ -6,11 +6,14 @@
 #' @export
 #' 
 `[[.rscalaReference` <- function(x, condition) {
+  .Deprecated()
   if ( condition == "type" ) scalaType(x)
   else stop("Not supported.")
 }
 
-#' Embed a Scala Bridge in a Package
+#' (Deprecated) Embed a Scala Bridge in a Package
+#'
+#' This function is deprecated.
 #'
 #' This function should be called in the \code{\link{.onLoad}} function of a
 #' depending package.
@@ -32,6 +35,7 @@
 #' @export
 #'
 scalaPackage <- function(packages, assign.callback, mode="") {
+  .Deprecated()
   env <- parent.env(parent.frame())
   if ( mode == "" ) {
     s <- scala()
@@ -44,8 +48,10 @@ scalaPackage <- function(packages, assign.callback, mode="") {
   assign("s",s,envir=env)
 }
 
-#' Clean up an Embedded Scala Bridge of a Package
+#' (Deprecated) Clean up an Embedded Scala Bridge of a Package
 #'
+#' This function is deprecated.
+#' 
 #' This function should be called in the \code{.onUnload} function of a
 #' depending package if, in the corresponding function
 #' \code{\link{scalaPackage}}, the argument \code{mode=""} was used.  It has no
@@ -56,6 +62,7 @@ scalaPackage <- function(packages, assign.callback, mode="") {
 #' @export
 #'
 scalaPackageUnload <- function() {
+  .Deprecated()
   if ( exists(".rscalaBorrowed") ) {
     s <- get("s",envir=parent.env(parent.frame()))
     close(s)
