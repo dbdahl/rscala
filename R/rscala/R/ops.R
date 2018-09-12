@@ -117,12 +117,3 @@
   scalaInvoke(attr(bridge,"details"), snippet, NULL, parent.frame(1))
 }
 
-#' @export
-#' 
-`[[.rscalaReference` <- function(x, condition) {
-  ## DBD 2018-07-12: This is a hack to allow current CRAN versions of sdols (1.6) and shallot (0.4.4) to pass CRAN checks without being updated.
-  ##                 Working versions of sdols and shallot without this hack are already in git.  When these packages are updated, this hack
-  ##                 can be dropped.
-  if ( condition == "type" ) scalaType(x)
-  else stop("Not supported.")
-}

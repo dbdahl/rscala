@@ -1,0 +1,8 @@
+#!/bin/bash
+
+rm -rf output
+mkdir output
+cp -r packages/*.tar.gz output
+
+R -e 'tools::check_packages_in_dir("output", reverse = list())'
+

@@ -1,0 +1,4 @@
+#!/usr/bin/env Rscript
+
+tools::package_dependencies(reverse = TRUE)$rscala
+
