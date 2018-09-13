@@ -1,5 +1,9 @@
 library(rscala)
-scala()
+s <- scala("commonsMath")
+s ^ "3+4"
+s ^ function(x=scalaType("D1")) sample(x)
+
+
 showConnections()
 s * "3+4"
 showConnections()

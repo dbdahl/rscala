@@ -66,6 +66,7 @@
     args2 <- lapply(ast[-length(ast)],eval,envir=environment(snippet))
     ast <- ast[[length(ast)]]
     details <- attr(bridge,"details")
+    if ( details[["disconnected"]] ) scalaConnect(details)
     symbolEnv <- new.env(parent=emptyenv())
     transcompilation <- r2scala(ast,details[["debugTranscompilation"]],symbolEnv,details[["transcompileSubstitute"]])
     returnString <- if ( exists("_returnType",envir=symbolEnv) ) paste0(": ",get("_returnType",envir=symbolEnv)) else ""

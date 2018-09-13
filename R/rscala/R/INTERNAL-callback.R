@@ -17,7 +17,7 @@ callback <- function(details, envir) {
     snippet <- sub("%-",rhs,snippet)
     args[[i]] <- arg
   }
-  assign(argsListName,args,envir=envir)  
+  assign(argsListName,args,envir=envir)
   result <- tryCatch(eval(parse(text=snippet),envir=envir), error=function(e) {
     cat(toString(e))
     NULL

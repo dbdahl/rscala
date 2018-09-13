@@ -87,7 +87,7 @@ class RClient private[rscala] () {
   }
 
   private def evalWithoutResult[A](template: String, values: Seq[Any]): Unit = synchronized {
-    evalEngine(template + "; NULL", values)
+    evalEngine(template + "\nNULL", values)
     server.conduit.pop[Any]()
   }
 
