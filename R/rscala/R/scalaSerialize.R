@@ -59,7 +59,7 @@ scalaSerialize <- function(x, bridge=scalaFindBridge(), verbose=FALSE, ...) {
 #'
 #' @export
 #' 
-scalaSerialize.generic <- function(x, bridge=scalaFindBridge(), verbose=FALSE, as.is=FALSE) {
+scalaSerialize.generic <- function(x, bridge=scalaFindBridge(), verbose=FALSE, as.is=FALSE, ...) {
   if ( verbose ) cat("scalaSerialize.generic: Trying...\n")
   if ( is.list(x) && ( ! as.is ) ) {
     if ( verbose ) cat("scalaSerialize.generic: List detected.\n")
@@ -80,7 +80,7 @@ scalaSerialize.generic <- function(x, bridge=scalaFindBridge(), verbose=FALSE, a
 #'
 #' @export
 #' 
-scalaSerialize.list <- function(x, bridge=scalaFindBridge(), verbose=FALSE) {
+scalaSerialize.list <- function(x, bridge=scalaFindBridge(), verbose=FALSE, ...) {
   if ( verbose ) cat("scalaSerialize.list: Trying...\n")
   if ( ! is.list(x) ) {
     if ( verbose ) cat("scalaSerialize.list: Object is not a list.\n")

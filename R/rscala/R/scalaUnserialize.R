@@ -20,7 +20,7 @@ scalaUnserialize <- function(reference, type=scalaType(reference), bridge=scalaF
 #' @describeIn scalaSerialize Unserialize a Scala Reference to an R List or Data Frame
 #' @export
 #' 
-scalaUnserialize.list <- function(reference, type=scalaType(reference), bridge=scalaFindBridge(reference), verbose=FALSE) {
+scalaUnserialize.list <- function(reference, type=scalaType(reference), bridge=scalaFindBridge(reference), verbose=FALSE, ...) {
   if ( verbose ) cat("scalaUnserialize.list: Trying...\n")
   if ( ! grepl("List\\d+",type) ) return(NULL)
   names <- reference$names()
@@ -45,7 +45,7 @@ scalaUnserialize.list <- function(reference, type=scalaType(reference), bridge=s
 #' @describeIn scalaSerialize Unserialize an \code{RObject} or List of \code{RObject}'s from Scala to R
 #' @export
 #' 
-scalaUnserialize.generic <- function(reference, type=scalaType(reference), bridge=scalaFindBridge(reference), verbose=FALSE) {
+scalaUnserialize.generic <- function(reference, type=scalaType(reference), bridge=scalaFindBridge(reference), verbose=FALSE, ...) {
   if ( verbose ) cat("scalaUnserialize.generic: Trying...\n")
   if ( type == "org.ddahl.rscala.RObject" ) {
     if ( verbose ) cat("scalaUnserialize.generic: Success on single element.\n")
