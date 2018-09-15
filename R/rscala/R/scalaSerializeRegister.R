@@ -1,62 +1,52 @@
-#' Register Functions to Serialize between R and Scala
+#' Register Functions to Push and Pull Between R and Scala
 #'
-#' The package provides support for serializing R objects to Scala and
-#' unserializing Scala references to R.  These registration functions allows
-#' additional, more-specialized serializers and unserializers to be added.
-#' Package developers may want to call these registration functions in the
+#' The 'rscala' package provides support for serializing objects between R and Scala.
+#' These registration functions allows
+#' additional, more-specialized push and pull methods to be added.
+#' Package developers may want to call these registration functions in the package's
 #' \code{\link{.onLoad}} function.
 #'
-#' @param serializer A function whose first arguments are documented in
-#'   \code{\link{scalaSerialize}}.  Other arguments can be used as additional
-#'   arguments.
-#' @param unserializer A function whose first arguments are documented in
-#'   \code{\link{scalaUnserialize}}.  Other arguments can be used as additional
-#'   arguments.
+#' @param pusher A function whose first two arguments are as shown in the example below.
+#'   Other arguments can be used as additional arguments.
+#' @param puller A function whose first two arguments are as shown in the example below.
+#'   Other arguments can be used as additional arguments.
+#' @param method A string giving the name of the specific 'push' or 'pull' method.
 #' @param bridge An rscala bridge.
-#' @seealso \code{\link{scalaSerialize}}, \code{\link{scalaUnserialize}}
+#' @seealso \code{\link{scalaPush}}, \code{\link{scalaPull}}
 #' @export
 #'
 #' @examples \donttest{
 #' s <- scala()
 #'
 #' name <- "Grace"
-#' nameAsRObject <- scalaSerialize(name)   # Basic serialization
+#' nameAsRObject <- scalaPush(name,"generic")   # Basic serialization
 #' scalaType(nameAsRObject)
-#' identical(name,scalaUnserialize(nameAsRObject))
+#' identical(name,scalaPull(nameAsRObject,"generic"))
 #'
-#' scalaSerialize.character <- function(x, bridge=scalaFindBridge(), verbose=FALSE) {
-#'   if ( verbose ) cat("scalaSerializer.character: Trying...\n")
-#'   if ( is.character(x) ) {
-#'     if ( verbose ) cat("scalaSerializer.character: Success.\n")
-#'     bridge(x=x) ^ 'x'
-#'   } else NULL
+#' scalaPush.character <- function(x, bridge) {
+#'   if ( is.character(x) && ( length(x) == 1L ) ) bridge(x=x) ^ 'x'
+#'   else stop("'x' should be a character vector.")
 #' }
-#' scalaSerializeRegister(scalaSerialize.character)
-#' nameAsString <- scalaSerialize(name)    # More specific serialization
+#' scalaPushRegister(scalaPush.character, "character")
+#' nameAsString <- scalaPush(name, "character", s)    # More specific serialization
 #' scalaType(nameAsString)
 #'
-#' scalaUnserialize.character <- function(reference, type=scalaType(reference),
-#'                                        bridge=scalaFindBridge(reference), verbose=FALSE) {
-#'   if ( verbose ) cat("scalaUnserialize.character: Trying...\n")
-#'   if ( type == "String" ) {
-#'     if ( verbose ) cat("scalaUnserialize.character: Success.\n")
-#'     reference$toString()
-#'   } else NULL
+#' scalaPull.character <- function(reference, bridge) {
+#'   if ( scalaType(reference) == "String" ) reference$toString()
+#'   else stop("'reference' should be a 'String'.")
 #' }
-#' scalaUnserializeRegister(scalaUnserialize.character)
-#' identical(name,scalaUnserialize(nameAsString))
+#' scalaPullRegister(scalaPull.character, "character")
+#' identical(name,scalaPull(nameAsString,"character"))
 #'
 #' close(s)
 #' }
 #' 
-scalaSerializeRegister <- function(serializer, bridge=scalaFindBridge()) {
-  details <- attr(bridge,"details")
-  assign("serializers",c(serializer,get("serializers",envir=details)),envir=details)
+scalaPushRegister <- function(pusher, method, bridge=scalaFindBridge()) {
+  assign(method,pusher,envir=get("pushers",envir=attr(bridge,"details")))
 }
 
-#' @rdname scalaSerializeRegister
+#' @rdname scalaPushRegister
 #' @export
-scalaUnserializeRegister <- function(unserializer, bridge=scalaFindBridge()) {
-  details <- attr(bridge,"details")
-  assign("unserializers",c(unserializer,get("unserializers",envir=details)),envir=details)
+scalaPullRegister <- function(puller, method, bridge=scalaFindBridge()) {
+  assign(method,puller,envir=get("pullers",envir=attr(bridge,"details")))
 }

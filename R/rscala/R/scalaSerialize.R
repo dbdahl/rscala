@@ -1,99 +1,75 @@
-#' Serialization Between R and Scala
+#' Push and Pull Objects Between R and Scala
 #'
-#' These functions attempt to i. serialize an R object to Scala or ii. unserialize an rscala reference to R.  A few built serializers and unserializers are provided and more may be added using the functions \code{\link{scalaSerializeRegister}} and \code{\link{scalaUnserializeRegister}}.
+#' The push function serializes an R object to Scala and the push function does the
+#' opposite. A couple of built push and pull methods are
+#' provided, namely \code{"generic"} and \code{"list"}. The \code{"generic"} method
+#' serializes an arbitrary R object to an instance of \code{RObject} in Scala.
+#' Since the \code{RObject} merely contains an array of bytes, the
+#' \code{RObject} is really only useful as storage for later unserialization.
+#' The \code{"generic"} method has an optional \code{as.is} argument which is either
+#' \code{TRUE} to cause the list to serialized as a single object or
+#' \code{FALSE} to cause each element of the list to the serialized
+#' individually. More methods may be added using the functions
+#' \code{\link{scalaPushRegister}} and \code{\link{scalaPullRegister}}.
 #'
 #' @param x An R object.
+#' @param method A string giving the specific 'push' or 'pull' method to use.
 #' @param bridge An rscala bridge.
-#' @param verbose Should details of the search for an appropriate serializer or unserializer
-#'   be shown?
-#' @param ... Other arguments passed to specialized functions.
+#' @param ... Other arguments passed to specialized push and pull functions.
 #'
-#' @seealso \code{\link{scalaSerializeRegister}}
+#' @seealso \code{\link{scalaPushRegister}}, \code{\link{scalaPullRegister}}
 #' @export
-#' @describeIn scalaSerialize Serialize Object from R to Scala
 #' @examples \donttest{
 #' s <- scala()
-#' 
-#' s(rn=scalaSerialize(rnorm)) * 'R.evalD1("%-(%-)",rn,5)'
-#' 
-#' mtcarsRef <- scalaSerialize(mtcars, s)
+#'
+#' s(rn=scalaPush(rnorm,"generic"),n=5) * 'R.evalD1("%-(%-)",rn,n)'
+#'
+#' mtcarsRef <- scalaPush(mtcars, "list")
 #' mtcarsRef$names()
 #' mtcarsRef$mpg()
-#' mtcars2 <- scalaUnserialize(mtcarsRef)
+#' mtcars2 <- scalaPull(mtcarsRef, "list")
 #' identical(mtcars, mtcars2)
-#' 
-#' ref <- scalaSerialize(iris, s, verbose=TRUE)
-#' scalaType(ref)
-#' scalaUnserialize(ref)  # Oops, variable names are lost.
-#' 
+#'
+#' # Oops, the variable names are bad...
+#' tryCatch(ref <- scalaPush(iris, "list"), error=function(e) e)
+#'
+#' # ... so let's clean up the variable names.
 #' irisCleaned <- iris
 #' names(irisCleaned) <- gsub("\\W","_",names(iris))
 #' irisCleaned$Species <- as.character(iris$Species)
-#' ref2 <- scalaSerialize(irisCleaned, s, verbose=TRUE)
+#' ref2 <- scalaPush(irisCleaned, "list")
 #' scalaType(ref2)
 #' ref2$Sepal_Length()
-#' irisCleaned2 <- scalaUnserialize(ref2)
+#' irisCleaned2 <- scalaPull(ref2,"list")
 #' identical(irisCleaned, irisCleaned2)
-#' 
+#'
 #' close(s)
 #' }
 #'  
-scalaSerialize <- function(x, bridge=scalaFindBridge(), verbose=FALSE, ...) {
-  reference <- NULL
-  serializers <- get("serializers",envir=attr(bridge,"details"))
-  for ( serializer in serializers ) {
-    reference <- serializer(x, bridge, verbose, ...)
-    if ( ! is.null(reference) ) break
-  }
-  if ( is.null(reference) ) stop("No matching serializer was found.")
-  reference
+scalaPush <- function(x, method, bridge=scalaFindBridge(), ...) {
+  if ( missing(method) ) stop("'method' for push must be supplied.")
+  pushers <- get("pushers",envir=attr(bridge,"details"))
+  pushers[[method]](x, bridge, ...)
 }
 
-#' @describeIn scalaSerialize Serialize Arbitrary Object from R to Scala
-#'
-#' This function serializes an arbitrary R object to an instance of \code{RObject} in Scala.  Since the \code{RObject} merely contains an array of bytes, the \code{RObject} is really only useful as storage for later unserialization.
-#' 
-#' @param as.is If \code{x} is a list, \code{TRUE} causes the list to serialized
-#'   as a single object and \code{FALSE} causes each element of the list to the
-#'   serialized individually.
-#'
-#' @export
-#' 
-scalaSerialize.generic <- function(x, bridge=scalaFindBridge(), verbose=FALSE, as.is=FALSE, ...) {
-  if ( verbose ) cat("scalaSerialize.generic: Trying...\n")
+scalaPush.generic <- function(x, bridge, as.is=FALSE) {
   if ( is.list(x) && ( ! as.is ) ) {
-    if ( verbose ) cat("scalaSerialize.generic: List detected.\n")
-    if ( verbose ) cat("scalaSerialize.generic: Success.\n")
     bridge(len=length(x)) ^ '
       List.tabulate(len) { i =>
         R.evalObject("x[[%-]]",i+1)
       }
     '
   } else {
-    if ( verbose ) cat("scalaSerialize.generic: Nonlist detected.\n")
-    if ( verbose ) cat("scalaSerialize.generic: Success.\n")
     bridge$.R.evalObject('x')
   }
 }
 
-#' @describeIn scalaSerialize Serialize List from R to Scala
-#'
-#' @export
-#' 
-scalaSerialize.list <- function(x, bridge=scalaFindBridge(), verbose=FALSE, ...) {
-  if ( verbose ) cat("scalaSerialize.list: Trying...\n")
-  if ( ! is.list(x) ) {
-    if ( verbose ) cat("scalaSerialize.list: Object is not a list.\n")
-    return(NULL)
-  }
+scalaPush.list <- function(x, bridge) {
+  if ( ! is.list(x) ) stop("Object is not a list.")
   uniqueNames <- unique(names(x))
-  if ( ( length(uniqueNames) != length(x) ) || ( any(uniqueNames=="") ) ) {
-    if ( verbose ) cat(paste0("scalaSerialize.list: All items must be named.\n"))
-    return(NULL)   
-  }
+  if ( ( length(uniqueNames) != length(x) ) || ( any(uniqueNames=="") ) ) stop("All items must be named.")
   if ( any(grepl("\\W",uniqueNames)) ) {
-    if ( verbose ) cat(paste0("scalaSerialize.list: The following variable names are problematic: ",paste0(uniqueNames[grepl("\\W",uniqueNames)],collapse=", "),"\n"))
-    return(NULL)
+    stop(paste0("The following variable names are problematic: ",paste0(uniqueNames[grepl("\\W",uniqueNames)],collapse=", ")))
   }
   asIs <- lapply(x,function(y) if ( inherits(y,"AsIs") ) "true" else "false")
   types <- lapply(x,function(y) {
@@ -102,10 +78,7 @@ scalaSerialize.list <- function(x, bridge=scalaFindBridge(), verbose=FALSE, ...)
     else if ( type == "integer" ) "Int"
     else if ( type == "logical" ) "Boolean"
     else if ( type == "character" ) "String"
-    else {
-      if ( verbose ) cat("scalaSerialize.list: Unsupported type.\n")
-      return(NULL)
-    }
+    else stop(paste0("Unsupported type: ",type))
   })
   shapes <- lapply(x,function(y) {
     if ( is.matrix(y) ) c("Array[Array[","]]")
@@ -132,6 +105,5 @@ scalaSerialize.list <- function(x, bridge=scalaFindBridge(), verbose=FALSE, ...)
   f <- eval(parse(text=paste0("bridge$.new_",name)))
   args <- lapply(seq_len(length(x)), function(j) x[[j]])
   reference <- do.call(f,args)
-  if ( verbose ) cat("scalaSerialize.list: Success with list or data frame.\n")
   reference
 }

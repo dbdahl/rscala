@@ -31,8 +31,8 @@
 #'
 #' @return Returns an rscala bridge.
 #' @seealso \code{\link{close.rscalaBridge}}, \code{\link{scalaMemory}}
-#'   \code{\link{scalaSerializeRegister}},
-#'   \code{\link{scalaUnserializeRegister}}
+#'   \code{\link{scalaPushRegister}},
+#'   \code{\link{scalaPullRegister}}
 #' @export
 #'
 #' @examples \donttest{
@@ -87,8 +87,6 @@ scala <- function(JARs=character(),
   assign("transcompileHeader",transcompileHeader,envir=details)
   assign("transcompileSubstitute",list(),envir=details)
   assign("debugTranscompilation",FALSE,envir=details)
-  assign("serializers",list(scalaSerialize.list,scalaSerialize.generic),envir=details)
-  assign("unserializers",list(scalaUnserialize.list,scalaUnserialize.generic),envir=details)
   assign("debug",debug,envir=details)
   assign("serializeOutput",serialize.output,envir=details)
   assign("last",NULL,envir=details)
@@ -106,7 +104,14 @@ scala <- function(JARs=character(),
   assign("gcFunction",gcFunction,envir=details)
   reg.finalizer(details,close.rscalaBridge,onexit=TRUE)
   scalaJARs(JARs,details)
-  mkBridge(details)
+  bridge <- mkBridge(details)
+  assign("pushers",new.env(parent=emptyenv()),envir=details)
+  assign("pullers",new.env(parent=emptyenv()),envir=details)
+  scalaPushRegister(scalaPush.generic,"generic",bridge)
+  scalaPushRegister(scalaPush.list,"list",bridge)
+  scalaPullRegister(scalaPull.generic,"generic",bridge)
+  scalaPullRegister(scalaPull.list,"list",bridge)
+  bridge
 }
 
 mkBridge <- function(details) {
