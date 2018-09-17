@@ -1,16 +1,16 @@
 #' Push and Pull Objects Between R and Scala
 #'
-#' The push function serializes an R object to Scala and the push function does the
-#' opposite. A couple of built push and pull methods are
-#' provided, namely \code{"generic"} and \code{"list"}. The \code{"generic"} method
-#' serializes an arbitrary R object to an instance of \code{RObject} in Scala.
-#' Since the \code{RObject} merely contains an array of bytes, the
-#' \code{RObject} is really only useful as storage for later unserialization.
-#' The \code{"generic"} method has an optional \code{as.is} argument which is either
-#' \code{TRUE} to cause the list to serialized as a single object or
-#' \code{FALSE} to cause each element of the list to the serialized
-#' individually. More methods may be added using the functions
-#' \code{\link{scalaPushRegister}} and \code{\link{scalaPullRegister}}.
+#' The push function serializes an R object to Scala and the push function does
+#' the opposite. A couple of built push and pull methods are provided, namely
+#' \code{"generic"} and \code{"list"}. The \code{"generic"} method serializes an
+#' arbitrary R object to an instance of \code{RObject} in Scala. Since the
+#' \code{RObject} merely contains an array of bytes, the \code{RObject} is
+#' really only useful as storage for later unserialization. The \code{"generic"}
+#' method has an optional \code{as.is} argument which is either \code{TRUE} to
+#' cause the list to serialized as a single object or \code{FALSE} to cause each
+#' element of the list to the serialized individually. More methods may be added
+#' using the functions \code{\link{scalaPushRegister}} and
+#' \code{\link{scalaPullRegister}}.
 #'
 #' @param x An R object.
 #' @param method A string giving the specific 'push' or 'pull' method to use.
