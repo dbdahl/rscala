@@ -149,14 +149,11 @@ object Transcompile extends TranscompileStub {
   def _ge(x: Array[Int], y: Array[Double]): Array[Boolean] = x zip y map { z => z._1 >= z._2 }
   def _ge(x: Array[Int], y: Array[Int]): Array[Boolean] = x zip y map { z => z._1 >= z._2 }
 
-  def _order[T <: Ordered[T]](x: Array[T]): Array[Int] = {
-    x.zipWithIndex.sortWith((x,y) => x._1.compareTo(y._1) < 0 ).map(_._2)
+  def _order[T](x: Array[T], decreasing: Boolean = false)(implicit cmp: Ordering[_ >: T]): Array[Int] = {
+    val f = if ( decreasing) ((x:(T,Int),y:(T,Int)) => cmp.gt(x._1,y._1))
+    else ((x:(T,Int),y:(T,Int)) => cmp.lt(x._1,y._1))
+    x.zipWithIndex.sortWith(f).map(_._2 + 1)
   }
-
-//  def _order[T](x: Array[T], decreasing: Boolean = false): Array[Int] = {
-//    if ( decreasing ) x.zipWithIndex.sortWith((x,y) => x._1 > x._2 ).map(_._2)
-//    else              x.zipWithIndex.sortWith((x,y) => x._1 < x._2 ).map(_._2)
-//  }
 
   def _and(x: Array[Boolean], y: Array[Boolean]): Array[Boolean] = x zip y map { z => z._1 & z._2 }
   def _and(x: Array[Boolean], y: Boolean): Array[Boolean] = x map { _ & y }

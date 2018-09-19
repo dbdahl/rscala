@@ -66,6 +66,8 @@ test_that("Basic transcompilation works", {
   myExpect(function() { c(1L,c(3,4L)) })
   myExpect(function() { c("David",3L) })
   myExpect(function() { c(c(1.2,3.2),"David") })
+  myExpect(function() { order(c(1.2,3.2)) })
+  myExpect(function() { order(c("e","da","jd","d"),decreasing=TRUE) })
 })
 
 test_that("Apply and update work", {
