@@ -293,8 +293,10 @@ javaSpecifics <- function(javaCmd,verbose) {
 setJavaEnv <- function(javaConf) {
   oldJAVACMD <- Sys.getenv("JAVACMD")
   oldJAVAHOME <- Sys.getenv("JAVA_HOME")
-  Sys.setenv(JAVACMD=path.expand(javaConf$javaCmd))
-  Sys.setenv(JAVA_HOME=path.expand(javaConf$javaHome))
+  eJAVACMD <- if ( javaConf$javaCmd != "" ) normalizePath(javaConf$javaCmd) else ""
+  eJAVAHOME <- if ( javaConf$javaHome != "" ) normalizePath(javaConf$javaHome) else ""
+  Sys.setenv(JAVACMD=eJAVACMD)
+  Sys.setenv(JAVA_HOME=eJAVAHOME)
   list(javaCmd=oldJAVACMD,javaHome=oldJAVAHOME)
 }
 
