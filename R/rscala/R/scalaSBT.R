@@ -22,7 +22,6 @@
 #' @return \code{NULL}
 #' @export
 scalaSBT <- function(args=c("+package","packageSrc")) {
-  scalaVersions <- c("2.11","2.12")
   sConfig <- scalaConfig(FALSE)
   oldWD <- getwd()
   on.exit(setwd(oldWD))
@@ -32,6 +31,13 @@ scalaSBT <- function(args=c("+package","packageSrc")) {
     setwd("..")
     if ( currentWD == getwd() ) stop("Cannot find 'build.sbt' file.")
   }
+  lines <- readLines("build.sbt")
+  lines <- lines[grepl("^\\s*crossScalaVersions\\s*:=",lines)]
+  if ( length(lines) != 1 ) stop("Could not find one and only one 'crossScalaVersion' line in 'build.sbt'.")
+  scalaVersions <- strsplit(gsub('["),]','',sub('[^"]*','',lines)),"\\s+")[[1]]
+  scalaVersions <- sapply(scalaVersions, function(x) {
+    if ( grepl("^2.1[12]\\.",x) ) substr(x,1,4) else x
+  })
   oldJARs <- list.files("target",pattern=".*\\.jar",recursive=TRUE)
   unlink(oldJARs)
   if ( is.null(sConfig$sbtCmd) ) {
