@@ -1,4 +1,4 @@
-#' Run SBT
+#' Run SBT and Deploy JAR Files
 #'
 #' This function runs SBT (Scala Build Tool) to package JAR files and then copy
 #' them to the appropriate directories of the R package source.
@@ -15,6 +15,13 @@
 #' \code{(PKGHOME)} is the package home and \code{(VERSION)} is the major Scala
 #' version (e.g., 2.12).  It is assumed that the package home is a subdirectory
 #' of the directory containing the \code{'build.sbt'} file.
+#'
+#' Note that SBT may give weird errors about not being able to download needed
+#' dependences.  The issue is that some OpenJDK builds less than version 10 ---
+#' like the one provided by \code{scalaConfig(download.java=TRUE)} --- do not
+#' include a root certificates.  The solution is to either: i. manually install
+#' OpenJDK version 10 or greater, or ii. manually install Oracle's version of
+#' Java 8. Both are capable with the rscala package.
 #'
 #' @param args A character vector giving the arguments to be passed to the SBT
 #'   command.
