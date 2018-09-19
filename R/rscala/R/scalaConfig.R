@@ -16,6 +16,9 @@
 #'   '~/.rscala/java'?
 #' @param download.scala Should Scala be downloaded and installed in
 #'   '~/.rscala/scala'?
+#' @param download.sbt Should SBT be downloaded and installed in
+#'   '~/.rscala/sbt'?
+#
 #'
 #' @return Returns a list of details of the Scala and Java binaries.
 #' @export
@@ -23,7 +26,7 @@
 #'
 #' scalaConfig()
 #' }
-scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, download.scala=FALSE) {
+scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, download.scala=FALSE, download.sbt=FALSE) {
   if ( inherits(verbose,"rscalaBridge") ) return(attr(verbose,"details")$config)
   offerInstall <- function(msg) {
     if ( !identical(reconfig,"live") && interactive() ) {
@@ -47,28 +50,28 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
     } else config
   } else {
     if ( download.java ) installJava(installPath,verbose)
-    javaConf <- findExecutable("java",installPath,javaSpecifics,verbose)
+    javaConf <- findExecutable("java","Java",installPath,javaSpecifics,verbose)
     if ( is.null(javaConf) ) {
       if ( verbose ) cat("\n")
       consent2 <- offerInstall(paste0("Java is not found.")) 
       stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nJava is not found!  Please run 'rscala::scalaConfig(download.java=TRUE)'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
       if ( consent2 ) {
         installJava(installPath,verbose)
-        javaConf <- findExecutable("java",installPath,javaSpecifics,verbose)
+        javaConf <- findExecutable("java","Java",installPath,javaSpecifics,verbose)
         if ( is.null(javaConf) ) stop(stopMsg)
       } else stop(stopMsg)
       consent <- consent || consent2
     }
     if ( download.scala ) installScala(installPath,javaConf,verbose)
     scalaSpecifics2 <- function(x,y) scalaSpecifics(x,javaConf,y)
-    scalaConf <- findExecutable("scala",installPath,scalaSpecifics2,verbose)
+    scalaConf <- findExecutable("scala","Scala",installPath,scalaSpecifics2,verbose)
     if ( is.null(scalaConf) ) {
       if ( verbose ) cat("\n")
       consent2 <- offerInstall(paste0("Scala is not found.")) 
       stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nScala is not found!  Please run 'rscala::scalaConfig(download.scala=TRUE)'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
       if ( consent2 ) {
         installScala(installPath,javaConf,verbose)
-        scalaConf <- findExecutable("scala",installPath,scalaSpecifics2,verbose)
+        scalaConf <- findExecutable("scala","Scala",installPath,scalaSpecifics2,verbose)
         if ( is.null(scalaConf) ) stop(stopMsg)
       } else stop(stopMsg)
       consent <- consent || consent2
@@ -84,7 +87,21 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
       }
       osArchitecture
     } else javaConf$javaArchitecture
-    config <- c(scalaConf,javaConf,osArchitecture=osArchitecture)
+    if ( download.sbt ) installSBT(installPath,javaConf,verbose)
+    sbtSpecifics <- function(x,y) list(sbtCmd=x)
+    sbtConf <- findExecutable("sbt","SBT",installPath,sbtSpecifics,verbose)
+    if ( is.null(sbtConf) ) {
+      if ( verbose ) cat("\n")
+      consent2 <- offerInstall(paste0("SBT is not found.")) 
+      stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nSBT is not found!  Please run 'rscala::scalaConfig(download.sbt=TRUE)'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
+      if ( consent2 ) {
+        installSBT(installPath,javaConf,verbose)
+        sbtConf <- findExecutable("sbt","SBT",installPath,sbtSpecifics,verbose)
+        if ( is.null(sbtConf) ) stop(stopMsg)
+      } else stop(stopMsg)
+      consent <- consent || consent2
+    }   
+    config <- c(scalaConf,javaConf,sbtConf,osArchitecture=osArchitecture)
     if ( !consent && verbose ) cat("\n")
     writeConfig <- consent || offerInstall(paste0("File '",configPath,"' is not found."))
     if ( writeConfig ) {
@@ -98,7 +115,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
   }
 }
 
-findExecutable <- function(mode,installPath,mapper,verbose=TRUE) {  ## Mimic how the 'scala' script finds Java.
+findExecutable <- function(mode,label,installPath,mapper,verbose=TRUE) {  ## Mimic how the 'scala' script finds Java.
   tryCandidate <- function(candidate) {
     if ( candidate != "" && file.exists(candidate) ) {
       if ( verbose ) cat(paste0("  Success with ",label,".\n"))
@@ -112,15 +129,16 @@ findExecutable <- function(mode,installPath,mapper,verbose=TRUE) {  ## Mimic how
       NULL
     }
   }
-  titleCaps <- paste0(toupper(substring(mode,1,1)),substring(mode,2))
   allCaps <- toupper(mode)
-  if ( verbose ) cat(paste0("\nSearching the system for ",titleCaps,".\n"))
+  if ( verbose ) cat(paste0("\nSearching the system for ",label,".\n"))
   ###
   label <- "user directory"
   candidate <- if ( mode == "java" ) {
     file.path(installPath,"java","bin",paste0("java",if ( .Platform$OS.type == "windows" ) ".exe" else ""))
   } else if ( mode == "scala" ) {
     file.path(installPath,"scala","bin",paste0("scala",if ( .Platform$OS.type == "windows" ) ".bat" else ""))
+  } else if ( mode == "sbt" ) {
+    file.path(installPath,"sbt","bin",paste0("sbt",if ( .Platform$OS.type == "windows" ) ".bat" else ""))   
   } else stop("Unsupported mode.")
   conf <- tryCandidate(candidate)
   if ( ! is.null(conf) ) return(conf)
@@ -221,6 +239,40 @@ installScala <- function(installPath, javaConf, verbose, useFallBack=FALSE) {
     if ( length(scalaHome) != 1 ) stop(paste0("Problem extracting Scala.  Clean delete the directory '",path.expand(installPath),"' and try again."))
     file.rename(scalaHome,destdir)
     if ( verbose ) cat("Successfully installed Scala at ",destdir,"\n",sep="")   
+  } else {
+    stop("Failed to extract installation.")
+  }
+  NULL
+}
+
+installSBT <- function(installPath, javaConf, verbose, useFallBack=FALSE) {
+  if ( verbose ) cat("\nDownloading SBT.\n")
+  version <- "1.2.3"
+  dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
+  unlink(file.path(installPath,"sbt"),recursive=TRUE)  # Delete older version
+  # if ( javaConf$javaMajorVersion != 8 ) stop("Java 8 is recommended for SBT.")
+  url <- sprintf("https://piccolo.link/sbt-%s.tgz",version)
+  url2 <- if ( version == "1.2.3" ) "https://byu.box.com/shared/static/gfafbp0rfhcf1i50ghrvfj9gf9l55kor.tgz"
+  else stop("Unsupported version.")
+  dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
+  destfile <- file.path(installPath,basename(url))
+  result <- tryCatch( utils::download.file(if ( !useFallBack ) url else url2, destfile), error=function(e) 1, warning=function(e) 1)
+  if ( result != 0 ) {
+    unlink(destfile)
+    msg <- "Failed to download installation."
+    if ( ! useFallBack ) {
+      if ( verbose ) cat(paste0(msg,"\n"))
+      installSBT(installPath,javaConf,verbose,TRUE)
+      return(NULL)
+    } else stop(msg)
+  }
+  if ( verbose ) cat("\nExtracting SBT.\n")
+  result <- utils::untar(destfile,exdir=installPath,tar="internal")    # Use internal to avoid problems on a Mac.
+  unlink(destfile)
+  if ( result == 0 ) {
+    destdir <- file.path(installPath,"sbt")
+    if ( file.exists(destdir) ) if ( verbose ) cat("Successfully installed SBT at ",destdir,"\n",sep="")   
+    else stop("Failed to extract installation.")
   } else {
     stop("Failed to extract installation.")
   }
