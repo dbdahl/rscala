@@ -40,7 +40,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
   installPath <- file.path("~",".rscala")
   configPath  <- file.path(installPath,"config.R")
   consent <- identical(reconfig,TRUE) || download.java || download.scala
-  if ( identical(reconfig,FALSE) && file.exists(configPath) && !download.java && !download.scala ) {
+  if ( identical(reconfig,FALSE) && file.exists(configPath) && !download.java && !download.scala && !download.sbt ) {
     if ( verbose ) cat(paste0("Read existing configuration file: ",configPath,"\n\n"))
     source(configPath,chdir=TRUE,local=TRUE)
     if ( ! all(file.exists(c(config$javaCmd,config$scalaCmd))) ) {
@@ -286,15 +286,23 @@ javaSpecifics <- function(javaCmd,verbose) {
   # Determine if 32 or 64 bit
   bit <- if ( any(grepl('^(Java HotSpot|OpenJDK).* 64-Bit (Server|Client) VM.*$',response)) ||
               any(grepl('^IBM .* amd64-64 .*$',response)) ) 64 else 32
-  list(javaCmd=javaCmd, javaMajorVersion=versionNumber, javaArchitecture=bit)
+  javaHome <- dirname(dirname(normalizePath(javaCmd)))
+  list(javaCmd=javaCmd, javaHome=javaHome, javaMajorVersion=versionNumber, javaArchitecture=bit)
+}
+
+setJavaEnv <- function(javaConf) {
+  oldJAVACMD <- Sys.getenv("JAVACMD")
+  oldJAVAHOME <- Sys.getenv("JAVA_HOME")
+  Sys.setenv(JAVACMD=path.expand(javaConf$javaCmd))
+  Sys.setenv(JAVA_HOME=path.expand(javaConf$javaHome))
+  list(javaCmd=oldJAVACMD,javaHome=oldJAVAHOME)
 }
 
 scalaSpecifics <- function(scalaCmd,javaConf,verbose) {
   if ( verbose ) cat("\nQuerying Scala specifics.\n")
-  oldJAVACMD <- Sys.getenv("JAVACMD")
-  Sys.setenv(JAVACMD=path.expand(javaConf$javaCmd))
+  oldJavaEnv <- setJavaEnv(javaConf)
   fullVersion <- system2(path.expand(scalaCmd),c("-nc","-e",shQuote("print(util.Properties.versionNumberString)")),stdout=TRUE)
-  Sys.setenv(JAVACMD=oldJAVACMD)
+  setJavaEnv(oldJavaEnv)
   majorVersion <- gsub("(^[23]\\.[0-9]+)\\..*","\\1",fullVersion)
   if ( ! ( majorVersion %in% c("2.11","2.12","2.13") ) ) {
     return(paste0("unsupport Scala version: ",majorVersion))

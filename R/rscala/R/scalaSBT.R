@@ -20,7 +20,7 @@
 #' @export
 scalaSBT <- function(args=c("+package","packageSrc")) {
   scalaVersions <- c("2.11","2.12")
-  config <- scalaConfig(FALSE)
+  sConfig <- scalaConfig(FALSE)
   oldWD <- getwd()
   on.exit(setwd(oldWD))
   while ( TRUE ) {
@@ -31,11 +31,13 @@ scalaSBT <- function(args=c("+package","packageSrc")) {
   }
   oldJARs <- list.files("target",pattern=".*\\.jar",recursive=TRUE)
   unlink(oldJARs)
-  if ( is.null(config$sbtCmd) ) {
+  if ( is.null(sConfig$sbtCmd) ) {
     stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nSBT is not found!  Please run 'rscala::scalaConfig(download.sbt=TRUE)'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
     stop(stopMsg)
   }
-  status <- system2(config$sbtCmd,args)
+  oldJavaEnv <- setJavaEnv(sConfig)
+  status <- system2(sConfig$sbtCmd,args)
+  setJavaEnv(oldJavaEnv)
   if ( status != 0 ) stop("Non-zero exit status.")
   newJARs <- list.files("target",pattern=".*\\.jar",recursive=TRUE)
   srcJARs <- newJARs[grepl(".*-sources.jar$",newJARs)]
