@@ -1,7 +1,11 @@
 library(rscala)
 s <- scala("commonsMath")
 s ^ "3+4"
-s ^ function(x=scalaType("D1")) sample(x)
+s ^ function(x=stD1) sample(x)
+g <- s ^ function(x=stI1) order(x)
+x <- c(3,1,5,6,4)
+g(x) + 1
+order(x,decreasing = TRUE)
 
 
 showConnections()
