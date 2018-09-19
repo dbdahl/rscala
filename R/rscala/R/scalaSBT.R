@@ -16,6 +16,9 @@
 #' version (e.g., 2.12).  It is assumed that the package home is a subdirectory
 #' of the directory containing the \code{'build.sbt'} file.
 #'
+#' @param args A character vector giving the arguments to be passed to the SBT
+#'   command.
+#'
 #' @return \code{NULL}
 #' @export
 scalaSBT <- function(args=c("+package","packageSrc")) {
@@ -36,26 +39,31 @@ scalaSBT <- function(args=c("+package","packageSrc")) {
     stop(stopMsg)
   }
   oldJavaEnv <- setJavaEnv(sConfig)
-  status <- system2(sConfig$sbtCmd,args)
+  status <- system2(path.expand(sConfig$sbtCmd),args)
   setJavaEnv(oldJavaEnv)
   if ( status != 0 ) stop("Non-zero exit status.")
   newJARs <- list.files("target",pattern=".*\\.jar",recursive=TRUE)
   srcJARs <- newJARs[grepl(".*-sources.jar$",newJARs)]
   binJARs <- setdiff(newJARs,srcJARs)
   pkgHome <- dirname(list.files(".","DESCRIPTION",recursive=TRUE))
+  pkgHome <- pkgHome[!grepl(".*\\.Rcheck",pkgHome)]
+  if ( length(pkgHome) > 1 ) pkgHome <- pkgHome[grepl("^R",pkgHome)]
   if ( length(pkgHome) != 1 ) stop("Cannot find package home.")
   binDir <- file.path(pkgHome,"inst","java")
-  dir.create(binDir,FALSE,TRUE)
   oldJARs <- list.files(binDir,pattern=".*\\.jar",recursive=TRUE)
-  unlink(oldJARs)
+  unlink(file.path(binDir,oldJARs))
   for ( v in scalaVersions ) {
     currentJARs <- binJARs[grepl(sprintf("^scala-%s",v),binJARs)]
-    if ( length(currentJARs) > 0 ) file.copy(file.path("target",currentJARs),binDir,TRUE)
+    if ( length(currentJARs) > 0 ) {
+      destDir <- file.path(binDir,sprintf("scala-%s",v))
+      dir.create(destDir,FALSE,TRUE)
+      file.copy(file.path("target",currentJARs),destDir,TRUE)
+    }
   }
   srcDir <- file.path(pkgHome,"java")
   dir.create(srcDir,FALSE,TRUE)
   oldJARs <- list.files(srcDir,pattern=".*\\.jar",recursive=TRUE)
-  unlink(oldJARs)
+  unlink(file.path(srcDir,oldJARs))
   for ( v in scalaVersions ) {
     currentJARs <- srcJARs[grepl(sprintf("^scala-%s",v),srcJARs)]
     if ( length(currentJARs) > 0 ) file.copy(file.path("target",currentJARs),srcDir,TRUE)
