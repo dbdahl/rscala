@@ -90,17 +90,6 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
     if ( download.sbt ) installSBT(installPath,javaConf,verbose)
     sbtSpecifics <- function(x,y) list(sbtCmd=x)
     sbtConf <- findExecutable("sbt","SBT",installPath,sbtSpecifics,verbose)
-    if ( is.null(sbtConf) ) {
-      if ( verbose ) cat("\n")
-      consent2 <- offerInstall(paste0("SBT is not found.")) 
-      stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nSBT is not found!  Please run 'rscala::scalaConfig(download.sbt=TRUE)'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
-      if ( consent2 ) {
-        installSBT(installPath,javaConf,verbose)
-        sbtConf <- findExecutable("sbt","SBT",installPath,sbtSpecifics,verbose)
-        if ( is.null(sbtConf) ) stop(stopMsg)
-      } else stop(stopMsg)
-      consent <- consent || consent2
-    }   
     config <- c(scalaConf,javaConf,sbtConf,osArchitecture=osArchitecture)
     if ( !consent && verbose ) cat("\n")
     writeConfig <- consent || offerInstall(paste0("File '",configPath,"' is not found."))

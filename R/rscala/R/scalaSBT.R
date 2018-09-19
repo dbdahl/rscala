@@ -31,6 +31,10 @@ scalaSBT <- function(args=c("+package","packageSrc")) {
   }
   oldJARs <- list.files("target",pattern=".*\\.jar",recursive=TRUE)
   unlink(oldJARs)
+  if ( is.null(config$sbtCmd) ) {
+    stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nSBT is not found!  Please run 'rscala::scalaConfig(download.sbt=TRUE)'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
+    stop(stopMsg)
+  }
   status <- system2(config$sbtCmd,args)
   if ( status != 0 ) stop("Non-zero exit status.")
   newJARs <- list.files("target",pattern=".*\\.jar",recursive=TRUE)
