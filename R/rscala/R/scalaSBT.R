@@ -67,7 +67,7 @@ scalaSBT <- function(args=c("+package","packageSrc","+publishLocal"), copy.to.pa
     newJARs <- list.files("target",pattern=".*\\.jar",recursive=TRUE)
     srcJARs <- newJARs[grepl(".*-sources.jar$",newJARs)]
     binJARs <- setdiff(newJARs,srcJARs)
-    pkgHome <- dirname(list.files(".","DESCRIPTION",recursive=TRUE))
+    pkgHome <- unique(dirname(list.files(".","DESCRIPTION",recursive=TRUE)))   # unique(...) because on Mac OS X, duplicates are possible.
     pkgHome <- pkgHome[!grepl(".*\\.Rcheck",pkgHome)]
     if ( length(pkgHome) > 1 ) {
       if ( sum(normalizePath(pkgHome)==oldWD) == 1 ) pkgHome <- pkgHome[normalizePath(pkgHome)==oldWD]
