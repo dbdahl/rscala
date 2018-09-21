@@ -46,6 +46,7 @@ function setversion {
   OLDWD="$PWD"
   sed -i $SEDOPT 's/\(\s*Version\s*:\s*\)\(.*\)/\1'"$1"'/g' R/$PKG_NAME/DESCRIPTION
   sed -i $SEDOPT 's/\(\s*Date\s*:\s*\)\(.*\)/\1'"$2"'/g' R/$PKG_NAME/DESCRIPTION
+  rm -f R/$PKG_NAME/DESCRIPTION$SEDOPT
   cd "$OLDWD"
 }
 
@@ -69,7 +70,7 @@ cd ../../..
 
 set +e
 R --slave -e "rscala:::scalaSBT()"
-if [[ $? ]]
+if [[ $? != 0 ]]
 then
   echo
   echo "***************************************************"
