@@ -67,28 +67,7 @@ cd ../../..
 
 # Compile Scala
 
-sbt +package +packageSrc +packageDoc
-
-JARDIR="$PKG_HOME"/R/${PKG_NAME}/inst/java
-rm -rf "$JARDIR"
-shopt -s extglob
-for i in 2.11 2.12 2.13
-do
-  mkdir -p "$JARDIR"/scala-$i
-  j=$i
-  if [[ "$j" == "2.13" ]]
-  then
-    j=${j}.0-M5
-  fi
-  find "$PKG_HOME"/target -regex '.*/'${PKG_NAME}_$j'-.*[^a-zA-Z]+\(-SNAPSHOT\)?\.jar' | xargs ls -1t | head -1 | xargs -i cp '{}' "$JARDIR"/scala-$i
-done
-
-SRCDIR="$PKG_HOME"/R/${PKG_NAME}/java
-rm -rf "$SRCDIR"
-mkdir -p "$SRCDIR"
-find "$PKG_HOME"/target -regex '.*/'${PKG_NAME}'_2.12-.*[^a-zA-Z]+\(-SNAPSHOT\)?\-sources.jar' | xargs ls -1t | head -1 | xargs -i cp '{}' "$SRCDIR"/${PKG_NAME}-sources.jar
- 
-
+R --slave -e "rscala:::scalaSBT()"
 
 # Build package
 

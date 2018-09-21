@@ -16,4 +16,7 @@ rsync --chmod=644 deliveries/$TGZ_NAME dahl.byu.edu:public
 ssh dahl.byu.edu "cd public && ln -f -s $TGZ_NAME rscala_LATEST.tar.gz"
 echo -e "####\nPosted to\n  https://dahl.byu.edu/public/$TGZ_NAME\n####"
 
+R --slave -e "rscala:::scalaSBT(c('packageDoc'),FALSE)"
+
 rsync -r --chmod=go=rX target/scala-2.12/api/ dahl.byu.edu:public/doc
+

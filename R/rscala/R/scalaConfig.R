@@ -205,7 +205,8 @@ installScala <- function(installPath, javaConf, verbose, useFallBack=FALSE) {
   SCALA_211_VERSION <- "2.11.12"
   dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
   unlink(file.path(installPath,"scala"),recursive=TRUE)  # Delete older version
-  if ( javaConf$javaMajorVersion <= 7 ) majorVersion <- "2.11" else majorVersion <- "2.12"
+  majorVersion <- Sys.getenv("RSCALA_SCALA_MAJORVERSION","2.12")
+  if ( javaConf$javaMajorVersion <= 7 ) majorVersion <- "2.11"
   if ( majorVersion == "2.13" ) version <- SCALA_213_VERSION
   else if ( majorVersion == "2.12" ) version <- SCALA_212_VERSION
   else if ( majorVersion == "2.11" ) version <- SCALA_211_VERSION
@@ -318,6 +319,7 @@ scalaSpecifics <- function(scalaCmd,javaConf,verbose) {
   if ( ! ( majorVersion %in% c("2.11","2.12","2.13") ) ) {
     return(paste0("unsupport Scala version: ",majorVersion))
   } else {
+    if ( majorVersion == "2.13" ) majorVersion <- "2.13.0-M5"
     list(scalaCmd=scalaCmd, scalaMajorVersion=majorVersion, scalaFullVersion=fullVersion)
   }
 }
