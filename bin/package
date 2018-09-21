@@ -92,6 +92,19 @@ set -e
 cd R
 cd $PKG_NAME
 R --slave -e 'devtools::document(roclets=c("rd", "collate", "namespace"))'
+if [[ $? != 0 ]]
+then
+  echo
+  echo "***************************************************"
+  echo "***************************************************"
+  echo
+  echo "Please re-run this script after executing in R this:"
+  echo "  install.packages(c('devtools','roxygen2','testthat'))"
+  echo
+  echo "***************************************************"
+  echo "***************************************************"
+  echo
+fi
 cd ..
 R CMD build $PKG_NAME
 R CMD INSTALL $PKG_NAME
