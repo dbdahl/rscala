@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e
 
@@ -34,7 +34,7 @@ esac
 
 # Make protocal.R script
 
-cd $(dirname $(readlink -f "$0"))
+cd $PKG_HOME/bin
 ./make-protocol
 cd ..
 
