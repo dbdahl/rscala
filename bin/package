@@ -67,13 +67,27 @@ cd ../../..
 
 # Compile Scala
 
+set +e
 R --slave -e "rscala:::scalaSBT()"
+if [[ $? ]]
+then
+  echo
+  echo "***************************************************"
+  echo "***************************************************"
+  echo
+  echo "Please re-run this build script after it completes."
+  echo
+  echo "***************************************************"
+  echo "***************************************************"
+  echo
+fi
+set -e
 
 # Build package
 
 cd R
 cd $PKG_NAME
-R -e 'devtools::document(roclets=c("rd", "collate", "namespace"))'
+R --slave -e 'devtools::document(roclets=c("rd", "collate", "namespace"))'
 cd ..
 R CMD build $PKG_NAME
 R CMD INSTALL $PKG_NAME
