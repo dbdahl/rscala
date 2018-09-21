@@ -149,7 +149,11 @@ object Transcompile extends TranscompileStub {
   def _ge(x: Array[Int], y: Array[Double]): Array[Boolean] = x zip y map { z => z._1 >= z._2 }
   def _ge(x: Array[Int], y: Array[Int]): Array[Boolean] = x zip y map { z => z._1 >= z._2 }
 
-  def _order[T](x: Array[T], decreasing: Boolean = false)(implicit cmp: Ordering[_ >: T]): Array[Int] = {
+  def _sort[T](x: Array[T], decreasing: Boolean = false)(implicit cmp: Ordering[T]): Array[T] = {
+    if ( decreasing ) x.sortWith(cmp.gt(_,_)) else x.sortWith(cmp.lt(_,_))
+  }
+
+  def _order[T](x: Array[T], decreasing: Boolean = false)(implicit cmp: Ordering[T]): Array[Int] = {
     val f = if ( decreasing) ((x:(T,Int),y:(T,Int)) => cmp.gt(x._1,y._1))
     else ((x:(T,Int),y:(T,Int)) => cmp.lt(x._1,y._1))
     x.zipWithIndex.sortWith(f).map(_._2 + 1)

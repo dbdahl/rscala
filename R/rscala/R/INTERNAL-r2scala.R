@@ -93,7 +93,7 @@ r2scala <- function(x, showCode, symbolEnv, substituteList) {
 
 transcompileSubstitute <- function(x, substituteList) {
   if ( x %in% c("numeric","double","integer","logical","character","subset","which","equal","notequal",
-                "lt","le","gt","ge","order","and","or","abs","sqrt","log","log10","exp","pow","c","length",
+                "lt","le","gt","ge","order","sort","and","or","abs","sqrt","log","log10","exp","pow","c","length",
                 "all","any","sum","mean","var","sd","max","min","cat","paste","paste0","nchar","rep",
                 "seq","seqWithLength","seq_along","seq_len","ceiling","floor","round","random",
                 "stop","warning") ) paste0("_",x)

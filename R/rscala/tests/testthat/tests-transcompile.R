@@ -68,6 +68,8 @@ test_that("Basic transcompilation works", {
   myExpect(function() { c(c(1.2,3.2),"David") })
   myExpect(function() { order(c(1.2,3.2)) })
   myExpect(function() { order(c("e","da","jd","d"),decreasing=TRUE) })
+  myExpect(function() { a <- c("e","da","jd","d"); a[order(a,decreasing=TRUE)] })
+  myExpect(function() { a <- as.integer(c(4,2,9,2,1,3,9,1)); a[order(a)] })
 })
 
 test_that("Apply and update work", {
