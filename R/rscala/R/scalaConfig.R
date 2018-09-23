@@ -157,17 +157,27 @@ findExecutable <- function(mode,label,installPath,mapper,verbose=TRUE) {  ## Mim
   NULL
 }
 
-installJava <- function(installPath, verbose, urlCounter=1) {
+getURL <- function(software, version, attempt=1, counter=1) {
+  stub <- if ( counter == 1 )       sprintf("https://raw.githubusercontent.com/dbdahl/rscala")
+          else if ( counter == 2 )  sprintf("https://dahl-git.byu.edu/dahl/rscala/raw")
+          else return(NULL)
+  url <- if ( software == "java" ) {
+    os <- osType()
+    sprintf("%s/master/url/java/%s/%s/%s",stub,os,version,attempt)
+  } else if ( software == "scala" ) {
+    sprintf("%s/master/url/scala/%s/%s",stub,version,attempt)   
+  } else if ( software == "sbt" ) {
+    sprintf("%s/master/url/sbt/%s/%s",stub,version,attempt)   
+  } else stop("Request for unsupported software.")
+  url2 <- tryCatch(readLines(url),error=function(e) NULL,warning=function(e) NULL)
+  if ( is.null(url2) && ( counter < 2 ) ) getURL(software, version, attempt, counter+1) else url2
+}
+
+installJava <- function(installPath, verbose, attempt=1) {
   if ( verbose ) cat("\nDownloading Java.\n")
   dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
-  os <- osType()
-  url <- if ( urlCounter == 1 ) sprintf("https://api.adoptopenjdk.net/v2/binary/releases/openjdk8?openjdk_impl=hotspot&os=%s&arch=x64&release=latest&type=jdk",os)
-  else if ( urlCounter == 2 ) {
-    if ( os == "linux" ) "https://byu.box.com/shared/static/0t29ifd8l023fd91g1vh8p70hx5v7lg0.gz"
-    else if ( os == "mac" ) "https://byu.box.com/shared/static/s3l05yhi8ez7tuoe7732hsr53imxdc5u.gz"
-    else if ( os == "windows" ) "https://byu.box.com/shared/static/wfhgu72szx3y2m05sdreje0dlfzhnag2.zip"
-    else stop("Unsupported operating system.")
-  }
+  version <- Sys.getenv("RSCALA_JAVA_MAJORVERSION","8")
+  url <- getURL("java",version,attempt)
   installPathTemp <- file.path(installPath,"tmp")
   unlink(installPathTemp,recursive=TRUE,force=TRUE)
   dir.create(installPathTemp,showWarnings=FALSE,recursive=TRUE)
@@ -176,13 +186,14 @@ installJava <- function(installPath, verbose, urlCounter=1) {
   if ( result != 0 ) {
     unlink(destfile,force=TRUE)
     msg <- "Failed to download installation."
-    if ( urlCounter < 2 ) {
+    if ( attempt < 2 ) {
       if ( verbose ) cat(paste0(msg,"\n"))
-      installJava(installPath,verbose,urlCounter+1)
+      installJava(installPath,verbose,attempt+1)
       return(NULL)
     } else stop(msg)
   }
   if ( verbose ) cat("\nExtracting Java.\n")
+  os <- osType()
   func <- if ( os == "windows" ) function(x) utils::unzip(x,exdir=installPathTemp,unzip="internal")
   else function(x) utils::untar(x,exdir=installPathTemp,tar="internal")
   func(destfile)
@@ -198,7 +209,7 @@ installJava <- function(installPath, verbose, urlCounter=1) {
   NULL
 }
 
-installScala <- function(installPath, javaConf, verbose, useFallBack=FALSE) {
+installScala <- function(installPath, javaConf, verbose, attempt=1) {
   if ( verbose ) cat("\nDownloading Scala.\n")
   SCALA_213_VERSION <- "2.13.0-M5"
   SCALA_212_VERSION <- "2.12.6"
@@ -211,20 +222,16 @@ installScala <- function(installPath, javaConf, verbose, useFallBack=FALSE) {
   else if ( majorVersion == "2.12" ) version <- SCALA_212_VERSION
   else if ( majorVersion == "2.11" ) version <- SCALA_211_VERSION
   else stop("Unsupported major version.")
-  url <- sprintf("https://downloads.lightbend.com/scala/%s/scala-%s.tgz",version,version)
-  url2 <- if ( version == SCALA_213_VERSION ) "https://byu.box.com/shared/static/tctag0lirhhf9z3n0yq2gmdpo2poqlsk.tgz"
-  else if ( version == SCALA_212_VERSION ) "https://byu.box.com/shared/static/ix0lkraln4sf17191r30jooo3qb3bz19.tgz"
-  else if ( version == SCALA_211_VERSION ) "https://byu.box.com/shared/static/kh0pew26qbai9mznyp6jvq3ve8g8gwuh.tgz"
-  else stop("Unsupported version.")
+  url <- getURL("scala",majorVersion,attempt)
   dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
   destfile <- file.path(installPath,basename(url))
-  result <- tryCatch( utils::download.file(if ( !useFallBack ) url else url2, destfile), error=function(e) 1, warning=function(e) 1)
+  result <- tryCatch( utils::download.file(url, destfile), error=function(e) 1, warning=function(e) 1)
   if ( result != 0 ) {
     unlink(destfile)
     msg <- "Failed to download installation."
-    if ( ! useFallBack ) {
+    if ( attempt < 2 ) {
       if ( verbose ) cat(paste0(msg,"\n"))
-      installScala(installPath,javaConf,verbose,TRUE)
+      installScala(installPath,javaConf,verbose,attempt+1)
       return(NULL)
     } else stop(msg)
   }
@@ -244,24 +251,22 @@ installScala <- function(installPath, javaConf, verbose, useFallBack=FALSE) {
   NULL
 }
 
-installSBT <- function(installPath, javaConf, verbose, useFallBack=FALSE) {
+installSBT <- function(installPath, javaConf, verbose, attempt=1) {
   if ( verbose ) cat("\nDownloading SBT.\n")
-  version <- "1.2.3"
+  version <- Sys.getenv("RSCALA_SBT_MAJORVERSION","1.2")
   dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
   unlink(file.path(installPath,"sbt"),recursive=TRUE)  # Delete older version
   # if ( javaConf$javaMajorVersion != 8 ) stop("Java 8 is recommended for SBT.")
-  url <- sprintf("https://piccolo.link/sbt-%s.tgz",version)
-  url2 <- if ( version == "1.2.3" ) "https://byu.box.com/shared/static/gfafbp0rfhcf1i50ghrvfj9gf9l55kor.tgz"
-  else stop("Unsupported version.")
+  url <- getURL("sbt",version,attempt)
   dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
   destfile <- file.path(installPath,basename(url))
-  result <- tryCatch( utils::download.file(if ( !useFallBack ) url else url2, destfile), error=function(e) 1, warning=function(e) 1)
+  result <- tryCatch( utils::download.file(url, destfile), error=function(e) 1, warning=function(e) 1)
   if ( result != 0 ) {
     unlink(destfile)
     msg <- "Failed to download installation."
-    if ( ! useFallBack ) {
+    if ( attempt < 2 ) {
       if ( verbose ) cat(paste0(msg,"\n"))
-      installSBT(installPath,javaConf,verbose,TRUE)
+      installSBT(installPath,javaConf,verbose,attempt+1)
       return(NULL)
     } else stop(msg)
   }
