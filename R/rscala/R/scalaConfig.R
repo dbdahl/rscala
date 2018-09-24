@@ -9,9 +9,8 @@
 #' @param reconfig If \code{TRUE}, the script \code{~/.rscala/config.R} is
 #'   rewritten based on a new search for Scala and Java.  If \code{FALSE}, the
 #'   previous configuration is sourced from the script
-#'   \code{~/.rscala/config.R}.  If \code{"live"}, a new search for Scala and
-#'   Java is performed, but the results do not overwrite the previous
-#'   configuration script.
+#'   \code{~/.rscala/config.R}.  If \code{"live"}, a new search is performed,
+#'   but the results do not overwrite the previous configuration script.
 #' @param download.java Should Java be downloaded and installed in
 #'   '~/.rscala/java'?
 #' @param download.scala Should Scala be downloaded and installed in
@@ -44,10 +43,10 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
   if ( ! reconfig && file.exists(configPath) && !download.java && !download.scala && !download.sbt ) {
     if ( verbose ) cat(paste0("\nRead existing configuration file: ",configPath,"\n\n"))
     source(configPath,chdir=TRUE,local=TRUE)
-    if ( is.null(config$format) || ( config$format < 1L ) || ( ! all(file.exists(c(config$javaCmd,config$scalaCmd))) ) || ( is.null(config$sbtCmd) && require.sbt ) || ( ! is.null(config$sbtCmd) && ! file.exists(config$sbtCmd) ) ) {
+    if ( is.null(config$format) || ( config$format < 2L ) || ( ! all(file.exists(c(config$javaHome,config$scalaHome,config$javaCmd,config$scalaCmd))) ) || ( is.null(config$sbtCmd) && require.sbt ) || ( ! is.null(config$sbtCmd) && ! file.exists(config$sbtCmd) ) ) {
       if ( verbose ) cat("The 'config.R' is out-of-date.  Reconfiguring...\n")
       unlink(configPath)
-      scalaConfig(verbose)
+      scalaConfig(verbose, reconfig, download.java, download.scala, download.sbt, require.sbt)
     } else config
   } else {
     if ( download.java ) installJava(installPath,verbose)
@@ -88,18 +87,19 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
       }
       osArchitecture
     } else javaConf$javaArchitecture
-    if ( download.sbt ) installSBT(installPath,javaConf,verbose)
+    config <- c(format=2L,osArchitecture=osArchitecture,scalaConf,javaConf)
+    if ( download.sbt ) installSBT(installPath,config,verbose)
     sbtSpecifics <- function(x,y) list(sbtCmd=x)
     sbtConf <- findExecutable("sbt","SBT",installPath,sbtSpecifics,verbose)
     if ( is.null(sbtConf) && require.sbt ) {
-      installSBT(installPath,javaConf,verbose)
+      installSBT(installPath,config,verbose)
       sbtConf <- findExecutable("sbt","SBT",installPath,sbtSpecifics,verbose)
       if ( is.null(sbtConf) ) {
         stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nSBT is not found!  Please run 'rscala::scalaConfig(require.sbt=TRUE)'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
         stop(stopMsg)
       }
     }
-    config <- c(scalaConf,javaConf,sbtConf,osArchitecture=osArchitecture,format=1L)
+    config <- c(config,sbtConf)
     if ( !consent && verbose ) cat("\n")
     writeConfig <- consent || offerInstall(paste0("File '",configPath,"' is not found or is out-of-date."))
     if ( writeConfig ) {
@@ -115,7 +115,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
 
 findExecutable <- function(mode,label,installPath,mapper,verbose=TRUE) {  ## Mimic how the 'scala' script finds Java.
   tryCandidate <- function(candidate) {
-    if ( candidate != "" && file.exists(candidate) ) {
+    if ( ! is.null(candidate) && length(candidate) == 1 && candidate != "" && file.exists(candidate) ) {
       if ( verbose ) cat(paste0("  Success with ",label,".\n"))
       result <- mapper(candidate,verbose)
       if ( is.character(result) ) {
@@ -131,14 +131,11 @@ findExecutable <- function(mode,label,installPath,mapper,verbose=TRUE) {  ## Mim
   if ( verbose ) cat(paste0("\nSearching the system for ",label,".\n"))
   ###
   label <- "user directory"
-  candidate <- if ( mode == "java" ) {
-    file.path(installPath,"java","bin",paste0("java",if ( .Platform$OS.type == "windows" ) ".exe" else ""))
-  } else if ( mode == "scala" ) {
-    file.path(installPath,"scala","bin",paste0("scala",if ( .Platform$OS.type == "windows" ) ".bat" else ""))
-  } else if ( mode == "sbt" ) {
-    file.path(installPath,"sbt","bin",paste0("sbt",if ( .Platform$OS.type == "windows" ) ".bat" else ""))   
-  } else stop("Unsupported mode.")
-  conf <- tryCandidate(candidate)
+  regex <- sprintf("%s%s$",mode,if ( .Platform$OS.type == "windows" ) "(\\.exe|\\.bat)" else "")
+  candidates <- list.files(installPath,paste0("^",regex),recursive=TRUE)
+  candidates <- candidates[grepl(sprintf("^%s/(.*/|)bin/%s",mode,regex),candidates)]
+  if ( length(candidates) > 1 ) candidates <- candidates[which.min(nchar(candidates))]
+  conf <- tryCandidate(file.path(installPath,candidates))
   if ( ! is.null(conf) ) return(conf)
   ###
   label <- paste0(allCaps,"CMD environment variable")
@@ -192,7 +189,7 @@ installJava <- function(installPath, verbose, attempt=1) {
       return(NULL)
     } else stop(msg)
   }
-  if ( verbose ) cat("\nExtracting Java.\n")
+  if ( verbose ) cat("Extracting Java.\n")
   os <- osType()
   func <- if ( os == "windows" ) function(x) utils::unzip(x,exdir=installPathTemp,unzip="internal")
   else function(x) utils::untar(x,exdir=installPathTemp,tar="internal")
@@ -211,17 +208,10 @@ installJava <- function(installPath, verbose, attempt=1) {
 
 installScala <- function(installPath, javaConf, verbose, attempt=1) {
   if ( verbose ) cat("\nDownloading Scala.\n")
-  SCALA_213_VERSION <- "2.13.0-M5"
-  SCALA_212_VERSION <- "2.12.6"
-  SCALA_211_VERSION <- "2.11.12"
   dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
   unlink(file.path(installPath,"scala"),recursive=TRUE)  # Delete older version
   majorVersion <- Sys.getenv("RSCALA_SCALA_MAJORVERSION","2.12")
   if ( javaConf$javaMajorVersion <= 7 ) majorVersion <- "2.11"
-  if ( majorVersion == "2.13" ) version <- SCALA_213_VERSION
-  else if ( majorVersion == "2.12" ) version <- SCALA_212_VERSION
-  else if ( majorVersion == "2.11" ) version <- SCALA_211_VERSION
-  else stop("Unsupported major version.")
   url <- getURL("scala",majorVersion,attempt)
   dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
   destfile <- file.path(installPath,basename(url))
@@ -235,13 +225,12 @@ installScala <- function(installPath, javaConf, verbose, attempt=1) {
       return(NULL)
     } else stop(msg)
   }
-  if ( verbose ) cat("\nExtracting Scala.\n")
+  if ( verbose ) cat("Extracting Scala.\n")
   result <- utils::untar(destfile,exdir=installPath,tar="internal")    # Use internal to avoid problems on a Mac.
   unlink(destfile)
   if ( result == 0 ) {
     destdir <- file.path(installPath,"scala")
-    scalaHome <- file.path(installPath,sprintf("scala-%s",version))
-    scalaHome <- scalaHome[dir.exists(scalaHome)]
+    scalaHome <- list.files(installPath,sprintf("^scala-%s",majorVersion),full.names=TRUE)
     if ( length(scalaHome) != 1 ) stop(paste0("Problem extracting Scala.  Clean delete the directory '",path.expand(installPath),"' and try again."))
     file.rename(scalaHome,destdir)
     if ( verbose ) cat("Successfully installed Scala at ",destdir,"\n",sep="")   
@@ -270,7 +259,7 @@ installSBT <- function(installPath, javaConf, verbose, attempt=1) {
       return(NULL)
     } else stop(msg)
   }
-  if ( verbose ) cat("\nExtracting SBT.\n")
+  if ( verbose ) cat("Extracting SBT.\n")
   result <- utils::untar(destfile,exdir=installPath,tar="internal")    # Use internal to avoid problems on a Mac.
   unlink(destfile)
   if ( result == 0 ) {
@@ -301,30 +290,30 @@ javaSpecifics <- function(javaCmd,verbose) {
   # Determine if 32 or 64 bit
   bit <- if ( any(grepl('^(Java HotSpot|OpenJDK).* 64-Bit (Server|Client) VM.*$',response)) ||
               any(grepl('^IBM .* amd64-64 .*$',response)) ) 64 else 32
-  javaHome <- dirname(dirname(normalizePath(javaCmd)))
-  list(javaCmd=javaCmd, javaHome=javaHome, javaMajorVersion=versionNumber, javaArchitecture=bit)
+  list(javaCmd=javaCmd, javaMajorVersion=versionNumber, javaArchitecture=bit)
 }
 
 setJavaEnv <- function(javaConf) {
   oldJAVACMD <- Sys.getenv("JAVACMD")
   oldJAVAHOME <- Sys.getenv("JAVA_HOME")
-  eJAVACMD <- if ( javaConf$javaCmd != "" ) normalizePath(javaConf$javaCmd) else ""
-  eJAVAHOME <- if ( javaConf$javaHome != "" ) normalizePath(javaConf$javaHome) else ""
+  eJAVACMD <- if ( ! is.null(javaConf$javaCmd) && javaConf$javaCmd != "" ) normalizePath(javaConf$javaCmd) else ""
+  eJAVAHOME <- if ( ! is.null(javaConf$javaHome) && javaConf$javaHome != "" ) normalizePath(javaConf$javaHome) else ""
   Sys.setenv(JAVACMD=eJAVACMD)
   Sys.setenv(JAVA_HOME=eJAVAHOME)
   list(javaCmd=oldJAVACMD,javaHome=oldJAVAHOME)
 }
 
+scalaMajorVersion <- function(scalaVersion) {
+  if ( grepl(".*-.*",scalaVersion) ) scalaVersion
+  else gsub("(^[23]\\.[0-9]+)\\..*","\\1",scalaVersion)
+}
+
 scalaSpecifics <- function(scalaCmd,javaConf,verbose) {
   if ( verbose ) cat("\nQuerying Scala specifics.\n")
   oldJavaEnv <- setJavaEnv(javaConf)
-  fullVersion <- system2(path.expand(scalaCmd),c("-nc","-e",shQuote("print(util.Properties.versionNumberString)")),stdout=TRUE)
+  info <- system2(path.expand(scalaCmd),c("-nc","-e",shQuote('import util.Properties._; println(Seq(versionNumberString,scalaHome,javaHome).mkString(lineSeparator))')),stdout=TRUE)
   setJavaEnv(oldJavaEnv)
-  majorVersion <- gsub("(^[23]\\.[0-9]+)\\..*","\\1",fullVersion)
-  if ( ! ( majorVersion %in% c("2.11","2.12","2.13") ) ) {
-    return(paste0("unsupport Scala version: ",majorVersion))
-  } else {
-    if ( majorVersion == "2.13" ) majorVersion <- "2.13.0-M5"
-    list(scalaCmd=scalaCmd, scalaMajorVersion=majorVersion, scalaFullVersion=fullVersion)
-  }
+  majorVersion <- scalaMajorVersion(info[1])
+  if ( ! ( majorVersion %in% names(scalaVersionJARs()) ) ) paste0("unsupport Scala version: ",majorVersion)
+  else list(scalaHome=info[2], scalaCmd=scalaCmd, scalaMajorVersion=majorVersion, scalaFullVersion=info[1], javaHome=info[3])
 }

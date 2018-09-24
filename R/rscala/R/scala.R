@@ -64,19 +64,23 @@ scala <- function(JARs=character(),
   sConfig <- tryCatch(scalaConfig(FALSE), error=function(e) list(error=e))
   if ( is.null(sConfig$error) ) {
     scalaMajor <- sConfig$scalaMajorVersion
-    rscalaJAR <- shQuote(list.files(system.file(file.path("java",paste0("scala-",scalaMajor)),package="rscala",mustWork=TRUE),full.names=TRUE))
-    heap.maximum <- getHeapMaximum(heap.maximum,sConfig$javaArchitecture == 32)
-    command.line.options <- if ( is.null(heap.maximum) ) NULL
-    else shQuote(paste0("-J-Xmx",heap.maximum))
-    sessionFilename <- tempfile("rscala-session-")
-    writeLines(character(),sessionFilename)
-    portsFilename <- tempfile("rscala-ports-")
-    args <- c(command.line.options,"-nc","-classpath",rscalaJAR,"org.ddahl.rscala.server.Main",rscalaJAR,port,portsFilename,sessionFilename,debug,serialize.output,FALSE)
-    oldJavaEnv <- setJavaEnv(sConfig) 
-    system2(path.expand(sConfig$scalaCmd),args,wait=FALSE,stdout=stdout,stderr=stderr)
-    setJavaEnv(oldJavaEnv)
-    assign("sessionFilename",sessionFilename,envir=details)
-    assign("portsFilename",portsFilename,envir=details)
+    rscalaJAR <- shQuote(list.files(system.file(file.path("java",paste0("scala-",scalaMajor)),package="rscala",mustWork=FALSE),full.names=TRUE))
+    if ( rscalaJAR == "" ) {
+      sConfig$error <- list(message=paste0("\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nScala version ",sConfig$scalaFullVersion," is not among the support versions: ",paste(names(scalaVersionJARs()),collapse=", "),".\nPlease run 'rscala::scalaConfig(download.scala=TRUE)'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"))
+    } else {
+      heap.maximum <- getHeapMaximum(heap.maximum,sConfig$javaArchitecture == 32)
+      command.line.options <- if ( is.null(heap.maximum) ) NULL
+      else shQuote(paste0("-J-Xmx",heap.maximum))
+      sessionFilename <- tempfile("rscala-session-")
+      writeLines(character(),sessionFilename)
+      portsFilename <- tempfile("rscala-ports-")
+      args <- c(command.line.options,"-nc","-classpath",rscalaJAR,"org.ddahl.rscala.server.Main",rscalaJAR,port,portsFilename,sessionFilename,debug,serialize.output,FALSE)
+      oldJavaEnv <- setJavaEnv(sConfig) 
+      system2(path.expand(sConfig$scalaCmd),args,wait=FALSE,stdout=stdout,stderr=stderr)
+      setJavaEnv(oldJavaEnv)
+      assign("sessionFilename",sessionFilename,envir=details)
+      assign("portsFilename",portsFilename,envir=details)
+    }
   }
   assign("closed",FALSE,envir=details)
   assign("disconnected",TRUE,envir=details) 

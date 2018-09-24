@@ -48,10 +48,13 @@ scalaSBT <- function(args=c("+package","packageSrc","+publishLocal"), copy.to.pa
     lines <- readLines("build.sbt")
     nameLine <- lines[grepl("^\\s*name\\s*:=",lines)]
     if ( length(nameLine) != 1 ) stop("Could not find one and only one 'name' line in 'build.sbt'.")
-    name<- sub('^[^"]*"(.*)"\\s*$','\\1',nameLine)
+    name <- sub('^[^"]*"(.*)"\\s*$','\\1',nameLine)
     versionLine <- lines[grepl("^\\s*version\\s*:=",lines)]
     if ( length(versionLine) != 1 ) stop("Could not find one and only one 'version' line in 'build.sbt'.")
     version <- sub('^[^"]*"(.*)"\\s*$','\\1',versionLine)
+    scalaVersionLine <- lines[grepl("^\\s*scalaVersion\\s*:=",lines)]
+    if ( length(scalaVersionLine) != 1 ) stop("Could not find one and only one 'scalaVersion' line in 'build.sbt'.")
+    scalaVersion <- scalaMajorVersion(sub('^[^"]*"(.*)"\\s*$','\\1',scalaVersionLine))
     crossLine <-   lines[grepl("^\\s*crossScalaVersions\\s*:=",lines)]
     if ( length(crossLine) != 1 ) stop("Could not find one and only one 'crossScalaVersion' line in 'build.sbt'.")
     scalaVersions <- strsplit(gsub('["),]','',sub('[^"]*','',crossLine)),"\\s+")[[1]]
@@ -93,9 +96,8 @@ scalaSBT <- function(args=c("+package","packageSrc","+publishLocal"), copy.to.pa
     dir.create(srcDir,FALSE,TRUE)
     oldJARs <- list.files(srcDir,pattern=".*\\.jar",recursive=TRUE)
     unlink(file.path(srcDir,oldJARs))
-    v <- sConfig$scalaMajor
-    currentJARs <- srcJARs[grepl(sprintf("^scala-%s",v),srcJARs)]
-    currentJARs <- currentJARs[grepl(sprintf(".*_%s-%s-sources.jar$",v,version),basename(currentJARs))]
+    currentJARs <- srcJARs[grepl(sprintf("^scala-%s",scalaVersion),srcJARs)]
+    currentJARs <- currentJARs[grepl(sprintf(".*_%s-%s-sources.jar$",scalaVersion,version),basename(currentJARs))]
     if ( length(currentJARs) > 0 ) file.copy(file.path("target",currentJARs),srcDir,TRUE)
   }
   invisible(NULL)
