@@ -119,7 +119,7 @@ findExecutable <- function(mode,label,installPath,mapper,verbose=TRUE) {  ## Mim
       if ( verbose ) cat(paste0("  Success with ",label,".\n"))
       result <- mapper(candidate,verbose)
       if ( is.character(result) ) {
-        cat(paste0("  ... but ",result,"\n"))
+        if ( verbose ) cat(paste0("  ... but ",result,"\n"))
         NULL
       } else result
     } else {
@@ -314,6 +314,7 @@ scalaSpecifics <- function(scalaCmd,javaConf,verbose) {
   info <- system2(path.expand(scalaCmd),c("-nc","-e",shQuote('import util.Properties._; println(Seq(versionNumberString,scalaHome,javaHome).mkString(lineSeparator))')),stdout=TRUE)
   setJavaEnv(oldJavaEnv)
   majorVersion <- scalaMajorVersion(info[1])
-  if ( ! ( majorVersion %in% names(scalaVersionJARs()) ) ) paste0("unsupport Scala version: ",majorVersion)
+  supportedVersions <- names(scalaVersionJARs())
+  if ( ( length(supportedVersions) > 0 ) && ! ( majorVersion %in% supportedVersions ) ) paste0("unsupported Scala version: ",majorVersion)
   else list(scalaHome=info[2], scalaCmd=scalaCmd, scalaMajorVersion=majorVersion, scalaFullVersion=info[1], javaHome=info[3])
 }
