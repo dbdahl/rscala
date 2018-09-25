@@ -11,7 +11,6 @@
 /R/rscala.Rcheck
 /src/main/resources/Rscripts
 /deliveries/rscala_*.tar.gz
-.Rproj.user
 .Rhistory
 .RData
 /others
