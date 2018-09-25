@@ -31,7 +31,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
   offerInstall <- function(msg) {
     if ( !identical(reconfig,"live") && interactive() ) {
       while ( TRUE ) {
-        response <- toupper(trimws(readline(prompt=paste0(msg,"  Would you like to install it now? [Y/n] "))))
+        response <- toupper(trimws(readline(prompt=paste0(msg,"\nWould you like to install it now? [Y/n] "))))
         if ( response == "N" ) return(FALSE)
         if ( response %in% c("Y","") ) return(TRUE)
       }
