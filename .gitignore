@@ -6,7 +6,6 @@
 /R/rscala/R/INTERNAL-protocol.R
 /R/rscala/inst/java
 /R/rscala/java/
-/R/rscala/.Rproj.user
 /R/rscala_*.tar.gz
 /R/rscala.Rcheck
 /src/main/resources/Rscripts
@@ -31,3 +30,4 @@
 /.idea/dynamic.xml
 /.idea/uiDesigner.xml
 
+.Rproj.user
