@@ -9,8 +9,8 @@
 #' scalaVersionJARs()
 #' 
 scalaVersionJARs <- function() {
+  pkgHome <- find.package("rscala")
   majorVersions <- gsub("^scala-(.*)","\\1",list.dirs(system.file("java",package="rscala"),full.names=FALSE,recursive=FALSE))
-  result <- as.list(list.files(file.path(find.package("rscala"),"java",paste0("scala-",majorVersions)),full.names=TRUE))
-  names(result) <- majorVersions
-  result
+  result <- sapply(majorVersions, function(v) list.files(file.path(pkgHome,"java",paste0("scala-",v)),full.names=TRUE))
+  result[sapply(result, function(x) !is.null(x) && length(x) > 0)]
 }

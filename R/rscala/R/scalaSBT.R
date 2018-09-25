@@ -80,9 +80,8 @@ scalaSBT <- function(args=c("+package","packageSrc","+publishLocal"), copy.to.pa
       }
     } else if ( length(pkgHome) == 0 ) stop(paste0("Cannot find any candidates for package home."))
     binDir <- file.path(pkgHome,"inst","java")
-    oldJARs <- list.files(binDir,pattern=".*\\.jar",recursive=TRUE)
-    oldJARs <- oldJARs[grepl("^scala-.*",oldJARs)]
-    unlink(file.path(binDir,oldJARs))
+    oldDirs <- list.files(binDir,"^scala-*")
+    unlink(oldDirs)
     for ( v in scalaVersions ) {
       currentJARs <- binJARs[grepl(sprintf("^scala-%s",v),binJARs)]
       currentJARs <- currentJARs[grepl(sprintf(".*_%s-%s.jar$",v,version),basename(currentJARs))]
