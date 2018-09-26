@@ -218,6 +218,10 @@ object Transcompile extends TranscompileStub {
   def _all(x: Array[Boolean]): Boolean = x.forall(identity)
   def _any(x: Array[Boolean]): Boolean = x.exists(identity)
 
+  def _prod(x: Array[Double]): Double = x.product
+  def _prod(x: Array[Int]): Double = x.product
+  def _prod(x: Array[Boolean]): Double = x.map(if ( _ ) 1 else 0).product
+
   def _sum(x: Array[Double]): Double = x.sum
   def _sum(x: Array[Int]): Int = x.sum
   def _sum(x: Array[Boolean]): Int = x.map(if ( _ ) 1 else 0).sum
