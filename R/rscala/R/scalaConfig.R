@@ -31,7 +31,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
   offerInstall <- function(msg) {
     if ( !identical(reconfig,"live") && interactive() ) {
       while ( TRUE ) {
-        response <- toupper(trimws(readline(prompt=paste0(msg,"\nWould you like to install it now? [Y/n] "))))
+        response <- toupper(trimws(readline(prompt=paste0(msg,"\nWould you like to install now? [Y/n] "))))
         if ( response == "N" ) return(FALSE)
         if ( response %in% c("Y","") ) return(TRUE)
       }
@@ -53,7 +53,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
     javaConf <- findExecutable("java","Java",installPath,javaSpecifics,verbose)
     if ( is.null(javaConf) ) {
       if ( verbose ) cat("\n")
-      consent2 <- offerInstall(paste0("Java is not found.")) 
+      consent2 <- offerInstall(paste0("Java and Scala are not found.")) 
       stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nJava is not found!  Please run 'rscala::scalaConfig(download.java=TRUE)'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
       if ( consent2 ) {
         installJava(installPath,verbose)
@@ -67,7 +67,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
     scalaConf <- findExecutable("scala","Scala",installPath,scalaSpecifics2,verbose)
     if ( is.null(scalaConf) ) {
       if ( verbose ) cat("\n")
-      consent2 <- offerInstall(paste0("Scala is not found.")) 
+      consent2 <- consent || offerInstall(paste0("Scala is not found.")) 
       stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nScala is not found!  Please run 'rscala::scalaConfig(download.scala=TRUE)'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
       if ( consent2 ) {
         installScala(installPath,javaConf,verbose)
