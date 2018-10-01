@@ -31,7 +31,8 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
   offerInstall <- function(msg) {
     if ( !identical(reconfig,"live") && interactive() ) {
       while ( TRUE ) {
-        response <- toupper(trimws(readline(prompt=paste0(msg,"\nWould you like to install now? [Y/n] "))))
+        cat(msg,"\n")
+        response <- toupper(trimws(readline(prompt="Would you like to install now? [Y/n] ")))
         if ( response == "N" ) return(FALSE)
         if ( response %in% c("Y","") ) return(TRUE)
       }
@@ -199,7 +200,7 @@ installJava <- function(installPath, verbose, attempt=1) {
   unlink(destdir,recursive=TRUE,force=TRUE)  # Delete older version
   javaHome <- list.files(installPathTemp,full.names=TRUE,recursive=FALSE)
   javaHome <- javaHome[dir.exists(javaHome)]
-  if ( length(javaHome) != 1 ) stop(paste0("Problem extracting Java.  Clean delete the directory '",path.expand(installPath),"' and try again."))
+  if ( length(javaHome) != 1 ) stop(paste0("Problem extracting Java.  Delete the directory '",path.expand(installPath),"' and try again."))
   file.rename(javaHome,destdir)
   unlink(installPathTemp,recursive=TRUE,force=TRUE)
   if ( verbose ) cat("Successfully installed Java at ",destdir,"\n",sep="")
@@ -231,7 +232,7 @@ installScala <- function(installPath, javaConf, verbose, attempt=1) {
   if ( result == 0 ) {
     destdir <- file.path(installPath,"scala")
     scalaHome <- list.files(installPath,sprintf("^scala-%s",majorVersion),full.names=TRUE)
-    if ( length(scalaHome) != 1 ) stop(paste0("Problem extracting Scala.  Clean delete the directory '",path.expand(installPath),"' and try again."))
+    if ( length(scalaHome) != 1 ) stop(paste0("Problem extracting Scala.  Delete the directory '",path.expand(installPath),"' and try again."))
     file.rename(scalaHome,destdir)
     if ( verbose ) cat("Successfully installed Scala at ",destdir,"\n",sep="")   
   } else {
