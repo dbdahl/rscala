@@ -206,4 +206,3 @@ engine <- function(nSamples, nIntervals, times) microbenchmark(
   times=times)
 
 engine(nSamples = 10000L, nIntervals = 10000L, times=10)
-

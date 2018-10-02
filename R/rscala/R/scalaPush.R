@@ -22,7 +22,7 @@
 #' @examples \donttest{
 #' s <- scala()
 #'
-#' s(rn=scalaPush(rnorm,"generic"),n=5) * 'R.evalD1("%-(%-)",rn,n)'
+#' s(rn=scalaPush(rnorm),n=5) * 'R.evalD1("%-(%-)",rn,n)'
 #'
 #' mtcarsRef <- scalaPush(mtcars, "list")
 #' mtcarsRef$names()
@@ -46,8 +46,7 @@
 #' close(s)
 #' }
 #'  
-scalaPush <- function(x, method, bridge=scalaFindBridge(), ...) {
-  if ( missing(method) ) stop("'method' for push must be supplied.")
+scalaPush <- function(x, method="generic", bridge=scalaFindBridge(), ...) {
   pushers <- get("pushers",envir=attr(bridge,"details"))
   pushers[[method]](x, bridge, ...)
 }
