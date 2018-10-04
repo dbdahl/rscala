@@ -123,8 +123,8 @@ test_that("More basic transcompilation works", {
 test_that("Misc. items work as expected", {
   expect_identical(x <- {r <- s() ^ function(x=scalaType("Array[Boolean]")) { mean(x) }; r(c(T,F,T,T,F))}, mean(c(T,F,T,T,F)))
   expect_identical({r <- s ^ function(x=scalaType("Array[Boolean]")) { mean(x) }; r(c(T,F,T,T,F))}, mean(c(T,F,T,T,F)))
-  expect_identical({r <- s ^ function(x=stL1) { var(x) }; r(c(T,F,T,T,F))}, var(c(T,F,T,T,F)))
-  expect_identical({r <- s ^ function(x=scalaType("Array[Boolean]")) { sd(x) }; r(c(T,F,T,T,F))}, sd(c(T,F,T,T,F)))
+  expect_equal({r <- s ^ function(x=stL1) { var(x) }; r(c(T,F,T,T,F))}, var(c(T,F,T,T,F)))
+  expect_equal({r <- s ^ function(x=scalaType("Array[Boolean]")) { sd(x) }; r(c(T,F,T,T,F))}, sd(c(T,F,T,T,F)))
   expect_identical({r <- s ^ function(x=stD0,y=3) { max(c(x,y,3,4))}; r(-1)}, max(c(-1,3,3,4)))
   expect_identical({r <- s(y=3) ^ function(x=scalaType("Double")) { min(c(x,y,3,4))}; r(-1)}, min(c(-1,3,3,4)))
   expect_output({r <- s() ^ function(x=scalaType("String")) { cat(x*3L) }; r("David")}, "DavidDavidDavid")
