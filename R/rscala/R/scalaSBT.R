@@ -61,15 +61,12 @@ scalaSBT <- function(args=c("+package","packageSrc","+publishLocal"), copy.to.pa
     scalaVersions <- sapply(scalaVersions, function(x) {
       if ( grepl("^2.1[12]\\.",x) ) substr(x,1,4) else x
     })
-    oldJARs <- list.files("target",pattern=".*\\.jar",recursive=TRUE)
-    unlink(oldJARs)
     if ( is.null(sConfig$sbtCmd) ) {
       stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nSBT is not found!  Please run 'rscala::scalaConfig(require.sbt=TRUE)'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
       stop(stopMsg)
     }
-    newJARs <- list.files("target",pattern=".*\\.jar",recursive=TRUE)
-    srcJARs <- newJARs[grepl(".*-sources.jar$",newJARs)]
-    binJARs <- setdiff(newJARs,srcJARs)
+    srcJARs <- paste0("scala-",scalaVersions,"/",tolower(name),"_",scalaVersions,"-",version,"-sources.jar")
+    binJARs <- paste0("scala-",scalaVersions,"/",tolower(name),"_",scalaVersions,"-",version,".jar")
     pkgHome <- unique(dirname(list.files(".","DESCRIPTION",recursive=TRUE)))   # unique(...) because on Mac OS X, duplicates are possible.
     pkgHome <- pkgHome[!grepl(".*\\.Rcheck",pkgHome)]
     if ( length(pkgHome) > 1 ) {
@@ -80,8 +77,8 @@ scalaSBT <- function(args=c("+package","packageSrc","+publishLocal"), copy.to.pa
       }
     } else if ( length(pkgHome) == 0 ) stop(paste0("Cannot find any candidates for package home."))
     binDir <- file.path(pkgHome,"inst","java")
-    oldDirs <- list.files(binDir,"^scala-*")
-    unlink(oldDirs)
+    oldDirs <- list.files(binDir,"^scala-.*")
+    unlink(file.path(binDir,oldDirs),recursive=TRUE)
     for ( v in scalaVersions ) {
       currentJARs <- binJARs[grepl(sprintf("^scala-%s",v),binJARs)]
       currentJARs <- currentJARs[grepl(sprintf(".*_%s-%s.jar$",v,version),basename(currentJARs))]
@@ -92,9 +89,8 @@ scalaSBT <- function(args=c("+package","packageSrc","+publishLocal"), copy.to.pa
       }
     }
     srcDir <- file.path(pkgHome,"java")
+    unlink(list.files(srcDir,pattern=".*\\.jar",recursive=TRUE,full.names=TRUE))
     dir.create(srcDir,FALSE,TRUE)
-    oldJARs <- list.files(srcDir,pattern=".*\\.jar",recursive=TRUE)
-    unlink(file.path(srcDir,oldJARs))
     currentJARs <- srcJARs[grepl(sprintf("^scala-%s",scalaVersion),srcJARs)]
     currentJARs <- currentJARs[grepl(sprintf(".*_%s-%s-sources.jar$",scalaVersion,version),basename(currentJARs))]
     if ( length(currentJARs) > 0 ) file.copy(file.path("target",currentJARs),srcDir,TRUE)

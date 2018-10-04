@@ -1,21 +1,21 @@
-3.2.0 (2018-09-06)
-  * Support for downloading and installing Java within R (instead of making the
-    user find, download, and install a compatible version).
-  * Function 'scalaConfig' replaces functions 'scalaInfo' and 'scalaInstall'.
-  * Function 'scalaMemory' replaces functions 'scalaHeapMaximum'.
+3.2.0 (2018-10-04)
   * Automatic detection of available RAM and set the Java heap maximum to a
     reasonable default to avoid 'java.lang.OutOfMemoryError'.  Users can still
     explicitly set it using the argument 'heap.maximum' of the function
     'scala' or through the function 'scalaMemory'.
+  * Support for downloading and installing Java, Scala, and SBT within R
+    (instead of having the user download, and install a compatible version).
+  * Function 'scalaConfig' replaces functions 'scalaInfo' and 'scalaInstall'.
+  * Function 'scalaMemory' replaces functions 'scalaHeapMaximum'.
+  * Function 'scalaJARs' replaces 'scalaAddJAR'.
+  * Added functions 'is.scalaReference', 'scalaFindBridge', 'scalaLazy',
+    'scalaSBT', 'scalaVersionJARs'.
   * To aid in transferring rich objects between R and Scala, added functions
-    'scalaSerialize', 'scalaUnserialize', 'scalaSerializeRegister' and
-    'scalaUnserializeRegister'.
+    'scalaPush', 'scalaPull', 'scalaPushRegister' and 'scalaPullRegister'.
   * Support named arguments in transcompiled functions.
-  * Renamed functon 'scalaAddJAR' to 'scalaJARs'.
+  * Removed unnecessary functions 'scalaPackage' and 'scalaPackageUnload'.
   * Added function 'scalaDisconnect' to temporarily disconnect sockets between
     R and Scala.  Sockets are automatically re-established as needed.
-  * Removed unnecessary functions 'scalaPackage' and 'scalaPackageUnload'.
-  * Added helpful functions 'is.scalaReference' and 'scalaFindBridge'.
   * Support for upcoming release of Scala 2.13.
   * Avoid Window's firewall pop up window.
   * Detection of trying to use a bridge across R instances and more helpful
