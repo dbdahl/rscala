@@ -1,6 +1,9 @@
 #' Instantiate a Scala Bridge
 #'
-#' This function creates an instance of an rscala bridge.
+#' This function creates an instance of an rscala bridge.  Details on this
+#' function (and the rscala package as a whole) are provided in the package
+#' vignette and the associated paper in the \emph{Journal of Statistical
+#' Software}. See the reference below.
 #'
 #' Multiple interpreters can be created and each runs independently with its own
 #' memory space. Each interpreter can use multiple threads/cores, but the bridge
@@ -30,10 +33,12 @@
 #'   should be enabled.
 #'
 #' @return Returns an rscala bridge.
+#' @references {David B. Dahl (2018). “Integration of R and Scala Using rscala.”
+#'   Journal of Statistical Software, in editing. https://www.jstatsoft.org}
 #' @seealso \code{\link{close.rscalaBridge}}, \code{\link{scalaMemory}}
-#'   \code{\link{scalaPushRegister}},
-#'   \code{\link{scalaPullRegister}}
+#'   \code{\link{scalaPushRegister}}, \code{\link{scalaPullRegister}}
 #' @export
+#' @aliases rscala-package
 #'
 #' @examples \donttest{
 #' s <- scala()

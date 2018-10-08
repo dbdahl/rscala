@@ -21,6 +21,7 @@
 #'   '~/.rscala/sbt' if necessary?
 #'
 #' @return Returns a list of details of the Scala and Java binaries.
+#' @references {David B. Dahl (2018). “Integration of R and Scala Using rscala.” Journal of Statistical Software, in editing. https://www.jstatsoft.org}
 #' @export
 #' @examples \dontrun{
 #'
