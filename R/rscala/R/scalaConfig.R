@@ -278,7 +278,7 @@ installSBT <- function(installPath, javaConf, verbose, attempt=1) {
 }
 
 javaSpecifics <- function(javaCmd,verbose) {
-  if ( verbose ) cat("\nQuerying Java specifics.\n")
+  if ( verbose ) cat("  ... querying Java specifics.\n")
   response <- system2(path.expand(javaCmd),"-version",stdout=TRUE,stderr=TRUE)
   # Get version information
   versionRegexp <- '(java|openjdk) version "([^"]*)".*'
@@ -291,7 +291,7 @@ javaSpecifics <- function(javaCmd,verbose) {
   } else {
     as.numeric(versionParts[1])
   }
-  if ( ! ( versionNumber %in% c(7,8,9,10,11) ) ) return(paste0("unsupported Java version: ",versionString))
+  if ( ! ( versionNumber %in% c(8,9,10,11) ) ) return(paste0("unsupported Java version: ",versionString))
   # Determine if 32 or 64 bit
   bit <- if ( any(grepl('^(Java HotSpot|OpenJDK).* 64-Bit (Server|Client) VM.*$',response)) ||
               any(grepl('^IBM .* amd64-64 .*$',response)) ) 64 else 32
@@ -314,12 +314,22 @@ scalaMajorVersion <- function(scalaVersion) {
 }
 
 scalaSpecifics <- function(scalaCmd,javaConf,verbose) {
-  if ( verbose ) cat("\nQuerying Scala specifics.\n")
+  if ( verbose ) cat("  ... querying Scala specifics.\n")
   oldJavaEnv <- setJavaEnv(javaConf)
-  info <- system2(path.expand(scalaCmd),c("-nc","-e",shQuote('import util.Properties._; println(Seq(versionNumberString,scalaHome,javaHome).mkString(lineSeparator))')),stdout=TRUE)
+  info <- tryCatch({
+    system2(path.expand(scalaCmd),c("-nc","-e",shQuote('import util.Properties._; println(Seq(versionNumberString,scalaHome,javaHome).mkString(lineSeparator))')),stdout=TRUE,stderr=FALSE)
+   }, warning=function(e) "")
   setJavaEnv(oldJavaEnv)
-  majorVersion <- scalaMajorVersion(info[1])
+  fullVersion <- info[1]
+  majorVersion <- scalaMajorVersion(fullVersion)
+  if ( majorVersion == "" ) majorVersion <- "?"
   supportedVersions <- names(scalaVersionJARs())
   if ( ( length(supportedVersions) > 0 ) && ! ( majorVersion %in% supportedVersions ) ) paste0("unsupported Scala version: ",majorVersion)
-  else list(scalaHome=info[2], scalaCmd=scalaCmd, scalaMajorVersion=majorVersion, scalaFullVersion=info[1], javaHome=info[3])
+  else {
+    if ( ( majorVersion == "2.11" ) && ( as.numeric(javaConf$javaMajorVersion) > 8 ) ) {
+      sprintf("Scala %s is not supported on Java %s",majorVersion,javaConf$javaMajorVersion)
+    } else {
+      list(scalaHome=info[2], scalaCmd=scalaCmd, scalaMajorVersion=majorVersion, scalaFullVersion=fullVersion, javaHome=info[3])
+    }
+  }
 }
