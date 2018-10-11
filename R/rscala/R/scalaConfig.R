@@ -15,6 +15,8 @@
 #'   are any combination of \code{"java"}, \code{"scala"}, or \code{"sbt"}. Or,
 #'   \code{TRUE} denotes all three.  The indicated software will be installed at
 #'   "~/.rscala".
+#' @param require.sbt Should SBT be required, downloading and installing it in
+#'   '~/.rscala/sbt' if necessary?
 #'
 #' @return Returns a list of details of the Scala and Java binaries.
 #' @references {David B. Dahl (2018). “Integration of R and Scala Using rscala.”
@@ -58,7 +60,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
     if ( is.null(config$format) || ( config$format < 2L ) || ( ! all(file.exists(c(config$javaHome,config$scalaHome,config$javaCmd,config$scalaCmd))) ) || ( is.null(config$sbtCmd) && require.sbt ) || ( ! is.null(config$sbtCmd) && ! file.exists(config$sbtCmd) ) ) {
       if ( verbose ) cat("The 'config.R' is out-of-date.  Reconfiguring...\n")
       unlink(configPath)
-      scalaConfig(verbose, reconfig, download.java, download.scala, download.sbt, require.sbt)
+      scalaConfig(verbose, reconfig, download, require.sbt)
     } else config
   } else {
     if ( download.java ) installJava(installPath,verbose)
