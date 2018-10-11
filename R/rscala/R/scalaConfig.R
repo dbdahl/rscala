@@ -155,18 +155,18 @@ findExecutable <- function(mode,label,installPath,mapper,verbose=TRUE) {  ## Mim
   conf <- tryCandidate(file.path(installPath,candidates))
   if ( ! is.null(conf) ) return(conf)
   ###
-#  label <- paste0(allCaps,"CMD environment variable")
-#  conf <- tryCandidate(Sys.getenv(paste0(allCaps,"CMD")))
-#  if ( ! is.null(conf) ) return(conf)
+  label <- paste0(allCaps,"CMD environment variable")
+  conf <- tryCandidate(Sys.getenv(paste0(allCaps,"CMD")))
+  if ( ! is.null(conf) ) return(conf)
   ###
-#  label <- paste0(allCaps,"_HOME environment variable")
-#  home <- Sys.getenv(paste0(allCaps,"_HOME"))
-#  conf <- tryCandidate(if ( home != "" ) file.path(home,"bin",mode) else "")
-#  if ( ! is.null(conf) ) return(conf)
+  label <- paste0(allCaps,"_HOME environment variable")
+  home <- Sys.getenv(paste0(allCaps,"_HOME"))
+  conf <- tryCandidate(if ( home != "" ) file.path(home,"bin",mode) else "")
+  if ( ! is.null(conf) ) return(conf)
   ###
-#  label <- "PATH environment variable"
-#  conf <- tryCandidate(Sys.which(mode)[[mode]])
-#  if ( ! is.null(conf) ) return(conf)
+  label <- "PATH environment variable"
+  conf <- tryCandidate(Sys.which(mode)[[mode]])
+  if ( ! is.null(conf) ) return(conf)
   ###
   NULL
 }
