@@ -11,24 +11,26 @@
 #'   previous configuration is sourced from the script
 #'   \code{~/.rscala/config.R}.  If \code{"live"}, a new search is performed,
 #'   but the results do not overwrite the previous configuration script.
-#' @param download.java Should Java be downloaded and installed in
-#'   '~/.rscala/java'?
-#' @param download.scala Should Scala be downloaded and installed in
-#'   '~/.rscala/scala'?
-#' @param download.sbt Should SBT be downloaded and installed in
-#'   '~/.rscala/sbt'?
-#' @param require.sbt Should SBT be required, downloading and installing it in
-#'   '~/.rscala/sbt' if necessary?
+#' @param download A character vector which may be length-zero or whose elements
+#'   are any combination of \code{"java"}, \code{"scala"}, or \code{"sbt"}. Or,
+#'   \code{TRUE} denotes all three.  The indicated software will be installed at
+#'   "~/.rscala".
 #'
 #' @return Returns a list of details of the Scala and Java binaries.
-#' @references {David B. Dahl (2018). “Integration of R and Scala Using rscala.” Journal of Statistical Software, in editing. https://www.jstatsoft.org}
+#' @references {David B. Dahl (2018). “Integration of R and Scala Using rscala.”
+#'   Journal of Statistical Software, in editing. https://www.jstatsoft.org}
 #' @export
 #' @examples \donttest{
 #'
 #' scalaConfig()
 #' }
-scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, download.scala=FALSE, download.sbt=FALSE, require.sbt=FALSE) {
+scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), require.sbt=FALSE) {
   if ( inherits(verbose,"rscalaBridge") ) return(attr(verbose,"details")$config)
+  if ( ( length(download) > 0 ) && ( download == TRUE ) ) download <- c("java","scala","sbt")
+  if ( length(setdiff(download,c("java","scala","sbt"))) > 0 ) stop('Invalid element in "download" argument.')
+  download.java <- "java" %in% download
+  download.scala <- "scala" %in% download
+  download.sbt <- "sbt" %in% download
   installPath <- file.path("~",".rscala")
   usingTempDir <- FALSE
   if ( ! file.exists(installPath) && ( ! interactive() ) ) {
@@ -64,7 +66,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
     if ( is.null(javaConf) ) {
       if ( verbose ) cat("\n")
       consent2 <- offerInstall(paste0("Java and Scala are not found.")) 
-      stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nJava is not found!  Please run 'rscala::scalaConfig(download.java=TRUE)'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
+      stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nJava is not found!  Please run 'rscala::scalaConfig(download=\"java\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
       if ( consent2 ) {
         installJava(installPath,verbose)
         javaConf <- findExecutable("java","Java",installPath,javaSpecifics,verbose)
@@ -78,7 +80,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
     if ( is.null(scalaConf) ) {
       if ( verbose ) cat("\n")
       consent2 <- consent || offerInstall(paste0("Scala is not found.")) 
-      stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nScala is not found!  Please run 'rscala::scalaConfig(download.scala=TRUE)'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
+      stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nScala is not found!  Please run 'rscala::scalaConfig(download=\"scala\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
       if ( consent2 ) {
         installScala(installPath,javaConf,verbose)
         scalaConf <- findExecutable("scala","Scala",installPath,scalaSpecifics2,verbose)
@@ -93,7 +95,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
       } else identical(system2("uname","-m",stdout=TRUE),"x86_64")
       osArchitecture <- if ( isOS64bit ) 64 else 32
       if ( osArchitecture == 64 ) {
-        warning("32-bit Java is paired with a 64-bit operating system.  To access more memory, please run 'scalaConfig(download.java=TRUE)'.")
+        warning("32-bit Java is paired with a 64-bit operating system.  To access more memory, please run 'scalaConfig(download=\"java\")'.")
       }
       osArchitecture
     } else javaConf$javaArchitecture
@@ -104,7 +106,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
     if ( is.null(sbtConf) && require.sbt ) {
       if ( verbose ) cat("\n")
       consent2 <- consent || offerInstall(paste0("SBT is not found.")) 
-      stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nSBT is not found!  Please run 'rscala::scalaConfig(download.sbt=TRUE)'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
+      stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nSBT is not found!  Please run 'rscala::scalaConfig(download=\"sbt\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
       if ( consent2 ) {
         installSBT(installPath,config,verbose)
         sbtConf <- findExecutable("sbt","SBT",installPath,sbtSpecifics,verbose)
@@ -151,18 +153,18 @@ findExecutable <- function(mode,label,installPath,mapper,verbose=TRUE) {  ## Mim
   conf <- tryCandidate(file.path(installPath,candidates))
   if ( ! is.null(conf) ) return(conf)
   ###
-  label <- paste0(allCaps,"CMD environment variable")
-  conf <- tryCandidate(Sys.getenv(paste0(allCaps,"CMD")))
-  if ( ! is.null(conf) ) return(conf)
+#  label <- paste0(allCaps,"CMD environment variable")
+#  conf <- tryCandidate(Sys.getenv(paste0(allCaps,"CMD")))
+#  if ( ! is.null(conf) ) return(conf)
   ###
-  label <- paste0(allCaps,"_HOME environment variable")
-  home <- Sys.getenv(paste0(allCaps,"_HOME"))
-  conf <- tryCandidate(if ( home != "" ) file.path(home,"bin",mode) else "")
-  if ( ! is.null(conf) ) return(conf)
+#  label <- paste0(allCaps,"_HOME environment variable")
+#  home <- Sys.getenv(paste0(allCaps,"_HOME"))
+#  conf <- tryCandidate(if ( home != "" ) file.path(home,"bin",mode) else "")
+#  if ( ! is.null(conf) ) return(conf)
   ###
-  label <- "PATH environment variable"
-  conf <- tryCandidate(Sys.which(mode)[[mode]])
-  if ( ! is.null(conf) ) return(conf)
+#  label <- "PATH environment variable"
+#  conf <- tryCandidate(Sys.which(mode)[[mode]])
+#  if ( ! is.null(conf) ) return(conf)
   ###
   NULL
 }
