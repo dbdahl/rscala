@@ -8,14 +8,14 @@
 #'
 #' @param bridge An rscala bridge.
 #' @export
-#' @examples \dontrun{
+#' @examples \donttest{
 #'
 #' showConnections()
 #' s <- scala()
 #' showConnections()         # No additional connections yet.
 #' s * "3+4"
 #' showConnections()         # Now there are two additional connections.
-#' scalaSuspend()
+#' scalaDisconnect()
 #' showConnections()         # The new connections are gone.
 #' s * "3+4"
 #' showConnections()         # New connections are established as needed.

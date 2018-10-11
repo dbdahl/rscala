@@ -14,9 +14,12 @@
 #' @export
 #' @seealso \code{\link{scalaFindBridge}}
 #'
-#' @examples \dontrun{
+#' @examples \donttest{
 #' 
+#' s <- scala()
 #' scalaLazy(function(s) { s + 'import scala.util.Random' })
+#' s$.new_Random()$nextDouble()
+#' close(s)
 #' }
 scalaLazy <- function(functions, bridge=scalaFindBridge()) {
   details <- if ( inherits(bridge,"rscalaBridge") ) attr(bridge,"details") else bridge

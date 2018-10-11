@@ -23,12 +23,18 @@
 #' @return Returns a list of details of the Scala and Java binaries.
 #' @references {David B. Dahl (2018). “Integration of R and Scala Using rscala.” Journal of Statistical Software, in editing. https://www.jstatsoft.org}
 #' @export
-#' @examples \dontrun{
+#' @examples \donttest{
 #'
 #' scalaConfig()
 #' }
 scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, download.scala=FALSE, download.sbt=FALSE, require.sbt=FALSE) {
   if ( inherits(verbose,"rscalaBridge") ) return(attr(verbose,"details")$config)
+  installPath <- file.path("~",".rscala")
+  usingTempDir <- FALSE
+  if ( ! file.exists(installPath) && ( ! interactive() ) ) {
+    installPath <- file.path(tempdir(),".rscala")
+    usingTempDir <- TRUE
+  }
   offerInstall <- function(msg) {
     if ( !identical(reconfig,"live") && interactive() ) {
       while ( TRUE ) {
@@ -37,9 +43,11 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download.java=FALSE, downl
         if ( response == "N" ) return(FALSE)
         if ( response %in% c("Y","") ) return(TRUE)
       }
-    } else FALSE
+    } else {
+      if ( usingTempDir ) warning("Using temporary directory.  Please run 'rscala::scalaConfig(reconfig=TRUE)'")
+      usingTempDir
+    }
   }
-  installPath <- file.path("~",".rscala")
   configPath  <- file.path(installPath,"config.R")
   consent <- identical(reconfig,TRUE) || download.java || download.scala || download.sbt
   if ( ! reconfig && file.exists(configPath) && !download.java && !download.scala && !download.sbt ) {
