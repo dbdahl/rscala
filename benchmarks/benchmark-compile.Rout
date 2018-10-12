@@ -23,28 +23,41 @@ Type 'q()' to quit R.
 > cat(system2("hostname",stdout=TRUE),"\n",sep="")
 ramah
 > scalaConfig()
+
 Read existing configuration file: ~/.rscala/config.R
 
+$format
+[1] 2
+
+$osArchitecture
+[1] 64
+
+$scalaHome
+[1] "/home/dahl/local/scala/scala/scala-2.12.7"
+
 $scalaCmd
-[1] "~/.rscala/scala/bin/scala"
+[1] "/home/dahl/local/bin/scala"
 
 $scalaMajorVersion
 [1] "2.12"
 
 $scalaFullVersion
-[1] "2.12.6"
+[1] "2.12.7"
+
+$javaHome
+[1] "/home/dahl/local/java/jdk-11"
 
 $javaCmd
-[1] "~/.rscala/java/bin/java"
+[1] "/home/dahl/local/bin/java"
 
 $javaMajorVersion
-[1] 8
+[1] 11
 
 $javaArchitecture
 [1] 64
 
-$osArchitecture
-[1] 64
+$sbtCmd
+[1] "/usr/bin/sbt"
 
 > sessionInfo()
 R version 3.5.1 (2018-07-02)
@@ -67,7 +80,7 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] microbenchmark_1.4-4 rscala_3.2.0        
+[1] microbenchmark_1.4-4 rscala_3.2.1        
 
 loaded via a namespace (and not attached):
 [1] compiler_3.5.1
@@ -85,14 +98,14 @@ loaded via a namespace (and not attached):
 +   times=nReps
 + )
 Unit: microseconds
-                                    expr       min         lq        mean
- s * sample.int(.Machine$integer.max, 1) 93539.057 99459.1670 121399.7153
-                          s * 2056700609   123.607   177.6985    204.1744
-      median         uq        max neval
- 107374.9310 119410.457 293349.778   100
-    205.4005    220.689    796.404   100
+                                    expr       min        lq        mean
+ s * sample.int(.Machine$integer.max, 1) 77842.102 83477.508 105899.0957
+                          s * 2056700609   120.758   148.987    188.7206
+    median          uq        max neval
+ 88558.163 122614.7295 261471.739   100
+   194.875    212.1535    443.976   100
 > 
 > 
 > proc.time()
    user  system elapsed 
-  0.228   0.112  15.697 
+  0.248   0.100  14.074 

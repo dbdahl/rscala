@@ -23,28 +23,41 @@ Type 'q()' to quit R.
 > cat(system2("hostname",stdout=TRUE),"\n",sep="")
 ramah
 > scalaConfig()
+
 Read existing configuration file: ~/.rscala/config.R
 
+$format
+[1] 2
+
+$osArchitecture
+[1] 64
+
+$scalaHome
+[1] "/home/dahl/local/scala/scala/scala-2.12.7"
+
 $scalaCmd
-[1] "~/.rscala/scala/bin/scala"
+[1] "/home/dahl/local/bin/scala"
 
 $scalaMajorVersion
 [1] "2.12"
 
 $scalaFullVersion
-[1] "2.12.6"
+[1] "2.12.7"
+
+$javaHome
+[1] "/home/dahl/local/java/jdk-11"
 
 $javaCmd
-[1] "~/.rscala/java/bin/java"
+[1] "/home/dahl/local/bin/java"
 
 $javaMajorVersion
-[1] 8
+[1] 11
 
 $javaArchitecture
 [1] 64
 
-$osArchitecture
-[1] 64
+$sbtCmd
+[1] "/usr/bin/sbt"
 
 > sessionInfo()
 R version 3.5.1 (2018-07-02)
@@ -67,7 +80,7 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] microbenchmark_1.4-4 rscala_3.2.0        
+[1] microbenchmark_1.4-4 rscala_3.2.1        
 
 loaded via a namespace (and not attached):
 [1] compiler_3.5.1
@@ -83,9 +96,9 @@ loaded via a namespace (and not attached):
 +   times=25
 + )
 Unit: seconds
-           expr      min       lq     mean   median       uq    max neval
- openAndClose() 3.009714 3.097216 3.205497 3.201338 3.299667 3.4924    25
+           expr      min       lq     mean  median       uq      max neval
+ openAndClose() 3.067026 3.181146 3.237278 3.22513 3.282886 3.395063    25
 > 
 > proc.time()
    user  system elapsed 
-  0.372   0.276  80.416 
+  0.416   0.252  81.207 

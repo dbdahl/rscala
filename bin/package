@@ -106,7 +106,7 @@ then
   echo
 fi
 cd ..
-R CMD build $PKG_NAME
-R CMD INSTALL $PKG_NAME
+R CMD build --compact-vignettes="gs+qpdf" $PKG_NAME
+R CMD INSTALL ${PKG_NAME}_${PKG_VERSION}.tar.gz
 cd ..
 
