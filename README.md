@@ -9,8 +9,8 @@ exploit each language's respective strengths in a single project. The rscala
 package brings Scala and Java libraries into R with a simple interface.
 Specifically, Scala classes can be instantiated and methods of Scala classes
 can be called directly. Furthermore, arbitrary Scala code can be executed on
-the fly from within R and callbacks to R are supported. Conversely, rscala
-also enables arbitrary R code to be embedded within a Scala application.
+the fly from within R and callbacks to R are supported. Conversely, rscala also
+enables arbitrary R code to be embedded within a Scala application.
 
 In R, install the package by executing:
 
@@ -18,7 +18,8 @@ In R, install the package by executing:
 install.packages("rscala") 
 ```
 
-To install --- or check the compatability of your existing installation of --- Scala and Java, please execute:
+To install --- or check the compatability of your existing installation of ---
+Scala and Java, please execute:
 
 ```R
 rscala::scalaConfig()
@@ -29,14 +30,26 @@ install the package. Simply add the following line to the your SBT build.sbt
 file:
 
 ```scala
-libraryDependencies += "org.ddahl" %% "rscala" % "3.2.0"
+libraryDependencies += "org.ddahl" %% "rscala" % "3.2.1"
 ```
 
-A paper describing an older version of the software is awaiting peer review at
-the [Journal of Statistical Softwware](https://www.jstatsoft.org).  The paper
-will be updated to the current version when the peer review is available.  In
-the meantime, the functionality of the paper is described and demonstrated
-in the help files:
+A paper describing the software is "conditionally accepted" and "in editing" at
+the [Journal of Statistical Softwware](https://www.jstatsoft.org).  The latest
+citation information is available using:
+
+```R
+citation("rscala")
+```
+
+An updated version of the paper is available (once the package is installed) as
+a vignette in R:
+
+```R
+vignette("rscala")
+```
+
+The functionality of the software is also described and demonstrated in the
+help files:
 
 ```R
 library(help="rscala")
@@ -45,7 +58,8 @@ example(scala)
 
 ```
 
-R extensions can be written using this package, as demonstrated by these packages:
+R extensions can be written using this package, as demonstrated by these
+packages:
 
 * [sdols](https://CRAN.R-project.org/package=sdols)
 * [shallot](https://CRAN.R-project.org/package=shallot)

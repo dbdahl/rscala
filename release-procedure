@@ -7,10 +7,10 @@ Run './bin/post'
 Rerun benchmarks on an otherwise idle machine: cd benchmarks; ./all
 Test on Linux, Mac OS, and Windows (use https://win-builder.r-project.org/)
 Test depending packages: cd reverse-dependencies; ./check
-Commit everything to Git.
+Commit everything to Git, including the package in the deliveries directory.
 Tag in Git the version using "bin/tag" script.
 sbt +publishSigned
-sbt +sonatypeRelease
+sbt +sonatypeRelease (Don't worry about the error 'Received 500 error')
+Update version number in README.md
 Submit to CRAN
-Update the temperature webapp
 Bump (development) version number in build.sbt
