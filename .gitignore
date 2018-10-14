@@ -10,6 +10,7 @@
 /R/rscala.Rcheck
 /src/main/resources/Rscripts
 /deliveries/rscala_*.tar.gz
+/deliveries/rscala.pdf
 .Rhistory
 .RData
 /others

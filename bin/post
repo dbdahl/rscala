@@ -12,11 +12,20 @@ R CMD check --as-cran $TGZ_NAME
 cp -f $TGZ_NAME ../deliveries/$TGZ_NAME
 cd ..
 
+## Prepare webserver
+ssh dahl.byu.edu mkdir -p public/rscala
+
+## Post package
 rsync --chmod=644 deliveries/$TGZ_NAME dahl.byu.edu:public
 ssh dahl.byu.edu "cd public && ln -f -s $TGZ_NAME rscala_LATEST.tar.gz"
 echo -e "####\nPosted to\n  https://dahl.byu.edu/public/$TGZ_NAME\n####"
 
+## Post Scaladoc 
 R --slave -e "rscala:::scalaSBT(c('packageDoc'),FALSE)"
+rsync -r --chmod=go=rX target/scala-2.12/api/ dahl.byu.edu:public/rscala/doc
 
-rsync -r --chmod=go=rX target/scala-2.12/api/ dahl.byu.edu:public/doc
+## Post vignete
+cd deliveries
+tar -zxvf $TGZ_NAME rscala/inst/doc/rscala.pdf
+rsync    --chmod=go=rX rscala.pdf dahl.byu.edu:public/rscala
 
