@@ -34,7 +34,7 @@ libraryDependencies += "org.ddahl" %% "rscala" % "3.2.1"
 ```
 
 A paper describing the software is "conditionally accepted" and "in editing" at
-the [Journal of Statistical Softwware](https://www.jstatsoft.org).  The latest
+the [Journal of Statistical Software](https://www.jstatsoft.org).  The latest
 citation information is available using:
 
 ```R
