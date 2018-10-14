@@ -69,6 +69,7 @@ packages:
 
 Resources:
 
+* [Vignette](https://dahl.byu.edu/public/rscala/rscala.pdf)
 * [Git repository](https://github.com/dbdahl/rscala) containing source code and build & test scripts.
 * [Scaladoc](https://dahl.byu.edu/public/rscala/doc/org/ddahl/rscala/RClient.html) for RClient class to access R from Scala.
 * [Package](https://CRAN.R-project.org/package=rscala) on [Comprehensive R Archive Network (CRAN)](HTTP://CRAN.r-project.org/).
