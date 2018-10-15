@@ -1,7 +1,6 @@
 #!/usr/bin/env Rscript
 
 files <- list.files(c("java","scala","sbt"),"[0-9]",recursive=TRUE,full.names=TRUE)
-files <- list.files(c("scala","sbt"),"[0-9]",recursive=TRUE,full.names=TRUE)
 dirname <- "verify-tmp"
 unlink(dirname,TRUE,TRUE)
 dir.create(dirname,FALSE)
