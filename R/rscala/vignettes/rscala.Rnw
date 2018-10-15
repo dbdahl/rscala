@@ -34,6 +34,10 @@
 \SweaveOpts{engine=R, eps=FALSE, keep.source=TRUE}
 <<Setup document, echo=FALSE, results=hide>>=
 options(prompt = "R> ", continue = "+  ", width = 70, useFancyQuotes = FALSE)
+a <- toString(packageVersion("rscala"))
+cells <- strsplit(a,"\\.")[[1]]
+versionString <- paste0(cells[1:3],collapse=".")
+if ( length(cells) > 3 ) versionString <- paste0(versionString,"-SNAPSHOT")
 @
 
 % %% need no \usepackage{Sweave.sty}
@@ -54,7 +58,7 @@ options(prompt = "R> ", continue = "+  ", width = 70, useFancyQuotes = FALSE)
 {\small
 This is an updated version of a paper in the \textit{Journal of Statistical Software}.\\
 To cite rscala, please use \code{citation("rscala")}\\
-Last updated on 2018-10-08 for rscala version 3.2.1\\
+Last updated on \Sexpr{Sys.Date()} for rscala version \Sexpr{versionString}\\
 \vspace{16.25ex}}
 Integration of \R{} and \Scala{} Using \rscala{}}
 \Plaintitle{Integration of R and Scala Using rscala}
@@ -1043,7 +1047,7 @@ maintainers and the following students: Floid Gilbert, Deepthi Uppalapati,
 Brandon Carter, Spencer Newcomb, Scott Ferguson, Richard Payne, and Devin
 Johnson.
 
-\bibliography{refs}
+\bibliography{rscala}
 
 \newpage
 
