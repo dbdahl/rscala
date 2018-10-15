@@ -8,6 +8,13 @@
 /R/rscala/java/
 /R/rscala_*.tar.gz
 /R/rscala.Rcheck
+/R/rscala/vignettes/rscala.aux
+/R/rscala/vignettes/rscala.bbl
+/R/rscala/vignettes/rscala.blg
+/R/rscala/vignettes/rscala.log
+/R/rscala/vignettes/rscala.out
+/R/rscala/vignettes/rscala.pdf
+/R/rscala/vignettes/rscala.tex
 /src/main/resources/Rscripts
 /deliveries/rscala_*.tar.gz
 /deliveries/rscala.pdf

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+cd $(dirname $(readlink -f $0))
+
+R --slave -e 'Sweave("rscala.Rnw")'
+
+pdflatex rscala
+bibtex rscala
+pdflatex rscala
+pdflatex rscala
+pdflatex rscala
+

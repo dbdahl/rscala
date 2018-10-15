@@ -1,2 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+jss\.cls$
+jss\.bst$
+rnw2pdf$
+clean$
