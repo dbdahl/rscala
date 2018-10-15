@@ -329,7 +329,7 @@ scalaSpecifics <- function(scalaCmd,javaConf,verbose) {
   if ( verbose ) cat("  ... querying Scala specifics.\n")
   oldJavaEnv <- setJavaEnv(javaConf)
   info <- tryCatch({
-    system2(path.expand(scalaCmd),c("-nc","-e",shQuote('import util.Properties._; println(Seq(versionNumberString,scalaHome,javaHome).mkString(lineSeparator))')),stdout=TRUE,stderr=FALSE)
+    system2(path.expand(scalaCmd),c("-nobootcp","-nc","-e",shQuote('import util.Properties._; println(Seq(versionNumberString,scalaHome,javaHome).mkString(lineSeparator))')),stdout=TRUE,stderr=FALSE)
    }, warning=function(e) "")
   setJavaEnv(oldJavaEnv)
   fullVersion <- info[1]
