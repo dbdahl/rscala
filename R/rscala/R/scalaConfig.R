@@ -339,7 +339,7 @@ scalaSpecifics <- function(scalaCmd,javaConf,verbose) {
   if ( ( length(supportedVersions) > 0 ) && ! ( majorVersion %in% supportedVersions ) ) paste0("unsupported Scala version: ",majorVersion)
   else {
     if ( ( majorVersion == "2.11" ) && ( as.numeric(javaConf$javaMajorVersion) > 8 ) ) {
-      sprintf("Scala %s is not supported on Java %s",majorVersion,javaConf$javaMajorVersion)
+      sprintf("Scala %s is not supported on Java %s.",majorVersion,javaConf$javaMajorVersion)
     } else {
       list(scalaHome=info[2], scalaCmd=scalaCmd, scalaMajorVersion=majorVersion, scalaFullVersion=fullVersion, javaHome=info[3])
     }
