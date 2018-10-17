@@ -13,7 +13,7 @@ object ServerStub {
     val intp = new IMain(settings, printWriter)
     val iloop = new ILoop()
     iloop.intp = intp
-    try { // Fix NPE in Scala 2.12.7
+    try {
       iloop.verbosity()
     } catch {
       case _: Throwable =>

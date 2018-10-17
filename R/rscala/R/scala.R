@@ -81,7 +81,7 @@ scala <- function(JARs=character(),
       portsFilename <- tempfile("rscala-ports-")
       args <- c(command.line.options,"-nc","-classpath",rscalaJAR,"org.ddahl.rscala.server.Main",rscalaJAR,port,portsFilename,sessionFilename,debug,serialize.output,FALSE)
       oldJavaEnv <- setJavaEnv(sConfig) 
-      system2(path.expand(sConfig$scalaCmd),args,wait=FALSE,stdout=stdout,stderr=stderr)
+      system2(sConfig$scalaCmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
       setJavaEnv(oldJavaEnv)
       assign("sessionFilename",sessionFilename,envir=details)
       assign("portsFilename",portsFilename,envir=details)

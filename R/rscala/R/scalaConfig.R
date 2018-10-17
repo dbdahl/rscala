@@ -33,12 +33,9 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
   download.java <- "java" %in% download
   download.scala <- "scala" %in% download
   download.sbt <- "sbt" %in% download
+  consent <- identical(reconfig,TRUE) || download.java || download.scala || download.sbt
   installPath <- file.path("~",".rscala")
-  usingTempDir <- FALSE
-  if ( ! file.exists(installPath) && ( ! interactive() ) ) {
-    installPath <- file.path(tempdir(),".rscala")
-    usingTempDir <- TRUE
-  }
+  dependsPath <- if ( Sys.getenv("RSCALA_BUILDING") != "" ) file.path(getwd(),"inst","dependencies") else ""
   offerInstall <- function(msg) {
     if ( !identical(reconfig,"live") && interactive() ) {
       while ( TRUE ) {
@@ -47,14 +44,10 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
         if ( response == "N" ) return(FALSE)
         if ( response %in% c("Y","") ) return(TRUE)
       }
-    } else {
-      if ( usingTempDir ) warning("Using temporary directory.  Please run 'rscala::scalaConfig(reconfig=TRUE)'")
-      usingTempDir
-    }
+    } else FALSE
   }
   configPath  <- file.path(installPath,"config.R")
-  consent <- identical(reconfig,TRUE) || download.java || download.scala || download.sbt
-  if ( ! reconfig && file.exists(configPath) && !download.java && !download.scala && !download.sbt ) {
+  if ( !reconfig && file.exists(configPath) && !download.java && !download.scala && !download.sbt ) {
     if ( verbose ) cat(paste0("\nRead existing configuration file: ",configPath,"\n\n"))
     source(configPath,chdir=TRUE,local=TRUE)
     if ( is.null(config$format) || ( config$format < 2L ) || ( ! all(file.exists(c(config$javaHome,config$scalaHome,config$javaCmd,config$scalaCmd))) ) || ( is.null(config$sbtCmd) && require.sbt ) || ( ! is.null(config$sbtCmd) && ! file.exists(config$sbtCmd) ) ) {
@@ -73,7 +66,14 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
         installJava(installPath,verbose)
         javaConf <- findExecutable("java","Java",installPath,javaSpecifics,verbose)
         if ( is.null(javaConf) ) stop(stopMsg)
-      } else stop(stopMsg)
+      } else {
+        if ( dependsPath != "" ) {
+          installJava(dependsPath,verbose)
+          javaConf <- findExecutable("java","Java",dependsPath,javaSpecifics,verbose)
+          if ( is.null(javaConf) ) stop(stopMsg)
+        }
+        else stop(stopMsg)
+      }
       consent <- consent || consent2
     }
     if ( download.scala ) installScala(installPath,javaConf,verbose)
@@ -87,7 +87,14 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
         installScala(installPath,javaConf,verbose)
         scalaConf <- findExecutable("scala","Scala",installPath,scalaSpecifics2,verbose)
         if ( is.null(scalaConf) ) stop(stopMsg)
-      } else stop(stopMsg)
+      } else {
+        if ( dependsPath != "" ) {
+          installScala(dependsPath,javaConf,verbose)
+          scalaConf <- findExecutable("scala","Scala",dependsPath,scalaSpecifics2,verbose)
+          if ( is.null(scalaConf) ) stop(stopMsg)
+        }
+        else stop(stopMsg)
+      }
       consent <- consent || consent2
     }
     osArchitecture <- if ( javaConf$javaArchitecture == 32 ) {
@@ -130,7 +137,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
   }
 }
 
-findExecutable <- function(mode,label,installPath,mapper,verbose=TRUE) {  ## Mimic how the 'scala' script finds Java.
+findExecutable <- function(mode,prettyMode,installPath,mapper,verbose=TRUE) {  ## Mimic how the 'scala' script finds Java.
   tryCandidate <- function(candidate) {
     if ( ! is.null(candidate) && length(candidate) == 1 && candidate != "" && file.exists(candidate) ) {
       if ( verbose ) cat(paste0("  Success with ",label,".\n"))
@@ -145,9 +152,9 @@ findExecutable <- function(mode,label,installPath,mapper,verbose=TRUE) {  ## Mim
     }
   }
   allCaps <- toupper(mode)
-  if ( verbose ) cat(paste0("\nSearching the system for ",label,".\n"))
+  if ( verbose ) cat(paste0("\nSearching the system for ",prettyMode,".\n"))
   ###
-  label <- "user directory"
+  label <- "directory"
   regex <- sprintf("%s%s$",mode,if ( .Platform$OS.type == "windows" ) "(\\.exe|\\.bat)" else "")
   candidates <- list.files(installPath,paste0("^",regex),recursive=TRUE)
   candidates <- candidates[grepl(sprintf("^%s/(.*/|)bin/%s",mode,regex),candidates)]
@@ -168,6 +175,16 @@ findExecutable <- function(mode,label,installPath,mapper,verbose=TRUE) {  ## Mim
   conf <- tryCandidate(Sys.which(mode)[[mode]])
   if ( ! is.null(conf) ) return(conf)
   ###
+  if ( Sys.getenv("RSCALA_BUILDING") == "" ) {
+    label <- "package build directory"
+    regex <- sprintf("%s%s$",mode,if ( .Platform$OS.type == "windows" ) "(\\.exe|\\.bat)" else "")
+    dependsPath <- file.path(system.file(package="rscala"),"dependencies")
+    candidates <- list.files(dependsPath,paste0("^",regex),recursive=TRUE)
+    candidates <- candidates[grepl(sprintf("^%s/(.*/|)bin/%s",mode,regex),candidates)]
+    if ( length(candidates) > 1 ) candidates <- candidates[which.min(nchar(candidates))]
+    conf <- tryCandidate(file.path(dependsPath,candidates))
+    if ( ! is.null(conf) ) return(conf)    
+  }
   NULL
 }
 
@@ -307,14 +324,14 @@ javaSpecifics <- function(javaCmd,verbose) {
   # Determine if 32 or 64 bit
   bit <- if ( any(grepl('^(Java HotSpot|OpenJDK).* 64-Bit (Server|Client) VM.*$',response)) ||
               any(grepl('^IBM .* amd64-64 .*$',response)) ) 64 else 32
-  list(javaCmd=javaCmd, javaMajorVersion=versionNumber, javaArchitecture=bit)
+  list(javaCmd=normalizePath(javaCmd), javaMajorVersion=versionNumber, javaArchitecture=bit)
 }
 
 setJavaEnv <- function(javaConf) {
   oldJAVACMD <- Sys.getenv("JAVACMD")
   oldJAVAHOME <- Sys.getenv("JAVA_HOME")
-  eJAVACMD <- if ( ! is.null(javaConf$javaCmd) && javaConf$javaCmd != "" ) normalizePath(javaConf$javaCmd) else ""
-  eJAVAHOME <- if ( ! is.null(javaConf$javaHome) && javaConf$javaHome != "" ) normalizePath(javaConf$javaHome) else ""
+  eJAVACMD <- if ( ! is.null(javaConf$javaCmd) && javaConf$javaCmd != "" ) javaConf$javaCmd else ""
+  eJAVAHOME <- if ( ! is.null(javaConf$javaHome) && javaConf$javaHome != "" ) javaConf$javaHome else ""
   Sys.setenv(JAVACMD=eJAVACMD)
   Sys.setenv(JAVA_HOME=eJAVAHOME)
   list(javaCmd=oldJAVACMD,javaHome=oldJAVAHOME)
@@ -329,7 +346,7 @@ scalaSpecifics <- function(scalaCmd,javaConf,verbose) {
   if ( verbose ) cat("  ... querying Scala specifics.\n")
   oldJavaEnv <- setJavaEnv(javaConf)
   info <- tryCatch({
-    system2(path.expand(scalaCmd),c("-nobootcp","-nc","-e",shQuote('import util.Properties._; println(Seq(versionNumberString,scalaHome,javaHome).mkString(lineSeparator))')),stdout=TRUE,stderr=FALSE)
+    system2(normalizePath(scalaCmd),c("-nobootcp","-nc","-e",shQuote('import util.Properties._; println(Seq(versionNumberString,scalaHome,javaHome).mkString(lineSeparator))')),stdout=TRUE,stderr=FALSE)
    }, warning=function(e) "")
   setJavaEnv(oldJavaEnv)
   fullVersion <- info[1]
@@ -341,7 +358,7 @@ scalaSpecifics <- function(scalaCmd,javaConf,verbose) {
     if ( ( majorVersion == "2.11" ) && ( as.numeric(javaConf$javaMajorVersion) > 8 ) ) {
       sprintf("Scala %s is not supported on Java %s.",majorVersion,javaConf$javaMajorVersion)
     } else {
-      list(scalaHome=info[2], scalaCmd=scalaCmd, scalaMajorVersion=majorVersion, scalaFullVersion=fullVersion, javaHome=info[3])
+      list(scalaHome=normalizePath(info[2]), scalaCmd=normalizePath(scalaCmd), scalaMajorVersion=majorVersion, scalaFullVersion=fullVersion, javaHome=normalizePath(info[3]))
     }
   }
 }

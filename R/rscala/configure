@@ -1,0 +1,8 @@
+#!/bin/sh
+
+Rscript="${R_HOME}/bin/Rscript"
+
+export RSCALA_BUILDING=TRUE
+
+${Rscript} -e "for ( f in list.files('R',full.names=TRUE) ) source(f); invisible(scalaConfig())"
+
