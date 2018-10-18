@@ -50,7 +50,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
   if ( !reconfig && file.exists(configPath) && !download.java && !download.scala && !download.sbt ) {
     if ( verbose ) cat(paste0("\nRead existing configuration file: ",configPath,"\n\n"))
     source(configPath,chdir=TRUE,local=TRUE)
-    if ( is.null(config$format) || ( config$format < 2L ) || ( ! all(file.exists(c(config$javaHome,config$scalaHome,config$javaCmd,config$scalaCmd))) ) || ( is.null(config$sbtCmd) && require.sbt ) || ( ! is.null(config$sbtCmd) && ! file.exists(config$sbtCmd) ) ) {
+    if ( is.null(config$format) || ( config$format < 3L ) || ( ! all(file.exists(c(config$javaHome,config$scalaHome,config$javaCmd,config$scalaCmd))) ) || ( is.null(config$sbtCmd) && require.sbt ) || ( ! is.null(config$sbtCmd) && ! file.exists(config$sbtCmd) ) ) {
       if ( verbose ) cat("The 'config.R' is out-of-date.  Reconfiguring...\n")
       unlink(configPath)
       scalaConfig(verbose, reconfig, download, require.sbt)
@@ -108,7 +108,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
       }
       osArchitecture
     } else javaConf$javaArchitecture
-    config <- c(format=2L,osArchitecture=osArchitecture,scalaConf,javaConf)
+    config <- c(format=3L,osArchitecture=osArchitecture,scalaConf,javaConf)
     if ( download.sbt ) installSBT(installPath,config,verbose)
     sbtSpecifics <- function(x,y) list(sbtCmd=x)
     sbtConf <- findExecutable("sbt","SBT",installPath,sbtSpecifics,verbose)
