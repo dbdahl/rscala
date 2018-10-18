@@ -1,3 +1,6 @@
+3.2.3 (20XX-XX-XX)
+  * Bug fix in detection of Java version when using early access builds.
+
 3.2.2 (2018-10-17)
   * Improved detection (and possible download) of Scala, Java, and SBT.
   * Automatic detection of available RAM and set the Java heap maximum to a

@@ -314,13 +314,13 @@ javaSpecifics <- function(javaCmd,verbose) {
   line <- response[grepl(versionRegexp,response)]
   if ( length(line) != 1 ) return(paste0("cannot determine Java version.  Output is:\n",paste(response,collapse="\n")))
   versionString <- gsub(versionRegexp,"\\2",line)
-  versionParts <- strsplit(versionString,"\\.")[[1]]
+  versionParts <- strsplit(versionString,"(\\.|-)")[[1]]
   versionNumber <- if ( versionParts[1] == '1' ) {
     as.numeric(versionParts[2])
   } else {
     as.numeric(versionParts[1])
   }
-  if ( ! ( versionNumber %in% c(8,9,10,11) ) ) return(paste0("unsupported Java version: ",versionString))
+  if ( versionNumber < 8 ) return(paste0("unsupported Java version: ",versionString))
   # Determine if 32 or 64 bit
   bit <- if ( any(grepl('^(Java HotSpot|OpenJDK).* 64-Bit (Server|Client) VM.*$',response)) ||
               any(grepl('^IBM .* amd64-64 .*$',response)) ) 64 else 32
