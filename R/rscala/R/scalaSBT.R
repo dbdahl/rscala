@@ -32,7 +32,7 @@
 #' @export
 scalaSBT <- function(args=c("+package","packageSrc","+publishLocal"), copy.to.package=TRUE) {
   sConfig <- scalaConfig(FALSE,require.sbt=TRUE)
-  oldWD <- normalizePath(getwd())
+  oldWD <- normalizePath(getwd(),mustWork=FALSE)
   on.exit(setwd(oldWD))
   while ( TRUE ) {
     if ( file.exists("build.sbt") ) break
@@ -70,7 +70,7 @@ scalaSBT <- function(args=c("+package","packageSrc","+publishLocal"), copy.to.pa
     pkgHome <- unique(dirname(list.files(".","DESCRIPTION",recursive=TRUE)))   # unique(...) because on Mac OS X, duplicates are possible.
     pkgHome <- pkgHome[!grepl(".*\\.Rcheck",pkgHome)]
     if ( length(pkgHome) > 1 ) {
-      if ( sum(normalizePath(pkgHome)==oldWD) == 1 ) pkgHome <- pkgHome[normalizePath(pkgHome)==oldWD]
+      if ( sum(normalizePath(pkgHome,mustWork=FALSE)==oldWD) == 1 ) pkgHome <- pkgHome[normalizePath(pkgHome,mustWork=FALSE)==oldWD]
       else {
         if ( sum(basename(pkgHome)==name) == 1 ) pkgHome <- pkgHome[basename(pkgHome)==name]
         else stop(paste0("Cannot determine package home among: ",paste(pkgHome,collapse="  ")))
