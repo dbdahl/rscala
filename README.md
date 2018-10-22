@@ -30,7 +30,7 @@ install the package. Simply add the following line to the your SBT build.sbt
 file:
 
 ```scala
-libraryDependencies += "org.ddahl" %% "rscala" % "3.2.2"
+libraryDependencies += "org.ddahl" %% "rscala" % "3.2.3"
 ```
 
 A paper describing the software is "conditionally accepted" and "in editing" at
