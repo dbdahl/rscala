@@ -1,7 +1,0 @@
-Scala and Java are not distributed with the rscala package.  Various techniques
-are used to find suitable versions.  To install --- or check the compatability
-of your existing installation of --- Scala and Java, please execute the
-following in an interactive R session:
-
-rscala::scalaConfig()
-
