@@ -42,9 +42,10 @@ citation("rscala")
 ```
 
 An [updated version of the
-paper](https://dahl.byu.edu/public/rscala/rscala.pdf) is available
-[here](https://dahl.byu.edu/public/rscala/rscala.pdf) or as a vignette in R
-(once the package is installed):
+paper](https://cran.r-project.org/web/packages/rscala/vignettes/rscala.pdf)
+is available
+[here](https://cran.r-project.org/web/packages/rscala/vignettes/rscala.pdf)
+or as a vignette in R (once the package is installed):
 
 ```R
 vignette("rscala")
@@ -69,7 +70,7 @@ packages:
 
 Resources:
 
-* [Vignette](https://dahl.byu.edu/public/rscala/rscala.pdf) describing the package usage.
+* [Vignette](https://cran.r-project.org/web/packages/rscala/vignettes/rscala.pdf) describing the package usage.
 * [Git repository](https://github.com/dbdahl/rscala) containing source code and build & test scripts.
 * [Scaladoc](https://dahl.byu.edu/public/rscala/doc/org/ddahl/rscala/RClient.html) for RClient class to access R from Scala.
 * [Package](https://CRAN.R-project.org/package=rscala) on [Comprehensive R Archive Network (CRAN)](HTTP://CRAN.r-project.org/).
