@@ -179,8 +179,7 @@ scalaConnect <- function(details) {
     rm("portsFilename",envir=details)
     assign("socketInPort",ports[1],envir=details)
     assign("socketOutPort",ports[2],envir=details) 
-    TRUE
-  } else FALSE
+  }
   socketIn  <- socketConnection(host="localhost", port=details[['socketInPort']],  server=FALSE, blocking=TRUE, open="rb", timeout=2678400L)
   socketOut <- socketConnection(host="localhost", port=details[['socketOutPort']], server=FALSE, blocking=TRUE, open="ab", timeout=2678400L)
   assign("socketIn",socketIn,envir=details)

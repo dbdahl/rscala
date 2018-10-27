@@ -27,5 +27,9 @@ rsync -r --chmod=go=rX target/scala-2.12/api/ dahl.byu.edu:public/rscala/doc
 ## Post vignete
 cd deliveries
 tar -zxvf $TGZ_NAME rscala/inst/doc/rscala.pdf
-rsync    --chmod=go=rX rscala.pdf dahl.byu.edu:public/rscala
+rsync --chmod=go=rX rscala/inst/doc/rscala.pdf dahl.byu.edu:public/rscala
+rm rscala/inst/doc/rscala.pdf
+rmdir rscala/inst/doc
+rmdir rscala/inst
+rmdir rscala
 
