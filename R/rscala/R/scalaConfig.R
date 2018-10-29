@@ -308,8 +308,7 @@ installSBT <- function(installPath, javaConf, verbose, attempt=1) {
 
 javaSpecifics <- function(javaCmd,verbose) {
   if ( verbose ) cat("  ... querying Java specifics.\n")
-  javaCmd <- normalizePath(javaCmd, mustWork=FALSE)
-  response <- system2(javaCmd,"-version",stdout=TRUE,stderr=TRUE)
+  response <- system2(path.expand(javaCmd),"-version",stdout=TRUE,stderr=TRUE)
   # Get version information
   versionRegexp <- '(java|openjdk) version "([^"]*)".*'
   line <- response[grepl(versionRegexp,response)]
@@ -325,7 +324,7 @@ javaSpecifics <- function(javaCmd,verbose) {
   # Determine if 32 or 64 bit
   bit <- if ( any(grepl('^(Java HotSpot|OpenJDK).* 64-Bit (Server|Client) VM.*$',response)) ||
               any(grepl('^IBM .* amd64-64 .*$',response)) ) 64 else 32
-  list(javaCmd=javaCmd, javaMajorVersion=versionNumber, javaArchitecture=bit)
+  list(javaCmd=normalizePath(javaCmd,mustWork=FALSE), javaMajorVersion=versionNumber, javaArchitecture=bit)
 }
 
 setJavaEnv <- function(javaConf) {
