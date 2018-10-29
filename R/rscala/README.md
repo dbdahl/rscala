@@ -1,8 +1,6 @@
-rscala: Bridge Between 'R' and 'Scala' with Callbacks
-===================================================================
+# rscala: Bridge Between 'R' and 'Scala' with Callbacks
 
-By David B. Dahl, Brigham Young University
-------------------------------------------
+#### By David B. Dahl, Brigham Young University
 
 The rscala package provides a bridge between R and Scala, enabling a user to
 exploit each language's respective strengths in a single project. The rscala
@@ -11,6 +9,9 @@ Specifically, Scala classes can be instantiated and methods of Scala classes
 can be called directly. Furthermore, arbitrary Scala code can be executed on
 the fly from within R and callbacks to R are supported. Conversely, rscala also
 enables arbitrary R code to be embedded within a Scala application.
+
+
+## Installation
 
 In R, install the package by executing:
 
@@ -32,6 +33,9 @@ file:
 ```scala
 libraryDependencies += "org.ddahl" %% "rscala" % "3.2.3"
 ```
+
+
+## Usage guides
 
 A paper describing the software is "conditionally accepted" and "in editing" at
 the [Journal of Statistical Software](https://www.jstatsoft.org).  The latest
@@ -61,6 +65,9 @@ example(scala)
 
 ```
 
+
+## Example packages built with rscala
+
 R extensions can be written using this package, as demonstrated by these
 packages:
 
@@ -68,10 +75,11 @@ packages:
 * [shallot](https://CRAN.R-project.org/package=shallot)
 * [bamboo](https://CRAN.R-project.org/package=bamboo)
 
-Resources:
+
+## Resources
 
 * [Vignette](https://dahl.byu.edu/public/rscala/rscala.pdf) describing the package usage.
 * [Git repository](https://github.com/dbdahl/rscala) containing source code and build & test scripts.
 * [Scaladoc](https://dahl.byu.edu/public/rscala/doc/org/ddahl/rscala/RClient.html) for RClient class to access R from Scala.
-* [Package](https://CRAN.R-project.org/package=rscala) on [Comprehensive R Archive Network (CRAN)](HTTP://CRAN.r-project.org/).
+* [Package on CRAN](https://CRAN.R-project.org/package=rscala).
 
