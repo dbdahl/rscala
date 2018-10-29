@@ -1,6 +1,6 @@
 # rscala: Bridge Between 'R' and 'Scala' with Callbacks
 
-#### By David B. Dahl, Brigham Young University
+#### By David B. Dahl (Brigham Young University)
 
 The rscala package provides a bridge between R and Scala, enabling a user to
 exploit each language's respective strengths in a single project. The rscala

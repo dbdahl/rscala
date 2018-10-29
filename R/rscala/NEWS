@@ -1,9 +1,11 @@
+3.2.4 (2018-11-01)
+  * Attempt to fix WARN for some Windows CRAN machines.
+
 3.2.3 (2018-10-22)
   * Bug fixes in detection of Java version when using early access builds and
     better treatment of normalizePath.
 
 3.2.2 (2018-10-17)
-  * Improved detection (and possible download) of Scala, Java, and SBT.
   * Automatic detection of available RAM and set the Java heap maximum to a
     reasonable default to avoid 'java.lang.OutOfMemoryError'.  Users can still
     explicitly set it using the argument 'heap.maximum' of the function
@@ -41,7 +43,7 @@
 3.0.2 (2018-06-29)
   * Improvements to the API.  See descriptions and examples in the help files.
   * Significantly reduced the overhead of making a calls to and from Scala,
-    from milliseconds to hundreds of microseconds.
+    from milliseconds to hundredths of microseconds.
   * Operator cleanup
       * The `+` operator replaces the `%@%` operator.
       * The `*` operator replaces the `%~%` and `%!%` operators and subsequent
@@ -244,7 +246,7 @@
   * Added serialize option to scalaInterpreter and intpSettings functions in R
     to control the capturing of console output.  Likewise, added
     serializeOutput field to the RClient class.  Avoiding serialization is
-    faster and leads to a better experience.  Dropped the now-redundant quiet
+    faster and leads to a better experence.  Dropped the now-redundant quiet
     option.
   * Added support for 'unlimited' nested callbacks when Scala is embedded in R,
     where in practice the amount of nesting is only about a dozen if
