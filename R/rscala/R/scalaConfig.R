@@ -10,7 +10,9 @@
 #'   rewritten based on a new search for Scala and Java.  If \code{FALSE}, the
 #'   previous configuration is sourced from the script
 #'   \code{~/.rscala/config.R}.  If \code{"live"}, a new search is performed,
-#'   but the results do not overwrite the previous configuration script.
+#'   but the results do not overwrite the previous configuration script.  Finally,
+#'   the value set here is superceded by the value of the environment variable
+#'   \code{RSCALA_RECONFIG}, if it exists.
 #' @param download A character vector which may be length-zero or whose elements
 #'   are any combination of \code{"java"}, \code{"scala"}, or \code{"sbt"}. Or,
 #'   \code{TRUE} denotes all three.  The indicated software will be installed at
@@ -33,6 +35,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
   download.java <- "java" %in% download
   download.scala <- "scala" %in% download
   download.sbt <- "sbt" %in% download
+  if ( Sys.getenv("RSCALA_RECONFIG") != "" ) reconfig <- Sys.getenv("RSCALA_RECONFIG")
   consent <- identical(reconfig,TRUE) || download.java || download.scala || download.sbt
   installPath <- file.path("~",".rscala")
   dependsPath <- if ( Sys.getenv("RSCALA_BUILDING") != "" ) file.path(getwd(),"inst","dependencies") else ""
@@ -47,7 +50,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
     } else FALSE
   }
   configPath  <- file.path(installPath,"config.R")
-  if ( !reconfig && file.exists(configPath) && !download.java && !download.scala && !download.sbt ) {
+  if ( identical(reconfig,"FALSE") && file.exists(configPath) && !download.java && !download.scala && !download.sbt ) {
     if ( verbose ) cat(paste0("\nRead existing configuration file: ",configPath,"\n\n"))
     source(configPath,chdir=TRUE,local=TRUE)
     if ( is.null(config$format) || ( config$format < 3L ) || ( ! all(file.exists(c(config$javaHome,config$scalaHome,config$javaCmd,config$scalaCmd))) ) || ( is.null(config$sbtCmd) && require.sbt ) || ( ! is.null(config$sbtCmd) && ! file.exists(config$sbtCmd) ) ) {
