@@ -50,7 +50,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
     } else FALSE
   }
   configPath  <- file.path(installPath,"config.R")
-  if ( identical(reconfig,"FALSE") && file.exists(configPath) && !download.java && !download.scala && !download.sbt ) {
+  if ( identical(reconfig,FALSE) && file.exists(configPath) && !download.java && !download.scala && !download.sbt ) {
     if ( verbose ) cat(paste0("\nRead existing configuration file: ",configPath,"\n\n"))
     source(configPath,chdir=TRUE,local=TRUE)
     if ( is.null(config$format) || ( config$format < 3L ) || ( ! all(file.exists(c(config$javaHome,config$scalaHome,config$javaCmd,config$scalaCmd))) ) || ( is.null(config$sbtCmd) && require.sbt ) || ( ! is.null(config$sbtCmd) && ! file.exists(config$sbtCmd) ) ) {
