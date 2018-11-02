@@ -89,7 +89,7 @@ scala <- function(JARs=character(),
   }
   assign("closed",FALSE,envir=details)
   assign("disconnected",TRUE,envir=details) 
-  assign("pid",Sys.getpid(),envir=details)
+  assign("pidOfR",Sys.getpid(),envir=details)
   assign("interrupted",FALSE,envir=details)
   transcompileHeader <- c("import org.ddahl.rscala.server.Transcompile._","import scala.util.control.Breaks")
   assign("transcompileHeader",transcompileHeader,envir=details)
@@ -169,7 +169,7 @@ scalaConnect <- function(details) {
       delay <- 0.01
       while ( TRUE ) {
         if ( file.exists(portsFilename) ) {
-          line <- scan(portsFilename,n=2,what=character(),quiet=TRUE)
+          line <- scan(portsFilename,n=3L,what=character(),quiet=TRUE)
           if ( length(line) > 0 ) return(as.numeric(line))
         }
         Sys.sleep(delay)
@@ -179,6 +179,7 @@ scalaConnect <- function(details) {
     rm("portsFilename",envir=details)
     assign("socketInPort",ports[1],envir=details)
     assign("socketOutPort",ports[2],envir=details) 
+    assign("pidOfScala",ports[3],envir=details) 
   }
   socketIn  <- socketConnection(host="localhost", port=details[['socketInPort']],  server=FALSE, blocking=TRUE, open="rb", timeout=2678400L)
   socketOut <- socketConnection(host="localhost", port=details[['socketOutPort']], server=FALSE, blocking=TRUE, open="ab", timeout=2678400L)

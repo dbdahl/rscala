@@ -15,11 +15,36 @@ class Sockets(val port: Int, val buffer: Boolean, val debugger: Debugger) {
   val outPort = serverOut.getLocalPort
   val inPort = serverIn.getLocalPort
 
+  def pid: String = {  // Starting with Java 9, ProcessHandle.current.pid is the cross-platform and simple solution.
+    def ensureLong(x: String, fallback: String = "-1"): String = {
+      try {
+        x.toLong.toString
+      } catch {
+        case _: Throwable => fallback
+      }
+    }
+    val selfFile = new File("/proc/self")
+    // Note that Scala 2.11 doesn't have util.Properties.isLinux
+    if ( selfFile.exists && !util.Properties.isWin && !util.Properties.isMac ) ensureLong(selfFile.getCanonicalFile.getName)
+    else {
+      val jvmName = java.lang.management.ManagementFactory.getRuntimeMXBean.getName
+      val tmp = jvmName.indexOf("@") match {
+        case -1 => "-1"
+        case i => ensureLong(jvmName.take(i))
+      }
+      if ( tmp == "-1" && util.Properties.isMac ) {
+        import sys.process._
+        ensureLong(Seq("sh", "-c", "echo $PPID").!!.trim)
+      }
+      else tmp
+    }
+  }
+
   def writePortsFile(portsFilename: String, printWriter: PrintWriter) = {
     try {
       val portsFile = new File(portsFilename)
       val p = new PrintWriter(portsFile)
-      p.println("" + outPort + " " + inPort)
+      p.println("" + outPort + " " + inPort + " " + pid)
       p.close()
     } catch {
       case e: Throwable => // R has already exited?

@@ -45,4 +45,16 @@ rb <- function(con,v,n=1L) {
     stop("The bridge is invalid.")
   })
 }
-  
+
+# Expermental and not currently used.  Delete in the future?
+# This codes requires that in the scalaConnect function, we have this code:
+#    attr(socketIn, "pidOfScala") <- details[['pidOfScala']]
+#    attr(socketOut,"pidOfScala") <- details[['pidOfScala']]
+scalaIsDead <- function(con) {
+  pidOfScala <- attr(con,"pidOfScala")
+  if ( .Platform$OS.type == "unix" ) {
+    tryCatch(length(system2("ps",c("-o","pid=","-p",pidOfScala),stdout=TRUE)) == 0, warning=function(e) TRUE)
+  } else if ( .Platform$OS.type == "windows" ) {
+    stop("Windows is not yet supported.")
+  } else stop("Unsupported OS.")
+}

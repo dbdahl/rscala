@@ -5,6 +5,7 @@ cat(system2("hostname",stdout=TRUE),"\n",sep="")
 scalaConfig()
 sessionInfo()
 
+scalaMemory("2G")
 s <- scala()
 nReps <- 100
 

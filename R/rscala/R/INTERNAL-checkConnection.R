@@ -1,5 +1,5 @@
 checkConnection <- function(details) {
-  if ( Sys.getpid() != details[["pid"]] ) {
+  if ( Sys.getpid() != details[["pidOfR"]] ) {
     close.rscalaBridge(details)
     stop("Each process should have its own rscala bridge.  Closing this bridge.")
   }
