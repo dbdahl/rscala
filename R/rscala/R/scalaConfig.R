@@ -331,10 +331,12 @@ javaSpecifics <- function(javaCmd,verbose) {
 }
 
 setJavaEnv <- function(javaConf) {
-  oldJAVACMD <- Sys.getenv("JAVACMD")
-  oldJAVAHOME <- Sys.getenv("JAVA_HOME")
-  if ( ! is.null(javaConf$javaCmd) && javaConf$javaCmd != "" ) Sys.setenv(JAVACMD=javaConf$javaCmd)
-  if ( ! is.null(javaConf$javaHome) && javaConf$javaHome != "" ) Sys.setenv(JAVA_HOME=javaConf$javaHome)
+  oldJAVACMD <- Sys.getenv("JAVACMD",unset="--unset--")
+  oldJAVAHOME <- Sys.getenv("JAVA_HOME",unset="--unset--")
+  if ( oldJAVACMD  == "--unset--" ) oldJAVACMD  <- NULL
+  if ( oldJAVAHOME == "--unset--" ) oldJAVAHOME <- NULL
+  if ( is.null(javaConf$javaCmd)  ) Sys.unsetenv("JAVACMD")   else Sys.setenv(JAVACMD= javaConf$javaCmd)
+  if ( is.null(javaConf$javaHome) ) Sys.unsetenv("JAVA_HOME") else Sys.setenv(JAVAHOME=javaConf$javaHome)
   list(javaCmd=oldJAVACMD,javaHome=oldJAVAHOME)
 }
 

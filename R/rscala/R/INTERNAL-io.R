@@ -9,7 +9,7 @@ wc <- function(con,x) {
 }
 
 rbyte <- function(con) {
-  counter <- 0L
+  if ( Sys.getenv("RSCALA_RBYTE_OLD") == "OLD" ) counter <- 0L
   while ( TRUE ) {
     x <- tryCatch({
       readBin(con,RTYPE_RAW,endian="big")
@@ -17,8 +17,11 @@ rbyte <- function(con) {
       TCODE_INTERRUPTED
     })
     if ( length(x) > 0 ) return(x)
-    if ( counter >= 100L ) stop("Connection isn't providing data.")
-    counter <- counter + 1L
+    if ( scalaIsDead(con) ) stop("Scala seems to have dead.")
+    if ( Sys.getenv("RSCALA_RBYTE_OLD") == "OLD" ) {
+      counter <- counter + 1L
+      if ( counter >= 100L ) stop("Connection isn't providing data.")
+    }
   }
 }
 
@@ -33,10 +36,13 @@ rb <- function(con,v,n=1L) {
     r <- readBin(con,v,n,endian="big")
     if ( length(r) == n ) r
     else {
-      counter <- 0L
+      if ( Sys.getenv("RSCALA_RBYTE_OLD") == "OLD" ) counter <- 0L
       while ( length(r) != n ) {
-        if ( counter >= 100L ) stop("Connection isn't providing data.")
-        counter <- counter + 1L
+        if ( scalaIsDead(con) ) stop("Scala seems to have dead.")
+        if ( Sys.getenv("RSCALA_RBYTE_OLD") == "OLD" ) {
+          counter <- counter + 1L
+          if ( counter >= 100L ) stop("Connection isn't providing data.")
+        }
         r <- c(r,readBin(con,v,n-length(r),endian="big"))
       }
       r
@@ -46,3 +52,11 @@ rb <- function(con,v,n=1L) {
   })
 }
   
+scalaIsDead <- function(con) {
+  pidOfScala <- attr(con,"pidOfScala")
+  if ( .Platform$OS.type == "unix" ) {
+    tryCatch(length(system2("ps",c("-o","pid=","-p",pidOfScala),stdout=TRUE)) == 0, warning=function(e) TRUE)
+  } else if ( .Platform$OS.type == "windows" ) {
+    stop("Windows is not yet supported.")
+  } else stop("Unsupported OS.")
+}

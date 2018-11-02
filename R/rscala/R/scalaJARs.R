@@ -5,6 +5,9 @@
 #'   JAR files are added to the runtime classpath.
 #' @param bridge An rscala bridge from the \code{scala} function.
 #'
+#' If the \code{JARs} argument is missing, a character vector of loaded JARs
+#' is returned.
+#'
 #' @return Returns \code{NULL}, invisibly.
 #' 
 #' @export
@@ -16,6 +19,10 @@
 #' }
 scalaJARs <- function(JARs, bridge=scalaFindBridge()) {
   details <- if ( inherits(bridge,"rscalaBridge") ) attr(bridge,"details") else bridge
+  if ( missing(JARs) ) {
+    if ( details[["disconnected"]] ) scalaConnect(details)
+    return(details$JARs)
+  }
   if ( ! is.character(JARs) ) stop("'JARs' should be a character vector.")
   if ( details[["disconnected"]] ) {
     assign("pendingJARs",c(get("pendingJARs",envir=details),JARs),envir=details)
