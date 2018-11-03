@@ -23,7 +23,6 @@ class Sockets(val port: Int, val buffer: Boolean, val debugger: Debugger) {
         case _: Throwable => fallback
       }
     }
-    import sys.process._
     val selfFile = new File("/proc/self")
     // Note that Scala 2.11 doesn't have util.Properties.isLinux
     if ( selfFile.exists && !util.Properties.isWin && !util.Properties.isMac ) ensureLong(selfFile.getCanonicalFile.getName)
@@ -33,7 +32,10 @@ class Sockets(val port: Int, val buffer: Boolean, val debugger: Debugger) {
         case -1 => "-1"
         case i => ensureLong(jvmName.take(i))
       }
-      if ( tmp == "-1" && util.Properties.isMac ) ensureLong(Seq("sh", "-c", "echo $PPID").!!.trim)
+      if ( tmp == "-1" && util.Properties.isMac ) {
+        import sys.process._
+        ensureLong(Seq("sh", "-c", "echo $PPID").!!.trim)
+      }
       else tmp
     }
   }

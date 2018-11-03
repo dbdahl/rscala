@@ -52,6 +52,10 @@ rb <- function(con,v,n=1L) {
   })
 }
   
+# Expermental and not currently used.  Delete in the future?
+# This codes requires that in the scalaConnect function, we have this code:
+#    attr(socketIn, "pidOfScala") <- details[['pidOfScala']]
+#    attr(socketOut,"pidOfScala") <- details[['pidOfScala']]
 scalaIsDead <- function(con) {
   pidOfScala <- attr(con,"pidOfScala")
   if ( .Platform$OS.type == "unix" ) {
