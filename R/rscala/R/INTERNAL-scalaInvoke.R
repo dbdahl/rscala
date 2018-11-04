@@ -3,11 +3,12 @@ scalaInvoke <- function(details, snippet, args, envir, withNames=FALSE, withRefe
   scalaLastEngine(details)
   if ( details[["interrupted"]] ) return(invisible())
   socketOut <- details[["socketOut"]]
-  garbageLength <- length(details[["garbage"]]) 
-  if ( garbageLength > 0 ) {
+  if ( length(details[["garbage"]]) > 0 ) {
+    # Careful!  R's garbage collector can mutate 'details[["garbage"]]'.
     wb(socketOut,PCODE_GARBAGE_COLLECT)
-    wb(socketOut,c(garbageLength,details[["garbage"]]))
-    details[["garbage"]] <- integer()
+    what <- details[["garbage"]]
+    wb(socketOut,c(length(what),what))
+    details[["garbage"]] <- setdiff(details[["garbage"]],what)
   }
   args <- rev(args)
   names <- names(args)

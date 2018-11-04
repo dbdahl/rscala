@@ -183,6 +183,7 @@ scalaConnect <- function(details) {
   }
   socketIn  <- socketConnection(host="localhost", port=details[['socketInPort']],  server=FALSE, blocking=TRUE, open="rb", timeout=2678400L)
   socketOut <- socketConnection(host="localhost", port=details[['socketOutPort']], server=FALSE, blocking=TRUE, open="ab", timeout=2678400L)
+  attr(socketIn, "pidOfScala") <- details[['pidOfScala']]
   assign("socketIn",socketIn,envir=details)
   assign("socketOut",socketOut,envir=details)
   assign("disconnected",FALSE,envir=details)
