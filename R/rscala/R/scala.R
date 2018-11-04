@@ -58,8 +58,6 @@ scala <- function(JARs=character(),
                   port=0L,
                   heap.maximum=NULL,
                   debug=FALSE) {
-  if ( Sys.getenv("RSCALA_RBYTE_OLD") == "OLD" ) cat("Using old behavior.\n")
-  else cat("Using new behavior.\n")
   if ( identical(stdout,TRUE) ) stdout <- ""
   if ( identical(stderr,TRUE) ) stderr <- ""
   debug <- identical(debug,TRUE)
@@ -186,7 +184,6 @@ scalaConnect <- function(details) {
   socketIn  <- socketConnection(host="localhost", port=details[['socketInPort']],  server=FALSE, blocking=TRUE, open="rb", timeout=2678400L)
   socketOut <- socketConnection(host="localhost", port=details[['socketOutPort']], server=FALSE, blocking=TRUE, open="ab", timeout=2678400L)
   attr(socketIn, "pidOfScala") <- details[['pidOfScala']]
-  attr(socketOut,"pidOfScala") <- details[['pidOfScala']]
   assign("socketIn",socketIn,envir=details)
   assign("socketOut",socketOut,envir=details)
   assign("disconnected",FALSE,envir=details)
