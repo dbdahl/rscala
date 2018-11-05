@@ -27,7 +27,7 @@ ramah
 Read existing configuration file: ~/.rscala/config.R
 
 $format
-[1] 2
+[1] 3
 
 $osArchitecture
 [1] 64
@@ -36,7 +36,7 @@ $scalaHome
 [1] "/home/dahl/local/scala/scala/scala-2.12.7"
 
 $scalaCmd
-[1] "/home/dahl/local/bin/scala"
+[1] "/home/dahl/local/scala/scala/scala-2.12.7/bin/scala"
 
 $scalaMajorVersion
 [1] "2.12"
@@ -48,7 +48,7 @@ $javaHome
 [1] "/home/dahl/local/java/jdk-11"
 
 $javaCmd
-[1] "/home/dahl/local/bin/java"
+[1] "/home/dahl/local/java/jdk-11/bin/java"
 
 $javaMajorVersion
 [1] 11
@@ -80,7 +80,7 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] microbenchmark_1.4-4 rscala_3.2.1        
+[1] microbenchmark_1.4-4 rscala_3.2.4        
 
 loaded via a namespace (and not attached):
 [1] compiler_3.5.1
@@ -98,14 +98,14 @@ loaded via a namespace (and not attached):
 +   times=nReps
 + )
 Unit: microseconds
-                                    expr       min        lq        mean
- s * sample.int(.Machine$integer.max, 1) 77842.102 83477.508 105899.0957
-                          s * 2056700609   120.758   148.987    188.7206
-    median          uq        max neval
- 88558.163 122614.7295 261471.739   100
-   194.875    212.1535    443.976   100
+                                    expr       min         lq        mean
+ s * sample.int(.Machine$integer.max, 1) 74649.259 79856.5275 103203.5761
+                          s * 2056700609   106.908   143.0775    189.8482
+    median         uq        max neval
+ 86111.814 103296.984 317084.878   100
+   196.079    213.413    500.494   100
 > 
 > 
 > proc.time()
    user  system elapsed 
-  0.248   0.100  14.074 
+  0.220   0.136  13.797 

@@ -18,7 +18,7 @@ rbyte <- function(con) {
     })
     if ( length(x) > 0 ) return(x)
     counter <- counter + 1L
-    if ( ( counter %% 100L == 0L ) && ( scalaIsDead(con,counter) ) ) stop("Scala seems to have died.")
+    if ( ( counter %% 100L == 0L ) && ( scalaIsDead(con) ) ) stop("Scala seems to have died.")
   }
 }
 
@@ -36,7 +36,7 @@ rb <- function(con,v,n=1L) {
       counter <- 0L
       while ( length(r) != n ) {
         counter <- counter + 1L
-        if ( ( counter %% 100L == 0L ) && ( scalaIsDead(con,counter) ) ) stop("Scala seems to have died.")
+        if ( ( counter %% 100L == 0L ) && ( scalaIsDead(con) ) ) stop("Scala seems to have died.")
         r <- c(r,readBin(con,v,n-length(r),endian="big"))
       }
       r
@@ -46,12 +46,14 @@ rb <- function(con,v,n=1L) {
   })
 }
 
-scalaIsDead <- function(con,counter) {
+scalaIsDead <- function(con) {
   pidOfScala <- attr(con,"pidOfScala")
   if ( .Platform$OS.type == "unix" ) {
-    tryCatch(length(system2("ps",c("-o","pid=","-p",pidOfScala),stdout=TRUE)) == 0, warning=function(e) TRUE)
+    tryCatch(length(system2("ps",c("-o","pid=","-p",pidOfScala),stdout=TRUE)) == 0,
+             warning=function(e) TRUE, error=function(e) TRUE)
   } else if ( .Platform$OS.type == "windows" ) {
-    counter >= 1000L
+    tryCatch(length(system2("tasklist",c("/fo","csv","/fi",sprintf('"PID eq %s"',pidOfScala)),stdout=TRUE)) == 1,
+             warning=function(e) TRUE, error=function(e) TRUE)
   } else stop("Unsupported OS.")
 }
 

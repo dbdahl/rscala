@@ -1,5 +1,11 @@
-3.2.4 (2018-11-01)
-  * Attempt to fix WARN for some Windows CRAN machines.
+3.2.4 (2018-11-05)
+  * Fixed bug related to garbage collection that caused unexpected crashes.
+  * scalaJARs with missing first argument now shows available JAR files.
+  * Added READMD.md.
+  * Drop deprecated functions scalaPackage and scalaPackageUnload.
+  * Don't give up so easily if R cannot immediately read from socket connection.
+  * Better setting and restoration of environment variables.
+  * Attempt to fix WARN/ERROR for some Windows CRAN machines.
 
 3.2.3 (2018-10-22)
   * Bug fixes in detection of Java version when using early access builds and

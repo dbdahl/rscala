@@ -2,8 +2,8 @@ name := "rscala"
 
 organization := "org.ddahl"
 
-//version := "3.2.4"
-version := "3.2.4-SNAPSHOT"
+version := "3.2.4"
+//version := "3.2.5-SNAPSHOT"
 
 scalaVersion := "2.12.7"
 

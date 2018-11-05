@@ -30,7 +30,7 @@
 #'
 #' @return \code{NULL}
 #' @export
-scalaSBT <- function(args=c("+package","packageSrc","+publishLocal"), copy.to.package=TRUE) {
+scalaSBT <- function(args=c("+package","packageSrc"), copy.to.package=TRUE) {
   sConfig <- scalaConfig(FALSE,require.sbt=TRUE)
   oldWD <- normalizePath(getwd(),mustWork=FALSE)
   on.exit(setwd(oldWD))
