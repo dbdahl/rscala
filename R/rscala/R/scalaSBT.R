@@ -40,6 +40,16 @@ scalaSBT <- function(args=c("+package","packageSrc"), copy.to.package=TRUE) {
     setwd("..")
     if ( currentWD == getwd() ) stop("Cannot find 'build.sbt' file.")
   }
+  if ( all(grepl("^(\\+?package|\\+?packageSrc)$",args)) ) {
+    latest <- function(path,pattern=NULL) {
+      files <- list.files(path, pattern=pattern, recursive=TRUE, full.names=TRUE)
+      max(sapply(files, function(f) { file.info(f)$mtime }))
+    }
+    if ( latest('src') < latest('R','.*\\.jar') ) {
+      cat("[info] Latest Scala source is older that JARs.  There is no need to re-compile.\n")
+      return(invisible())
+    }
+  }
   oldJavaEnv <- setJavaEnv(sConfig)
   status <- system2(path.expand(sConfig$sbtCmd),args)
   setJavaEnv(oldJavaEnv)
