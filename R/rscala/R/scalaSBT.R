@@ -55,7 +55,8 @@ scalaSBT <- function(args=c("+package","packageSrc"), copy.to.package=TRUE) {
     }
     latest <- function(path,pattern=NULL) {
       files <- list.files(path, pattern=pattern, recursive=TRUE, full.names=TRUE)
-      max(sapply(files, function(f) { file.info(f)$mtime }))
+      xx <- sapply(files, function(f) { file.info(f)$mtime })
+      if ( length(xx) == 0 ) -Inf else max(xx)
     }
     srcHome <- "src"
     if ( file.exists(srcHome) && !is.null(packageHome) && file.exists(packageHome) && ( latest(srcHome) < latest(packageHome,'.*\\.jar') ) ) {
