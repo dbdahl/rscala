@@ -72,9 +72,11 @@ cd ../../..
 # Compile Scala
 
 set +e
+SBT_FAILED=FALSE
 R --slave -e "rscala:::scalaSBT()"
 if [[ $? != 0 ]]
 then
+  SBT_FAILED=TRUE
   echo
   echo "***************************************************"
   echo "***************************************************"
@@ -106,7 +108,12 @@ then
   echo
 fi
 cd ..
-R CMD build --compact-vignettes="gs+qpdf" $PKG_NAME
+if [[ "$SBT_FAILED" == FALSE ]]
+then
+  R CMD build --compact-vignettes="gs+qpdf" $PKG_NAME
+else
+  R CMD build --no-build-vignettes $PKG_NAME
+fi
 R CMD INSTALL ${PKG_NAME}_${PKG_VERSION}.tar.gz
 cd ..
 
