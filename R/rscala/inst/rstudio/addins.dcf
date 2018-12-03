@@ -1,0 +1,4 @@
+Name: Run scalaSBT() and Build Source Package
+Description: Runs scalaSBT() before building source package.
+Binding: packageBuildIncludingScalaSBT
+Interactive: true
