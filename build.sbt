@@ -23,7 +23,7 @@ pomExtra := (
     </license>
   </licenses>
   <scm>
-    <url>https://dahl-git.byu.edu/dahl/rscala/</url>
+    <url>https://github.com/dbdahl/rscala/</url>
     <connection>scm:git:https://github.com/dbdahl/rscala.git</connection>
   </scm>
   <developers>
