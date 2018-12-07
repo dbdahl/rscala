@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# This script sets up pushing to both the official/internal repository and the
+# public github mirror.  Presummably the repository has already been check out
+# using:
+#
+#   git clone git@github.com:dbdahl/rscala.git
+#     OR
+#   git clone git@dahl-git.byu.edu:dahl/rscala.git
+
+cd $(dirname $(readlink -f "$0"))/..
+
+if [[ $(git remote -v | wc -l) -gt 2 ]]
+then
+  2>&1 echo "Note: It seems that the remotes are already set up."
+  exit 0
+fi
+
+git remote -v | grep "\\(dahl-git.byu.edu\\|github.com\\)"
+if [[ $? -ne 0 ]]
+then
+  2>&1 echo "Error: Remotes not found."
+  exit 1
+fi
+
+git remote set-url --add --push origin git@github.com:dbdahl/rscala.git
+git remote set-url --add --push origin git@dahl-git.byu.edu:dahl/rscala.git
+
+git remote -v
+
