@@ -167,7 +167,7 @@ findExecutable <- function(mode,prettyMode,installPath,mapper,verbose=TRUE) {  #
   ###
   if ( mode == "java" ) {
     label <- paste0("R CMD config JAVA")
-    path <- system2(file.path(R.home("bin"),"R"),c("CMD","config","JAVA"),stdout=TRUE)
+    path <- tryCatch(system2(file.path(R.home("bin"),"R"),c("CMD","config","JAVA"),stdout=TRUE,stderr=FALSE), warning=function(e) NULL, error=function(e) NULL)
     conf <- tryCandidate(path)
     if ( ! is.null(conf) ) return(conf)
   }
@@ -218,6 +218,7 @@ installJava <- function(installPath, verbose, attempt=1) {
   if ( verbose ) cat("\nDownloading Java.\n")
   dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
   version <- Sys.getenv("RSCALA_JAVA_MAJORVERSION","8")
+  attempt <- as.integer(Sys.getenv("RSCALA_JAVA_ATTEMPT",attempt))
   url <- getURL("java",version,attempt)
   installPathTemp <- file.path(installPath,"tmp")
   unlink(installPathTemp,recursive=TRUE,force=TRUE)
@@ -256,10 +257,11 @@ installScala <- function(installPath, javaConf, verbose, attempt=1) {
   unlink(file.path(installPath,"scala"),recursive=TRUE)  # Delete older version
   majorVersion <- Sys.getenv("RSCALA_SCALA_MAJORVERSION","2.12")
   if ( javaConf$javaMajorVersion <= 7 ) majorVersion <- "2.11"
+  attempt <- as.integer(Sys.getenv("RSCALA_SCALA_ATTEMPT",attempt))
   url <- getURL("scala",majorVersion,attempt)
   dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
   destfile <- file.path(installPath,basename(url))
-  result <- tryCatch( utils::download.file(url, destfile), error=function(e) 1, warning=function(e) 1)
+  result <- tryCatch(utils::download.file(url, destfile), error=function(e) 1, warning=function(e) 1)
   if ( result != 0 ) {
     unlink(destfile)
     msg <- "Failed to download installation."
@@ -290,10 +292,11 @@ installSBT <- function(installPath, javaConf, verbose, attempt=1) {
   dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
   unlink(file.path(installPath,"sbt"),recursive=TRUE)  # Delete older version
   # if ( javaConf$javaMajorVersion != 8 ) stop("Java 8 is recommended for SBT.")
+  attempt <- as.integer(Sys.getenv("RSCALA_SBT_ATTEMPT",attempt))
   url <- getURL("sbt",version,attempt)
   dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
   destfile <- file.path(installPath,basename(url))
-  result <- tryCatch( utils::download.file(url, destfile), error=function(e) 1, warning=function(e) 1)
+  result <- tryCatch(utils::download.file(url, destfile), error=function(e) 1, warning=function(e) 1)
   if ( result != 0 ) {
     unlink(destfile)
     msg <- "Failed to download installation."

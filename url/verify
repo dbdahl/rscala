@@ -17,3 +17,13 @@ system2("diff",file.path(dirname,c("scala-2.11-1","scala-2.11-2")),stdout=TRUE)
 system2("diff",file.path(dirname,c("scala-2.12-1","scala-2.12-2")),stdout=TRUE)
 system2("diff",file.path(dirname,c("scala-2.13-1","scala-2.13-2")),stdout=TRUE)
 
+q()
+
+
+# DBD: Also, in R, on linux, windows, and mac, run these commands. For windows, you'll need a new R session each time.
+
+library(rscala); Sys.setenv("RSCALA_JAVA_MAJORVERSION"=8, "RSCALA_JAVA_ATTEMPT"=1); scalaConfig(download="java"); s <- scala(); s * "3+4"
+library(rscala); Sys.setenv("RSCALA_JAVA_MAJORVERSION"=8, "RSCALA_JAVA_ATTEMPT"=2); scalaConfig(download="java"); s <- scala(); s * "3+4"
+library(rscala); Sys.setenv("RSCALA_JAVA_MAJORVERSION"=11,"RSCALA_JAVA_ATTEMPT"=1); scalaConfig(download="java"); s <- scala(); s * "3+4"
+library(rscala); Sys.setenv("RSCALA_JAVA_MAJORVERSION"=11,"RSCALA_JAVA_ATTEMPT"=2); scalaConfig(download="java"); s <- scala(); s * "3+4"
+

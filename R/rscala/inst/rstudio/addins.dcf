@@ -1,4 +1,4 @@
-Name: Run scalaSBT() and Build Source Package
-Description: Runs scalaSBT() before building source package.
-Binding: packageBuildIncludingScalaSBT
+Name: Run scalaSBT(), build, install, & restart
+Description: Runs scalaSBT(), builds source package, installs package, and restarts R.
+Binding: scalaSBTBuildInstallRestart
 Interactive: true

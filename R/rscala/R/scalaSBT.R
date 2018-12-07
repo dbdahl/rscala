@@ -125,27 +125,3 @@ scalaSBT <- function(args=c("+package","packageSrc"), copy.to.package=TRUE) {
   }
   invisible(NULL)
 }
-
-packageBuildIncludingScalaSBT <- function() {
-  scalaSBT()
-  if ( requireNamespace("rstudioapi", quietly = TRUE) && requireNamespace("devtools", quietly = TRUE) ) {
-    if ( ! is.null(rstudioapi::getActiveProject()) ) {
-      projectFile <- rstudioapi::initializeProject(rstudioapi::getActiveProject())
-      lines <- readLines(projectFile)
-      i <- grep("^PackageRoxygenize: ",lines)
-      if ( length(i) > 0 ) {
-        i <- i[1]
-        args <- strsplit(sub("^PackageRoxygenize: (.*)","\\1",lines[i]),',')[[1]]
-        devtools::document(roclets=args)
-      }
-      i <- grep("^PackageBuildArgs: ",lines)
-      if ( length(i) > 0 ) {
-        i <- i[1]
-        args <- strsplit(sub("^PackageBuildArgs: (.*)","\\1",lines[i]),' ')[[1]]
-        devtools::build(args=args)
-      } else {
-        devtools::build()
-      }
-    }
-  }
-}

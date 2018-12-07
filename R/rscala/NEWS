@@ -1,7 +1,7 @@
-3.2.5 (2018-12-03)
+3.2.5 (2018-12-07)
   * Avoid unnecessary recompilation in scalaSBT function.
-  * Provide RStudio addin "Run scalaSBT() and Build Source Package".
-  * Another way to find Java: through "R CMD config JAVA".
+  * Provide RStudio addin to run scalaSBTBuildInstallRestart function.
+  * Another way to find Java: Through "R CMD config JAVA".
 
 3.2.4 (2018-11-05)
   * Fixed bug related to garbage collection that caused unexpected crashes.
