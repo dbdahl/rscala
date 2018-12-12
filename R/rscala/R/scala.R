@@ -202,8 +202,12 @@ scalaConnect <- function(details) {
 
 osType <- function() {
   if ( .Platform$OS.type == "windows" ) "windows"
-  else if ( Sys.info()["sysname"] == "Darwin" ) "mac"
-  else "linux"
+  else {
+    sysname <- Sys.info()["sysname"]
+    if ( sysname == "Darwin" ) "mac"
+    else if ( sysname == "Linux" ) "linux"
+    else ""
+  }
 }
 
 getHeapMaximum <- function(heap.maximum,is32bit) {

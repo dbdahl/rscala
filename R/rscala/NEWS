@@ -1,3 +1,6 @@
+3.2.6 (2018-12-14)
+  * Resolved platform-specific issues arising on Solaris.
+
 3.2.5 (2018-12-07)
   * Avoid unnecessary recompilation in scalaSBT function.
   * Provide RStudio addin to run scalaSBTBuildInstallRestart function.

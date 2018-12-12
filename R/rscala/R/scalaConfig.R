@@ -101,11 +101,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
       consent <- consent || consent2
     }
     osArchitecture <- if ( javaConf$javaArchitecture == 32 ) {
-      isOS64bit <- if ( identical(.Platform$OS.type,"windows") ) {
-        out <- system2("wmic",c("/locale:ms_409","OS","get","osarchitecture","/VALUE"),stdout=TRUE)
-        any("OSArchitecture=64-bit"==trimws(out))
-      } else identical(system2("uname","-m",stdout=TRUE),"x86_64")
-      osArchitecture <- if ( isOS64bit ) 64 else 32
+      osArchitecture <- if ( isOS64bit() ) 64 else 32
       if ( osArchitecture == 64 ) {
         warning("32-bit Java is paired with a 64-bit operating system.  To access more memory, please run 'scalaConfig(download=\"java\")'.")
       }
@@ -198,12 +194,21 @@ findExecutable <- function(mode,prettyMode,installPath,mapper,verbose=TRUE) {  #
   NULL
 }
 
+isOS64bit <- function() {
+  if ( identical(.Platform$OS.type,"windows") ) {
+    out <- system2("wmic",c("/locale:ms_409","OS","get","osarchitecture","/VALUE"),stdout=TRUE)
+    any("OSArchitecture=64-bit"==trimws(out))
+  } else identical(system2("uname","-m",stdout=TRUE),"x86_64")
+}
+      
 getURL <- function(software, version, attempt=1, counter=1) {
   stub <- if ( counter == 1 )       sprintf("https://raw.githubusercontent.com/dbdahl/rscala")
           else if ( counter == 2 )  sprintf("https://dahl-git.byu.edu/dahl/rscala/raw")
           else return(NULL)
   url <- if ( software == "java" ) {
     os <- osType()
+    if ( ! ( os %in% c("windows","mac","linux") ) ) stop(sprintf("Cannot automatically download Java for %s.",osType))
+    if ( ! isOS64bit() ) stop(sprintf("Cannot automatically download Java for a 32-bit operating system.",osType))
     sprintf("%s/master/url/java/%s/%s/%s",stub,os,version,attempt)
   } else if ( software == "scala" ) {
     sprintf("%s/master/url/scala/%s/%s",stub,version,attempt)   
