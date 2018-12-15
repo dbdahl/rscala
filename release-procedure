@@ -11,6 +11,12 @@ Commit everything to Git, including the package in the deliveries directory.
 Tag in Git the version using "bin/tag" script.
 sbt +publishSigned
 sbt +sonatypeRelease   # Don't worry about the error 'Received 500 error'
+# OR https://oss.sonatype.org/
+#     -> Log in
+#     -> Staging Repositories
+#     -> orgddahl-????
+#     -> "Close" repository
+#     -> "Release" repository
 Update version number in README.md
 Submit to CRAN
 Bump (development) version number in build.sbt
