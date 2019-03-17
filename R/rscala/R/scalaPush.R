@@ -106,3 +106,31 @@ scalaPush.list <- function(x, bridge) {
   reference <- do.call(f,args)
   reference
 }
+
+scalaPush.arrayOfMatrices <- function(x, bridge, mode="double") {
+  if ( ! is.list(x) ) stop("Object is not a list.")
+  if ( ! all(sapply(x,is.matrix)) ) stop("Not every element of the list is a matrix.")
+  modeInfo <- if ( mode == "double" ) list(as.double, "Double")
+  else if ( mode == "integer" ) list(as.integer,"Int")
+  else if ( mode == "logical" ) list(as.logical,"Boolean")
+  else if ( mode == "character" ) list(as.character,"String")
+  else stop("Unsupport 'mode'.")
+  modeFunc <- modeInfo[[1]]
+  modeType <- modeInfo[[2]]
+  ref <- bridge(dims=sapply(x,dim), data=unlist(lapply(x, function(y) modeFunc(y)))) ^ gsub("<<modeType>>",modeType,'
+    val len = dims(0).length
+    var result = new Array[Array[Array[<<modeType>>]]](len)
+    var offset = 0
+    var b = 0
+    while ( b < len ) {
+      val nrows = dims(0)(b)
+      val ncols = dims(1)(b)
+      result(b) = Array.tabulate(nrows,ncols) { (i,j) =>
+        data(offset+nrows*j+i)
+      }
+      b += 1
+      offset += ncols*nrows
+    }
+    result
+  ')
+}

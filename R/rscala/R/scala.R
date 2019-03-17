@@ -117,8 +117,10 @@ scala <- function(JARs=character(),
   assign("pullers",new.env(parent=emptyenv()),envir=details)
   scalaPushRegister(scalaPush.generic,"generic",bridge)
   scalaPushRegister(scalaPush.list,"list",bridge)
+  scalaPushRegister(scalaPush.arrayOfMatrices,"arrayOfMatrices",bridge)
   scalaPullRegister(scalaPull.generic,"generic",bridge)
   scalaPullRegister(scalaPull.list,"list",bridge)
+  scalaPullRegister(scalaPull.arrayOfMatrices,"arrayOfMatrices",bridge)
   bridge
 }
 
