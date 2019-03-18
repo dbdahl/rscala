@@ -29,8 +29,9 @@
 #'   The value here supersedes that from \code{\link{scalaMemory}}. Without this
 #'   being set in either \code{\link{scala}} or \code{\link{scalaMemory}}, the
 #'   heap maximum will be 90\% of the available RAM.
-#' @param scala.options Extra options to be passed to scala interpreter.
-#'   It is expected to be a character vector, one value per option.
+#' @param command.line.arguments A character vector of extra command line
+#'   arguments to pass to the Scala executable, where each element corresponds
+#'   to one argument.
 #' @param debug (Developer use only.)  Logical indicating whether debugging
 #'   should be enabled.
 #'
@@ -59,7 +60,7 @@ scala <- function(JARs=character(),
                   stderr=TRUE,
                   port=0L,
                   heap.maximum=NULL,
-                  scala.options=NULL,
+                  command.line.arguments=character(0),
                   debug=FALSE) {
   if ( identical(stdout,TRUE) ) stdout <- ""
   if ( identical(stderr,TRUE) ) stderr <- ""
@@ -77,12 +78,12 @@ scala <- function(JARs=character(),
       sConfig$error <- list(message=paste0("\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nScala version ",sConfig$scalaFullVersion," is not among the support versions: ",paste(names(scalaVersionJARs()),collapse=", "),".\nPlease run 'rscala::scalaConfig(reconfig=TRUE)'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"))
     } else {
       heap.maximum <- getHeapMaximum(heap.maximum,sConfig$javaArchitecture == 32)
-      command.line.options <- if ( is.null(heap.maximum) ) NULL
+      heap.maximum.argument <- if ( is.null(heap.maximum) ) NULL
       else shQuote(paste0("-J-Xmx",heap.maximum))
       sessionFilename <- tempfile("rscala-session-")
       writeLines(character(),sessionFilename)
       portsFilename <- tempfile("rscala-ports-")
-      args <- c(command.line.options,shQuote(scala.options),"-nc","-classpath",rscalaJAR,"org.ddahl.rscala.server.Main",rscalaJAR,port,portsFilename,sessionFilename,debug,serialize.output,FALSE)
+      args <- c(heap.maximum.argument,shQuote(command.line.arguments),"-nc","-classpath",rscalaJAR,"org.ddahl.rscala.server.Main",rscalaJAR,port,portsFilename,sessionFilename,debug,serialize.output,FALSE)
       oldJavaEnv <- setJavaEnv(sConfig)
       system2(sConfig$scalaCmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
       setJavaEnv(oldJavaEnv)
