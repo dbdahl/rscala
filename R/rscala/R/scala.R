@@ -29,6 +29,8 @@
 #'   The value here supersedes that from \code{\link{scalaMemory}}. Without this
 #'   being set in either \code{\link{scala}} or \code{\link{scalaMemory}}, the
 #'   heap maximum will be 90\% of the available RAM.
+#' @param scala.options Extra options to be passed to scala interpreter.
+#'   It is expected to be a character vector, one value per option.
 #' @param debug (Developer use only.)  Logical indicating whether debugging
 #'   should be enabled.
 #'
