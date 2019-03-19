@@ -25,12 +25,14 @@
 #'
 #' @param args A character vector giving the arguments to be passed to the SBT
 #'   command.
-#' @param copy.to.package Should the jars be to the appropriate directories of
-#'   the R package source.
+#' @param copy.to.package Should the JARs files be copied to the appropriate
+#'   directories of the R package source?
+#' @param use.cache Should compilation be avoided if it appears Scala code
+#'   has not changed?
 #'
 #' @return \code{NULL}
 #' @export
-scalaSBT <- function(args=c("+package","packageSrc"), copy.to.package=TRUE) {
+scalaSBT <- function(args=c("+package","packageSrc"), copy.to.package=TRUE, use.cache=TRUE) {
   sConfig <- scalaConfig(FALSE,require.sbt=TRUE)
   oldWD <- normalizePath(getwd(),mustWork=FALSE)
   on.exit(setwd(oldWD))
@@ -59,7 +61,7 @@ scalaSBT <- function(args=c("+package","packageSrc"), copy.to.package=TRUE) {
       if ( length(xx) == 0 ) -Inf else max(xx)
     }
     srcHome <- "src"
-    if ( file.exists(srcHome) && !is.null(packageHome) && file.exists(packageHome) && ( latest(srcHome) < latest(packageHome,'.*\\.jar') ) ) {
+    if ( use.cache && file.exists(srcHome) && !is.null(packageHome) && file.exists(packageHome) && ( latest(srcHome) < latest(packageHome,'.*\\.jar') ) ) {
       cat("[info] Latest Scala source is older that JARs.  There is no need to re-compile.\n")
       return(invisible())
     }
