@@ -327,11 +327,12 @@ verifyDownloads <- function() {
       Sys.setenv(RSCALA_VERIFY_DOWNLOAD_FAILURE_COUNT=dfc)
       for ( efc in 0:3 ) {
         Sys.setenv(RSCALA_VERIFY_EXTRACT_FAILURE_COUNT=efc)
-        Sys.setenv(RSCALA_VERIFY_JAVA_VERSION="8")
+        Sys.setenv(RSCALA_VERIFY_JAVA_VERSION=jversion)
         cat(paste0("dfc=",dfc,", efc=",efc,", software='java', version=",jversion,"\n"))
         scalaConfig(download="java")
         s <- scala()
         cat(s * "2+3","\n")
+        close(s)
       }
     }
   }
