@@ -59,19 +59,19 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
       scalaConfig(verbose, reconfig, download, require.sbt)
     } else config
   } else {
-    if ( download.java ) installJava(installPath,verbose)
+    if ( download.java ) installSoftware(installPath,"java",verbose=verbose)
     javaConf <- findExecutable("java","Java",installPath,javaSpecifics,verbose)
     if ( is.null(javaConf) ) {
       if ( verbose ) cat("\n")
       consent2 <- offerInstall(paste0("Java and Scala are not found.")) 
       stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nJava is not found!  Please run 'rscala::scalaConfig(download=\"java\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
       if ( consent2 ) {
-        installJava(installPath,verbose)
+        installSoftware(installPath,"java",verbose=verbose)
         javaConf <- findExecutable("java","Java",installPath,javaSpecifics,verbose)
         if ( is.null(javaConf) ) stop(stopMsg)
       } else {
         if ( dependsPath != "" ) {
-          installJava(dependsPath,verbose)
+          installSoftware(dependsPath,"java",verbose=verbose)
           javaConf <- findExecutable("java","Java",dependsPath,javaSpecifics,verbose)
           if ( is.null(javaConf) ) stop(stopMsg)
         }
@@ -79,7 +79,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
       }
       consent <- consent || consent2
     }
-    if ( download.scala ) installScala(installPath,javaConf,verbose)
+    if ( download.scala ) installSoftware(installPath,"scala",javaConf,verbose=verbose)
     scalaSpecifics2 <- function(x,y) scalaSpecifics(x,javaConf,y)
     scalaConf <- findExecutable("scala","Scala",installPath,scalaSpecifics2,verbose)
     if ( is.null(scalaConf) ) {
@@ -87,12 +87,12 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
       consent2 <- consent || offerInstall(paste0("Scala is not found.")) 
       stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nScala is not found!  Please run 'rscala::scalaConfig(download=\"scala\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
       if ( consent2 ) {
-        installScala(installPath,javaConf,verbose)
+        installSoftware(installPath,"scala",javaConf,verbose=verbose)
         scalaConf <- findExecutable("scala","Scala",installPath,scalaSpecifics2,verbose)
         if ( is.null(scalaConf) ) stop(stopMsg)
       } else {
         if ( dependsPath != "" ) {
-          installScala(dependsPath,javaConf,verbose)
+          installSoftware(dependsPath,javaConf,verbose=verbose)
           scalaConf <- findExecutable("scala","Scala",dependsPath,scalaSpecifics2,verbose)
           if ( is.null(scalaConf) ) stop(stopMsg)
         }
@@ -100,14 +100,10 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
       }
       consent <- consent || consent2
     }
-    osArchitecture <- if ( javaConf$javaArchitecture == 32 ) {
-      osArchitecture <- if ( isOS64bit() ) 64 else 32
-      if ( osArchitecture == 64 ) {
-        warning("32-bit Java is paired with a 64-bit operating system.  To access more memory, please run 'scalaConfig(download=\"java\")'.")
-      }
-      osArchitecture
-    } else javaConf$javaArchitecture
-    config <- c(format=4L,osArchitecture=osArchitecture,scalaConf,javaConf)
+    if ( ( javaConf$javaArchitecture == 32 ) && ( osBit() == 64 ) ) {
+      warning("32-bit Java is paired with a 64-bit operating system.  To access more memory, please run 'scalaConfig(download=\"java\")'.")
+    }
+    config <- c(format=4L,scalaConf,javaConf)
     if ( download.sbt ) installSBT(installPath,config,verbose)
     sbtSpecifics <- function(x,y) list(sbtCmd=x)
     sbtConf <- findExecutable("sbt","SBT",installPath,sbtSpecifics,verbose)
@@ -161,13 +157,6 @@ findExecutable <- function(mode,prettyMode,installPath,mapper,verbose=TRUE) {  #
   conf <- tryCandidate(file.path(installPath,candidates))
   if ( ! is.null(conf) ) return(conf)
   ###
-  if ( mode == "java" ) {
-    label <- paste0("R CMD config JAVA")
-    path <- tryCatch(system2(file.path(R.home("bin"),"R"),c("CMD","config","JAVA"),stdout=TRUE,stderr=FALSE), warning=function(e) NULL, error=function(e) NULL)
-    conf <- tryCandidate(path)
-    if ( ! is.null(conf) ) return(conf)
-  }
-  ###
   label <- paste0(allCaps,"CMD environment variable")
   conf <- tryCandidate(Sys.getenv(paste0(allCaps,"CMD")))
   if ( ! is.null(conf) ) return(conf)
@@ -180,6 +169,13 @@ findExecutable <- function(mode,prettyMode,installPath,mapper,verbose=TRUE) {  #
   label <- "PATH environment variable"
   conf <- tryCandidate(Sys.which(mode)[[mode]])
   if ( ! is.null(conf) ) return(conf)
+  ###
+  if ( mode == "java" ) {
+    label <- paste0("R CMD config JAVA")
+    path <- tryCatch(system2(file.path(R.home("bin"),"R"),c("CMD","config","JAVA"),stdout=TRUE,stderr=FALSE), warning=function(e) NULL, error=function(e) NULL)
+    conf <- tryCandidate(path)
+    if ( ! is.null(conf) ) return(conf)
+  } 
   ###
   if ( Sys.getenv("RSCALA_BUILDING") == "" ) {
     label <- "package build directory"
@@ -194,134 +190,77 @@ findExecutable <- function(mode,prettyMode,installPath,mapper,verbose=TRUE) {  #
   NULL
 }
 
-isOS64bit <- function() {
-  if ( identical(.Platform$OS.type,"windows") ) {
-    out <- system2("wmic",c("/locale:ms_409","OS","get","osarchitecture","/VALUE"),stdout=TRUE)
-    any("OSArchitecture=64-bit"==trimws(out))
-  } else identical(system2("uname","-m",stdout=TRUE),"x86_64")
-}
-      
-getURL <- function(software, version, attempt=1, counter=1) {
-  stub <- if ( counter == 1 )       sprintf("https://raw.githubusercontent.com/dbdahl/rscala")
-          else if ( counter == 2 )  sprintf("https://dahl-git.byu.edu/dahl/rscala/raw")
-          else return(NULL)
-  url <- if ( software == "java" ) {
-    os <- osType()
-    if ( ! ( os %in% c("windows","mac","linux") ) ) stop(sprintf("Cannot automatically download Java for %s.",osType))
-    if ( ! isOS64bit() ) stop(sprintf("Cannot automatically download Java for a 32-bit operating system.",osType))
-    sprintf("%s/master/url/java/%s/%s/%s",stub,os,version,attempt)
-  } else if ( software == "scala" ) {
-    sprintf("%s/master/url/scala/%s/%s",stub,version,attempt)   
-  } else if ( software == "sbt" ) {
-    sprintf("%s/master/url/sbt/%s/%s",stub,version,attempt)   
-  } else stop("Request for unsupported software.")
-  url2 <- tryCatch(readLines(url),error=function(e) NULL,warning=function(e) NULL)
-  if ( is.null(url2) && ( counter < 2 ) ) getURL(software, version, attempt, counter+1) else url2
+endsWith <- function(string, appendix) {
+  if ( nchar(appendix) == 0 ) TRUE
+  else substr(string,nchar(string)-nchar(appendix)+1,nchar(string)) == appendix
 }
 
-installJava <- function(installPath, verbose, attempt=1) {
-  if ( verbose ) cat("\nDownloading Java.\n")
-  dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
-  version <- Sys.getenv("RSCALA_JAVA_MAJORVERSION","8")
-  attempt <- as.integer(Sys.getenv("RSCALA_JAVA_ATTEMPT",attempt))
-  url <- getURL("java",version,attempt)
-  installPathTemp <- file.path(installPath,"tmp")
-  unlink(installPathTemp,recursive=TRUE,force=TRUE)
-  dir.create(installPathTemp,showWarnings=FALSE,recursive=TRUE)
-  destfile <- tempfile("jdk",tmpdir=installPathTemp)
-  result <- tryCatch(utils::download.file(url, destfile, mode="wb"), error=function(e) 1, warning=function(e) 1)
-  if ( result != 0 ) {
-    unlink(destfile,force=TRUE)
-    msg <- "Failed to download installation."
-    if ( attempt < 2 ) {
-      if ( verbose ) cat(paste0(msg,"\n"))
-      installJava(installPath,verbose,attempt+1)
-      return(NULL)
-    } else stop(msg)
-  }
-  if ( verbose ) cat("Extracting Java.\n")
-  os <- osType()
-  func <- if ( os == "windows" ) function(x) utils::unzip(x,exdir=installPathTemp,unzip="internal")
-  else function(x) utils::untar(x,exdir=installPathTemp,tar="internal")
-  func(destfile)
-  unlink(destfile,force=TRUE)
-  destdir <- file.path(installPath,"java")
-  unlink(destdir,recursive=TRUE,force=TRUE)  # Delete older version
-  javaHome <- list.files(installPathTemp,full.names=TRUE,recursive=FALSE)
-  javaHome <- javaHome[dir.exists(javaHome)]
-  if ( length(javaHome) != 1 ) stop(paste0("Problem extracting Java.  Delete the directory '",installPath,"' and try again."))
-  file.rename(javaHome,destdir)
-  unlink(installPathTemp,recursive=TRUE,force=TRUE)
-  if ( verbose ) cat("Successfully installed Java at ",destdir,"\n",sep="")
-  NULL
+extractArchive <- function(archivePath, parentDirectory, directoryName) {
+  tmpInstallDirectory <- file.path(parentDirectory, paste0("tmp-", directoryName))
+  if ( file.exists(tmpInstallDirectory) ) unlink(tmpInstallDirectory, TRUE, TRUE)
+  dir.create(tmpInstallDirectory, showWarnings=FALSE)
+  if ( endsWith(archivePath,".zip") ) utils::unzip(archivePath, exdir=tmpInstallDirectory, unzip="internal")
+  else if ( endsWith(archivePath,".tar.gz") || endsWith(archivePath,".tgz") ) utils::untar(archivePath, exdir=tmpInstallDirectory, tar="internal")
+  else stop(paste0("Unrecognized file type for ", archivePath))
+  home <- list.files(tmpInstallDirectory, full.names=TRUE)
+  if ( length(home) != 1 ) stop(paste0("Expected only one directory in ",tmpInstallDirectory))
+  finalPath <- file.path(parentDirectory, directoryName)
+  if ( file.exists(finalPath) ) unlink(finalPath, TRUE, TRUE)
+  homeOnMac <- file.path(home,"Contents","Home")
+  if ( file.exists(homeOnMac) ) home <- homeOnMac
+  status <- file.rename(home, finalPath)
+  if ( ! status ) stop(paste0("Problem renaming ", home, " to ", finalPath))
+  unlink(tmpInstallDirectory, TRUE, TRUE)
+  finalPath
 }
 
-installScala <- function(installPath, javaConf, verbose, attempt=1) {
-  if ( verbose ) cat("\nDownloading Scala.\n")
-  dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
-  unlink(file.path(installPath,"scala"),recursive=TRUE)  # Delete older version
-  majorVersion <- Sys.getenv("RSCALA_SCALA_MAJORVERSION","2.12")
-  if ( javaConf$javaMajorVersion <= 7 ) majorVersion <- "2.11"
-  attempt <- as.integer(Sys.getenv("RSCALA_SCALA_ATTEMPT",attempt))
-  url <- getURL("scala",majorVersion,attempt)
-  dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
-  destfile <- file.path(installPath,basename(url))
-  result <- tryCatch(utils::download.file(url, destfile), error=function(e) 1, warning=function(e) 1)
-  if ( result != 0 ) {
-    unlink(destfile)
-    msg <- "Failed to download installation."
-    if ( attempt < 2 ) {
-      if ( verbose ) cat(paste0(msg,"\n"))
-      installScala(installPath,javaConf,verbose,attempt+1)
-      return(NULL)
-    } else stop(msg)
+installSoftware <- function(installPath, software, version, os, bit, verbose=FALSE, downloadFailureCount=0, extractFailureCount=0) {
+  sel <- urls$software == software
+  if ( missing(version) ) {
+    version <- if ( software == "java" ) {
+      if ( Sys.getenv("RSCALA_VERIFY_JAVA_VERSION","") != "" )  Sys.getenv("RSCALA_VERIFY_JAVA_VERSION","") else "8"
+    } else if ( software == "scala" ) {
+      if ( Sys.getenv("RSCALA_VERIFY_SCALA_VERSION","") != "" ) Sys.getenv("RSCALA_VERIFY_SCALA_VERSION","") else "2.12"
+    } else if ( software == "sbt" ) {
+      if ( Sys.getenv("RSCALA_VERIFY_SBT_VERSION","") != "" ) Sys.getenv("RSCALA_VERIFY_SBT_VERSION","") else "1.2"
+    } else NULL
   }
-  if ( verbose ) cat("Extracting Scala.\n")
-  result <- utils::untar(destfile,exdir=installPath,tar="internal")    # Use internal to avoid problems on a Mac.
-  unlink(destfile)
-  if ( result == 0 ) {
-    destdir <- file.path(installPath,"scala")
-    scalaHome <- list.files(installPath,sprintf("^scala-%s",majorVersion),full.names=TRUE)
-    if ( length(scalaHome) != 1 ) stop(paste0("Problem extracting Scala.  Delete the directory '",installPath,"' and try again."))
-    file.rename(scalaHome,destdir)
-    if ( verbose ) cat("Successfully installed Scala at ",destdir,"\n",sep="")   
-  } else {
-    stop("Failed to extract installation.")
+  sel <- sel & (urls$version == version)
+  if ( missing(os) ) {
+    os <-  if ( software == "java" ) osType() else "any"
   }
-  NULL
-}
-
-installSBT <- function(installPath, javaConf, verbose, attempt=1) {
-  if ( verbose ) cat("\nDownloading SBT.\n")
-  version <- Sys.getenv("RSCALA_SBT_MAJORVERSION","1.2")
-  dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
-  unlink(file.path(installPath,"sbt"),recursive=TRUE)  # Delete older version
-  # if ( javaConf$javaMajorVersion != 8 ) stop("Java 8 is recommended for SBT.")
-  attempt <- as.integer(Sys.getenv("RSCALA_SBT_ATTEMPT",attempt))
-  url <- getURL("sbt",version,attempt)
-  dir.create(installPath,showWarnings=FALSE,recursive=TRUE)
-  destfile <- file.path(installPath,basename(url))
-  result <- tryCatch(utils::download.file(url, destfile), error=function(e) 1, warning=function(e) 1)
-  if ( result != 0 ) {
-    unlink(destfile)
-    msg <- "Failed to download installation."
-    if ( attempt < 2 ) {
-      if ( verbose ) cat(paste0(msg,"\n"))
-      installSBT(installPath,javaConf,verbose,attempt+1)
-      return(NULL)
-    } else stop(msg)
+  sel <- sel & (urls$os == os)
+  if ( missing(bit) ) {
+    bit <- if ( software == "java" ) {
+      if ( Sys.getenv("RSCALA_VERIFY_JAVA_32BIT","") != "" ) Sys.getenv("RSCALA_VERIFY_JAVA_32BIT","") else osBit()
+    } else "any"
   }
-  if ( verbose ) cat("Extracting SBT.\n")
-  result <- utils::untar(destfile,exdir=installPath,tar="internal")    # Use internal to avoid problems on a Mac.
-  unlink(destfile)
-  if ( result == 0 ) {
-    destdir <- file.path(installPath,"sbt")
-    if ( file.exists(destdir) ) if ( verbose ) cat("Successfully installed SBT at ",destdir,"\n",sep="")   
-    else stop("Failed to extract installation.")
-  } else {
-    stop("Failed to extract installation.")
+  sel <- sel & (urls$bit == bit)
+  urls2 <- urls[sel, ]
+  candidates <- urls2[order(as.numeric(urls2$priority),decreasing=TRUE),"url"]
+  if ( verbose ) {
+    len <- length(candidates)
+    if ( len == 1 ) cat(paste0("There is 1 candidate.\n\n"))
+    else cat(paste0("There are ",len," candidates.\n\n"))
   }
-  NULL
+  if ( missing(downloadFailureCount) && ( Sys.getenv("RSCALA_VERIFY_DOWNLOAD_FAILURE_COUNT","") != "" ) ) downloadFailureCount <- as.integer(Sys.getenv("RSCALA_VERIFY_DOWNLOAD_FAILURE_COUNT",""))
+  if ( missing(extractFailureCount)  && ( Sys.getenv("RSCALA_VERIFY_EXTRACT_FAILURE_COUNT", "") != "" ) ) extractFailureCount  <- as.integer(Sys.getenv("RSCALA_VERIFY_EXTRACT_FAILURE_COUNT", ""))
+  dfc <- efc <- 0
+  for ( candidate in candidates ) {
+    archivePath <- file.path(tempdir(), basename(candidate))
+    result <- try(download.file(candidate, archivePath), silent=TRUE)
+    if ( inherits(result,"try-error") || ( result != 0 ) || ( dfc < downloadFailureCount ) ) {
+      dfc <- dfc + 1
+      next
+    }
+    finalPath <- try(extractArchive(archivePath, installPath, software), silent=TRUE)
+    unlink(archivePath,FALSE,TRUE)
+    if ( inherits(finalPath,"try-error") || ( efc < extractFailureCount ) ) {
+      efc <- efc + 1
+      next
+    }
+    break
+  }
 }
 
 javaSpecifics <- function(javaCmd,verbose) {
@@ -340,8 +279,9 @@ javaSpecifics <- function(javaCmd,verbose) {
   )
   if ( versionNumber < 8 ) return(paste0("unsupported Java version: ",versionString))
   # Determine if 32 or 64 bit
-  bit <- if ( any(grepl('^(Java HotSpot|OpenJDK).* 64-Bit (Server|Client) VM.*$',response)) ||
-              any(grepl('^IBM .* amd64-64 .*$',response)) ) 64 else 32
+  bit <- if ( any(grepl('.*64-?[bB]it.*$',response)) ||
+              any(grepl('*amd64.*$',response)) ||
+              any(grepl('.*GraalVM.*',response)) ) 64 else 32
   list(javaCmd=javaCmd, javaMajorVersion=versionNumber, javaArchitecture=bit)
 }
 
@@ -377,6 +317,22 @@ scalaSpecifics <- function(scalaCmd,javaConf,verbose) {
       sprintf("Scala %s is not supported on Java %s.",majorVersion,javaConf$javaMajorVersion)
     } else {
       list(scalaHome=info[2], scalaCmd=scalaCmd, scalaMajorVersion=majorVersion, scalaFullVersion=fullVersion, javaHome=info[3])
+    }
+  }
+}
+
+verifyDownloads <- function() {
+  for ( jversion in c("8","11") ) {
+    for ( dfc in 0:3 ) {
+      Sys.setenv(RSCALA_VERIFY_DOWNLOAD_FAILURE_COUNT=dfc)
+      for ( efc in 0:3 ) {
+        Sys.setenv(RSCALA_VERIFY_EXTRACT_FAILURE_COUNT=efc)
+        Sys.setenv(RSCALA_VERIFY_JAVA_VERSION="8")
+        cat(paste0("dfc=",dfc,", efc=",efc,", software='java', version=",jversion,"\n"))
+        scalaConfig(download="java")
+        s <- scala()
+        cat(s * "2+3","\n")
+      }
     }
   }
 }
