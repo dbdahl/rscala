@@ -1,10 +1,11 @@
-3.2.8 (2019-XX-XX)
-  * 
+3.2.8 (2019-05-11)
+  * Fixed installation problem when Java and/or Scala are not already
+    installed.
 
 3.2.7 (2019-05-11)
   * Added scalaPush and scalaPull to serialize between a list of matrices and
     Array[Array[Array[Double]].
-  * Improved handling of installation of java, scala, and sbt.
+  * Improved handling of installation of Java, Scala, and SBT.
 
 3.2.6 (2018-12-15)
   * Resolved platform-specific issues arising on Solaris.
