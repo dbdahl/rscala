@@ -324,7 +324,8 @@ scalaSpecifics <- function(scalaCmd,javaConf,verbose) {
 }
 
 verifyDownloads <- function() {
-  for ( version in c("8","11") ) {
+  scalaConfig(download=c("java","scala","sbt"))
+  for ( version in c("11","8") ) {
     for ( efc in 0:0 ) {
       Sys.setenv(RSCALA_VERIFY_EXTRACT_FAILURE_COUNT=efc)
       Sys.setenv(RSCALA_VERIFY_JAVA_VERSION=version)
@@ -336,7 +337,7 @@ verifyDownloads <- function() {
       close(s)
     }
   }
-  for ( version in c("8","11") ) {
+  for ( version in c("11","8") ) {
     for ( efc in 0:2 ) {
       Sys.setenv(RSCALA_VERIFY_EXTRACT_FAILURE_COUNT=efc)
       Sys.setenv(RSCALA_VERIFY_JAVA_VERSION=version)
@@ -348,7 +349,7 @@ verifyDownloads <- function() {
       close(s)
     }
   }
-  for ( version in c("2.11","2.12","2.13.0-RC1") ) {
+  for ( version in c("2.11","2.13.0-RC1","2.12") ) {
     for ( efc in 0:1 ) {
       Sys.setenv(RSCALA_VERIFY_EXTRACT_FAILURE_COUNT=efc)
       Sys.setenv(RSCALA_VERIFY_SCALA_VERSION=version)
