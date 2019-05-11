@@ -1,3 +1,6 @@
+3.2.8 (2019-XX-XX)
+  * 
+
 3.2.7 (2019-05-11)
   * Added scalaPush and scalaPull to serialize between a list of matrices and
     Array[Array[Array[Double]].

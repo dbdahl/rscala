@@ -2,8 +2,8 @@ name := "rscala"
 
 organization := "org.ddahl"
 
-version := "3.2.7"
-//version := "3.2.8-SNAPSHOT"
+//version := "3.2.8"
+version := "3.2.8-SNAPSHOT"
 
 scalaVersion := "2.12.8"
 
@@ -28,13 +28,6 @@ publishMavenStyle := true
 
 pomExtra := (
   <url>https://github.com/dbdahl/rscala/</url>
-  <licenses>
-    <license>
-      <name>Apache License 2.0</name>
-      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
   <scm>
     <url>https://github.com/dbdahl/rscala/</url>
     <connection>scm:git:https://github.com/dbdahl/rscala.git</connection>
