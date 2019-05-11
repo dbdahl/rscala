@@ -1,4 +1,4 @@
 #!/usr/bin/env Rscript
 
 urls <- read.table(paste0("urls.txt"), header=TRUE, colClasses="character")
-save(urls,file="../R/sysdata.rda")
+save(urls, file="../../R/sysdata.rda", version=2)

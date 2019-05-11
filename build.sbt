@@ -7,7 +7,7 @@ version := "3.2.7-SNAPSHOT"
 
 scalaVersion := "2.12.8"
 
-crossScalaVersions := Seq("2.11.12", "2.12.8", "2.13.0-M5")
+crossScalaVersions := Seq("2.11.12", "2.12.8", "2.13.0-RC1")
 
 scalacOptions ++= List("-feature", "-deprecation", "-unchecked")
 

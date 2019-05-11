@@ -79,7 +79,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
       }
       consent <- consent || consent2
     }
-    if ( download.scala ) installSoftware(installPath,"scala",javaConf,verbose=verbose)
+    if ( download.scala ) installSoftware(installPath,"scala",verbose=verbose)
     scalaSpecifics2 <- function(x,y) scalaSpecifics(x,javaConf,y)
     scalaConf <- findExecutable("scala","Scala",installPath,scalaSpecifics2,verbose)
     if ( is.null(scalaConf) ) {
@@ -87,12 +87,12 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
       consent2 <- consent || offerInstall(paste0("Scala is not found.")) 
       stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nScala is not found!  Please run 'rscala::scalaConfig(download=\"scala\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
       if ( consent2 ) {
-        installSoftware(installPath,"scala",javaConf,verbose=verbose)
+        installSoftware(installPath,"scala",verbose=verbose)
         scalaConf <- findExecutable("scala","Scala",installPath,scalaSpecifics2,verbose)
         if ( is.null(scalaConf) ) stop(stopMsg)
       } else {
         if ( dependsPath != "" ) {
-          installSoftware(dependsPath,javaConf,verbose=verbose)
+          installSoftware(dependsPath,"scala",verbose=verbose)
           scalaConf <- findExecutable("scala","Scala",dependsPath,scalaSpecifics2,verbose)
           if ( is.null(scalaConf) ) stop(stopMsg)
         }
@@ -104,7 +104,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
       warning("32-bit Java is paired with a 64-bit operating system.  To access more memory, please run 'scalaConfig(download=\"java\")'.")
     }
     config <- c(format=4L,scalaConf,javaConf)
-    if ( download.sbt ) installSBT(installPath,config,verbose)
+    if ( download.sbt ) installSoftware(installPath,"sbt",verbose=verbose)
     sbtSpecifics <- function(x,y) list(sbtCmd=x)
     sbtConf <- findExecutable("sbt","SBT",installPath,sbtSpecifics,verbose)
     if ( is.null(sbtConf) && require.sbt ) {
@@ -112,7 +112,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
       consent2 <- consent || offerInstall(paste0("SBT is not found.")) 
       stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nSBT is not found!  Please run 'rscala::scalaConfig(download=\"sbt\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
       if ( consent2 ) {
-        installSBT(installPath,config,verbose)
+        installSoftware(installPath,"sbt",verbose=verbose)
         sbtConf <- findExecutable("sbt","SBT",installPath,sbtSpecifics,verbose)
         if ( is.null(sbtConf) )  stop(stopMsg)
       } else stop(stopMsg)
@@ -214,6 +214,8 @@ extractArchive <- function(archivePath, parentDirectory, directoryName) {
   finalPath
 }
 
+#' @importFrom utils download.file
+#' 
 installSoftware <- function(installPath, software, version, os, bit, verbose=FALSE, downloadFailureCount=0, extractFailureCount=0) {
   sel <- urls$software == software
   if ( missing(version) ) {
@@ -232,7 +234,7 @@ installSoftware <- function(installPath, software, version, os, bit, verbose=FAL
   sel <- sel & (urls$os == os)
   if ( missing(bit) ) {
     bit <- if ( software == "java" ) {
-      if ( Sys.getenv("RSCALA_VERIFY_JAVA_32BIT","") != "" ) Sys.getenv("RSCALA_VERIFY_JAVA_32BIT","") else osBit()
+      if ( Sys.getenv("RSCALA_VERIFY_JAVA_BIT","") != "" ) Sys.getenv("RSCALA_VERIFY_JAVA_BIT","") else osBit()
     } else "any"
   }
   sel <- sel & (urls$bit == bit)
@@ -322,18 +324,50 @@ scalaSpecifics <- function(scalaCmd,javaConf,verbose) {
 }
 
 verifyDownloads <- function() {
-  for ( jversion in c("8","11") ) {
-    for ( dfc in 0:3 ) {
-      Sys.setenv(RSCALA_VERIFY_DOWNLOAD_FAILURE_COUNT=dfc)
-      for ( efc in 0:3 ) {
-        Sys.setenv(RSCALA_VERIFY_EXTRACT_FAILURE_COUNT=efc)
-        Sys.setenv(RSCALA_VERIFY_JAVA_VERSION=jversion)
-        cat(paste0("dfc=",dfc,", efc=",efc,", software='java', version=",jversion,"\n"))
-        scalaConfig(download="java")
-        s <- scala()
-        cat(s * "2+3","\n")
-        close(s)
-      }
+  for ( version in c("8","11") ) {
+    for ( efc in 0:0 ) {
+      Sys.setenv(RSCALA_VERIFY_EXTRACT_FAILURE_COUNT=efc)
+      Sys.setenv(RSCALA_VERIFY_JAVA_VERSION=version)
+      Sys.setenv(RSCALA_VERIFY_JAVA_BIT=32)
+      cat(paste0("----------\nefc=",efc,", software='java', version=",version,", bit=32\n"))
+      scalaConfig(download="java")
+      s <- scala()
+      cat(s * '"OKAY"',"\n\n")
+      close(s)
     }
   }
+  for ( version in c("8","11") ) {
+    for ( efc in 0:2 ) {
+      Sys.setenv(RSCALA_VERIFY_EXTRACT_FAILURE_COUNT=efc)
+      Sys.setenv(RSCALA_VERIFY_JAVA_VERSION=version)
+      Sys.setenv(RSCALA_VERIFY_JAVA_BIT=64)
+      cat(paste0("----------\nefc=",efc,", software='java', version=",version,"\n"))
+      scalaConfig(download="java")
+      s <- scala()
+      cat(s * '"OKAY"',"\n\n")
+      close(s)
+    }
+  }
+  for ( version in c("2.11","2.12","2.13.0-RC1") ) {
+    for ( efc in 0:1 ) {
+      Sys.setenv(RSCALA_VERIFY_EXTRACT_FAILURE_COUNT=efc)
+      Sys.setenv(RSCALA_VERIFY_SCALA_VERSION=version)
+      cat(paste0("----------\nefc=",efc,", software='scala', version=",version,"\n"))
+      scalaConfig(download="scala")
+      s <- scala()
+      cat(s * '"OKAY"',"\n\n")
+      close(s)
+    }
+  }
+  for ( version in c("1.2") ) {
+    for ( efc in 0:1 ) {
+      Sys.setenv(RSCALA_VERIFY_EXTRACT_FAILURE_COUNT=efc)
+      Sys.setenv(RSCALA_VERIFY_SBT_VERSION=version)
+      cat(paste0("----------\nefc=",efc,", software='sbt', version=",version,"\n"))
+      scalaConfig(download="sbt")
+      scalaSBT("sbtVersion")
+      cat("\n")
+    }
+  }
+  Sys.unsetenv(c("RSCALA_VERIFY_EXTRACT_FAILURE_COUNT","RSCALA_VERIFY_JAVA_VERSION","RSCALA_VERIFY_SCALA_VERSION","RSCALA_VERIFY_SBT_VERSION","RSCALA_VERIFY_JAVA_BIT"))
 }
