@@ -1,1 +1,0 @@
-2018-06-24   These benchmarks were taken at my sidon laptop, running on battery.
