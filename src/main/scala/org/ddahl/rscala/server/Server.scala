@@ -134,10 +134,19 @@ class Server(intp: IMain, sockets: Sockets, referenceMap: HashMap[Int, (Any,Stri
   }
 
   private def writeArray[T](value: Array[T], size: Int, write: (ByteBuffer,T) => ByteBuffer): Unit = {
-    val byteBuffer = ByteBuffer.allocate(value.length*size)
-    value.foreach(x => write(byteBuffer,x))
-    out.writeInt(value.length)
-    out.write(byteBuffer.array)
+    if ( value.length*size.toLong > Integer.MAX_VALUE ) {
+      out.writeInt(value.length)
+      for ( v <- value.grouped( ( (value.length * size.toLong) / Integer.MAX_VALUE).toInt + 1 ) ) {
+        val byteBuffer = ByteBuffer.allocate(v.length * size)
+        v.foreach(x => write(byteBuffer, x))
+        out.write(byteBuffer.array)
+      }
+    } else {
+      val byteBuffer = ByteBuffer.allocate(value.length * size)
+      value.foreach(x => write(byteBuffer, x))
+      out.writeInt(value.length)
+      out.write(byteBuffer.array)
+    }
   }
 
   private def writeMatrix[T](value: Array[Array[T]], size: Int, write: (ByteBuffer,T) => ByteBuffer): Unit = {
