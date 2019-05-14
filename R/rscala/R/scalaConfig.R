@@ -166,9 +166,16 @@ findExecutable <- function(mode,prettyMode,installPath,mapper,verbose=TRUE) {  #
   conf <- tryCandidate(if ( home != "" ) file.path(home,"bin",mode) else "")
   if ( ! is.null(conf) ) return(conf)
   ###
-  label <- "PATH environment variable"
-  conf <- tryCandidate(Sys.which(mode)[[mode]])
-  if ( ! is.null(conf) ) return(conf)
+  if ( osType() == "mac" ) {
+    label <- "/usr/libexec/java_home helper"
+    home <- try(system2("/usr/libexec/java_home",stdout=TRUE,stderr=TRUE),silent=TRUE)
+    conf <- tryCandidate(if ( ! inherits(home,"try-error") && ( home != "" ) ) file.path(home,"bin",mode) else "")
+    if ( ! is.null(conf) ) return(conf)
+  } else {
+    label <- "PATH environment variable"
+    conf <- tryCandidate(Sys.which(mode)[[mode]])
+    if ( ! is.null(conf) ) return(conf)
+  }
   ###
   if ( mode == "java" ) {
     label <- paste0("R CMD config JAVA")
@@ -267,7 +274,7 @@ installSoftware <- function(installPath, software, version, os, bit, verbose=FAL
 
 javaSpecifics <- function(javaCmd,verbose) {
   if ( verbose ) cat("  ... querying Java specifics.\n")
-  response <- system2(javaCmd,"-version",stdout=TRUE,stderr=TRUE)
+  response <- suppressWarnings(system2(javaCmd,"-version",stdout=TRUE,stderr=TRUE))
   # Get version information
   versionRegexp <- '(java|openjdk) version "([^"]*)".*'
   line <- response[grepl(versionRegexp,response)]
