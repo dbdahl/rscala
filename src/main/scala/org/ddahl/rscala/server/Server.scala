@@ -133,32 +133,6 @@ class Server(intp: IMain, sockets: Sockets, referenceMap: HashMap[Int, (Any,Stri
     conduit.reset(in.readInt())
   }
 
-  private def writeArray[T](value: Array[T], size: Int, write: (ByteBuffer,T) => ByteBuffer): Unit = {
-    if ( value.length*size.toLong > Integer.MAX_VALUE ) {
-      out.writeInt(value.length)
-      for ( v <- value.grouped( ( (value.length * size.toLong) / Integer.MAX_VALUE).toInt + 1 ) ) {
-        val byteBuffer = ByteBuffer.allocate(v.length * size)
-        v.foreach(x => write(byteBuffer, x))
-        out.write(byteBuffer.array)
-      }
-    } else {
-      val byteBuffer = ByteBuffer.allocate(value.length * size)
-      value.foreach(x => write(byteBuffer, x))
-      out.writeInt(value.length)
-      out.write(byteBuffer.array)
-    }
-  }
-
-  private def writeMatrix[T](value: Array[Array[T]], size: Int, write: (ByteBuffer,T) => ByteBuffer): Unit = {
-    val nRows = value.length
-    val nColumns = value(0).length
-    val byteBuffer = ByteBuffer.allocate(nRows*nColumns*size)
-    value.foreach(_.foreach(x => write(byteBuffer,x)))
-    out.writeInt(nRows)
-    out.writeInt(nColumns)
-    out.write(byteBuffer.array)
-  }
-
   private[rscala] def pop(datum: Datum): Unit = {
     if ( debugger.on ) debugger("pop on " + datum + ".")
     if ( serializeOutput ) {
@@ -172,21 +146,36 @@ class Server(intp: IMain, sockets: Sockets, referenceMap: HashMap[Int, (Any,Stri
       case TCODE_INT_0 =>
         out.writeInt(datum.value.asInstanceOf[Int])
       case TCODE_INT_1 =>
-        writeArray(datum.value.asInstanceOf[Array[Int]], BYTES_PER_INT, (b: ByteBuffer, x: Int) => b.putInt(x))
+        val x = datum.value.asInstanceOf[Array[Int]]
+        out.writeInt(x.length)
+        x.foreach(out.writeInt)
       case TCODE_INT_2 =>
-        writeMatrix(datum.value.asInstanceOf[Array[Array[Int]]], BYTES_PER_INT, (b: ByteBuffer, x: Int) => b.putInt(x))
+        val x = datum.value.asInstanceOf[Array[Array[Int]]]
+        out.writeInt(x.length)
+        out.writeInt(x(0).length)
+        x.foreach(_.foreach(out.writeInt))
       case TCODE_DOUBLE_0 =>
         out.writeDouble(datum.value.asInstanceOf[Double])
       case TCODE_DOUBLE_1 =>
-        writeArray(datum.value.asInstanceOf[Array[Double]], BYTES_PER_DOUBLE, (b: ByteBuffer, x: Double) => b.putDouble(x))
+        val x = datum.value.asInstanceOf[Array[Double]]
+        out.writeInt(x.length)
+        x.foreach(out.writeDouble)
       case TCODE_DOUBLE_2 =>
-        writeMatrix(datum.value.asInstanceOf[Array[Array[Double]]], BYTES_PER_DOUBLE, (b: ByteBuffer, x: Double) => b.putDouble(x))
+        val x = datum.value.asInstanceOf[Array[Array[Double]]]
+        out.writeInt(x.length)
+        out.writeInt(x(0).length)
+        x.foreach(_.foreach(out.writeDouble))
       case TCODE_LOGICAL_0 =>
         out.write(boolean2Byte(datum.value.asInstanceOf[Boolean]))
       case TCODE_LOGICAL_1 =>
-        writeArray(datum.value.asInstanceOf[Array[Boolean]], 1, (b: ByteBuffer, x: Boolean) => b.put(boolean2Byte(x)))
+        val x = datum.value.asInstanceOf[Array[Boolean]]
+        out.writeInt(x.length)
+        x.foreach(xx => out.writeByte(boolean2Byte(xx)))
       case TCODE_LOGICAL_2 =>
-        writeMatrix(datum.value.asInstanceOf[Array[Array[Boolean]]], 1, (b: ByteBuffer, x: Boolean) => b.put(boolean2Byte(x)))
+        val x = datum.value.asInstanceOf[Array[Array[Boolean]]]
+        out.writeInt(x.length)
+        out.writeInt(x(0).length)
+        x.foreach(_.foreach(xx => out.writeByte(boolean2Byte(xx))))
       case TCODE_RAW_0 =>
         out.writeByte(datum.value.asInstanceOf[Byte])
       case TCODE_RAW_1 | TCODE_ROBJECT =>
