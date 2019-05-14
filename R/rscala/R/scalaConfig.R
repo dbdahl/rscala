@@ -166,9 +166,9 @@ findExecutable <- function(mode,prettyMode,installPath,mapper,verbose=TRUE) {  #
   conf <- tryCandidate(if ( home != "" ) file.path(home,"bin",mode) else "")
   if ( ! is.null(conf) ) return(conf)
   ###
-  if ( osType() == "mac" ) {
+  if ( ( mode == "java" ) && ( osType() == "mac" ) ) {  # Avoid "No Java runtime present, requesting install." pop-up.
     label <- "/usr/libexec/java_home helper"
-    home <- try(system2("/usr/libexec/java_home",stdout=TRUE,stderr=TRUE),silent=TRUE)
+    home <- try(suppressWarnings(system2("/usr/libexec/java_home",stdout=TRUE,stderr=TRUE)),silent=TRUE)
     conf <- tryCandidate(if ( ! inherits(home,"try-error") && ( home != "" ) ) file.path(home,"bin",mode) else "")
     if ( ! is.null(conf) ) return(conf)
   } else {
