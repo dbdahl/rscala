@@ -21,6 +21,7 @@
 .Rhistory
 .RData
 /others
+/cran-check-results
 
 # User-specific stuff:
 /.idea
