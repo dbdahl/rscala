@@ -1,8 +1,11 @@
 #!/bin/bash
 
 cd $(dirname $(readlink -f "$0"))/..
-mkdir -p cran-check-results
-cd cran-check-results
+dir=cran-check-results
+mkdir -p $dir
+cd $dir
 
-wget -O $(date +'%Y-%m-%d').html https://cran.r-project.org/web/checks/check_results_rscala.html
+stamp=$(date +'%Y-%m-%d')
+wget -O $stamp.rscala.html https://cran.r-project.org/web/checks/check_results_rscala.html
+wget -O $stamp.dahl.html   https://cran.r-project.org/web/checks/check_results_dahl_at_stat.byu.edu.html
 
