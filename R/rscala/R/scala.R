@@ -168,7 +168,7 @@ embeddedR <- function(ports,debug=FALSE) {
 }
 
 scalaConnect <- function(details) {
-  if ( ! is.null(details[["config"]]$error) ) stop(details[["config"]]$error$message)
+  if ( ! is.null(details[["config"]]$error) ) stop(toString(details[["config"]]$error))
   if ( ! exists("socketInPort",envir=details) ) {
     portsFilename <- get("portsFilename",envir=details)
     ports <- local({

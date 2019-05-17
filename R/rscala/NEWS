@@ -1,5 +1,10 @@
-3.2.9 (2019-XX-XX)
+3.2.9 (2019-05-18)
   * Avoid "No Java runtime present, requesting install" pop-up on Mac OS X.
+  * Fixed long-standing bug related to very large arrays of Int and Double
+    from the JVM.
+  * Fixed a regression introduced by 3.2.8 which broke embedding R in Scala.
+  * Attempt to debug error in CRAN package checks by giving more information
+    on failed scalaConfig().
 
 3.2.8 (2019-05-11)
   * Fixed installation problem when Java and/or Scala are not already

@@ -1,0 +1,96 @@
+
+R Under development (unstable) (2019-05-06 r76460) -- "Unsuffered Consequences"
+Copyright (C) 2019 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(rscala)
+> s <- scala()
+> 
+> bisection <- function(func, lower, upper, epsilon=.Machine$double.eps^0.25) s(g=func, lower=lower, upper=upper, epsilon=epsilon) * '
++   val (fLower, fUpper) = (g(lower), g(upper))
++   if ( fLower * fUpper > 0 ) sys.error("lower and upper do not straddle the root.")
++   @scala.annotation.tailrec
++   def engine(l: Double, u: Double, fLower: Double, fUpper: Double): Double = {
++     val c = ( l + u ) / 2
++     if ( math.abs( l - u ) <= epsilon ) c
++     else {
++       val fCenter = g(c)
++       if ( fLower * fCenter < 0 ) engine(l, c, fLower, fCenter)
++       else engine(c, u, fCenter, fUpper)
++     }
++   }
++   engine(lower, upper, fLower, fUpper)
++ '
+> 
+> 
+> 
+> func1 <- function(a=scalaType("Double"), n=100, target=10) {
++   sum(a / (1:n + a - 1)) - target
++ }
+> 
+> wrapped1 <- {
++   s(func=scalaPush(func1)) ^ '
++     (a: Double) => R.evalD0("%-(%-)", func, a)
++   '
++ }
+> 
+> wrapped2 <- s ^ func1
+> 
+> wrapped3 <- s(func=s ^ func1) ^ function(a=scalaType("Double")) {
++   func(a)
++ }
+> 
+> wrapped4 <- s(n=100L, target=10L) ^ '(a: Double) => {
++   var sum = 0.0
++   var i = 0
++   while ( i < n ) {
++     sum += a / ( i + a )
++     i += 1
++   }
++   sum - target
++ }
++ '
+> 
+> 
+> library(microbenchmark)
+> 
+> microbenchmark(
++   bisection(wrapped1, 0.1, 20),
++   bisection(wrapped2, 0.1, 20),
++   bisection(wrapped3, 0.1, 20),
++   bisection(wrapped4, 0.1, 20),
++   uniroot(func1,c(0.1,20)),
++   times=100)
+Unit: microseconds
+                         expr      min        lq      mean    median        uq
+ bisection(wrapped1, 0.1, 20) 5022.151 5186.1325 9840.7388 5384.0330 6768.7540
+ bisection(wrapped2, 0.1, 20)  402.580  430.0100  612.7956  480.7235  600.1690
+ bisection(wrapped3, 0.1, 20)  392.396  431.4380  824.9538  467.4040  552.6325
+ bisection(wrapped4, 0.1, 20)  317.196  341.4285  396.7617  368.9500  413.0580
+   uniroot(func1, c(0.1, 20))   39.794   59.5500  115.2601   72.5830   78.5820
+        max neval
+ 394418.338   100
+   3006.719   100
+  30869.990   100
+   1086.066   100
+   4231.058   100
+> 
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  0.877   0.272   6.155 

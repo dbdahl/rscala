@@ -1,5 +1,5 @@
 library(rscala)
-scala()
+s <- scala()
 
 bisection <- function(func, lower, upper, epsilon=.Machine$double.eps^0.25) s(g=func, lower=lower, upper=upper, epsilon=epsilon) * '
   val (fLower, fUpper) = (g(lower), g(upper))
@@ -19,21 +19,20 @@ bisection <- function(func, lower, upper, epsilon=.Machine$double.eps^0.25) s(g=
 
 
 
-func1 <- function(a=scalaType("D0"), n=100, target=10) {
+func1 <- function(a=scalaType("Double"), n=100, target=10) {
   sum(a / (1:n + a - 1)) - target
 }
 
-
 wrapped1 <- {
-  s(func=s-func1) ^ '
+  s(func=scalaPush(func1)) ^ '
     (a: Double) => R.evalD0("%-(%-)", func, a)
   '
 }
 
 wrapped2 <- s ^ func1
 
-wrapped3 <- s ^ function(a=scalaType("D0"), func=s-func1) {
-  evalD0("%-(%-)", func, a)
+wrapped3 <- s(func=s ^ func1) ^ function(a=scalaType("Double")) {
+  func(a)
 }
 
 wrapped4 <- s(n=100L, target=10L) ^ '(a: Double) => {

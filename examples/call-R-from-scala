@@ -1,0 +1,19 @@
+#!/bin/bash
+
+exec scala -cp $(R --slave -e 'cat(rscala::scalaVersionJARs()[["2.12"]])') "$0" "$@"
+
+!#
+
+val R = org.ddahl.rscala.RClient()
+
+val a = R.evalD0("sd(rnorm(1000, mean=%-, sd=%-))", 1.0, 2.0)
+
+R.eval("primes <- %-", Array(2, 3, 5, 7, 11, 13, 17, 19, 23))
+val rFunction = R.evalObject("function(x) x*primes")
+val primesTimesTwo = R.evalI1("%-(2)", rFunction)
+
+val m = R.evalI2("matrix(rbinom(%-, size=10, prob=0.5), nrow=2)", 8)
+
+R.quit()
+
+

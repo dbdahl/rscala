@@ -1,5 +1,6 @@
 Run 'install-R --devel'
 Bump version number in build.sbt
+Update version number in README.md
 Update R/rscala/NEWS detailing changes (including the date)
 Try to bump to latest versions in project/build.properties, project/plugins.sbt
 Run './bin/check'
@@ -10,13 +11,13 @@ Test depending packages: cd reverse-dependencies; ./check
 Commit everything to Git, including the package in the deliveries directory.
 Tag in Git the version using "bin/tag" script.
 sbt +publishSigned
-sbt +sonatypeRelease   # Don't worry about the error 'Received 500 error'
-# OR https://oss.sonatype.org/
-#     -> Log in
-#     -> Staging Repositories
-#     -> orgddahl-????
-#     -> "Close" repository
-#     -> "Release" repository
-Update version number in README.md
+https://oss.sonatype.org/
+    -> Log in
+    -> Staging Repositories
+    -> orgddahl-????
+    -> "Close" repository
+    -> "Release" repository
+# OR
+# sbt +sonatypeRelease   # Don't worry about the error 'Received 500 error'
 Submit to CRAN
 Bump (development) version number in build.sbt
