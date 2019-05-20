@@ -216,13 +216,6 @@ osType <- function() {
   }
 }
 
-osBit <- function() {
-  if ( identical(.Platform$OS.type,"windows") ) {
-    out <- system2("wmic",c("/locale:ms_409","OS","get","osarchitecture","/VALUE"),stdout=TRUE)
-    if ( any("OSArchitecture=64-bit"==trimws(out)) ) 64 else 32
-  } else if ( identical(system2("uname","-m",stdout=TRUE),"x86_64") ) 64 else 32
-}
-
 getHeapMaximum <- function(heap.maximum,is32bit) {
   if ( ! is.null(heap.maximum) ) return(heap.maximum)
   heap.maximum <- getOption("rscala.heap.maximum")
