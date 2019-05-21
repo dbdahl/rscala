@@ -127,3 +127,107 @@ scalaSBT <- function(args=c("+package","packageSrc"), copy.to.package=TRUE, use.
   }
   invisible(NULL)
 }
+
+#### The rest of this file contains experimental code
+
+#' @importFrom utils compareVersion
+pickLatestStableScalaVersion <- function(candidates, latestSoFar=NULL) {
+  if ( length(candidates) == 0 ) {
+    if ( is.null(latestSoFar) ) stop("Cannot determine the stable Scala version.")
+    else return(latestSoFar)
+  }
+  if ( is.null(latestSoFar) ) {
+    latestSoFar <- candidates[1]
+    result <- tryCatch(compareVersion(latestSoFar, latestSoFar), warning=function(e) NULL, error=function(e) NULL)
+    if ( is.null(result) ) return(pickLatestStableScalaVersion(candidates[-1], NULL))
+    else return(pickLatestStableScalaVersion(candidates[-1],latestSoFar))
+  }
+  result <- tryCatch(compareVersion(candidates[1], latestSoFar), warning=function(e) NULL, error=function(e) NULL)
+  if ( is.null(result) ) pickLatestStableScalaVersion(candidates[-1], latestSoFar)
+  else if ( result > 0 ) pickLatestStableScalaVersion(candidates[-1], candidates[1])
+  else pickLatestStableScalaVersion(candidates[-1], latestSoFar)
+}
+
+# Probably broken
+scalaDevelInfo <- function() {
+  oldWD <- getwd()
+  on.exit(setwd(normalizePath(oldWD,mustWork=FALSE)))
+  packageRoot <- NULL
+  buildSystem <- NULL
+  while ( TRUE ) {
+    if ( file.exists("DESCRIPTION") ) packageRoot <- getwd()
+    if ( file.exists("build.sc") ) {
+      buildSystem <- "mill"
+      break
+    }
+    if ( file.exists("build.sbt") ) {
+      buildSystem <- "sbt"
+      break
+    }
+    currentWD <- getwd()
+    setwd("..")
+    if ( currentWD == getwd() ) return(list(projectRoot=NULL, packageRoot=NULL, buildSystem=NULL, name=NULL))
+  }
+  packageRoot <- if ( ! is.null(packageRoot) ) packageRoot
+  else {
+    descriptionFile <- Sys.glob("*/DESCRIPTION")
+    if ( length(descriptionFile) == 1 ) normalizePath(dirname(descriptionFile))
+    else if ( length(descriptionFile) == 0 ) {
+      descriptionFile <- Sys.glob("*/*/DESCRIPTION")
+      if ( length(descriptionFile) == 1 ) normalizePath(dirname(descriptionFile))
+      else NULL
+    } else NULL
+  }
+  name <- if ( ! is.null(packageRoot) ) as.vector(read.dcf(file.path(packageRoot,"DESCRIPTION"),"Package"))
+  else NULL
+  list(name=name, projectRoot=getwd(), packageRoot=packageRoot, buildSystem=buildSystem)
+}
+
+mill <- function(args,stderr=FALSE) {
+  outString <- system2("mill",args,stdout=TRUE,stderr=stderr)
+  gsub('^\\s*"(.*)"\\s*$',"\\1",outString) 
+}
+
+# Probably broken
+scalaDevelBuildJARs <- function(info=scalaDevelInfo()) {
+  oldWD <- getwd()
+  on.exit(setwd(normalizePath(oldWD,mustWork=FALSE)))
+  if ( is.null(info$projectRoot) ) stop("Cannot find project root.")
+  setwd(info$projectRoot)
+  if ( is.null(info$buildSystem) ) stop("No build system detected.")
+  result <- if ( info$buildSystem == "mill" ) {
+    scalaVersions <- mill(c("show","scala[_].scalaVersion"))
+    srcScalaVersion <- pickLatestStableScalaVersion(scalaVersions)
+    binJARs <- gsub('^ref:[^:]*:(.*)$',"\\1",mill(c("show","scala[_].jar")))
+    srcJAR <- gsub('^ref:[^:]*:(.*)$',"\\1",mill(c("show",paste0("scala[",srcScalaVersion,"].sourceJar"))))
+    names(binJARs) <- scalaVersions
+    list(binJARs=binJARs, srcJAR=srcJAR)
+  } else if ( info$buildSystem == "sbt" ) {
+    stop("Not yet implemented.")
+  } else stop(paste0("Unrecognized build system: ",info$buildSystem))
+  result
+}
+
+
+scalaDevelDeployJARs <- function(name, root, srcJAR, binJARs) {
+  if ( missing(name) || ( ! is.vector(name) ) || ( ! is.character(name) ) || ( length(name) != 1 ) || ( name == "" ) ) stop("'name' is mispecified.")
+  if ( missing(root) || ( ! is.vector(root) ) || ( ! is.character(root) ) || ( length(root) != 1 ) || ( ! dir.exists(root) ) ) stop("'root' directory does not exist.")
+  if ( ! file.exists(file.path(root,"DESCRIPTION")) ) stop("'root' does not appear to be a package root directory.")
+  if ( missing(srcJAR) || ( ! is.vector(srcJAR) ) || ( ! is.character(srcJAR) ) || ( length(srcJAR) != 1 ) ) stop("'srcJAR' must be a path to JAR file.")
+  if ( ! file.exists(srcJAR) ) stop("'srcJAR' does not exists in the file system.")
+  if ( missing(binJARs) || ( ! is.vector(binJARs) ) || ( ! is.character(binJARs) || ( length(binJARs) == 0 ) || is.null(names(binJARs))) ) stop("'binJARs' must be a named vector of paths to JAR files.")
+  if ( ! all(file.exists(binJARs)) ) stop("'binJARs' has elements that do not exists in the file system.")
+  binDir <- file.path(root,"inst","java")
+  oldDirs <- list.files(binDir,"^scala-.*")
+  unlink(file.path(binDir,oldDirs),recursive=TRUE)
+  for ( index in seq_along(binJARs) ) {
+    v <- scalaMajorVersion(names(binJARs)[index])
+    destDir <- file.path(binDir,sprintf("scala-%s",v))
+    dir.create(destDir,FALSE,TRUE)
+    file.copy(binJARs[index],file.path(destDir,paste0(name,".jar")),TRUE)
+  }
+  srcDir <- file.path(root,"java")
+  dir.create(srcDir,FALSE,TRUE)
+  file.copy(srcJAR,file.path(srcDir,paste0(name,"-source.jar")),TRUE)
+  invisible()
+}

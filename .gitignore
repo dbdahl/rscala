@@ -15,7 +15,7 @@
 /R/rscala/vignettes/rscala.out
 /R/rscala/vignettes/rscala.pdf
 /R/rscala/vignettes/rscala.tex
-/src/main/resources/Rscripts
+/src/main/resources
 /deliveries/rscala_*.tar.gz
 /deliveries/rscala.pdf
 .Rhistory

@@ -65,9 +65,13 @@ setversion $PKG_VERSION $(date +'%Y-%m-%d')
 
 
 # List R resources in the JAR
-cd src/main/resources
+resourcesDir=src/main/resources/R
+mkdir -p "$resourcesDir"
+find -L R/rscala/R -name '*.R' -exec cp {} "$resourcesDir" \;
+OLDWD="$PWD"
+cd $resourcesDir/..
 find -L . -name '*.R' | cut -b 1-1 --complement >| Rscripts
-cd ../../..
+cd "$OLDWD"
 
 # Compile Scala
 
@@ -107,6 +111,7 @@ then
   echo "***************************************************"
   echo
 fi
+chmod 755 configure configure.win
 cd ..
 if [[ "$SBT_FAILED" == FALSE ]]
 then
