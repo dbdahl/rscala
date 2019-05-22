@@ -299,7 +299,7 @@ setJavaEnv <- function(javaConf) {
   if ( oldJAVACMD  == "--unset--" ) oldJAVACMD  <- NULL
   if ( oldJAVAHOME == "--unset--" ) oldJAVAHOME <- NULL
   if ( is.null(javaConf$javaCmd)  ) Sys.unsetenv("JAVACMD")   else Sys.setenv(JAVACMD= javaConf$javaCmd)
-  if ( is.null(javaConf$javaHome) ) Sys.unsetenv("JAVA_HOME") else Sys.setenv(JAVAHOME=javaConf$javaHome)
+  if ( is.null(javaConf$javaHome) ) Sys.unsetenv("JAVA_HOME") else Sys.setenv(JAVA_HOME=javaConf$javaHome)
   list(javaCmd=oldJAVACMD,javaHome=oldJAVAHOME)
 }
 
