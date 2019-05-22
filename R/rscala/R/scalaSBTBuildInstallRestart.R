@@ -8,9 +8,10 @@ scalaSBTBuildInstallRestart <- function() {
   cat("\n==> Compiling Scala code","\n",sep="")
   scalaSBT()
   if ( requireNamespace("rstudioapi", quietly = TRUE) && requireNamespace("devtools", quietly = TRUE) ) {
+    if ( ! rstudioapi::isAvailable() ) stop("This function requires that RStudio is running.")
     CWD <- getwd()
     ROOT <- rstudioapi::getActiveProject()
-    if ( ! is.null(rstudioapi::getActiveProject()) ) {
+    if ( ! is.null(ROOT) ) {
       projectFile <- rstudioapi::initializeProject(ROOT)
       lines <- readLines(projectFile)
       i <- grep("^PackageRoxygenize: ",lines)

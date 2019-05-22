@@ -31,8 +31,7 @@
 #'   has not changed?
 #'
 #' @return \code{NULL}
-#' @export
-scalaSBT <- function(args=c("+package","packageSrc"), copy.to.package=TRUE, use.cache=TRUE) {
+scalaSBT_OLD <- function(args=c("+package","packageSrc"), copy.to.package=TRUE, use.cache=TRUE) {
   sConfig <- scalaConfig(FALSE,require.sbt=TRUE)
   oldWD <- normalizePath(getwd(),mustWork=FALSE)
   on.exit(setwd(oldWD))
@@ -67,7 +66,10 @@ scalaSBT <- function(args=c("+package","packageSrc"), copy.to.package=TRUE, use.
     }
   }
   oldJavaEnv <- setJavaEnv(sConfig)
+  oldPath <- Sys.getenv("PATH")
+  Sys.setenv(PATH=paste0(file.path(sConfig$javaHome,"bin"),.Platform$path.sep,oldPath))
   status <- system2(path.expand(sConfig$sbtCmd),args)
+  Sys.setenv(PATH=oldPath)
   setJavaEnv(oldJavaEnv)
   if ( status != 0 ) stop("Non-zero exit status.") 
   if ( copy.to.package ) {
@@ -128,8 +130,6 @@ scalaSBT <- function(args=c("+package","packageSrc"), copy.to.package=TRUE, use.
   invisible(NULL)
 }
 
-#### The rest of this file contains experimental code
-
 #' @importFrom utils compareVersion
 pickLatestStableScalaVersion <- function(candidates, latestSoFar=NULL) {
   if ( length(candidates) == 0 ) {
@@ -148,7 +148,6 @@ pickLatestStableScalaVersion <- function(candidates, latestSoFar=NULL) {
   else pickLatestStableScalaVersion(candidates[-1], latestSoFar)
 }
 
-# Probably broken
 scalaDevelInfo <- function() {
   oldWD <- getwd()
   on.exit(setwd(normalizePath(oldWD,mustWork=FALSE)))
@@ -166,7 +165,7 @@ scalaDevelInfo <- function() {
     }
     currentWD <- getwd()
     setwd("..")
-    if ( currentWD == getwd() ) return(list(projectRoot=NULL, packageRoot=NULL, buildSystem=NULL, name=NULL))
+    if ( currentWD == getwd() ) stop("Cannot find project root directory.")
   }
   packageRoot <- if ( ! is.null(packageRoot) ) packageRoot
   else {
@@ -175,14 +174,14 @@ scalaDevelInfo <- function() {
     else if ( length(descriptionFile) == 0 ) {
       descriptionFile <- Sys.glob("*/*/DESCRIPTION")
       if ( length(descriptionFile) == 1 ) normalizePath(dirname(descriptionFile))
-      else NULL
-    } else NULL
+      else stop("Cannot find package root directory.")
+    } else stop("Cannot find package root directory.")
   }
-  name <- if ( ! is.null(packageRoot) ) as.vector(read.dcf(file.path(packageRoot,"DESCRIPTION"),"Package"))
-  else NULL
+  name <- as.vector(read.dcf(file.path(packageRoot,"DESCRIPTION"),"Package"))
   list(name=name, projectRoot=getwd(), packageRoot=packageRoot, buildSystem=buildSystem)
 }
 
+# Probably broken
 mill <- function(args,stderr=FALSE) {
   outString <- system2("mill",args,stdout=TRUE,stderr=stderr)
   gsub('^\\s*"(.*)"\\s*$',"\\1",outString) 
@@ -208,7 +207,7 @@ scalaDevelBuildJARs <- function(info=scalaDevelInfo()) {
   result
 }
 
-
+#' @export
 scalaDevelDeployJARs <- function(name, root, srcJAR, binJARs) {
   if ( missing(name) || ( ! is.vector(name) ) || ( ! is.character(name) ) || ( length(name) != 1 ) || ( name == "" ) ) stop("'name' is mispecified.")
   if ( missing(root) || ( ! is.vector(root) ) || ( ! is.character(root) ) || ( length(root) != 1 ) || ( ! dir.exists(root) ) ) stop("'root' directory does not exist.")
@@ -230,4 +229,95 @@ scalaDevelDeployJARs <- function(name, root, srcJAR, binJARs) {
   dir.create(srcDir,FALSE,TRUE)
   file.copy(srcJAR,file.path(srcDir,paste0(name,"-source.jar")),TRUE)
   invisible()
+}
+
+scalaFindLatestJARs <- function(dir, version2Path, jarFilter) {
+  oldWD <- getwd()
+  on.exit(setwd(normalizePath(oldWD,mustWork=FALSE)))
+  setwd(dir)
+  majorVersions <- names(scalaVersionJARs())
+  jars <- sapply(majorVersions, function(mv) {
+    candidates <- jarFilter(list.files(version2Path(mv),".*\\.jar",full.names=TRUE))
+    latest <- which.max(file.info(candidates)$mtime)
+    normalizePath(candidates[latest],mustWork=FALSE)
+  })
+  names(jars) <- majorVersions
+  jars[sapply(jars, function(x) length(x)!=0)]
+}
+
+scalaFindLatestJARsBinSBT <- function(dir) {
+  scalaFindLatestJARs(dir,
+          function(majorVersion) file.path("target",sprintf("scala-%s",majorVersion)),
+          function(candidates) candidates[!(grepl(".*-sources\\.jar",candidates) | grepl(".*-scaladoc\\.jar",candidates))])
+}
+
+scalaFindLatestJARsSrcSBT <- function(dir) {
+  candidates <- scalaFindLatestJARs(dir,
+          function(majorVersion) file.path("target",sprintf("scala-%s",majorVersion)),
+          function(candidates) candidates[grepl(".*-sources\\.jar",candidates)])
+  names <- names(candidates)
+  latest <- pickLatestStableScalaVersion(names)
+  candidates[[latest]]
+}
+
+#' Run SBT and Deploy JAR Files
+#'
+#' This function runs SBT (Scala Build Tool) to package JAR files and then copy
+#' them to the appropriate directories of the R package source.
+#'
+#' Starting from the current working directory and moving up the file system
+#' hierarchy as needed, this function searches for the directory containing the
+#' file \code{'build.sbt'}, the SBT build file. It temporarily changes the
+#' working directory to this directory. It then runs \code{sbt +package packageSrc} to
+#' package the cross-compiled the Scala code and package the source code.
+#' publish the JAR files locally. Finally, it copies the JAR files to
+#' the appropriate directories of the R package source. Specifically, source JAR
+#' files go into \code{(PKGHOME)/java} and binary JAR files go into
+#' \code{(PKGHOME)/inst/java/scala-(VERSION)}, where \code{(PKGHOME)} is the
+#' package home and \code{(VERSION)} is the major Scala version (e.g., 2.12).
+#' It is assumed that the package home is a subdirectory of the directory
+#' containing the \code{'build.sbt'} file.
+#'
+#' Note that SBT may give weird errors about not being able to download needed
+#' dependences.  The issue is that some OpenJDK builds less than version 10 do
+#' not include root certificates.  The solution is to either: i. manually
+#' install OpenJDK version 10 or greater, or ii. manually install Oracle's
+#' version of Java. Both are capable with the rscala package.
+#'
+#' @param clean Should cached compilations be discarded?
+#'
+#' @return \code{NULL}
+#' @export
+scalaSBT <- function(clean=FALSE) {
+  sConfig <- scalaConfig(FALSE,require.sbt=TRUE)
+  info <- scalaDevelInfo()
+  oldWD <- getwd()
+  on.exit(setwd(normalizePath(oldWD,mustWork=FALSE))) 
+  setwd(info$projectRoot)
+  oldJavaEnv <- setJavaEnv(sConfig)
+  oldPath <- Sys.getenv("PATH")
+  Sys.setenv(PATH=paste0(file.path(sConfig$javaHome,"bin"),.Platform$path.sep,oldPath))
+  runUsingProcessX <- if ( requireNamespace("rstudioapi", quietly = TRUE) ) {
+    if ( rstudioapi::isAvailable() ) {
+      if ( requireNamespace("processx", quietly = TRUE) ) TRUE
+      else {
+        stop("This function requires the 'processx' package when run under RStudio.  Please run \"install.packages('processx')\" and try again.")
+      }
+    } else FALSE
+  }
+  args <- c("+package","packageSrc")
+  args <- if ( clean ) c("clean",args) else args
+  status <- if ( runUsingProcessX ) {
+    processx::run(path.expand(sConfig$sbtCmd),args,echo=TRUE)$status
+  } else {
+    # Since RStudio 1.2, this does not seem to work, hence the alternative using the processx package.
+    system2(path.expand(sConfig$sbtCmd),args)
+  }
+  Sys.setenv(PATH=oldPath)
+  setJavaEnv(oldJavaEnv)
+  if ( status != 0 ) stop("Non-zero exit status.") 
+  srcJAR <- scalaFindLatestJARsSrcSBT(info$projectRoot)
+  binJARs <- scalaFindLatestJARsBinSBT(info$projectRoot)
+  scalaDevelDeployJARs(info$name, info$packageRoot, srcJAR, binJARs)
+  invisible(NULL)
 }
