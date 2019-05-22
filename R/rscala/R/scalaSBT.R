@@ -242,7 +242,7 @@ scalaFindLatestJARs <- function(dir, version2Path, jarFilter) {
     normalizePath(candidates[latest],mustWork=FALSE)
   })
   names(jars) <- majorVersions
-  jars[sapply(jars, function(x) length(x)!=0)]
+  unlist(jars[sapply(jars, function(x) length(x)==1)])
 }
 
 scalaFindLatestJARsBinSBT <- function(dir) {
