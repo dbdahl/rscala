@@ -301,13 +301,26 @@ scalaFindLatestJARsSrcSBT <- function(dir) {
 #'   command.
 #' @param copy.to.package Should the JARs files be copied to the appropriate
 #'   directories of the R package source?'
+#' @param use.cache Should compilation be avoided if it appears Scala code
+#'   has not changed?
+#
 #' 
 #' @return \code{NULL}
 #' @export
-scalaSBT <- function(args=c("+package","packageSrc"), copy.to.package=TRUE) {
+scalaSBT <- function(args=c("+package","packageSrc"), copy.to.package=TRUE, use.cache=TRUE) {
   if ( ( ! is.vector(args) ) || ( ! is.character(args) ) ) stop("'args' is mispecified.")
   sConfig <- scalaConfig(FALSE,require.sbt=TRUE)
   info <- scalaDevelInfo()
+  latest <- function(path,pattern=NULL) {
+    files <- list.files(path, pattern=pattern, recursive=TRUE, full.names=TRUE)
+    xx <- sapply(files, function(f) { file.info(f)$mtime })
+    if ( length(xx) == 0 ) -Inf else max(xx)
+  }
+  srcHome <- file.path(info$projectRoot,"src")
+  if ( use.cache && file.exists(srcHome) && file.exists(info$packageRoot) && ( latest(srcHome) < latest(info$packageRoot,'.*\\.jar') ) ) {
+    cat("[info] Latest Scala source is older that JARs.  There is no need to re-compile.\n")
+    return(invisible())
+  }
   oldWD <- getwd()
   on.exit(setwd(normalizePath(oldWD,mustWork=FALSE))) 
   setwd(info$projectRoot)
