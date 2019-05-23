@@ -296,12 +296,16 @@ scalaFindLatestJARsSrcSBT <- function(dir) {
 #' not include root certificates.  The solution is to either: i. manually
 #' install OpenJDK version 10 or greater, or ii. manually install Oracle's
 #' version of Java. Both are capable with the rscala package.
-#'
-#' @param clean Should cached compilations be discarded?
-#'
+#' 
+#' @param args A character vector giving the arguments to be passed to the SBT
+#'   command.
+#' @param copy.to.package Should the JARs files be copied to the appropriate
+#'   directories of the R package source?'
+#' 
 #' @return \code{NULL}
 #' @export
-scalaSBT <- function(clean=FALSE) {
+scalaSBT <- function(args=c("+package","packageSrc"), copy.to.package=TRUE) {
+  if ( ( ! is.vector(args) ) || ( ! is.character(args) ) ) stop("'args' is mispecified.")
   sConfig <- scalaConfig(FALSE,require.sbt=TRUE)
   info <- scalaDevelInfo()
   oldWD <- getwd()
@@ -318,8 +322,6 @@ scalaSBT <- function(clean=FALSE) {
       }
     } else FALSE
   }
-  args <- c("+package","packageSrc")
-  args <- if ( clean ) c("clean",args) else args
   status <- if ( runUsingProcessX ) {
     processx::run(path.expand(sConfig$sbtCmd),args,echo=TRUE)$status
   } else {
@@ -328,9 +330,11 @@ scalaSBT <- function(clean=FALSE) {
   }
   Sys.setenv(PATH=oldPath)
   setJavaEnv(oldJavaEnv)
-  if ( status != 0 ) stop("Non-zero exit status.") 
-  srcJAR <- scalaFindLatestJARsSrcSBT(info$projectRoot)
-  binJARs <- scalaFindLatestJARsBinSBT(info$projectRoot)
-  scalaDevelDeployJARs(info$name, info$packageRoot, srcJAR, binJARs)
+  if ( status != 0 ) stop("Non-zero exit status.")
+  if ( copy.to.package ) {
+    srcJAR <- scalaFindLatestJARsSrcSBT(info$projectRoot)
+    binJARs <- scalaFindLatestJARsBinSBT(info$projectRoot)
+    scalaDevelDeployJARs(info$name, info$packageRoot, srcJAR, binJARs)
+  }
   invisible(NULL)
 }

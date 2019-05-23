@@ -9,5 +9,7 @@ class MainModule(val crossScalaVersion: String) extends CrossSbtModule {
     ivy"${scalaOrganization()}:scalap:${scalaVersion()}"
   )
 
+  def scalacOptions = Seq("-feature", "-deprecation", "-unchecked")
+
 }
 
