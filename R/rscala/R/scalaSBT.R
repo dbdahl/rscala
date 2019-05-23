@@ -207,6 +207,19 @@ scalaDevelBuildJARs <- function(info=scalaDevelInfo()) {
   result
 }
 
+#' Deploy JAR Files into the Package File System
+#'
+#' This function copies the JAR files to the appropriate directories of the R
+#' package source. Specifically, source JAR files go into \code{(PKGHOME)/java}
+#' and binary JAR files go into \code{(PKGHOME)/inst/java/scala-(VERSION)},
+#' where \code{(PKGHOME)} is the package home and \code{(VERSION)} is the major
+#' Scala version (e.g., 2.12).
+#'
+#' @param name The package name (as a string).
+#' @param root The file system path to package root directory (as a string).
+#' @param srcJAR The file system path to source JAR file (as a string).
+#' @param binJARs A named character vector of file system paths, where each name is a Scala major version (e.g., \code{"2.12"}.)
+#'
 #' @export
 scalaDevelDeployJARs <- function(name, root, srcJAR, binJARs) {
   if ( missing(name) || ( ! is.vector(name) ) || ( ! is.character(name) ) || ( length(name) != 1 ) || ( name == "" ) ) stop("'name' is mispecified.")
@@ -268,14 +281,14 @@ scalaFindLatestJARsSrcSBT <- function(dir) {
 #' Starting from the current working directory and moving up the file system
 #' hierarchy as needed, this function searches for the directory containing the
 #' file \code{'build.sbt'}, the SBT build file. It temporarily changes the
-#' working directory to this directory. It then runs \code{sbt +package packageSrc} to
-#' package the cross-compiled the Scala code and package the source code.
-#' publish the JAR files locally. Finally, it copies the JAR files to
-#' the appropriate directories of the R package source. Specifically, source JAR
-#' files go into \code{(PKGHOME)/java} and binary JAR files go into
+#' working directory to this directory. It then runs \code{sbt +package
+#' packageSrc} to package the cross-compiled the Scala code and package the
+#' source code. publish the JAR files locally. Finally, it copies the JAR files
+#' to the appropriate directories of the R package source. Specifically, source
+#' JAR files go into \code{(PKGHOME)/java} and binary JAR files go into
 #' \code{(PKGHOME)/inst/java/scala-(VERSION)}, where \code{(PKGHOME)} is the
-#' package home and \code{(VERSION)} is the major Scala version (e.g., 2.12).
-#' It is assumed that the package home is a subdirectory of the directory
+#' package home and \code{(VERSION)} is the major Scala version (e.g., 2.12). It
+#' is assumed that the package home is a subdirectory of the directory
 #' containing the \code{'build.sbt'} file.
 #'
 #' Note that SBT may give weird errors about not being able to download needed
