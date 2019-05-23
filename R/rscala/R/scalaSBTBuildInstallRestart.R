@@ -2,11 +2,13 @@
 #' 
 #' This function runs \code{scalaSBT()}, builds the source package, installs the package, and restarts R.
 #'
+#' @param ... Arguments passed to \code{\link{scalaSBT}}.
+#'
 #' @export
 #'
-scalaSBTBuildInstallRestart <- function() {
+scalaSBTBuildInstallRestart <- function(...) {
   cat("\n==> Compiling Scala code","\n",sep="")
-  scalaSBT()
+  scalaSBT(...)
   if ( requireNamespace("rstudioapi", quietly = TRUE) && requireNamespace("devtools", quietly = TRUE) ) {
     if ( ! rstudioapi::isAvailable() ) stop("This function requires that RStudio is running.")
     CWD <- getwd()

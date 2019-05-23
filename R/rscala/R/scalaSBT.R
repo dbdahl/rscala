@@ -169,13 +169,15 @@ scalaDevelInfo <- function() {
   }
   packageRoot <- if ( ! is.null(packageRoot) ) packageRoot
   else {
-    descriptionFile <- Sys.glob("*/DESCRIPTION")
-    if ( length(descriptionFile) == 1 ) normalizePath(dirname(descriptionFile))
-    else if ( length(descriptionFile) == 0 ) {
-      descriptionFile <- Sys.glob("*/*/DESCRIPTION")
-      if ( length(descriptionFile) == 1 ) normalizePath(dirname(descriptionFile))
-      else stop("Cannot find package root directory.")
-    } else stop("Cannot find package root directory.")
+    search <- function(depth) {
+      candidates <- Sys.glob(paste0(c(rep("*",depth),"DESCRIPTION"),collapse=.Platform$file.sep))
+      descriptionFiles <- sapply(candidates, function(a) as.vector(read.dcf(a,"Package")))
+      names(descriptionFiles[!is.na(descriptionFiles)])
+    }
+    i <- 1
+    while ( ( i < 3 ) && ( length(search(i)) != 1 ) ) i <- i + 1
+    if ( i < 3 ) normalizePath(dirname(search(i)))
+    else stop("Cannot find package root directory.")
   }
   name <- as.vector(read.dcf(file.path(packageRoot,"DESCRIPTION"),"Package"))
   list(name=name, projectRoot=getwd(), packageRoot=packageRoot, buildSystem=buildSystem)
