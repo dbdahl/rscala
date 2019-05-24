@@ -73,8 +73,8 @@ scala <- function(JARs=character(),
   sConfig <- tryCatch(scalaConfig(FALSE), error=function(e) list(error=e))
   if ( is.null(sConfig$error) ) {
     scalaMajor <- sConfig$scalaMajorVersion
-    rscalaJAR <- shQuote(list.files(system.file(file.path("java",paste0("scala-",scalaMajor)),package="rscala",mustWork=FALSE),full.names=TRUE))
-    if ( rscalaJAR[1] == "" ) {
+    rscalaJAR <- shQuote(list.files(system.file(file.path("java",paste0("scala-",scalaMajor)),package="rscala",mustWork=FALSE),".*\\.jar$",full.names=TRUE))
+    if ( length(rscalaJAR) == 0 ) {
       sConfig$error <- list(message=paste0("\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nScala version ",sConfig$scalaFullVersion," is not among the support versions: ",paste(names(scalaVersionJARs()),collapse=", "),".\nPlease run 'rscala::scalaConfig(reconfig=TRUE)'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"))
     } else {
       heap.maximum <- getHeapMaximum(heap.maximum,sConfig$javaArchitecture == 32)
