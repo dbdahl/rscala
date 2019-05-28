@@ -1,5 +1,5 @@
 #!/bin/bash
 
-cd $(dirname $(readlink -f "$0"))
-sbt run
+# cd $(dirname $(readlink -f "$0"))
+JAVA_HOME=~/.rscala/java  ~/.rscala/sbt/bin/sbt run
 
