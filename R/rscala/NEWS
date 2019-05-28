@@ -1,3 +1,13 @@
+3.2.10 (2019-05-28)
+  * Fixed a regression introduced by 3.2.7 which broke embedding R in Scala.
+  * Rewrote the scalaSBT function with an eye towards generality.
+  * Added the scalaDevelDeployJARs function to facilitate package development.
+  * Dropped the scalaSBTBuildInstallRestart function.
+  * Installation of Java now checks the architecture (in addition to the OS).
+  * Attempt to fix error in CRAN package checks that sporadically occur.
+  * Worked around a bug which may occur when running system2 on RStudio.
+  * Worked around a bug in FastR on GraalVM.
+
 3.2.9 (2019-05-18)
   * Avoid "No Java runtime present, requesting install" pop-up on Mac OS X.
   * Fixed long-standing bug related to very large arrays of Int and Double
