@@ -1,8 +1,8 @@
 #!/bin/bash
 
-export SCALA=$(R --slave -e 'cat(rscala::scalaConfig()$scalaCmd)')
+export SCALA=$(R --slave -e 'cat(rscala::scalaConfig(verbose=FALSE)$scalaCmd)')
 export JAR=$(R --slave -e 'cat(rscala::scalaVersionJARs()[["2.12"]])')
-export JAVA_HOME=$(R --slave -e 'cat(rscala::scalaConfig()$javaHome)')
+export JAVA_HOME=$(R --slave -e 'cat(rscala::scalaConfig(verbose=FALSE)$javaHome)')
 
 exec "$SCALA" -nc -cp "$JAR" "$0" "$@"
 
