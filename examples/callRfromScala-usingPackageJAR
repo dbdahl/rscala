@@ -1,6 +1,10 @@
 #!/bin/bash
 
-exec scala -cp $(R --slave -e 'cat(rscala::scalaVersionJARs()[["2.12"]])') "$0" "$@"
+export SCALA=$(R --slave -e 'cat(rscala::scalaConfig()$scalaCmd)')
+export JAR=$(R --slave -e 'cat(rscala::scalaVersionJARs()[["2.12"]])')
+export JAVA_HOME=$(R --slave -e 'cat(rscala::scalaConfig()$javaHome)')
+
+exec "$SCALA" -nc -cp "$JAR" "$0" "$@"
 
 !#
 
