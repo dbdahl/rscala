@@ -8,7 +8,12 @@ Run './bin/post'
 Rerun benchmarks on an otherwise idle machine: cd benchmarks; ./all
 Test on Linux, Mac OS, and Windows (use https://win-builder.r-project.org/)
 Test depending packages: cd reverse-dependencies; ./check
+Test examples/callRfromScala-usingPackageJAR
+sbt +publishLocal
+Bump version in examples/callRfromScala/build.sbt
+Execute examples/callRfromScala/run
 Commit everything to Git, including the package in the deliveries directory.
+Test examples/callRfromScala/run
 Tag in Git the version using "bin/tag" script.
 sbt +publishSigned
 https://oss.sonatype.org/
