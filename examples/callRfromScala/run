@@ -1,5 +1,7 @@
 #!/bin/bash
 
-# cd $(dirname $(readlink -f "$0"))
-JAVA_HOME=~/.rscala/java  ~/.rscala/sbt/bin/sbt run
+export JAVA_HOME=$(R --slave -e 'cat(rscala::scalaConfig(verbose=FALSE)$javaHome)')
+export SBT=$(R --slave -e 'cat(rscala::scalaConfig(verbose=FALSE)$sbt)')
+
+$SBT run
 

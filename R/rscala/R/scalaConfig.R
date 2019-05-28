@@ -311,14 +311,17 @@ scalaMajorVersion <- function(scalaVersion) {
 scalaSpecifics <- function(scalaCmd,javaConf,verbose) {
   if ( verbose ) cat("  ... querying Scala specifics.\n")
   oldJavaEnv <- setJavaEnv(javaConf)
-  fullVersion <- tryCatch({
-    info <- system2(scalaCmd,c("-nobootcp","-nc","-e",shQuote('import util.Properties._; println(Seq(versionNumberString,scalaHome,javaHome).mkString(lineSeparator))')),stdout=TRUE,stderr=FALSE)
-    if ( is.null(info[1]) || is.na(info[1]) ) "" else info[1]
-    info <- scalaMajorVersion(info[1])
-    if ( is.null(info[1]) || is.na(info[1]) ) "" else info[1]
-   }, warning=function(e) "", error=function(e) "")
+  info <- tryCatch({
+    system2(scalaCmd,c("-nobootcp","-nc","-e",shQuote('import util.Properties._; println(Seq(versionNumberString,scalaHome,javaHome).mkString(lineSeparator))')),stdout=TRUE,stderr=FALSE)
+  }, warning=function(e) "", error=function(e) "")
   setJavaEnv(oldJavaEnv)
-  if ( majorVersion == "" ) majorVersion <- "?"
+  if ( is.null(info[1]) || is.na(info[1]) ) {
+    fullVersion <- "?"
+    majorVersion <- "?"
+  } else {
+    fullVersion <- info[1]
+    majorVersion <- scalaMajorVersion(fullVersion)
+  }
   supportedVersions <- names(scalaVersionJARs())
   if ( ( length(supportedVersions) > 0 ) && ! ( majorVersion %in% supportedVersions ) ) paste0("unsupported Scala version: ",majorVersion)
   else {

@@ -11,9 +11,8 @@ Test depending packages: cd reverse-dependencies; ./check
 Test examples/callRfromScala-usingPackageJAR
 sbt +publishLocal
 Bump version in examples/callRfromScala/build.sbt
-Execute examples/callRfromScala/run
+Execute "cd examples/callRfromScala; run"
 Commit everything to Git, including the package in the deliveries directory.
-Test examples/callRfromScala/run
 Tag in Git the version using "bin/tag" script.
 sbt +publishSigned
 https://oss.sonatype.org/
