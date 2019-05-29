@@ -172,14 +172,12 @@ findExecutable <- function(mode,prettyMode,installPath,mapper,verbose=TRUE) {  #
     label <- "PATH environment variable"
     conf <- tryCandidate(Sys.which(mode)[[mode]])
     if ( ! is.null(conf) ) return(conf)
-  }
-  ###
-  if ( mode == "java" ) {
+    ###
     label <- paste0("R CMD config JAVA")
     path <- tryCatch(system2(file.path(R.home("bin"),"R"),c("CMD","config","JAVA"),stdout=TRUE,stderr=FALSE), warning=function(e) NULL, error=function(e) NULL)
     conf <- tryCandidate(path)
     if ( ! is.null(conf) ) return(conf)
-  } 
+  }
   ###
   if ( Sys.getenv("RSCALA_BUILDING") == "" ) {
     label <- "package build directory"

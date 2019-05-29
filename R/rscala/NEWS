@@ -1,3 +1,6 @@
+3.2.11 (2019-XX-XX)
+  * More avoidance of "No Java runtime present..." pop-up on Mac OS X.
+
 3.2.10 (2019-05-28)
   * Fixed a regression introduced by 3.2.7 which broke embedding R in Scala.
   * Rewrote the scalaSBT function with an eye towards generality.
