@@ -22,7 +22,7 @@ echo -e "####\nPosted to\n  https://dahl.byu.edu/public/$TGZ_NAME\n####"
 
 ## Post Scaladoc 
 R --slave -e "rscala:::scalaSBT(c('packageDoc'),FALSE,FALSE)"
-rsync -r --chmod=go=rX target/scala-2.12/api/ dahl.byu.edu:public/rscala/doc
+rsync -r --chmod=go=rX target/scala-2.13/api/ dahl.byu.edu:public/rscala/doc
 
 ## Post vignete
 cd deliveries

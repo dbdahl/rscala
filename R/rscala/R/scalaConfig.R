@@ -224,7 +224,7 @@ installSoftware <- function(installPath, software, version, os, arch, verbose=FA
     version <- if ( software == "java" ) {
       if ( Sys.getenv("RSCALA_VERIFY_JAVA_VERSION","") != "" )  Sys.getenv("RSCALA_VERIFY_JAVA_VERSION","") else "8"
     } else if ( software == "scala" ) {
-      if ( Sys.getenv("RSCALA_VERIFY_SCALA_VERSION","") != "" ) Sys.getenv("RSCALA_VERIFY_SCALA_VERSION","") else "2.12"
+      if ( Sys.getenv("RSCALA_VERIFY_SCALA_VERSION","") != "" ) Sys.getenv("RSCALA_VERIFY_SCALA_VERSION","") else "2.13"
     } else if ( software == "sbt" ) {
       if ( Sys.getenv("RSCALA_VERIFY_SBT_VERSION","") != "" ) Sys.getenv("RSCALA_VERIFY_SBT_VERSION","") else "1.2"
     } else NULL
@@ -357,7 +357,7 @@ verifyDownloads <- function() {
       close(s)
     }
   }
-  for ( version in c("2.11","2.13.0-RC2","2.12") ) {
+  for ( version in c("2.11","2.12","2.13") ) {
     for ( efc in 0:1 ) {
       Sys.setenv(RSCALA_VERIFY_EXTRACT_FAILURE_COUNT=efc)
       Sys.setenv(RSCALA_VERIFY_SCALA_VERSION=version)

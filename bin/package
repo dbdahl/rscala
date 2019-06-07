@@ -77,7 +77,7 @@ cd "$OLDWD"
 
 set +e
 SBT_FAILED=FALSE
-R --slave -e "rscala:::scalaSBT()"
+R --slave -e "rscala::scalaSBT()"
 if [[ $? != 0 ]]
 then
   SBT_FAILED=TRUE

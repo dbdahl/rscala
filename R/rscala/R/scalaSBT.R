@@ -12,7 +12,7 @@
 #' to the appropriate directories of the R package source. Specifically, source
 #' JAR files go into \code{(PKGHOME)/java} and binary JAR files go into
 #' \code{(PKGHOME)/inst/java/scala-(VERSION)}, where \code{(PKGHOME)} is the
-#' package home and \code{(VERSION)} is the major Scala version (e.g., 2.12). It
+#' package home and \code{(VERSION)} is the major Scala version (e.g., 2.13). It
 #' is assumed that the package home is a subdirectory of the directory
 #' containing the \code{'build.sbt'} file.
 #'
@@ -47,7 +47,7 @@ scalaSBT <- function(args=c("+package","packageSrc"), copy.to.package=TRUE, only
     return(invisible())
   }
   oldWD <- getwd()
-  on.exit(setwd(normalizePath(oldWD,mustWork=FALSE))) 
+  on.exit(setwd(normalizePath(oldWD,mustWork=FALSE)))
   setwd(info$projectRoot)
   oldJavaEnv <- setJavaEnv(sConfig)
   oldPath <- Sys.getenv("PATH")
@@ -70,8 +70,15 @@ scalaSBT <- function(args=c("+package","packageSrc"), copy.to.package=TRUE, only
   setJavaEnv(oldJavaEnv)
   if ( status != 0 ) stop("Non-zero exit status.")
   if ( copy.to.package ) {
-    srcJAR <- scalaFindLatestJARsSrcSBT(info$projectRoot)
-    binJARs <- scalaFindLatestJARsBinSBT(info$projectRoot)
+    lines <- readLines("build.sbt")
+    crossLine <-   lines[grepl("^\\s*crossScalaVersions\\s*:=",lines)]
+    if ( length(crossLine) != 1 ) stop("Could not find one and only one 'crossScalaVersion' line in 'build.sbt'.")
+    scalaVersions <- strsplit(gsub('["),]','',sub('[^"]*','',crossLine)),"\\s+")[[1]]
+    scalaVersions <- sapply(scalaVersions, function(x) {
+      if ( grepl("^2.1[123]\\.",x) ) substr(x,1,4) else x
+    })
+    srcJAR <- scalaFindLatestJARsSrcSBT(info$projectRoot, scalaVersions)
+    binJARs <- scalaFindLatestJARsBinSBT(info$projectRoot, scalaVersions)
     scalaDevelDeployJARs(info$name, info$packageRoot, srcJAR, binJARs)
   }
   invisible(NULL)
@@ -83,12 +90,12 @@ scalaSBT <- function(args=c("+package","packageSrc"), copy.to.package=TRUE, only
 #' package source. Specifically, source JAR files go into \code{(PKGHOME)/java}
 #' and binary JAR files go into \code{(PKGHOME)/inst/java/scala-(VERSION)},
 #' where \code{(PKGHOME)} is the package home and \code{(VERSION)} is the major
-#' Scala version (e.g., 2.12).
+#' Scala version (e.g., 2.13).
 #'
 #' @param name The package name (as a string).
 #' @param root The file system path to package root directory (as a string).
 #' @param srcJAR The file system path to source JAR file (as a string).
-#' @param binJARs A named character vector of file system paths, where each name is a Scala major version (e.g., \code{"2.12"}.)
+#' @param binJARs A named character vector of file system paths, where each name is a Scala major version (e.g., \code{"2.13"}.)
 #'
 #' @export
 scalaDevelDeployJARs <- function(name, root, srcJAR, binJARs) {
@@ -193,11 +200,10 @@ scalaDevelInfo <- function() {
 #   result
 # }
 
-scalaFindLatestJARs <- function(dir, version2Path, jarFilter) {
+scalaFindLatestJARs <- function(dir, version2Path, jarFilter, majorVersions) {
   oldWD <- getwd()
   on.exit(setwd(normalizePath(oldWD,mustWork=FALSE)))
   setwd(dir)
-  majorVersions <- names(scalaVersionJARs())
   jars <- sapply(majorVersions, function(mv) {
     candidates <- jarFilter(list.files(version2Path(mv),".*\\.jar",full.names=TRUE))
     latest <- which.max(file.info(candidates)$mtime)
@@ -207,16 +213,18 @@ scalaFindLatestJARs <- function(dir, version2Path, jarFilter) {
   unlist(jars[sapply(jars, function(x) length(x)==1)])
 }
 
-scalaFindLatestJARsBinSBT <- function(dir) {
+scalaFindLatestJARsBinSBT <- function(dir, majorVersions) {
   scalaFindLatestJARs(dir,
           function(majorVersion) file.path("target",sprintf("scala-%s",majorVersion)),
-          function(candidates) candidates[!(grepl(".*-sources\\.jar",candidates) | grepl(".*-scaladoc\\.jar",candidates))])
+          function(candidates) candidates[!(grepl(".*-sources\\.jar",candidates) | grepl(".*-scaladoc\\.jar",candidates))],
+          majorVersions)
 }
 
-scalaFindLatestJARsSrcSBT <- function(dir) {
+scalaFindLatestJARsSrcSBT <- function(dir, majorVersions) {
   candidates <- scalaFindLatestJARs(dir,
           function(majorVersion) file.path("target",sprintf("scala-%s",majorVersion)),
-          function(candidates) candidates[grepl(".*-sources\\.jar",candidates)])
+          function(candidates) candidates[grepl(".*-sources\\.jar",candidates)],
+          majorVersions)
   names <- names(candidates)
   latest <- pickLatestStableScalaVersion(names)
   candidates[[latest]]

@@ -5,9 +5,9 @@ organization := "org.ddahl"
 //version := "3.2.11"
 version := "3.2.11-SNAPSHOT"
 
-scalaVersion := "2.12.8"
+scalaVersion := "2.13.0"
 
-crossScalaVersions := Seq("2.11.12", "2.12.8", "2.13.0-RC2")
+crossScalaVersions := Seq("2.11.12", "2.12.8", "2.13.0")
 
 scalacOptions ++= List("-feature", "-deprecation", "-unchecked")
 

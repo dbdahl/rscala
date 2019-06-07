@@ -26,7 +26,7 @@ software  os                   arch     version  priority  url
    scala  any                   any        2.11        20  https://byu.box.com/shared/static/kh0pew26qbai9mznyp6jvq3ve8g8gwuh.tgz
    scala  any                   any        2.12        50  https://downloads.lightbend.com/scala/2.12.8/scala-2.12.8.tgz
    scala  any                   any        2.12        20  https://byu.box.com/shared/static/d0s7imb7s572o3weezb0w1in4phcrp1u.tgz
-   scala  any                   any  2.13.0-RC2        50  https://downloads.lightbend.com/scala/2.13.0-RC2/scala-2.13.0-RC2.tgz
-   scala  any                   any  2.13.0-RC2        20  https://byu.box.com/shared/static/owmfg81og7eqt2w7ocwbvyw1cfvjrqqn.tgz
+   scala  any                   any        2.13        50  https://downloads.lightbend.com/scala/2.13.0/scala-2.13.0.tgz
+   scala  any                   any        2.13        20  https://byu.box.com/shared/static/9vwwj0tge7kl6a39o29dpfs4dh0bxro7.tgz
      sbt  any                   any         1.2        50  https://piccolo.link/sbt-1.2.8.tgz
      sbt  any                   any         1.2        20  https://byu.box.com/shared/static/bgut2govob4dvzn8b9bkbrbd1r0lrnjx.tgz
