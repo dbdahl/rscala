@@ -169,6 +169,7 @@ findExecutable <- function(mode,prettyMode,installPath,mapper,verbose=TRUE) {  #
     conf <- tryCandidate(if ( ! inherits(home,"try-error") && ( home != "" ) ) file.path(home,"bin",mode) else "")
     if ( ! is.null(conf) ) return(conf)
   } else {
+    ###
     label <- "PATH environment variable"
     conf <- tryCandidate(Sys.which(mode)[[mode]])
     if ( ! is.null(conf) ) return(conf)
