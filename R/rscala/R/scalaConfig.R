@@ -37,7 +37,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
   download.sbt <- "sbt" %in% download
   if ( Sys.getenv("RSCALA_RECONFIG") != "" ) reconfig <- Sys.getenv("RSCALA_RECONFIG")
   consent <- identical(reconfig,TRUE) || download.java || download.scala || download.sbt
-  installPath <- path.expand(file.path("~",".rscala"))
+  installPath <- path.expand(if ( Sys.getenv("RSCALA_HOME") != "" ) Sys.getenv("RSCALA_HOME") else file.path("~",".rscala"))
   dependsPath <- if ( Sys.getenv("RSCALA_BUILDING") != "" ) file.path(getwd(),"inst","dependencies") else ""
   offerInstall <- function(msg) {
     if ( !identical(reconfig,"live") && interactive() ) {
@@ -49,7 +49,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
       }
     } else FALSE
   }
-  configPath  <- file.path(installPath,"config.R")
+  configPath <- file.path(installPath,"config.R")
   if ( identical(reconfig,FALSE) && file.exists(configPath) && !download.java && !download.scala && !download.sbt ) {
     if ( verbose ) cat(paste0("\nRead existing configuration file: ",configPath,"\n\n"))
     source(configPath,chdir=TRUE,local=TRUE)
@@ -173,10 +173,12 @@ findExecutable <- function(mode,prettyMode,installPath,mapper,verbose=TRUE) {  #
     conf <- tryCandidate(Sys.which(mode)[[mode]])
     if ( ! is.null(conf) ) return(conf)
     ###
-    label <- paste0("R CMD config JAVA")
-    path <- tryCatch(system2(file.path(R.home("bin"),"R"),c("CMD","config","JAVA"),stdout=TRUE,stderr=FALSE), warning=function(e) NULL, error=function(e) NULL)
-    conf <- tryCandidate(path)
-    if ( ! is.null(conf) ) return(conf)
+    if ( mode == "java" ) {
+      label <- paste0("R CMD config JAVA")
+      path <- tryCatch(system2(file.path(R.home("bin"),"R"),c("CMD","config","JAVA"),stdout=TRUE,stderr=FALSE), warning=function(e) NULL, error=function(e) NULL)
+      conf <- tryCandidate(path)
+      if ( ! is.null(conf) ) return(conf)
+    }
   }
   ###
   if ( Sys.getenv("RSCALA_BUILDING") == "" ) {
@@ -222,11 +224,11 @@ installSoftware <- function(installPath, software, version, os, arch, verbose=FA
   sel <- urls$software == software
   if ( missing(version) ) {
     version <- if ( software == "java" ) {
-      if ( Sys.getenv("RSCALA_VERIFY_JAVA_VERSION","") != "" )  Sys.getenv("RSCALA_VERIFY_JAVA_VERSION","") else "8"
+      if ( Sys.getenv("RSCALA_JAVA_VERSION","") != "" )  Sys.getenv("RSCALA_JAVA_VERSION","") else "8"
     } else if ( software == "scala" ) {
-      if ( Sys.getenv("RSCALA_VERIFY_SCALA_VERSION","") != "" ) Sys.getenv("RSCALA_VERIFY_SCALA_VERSION","") else "2.13"
+      if ( Sys.getenv("RSCALA_SCALA_VERSION","") != "" ) Sys.getenv("RSCALA_SCALA_VERSION","") else "2.12"
     } else if ( software == "sbt" ) {
-      if ( Sys.getenv("RSCALA_VERIFY_SBT_VERSION","") != "" ) Sys.getenv("RSCALA_VERIFY_SBT_VERSION","") else "1.2"
+      if ( Sys.getenv("RSCALA_SBT_VERSION","") != "" ) Sys.getenv("RSCALA_SBT_VERSION","") else "1.2"
     } else NULL
   }
   sel <- sel & (urls$version == version)
@@ -236,7 +238,7 @@ installSoftware <- function(installPath, software, version, os, arch, verbose=FA
   sel <- sel & (urls$os == os)
   if ( missing(arch) ) {
     arch <- if ( software == "java" ) {
-      if ( Sys.getenv("RSCALA_VERIFY_JAVA_ARCH","") != "" ) Sys.getenv("RSCALA_VERIFY_JAVA_ARCH","") else R.Version()$arch
+      if ( Sys.getenv("RSCALA_JAVA_ARCH","") != "" ) Sys.getenv("RSCALA_JAVA_ARCH","") else R.Version()$arch
     } else "any"
   }
   sel <- if ( arch == "any" ) sel else {
@@ -249,8 +251,8 @@ installSoftware <- function(installPath, software, version, os, arch, verbose=FA
     if ( len == 1 ) cat(paste0("There is 1 candidate.\n\n"))
     else cat(paste0("There are ",len," candidates.\n\n"))
   }
-  if ( missing(downloadFailureCount) && ( Sys.getenv("RSCALA_VERIFY_DOWNLOAD_FAILURE_COUNT","") != "" ) ) downloadFailureCount <- as.integer(Sys.getenv("RSCALA_VERIFY_DOWNLOAD_FAILURE_COUNT",""))
-  if ( missing(extractFailureCount)  && ( Sys.getenv("RSCALA_VERIFY_EXTRACT_FAILURE_COUNT", "") != "" ) ) extractFailureCount  <- as.integer(Sys.getenv("RSCALA_VERIFY_EXTRACT_FAILURE_COUNT", ""))
+  if ( missing(downloadFailureCount) && ( Sys.getenv("RSCALA_DOWNLOAD_FAILURE_COUNT","") != "" ) ) downloadFailureCount <- as.integer(Sys.getenv("RSCALA_DOWNLOAD_FAILURE_COUNT",""))
+  if ( missing(extractFailureCount)  && ( Sys.getenv("RSCALA_EXTRACT_FAILURE_COUNT", "") != "" ) ) extractFailureCount  <- as.integer(Sys.getenv("RSCALA_EXTRACT_FAILURE_COUNT", ""))
   dfc <- efc <- 0
   for ( candidate in candidates ) {
     archivePath <- file.path(tempdir(), basename(candidate))
@@ -335,9 +337,9 @@ verifyDownloads <- function() {
   scalaConfig(download=c("java","scala","sbt"))
   for ( version in c("11","8") ) {
     for ( efc in 0:0 ) {
-      Sys.setenv(RSCALA_VERIFY_EXTRACT_FAILURE_COUNT=efc)
-      Sys.setenv(RSCALA_VERIFY_JAVA_VERSION=version)
-      Sys.setenv(RSCALA_VERIFY_JAVA_ARCH="i386")
+      Sys.setenv(RSCALA_EXTRACT_FAILURE_COUNT=efc)
+      Sys.setenv(RSCALA_JAVA_VERSION=version)
+      Sys.setenv(RSCALA_JAVA_ARCH="i386")
       cat(paste0("----------\nefc=",efc,", software='java', version=",version,", arch=i386\n"))
       scalaConfig(download="java")
       s <- scala()
@@ -347,9 +349,9 @@ verifyDownloads <- function() {
   }
   for ( version in c("11","8") ) {
     for ( efc in 0:2 ) {
-      Sys.setenv(RSCALA_VERIFY_EXTRACT_FAILURE_COUNT=efc)
-      Sys.setenv(RSCALA_VERIFY_JAVA_VERSION=version)
-      Sys.setenv(RSCALA_VERIFY_JAVA_ARCH="x86_64")
+      Sys.setenv(RSCALA_EXTRACT_FAILURE_COUNT=efc)
+      Sys.setenv(RSCALA_JAVA_VERSION=version)
+      Sys.setenv(RSCALA_JAVA_ARCH="x86_64")
       cat(paste0("----------\nefc=",efc,", software='java', version=",version,"\n"))
       scalaConfig(download="java")
       s <- scala()
@@ -359,8 +361,8 @@ verifyDownloads <- function() {
   }
   for ( version in c("2.11","2.12","2.13") ) {
     for ( efc in 0:1 ) {
-      Sys.setenv(RSCALA_VERIFY_EXTRACT_FAILURE_COUNT=efc)
-      Sys.setenv(RSCALA_VERIFY_SCALA_VERSION=version)
+      Sys.setenv(RSCALA_EXTRACT_FAILURE_COUNT=efc)
+      Sys.setenv(RSCALA_SCALA_VERSION=version)
       cat(paste0("----------\nefc=",efc,", software='scala', version=",version,"\n"))
       scalaConfig(download="scala")
       s <- scala()
@@ -370,13 +372,13 @@ verifyDownloads <- function() {
   }
   for ( version in c("1.2") ) {
     for ( efc in 0:1 ) {
-      Sys.setenv(RSCALA_VERIFY_EXTRACT_FAILURE_COUNT=efc)
-      Sys.setenv(RSCALA_VERIFY_SBT_VERSION=version)
+      Sys.setenv(RSCALA_EXTRACT_FAILURE_COUNT=efc)
+      Sys.setenv(RSCALA_SBT_VERSION=version)
       cat(paste0("----------\nefc=",efc,", software='sbt', version=",version,"\n"))
       scalaConfig(download="sbt")
       scalaSBT("sbtVersion")
       cat("\n")
     }
   }
-  Sys.unsetenv(c("RSCALA_VERIFY_EXTRACT_FAILURE_COUNT","RSCALA_VERIFY_JAVA_VERSION","RSCALA_VERIFY_SCALA_VERSION","RSCALA_VERIFY_SBT_VERSION","RSCALA_VERIFY_JAVA_ARCH"))
+  Sys.unsetenv(c("RSCALA_EXTRACT_FAILURE_COUNT","RSCALA_JAVA_VERSION","RSCALA_SCALA_VERSION","RSCALA_SBT_VERSION","RSCALA_JAVA_ARCH"))
 }
