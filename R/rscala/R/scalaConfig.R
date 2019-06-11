@@ -38,7 +38,6 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
   if ( Sys.getenv("RSCALA_RECONFIG") != "" ) reconfig <- Sys.getenv("RSCALA_RECONFIG")
   consent <- identical(reconfig,TRUE) || download.java || download.scala || download.sbt
   installPath <- path.expand(if ( Sys.getenv("RSCALA_HOME") != "" ) Sys.getenv("RSCALA_HOME") else file.path("~",".rscala"))
-  dependsPath <- if ( Sys.getenv("RSCALA_BUILDING") != "" ) file.path(getwd(),"inst","dependencies") else ""
   offerInstall <- function(msg) {
     if ( !identical(reconfig,"live") && interactive() ) {
       while ( TRUE ) {
@@ -70,12 +69,18 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
         javaConf <- findExecutable("java","Java",installPath,javaSpecifics,verbose)
         if ( is.null(javaConf) ) stop(stopMsg)
       } else {
-        if ( dependsPath != "" ) {
+        if ( identical(Sys.getenv("R_INSTALL_PKG"),"rscala") ) {
+          dependsPath <- file.path(Sys.getenv("R_PACKAGE_DIR"),"systemRequirements")
           installSoftware(dependsPath,"java",verbose=verbose)
           javaConf <- findExecutable("java","Java",dependsPath,javaSpecifics,verbose)
-          if ( is.null(javaConf) ) stop(stopMsg)
         }
-        else stop(stopMsg)
+        if ( is.null(javaConf) ) {
+          tmpdir <- tempdir()
+          installSoftware(tmpdir,"java",verbose=verbose)
+          javaConf <- findExecutable("java","Java",tmpdir,javaSpecifics,verbose)
+          if ( is.null(javaConf) ) stop(stopMsg)
+          else if ( verbose || interactive() ) cat(stopMsg)
+        }
       }
       consent <- consent || consent2
     }
@@ -91,7 +96,8 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
         scalaConf <- findExecutable("scala","Scala",installPath,scalaSpecifics2,verbose)
         if ( is.null(scalaConf) ) stop(stopMsg)
       } else {
-        if ( dependsPath != "" ) {
+        if ( identical(Sys.getenv("R_INSTALL_PKG"),"rscala") ) {
+          dependsPath <- file.path(Sys.getenv("R_PACKAGE_DIR"),"systemRequirements")
           installSoftware(dependsPath,"scala",verbose=verbose)
           scalaConf <- findExecutable("scala","Scala",dependsPath,scalaSpecifics2,verbose)
         }
@@ -187,10 +193,10 @@ findExecutable <- function(mode,prettyMode,installPath,mapper,verbose=TRUE) {  #
     }
   }
   ###
-  if ( Sys.getenv("RSCALA_BUILDING") == "" ) {
-    label <- "rscala package build directory"
+  if ( ! identical(Sys.getenv("R_INSTALL_PKG"),"rscala") ) {
+    label <- "rscala package directory"
     regex <- sprintf("%s%s$",mode,if ( .Platform$OS.type == "windows" ) "(\\.exe|\\.bat)" else "")
-    dependsPath <- file.path(system.file(package="rscala"),"dependencies")
+    dependsPath <- file.path(system.file(package="rscala"),"systemRequirements")
     candidates <- list.files(dependsPath,paste0("^",regex),recursive=TRUE)
     candidates <- candidates[grepl(sprintf("^%s/(.*/|)bin/%s",mode,regex),candidates)]
     if ( length(candidates) > 1 ) candidates <- candidates[which.min(nchar(candidates))]

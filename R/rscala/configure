@@ -1,9 +1,0 @@
-#!/bin/sh
-
-Rscript="${R_HOME}/bin/Rscript"
-
-RSCALA_BUILDING=TRUE
-export RSCALA_BUILDING
-
-"${Rscript}" -e "load('R/sysdata.rda'); for ( f in list.files('R','.*R$',full.names=TRUE) ) source(f); invisible(scalaConfig())"
-

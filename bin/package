@@ -111,7 +111,6 @@ then
   echo "***************************************************"
   echo
 fi
-chmod 755 configure configure.win
 cd ..
 if [[ "$SBT_FAILED" == FALSE ]]
 then
