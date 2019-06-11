@@ -8,8 +8,9 @@
 #'   created by the function \code{\link{scala}}.  If the argument is missing,
 #'   the current default maximum heap size for new instances is returned.  Set
 #'   the argument to \code{NULL} to disable this global option, and therefore
-#'   use Scala's own default.  If the argument is an rscala bridge, the function
-#'   returns a numeric vector giving the current and the maximum heap sizes.
+#'   use \pkg{rscala}'s default.  If the argument is an rscala bridge, the
+#'   function returns a numeric vector giving the current heap size and the
+#'   maximum heap size, in megabytes.
 #'
 #' @export
 #' @seealso \code{\link{scala}}
@@ -23,7 +24,8 @@ scalaMemory <- function(x) {
   else if ( inherits(x,"rscalaBridge") ) {
     x * 'Array((Runtime.getRuntime.totalMemory / ( 1024 * 1024 )).toInt, (Runtime.getRuntime.maxMemory / ( 1024 * 1024 )).toInt)'
   } else {
-    options(rscala.heap.maximum=as.character(x)[1])
+    if ( ! is.null(x) ) x <- as.character(x)[1]
+    options(rscala.heap.maximum=x)
     invisible()
   }
 }

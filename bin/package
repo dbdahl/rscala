@@ -119,6 +119,10 @@ then
 else
   R CMD build --no-build-vignettes $PKG_NAME
 fi
+echo
+echo "---------------------------------------------------"
+echo 'Performing installation...'
+echo
 R CMD INSTALL ${PKG_NAME}_${PKG_VERSION}.tar.gz
 cd ..
 
