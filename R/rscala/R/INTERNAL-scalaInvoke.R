@@ -1,4 +1,5 @@
 scalaInvoke <- function(details, snippet, args, envir, withNames=FALSE, withReference=FALSE, transcompileInfo=NULL) {
+  if ( ( ! is.vector(snippet) ) || ( length(snippet) != 1 ) ) stop("'snippet' should be a character vector of length one.")
   if ( details[["disconnected"]] ) scalaConnect(details)
   scalaLastEngine(details)
   if ( details[["interrupted"]] ) return(invisible())
