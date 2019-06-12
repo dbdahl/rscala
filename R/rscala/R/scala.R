@@ -80,11 +80,17 @@ scala <- function(JARs=character(),
       heap.maximum <- getHeapMaximum(heap.maximum,sConfig$javaArchitecture == 32)
       heap.maximum.argument <- if ( is.null(heap.maximum) ) NULL
       else shQuote(paste0("-J-Xmx",heap.maximum))
+      command.line.arguments <- if ( is.null(command.line.arguments) || ( length(command.line.arguments) == 0 ) ) NULL
+      else shQuote(command.line.arguments)
       sessionFilename <- tempfile("rscala-session-")
       writeLines(character(),sessionFilename)
       portsFilename <- tempfile("rscala-ports-")
-      args <- c(heap.maximum.argument,shQuote(command.line.arguments),"-nc","-classpath",rscalaJAR,"org.ddahl.rscala.server.Main",rscalaJAR,port,portsFilename,sessionFilename,debug,serialize.output,FALSE)
+      args <- c(heap.maximum.argument,command.line.arguments,"-nc","-classpath",rscalaJAR,"org.ddahl.rscala.server.Main",rscalaJAR,port,portsFilename,sessionFilename,debug,serialize.output,FALSE)
       oldJavaEnv <- setJavaEnv(sConfig)
+      if ( debug ) {
+        cat(paste0("Cmd:  ",paste0(sConfig$scalaCmd,collapse=" | "),"\n"))
+        cat(paste0("Args: ",paste0(args,collapse=" | "),"\n"))
+      }
       system2(sConfig$scalaCmd,args,wait=FALSE,stdout=stdout,stderr=stderr)
       setJavaEnv(oldJavaEnv)
       assign("sessionFilename",sessionFilename,envir=details)
