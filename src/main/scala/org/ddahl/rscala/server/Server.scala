@@ -334,17 +334,25 @@ class Server(intp: IMain, sockets: Sockets, referenceMap: HashMap[Int, (Any,Stri
 
   private def addToClasspath(): Unit = {
     if ( debugger.on ) debugger("add to classpath.")
-    val body = readString()
+    val file = new File(readString)
     try {
-      val path = new File(body).toURI.toURL
-      intp.addUrlsToClassPath(path)
+      intp.addUrlsToClassPath(file.toURI.toURL)
     } catch {
-      case e: Throwable =>
-        prntWrtr.println(e)
-        e.printStackTrace(prntWrtr)
-        if ( debugger.on ) debugger("error in adding to classpath.")
-        pop(Datum(e,TCODE_ERROR_INVOKE,None))
-        return
+      case _: Throwable =>
+        try {  // This is hack because of a bug in intp.addUrlsToClassPath(url) which doesn't permit a space in the path.
+          val destFile = new File(if ( scala.util.Properties.isWin ) "c:\\Windows\\Temp" else "/tmp")
+          val tempFile = File.createTempFile("rscala-",".jar", destFile)
+          java.nio.file.Files.copy(file.toPath,tempFile.toPath,java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+          tempFile.deleteOnExit()
+          intp.addUrlsToClassPath(tempFile.toURI.toURL)
+        } catch {
+          case e: Throwable =>
+            prntWrtr.println(e)
+            e.printStackTrace(prntWrtr)
+            if (debugger.on) debugger("error in adding to classpath.")
+            pop(Datum(e, TCODE_ERROR_INVOKE, None))
+            return
+        }
     }
     pop(Datum((),TCODE_UNIT,None))
   }
