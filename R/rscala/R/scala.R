@@ -229,13 +229,13 @@ getHeapMaximum <- function(heap.maximum,is32bit) {
     outTemp <- gsub("\\s*kB$","",outTemp)
     as.numeric(outTemp) * 1024
   } else if ( os == "windows" ) {
-    outTemp <- system2("wmic",c("/locale:ms_409","OS","get","FreePhysicalMemory","/VALUE"),stdout=TRUE)
+    outTemp <- system2("wmic",c("/locale:ms_409","OS","get","FreePhysicalMemory","/VALUE"),stdout=TRUE,stderr=TRUE)
     outTemp <- outTemp[outTemp != "\r"]
     outTemp <- gsub("^FreePhysicalMemory=","",outTemp)
     outTemp <- gsub("\r","",outTemp)
     as.numeric(outTemp) * 1024
   } else if ( os == "mac" ) {
-    outTemp <- system2("vm_stat",stdout=TRUE)
+    outTemp <- system2("vm_stat",stdout=TRUE,stderr=TRUE)
     outTemp <- outTemp[grepl("(Pages free|Pages inactive|Pages speculative):.*",outTemp)]
     sum(sapply(strsplit(outTemp,":"),function(x) as.numeric(x[2]))) * 4096
   } else NA                                       # Unknown, so do not do anything.
