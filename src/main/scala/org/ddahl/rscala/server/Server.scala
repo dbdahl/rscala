@@ -6,7 +6,7 @@ import scala.tools.nsc.interpreter.IMain
 import scala.annotation.tailrec
 import scala.collection.mutable.HashMap
 import scala.reflect.ClassTag
-import java.io.{ByteArrayOutputStream, DataInputStream, DataOutputStream, File, PrintWriter}
+import java.io.{ByteArrayOutputStream, DataInputStream, DataOutputStream, File, FilenameFilter, PrintWriter}
 import java.nio.ByteBuffer
 
 class Server(intp: IMain, sockets: Sockets, referenceMap: HashMap[Int, (Any,String)], private[rscala] val conduit: Conduit, private var out: DataOutputStream, private var in: DataInputStream, val debugger: Debugger, val serializeOutput: Boolean, prntWrtr: PrintWriter, baos: ByteArrayOutputStream) {
@@ -339,11 +339,24 @@ class Server(intp: IMain, sockets: Sockets, referenceMap: HashMap[Int, (Any,Stri
       intp.addUrlsToClassPath(file.toURI.toURL)
     } catch {
       case _: Throwable =>
-        try {  // This is hack because of a bug in intp.addUrlsToClassPath(url) which doesn't permit a space in the path.
+        try {  // This is work-around for the bug that I reported here https://github.com/scala/bug/issues/11565
           val destFile = new File(if ( scala.util.Properties.isWin ) "c:\\Windows\\Temp" else "/tmp")
-          val tempFile = File.createTempFile("rscala-",".jar", destFile)
+          // Since the deleteOnExit (below) doesn't work on Windows, at least we can clean up from previous instances.
+          val oldFiles = destFile.listFiles(new FilenameFilter {
+            override def accept(directory: File, name: String): Boolean = {
+              name.startsWith("bug11565-") && name.endsWith(".jar")
+            }
+          })
+          oldFiles.map { file =>
+            try {
+              file.delete()
+            } catch {
+              case _: Throwable =>
+            }
+          }
+          val tempFile = File.createTempFile("bug11565-",".jar", destFile)
           java.nio.file.Files.copy(file.toPath,tempFile.toPath,java.nio.file.StandardCopyOption.REPLACE_EXISTING)
-          tempFile.deleteOnExit()
+          tempFile.deleteOnExit()   // This doesn't work on Windows because the JVM keeps the file open.
           intp.addUrlsToClassPath(tempFile.toURI.toURL)
         } catch {
           case e: Throwable =>

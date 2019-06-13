@@ -1,3 +1,7 @@
+3.2.12 (2019-XX-XX)
+  * Work around Scala bug #11565 (https://github.com/scala/bug/issues/11565)
+    where paths of JARs added to the classpath cannot have spaces.
+
 3.2.11 (2019-06-07)
   * Support for Scala 2.13.
   * More avoidance of "No Java runtime present..." pop-up on Mac OS X.
