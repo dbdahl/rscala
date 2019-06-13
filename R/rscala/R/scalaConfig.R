@@ -74,12 +74,12 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
           installSoftware(dependsPath,"java",verbose=verbose)
           javaConf <- findExecutable("java","Java",dependsPath,javaSpecifics,verbose)
         }
-        if ( is.null(javaConf) ) {
+        if ( is.null(javaConf) && ! interactive() ) {
           tmpdir <- file.path(tempdir(),"rscala")
           installSoftware(tmpdir,"java",verbose=verbose)
           javaConf <- findExecutable("java","Java",tmpdir,javaSpecifics,verbose)
           if ( is.null(javaConf) ) stop(stopMsg)
-          stopMsg <- "<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nJava was downloaded to a temporarly directory.  To avoid this, please run 'rscala::scalaConfig(download=\"java\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
+          stopMsg <- "<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nJava was downloaded to a temporary directory.  To make permanent, please run 'rscala::scalaConfig(download=\"java\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
           cat(stopMsg)
         }
       }
@@ -101,12 +101,12 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
           installSoftware(dependsPath,"scala",verbose=verbose)
           scalaConf <- findExecutable("scala","Scala",dependsPath,scalaSpecifics2,verbose)
         }
-        if ( is.null(scalaConf) ) {
+        if ( is.null(scalaConf) && ! interactive() ) {
           tmpdir <- file.path(tempdir(),"rscala")
           installSoftware(tmpdir,"scala",verbose=verbose)
           scalaConf <- findExecutable("scala","Scala",tmpdir,scalaSpecifics2,verbose)
           if ( is.null(scalaConf) ) stop(stopMsg)
-          stopMsg <- "<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nScala was downloaded to a temporarly directory.  To avoid this, please run 'rscala::scalaConfig(download=\"scala\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
+          stopMsg <- "<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nScala was downloaded to a temporary directory.  To make permanent, please run 'rscala::scalaConfig(download=\"scala\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
           cat(stopMsg)
         }
       }
