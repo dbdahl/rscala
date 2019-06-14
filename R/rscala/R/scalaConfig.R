@@ -9,10 +9,8 @@
 #' @param reconfig If \code{TRUE}, the script \code{~/.rscala/config.R} is
 #'   rewritten based on a new search for Scala and Java.  If \code{FALSE}, the
 #'   previous configuration is sourced from the script
-#'   \code{~/.rscala/config.R}.  If \code{"live"}, a new search is performed,
-#'   but the results do not overwrite the previous configuration script.
-#'   Finally, the value set here is superceded by the value of the environment
-#'   variable \code{RSCALA_RECONFIG}, if it exists.
+#'   \code{~/.rscala/config.R}. Finally, the value set here is superceded by the
+#'   value of the environment variable \code{RSCALA_RECONFIG}, if it exists.
 #' @param download A character vector which may be length-zero or whose elements
 #'   are any combination of \code{"java"}, \code{"scala"}, or \code{"sbt"}. Or,
 #'   \code{TRUE} denotes all three.  The indicated software will be installed in
@@ -32,6 +30,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
   if ( inherits(verbose,"rscalaBridge") ) return(attr(verbose,"details")$config)
   if ( ( length(download) > 0 ) && ( download == TRUE ) ) download <- c("java","scala","sbt")
   if ( length(setdiff(download,c("java","scala","sbt"))) > 0 ) stop('Invalid element in "download" argument.')
+  download <- tolower(download)
   download.java <- "java" %in% download
   download.scala <- "scala" %in% download
   download.sbt <- "sbt" %in% download
@@ -39,7 +38,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
   consent <- identical(reconfig,TRUE) || download.java || download.scala || download.sbt
   installPath <- path.expand(if ( Sys.getenv("RSCALA_HOME") != "" ) Sys.getenv("RSCALA_HOME") else file.path("~",".rscala"))
   offerInstall <- function(msg) {
-    if ( !identical(reconfig,"live") && interactive() ) {
+    if ( interactive() ) {
       while ( TRUE ) {
         cat(msg,"\n")
         response <- toupper(trimws(readline(prompt=paste0("Do you want to install here: ",installPath,"?  [Y/n] "))))
@@ -48,9 +47,8 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
       }
     } else FALSE
   }
-  dependsPath <- file.path(Sys.getenv("R_PACKAGE_DIR"),"systemRequirements")
   configPath <- file.path(installPath,"config.R")
-  if ( identical(reconfig,FALSE) && file.exists(configPath) && !download.java && !download.scala && !download.sbt && ( ! identical(Sys.getenv("R_INSTALL_PKG"),"rscala") ) ) {
+  if ( file.exists(configPath) && ! consent ) {
     if ( verbose ) cat(paste0("\nRead configuration file from rscala home: ",configPath,"\n\n"))
     source(configPath,chdir=TRUE,local=TRUE)
     if ( isConfigBroken(config, require.sbt) ) {
@@ -59,73 +57,69 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
       scalaConfig(verbose, reconfig, download, require.sbt)
     } else config
   } else {
+    tmpdir <- file.path(tempdir(),"rscala")
     if ( download.java ) installSoftware(installPath,"java",verbose=verbose)
     javaConf <- findExecutable("java","Java",installPath,javaSpecifics,verbose)
+    stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nJava is not found!  Please run 'rscala::scalaConfig(download=\"java\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
     if ( is.null(javaConf) ) {
+      if ( download.java ) stop(stopMsg)
       if ( verbose ) cat("\n")
-      consent2 <- offerInstall("Java and Scala are not found.")
-      stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nJava is not found!  Please run 'rscala::scalaConfig(download=\"java\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
-      if ( consent2 ) {
+      if ( interactive() ) {
+        if ( ! ( consent || offerInstall("Java is not found.") ) ) stop(stopMsg)
+        consent <- TRUE
         installSoftware(installPath,"java",verbose=verbose)
         javaConf <- findExecutable("java","Java",installPath,javaSpecifics,verbose)
         if ( is.null(javaConf) ) stop(stopMsg)
       } else {
-        if ( identical(Sys.getenv("R_INSTALL_PKG"),"rscala") ) {
-          installSoftware(dependsPath,"java",verbose=verbose)
-          javaConf <- findExecutable("java","Java",dependsPath,javaSpecifics,verbose)
-        }
-        if ( is.null(javaConf) && ! interactive() ) {
-          tmpdir <- file.path(tempdir(),"rscala")
-          installSoftware(tmpdir,"java",verbose=verbose)
-          javaConf <- findExecutable("java","Java",tmpdir,javaSpecifics,verbose)
-          if ( is.null(javaConf) ) stop(stopMsg)
-          stopMsg <- "<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nJava was downloaded to a temporary directory.  To make permanent, please run 'rscala::scalaConfig(download=\"java\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
-          cat(stopMsg)
-        }
+        installSoftware(tmpdir,"java",verbose=verbose)
+        javaConf <- findExecutable("java","Java",tmpdir,javaSpecifics,verbose)
+        if ( is.null(javaConf) ) stop(stopMsg)
+        stopMsg <- "<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nJava was downloaded to a temporary directory.  To make permanent, please run 'rscala::scalaConfig(download=\"java\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
+        cat(stopMsg)
       }
-      consent <- consent || consent2
     }
     if ( download.scala ) installSoftware(installPath,"scala",verbose=verbose)
     scalaSpecifics2 <- function(x,y) scalaSpecifics(x,javaConf,y)
     scalaConf <- findExecutable("scala","Scala",installPath,scalaSpecifics2,verbose)
+    stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nScala is not found!  Please run 'rscala::scalaConfig(download=\"scala\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
     if ( is.null(scalaConf) ) {
+      if ( download.scala ) stop(stopMsg)
       if ( verbose ) cat("\n")
-      consent2 <- consent || offerInstall("Scala is not found.")
-      stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nScala is not found!  Please run 'rscala::scalaConfig(download=\"scala\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
-      if ( consent2 ) {
+      if ( interactive() ) {
+        if ( ! ( consent || offerInstall("Scala is not found.") ) ) stop(stopMsg)
+        consent <- TRUE
         installSoftware(installPath,"scala",verbose=verbose)
         scalaConf <- findExecutable("scala","Scala",installPath,scalaSpecifics2,verbose)
         if ( is.null(scalaConf) ) stop(stopMsg)
       } else {
-        if ( identical(Sys.getenv("R_INSTALL_PKG"),"rscala") ) {
-          installSoftware(dependsPath,"scala",verbose=verbose)
-          scalaConf <- findExecutable("scala","Scala",dependsPath,scalaSpecifics2,verbose)
-        }
-        if ( is.null(scalaConf) && ! interactive() ) {
-          tmpdir <- file.path(tempdir(),"rscala")
-          installSoftware(tmpdir,"scala",verbose=verbose)
-          scalaConf <- findExecutable("scala","Scala",tmpdir,scalaSpecifics2,verbose)
-          if ( is.null(scalaConf) ) stop(stopMsg)
-          stopMsg <- "<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nScala was downloaded to a temporary directory.  To make permanent, please run 'rscala::scalaConfig(download=\"scala\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
-          cat(stopMsg)
-        }
+        installSoftware(tmpdir,"scala",verbose=verbose)
+        scalaConf <- findExecutable("scala","Scala",tmpdir,scalaSpecifics2,verbose)
+        if ( is.null(scalaConf) ) stop(stopMsg)
+        stopMsg <- "<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nScala was downloaded to a temporary directory.  To make permanent, please run 'rscala::scalaConfig(download=\"scala\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
+        cat(stopMsg)
       }
-      consent <- consent || consent2
     }
     config <- c(format=4L,scalaConf,javaConf)
     if ( download.sbt ) installSoftware(installPath,"sbt",verbose=verbose)
     sbtSpecifics <- function(x,y) list(sbtCmd=x)
     sbtConf <- findExecutable("sbt","SBT",installPath,sbtSpecifics,verbose)
+    stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nSBT is not found!  Please run 'rscala::scalaConfig(download=\"sbt\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
     if ( is.null(sbtConf) && require.sbt ) {
+      if ( download.sbt ) stop(stopMsg)
       if ( verbose ) cat("\n")
-      consent2 <- consent || offerInstall("SBT is not found.")
-      stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nSBT is not found!  Please run 'rscala::scalaConfig(download=\"sbt\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
-      if ( consent2 ) {
+      if ( interactive() ) {
+        if ( ! ( consent || offerInstall("SBT is not found.") ) ) stop(stopMsg)
+        consent <- TRUE
         installSoftware(installPath,"sbt",verbose=verbose)
         sbtConf <- findExecutable("sbt","SBT",installPath,sbtSpecifics,verbose)
         if ( is.null(sbtConf) ) stop(stopMsg)
-      } else stop(stopMsg)
-      consent <- consent || consent2      
+      } else {
+        installSoftware(tmpdir,"sbt",verbose=verbose)
+        sbtConf <- findExecutable("sbt","SBT",tmpdir,sbtSpecifics,verbose)
+        if ( is.null(sbtConf) ) stop(stopMsg)
+        stopMsg <- "<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nSBT was downloaded to a temporary directory.  To make permanent, please run 'rscala::scalaConfig(download=\"sbt\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
+        cat(stopMsg)
+      }
     }
     config <- c(config,sbtConf)
     if ( !consent && verbose ) cat("\n")
@@ -203,17 +197,6 @@ findExecutable <- function(mode,prettyMode,installPath,mapper,verbose=TRUE) {  #
       conf <- tryCandidate(path)
       if ( ! is.null(conf) ) return(conf)
     }
-  }
-  ###
-  if ( ! identical(Sys.getenv("R_INSTALL_PKG"),"rscala") ) {
-    label <- "rscala package directory"
-    regex <- sprintf("%s%s$",mode,if ( .Platform$OS.type == "windows" ) "(\\.exe|\\.bat)" else "")
-    dependsPath <- file.path(system.file(package="rscala"),"systemRequirements")
-    candidates <- list.files(dependsPath,paste0("^",regex),recursive=TRUE)
-    candidates <- candidates[grepl(sprintf("^%s/(.*/|)bin/%s",mode,regex),candidates)]
-    if ( length(candidates) > 1 ) candidates <- candidates[which.min(nchar(candidates))]
-    conf <- tryCandidate(file.path(dependsPath,candidates))
-    if ( ! is.null(conf) ) return(conf)    
   }
   ###
   label <- "rscala temporary directory"
