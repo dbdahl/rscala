@@ -66,11 +66,12 @@ setversion $PKG_VERSION $(date +'%Y-%m-%d')
 
 # List R resources in the JAR
 resourcesDir=src/main/resources/R
+rm -rf "$resourcesDir"
 mkdir -p "$resourcesDir"
 find -L R/rscala/R -name '*.R' -exec cp {} "$resourcesDir" \;
 OLDWD="$PWD"
 cd $resourcesDir/..
-find -L . -name '*.R' | cut -b 1-1 --complement >| Rscripts
+find -L . -name '*.R' | cut -b 1-1 --complement | sort >| Rscripts
 cd "$OLDWD"
 
 # Compile Scala

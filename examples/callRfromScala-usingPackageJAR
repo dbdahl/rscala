@@ -8,7 +8,7 @@ exec "$SCALA" -nc -cp "$JAR" "$0" "$@"
 
 !#
 
-val R = org.ddahl.rscala.RClient()
+val R = org.ddahl.rscala.RClient("R",0,true)
 
 val a = R.evalD0("sd(rnorm(1000, mean=%-, sd=%-))", 1.0, 2.0)
 

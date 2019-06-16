@@ -12,6 +12,7 @@ Rerun benchmarks on an otherwise idle machine: cd benchmarks; ./all
 Test on Linux, Mac OS, and Windows
   For Windows, use https://win-builder.r-project.org/
   For Mac, run R CMD check --as-cran --no-build-vignettes --no-manual rscala_VERSION.tar.gz
+  Try rhub service.
 Test depending packages: cd reverse-dependencies; ./check
 Test examples/callRfromScala-usingPackageJAR
 sbt +publishLocal
