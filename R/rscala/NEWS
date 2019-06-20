@@ -1,10 +1,13 @@
-3.2.12 (2019-06-14)
+3.2.13 (2019-06-20)
   * Work around Scala bug #11565 (https://github.com/scala/bug/issues/11565)
     where paths of JARs added to the classpath cannot have spaces.
   * Removed the need for 'configure' script, allowing Windows to install
     source package without installing developer tools.
   * More robust scalaConfig function.
   * Other miscellaneous minor bug fixes and robustification.
+
+3.2.12 (2019-06-14)
+  * Never released.
 
 3.2.11 (2019-06-07)
   * Support for Scala 2.13.
