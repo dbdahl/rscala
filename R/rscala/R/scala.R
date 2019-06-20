@@ -64,7 +64,7 @@ scala <- function(JARs=character(),
                   debug=FALSE) {
   if ( identical(stdout,TRUE) ) stdout <- ""
   if ( identical(stderr,TRUE) ) stderr <- ""
-  debug <- identical(debug,TRUE)
+  debug <- identical(debug,TRUE) || ( if ( Sys.getenv("RSCALA_DEBUG") != "" ) as.logical(Sys.getenv("RSCALA_DEBUG")) else FALSE)
   serialize.output <- identical(serialize.output,TRUE)
   port <- as.integer(port[1])
   if ( debug && serialize.output ) stop("When debug is TRUE, serialize.output must be FALSE.")
