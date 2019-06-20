@@ -30,7 +30,19 @@ case "$(uname -s)" in
     ;;
 esac
 
-
+VIGNETTE=FALSE
+while [[ $# -gt 0 ]]
+do
+  case "$1" in
+    "--vignette")
+      VIGNETTE=TRUE
+    shift
+    ;;
+  *)
+    shift
+    ;;
+  esac
+done
 
 # Make protocal.R script
 
@@ -113,7 +125,7 @@ then
   echo
 fi
 cd ..
-if [[ "$SBT_FAILED" == FALSE ]]
+if [[ "$SBT_FAILED" == FALSE && "$VIGNETTE" == TRUE ]]
 then
   R CMD build --compact-vignettes="gs+qpdf" $PKG_NAME
 else

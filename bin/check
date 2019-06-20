@@ -4,7 +4,7 @@ set -e
 
 cd $(dirname $(readlink -f "$0"))/..
 
-bin/package
+bin/package --vignette
 
 cd R
 

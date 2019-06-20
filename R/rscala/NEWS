@@ -3,9 +3,6 @@
     where paths of JARs added to the classpath cannot have spaces.
   * Removed the need for 'configure' script, allowing Windows to install
     source package without installing developer tools.
-  * Avoid NOTEs on CRAN checks by not installing Scala or Java into the
-    installed package, reply on downloading to the R session's temporary
-    directory instead.
   * More robust scalaConfig function.
   * Other miscellaneous minor bug fixes and robustification.
 
