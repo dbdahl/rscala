@@ -107,8 +107,6 @@ scalaDevelDeployJARs <- function(name, root, srcJAR, binJARs) {
   if ( missing(binJARs) || ( ! is.vector(binJARs) ) || ( ! is.character(binJARs) || ( length(binJARs) == 0 ) || is.null(names(binJARs))) ) stop("'binJARs' must be a named vector of paths to JAR files.")
   if ( ! all(file.exists(binJARs)) ) stop("'binJARs' has elements that do not exists in the file system.")
   binDir <- file.path(root,"inst","java")
-  oldDirs <- list.files(binDir,"^scala-.*")
-  unlink(file.path(binDir,oldDirs),recursive=TRUE)
   for ( index in seq_along(binJARs) ) {
     v <- scalaMajorVersion(names(binJARs)[index])
     destDir <- file.path(binDir,sprintf("scala-%s",v))

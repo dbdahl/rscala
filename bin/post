@@ -16,9 +16,10 @@ cd ..
 ssh dahl.byu.edu mkdir -p public/rscala
 
 ## Post package
-rsync --chmod=644 deliveries/$TGZ_NAME dahl.byu.edu:public
-ssh dahl.byu.edu "cd public && ln -f -s $TGZ_NAME rscala_LATEST.tar.gz"
-echo -e "####\nPosted to\n  https://dahl.byu.edu/public/$TGZ_NAME\n####"
+REPOS=~/docs/devel/website-professional/html/rpackages/src/contrib
+cp "deliveries/$TGZ_NAME" $REPOS
+$REPOS/update
+echo -e "####\nPosted to\n  https://dahl.byu.edu/rpackages/src/contrib/$TGZ_NAME\n####"
 
 ## Post Scaladoc 
 R --slave -e "rscala:::scalaSBT(c('packageDoc'),FALSE,FALSE)"

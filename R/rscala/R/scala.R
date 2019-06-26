@@ -62,10 +62,22 @@ scala <- function(JARs=character(),
                   heap.maximum=NULL,
                   command.line.arguments=character(0),
                   debug=FALSE) {
+  stdout <- if ( missing(stdout) && ( Sys.getenv("RSCALA_STDOUT") != "" ) ) {
+    x <- Sys.getenv("RSCALA_STDOUT")
+    if ( x %in% c("TRUE","FALSE") ) as.logical(x) else x
+  }
   if ( identical(stdout,TRUE) ) stdout <- ""
+  stderr <- if ( missing(stderr) && ( Sys.getenv("RSCALA_STDERR") != "" ) ) {
+    x <- Sys.getenv("RSCALA_STDERR")
+    if ( x %in% c("TRUE","FALSE") ) as.logical(x) else x
+  }
   if ( identical(stderr,TRUE) ) stderr <- ""
-  debug <- identical(debug,TRUE) || ( if ( Sys.getenv("RSCALA_DEBUG") != "" ) as.logical(Sys.getenv("RSCALA_DEBUG")) else FALSE)
-  serialize.output <- identical(serialize.output,TRUE)
+  debug <- if ( missing(debug) && ( Sys.getenv("RSCALA_DEBUG") != "" ) ) {
+     as.logical(Sys.getenv("RSCALA_DEBUG"))
+  } else identical(debug,TRUE)
+  serialize.output <- if ( missing(serialize.output) && ( Sys.getenv("RSCALA_SERIALIZE_OUTPUT") != "" ) ) {
+     as.logical(Sys.getenv("RSCALA_SERIALIZE_OUTPUT"))
+  } else identical(serialize.output,TRUE)
   port <- as.integer(port[1])
   if ( debug && serialize.output ) stop("When debug is TRUE, serialize.output must be FALSE.")
   if ( debug && ( identical(stdout,FALSE) || identical(stdout,NULL) || identical(stderr,FALSE) || identical(stderr,NULL) ) ) stop("When debug is TRUE, stdout and stderr must not be discarded.")

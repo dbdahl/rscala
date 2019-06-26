@@ -339,14 +339,23 @@ class Server(intp: IMain, sockets: Sockets, referenceMap: HashMap[Int, (Any,Stri
       intp.addUrlsToClassPath(file.toURI.toURL)
     } catch {
       case _: Throwable =>
+        if ( debugger.on ) debugger("Problem adding JAR to classpath.  Perhaps we hit this bug: https://github.com/scala/bug/issues/11565.")
         try {  // This is work-around for the bug that I reported here https://github.com/scala/bug/issues/11565
-          val destFile = new File(if ( scala.util.Properties.isWin ) "c:\\Windows\\Temp" else "/tmp")
           // Since the deleteOnExit (below) doesn't work on Windows, at least we can clean up from previous instances.
-          val oldFiles = destFile.listFiles(new FilenameFilter {
+          val filenameFilter = new FilenameFilter {
             override def accept(directory: File, name: String): Boolean = {
               name.startsWith("bug11565-") && name.endsWith(".jar")
             }
-          })
+          }
+          val (oldFiles, tmpDir) = {
+            val y = new File(if ( ! scala.util.Properties.isWin ) "/tmp" else sys.env("SystemRoot") + File.separator + "Temp")
+            val x = y.listFiles(filenameFilter)
+            if ((x == null) && scala.util.Properties.isWin) {
+              val y2 = new File(sys.env("SystemDrive") + File.separator + "bug11565")
+              y2.mkdirs()
+              (y2.listFiles(filenameFilter), y2)
+            } else (x, y)
+          }
           oldFiles.map { file =>
             try {
               file.delete()
@@ -354,7 +363,7 @@ class Server(intp: IMain, sockets: Sockets, referenceMap: HashMap[Int, (Any,Stri
               case _: Throwable =>
             }
           }
-          val tempFile = File.createTempFile("bug11565-",".jar", destFile)
+          val tempFile = File.createTempFile("bug11565-",".jar", tmpDir)
           java.nio.file.Files.copy(file.toPath,tempFile.toPath,java.nio.file.StandardCopyOption.REPLACE_EXISTING)
           tempFile.deleteOnExit()   // This doesn't work on Windows because the JVM keeps the file open.
           intp.addUrlsToClassPath(tempFile.toURI.toURL)
