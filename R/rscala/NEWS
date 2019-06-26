@@ -1,3 +1,8 @@
+3.2.14 (2019-06-27)
+  * In scalaDevelDeployJARs function, don't delete other JARs.
+  * More robust work-around for Scala bug #11565.
+  * Don't install dependencies into session-specific temporary directory.
+
 3.2.13 (2019-06-20)
   * Work around Scala bug #11565 (https://github.com/scala/bug/issues/11565)
     where paths of JARs added to the classpath cannot have spaces.
