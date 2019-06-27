@@ -17,6 +17,7 @@
 /R/rscala/vignettes/rscala.tex
 /src/main/resources
 /deliveries/rscala_*.tar.gz
+/deliveries/rscala*.Rcheck
 /deliveries/rscala.pdf
 .Rhistory
 .RData
