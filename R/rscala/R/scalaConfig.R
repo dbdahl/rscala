@@ -58,6 +58,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
       scalaConfig(verbose, reconfig, download, require.sbt)
     } else config
   } else {
+    tmpdir <- file.path(tempdir(),"rscala")
     if ( download.java ) installSoftware(installPath,"java",verbose=verbose)
     javaConf <- findExecutable("java","Java",installPath,javaSpecifics,verbose)
     stopMsg <- "\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nJava is not found!  Please run 'rscala::scalaConfig(download=\"java\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
@@ -74,8 +75,14 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
         if ( dependsPath != "" ) {
           installSoftware(dependsPath,"java",verbose=verbose)
           javaConf <- findExecutable("java","Java",installPath,javaSpecifics,verbose)
+          if ( is.null(javaConf) ) stop(stopMsg)
+        } else {
+          installSoftware(tmpdir,"java",verbose=verbose)
+          javaConf <- findExecutable("java","Java",installPath,javaSpecifics,verbose)
+          if ( is.null(javaConf) ) stop(stopMsg)
+          stopMsg <- "<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nJava was downloaded to a temporary directory.  To make permanent, please run 'rscala::scalaConfig(download=\"java\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
+          cat(stopMsg)
         }
-        if ( is.null(javaConf) ) stop(stopMsg)
       }
     }
     if ( download.scala ) installSoftware(installPath,"scala",verbose=verbose)
@@ -95,8 +102,14 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
         if ( dependsPath != "" ) {
           installSoftware(dependsPath,"scala",verbose=verbose)
           scalaConf <- findExecutable("scala","Scala",installPath,scalaSpecifics2,verbose)
-        }
-        if ( is.null(scalaConf) ) stop(stopMsg)
+          if ( is.null(scalaConf) ) stop(stopMsg)
+        } else {
+          installSoftware(tmpdir,"scala",verbose=verbose)
+          scalaConf <- findExecutable("scala","Scala",installPath,scalaSpecifics2,verbose)
+          if ( is.null(scalaConf) ) stop(stopMsg)
+          stopMsg <- "<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nScala was downloaded to a temporary directory.  To make permanent, please run 'rscala::scalaConfig(download=\"scala\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
+          cat(stopMsg)
+         }
       }
     }
     config <- c(format=4L,scalaConf,javaConf)
@@ -117,8 +130,14 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
         if ( dependsPath != "" ) {
           installSoftware(dependsPath,"sbt",verbose=verbose)
           sbtConf <- findExecutable("sbt","SBT",installPath,sbtSpecifics,verbose)
+          if ( is.null(sbtConf) ) stop(stopMsg)          
+        } else {
+          installSoftware(tmpdir,"sbt",verbose=verbose)
+          sbtConf <- findExecutable("sbt","SBT",installPath,sbtSpecifics,verbose)
+          if ( is.null(sbtConf) ) stop(stopMsg)
+          stopMsg <- "<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nSBT was downloaded to a temporary directory.  To make permanent, please run 'rscala::scalaConfig(download=\"sbt\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
+          cat(stopMsg)
         }
-        if ( is.null(sbtConf) ) stop(stopMsg)          
       }
     }
     config <- c(config,sbtConf)
@@ -207,6 +226,15 @@ findExecutable <- function(mode,prettyMode,installPath,mapper,verbose=TRUE) {
   candidates <- candidates[grepl(sprintf("^%s/(.*/|)bin/%s",mode,regex),candidates)]
   if ( length(candidates) > 1 ) candidates <- candidates[which.min(nchar(candidates))]
   conf <- tryCandidate(file.path(dependsPath,candidates))
+  if ( ! is.null(conf) ) return(conf)
+  ###
+  label <- "rscala temporary directory"
+  regex <- sprintf("%s%s$",mode,if ( .Platform$OS.type == "windows" ) "(\\.exe|\\.bat)" else "")
+  installPath <- file.path(tempdir(),"rscala")
+  candidates <- list.files(installPath,paste0("^",regex),recursive=TRUE)
+  candidates <- candidates[grepl(sprintf("^%s/(.*/|)bin/%s",mode,regex),candidates)]
+  if ( length(candidates) > 1 ) candidates <- candidates[which.min(nchar(candidates))]
+  conf <- tryCandidate(file.path(installPath,candidates))
   if ( ! is.null(conf) ) return(conf)
   NULL
 }
