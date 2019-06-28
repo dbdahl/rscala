@@ -12,14 +12,11 @@ R CMD check --as-cran $TGZ_NAME
 cp -f $TGZ_NAME ../deliveries/$TGZ_NAME
 cd ..
 
-## Prepare webserver
-ssh dahl.byu.edu mkdir -p public/rscala
-
 ## Post package
 REPOS=docs/devel/website-professional/html/rpackages
 scp "deliveries/$TGZ_NAME" dahl.byu.edu:"$REPOS"/src/contrib
-ssh dahl.byu.edu "$REPOS/mkPseudoBinaries src/contrib/$TGZ_NAME"
-ssh dahl.byu.edu "$REPOS/updatePACKAGES"
+ssh dahl.byu.edu bash -lc "'$REPOS/mkPseudoBinaries src/contrib/$TGZ_NAME'"
+ssh dahl.byu.edu bash -lc "'$REPOS/updatePACKAGES'"
 echo -e "####\nPosted to\n  https://dahl.byu.edu/rpackages/src/contrib/$TGZ_NAME\n####"
 
 ## Post Scaladoc 
