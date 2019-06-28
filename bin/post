@@ -17,9 +17,9 @@ ssh dahl.byu.edu mkdir -p public/rscala
 
 ## Post package
 REPOS=docs/devel/website-professional/html/rpackages
-scp "deliveries/$TGZ_NAME" "dahl:$REPOS/src/contrib"
-ssh dahl "$REPOS/mkPseudoBinaries src/contrib/$TGZ_NAME"
-ssh dahl "$REPOS/updatePACKAGES"
+scp "deliveries/$TGZ_NAME" dahl.byu.edu:"$REPOS"/src/contrib
+ssh dahl.byu.edu "$REPOS/mkPseudoBinaries src/contrib/$TGZ_NAME"
+ssh dahl.byu.edu "$REPOS/updatePACKAGES"
 echo -e "####\nPosted to\n  https://dahl.byu.edu/rpackages/src/contrib/$TGZ_NAME\n####"
 
 ## Post Scaladoc 
