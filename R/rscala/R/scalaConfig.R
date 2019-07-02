@@ -9,8 +9,10 @@
 #' @param reconfig If \code{TRUE}, the script \code{~/.rscala/config.R} is
 #'   rewritten based on a new search for Scala and Java.  If \code{FALSE}, the
 #'   previous configuration is sourced from the script
-#'   \code{~/.rscala/config.R}. Finally, the value set here is superceded by the
-#'   value of the environment variable \code{RSCALA_RECONFIG}, if it exists.
+#'   \code{~/.rscala/config.R}.  If \code{"live"}, a new search is performed,
+#'   but the results do not overwrite the previous configuration script.
+#'   Finally, the value set here is superceded by the value of the environment
+#'   variable \code{RSCALA_RECONFIG}, if it exists.
 #' @param download A character vector which may be length-zero or whose elements
 #'   are any combination of \code{"java"}, \code{"scala"}, or \code{"sbt"}. Or,
 #'   \code{TRUE} denotes all three.  The indicated software will be installed in
@@ -35,11 +37,13 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
   download.scala <- "scala" %in% download
   download.sbt <- "sbt" %in% download
   if ( Sys.getenv("RSCALA_RECONFIG") != "" ) reconfig <- Sys.getenv("RSCALA_RECONFIG")
+  if ( reconfig %in% c("TRUE","FALSE") ) reconfig <- as.logical(reconfig)
+  else if ( ! identical(reconfig,"live") ) stop("'reconfig' is misspecified.")
   consent <- identical(reconfig,TRUE) || download.java || download.scala || download.sbt
   installPath <- path.expand(if ( Sys.getenv("RSCALA_HOME") != "" ) Sys.getenv("RSCALA_HOME") else file.path("~",".rscala"))
   dependsPath <- if ( identical(Sys.getenv("R_INSTALL_PKG"),"rscala") ) file.path(Sys.getenv("R_PACKAGE_DIR"),"dependencies") else ""
   offerInstall <- function(msg) {
-    if ( interactive() ) {
+    if ( reconfig != "live" && interactive() ) {
       while ( TRUE ) {
         cat(msg,"\n")
         response <- toupper(trimws(readline(prompt=paste0("Do you want to install here: ",installPath,"?  [Y/n] "))))
@@ -49,7 +53,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
     } else FALSE
   }
   configPath <- file.path(installPath,"config.R")
-  if ( file.exists(configPath) && ! consent ) {
+  if ( file.exists(configPath) && ! consent && reconfig == FALSE) {
     if ( verbose ) cat(paste0("\nRead configuration file from rscala home: ",configPath,"\n\n"))
     source(configPath,chdir=TRUE,local=TRUE)
     if ( isConfigBroken(config, require.sbt) ) {
@@ -65,7 +69,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
     if ( is.null(javaConf) ) {
       if ( download.java ) stop(stopMsg)
       if ( verbose ) cat("\n")
-      if ( interactive() ) {
+      if ( reconfig != "live" && interactive() ) {
         if ( ! ( consent || offerInstall("Java is not found.") ) ) stop(stopMsg)
         consent <- TRUE
         installSoftware(installPath,"java",verbose=verbose)
@@ -92,7 +96,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
     if ( is.null(scalaConf) ) {
       if ( download.scala ) stop(stopMsg)
       if ( verbose ) cat("\n")
-      if ( interactive() ) {
+      if ( reconfig != "live" && interactive() ) {
         if ( ! ( consent || offerInstall("Scala is not found.") ) ) stop(stopMsg)
         consent <- TRUE
         installSoftware(installPath,"scala",verbose=verbose)
@@ -120,7 +124,7 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
     if ( is.null(sbtConf) && require.sbt ) {
       if ( download.sbt ) stop(stopMsg)
       if ( verbose ) cat("\n")
-      if ( interactive() ) {
+      if ( reconfig != "live" && interactive() ) {
         if ( ! ( consent || offerInstall("SBT is not found.") ) ) stop(stopMsg)
         consent <- TRUE
         installSoftware(installPath,"sbt",verbose=verbose)

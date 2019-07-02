@@ -1,4 +1,4 @@
-3.2.14 (2019-06-27)
+3.2.14 (2019-07-02)
   * In scalaDevelDeployJARs function, don't delete other JARs.
   * More robust work-around for Scala bug #11565.
 
