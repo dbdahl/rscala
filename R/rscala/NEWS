@@ -1,3 +1,7 @@
+3.2.14 (2019-07-09)
+  * Fixed regression regarding processing of stdout and stderr arguments
+    to scala function.
+
 3.2.14 (2019-07-02)
   * In scalaDevelDeployJARs function, don't delete other JARs.
   * More robust work-around for Scala bug #11565.

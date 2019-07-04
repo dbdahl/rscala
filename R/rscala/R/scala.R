@@ -62,14 +62,14 @@ scala <- function(JARs=character(),
                   heap.maximum=NULL,
                   command.line.arguments=character(0),
                   debug=FALSE) {
-  stdout <- if ( missing(stdout) && ( Sys.getenv("RSCALA_STDOUT") != "" ) ) {
+  if ( missing(stdout) && ( Sys.getenv("RSCALA_STDOUT") != "" ) ) {
     x <- Sys.getenv("RSCALA_STDOUT")
-    if ( x %in% c("TRUE","FALSE") ) as.logical(x) else x
+    stdout <- if ( x %in% c("TRUE","FALSE") ) as.logical(x) else x
   }
   if ( identical(stdout,TRUE) ) stdout <- ""
-  stderr <- if ( missing(stderr) && ( Sys.getenv("RSCALA_STDERR") != "" ) ) {
+  if ( missing(stderr) && ( Sys.getenv("RSCALA_STDERR") != "" ) ) {
     x <- Sys.getenv("RSCALA_STDERR")
-    if ( x %in% c("TRUE","FALSE") ) as.logical(x) else x
+    stderr <- if ( x %in% c("TRUE","FALSE") ) as.logical(x) else x
   }
   if ( identical(stderr,TRUE) ) stderr <- ""
   debug <- if ( missing(debug) && ( Sys.getenv("RSCALA_DEBUG") != "" ) ) {
