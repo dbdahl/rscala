@@ -729,7 +729,7 @@ names(rscala::scalaVersionJARs())
 This is done in part by adding a line to SBT's \code{build.sbt} file, like:
 
 \begin{Sinput}
-crossScalaVersions := Seq("2.11.12", "2.12.8", "2.13.0-RC2")
+crossScalaVersions := Seq("2.11.12", "2.12.8", "2.13.0")
 \end{Sinput}
 
 The JAR files should be copied to directories \code{inst/java/scala-X.XX}
