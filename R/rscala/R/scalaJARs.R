@@ -51,7 +51,7 @@ scalaJARsEngine <- function(JARs, details) {
   }))
   if ( is.null(JARs) ) JARs <- character(0)
   JARs <- path.expand(JARs)
-  sapply(JARs, function(JAR) if ( ! file.exists(JAR) ) stop(paste0('File or package "',JAR,'" does not exist.')))
+  sapply(JARs, function(JAR) if ( ( ! file.exists(JAR) ) && ( substr(JAR,1,4) != "sbt:" ) ) stop(paste0('File or package "',JAR,'" does not exist.')))
   for ( JAR in JARs ) {
     wb(socketOut,PCODE_ADD_TO_CLASSPATH)
     wc(socketOut,JAR)

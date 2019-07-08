@@ -334,9 +334,18 @@ class Server(intp: IMain, sockets: Sockets, referenceMap: HashMap[Int, (Any,Stri
 
   private def addToClasspath(): Unit = {
     if ( debugger.on ) debugger("add to classpath.")
-    val file = new File(readString)
+    val str = readString()
+    val files = if ( str.startsWith("sbt:") ) {
+      import coursier._
+      val pattern = "^sbt:([^:]+):([^:]+):([^:]+)$".r
+      val pattern(org,name,version) = str
+      val dep = core.Dependency(
+        Module(Organization(org), ModuleName(name)), version
+      )
+      Fetch().addDependencies(dep).run()
+    } else Seq(new File(str))
     try {
-      intp.addUrlsToClassPath(file.toURI.toURL)
+      files.foreach { file => intp.addUrlsToClassPath(file.toURI.toURL) }
     } catch {
       case _: Throwable =>
         if ( debugger.on ) debugger("Problem adding JAR to classpath.  Perhaps we hit this bug: https://github.com/scala/bug/issues/11565.")
@@ -363,10 +372,12 @@ class Server(intp: IMain, sockets: Sockets, referenceMap: HashMap[Int, (Any,Stri
               case _: Throwable =>
             }
           }
-          val tempFile = File.createTempFile("bug11565-",".jar", tmpDir)
-          java.nio.file.Files.copy(file.toPath,tempFile.toPath,java.nio.file.StandardCopyOption.REPLACE_EXISTING)
-          tempFile.deleteOnExit()   // This doesn't work on Windows because the JVM keeps the file open.
-          intp.addUrlsToClassPath(tempFile.toURI.toURL)
+          files.foreach { file =>
+            val tempFile = File.createTempFile("bug11565-",".jar", tmpDir)
+            java.nio.file.Files.copy(file.toPath,tempFile.toPath,java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+            tempFile.deleteOnExit()   // This doesn't work on Windows because the JVM keeps the file open.
+            intp.addUrlsToClassPath(tempFile.toURI.toURL)
+          }
         } catch {
           case e: Throwable =>
             prntWrtr.println(e)

@@ -5,7 +5,7 @@ organization := "org.ddahl"
 //version := "3.2.15"
 version := "3.2.14-SNAPSHOT"
 
-scalaVersion := "2.13.0"
+scalaVersion := "2.12.8"
 
 crossScalaVersions := Seq("2.11.12", "2.12.8", "2.13.0")
 
@@ -17,7 +17,7 @@ scalacOptions in (Compile,doc) ++= Seq("-no-link-warnings", "-skip-packages", "s
 
 libraryDependencies ++= List(
   "org.scala-lang" % "scala-compiler" % scalaVersion.value,
-  "org.scala-lang" % "scalap" % scalaVersion.value
+  "io.get-coursier" %% "coursier" % "2.0.0-RC2-6"
 )
 
 publishTo := sonatypePublishTo.value
