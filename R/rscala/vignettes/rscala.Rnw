@@ -93,7 +93,6 @@ library.
 }
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
 
 \section{Introduction}
 \label{introduction}
