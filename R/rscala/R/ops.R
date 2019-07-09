@@ -1,12 +1,12 @@
 #' Evaluation Operator
 #'
 #' This operator compiles and executes a snippet of Scala code.  All definitions
-#' are \emph{local} to the supplied Scala snippet.  Subsequent uses of the same code
-#' snippet skips the time-consuming compilation step.  The return value is a
-#' vector or matrix of \R's basic types (if possible) or an rscala reference
+#' are \emph{local} to the supplied Scala snippet.  Subsequent uses of the same
+#' code snippet skips the time-consuming compilation step.  The return value is
+#' a vector or matrix of \R's basic types (if possible) or an rscala reference
 #' (otherwise).
 #'
-#' @param bridge An rscala bridge.
+#' @param bridge A Scala bridge.
 #' @param snippet String providing a Scala code snippet.
 #'
 #' @return Returns a vector or matrix of \R's basic types (if possible) or an
@@ -61,7 +61,7 @@
   args <- if ( is.function(bridge) ) list() else bridge
   if ( ! is.function(snippet) ) scalaInvoke(details, paste0(".",snippet), args, parent.frame(1), withNames=TRUE)
   else {
-    if ( any(sapply(args,function(x) inherits(x,"rscalaType"))) ) stop("'scalaType' arguments must be in the function itself, not the rscala bridge.")
+    if ( any(sapply(args,function(x) inherits(x,"rscalaType"))) ) stop("'scalaType' arguments must be in the function itself, not the Scala bridge.")
     ast <- as.list(snippet)
     args2 <- lapply(ast[-length(ast)],eval,envir=environment(snippet))
     ast <- ast[[length(ast)]]

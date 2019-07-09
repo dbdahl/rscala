@@ -93,6 +93,7 @@ library.
 }
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 \section{Introduction}
 \label{introduction}
@@ -734,12 +735,19 @@ crossScalaVersions := Seq("2.11.12", "2.12.8", "2.13.0")
 
 The JAR files should be copied to directories \code{inst/java/scala-X.XX}
 relative to the package root, where \code{X.XX} represent a major version of
-\Scala{} (e.g., \code{2.12}).  The cross compiling and copying of JAR files is
+\Scala{} (e.g., \code{2.13}).  The cross compiling and copying of JAR files is
 automated by the \code{rscala::scalaSBT} function.  If JAR files of compiled
-\Java{} code are to be included in the package, they should be placed directly in
-the \code{inst/java} directory of the source package.  Finally, to make the JAR
-file available to the package's \R{} functions, the name of the package should
-be passed as the first argument to the \code{scala} function, e.g.:
+\Java{} code are to be included in the package, they should be placed directly
+in the \code{inst/java} directory of the source package.  As another aid, the
+\code{rscala::scalaDevelDownloadJARs} function is meant to be called from bare
+code of a package that depends on \rscala{} in a script such as \code{zzz.R}.
+When called during package installation, it downloads JAR files to the
+appropriate directories and avoids the need to distribute some JAR files in
+the source package.
+
+To make the JAR file available to the package's \R{} functions, the name of the
+package should be passed as the first argument to the \code{scala} function,
+e.g.:
 
 <<Show .onLoad function that loads the package JAR files, eval=FALSE>>=
 .onLoad <- function(libname, pkgname) {

@@ -3,6 +3,7 @@
     during package installation.
   * Fixed regression regarding processing of stdout and stderr arguments
     to scala function.
+  * Clean up of documentation.
 
 3.2.14 (2019-07-02)
   * In scalaDevelDeployJARs function, don't delete other JARs.
@@ -89,7 +90,7 @@
   * Removed unnecessary functions 'scalaPackage' and 'scalaPackageUnload'.
   * Added function 'scalaDisconnect' to temporarily disconnect sockets between
     R and Scala.  Sockets are automatically re-established as needed.
-  * Support for upcoming release of Scala 2.13.
+  * Experimental support for upcoming release of Scala 2.13.
   * Avoid Window's firewall pop up window.
   * Detection of trying to use a bridge across R instances and more helpful
     error message.
@@ -123,7 +124,7 @@
     and using the new `*` and `^` operators, e.g.
     s(x=3, y=rnorm(5)) * 'y.map(_+x)'.
   * Overall cleanup of interface.
-      * New way to instantiate a class, e.g., name <- s $ .new_String('Alis')
+      * New way to instantiate a class, e.g., name <- s $ .new_String('Alice')
       * New way to get a null reference, e.g., myNull <- s $ .null_String()
       * New way to cast, e.g., name $ '.asInstanceOf[Object]'()
   * Automatic detection of physical RAM and set the Java heap maximum to a

@@ -14,7 +14,7 @@
 #'
 #' @param x An R object.
 #' @param method A string giving the specific 'push' or 'pull' method to use.
-#' @param bridge An rscala bridge.
+#' @param bridge A Scala bridge.
 #' @param ... Other arguments passed to specialized push and pull functions.
 #'
 #' @seealso \code{\link{scalaPushRegister}}, \code{\link{scalaPullRegister}}

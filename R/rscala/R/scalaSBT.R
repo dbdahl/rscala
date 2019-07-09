@@ -1,7 +1,8 @@
 #' Run SBT and Deploy JAR Files
 #'
-#' This function runs SBT (Scala Build Tool) to package JAR files and then copy
-#' them to the appropriate directories of the R package source.
+#' This function helps developers of packages based on rscala. It runs SBT
+#' (Scala Build Tool) to package JAR files and then copy them to the appropriate
+#' directories of the R package source.
 #'
 #' Starting from the current working directory and moving up the file system
 #' hierarchy as needed, this function searches for the directory containing the
@@ -28,10 +29,14 @@
 #'   directories of the R package source?'
 #' @param only.if.newer Should compilation be avoided if it appears Scala code
 #'   has not changed?
-#
-#' 
+#'
+#' @examples \dontrun{
+#' scalaSBT()  # Working directory is the root of a package based on rscala.
+#' }
+#'
 #' @return \code{NULL}
 #' @export
+#' 
 scalaSBT <- function(args=c("+package","packageSrc"), copy.to.package=TRUE, only.if.newer=TRUE) {
   if ( ( ! is.vector(args) ) || ( ! is.character(args) ) ) stop("'args' is mispecified.")
   sConfig <- scalaConfig(FALSE,require.sbt=TRUE)
@@ -99,6 +104,7 @@ scalaSBT <- function(args=c("+package","packageSrc"), copy.to.package=TRUE, only
 #'   is a Scala major version (e.g., \code{"2.13"}.)
 #'
 #' @export
+#' 
 scalaDevelDeployJARs <- function(name, root, srcJAR, binJARs) {
   if ( missing(name) || ( ! is.vector(name) ) || ( ! is.character(name) ) || ( length(name) != 1 ) || ( name == "" ) ) stop("'name' is mispecified.")
   if ( missing(root) || ( ! is.vector(root) ) || ( ! is.character(root) ) || ( length(root) != 1 ) || ( ! dir.exists(root) ) ) stop("'root' directory does not exist.")
@@ -124,8 +130,9 @@ scalaDevelDeployJARs <- function(name, root, srcJAR, binJARs) {
 #'
 #' This function only takes effect during package installation. It is meant to
 #' be called from bare code of a package that depends on \pkg{rscala} in a
-#' script such as \code{zzz.R}. It downloads JAR files to the appropriate
-#' directories of a package during installation.
+#' script such as \code{zzz.R}. When called during package installation, it
+#' downloads JAR files to the appropriate directories.  This avoids the need to
+#' distribute some JAR files in the source package.
 #'
 #' @param description A character vector describing the JAR files to download,
 #'   e,g. \code{"org.apache.commons:commons-math3:3.6.1"}.
@@ -136,15 +143,23 @@ scalaDevelDeployJARs <- function(name, root, srcJAR, binJARs) {
 #'
 #' @export
 #' @importFrom utils download.file
-#' @examples
-#' \dontrun{
-#' ## To be run in bare code of a package that depends on rscala and needs
-#' ## the Apache Commons Math Library, for example.
+#' @examples \dontrun{
+#' ## To be run in bare code of a package that depends on rscala and needs,
+#' ## for example, the Apache Commons Math Library.
 #' rscala::scalaDevelDownloadJARs("org.apache.commons:commons-math3:3.6.1")
 #' }
-#'   
+#' 
 scalaDevelDownloadJARs <- function(description, scalaMajorVersion="", prefix="https://search.maven.org/remotecontent?filepath=") {
-  if ( identical(Sys.getenv("R_INSTALL_PKG"),"") ) message("This function only takes effect during package installation.")
+  if ( identical(Sys.getenv("R_INSTALL_PKG"),"") ) {
+    if ( interactive() ) message("This function only takes effect during package installation.")
+    return(invisible())
+  }
+  if ( ( ! is.vector(scalaMajorVersion) ) || ( ! is.character(scalaMajorVersion) ) || ( length(scalaMajorVersion) != 1L ) ) {
+    stop("Unexpected value for 'scalaMajorVersion'.")
+  }
+  if ( ( nchar(scalaMajorVersion) > 0 ) && ! ( scalaMajorVersion %in% names(scalaVersionJARs()) ) ) {
+    stop("Unsupported major Scala version in 'scalaMajorVersion'.")
+  }
   destDir <- file.path(Sys.getenv("R_PACKAGE_DIR"), "java")
   if ( nchar(scalaMajorVersion) > 0 ) destDir <- file.path(destDir, paste0("scala-", scalaMajorVersion))
   dir.create(destDir, FALSE, TRUE)
@@ -210,32 +225,6 @@ scalaDevelInfo <- function() {
   name <- as.vector(read.dcf(file.path(packageRoot,"DESCRIPTION"),"Package"))
   list(name=name, projectRoot=getwd(), packageRoot=packageRoot, buildSystem=buildSystem)
 }
-
-# # Probably broken
-# mill <- function(args,stderr=FALSE) {
-#   outString <- system2("mill",args,stdout=TRUE,stderr=stderr)
-#   gsub('^\\s*"(.*)"\\s*$',"\\1",outString) 
-# }
-# 
-# # Probably broken
-# scalaDevelBuildJARs <- function(info=scalaDevelInfo()) {
-#   oldWD <- getwd()
-#   on.exit(setwd(normalizePath(oldWD,mustWork=FALSE)))
-#   if ( is.null(info$projectRoot) ) stop("Cannot find project root.")
-#   setwd(info$projectRoot)
-#   if ( is.null(info$buildSystem) ) stop("No build system detected.")
-#   result <- if ( info$buildSystem == "mill" ) {
-#     scalaVersions <- mill(c("show","scala[_].scalaVersion"))
-#     srcScalaVersion <- pickLatestStableScalaVersion(scalaVersions)
-#     binJARs <- gsub('^ref:[^:]*:(.*)$',"\\1",mill(c("show","scala[_].jar")))
-#     srcJAR <- gsub('^ref:[^:]*:(.*)$',"\\1",mill(c("show",paste0("scala[",srcScalaVersion,"].sourceJar"))))
-#     names(binJARs) <- scalaVersions
-#     list(binJARs=binJARs, srcJAR=srcJAR)
-#   } else if ( info$buildSystem == "sbt" ) {
-#     stop("Not yet implemented.")
-#   } else stop(paste0("Unrecognized build system: ",info$buildSystem))
-#   result
-# }
 
 scalaFindLatestJARs <- function(dir, version2Path, jarFilter, majorVersions) {
   oldWD <- getwd()

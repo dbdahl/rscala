@@ -7,8 +7,8 @@ print.rscalaBridge <- function(x, ...) {
 #' @export
 #
 toString.rscalaBridge <- function(x, ...) {
-  if ( is.function(x) ) "rscala bridge"
-  else "rscala bridge with a parameter list"
+  if ( is.function(x) ) "Scala bridge"
+  else "Scala bridge with a parameter list"
 }
 
 #' @export

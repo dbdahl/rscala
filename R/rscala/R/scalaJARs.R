@@ -3,7 +3,7 @@
 #' @param JARs Character vector whose elements are some combination of
 #'   individual JAR files or package names which contain embedded JARs.  These
 #'   JAR files are added to the runtime classpath.
-#' @param bridge An rscala bridge from the \code{scala} function.
+#' @param bridge A Scala bridge from the \code{scala} function.
 #'
 #' If the \code{JARs} argument is missing, a character vector of loaded JARs
 #' is returned.
@@ -14,9 +14,9 @@
 #' @seealso \code{\link{scalaFindBridge}}
 #'
 #' @examples \dontrun{
-#' 
 #' scalaJARs("PATH/TO/jarFileToLoad.jar", e)
 #' }
+#' 
 scalaJARs <- function(JARs, bridge=scalaFindBridge()) {
   details <- if ( inherits(bridge,"rscalaBridge") ) attr(bridge,"details") else bridge
   if ( missing(JARs) ) {

@@ -1,6 +1,6 @@
 #' Instantiate a Scala Bridge
 #'
-#' This function creates an instance of an rscala bridge.  Details on this
+#' This function creates an instance of a Scala bridge.  Details on this
 #' function (and the rscala package as a whole) are provided in the package
 #' vignette and the associated paper in the \emph{Journal of Statistical
 #' Software}. See the reference below.
@@ -17,17 +17,17 @@
 #'   JAR files are added to the runtime classpath.
 #' @param serialize.output Logical indicating whether Scala output should be
 #'   serialized back to R.  This is slower and probably only needed on Windows.
-#' @param stdout Whether "standard output" results that are not serialized
-#'   should be sent.  \code{TRUE} or \code{""} sends output to the \R console
-#'   (although that may not work on Windows).  \code{FALSE} or \code{NULL}
-#'   discards the output.  Otherwise, this is the name of the file that receives
-#'   the output.
+#' @param stdout When \code{serialize.output == FALSE}, this argument influences
+#'   where "standard output" results should be sent.  \code{TRUE} or \code{""}
+#'   sends output to the \R console (although that may not work on Windows).
+#'   \code{FALSE} or \code{NULL} discards the output.  Otherwise, this is the
+#'   name of the file that receives the output.
 #' @param stderr Same as \code{stdout}, except influences the "standard error".
 #' @param port If \code{0}, two random ports are selected.  Otherwise,
 #'   \code{port} and \code{port+1} are used to the TCP/IP connections.
 #' @param heap.maximum String giving Scala's heap maximum, e.g., "8G" or "512M".
 #'   The value here supersedes that from \code{\link{scalaMemory}}. Without this
-#'   being set in either \code{\link{scala}} or \code{\link{scalaMemory}}, the
+#'   being set by either \code{\link{scala}} or \code{\link{scalaMemory}}, the
 #'   heap maximum will be 90\% of the available RAM.
 #' @param command.line.arguments A character vector of extra command line
 #'   arguments to pass to the Scala executable, where each element corresponds
@@ -35,8 +35,8 @@
 #' @param debug (Developer use only.)  Logical indicating whether debugging
 #'   should be enabled.
 #'
-#' @return Returns an rscala bridge.
-#' @references {David B. Dahl (2018). “Integration of R and Scala Using rscala.”
+#' @return Returns a Scala bridge.
+#' @references {David B. Dahl (2019). "Integration of R and Scala Using rscala."
 #'   Journal of Statistical Software, in editing. https://www.jstatsoft.org}
 #' @seealso \code{\link{close.rscalaBridge}}, \code{\link{scalaMemory}}
 #'   \code{\link{scalaPushRegister}}, \code{\link{scalaPullRegister}}

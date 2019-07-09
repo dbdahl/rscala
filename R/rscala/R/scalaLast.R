@@ -1,8 +1,8 @@
 #' Retrieve the Last Scala Computation
 #'
-#' This function retrieves the last result from the supplied rscala bridge.
+#' This function retrieves the last result from the supplied Scala bridge.
 #'
-#' @param bridge An rscala bridge
+#' @param bridge A Scala bridge
 #'
 #' @export
 #' @seealso \code{\link{scalaFindBridge}}

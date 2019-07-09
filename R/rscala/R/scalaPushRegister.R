@@ -11,7 +11,7 @@
 #' @param puller A function whose first two arguments are as shown in the example below.
 #'   Other arguments can be used as additional arguments.
 #' @param method A string giving the name of the specific 'push' or 'pull' method.
-#' @param bridge An rscala bridge.
+#' @param bridge A Scala bridge.
 #' @seealso \code{\link{scalaPush}}, \code{\link{scalaPull}}
 #' @export
 #'
