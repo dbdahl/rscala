@@ -154,7 +154,7 @@ scalaDevelDownloadJARs <- function(description, scalaMajorVersion="", prefix="ht
     artifact <- cells[2]
     version  <- cells[3]
     jar <- sprintf("%s%s/%s/%s/%s.jar",prefix,group,artifact,version,paste(artifact,version,sep="-"))
-    download.file(jar, file.path(destDir, basename(jar)))
+    download.file(jar, file.path(destDir, basename(jar)), mode="wb")
   }
 }
 

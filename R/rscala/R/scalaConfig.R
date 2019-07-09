@@ -305,7 +305,7 @@ installSoftware <- function(installPath, software, version, os, arch, verbose=FA
   dfc <- efc <- 0
   for ( candidate in candidates ) {
     archivePath <- file.path(tempdir(), basename(candidate))
-    result <- try(download.file(candidate, archivePath), silent=TRUE)
+    result <- try(download.file(candidate, archivePath, mode="wb"), silent=TRUE)
     if ( inherits(result,"try-error") || ( result != 0 ) || ( dfc < downloadFailureCount ) ) {
       dfc <- dfc + 1
       next
