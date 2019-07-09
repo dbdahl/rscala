@@ -8,6 +8,7 @@ Try to bump to latest versions
   R/rscala/inst/data-raw/urls.txt (with sysdata script)
 Run './bin/check'
 Run './bin/post'
+Run rscala:::verifyDownloads() on Linux, Windows, and Mac OS platforms
 Rerun benchmarks on an otherwise idle machine: cd benchmarks; ./all
 Test on Linux, Mac OS, and Windows
   For Windows, use https://win-builder.r-project.org/

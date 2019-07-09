@@ -5,6 +5,7 @@ export JAR=$(R --slave -e 'cat(rscala::scalaVersionJARs()[["2.12"]])')
 export JAVA_HOME=$(R --slave -e 'cat(rscala::scalaConfig(verbose=FALSE)$javaHome)')
 
 exec "$SCALA" -nc -cp "$JAR" "$0" "$@"
+"$SCALA" -nc -cp "$JAR"
 
 !#
 

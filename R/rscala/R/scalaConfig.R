@@ -264,6 +264,8 @@ extractArchive <- function(archivePath, parentDirectory, directoryName) {
   status <- file.rename(home, finalPath)
   if ( ! status ) stop(paste0("Problem renaming ", home, " to ", finalPath))
   unlink(tmpInstallDirectory, TRUE, TRUE)
+  filesInBin <- list.files(file.path(finalPath,"bin"),full.names=TRUE)
+  Sys.chmod(filesInBin, "0755")
   finalPath
 }
 

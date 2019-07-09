@@ -3,10 +3,10 @@ software  os                   arch     version  priority  url
     java  windows      ^x86(-|_)64$          11        70  https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.3%2B7/OpenJDK11U-jre_x64_windows_hotspot_11.0.3_7.zip
     java  mac          ^x86(-|_)64$          11        70  https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.3%2B7/OpenJDK11U-jre_x64_mac_hotspot_11.0.3_7.tar.gz
     java  linux        ^x86(-|_)64$          11        70  https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.3%2B7/OpenJDK11U-jre_x64_linux_hotspot_11.0.3_7.tar.gz
-    java  windows  ^(x86|i[3-6]86)$           8        70  https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u212-b03/OpenJDK8U-jre_x86-32_windows_hotspot_8u212b03.zip
-    java  windows      ^x86(-|_)64$           8        70  https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u212-b03/OpenJDK8U-jre_x64_windows_hotspot_8u212b03.zip
-    java  mac          ^x86(-|_)64$           8        70  https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u212-b03/OpenJDK8U-jre_x64_mac_hotspot_8u212b03.tar.gz
-    java  linux        ^x86(-|_)64$           8        70  https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u212-b03/OpenJDK8U-jre_x64_linux_hotspot_8u212b03.tar.gz
+    java  windows  ^(x86|i[3-6]86)$           8        70  https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u212-b04/OpenJDK8U-jre_x86-32_windows_hotspot_8u212b04.zip
+    java  windows      ^x86(-|_)64$           8        70  https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u212-b04/OpenJDK8U-jre_x64_windows_hotspot_8u212b04.zip
+    java  mac          ^x86(-|_)64$           8        70  https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u212-b04/OpenJDK8U-jre_x64_mac_hotspot_8u212b04.tar.gz
+    java  linux        ^x86(-|_)64$           8        70  https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u212-b04/OpenJDK8U-jre_x64_linux_hotspot_8u212b04.tar.gz
     java  windows      ^x86(-|_)64$          11        50  https://cdn.azul.com/zulu/bin/zulu11.31.11-ca-jre11.0.3-win_x64.zip
     java  mac          ^x86(-|_)64$          11        50  https://cdn.azul.com/zulu/bin/zulu11.31.11-ca-jre11.0.3-macosx_x64.zip
     java  linux        ^x86(-|_)64$          11        50  https://cdn.azul.com/zulu/bin/zulu11.31.11-ca-jre11.0.3-linux_x64.tar.gz
