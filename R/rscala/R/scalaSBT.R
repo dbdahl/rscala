@@ -95,7 +95,8 @@ scalaSBT <- function(args=c("+package","packageSrc"), copy.to.package=TRUE, only
 #' @param name The package name (as a string).
 #' @param root The file system path to package root directory (as a string).
 #' @param srcJAR The file system path to source JAR file (as a string).
-#' @param binJARs A named character vector of file system paths, where each name is a Scala major version (e.g., \code{"2.13"}.)
+#' @param binJARs A named character vector of file system paths, where each name
+#'   is a Scala major version (e.g., \code{"2.13"}.)
 #'
 #' @export
 scalaDevelDeployJARs <- function(name, root, srcJAR, binJARs) {
@@ -121,10 +122,10 @@ scalaDevelDeployJARs <- function(name, root, srcJAR, binJARs) {
 
 #' Download and Deploy JAR Files into the Package File System
 #'
-#' This function should only be called during package installation. That is, it
-#' is meant to be called from bare code of a package that depends on
-#' \pkg{rscala} in a script such as \code{zzz.R}. It downloads JAR files to the
-#' appropriate directories of a package during installation.
+#' This function only takes effect during package installation. It is meant to
+#' be called from bare code of a package that depends on \pkg{rscala} in a
+#' script such as \code{zzz.R}. It downloads JAR files to the appropriate
+#' directories of a package during installation.
 #'
 #' @param description A character vector describing the JAR files to download,
 #'   e,g. \code{"org.apache.commons:commons-math3:3.6.1"}.
@@ -143,7 +144,7 @@ scalaDevelDeployJARs <- function(name, root, srcJAR, binJARs) {
 #' }
 #'   
 scalaDevelDownloadJARs <- function(description, scalaMajorVersion="", prefix="https://search.maven.org/remotecontent?filepath=") {
-  if ( identical(Sys.getenv("R_INSTALL_PKG"),"") ) stop("This function should only be called during package installation.")
+  if ( identical(Sys.getenv("R_INSTALL_PKG"),"") ) message("This function only takes effect during package installation.")
   destDir <- file.path(Sys.getenv("R_PACKAGE_DIR"), "java")
   if ( nchar(scalaMajorVersion) > 0 ) destDir <- file.path(destDir, paste0("scala-", scalaMajorVersion))
   dir.create(destDir, FALSE, TRUE)
