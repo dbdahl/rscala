@@ -279,3 +279,28 @@ getHeapMaximum <- function(heap.maximum,is32bit) {
     paste0(max(32,as.integer(memoryPercentage * (bytes / 1024^2))),"M")  # At least 32M
   } else NULL
 }
+
+jarsOfPackage <- function(pkgname, major.release) {
+  dir <- if ( file.exists(system.file("inst",package=pkgname)) ) file.path("inst/java") else "java"
+  jarsMajor <- list.files(file.path(system.file(dir,package=pkgname),paste0("scala-",major.release)),pattern=".*\\.jar$",full.names=TRUE,recursive=FALSE)
+  jarsAny <- list.files(system.file(dir,package=pkgname),pattern=".*\\.jar$",full.names=TRUE,recursive=FALSE)
+  result <- normalizePath(c(jarsMajor,jarsAny))
+  if ( length(result) == 0 ) {
+    supported.versions <- list.files(system.file(dir,package=pkgname),pattern="scala-.*",full.names=FALSE,recursive=FALSE)
+    recommended.version <- pickLatestStableScalaVersion(sub("^scala-","",supported.versions))
+    stop(paste0("It appears that package '",pkgname,"' does not support Scala ",major.release,".  Hint, run:\n\n  Sys.setenv(RSCALA_SCALA_VERSION='",recommended.version,"'); rscala::scalaConfig(download='scala')\n\n  Then restart your R session and try again.\n"))
+  }
+  result
+}
+
+#' @importFrom utils getFromNamespace
+#' 
+transcompileHeaderOfPackage <- function(pkgname) {
+  tryCatch( getFromNamespace("rscalaTranscompileHeader", pkgname), error=function(e) NULL )
+}
+
+#' @importFrom utils getFromNamespace
+#' 
+transcompileSubstituteOfPackage <- function(pkgname) {
+  tryCatch( getFromNamespace("rscalaTranscompileSubstitute", pkgname), error=function(e) NULL )
+}

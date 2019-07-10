@@ -1,3 +1,7 @@
+3.2.16 (2019-07-16)
+  * Work around bug in Scala REPL (https://github.com/scala/bug/issues/11622)
+  * Dropped the function scalaJARs which was affected by the aforementioned bug.
+
 3.2.15 (2019-07-09)
   * Added function scalaDevelDownloadJARs to aid in downloading JAR files
     during package installation.

@@ -781,14 +781,13 @@ bridge in the \code{.onUnload} function, e.g.:
 
 Finally, a package can piggy-back on another package by using its \Scala{}
 bridge.  For example, the \shallot{} package uses the \Scala{} bridge from the
-\sdols{} package and registers an additional JAR file using the
-\code{scalaJARs} function.  That is, the \code{.onLoad} function for the
-\shallot{} package might be:
+\sdols{} package and, assuming \shallot{} is installed when \sdols{} is loaded,
+the additional JAR files of \shallot{} will already available.  That is, the
+\code{.onLoad} function for the \shallot{} package might be:
 
-<<Piggy-back on another package (yet still add your JAR files), eval=FALSE>>=
+<<Piggy-back on another package, eval=FALSE>>=
 .onLoad <- function(libname, pkgname) {
   s <- sdols:::s
-  scalaJARs(pkgname, s)
   assign("s", envir = parent.env(environment()))
 }
 @
