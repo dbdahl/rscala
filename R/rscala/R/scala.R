@@ -12,9 +12,11 @@
 #'
 #' Terminate the bridge using \code{\link{close.rscalaBridge}}.
 #'
-#' @param JARs Character vector whose elements are some combination of
-#'   individual JAR files or package names which contain embedded JARs.  These
-#'   JAR files are added to the runtime classpath.
+#' @param JARs Character vector describing JAR files to include in the
+#'   classpath. Elements are some combination of file paths to JARs or package
+#'   names which contain embedded JARs.  In the case of package names, the
+#'   embedded JARs of all packages that recursively depend on, import, or
+#'   suggest the specified package are also included.
 #' @param serialize.output Logical indicating whether Scala output should be
 #'   serialized back to R.  This is slower and probably only needed on Windows.
 #' @param stdout When \code{serialize.output == FALSE}, this argument influences
@@ -41,6 +43,7 @@
 #' @seealso \code{\link{close.rscalaBridge}}, \code{\link{scalaMemory}}
 #'   \code{\link{scalaPushRegister}}, \code{\link{scalaPullRegister}}
 #' @export
+#' @importFrom tools dependsOnPkgs
 #' @aliases rscala-package
 #'
 #' @examples \donttest{
@@ -82,11 +85,14 @@ scala <- function(JARs=character(),
   if ( debug && serialize.output ) stop("When debug is TRUE, serialize.output must be FALSE.")
   if ( debug && ( identical(stdout,FALSE) || identical(stdout,NULL) || identical(stderr,FALSE) || identical(stderr,NULL) ) ) stop("When debug is TRUE, stdout and stderr must not be discarded.")
   details <- new.env(parent=emptyenv())
+  transcompileHeader <- c("import org.ddahl.rscala.server.Transcompile._","import scala.util.control.Breaks")
+  assign("transcompileHeader",transcompileHeader,envir=details)
+  assign("transcompileSubstitute",list(),envir=details)
   sConfig <- tryCatch(scalaConfig(FALSE), error=function(e) list(error=e))
   if ( is.null(sConfig$error) ) {
     scalaMajor <- sConfig$scalaMajorVersion
-    rscalaJAR <- shQuote(paste0(list.files(system.file(file.path("java",paste0("scala-",scalaMajor)),package="rscala",mustWork=FALSE),".*\\.jar$",full.names=TRUE),collapse=":"))
-    if ( length(rscalaJAR) == 0 ) {
+    rscalaJARs <- list.files(system.file(file.path("java",paste0("scala-",scalaMajor)),package="rscala",mustWork=FALSE),".*\\.jar$",full.names=TRUE)
+    if ( length(rscalaJARs) == 0 ) {
       sConfig$error <- list(message=paste0("\n\n<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nScala version ",sConfig$scalaFullVersion," is not among the support versions: ",paste(names(scalaVersionJARs()),collapse=", "),".\nPlease run 'rscala::scalaConfig(reconfig=TRUE)'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"))
     } else {
       heap.maximum <- getHeapMaximum(heap.maximum,sConfig$javaArchitecture == 32)
@@ -97,7 +103,29 @@ scala <- function(JARs=character(),
       sessionFilename <- tempfile("rscala-session-")
       writeLines(character(),sessionFilename)
       portsFilename <- tempfile("rscala-ports-")
-      args <- c(heap.maximum.argument,command.line.arguments,"-nc","-classpath",rscalaJAR,"org.ddahl.rscala.server.Main",rscalaJAR,port,portsFilename,sessionFilename,debug,serialize.output,FALSE)
+      JARs <- unlist(lapply(JARs, function(x) {
+        if ( identical(find.package(x,quiet=TRUE),character(0)) ) x
+        else {
+          newHeaders <- unlist(lapply(x,transcompileHeaderOfPackage))
+          if ( length(newHeaders) > 0 ) {
+            transcompileHeader <- c(get("transcompileHeader",envir=details), newHeaders)
+            assign("transcompileHeader",transcompileHeader,envir=details)
+          }
+          newSubstitutes <- lapply(x,transcompileSubstituteOfPackage)
+          if ( length(newSubstitutes) > 0 ) {
+            transcompileSubstitute <- unlist(c(get("transcompileSubstitute",envir=details),newSubstitutes))
+            assign("transcompileSubstitute",transcompileSubstitute,envir=details)
+          }
+          dependencies <- tools::dependsOnPkgs(x, dependencies=c("Depends", "Imports"))
+          unlist(lapply(c(x,dependencies), function(y) jarsOfPackage(y,scalaMajor)))
+        }
+      }))
+      if ( is.null(JARs) ) JARs <- character(0)
+      JARs <- unique(path.expand(JARs))
+      sapply(JARs, function(JAR) if ( ! file.exists(JAR) ) stop(paste0('File or package "',JAR,'" does not exist.')))
+      rscalaClasspath <- shQuote(paste0(rscalaJARs,collapse=.Platform$path.sep))
+      fullClasspath <- shQuote(paste0(c(rscalaJARs,JARs),collapse=.Platform$path.sep))
+      args <- c(heap.maximum.argument,command.line.arguments,"-nc","-classpath",rscalaClasspath,"org.ddahl.rscala.server.Main",fullClasspath,port,portsFilename,sessionFilename,debug,serialize.output,FALSE)
       oldJavaEnv <- setJavaEnv(sConfig)
       if ( debug ) {
         cat(paste0("Cmd:  ",paste0(sConfig$scalaCmd,collapse=" | "),"\n"))
@@ -113,9 +141,6 @@ scala <- function(JARs=character(),
   assign("disconnected",TRUE,envir=details)
   assign("pidOfR",Sys.getpid(),envir=details)
   assign("interrupted",FALSE,envir=details)
-  transcompileHeader <- c("import org.ddahl.rscala.server.Transcompile._","import scala.util.control.Breaks")
-  assign("transcompileHeader",transcompileHeader,envir=details)
-  assign("transcompileSubstitute",list(),envir=details)
   assign("debugTranscompilation",FALSE,envir=details)
   assign("debug",debug,envir=details)
   assign("serializeOutput",serialize.output,envir=details)
@@ -123,8 +148,7 @@ scala <- function(JARs=character(),
   assign("garbage",integer(),envir=details)
   assign("config",sConfig,envir=details)
   assign("heapMaximum",heap.maximum,envir=details)
-  assign("JARs",character(0),envir=details)
-  assign("pendingJARs",character(0),envir=details)
+  assign("JARs",JARs,envir=details)
   assign("pendingCallbacks",list(),envir=details)
   gcFunction <- function(e) {
     garbage <- details[["garbage"]]
@@ -133,7 +157,6 @@ scala <- function(JARs=character(),
   }
   assign("gcFunction",gcFunction,envir=details)
   reg.finalizer(details,close.rscalaBridge,onexit=TRUE)
-  scalaJARs(JARs,details)
   bridge <- mkBridge(details)
   assign("pushers",new.env(parent=emptyenv()),envir=details)
   assign("pullers",new.env(parent=emptyenv()),envir=details)
@@ -179,7 +202,6 @@ embeddedR <- function(ports,debug=FALSE) {
   assign("debug",debug,envir=details)
   assign("socketInPort",ports[1],envir=details)
   assign("socketOutPort",ports[2],envir=details)
-  assign("pendingJARs",character(0),envir=details)
   assign("pendingCallbacks",character(0),envir=details)
   scalaConnect(details)
   pop(details,NULL,.GlobalEnv)
@@ -211,11 +233,6 @@ scalaConnect <- function(details) {
   assign("socketIn",socketIn,envir=details)
   assign("socketOut",socketOut,envir=details)
   assign("disconnected",FALSE,envir=details)
-  JARs <- get("pendingJARs",envir=details)
-  if ( length(JARs) > 0 ) {
-    scalaJARsEngine(JARs, details)
-    assign("pendingJARs",character(0),envir=details)
-  }
   pendingCallbacks <- get("pendingCallbacks",envir=details)
   if ( length(pendingCallbacks) > 0 ) {
     scalaLazy(pendingCallbacks, details)

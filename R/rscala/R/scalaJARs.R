@@ -1,4 +1,7 @@
 #' Add JAR Files to Classpath
+#' 
+#' This function is no longer needed but remains until all packages based on
+#' \pkg{rscala} are updated.
 #'
 #' @param JARs Character vector whose elements are some combination of
 #'   individual JAR files or package names which contain embedded JARs.  These
@@ -18,6 +21,7 @@
 #' }
 #' 
 scalaJARs <- function(JARs, bridge=scalaFindBridge()) {
+  return(invisible())
   details <- if ( inherits(bridge,"rscalaBridge") ) attr(bridge,"details") else bridge
   if ( missing(JARs) ) {
     if ( details[["disconnected"]] ) scalaConnect(details)
@@ -30,6 +34,7 @@ scalaJARs <- function(JARs, bridge=scalaFindBridge()) {
 }
 
 scalaJARsEngine <- function(JARs, details) {
+  return(invisible())
   checkConnection(details)
   socketOut <- details[["socketOut"]]
   scalaLastEngine(details)
