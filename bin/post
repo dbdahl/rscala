@@ -13,11 +13,8 @@ cp -f $TGZ_NAME ../deliveries/$TGZ_NAME
 cd ..
 
 ## Post package
-REPOS=docs/devel/website-professional/html/rpackages
-scp "deliveries/$TGZ_NAME" dahl.byu.edu:"$REPOS"/src/contrib
-ssh dahl.byu.edu bash -lc "'$REPOS/mkPseudoBinaries src/contrib/$TGZ_NAME'"
-ssh dahl.byu.edu bash -lc "'$REPOS/updatePACKAGES'"
-echo -e "####\nPosted to\n  https://dahl.byu.edu/rpackages/src/contrib/$TGZ_NAME\n####"
+git checkout R/rscala/DESCRIPTION
+deploy-R-package deliveries/$TGZ_NAME
 
 ## Post Scaladoc 
 R --slave -e "rscala:::scalaSBT(c('packageDoc'),FALSE,FALSE)"
