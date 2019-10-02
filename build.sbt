@@ -2,12 +2,12 @@ name := "rscala"
 
 organization := "org.ddahl"
 
-//version := "3.2.16"
-version := "3.2.15-SNAPSHOT"
+version := "3.2.16"
+//version := "3.2.16-SNAPSHOT"
 
-scalaVersion := "2.13.0"
+scalaVersion := "2.13.1"
 
-crossScalaVersions := Seq("2.11.12", "2.12.8", "2.13.0")
+crossScalaVersions := Seq("2.11.12", "2.12.10", "2.13.1")
 
 scalacOptions ++= List("-feature", "-deprecation", "-unchecked")
 

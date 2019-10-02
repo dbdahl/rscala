@@ -277,9 +277,9 @@ installSoftware <- function(installPath, software, version, os, arch, verbose=FA
     version <- if ( software == "java" ) {
       if ( Sys.getenv("RSCALA_JAVA_VERSION","") != "" )  Sys.getenv("RSCALA_JAVA_VERSION","") else "8"
     } else if ( software == "scala" ) {
-      if ( Sys.getenv("RSCALA_SCALA_VERSION","") != "" ) Sys.getenv("RSCALA_SCALA_VERSION","") else "2.12"
+      if ( Sys.getenv("RSCALA_SCALA_VERSION","") != "" ) Sys.getenv("RSCALA_SCALA_VERSION","") else "2.13"
     } else if ( software == "sbt" ) {
-      if ( Sys.getenv("RSCALA_SBT_VERSION","") != "" ) Sys.getenv("RSCALA_SBT_VERSION","") else "1.2"
+      if ( Sys.getenv("RSCALA_SBT_VERSION","") != "" ) Sys.getenv("RSCALA_SBT_VERSION","") else "1.3"
     } else NULL
   }
   sel <- sel & (urls$version == version)
@@ -421,7 +421,7 @@ verifyDownloads <- function() {
       close(s)
     }
   }
-  for ( version in c("1.2") ) {
+  for ( version in c("1.3") ) {
     for ( efc in 0:1 ) {
       Sys.setenv(RSCALA_EXTRACT_FAILURE_COUNT=efc)
       Sys.setenv(RSCALA_SBT_VERSION=version)

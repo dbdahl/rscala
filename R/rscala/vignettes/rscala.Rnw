@@ -24,8 +24,9 @@
 \newcommand{\rJava}{\pkg{rJava}}
 \newcommand{\Rcpp}{\pkg{Rcpp}}
 \newcommand{\Rserve}{\pkg{Rserve}}
-\newcommand{\sdols}{\pkg{sdols}}
 \newcommand{\shallot}{\pkg{shallot}}
+\newcommand{\sdolsQ}{\pkg{pkg1}}
+\newcommand{\shallotQ}{\pkg{pkg2}}
 \newcommand{\bamboo}{\pkg{bamboo}}
 \newcommand{\parallelPkg}{\pkg{parallel}}
 \newcommand{\refop}{\code{\^{}}}
@@ -699,7 +700,7 @@ that of \rJava{}.  We recommend that \R{} users avoid calling short-lived
 
 The \rscala{} package enables developers to use \Scala{} in their own \R{}
 packages to implement computationally intensive algorithms.  For example, the
-\sdols{} \citep{sdolsSoftware}, \shallot{} \citep{shallotSoftware}, and
+\shallot{} \citep{shallotSoftware} and
 \bamboo{} \citep{bambooSoftware} packages on CRAN use \Scala{} via \rscala{} to
 implement statistical methodology of their associated journal articles
 \citep{shallotPaper,bambooPaper}.  Readers are encouraged to study those
@@ -780,20 +781,21 @@ bridge in the \code{.onUnload} function, e.g.:
 @
 
 Finally, a package can piggy-back on another package by using its \Scala{}
-bridge.  For example, the \shallot{} package uses the \Scala{} bridge from the
-\sdols{} package and, assuming \shallot{} is installed when \sdols{} is loaded,
-the additional JAR files of \shallot{} will already available.  That is, the
-\code{.onLoad} function for the \shallot{} package might be:
+bridge.  For example, consider two fictious packages: \sdolsQ{} and \shallotQ{}.
+The \shallotQ{} package can use the \Scala{} bridge from the
+\sdolsQ{} package and, assuming \shallotQ{} is installed when \sdolsQ{} is loaded,
+the additional JAR files of \shallotQ{} will already available.  That is, the
+\code{.onLoad} function for the \shallotQ{} package might be:
 
 <<Piggy-back on another package, eval=FALSE>>=
 .onLoad <- function(libname, pkgname) {
-  s <- sdols:::s
+  s <- pkg1:::s
   assign("s", envir = parent.env(environment()))
 }
 @
 
-In this case, since the \shallot{} package is not the original owner of the
-\Scala{} bridge, the \shallot{} package should not call \code{close(s)}
+In this case, since the \shallotQ{} package is not the original owner of the
+\Scala{} bridge, the \shallotQ{} package should not call \code{close(s)}
 in an \code{.onUnload} function.
 
 \section[Accessing R in Scala]{Accessing \R{} in \Scala{}}
@@ -924,7 +926,7 @@ TCP/IP bridge.
 \section[Case study: Simulation study accelerated with rscala]{Case study: Simulation study accelerated with \rscala{}}
 \label{bootstrap}
 
-While the previously mentioned \sdols{}, \shallot{}, and \bamboo{} packages
+While the previously mentioned \shallot{} and \bamboo{} packages
 demonstrate the ability to develop packages based on \rscala{}, we demonstrate
 in this section the ease with which computationally intensive statistical
 procedures can be implemented by embedding \Scala{} code in an \R{} script.
