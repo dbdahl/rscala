@@ -48,6 +48,7 @@ rb <- function(con,v,n=1L) {
 
 scalaIsDead <- function(con) {
   pidOfScala <- attr(con,"pidOfScala")
+  if ( is.null(pidOfScala) ) return(TRUE)
   if ( .Platform$OS.type == "unix" ) {
     tryCatch(length(system2("ps",c("-o","pid=","-p",pidOfScala),stdout=TRUE)) == 0,
              warning=function(e) TRUE, error=function(e) TRUE)
