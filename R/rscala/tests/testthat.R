@@ -1,4 +1,6 @@
-library(testthat)
-library(rscala)
+if ( ! ( "windows" %in% tolower(Sys.info()[["sysname"]]) ) ) {
+  library(testthat)
+  library(rscala)
+  test_check("rscala")
+}
 
-test_check("rscala")
