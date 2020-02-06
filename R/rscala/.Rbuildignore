@@ -2,5 +2,7 @@
 ^\.Rproj\.user$
 jss\.cls$
 jss\.bst$
+rscala.bbl$
+rscala.blg$
 rnw2pdf$
 clean$

@@ -1,3 +1,6 @@
+3.2.17 (2020-02-06)
+  * Work around issues with CRAN testing on machines without Scala and/or Java.
+
 3.2.16 (2019-10-02)
   * Updated vignette to reflect new dependencies among sdols and shallot
     packages.
