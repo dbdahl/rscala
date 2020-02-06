@@ -1,3 +1,6 @@
+%\VignetteEngine{knitr::knitr}
+%\VignetteEncoding{UTF-8}
+
 %\documentclass[article,shortnames]{jss}
 \documentclass[nojss,article,shortnames]{jss}
 
@@ -32,9 +35,17 @@
 \newcommand{\refop}{\code{\^{}}}
 
 %% need no \usepackage{Sweave}
-\SweaveOpts{engine=R, eps=FALSE, keep.source=TRUE}
-<<Setup document, echo=FALSE, results=hide>>=
+
+<<include=FALSE>>=
+library(knitr)
+opts_chunk$set(
+engine='R', tidy=FALSE
+)
+@
+
+<<Setup document, echo=FALSE, results='hide'>>=
 options(prompt = "R> ", continue = "+  ", width = 70, useFancyQuotes = FALSE)
+allowScala <- ! isTRUE(tryCatch({rscala::scalaConfig(reconfig="offline")}, error=function(e) TRUE))
 a <- toString(packageVersion("rscala"))
 cells <- strsplit(a,"\\.")[[1]]
 versionString <- paste0(cells[1:3],collapse=".")
@@ -262,7 +273,7 @@ Create a \Scala{} bridge using the \code{scala} function:
 s <- scala()
 @
 
-<<Instantiate a bridge for this document, echo=FALSE, results=hide>>=
+<<Instantiate a bridge for this document, echo=FALSE, results='hide', eval=allowScala>>=
 set.seed(234L)
 s <- scala(serialize.output = TRUE)
 s + 'scala.util.Random.setSeed(3242)'
@@ -292,7 +303,7 @@ higher-order \code{map} method of the range applies the expression
 \code{(n-i+1) / i.toDouble} to each element \code{i} in the range.  Finally,
 the results are multiplied together by the \code{product} method.
 
-<<Define a function using the '+' operator>>=
+<<Define a function using the '+' operator, eval=allowScala>>=
 s + '
   def binomialCoefficient(n: Int, k: Int) = {
     ( 1 to k ).map( i => ( n - i + 1 ) / i.toDouble ).product.toInt
@@ -302,7 +313,7 @@ s + '
 
 This definition is available in subsequent \Scala{} expressions:
 
-<<Access a user defined function>>=
+<<Access a user defined function, eval=allowScala>>=
 s + 'println("10 choose 3 is " + binomialCoefficient(10, 3) + ".")'
 @
  
@@ -316,7 +327,7 @@ the \code{+} operator evaluates in \Scala{}'s global namespace and returns
 \code{NULL}, the \code{*} operator evaluates in a local block and always
 returns the result of the last expression:
  
-<<Use the '*' operator>>=
+<<Use the '*' operator, eval=allowScala>>=
 choose(10, 3) == s * 'binomialCoefficient(10, 3)'
 @
 
@@ -336,7 +347,7 @@ Table~\ref{mappings} shows the mapping of \Scala{} and \R{} types using code
 examples.  The example below shows how the \Scala{} and \R{} expressions
 produce the same result.
 
-<<Show equivalent matrices in R and Scala>>=
+<<Show equivalent matrices in R and Scala, eval=allowScala>>=
 fromScala <- s * 'Array(Array(1, 2, 3), Array(4, 5, 6))'
 fromR     <- matrix(1:6, nrow = 2, byrow = TRUE)
 identical(fromScala, fromR)
@@ -384,14 +395,14 @@ copyable types can be passed to \Scala{} snippets.  A \Scala{} bridge is
 represented in \R{} as a function.  Arguments passed to a \Scala{} bridge are
 made available to the associated \Scala{} snippet:
 
-<<Pass data to Scala>>=
+<<Pass data to Scala, eval=allowScala>>=
 s(name = "Hannah") * 'name.toUpperCase == name.toUpperCase.reverse'
 @
 
 The previous example demonstrates using a single named argument, but any
 number of named or unnamed arguments can be used:
 
-<<Pass data to Scala with multiple named and unnamed arguments>>=
+<<Pass data to Scala with multiple named and unnamed arguments, eval=allowScala>>=
 names <- c("Hannah", "David", "Reinier")
 s(names, convertToUpperCase = TRUE) * '
   val x = if ( convertToUpperCase ) names.map(_.toUpperCase) else names
@@ -416,7 +427,7 @@ used.  In the example below, the length of \code{x} is random but the \Scala{}
 code is valid because \code{x} is wrapped in \code{I} to guarantee that it is
 passed as an array.
 
-<<Use I() to pass a length-one vector to Scala as an array>>=
+<<Use I() to pass a length-one vector to Scala as an array, eval=allowScala>>=
 x <- letters[sample(length(letters), rbinom(1, size = 2, prob = 0.5))]
 s(x = I(x)) * 'x.map(_.toUpperCase).mkString'
 @
@@ -434,7 +445,7 @@ returned.  Second, a \Scala{} reference to an array of integers is returned ---
 despite the fact that this is a copyable type --- because the \refop{} operator
 is used.
 
-<<Return a reference if the result is not a copyable type>>=
+<<Return a reference if the result is not a copyable type, eval=allowScala>>=
 rng <- s * 'new scala.util.Random()'
 rng
 
@@ -444,7 +455,7 @@ oneToTenReference
 
 \Scala{} references can also be passed as arguments to a \Scala{} bridge:
 
-<<Pass a reference to a bridge>>=
+<<Pass a reference to a bridge, eval=allowScala>>=
 s(rng, len = 15L) * 'rng.alphanumeric.take(len).mkString'
 @
 
@@ -456,7 +467,7 @@ Taking inspiration from \rJava{}'s high-level \code{\$} operator, methods
 associated with \Scala{} references can be called directly using the \code{\$}
 operator:
 
-<<Call a methods of a reference>>=
+<<Call a methods of a reference, eval=allowScala>>=
 rng$setSeed(24234L)
 rng$nextInt(10L)
 oneToTenReference$sum()
@@ -469,7 +480,7 @@ copyable type, then a \Scala{} reference is returned.  If a \Scala{} reference
 is desired even when working with copyable types, add a dot immediately after
 the \code{\$} operator:
 
-<<Guarantee a reference is returned when calling a method>>=
+<<Guarantee a reference is returned when calling a method, eval=allowScala>>=
 rng$.nextInt(10L)
 @
  
@@ -477,7 +488,7 @@ The value of an instance variable may be accessed as if there was a method of
 the same name taking no arguments.  For example, the value \code{self} in an
 instance of \code{scala.util.Random} is accessed as:
 
-<<Assess an instance variable as if it were a method>>=
+<<Assess an instance variable as if it were a method, eval=allowScala>>=
 rng$self()
 @
 
@@ -492,7 +503,7 @@ the following are generated with the \code{\$} operator:
 an instance of the class \code{scala.util.Random}, an instance of a mutable hash map, and
 a null reference of type \code{String}.
 
-<<Show how to instantiate an object or obtain a null reference>>=
+<<Show how to instantiate an object or obtain a null reference, eval=allowScala>>=
 seed <- 123L
 rng <- s$.new_java.util.Random(seed)
 map <- s$".new_scala.collection.mutable.HashMap[String, Double]"()
@@ -510,7 +521,7 @@ identifiers in \R{} and may also need to be quoted to avoid parsing errors in
 \R{}.  For example, note that the \code{List}'s append method \code{:+} is quoted
 here:
 
-<<Show more uses of the '$' operator and quote if needed>>=
+<<Show more uses of the '$' operator and quote if needed, eval=allowScala>>=
 myList <- s$List(1L, 2L, 3L)
 augmentedList <- myList$':+'(100L)
 paste0(augmentedList$toString(), " now contains 100.")
@@ -523,7 +534,7 @@ a companion object (e.g., \code{List}'s implied \code{apply} method), and a
 method of a singleton object (e.g., \code{scala.util.Properties}'s
 \code{versionNumberString} method).
 
-<<Show even more uses of the '$' operator>>=
+<<Show even more uses of the '$' operator, eval=allowScala>>=
 s$binomialCoefficient(10L, 3L) == choose(10, 3)
 oneToTenReference <- s$.Array.range(1L, 11L)
 myScalaList <- s$List(1, 2, 3, 4)
@@ -537,7 +548,7 @@ and calling object and static methods, the \rscala{} package automatically
 provides this support as well.  For example, we can find the system's time zone
 through a chain of calls using the standard \Java{} library:
 
-<<Show how to chain method calls>>=
+<<Show how to chain method calls, eval=allowScala>>=
 s$java.util.TimeZone.getDefault()$getDisplayName()
 @
 
@@ -563,7 +574,7 @@ scalar, an array, or a rectangular array of arrays, respectively.  The method
 which can be passed as an argument to another evaluation method.  Several
 examples are below.
 
-<<Show how to call back from Scala using the embedded R object>>=
+<<Show how to call back from Scala using the embedded R object, eval=allowScala>>=
 s * '
   R.eval("primes <- %-", Array(2, 3, 5, 7, 11, 13, 17, 19, 23, 29))
   val rFunction = R.evalObject("function(x) x * primes")
@@ -579,7 +590,7 @@ expectation of the Ewens($n,\alpha$) distribution, i.e., the expected number of
 clusters when sampling $n$ observations from a discrete random measure obtained
 from a Dirichlet process with mass parameter $\alpha$.
 
-<<Define a function to compute expected number of clusters>>=
+<<Define a function to compute expected number of clusters, eval=allowScala>>=
 f <- function(n, alpha) sapply(alpha, function(a) sum(a / (1:n + a - 1)))
 f(100, 1.0)
 @
@@ -594,7 +605,7 @@ $\alpha$ can be obtained using root finding methods.  Here, we demonstrate the
 bisection method implemented in \Scala{}. Note that the function's first
 argument, \code{func}, is a user-defined \R{} function.
 
-<<Demonstrate Scala calling a user-defined R function>>=
+<<Demonstrate Scala calling a user-defined R function, eval=allowScala>>=
 bisection <- function(func, lower = 1.0, upper = 1.0, epsilon = 0.0000001) {
   s(lower, upper, epsilon) * '
     def g(x: Double) = R.evalD0("func(%-)", x)
@@ -626,14 +637,13 @@ resources) between \R{} and \Scala{}.  For example, the \code{recursive.sum}
 function below repeatedly calls itself from \Scala{} to compute
 $0+1+2+\ldots+n$:
 
-<<Show recursion between R and Scala>>=
+<<Show recursion between R and Scala, eval=allowScala>>=
 recursive.sum <- function(n) s(n) * '
   if ( n <= 0 ) 0L else n + R.evalI0("recursive.sum(%-)", n - 1)
 '
 recursive.sum(10)
 @
 
-\newpage
 \subsection{Speed considerations}
 \label{cpu}
  
@@ -648,7 +658,7 @@ of the same code skip the time-consuming compilation due to caching. Consider,
 for example, two calls to the method \code{nextGaussian} of an instance of
 \code{java.util.Random}:
  
-<<Show how subsequent calls avoid compilation for the sake of speed>>=
+<<Show how subsequent calls avoid compilation for the sake of speed, eval=allowScala>>=
 rng_rscala <- s$.new_java.util.Random()
 first  <- system.time( rng_rscala$nextGaussian() )['elapsed']
 second <- system.time( rng_rscala$nextGaussian() )['elapsed']
@@ -823,7 +833,7 @@ that, since the necessary \R{} code is bundled in the JAR file, the \rscala{}
 package does not need to be installed in \R{}.  An embedded \R{}
 interpreter is instantiated as follows:
 
-<<Close bridge before this document ends, echo=FALSE, results=hide>>=
+<<Close bridge before this document ends, echo=FALSE, results='hide', eval=allowScala>>=
 close(s)
 @
 
@@ -922,7 +932,6 @@ example, use software to manage a pool of \code{RClient} objects on each worker
 node.  One potential limitation is the cost of pushing large datasets over the
 TCP/IP bridge.
 
-\newpage
 \section[Case study: Simulation study accelerated with rscala]{Case study: Simulation study accelerated with \rscala{}}
 \label{bootstrap}
 
@@ -1057,8 +1066,6 @@ Johnson.
 
 \bibliography{rscala}
 
-\newpage
-
 \begin{appendix}
 
 \section{Code for case study in Section 4}
@@ -1071,6 +1078,5 @@ coverage in Section~\ref{bootstrap}.
 \VerbatimInput{bootstrap-coverage.R}
 
 \end{appendix}
-\newpage
 
 \end{document}

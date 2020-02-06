@@ -11,6 +11,8 @@
 #'   previous configuration is sourced from the script
 #'   \code{~/.rscala/config.R}.  If \code{"live"}, a new search is performed,
 #'   but the results do not overwrite the previous configuration script.
+#'   \code{"offline"} is the same as \code{"live"}, except no software is ever
+#'   downloaded.
 #'   Finally, the value set here is superceded by the value of the environment
 #'   variable \code{RSCALA_RECONFIG}, if it exists.
 #' @param download A character vector which may be length-zero or whose elements
@@ -38,12 +40,12 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
   download.sbt <- "sbt" %in% download
   if ( Sys.getenv("RSCALA_RECONFIG") != "" ) reconfig <- Sys.getenv("RSCALA_RECONFIG")
   if ( reconfig %in% c("TRUE","FALSE") ) reconfig <- as.logical(reconfig)
-  else if ( ! identical(reconfig,"live") ) stop("'reconfig' is misspecified.")
+  else if ( ! ( reconfig %in% c("live","offline") ) ) stop("'reconfig' is misspecified.")
   consent <- identical(reconfig,TRUE) || download.java || download.scala || download.sbt
   installPath <- path.expand(if ( Sys.getenv("RSCALA_HOME") != "" ) Sys.getenv("RSCALA_HOME") else file.path("~",".rscala"))
   dependsPath <- if ( identical(Sys.getenv("R_INSTALL_PKG"),"rscala") ) file.path(Sys.getenv("R_PACKAGE_DIR"),"dependencies") else ""
   offerInstall <- function(msg) {
-    if ( reconfig != "live" && interactive() ) {
+    if ( ! ( reconfig %in% c("live","offline") ) && interactive() ) {
       while ( TRUE ) {
         cat(msg,"\n")
         response <- toupper(trimws(readline(prompt=paste0("Do you want to install here: ",installPath,"?  [Y/n] "))))
@@ -69,23 +71,27 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
     if ( is.null(javaConf) ) {
       if ( download.java ) stop(stopMsg)
       if ( verbose ) cat("\n")
-      if ( reconfig != "live" && interactive() ) {
+      if ( ! ( reconfig %in% c("live","offline") ) && interactive() ) {
         if ( ! ( consent || offerInstall("Java is not found.") ) ) stop(stopMsg)
         consent <- TRUE
         installSoftware(installPath,"java",verbose=verbose)
         javaConf <- findExecutable("java","Java",installPath,javaSpecifics,verbose)
         if ( is.null(javaConf) ) stop(stopMsg)
       } else {
-        if ( dependsPath != "" ) {
-          installSoftware(dependsPath,"java",verbose=verbose)
-          javaConf <- findExecutable("java","Java",installPath,javaSpecifics,verbose)
-          if ( is.null(javaConf) ) stop(stopMsg)
+        if ( reconfig == "offline" ) {
+          stop(stopMsg)
         } else {
-          installSoftware(tmpdir,"java",verbose=verbose)
-          javaConf <- findExecutable("java","Java",installPath,javaSpecifics,verbose)
-          if ( is.null(javaConf) ) stop(stopMsg)
-          stopMsg <- "<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nJava was downloaded to a temporary directory.  To make permanent, please run 'rscala::scalaConfig(download=\"java\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
-          cat(stopMsg)
+          if ( dependsPath != "" ) {
+            installSoftware(dependsPath,"java",verbose=verbose)
+            javaConf <- findExecutable("java","Java",installPath,javaSpecifics,verbose)
+            if ( is.null(javaConf) ) stop(stopMsg)
+          } else {
+            installSoftware(tmpdir,"java",verbose=verbose)
+            javaConf <- findExecutable("java","Java",installPath,javaSpecifics,verbose)
+            if ( is.null(javaConf) ) stop(stopMsg)
+            stopMsg <- "<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nJava was downloaded to a temporary directory.  To make permanent, please run 'rscala::scalaConfig(download=\"java\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
+            cat(stopMsg)
+          }
         }
       }
     }
@@ -96,24 +102,28 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
     if ( is.null(scalaConf) ) {
       if ( download.scala ) stop(stopMsg)
       if ( verbose ) cat("\n")
-      if ( reconfig != "live" && interactive() ) {
+      if ( ! ( reconfig %in% c("live","offline") ) && interactive() ) {
         if ( ! ( consent || offerInstall("Scala is not found.") ) ) stop(stopMsg)
         consent <- TRUE
         installSoftware(installPath,"scala",verbose=verbose)
         scalaConf <- findExecutable("scala","Scala",installPath,scalaSpecifics2,verbose)
         if ( is.null(scalaConf) ) stop(stopMsg)
       } else {
-        if ( dependsPath != "" ) {
-          installSoftware(dependsPath,"scala",verbose=verbose)
-          scalaConf <- findExecutable("scala","Scala",installPath,scalaSpecifics2,verbose)
-          if ( is.null(scalaConf) ) stop(stopMsg)
+        if ( reconfig == "offline" ) {
+          stop(stopMsg)
         } else {
-          installSoftware(tmpdir,"scala",verbose=verbose)
-          scalaConf <- findExecutable("scala","Scala",installPath,scalaSpecifics2,verbose)
-          if ( is.null(scalaConf) ) stop(stopMsg)
-          stopMsg <- "<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nScala was downloaded to a temporary directory.  To make permanent, please run 'rscala::scalaConfig(download=\"scala\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
-          cat(stopMsg)
-         }
+          if ( dependsPath != "" ) {
+            installSoftware(dependsPath,"scala",verbose=verbose)
+            scalaConf <- findExecutable("scala","Scala",installPath,scalaSpecifics2,verbose)
+            if ( is.null(scalaConf) ) stop(stopMsg)
+          } else {
+            installSoftware(tmpdir,"scala",verbose=verbose)
+            scalaConf <- findExecutable("scala","Scala",installPath,scalaSpecifics2,verbose)
+            if ( is.null(scalaConf) ) stop(stopMsg)
+            stopMsg <- "<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nScala was downloaded to a temporary directory.  To make permanent, please run 'rscala::scalaConfig(download=\"scala\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
+            cat(stopMsg)
+          }
+        }
       }
     }
     config <- c(format=4L,scalaConf,javaConf)
@@ -124,23 +134,27 @@ scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), req
     if ( is.null(sbtConf) && require.sbt ) {
       if ( download.sbt ) stop(stopMsg)
       if ( verbose ) cat("\n")
-      if ( reconfig != "live" && interactive() ) {
+      if ( ! ( reconfig %in% c("live","offline") ) && interactive() ) {
         if ( ! ( consent || offerInstall("SBT is not found.") ) ) stop(stopMsg)
         consent <- TRUE
         installSoftware(installPath,"sbt",verbose=verbose)
         sbtConf <- findExecutable("sbt","SBT",installPath,sbtSpecifics,verbose)
         if ( is.null(sbtConf) ) stop(stopMsg)
       } else {
-        if ( dependsPath != "" ) {
-          installSoftware(dependsPath,"sbt",verbose=verbose)
-          sbtConf <- findExecutable("sbt","SBT",installPath,sbtSpecifics,verbose)
-          if ( is.null(sbtConf) ) stop(stopMsg)          
+        if ( reconfig == "offline" ) {
+          stop(stopMsg)
         } else {
-          installSoftware(tmpdir,"sbt",verbose=verbose)
-          sbtConf <- findExecutable("sbt","SBT",installPath,sbtSpecifics,verbose)
-          if ( is.null(sbtConf) ) stop(stopMsg)
-          stopMsg <- "<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nSBT was downloaded to a temporary directory.  To make permanent, please run 'rscala::scalaConfig(download=\"sbt\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
-          cat(stopMsg)
+          if ( dependsPath != "" ) {
+            installSoftware(dependsPath,"sbt",verbose=verbose)
+            sbtConf <- findExecutable("sbt","SBT",installPath,sbtSpecifics,verbose)
+            if ( is.null(sbtConf) ) stop(stopMsg)          
+          } else {
+            installSoftware(tmpdir,"sbt",verbose=verbose)
+            sbtConf <- findExecutable("sbt","SBT",installPath,sbtSpecifics,verbose)
+            if ( is.null(sbtConf) ) stop(stopMsg)
+            stopMsg <- "<<<<<<<<<<\n<<<<<<<<<<\n<<<<<<<<<<\n\nSBT was downloaded to a temporary directory.  To make permanent, please run 'rscala::scalaConfig(download=\"sbt\")'\n\n>>>>>>>>>>\n>>>>>>>>>>\n>>>>>>>>>>\n"
+            cat(stopMsg)
+          }
         }
       }
     }
