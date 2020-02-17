@@ -1,3 +1,7 @@
+3.2.18 (2020-02-17)
+  * Updated CITATION and other references to the published paper in Journal
+    of Statistical Software.
+
 3.2.17 (2020-02-06)
   * Work around issues with CRAN testing on machines without Scala and/or Java.
 

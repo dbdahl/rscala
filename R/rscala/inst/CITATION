@@ -1,9 +1,15 @@
-bibentry("Article",
-  title   = "Integration of R and Scala Using rscala",
-  author  =  person(given="David B.",family="Dahl",role=c("aut","cre"),email="dahl@stat.byu.edu"),
-  journal = "Journal of Statistical Software",
-  year    = "2018",
-  volume  = "in editing",
-  url     = "https://www.jstatsoft.org",
-  header  = "To cite rscala in publications, please use:"
+bibentry(bibtype = "Article",
+  title        = "Integration of {R} and {Scala} Using {rscala}",
+  author       = person(given = c("David", "B."),
+                        family = "Dahl",
+                        email = "dahl@stat.byu.edu"),
+  journal      = "Journal of Statistical Software",
+  year         = "2020",
+  volume       = "92",
+  number       = "4",
+  pages        = "1--18",
+  doi          = "10.18637/jss.v092.i04",
+
+  header       = "To cite rscala in publications use:"
 )
+

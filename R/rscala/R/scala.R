@@ -2,7 +2,7 @@
 #'
 #' This function creates an instance of a Scala bridge.  Details on this
 #' function (and the rscala package as a whole) are provided in the package
-#' vignette and the associated paper in the \emph{Journal of Statistical
+#' vignette. The original paper was published in the \emph{Journal of Statistical
 #' Software}. See the reference below.
 #'
 #' Multiple interpreters can be created and each runs independently with its own
@@ -39,7 +39,7 @@
 #'
 #' @return Returns a Scala bridge.
 #' @references {David B. Dahl (2019). "Integration of R and Scala Using rscala."
-#'   Journal of Statistical Software, in editing. https://www.jstatsoft.org}
+#'   Journal of Statistical Software, 92:4, 1-18. https://www.jstatsoft.org}
 #' @seealso \code{\link{close.rscalaBridge}}, \code{\link{scalaMemory}}
 #'   \code{\link{scalaPushRegister}}, \code{\link{scalaPullRegister}}
 #' @export

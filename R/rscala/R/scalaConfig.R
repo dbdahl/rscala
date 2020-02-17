@@ -24,7 +24,7 @@
 #'
 #' @return Returns a list of details of the Scala and Java binaries.
 #' @references {David B. Dahl (2019). "Integration of R and Scala Using rscala."
-#'   Journal of Statistical Software, in editing. https://www.jstatsoft.org}
+#'   Journal of Statistical Software, 92:4, 1-18. https://www.jstatsoft.org}
 #' @export
 #' @examples \donttest{
 #' scalaConfig()

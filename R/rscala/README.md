@@ -31,24 +31,24 @@ install the package. Simply add the following line to the your SBT build.sbt
 file:
 
 ```scala
-libraryDependencies += "org.ddahl" %% "rscala" % "3.2.17"
+libraryDependencies += "org.ddahl" %% "rscala" % "3.2.18"
 ```
 
 
 ## Usage guides
 
-A paper describing the software is "conditionally accepted" and "in editing" at
-the [Journal of Statistical Software](https://www.jstatsoft.org).  The latest
-citation information is available using:
+The original paper describing the software is:
+
+D. B. Dahl (2020), Integration of R and Scala using rscala, [**Journal of Statistical Software**](https://www.jstatsoft.org), 92:4, 1-18, *doi:10.18637/jss.v092.i04*.
+
+The citation information is available using:
 
 ```R
 citation("rscala")
 ```
 
-An [updated version of the
-paper](https://dahl.byu.edu/public/rscala/rscala.pdf)
-is available
-[here](https://dahl.byu.edu/public/rscala/rscala.pdf)
+An [updated version of the paper](https://dahl.byu.edu/public/rscala/rscala.pdf)
+is available [here](https://dahl.byu.edu/public/rscala/rscala.pdf)
 or as a vignette in R (once the package is installed):
 
 ```R
