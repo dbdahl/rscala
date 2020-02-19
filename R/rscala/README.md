@@ -71,7 +71,6 @@ example(scala)
 R extensions can be written using this package, as demonstrated by these
 packages:
 
-* [sdols](https://CRAN.R-project.org/package=sdols)
 * [shallot](https://CRAN.R-project.org/package=shallot)
 * [bamboo](https://CRAN.R-project.org/package=bamboo)
 
