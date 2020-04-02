@@ -1,3 +1,6 @@
+3.2.19 (2020-XX-XX)
+  * Delete deprecated function 'scalaJARs'.
+
 3.2.18 (2020-02-17)
   * Updated CITATION and other references to the published paper in Journal
     of Statistical Software.
