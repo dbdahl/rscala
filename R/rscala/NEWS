@@ -1,5 +1,7 @@
-3.2.19 (2020-XX-XX)
+3.2.19 (2020-04-06)
   * Delete deprecated function 'scalaJARs'.
+  * Updated vignette to reflect latest methodologies of shallot and bamboo
+    packages.
 
 3.2.18 (2020-02-17)
   * Updated CITATION and other references to the published paper in Journal
