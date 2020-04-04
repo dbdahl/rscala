@@ -718,8 +718,8 @@ examples in addition to our description here.
 
 An \R{} package based on \rscala{} should include \code{rscala} in the
 \code{Imports} field of the package's \code{DESCRIPTION} file. Also, add
-\code{import(rscala)} to the \code{NAMESPACE} file.  Typically a package based
-on \rscala{} will instantiate a \Scala{} bridge in the package's \code{.onLoad}
+\code{import(rscala)} to the \code{NAMESPACE} file.  A package based
+on \rscala{} may instantiate a \Scala{} bridge in the package's \code{.onLoad}
 function.  To make the bridge available to the other functions in the package,
 the author should assign the bridge to the package environment.  The
 \code{.onLoad} function may be as simple as:
@@ -729,6 +729,11 @@ the author should assign the bridge to the package environment.  The
   assign("s", scala(), envir = parent.env(environment()))
 }
 @
+
+To reduce check times on CRAN servers which many not have \Scala{} installed, a package
+developer many alternatively instantiate the \Scala{} bridge in a function called
+before the first usage of the bridge.  See, for example, the \code{scalaEnsure} function
+in the \shallot{} and \bamboo{} packages.
 
 If the package is to access precompiled code from a JAR file, we
 suggest cross compiling against the major versions supplied by:
@@ -740,7 +745,7 @@ names(rscala::scalaVersionJARs())
 This is done in part by adding a line to SBT's \code{build.sbt} file, like:
 
 \begin{Sinput}
-crossScalaVersions := Seq("2.11.12", "2.12.8", "2.13.0")
+crossScalaVersions := Seq("2.11.12", "2.12.11", "2.13.1")
 \end{Sinput}
 
 The JAR files should be copied to directories \code{inst/java/scala-X.XX}
