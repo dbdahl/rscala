@@ -1,7 +1,7 @@
 Package: rscala
 Type: Package
 Title: Bridge Between 'R' and 'Scala' with Callbacks
-Version: 3.2.19
+Version: 3.2.20
 Date: 2020-04-04
 Authors@R: person(given="David B.",family="Dahl",role=c("aut","cre"),email="dahl@stat.byu.edu")
 URL: https://github.com/dbdahl/rscala
@@ -10,7 +10,6 @@ Imports: utils
 SystemRequirements: Scala (>= 2.11), Java (>= 8)
 Description: 'Scala' <http://www.scala-lang.org/> is embedded in 'R' and callbacks from 'Scala' to 'R' are available. Support is provided to write 'R' packages that access 'Scala'. After installation, please run 'rscala::scalaConfig()'.  The vignette provides an update of the original paper <doi:10.18637/jss.v092.i04>.
 Depends: R (>= 3.1.0)
-LazyData: TRUE
 License: Apache License 2.0 | file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.1.0

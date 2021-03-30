@@ -1,3 +1,6 @@
+3.2.20 (20XX-XX-XX)  * Development
+  * Fixed CRAN error: 'LazyData' is specified without a 'data' directory.
+
 3.2.19 (2020-04-04)
   * Delete deprecated function 'scalaJARs'.
   * Updated vignette to reflect latest methodologies of shallot and bamboo
