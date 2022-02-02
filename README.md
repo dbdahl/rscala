@@ -31,6 +31,16 @@ file:
 ```scala
 libraryDependencies += "org.ddahl" %% "rscala" % "3.2.0"
 ```
+Or if you're managing dependencies with Maven, you may add the following to
+ your `pom.xml` file, replacing the version numbers for Scala and for this 
+library as appropriate.
+```xml
+<dependency>
+    <groupId>org.ddahl</groupId>
+    <artifactId>rscala_2.13</artifactId>
+    <version>3.2.19</version>
+</dependency>
+```
 
 A paper describing an older version of the software is awaiting peer review at
 the [Journal of Statistical Softwware](https://www.jstatsoft.org).  The paper
