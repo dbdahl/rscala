@@ -5,15 +5,15 @@ organization := "org.ddahl"
 //version := "3.2.20"
 version := "3.2.19-SNAPSHOT"
 
-scalaVersion := "2.13.1"
+scalaVersion := "2.13.10"
 
 crossScalaVersions := Seq("2.11.12", "2.12.11", "2.13.1")
 
 scalacOptions ++= List("-feature", "-deprecation", "-unchecked")
 
-sources in (Compile, doc) ~= (_ filter (_.getName endsWith ".scala"))
+Compile / doc / sources ~= (_ filter (_.getName endsWith ".scala"))
 
-scalacOptions in (Compile,doc) ++= Seq("-no-link-warnings", "-skip-packages", "scala:org.ddahl.rscala.server")
+Compile / doc/ scalacOptions ++= Seq("-no-link-warnings", "-skip-packages", "scala:org.ddahl.rscala.server")
 
 libraryDependencies ++= List(
   "org.scala-lang" % "scala-compiler" % scalaVersion.value

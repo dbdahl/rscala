@@ -82,7 +82,7 @@ class RClient private[rscala] () {
   def evalObject(template: String, values: Any*): RObject = synchronized {
     val template2 = "I(serialize({" + template + "},NULL))"
     evalEngine(template2, values)
-    val x = server.conduit.pop[Array[Byte]]
+    val x = server.conduit.pop[Array[Byte]]()
     new RObject(x)
   }
 
@@ -93,7 +93,7 @@ class RClient private[rscala] () {
 
   private def evalWithResult[A](template: String, values: Seq[Any], casting: String): A = synchronized {
     evalEngine(".rs <- {" + template + "}; " + casting, values)
-    server.conduit.pop[A]
+    server.conduit.pop[A]()
   }
 
   private def evalEngine(template: String, values: Seq[Any]): Unit = synchronized {
@@ -217,9 +217,9 @@ object RClient {
   }
 
   private lazy val allCodeInR = {
-    val scripts = scala.io.Source.fromInputStream(getClass.getResourceAsStream("/Rscripts")).getLines
+    val scripts = scala.io.Source.fromInputStream(getClass.getResourceAsStream("/Rscripts")).getLines()
     val codeInR = scripts.map(resource => {
-      scala.io.Source.fromInputStream(getClass.getResourceAsStream(resource)).getLines.mkString("\n")
+      scala.io.Source.fromInputStream(getClass.getResourceAsStream(resource)).getLines().mkString("\n")
     }).mkString("\n\n")
     s"""
     rscala <- local({
