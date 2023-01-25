@@ -1,5 +1,5 @@
-3.2.20 (20XX-XX-XX)  * Development
-  * Fixed CRAN error: 'LazyData' is specified without a 'data' directory.
+3.2.20 (2023-01-25)
+  * Fixed problem finding available memory on Windows.
 
 3.2.19 (2020-04-04)
   * Delete deprecated function 'scalaJARs'.

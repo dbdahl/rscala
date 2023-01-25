@@ -1,8 +1,7 @@
 Package: rscala
 Type: Package
 Title: Bridge Between 'R' and 'Scala' with Callbacks
-Version: 3.2.20
-Date: 2020-04-04
+Version: 3.2.19-20230125-0821
 Authors@R: person(given="David B.",family="Dahl",role=c("aut","cre"),email="dahl@stat.byu.edu")
 URL: https://github.com/dbdahl/rscala
 BugReports: https://github.com/dbdahl/rscala/issues
@@ -12,6 +11,6 @@ Description: 'Scala' <http://www.scala-lang.org/> is embedded in 'R' and callbac
 Depends: R (>= 3.1.0)
 License: Apache License 2.0 | file LICENSE
 Encoding: UTF-8
-RoxygenNote: 7.1.0
+RoxygenNote: 7.2.3
 Suggests: knitr, testthat, devtools, rstudioapi, processx
 VignetteBuilder: knitr
