@@ -12,13 +12,15 @@ Run './bin/check'
 Move source package from 'R' directory to 'deliveries' directory.
 Commit everything to Git, including the package in the deliveries directory.
 Run rscala:::verifyDownloads() on Linux, Windows, and Mac OS platforms
-
 Rerun benchmarks on an otherwise idle machine: cd benchmarks; ./all
 Test on Linux, Mac OS, and Windows
   For Windows, use https://win-builder.r-project.org/
   For Mac, run R CMD check --as-cran --no-build-vignettes --no-manual rscala_VERSION.tar.gz
   Try rhub service.
 Test depending packages: cd reverse-dependencies; ./check
+
+### Skip everything below in maintenance mode....
+
 Test examples/callRfromScala-usingPackageJAR
 sbt +publishLocal
 Update package version number to lastest in examples/callRfromScala/build.sbt

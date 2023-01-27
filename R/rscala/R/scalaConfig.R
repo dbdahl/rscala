@@ -355,7 +355,9 @@ javaSpecifics <- function(javaCmd,verbose) {
   bit <- if ( any(grepl('.*64-?[bB]it.*$',response)) ||
               any(grepl('*amd64.*$',response)) ||
               any(grepl('.*GraalVM.*',response)) ) 64 else 32
-  list(javaCmd=javaCmd, javaMajorVersion=versionNumber, javaArchitecture=bit)
+  result <- list(javaCmd=javaCmd, javaMajorVersion=versionNumber, javaArchitecture=bit)
+  if ( verbose ) print(result)
+  result
 }
 
 setJavaEnv <- function(javaConf) {
@@ -388,14 +390,16 @@ scalaSpecifics <- function(scalaCmd,javaConf,verbose) {
     majorVersion <- scalaMajorVersion(fullVersion)
   }
   supportedVersions <- names(scalaVersionJARs())
-  if ( ( length(supportedVersions) > 0 ) && ! ( majorVersion %in% supportedVersions ) ) paste0("unsupported Scala version: ",majorVersion)
+  result <- if ( ( length(supportedVersions) > 0 ) && ! ( majorVersion %in% supportedVersions ) ) paste0("unsupported Scala version: ",majorVersion)
   else {
-    # if ( ( majorVersion == "2.11" ) && ( javaConf$javaMajorVersion > 8 ) ) {
-    #   sprintf("Scala %s is not supported on Java %s.",majorVersion,javaConf$javaMajorVersion)
-    # } else {
+    if ( ( majorVersion == "2.11" ) && ( javaConf$javaMajorVersion > 8 ) ) {
+      sprintf("Scala %s is not supported on Java %s.",majorVersion,javaConf$javaMajorVersion)
+    } else {
       list(scalaHome=info[2], scalaCmd=scalaCmd, scalaMajorVersion=majorVersion, scalaFullVersion=fullVersion, javaHome=info[3])
-    # }
+    }
   }
+  if ( verbose ) print(result)
+  result
 }
 
 verifyDownloads <- function() {

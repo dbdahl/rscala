@@ -270,13 +270,13 @@ getHeapMaximum <- function(heap.maximum,is32bit) {
       outTemp <- gsub("^FreePhysicalMemory=","",outTemp)
       outTemp <- gsub("\r","",outTemp)
       as.numeric(outTemp) * 1024
-    }, error=function(x) NA)
+    }, error=function(x) NA, warning=function(x) NA)
   } else if ( os == "mac" ) {
     outTemp <- system2("vm_stat",stdout=TRUE,stderr=TRUE)
     outTemp <- outTemp[grepl("(Pages free|Pages inactive|Pages speculative):.*",outTemp)]
     sum(sapply(strsplit(outTemp,":"),function(x) as.numeric(x[2]))) * 4096
   } else NA                                       # Unknown, so do not do anything.
-  if ( ! is.na(bytes) ) {
+  if ( ! any(is.na(bytes)) ) {
     if ( is32bit ) bytes <- min(c(1.35*1024^3,bytes))   # 32 binaries have limited memory.
     paste0(max(32,as.integer(memoryPercentage * (bytes / 1024^2))),"M")  # At least 32M
   } else NULL
