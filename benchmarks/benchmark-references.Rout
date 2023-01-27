@@ -1,6 +1,6 @@
 
-R version 3.5.1 (2018-07-02) -- "Feather Spray"
-Copyright (C) 2018 The R Foundation for Statistical Computing
+R Under development (unstable) (2023-01-21 r83656) -- "Unsuffered Consequences"
+Copyright (C) 2023 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -21,52 +21,48 @@ Type 'q()' to quit R.
 > library(microbenchmark)
 > 
 > cat(system2("hostname",stdout=TRUE),"\n",sep="")
-ramah
+abish
 > scalaConfig()
 
-Read existing configuration file: ~/.rscala/config.R
+Read configuration file from rscala home: /home/dahl/.rscala/config.R
 
 $format
-[1] 3
-
-$osArchitecture
-[1] 64
+[1] 4
 
 $scalaHome
-[1] "/home/dahl/local/scala/scala/scala-2.12.7"
+[1] "/home/dahl/.rscala/scala"
 
 $scalaCmd
-[1] "/home/dahl/local/scala/scala/scala-2.12.7/bin/scala"
+[1] "/home/dahl/.rscala/scala/bin/scala"
 
 $scalaMajorVersion
-[1] "2.12"
+[1] "2.13"
 
 $scalaFullVersion
-[1] "2.12.7"
+[1] "2.13.10"
 
 $javaHome
-[1] "/home/dahl/local/java/jdk-11"
+[1] "/home/dahl/.rscala/java/jre"
 
 $javaCmd
-[1] "/home/dahl/local/java/jdk-11/bin/java"
+[1] "/home/dahl/.rscala/java/bin/java"
 
 $javaMajorVersion
-[1] 11
+[1] 8
 
 $javaArchitecture
 [1] 64
 
 $sbtCmd
-[1] "/usr/bin/sbt"
+[1] "/home/dahl/.rscala/sbt/bin/sbt"
 
 > sessionInfo()
-R version 3.5.1 (2018-07-02)
+R Under development (unstable) (2023-01-21 r83656)
 Platform: x86_64-pc-linux-gnu (64-bit)
-Running under: Ubuntu 16.04.5 LTS
+Running under: Pop!_OS 22.04 LTS
 
 Matrix products: default
-BLAS: /usr/lib/libblas/libblas.so.3.6.0
-LAPACK: /usr/lib/lapack/liblapack.so.3.6.0
+BLAS/LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so;  LAPACK version 3.10.0
 
 locale:
  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
@@ -76,14 +72,17 @@ locale:
  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
 [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 
+time zone: America/Denver
+tzcode source: system (glibc)
+
 attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] microbenchmark_1.4-4 rscala_3.2.4        
+[1] microbenchmark_1.4.9 rscala_3.2.20       
 
 loaded via a namespace (and not attached):
-[1] compiler_3.5.1
+[1] compiler_4.3.0 tools_4.3.0   
 > 
 > s <- scala()
 > nReps <- 10000
@@ -92,12 +91,17 @@ loaded via a namespace (and not attached):
 > 
 > rng <- s$.new_scala.util.Random()
 > rng$nextInt()      # First-time compilation
-[1] 1045496758
+       x1.nextInt
+          ^
+On line 3: warning: Auto-application to `()` is deprecated. Supply the empty argument list `()` explicitly to invoke method nextInt,
+       or remove the empty argument list from its definition (Java-defined methods are exempt).
+       In Scala 3, an unapplied method like this will be eta-expanded into a function.
+[1] -745831601
 > rng$nextInt(1L)    # First-time compilation
 [1] 0
 > nextInt <- rng$nextInt
 > nextInt()          # Alreary compiled
-[1] 583395597
+[1] -1052981189
 > nextInt(1L)        # Alreary compiled
 [1] 0
 > 
@@ -114,24 +118,24 @@ loaded via a namespace (and not attached):
 + )
 Unit: microseconds
                            expr     min       lq     mean   median       uq
-   s(rng = rng)^"rng.nextInt()" 155.584 185.0530 200.9618 187.1960 190.2125
- s(rng = rng) * "rng.nextInt()" 123.490 145.7925 183.3418 147.4345 149.5570
-                 rng$.nextInt() 139.546 151.4930 167.7137 153.6280 156.7060
-                  rng$nextInt() 106.338 116.9040 126.7803 118.3075 120.1280
-                      nextInt()  93.601 105.2680 113.9867 107.0260 109.3945
-             rng$.nextInt(100L) 150.970 174.2975 192.5646 176.6875 179.9375
-              rng$nextInt(100L) 116.892 139.5015 150.4589 141.1690 143.3140
-                  nextInt(100L) 102.832 127.9855 140.1714 129.9930 132.6250
+   s(rng = rng)^"rng.nextInt()" 156.511 182.6590 241.4904 189.0610 211.0890
+ s(rng = rng) * "rng.nextInt()" 124.660 142.6950 166.0117 146.9390 163.1945
+                 rng$.nextInt() 132.573 147.7510 176.6596 153.0820 169.6555
+                  rng$nextInt()  97.775 111.9985 131.0998 115.4715 126.7290
+                      nextInt()  84.914 103.2745 122.6861 106.7965 117.2325
+             rng$.nextInt(100L) 143.738 169.6515 201.7519 175.8720 196.4305
+              rng$nextInt(100L) 110.593 133.8945 155.5879 138.0840 152.1240
+                  nextInt(100L) 108.374 125.0865 145.7246 129.3420 142.0600
         max neval
-   3539.238 10000
- 273808.256 10000
-   3920.875 10000
-   3658.058 10000
-   1781.112 10000
-  15673.289 10000
-   2397.874 10000
-   4403.257 10000
+ 267236.644 10000
+   5468.164 10000
+  19060.079 10000
+   2870.291 10000
+   4643.269 10000
+  19477.695 10000
+   3634.331 10000
+   3037.648 10000
 > 
 > proc.time()
    user  system elapsed 
-  8.420   4.424  17.118 
+ 10.038   4.474  18.407 

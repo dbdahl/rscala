@@ -8,7 +8,7 @@ class Debugger(var on: Boolean, out: java.io.PrintWriter, val label: String, val
 
   def apply(msg: String): Unit = {
     if ( on ) {
-      val pretext = "DEBUG (" + label + ") " + (if (withTime) timestamp else "") + ": "
+      val pretext = "DEBUG (" + label + ") " + (if (withTime) timestamp() else "") + ": "
       if (msg.length > maxOutputLength) out.println(pretext + msg.substring(0, maxOutputLength - 3) + "...")
       else out.println(pretext + msg)
       out.flush()

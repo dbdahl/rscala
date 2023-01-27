@@ -56,8 +56,8 @@ The citation information is available using:
 citation("rscala")
 ```
 
-An [updated version of the paper](https://cran.r-project.org/web/packages/rscala/vignettes/rscala.pdf)
-is available [here](https://cran.r-project.org/web/packages/rscala/vignettes/rscala.pdf)
+An [updated version of the paper](https://cran.r-project.org/package=rscala/vignettes/rscala.pdf)
+is available [here](https://cran.r-project.org/package=rscala/vignettes/rscala.pdf)
 or as a vignette in R (once the package is installed):
 
 ```R
@@ -80,15 +80,15 @@ example(scala)
 R extensions can be written using this package, as demonstrated by these
 packages:
 
-* [aibd](https://CRAN.R-project.org/package=aibd)
-* [shallot](https://CRAN.R-project.org/package=shallot)
-* [bamboo](https://CRAN.R-project.org/package=bamboo)
+* [aibd](https://cran.r-project.org/package=aibd)
+* [shallot](https://cran.r-project.org/package=shallot)
+* [bamboo](https://cran.r-project.org/package=bamboo)
 
 
 ## Resources
 
-* [Vignette](https://cran.r-project.org/web/packages/rscala/vignettes/rscala.pdf) describing the package usage.
+* [Vignette](https://cran.r-project.org/package=rscala/vignettes/rscala.pdf) describing the package usage.
 * [Git repository](https://github.com/dbdahl/rscala) containing source code and build & test scripts.
 * [Scaladoc](https://dahl.byu.edu/rscala/org/ddahl/rscala/RClient.html) for RClient class to access R from Scala.
-* [Package on CRAN](https://CRAN.R-project.org/package=rscala).
+* [Package on CRAN](https://cran.R-project.org/package=rscala).
 

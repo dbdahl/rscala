@@ -314,7 +314,7 @@ object Transcompile extends TranscompileStub {
   def _floor(x: Double): Double = math.floor(x)
   def _floor(x: Array[Double]): Array[Double] = x map { math.floor }
 
-  def _round(x: Double): Double = math.round(x)
+  def _round(x: Double): Double = math.round(x).toDouble
   def _round(x: Array[Double]): Array[Double] = x map { z => math.round(z).toDouble }
 
   def _random(): Double = scala.util.Random.nextDouble()

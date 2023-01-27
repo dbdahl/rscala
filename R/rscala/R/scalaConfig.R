@@ -32,7 +32,7 @@
 #' 
 scalaConfig <- function(verbose=TRUE, reconfig=FALSE, download=character(0), require.sbt=FALSE) {
   if ( inherits(verbose,"rscalaBridge") ) return(attr(verbose,"details")$config)
-  if ( ( length(download) > 0 ) && ( download == TRUE ) ) download <- c("java","scala","sbt")
+  if ( isTRUE(download) ) download <- c("java","scala","sbt")
   if ( length(setdiff(download,c("java","scala","sbt"))) > 0 ) stop('Invalid element in "download" argument.')
   download <- tolower(download)
   download.java <- "java" %in% download
@@ -267,7 +267,7 @@ extractArchive <- function(archivePath, parentDirectory, directoryName) {
   if ( file.exists(tmpInstallDirectory) ) unlink(tmpInstallDirectory, TRUE, TRUE)
   dir.create(tmpInstallDirectory, showWarnings=FALSE)
   if ( endsWith(archivePath,".zip") ) utils::unzip(archivePath, exdir=tmpInstallDirectory, unzip="internal")
-  else if ( endsWith(archivePath,".tar.gz") || endsWith(archivePath,".tgz") ) utils::untar(archivePath, exdir=tmpInstallDirectory, tar="internal")
+  else if ( endsWith(archivePath,".tar.gz") || endsWith(archivePath,".tgz") || endsWith(archivePath,".gz") ) utils::untar(archivePath, exdir=tmpInstallDirectory, tar="internal")
   else stop(paste0("Unrecognized file type for ", archivePath))
   home <- list.files(tmpInstallDirectory, full.names=TRUE)
   if ( length(home) != 1 ) stop(paste0("Expected only one directory in ",tmpInstallDirectory))
@@ -289,11 +289,11 @@ installSoftware <- function(installPath, software, version, os, arch, verbose=FA
   sel <- urls$software == software
   if ( missing(version) ) {
     version <- if ( software == "java" ) {
-      if ( Sys.getenv("RSCALA_JAVA_VERSION","") != "" )  Sys.getenv("RSCALA_JAVA_VERSION","") else "8"
+      if ( Sys.getenv("RSCALA_JAVA_VERSION","") != "" )  Sys.getenv("RSCALA_JAVA_VERSION","") else "17"
     } else if ( software == "scala" ) {
       if ( Sys.getenv("RSCALA_SCALA_VERSION","") != "" ) Sys.getenv("RSCALA_SCALA_VERSION","") else "2.13"
     } else if ( software == "sbt" ) {
-      if ( Sys.getenv("RSCALA_SBT_VERSION","") != "" ) Sys.getenv("RSCALA_SBT_VERSION","") else "1.3"
+      if ( Sys.getenv("RSCALA_SBT_VERSION","") != "" ) Sys.getenv("RSCALA_SBT_VERSION","") else "1.8"
     } else NULL
   }
   sel <- sel & (urls$version == version)
@@ -390,30 +390,18 @@ scalaSpecifics <- function(scalaCmd,javaConf,verbose) {
   supportedVersions <- names(scalaVersionJARs())
   if ( ( length(supportedVersions) > 0 ) && ! ( majorVersion %in% supportedVersions ) ) paste0("unsupported Scala version: ",majorVersion)
   else {
-    if ( ( majorVersion == "2.11" ) && ( javaConf$javaMajorVersion > 8 ) ) {
-      sprintf("Scala %s is not supported on Java %s.",majorVersion,javaConf$javaMajorVersion)
-    } else {
+    # if ( ( majorVersion == "2.11" ) && ( javaConf$javaMajorVersion > 8 ) ) {
+    #   sprintf("Scala %s is not supported on Java %s.",majorVersion,javaConf$javaMajorVersion)
+    # } else {
       list(scalaHome=info[2], scalaCmd=scalaCmd, scalaMajorVersion=majorVersion, scalaFullVersion=fullVersion, javaHome=info[3])
-    }
+    # }
   }
 }
 
 verifyDownloads <- function() {
   scalaConfig(download=c("java","scala","sbt"))
-  for ( version in c("11","8") ) {
-    for ( efc in 0:0 ) {
-      Sys.setenv(RSCALA_EXTRACT_FAILURE_COUNT=efc)
-      Sys.setenv(RSCALA_JAVA_VERSION=version)
-      Sys.setenv(RSCALA_JAVA_ARCH="i386")
-      cat(paste0("----------\nefc=",efc,", software='java', version=",version,", arch=i386\n"))
-      scalaConfig(download="java")
-      s <- scala()
-      cat(s * '"OKAY"',"\n\n")
-      close(s)
-    }
-  }
-  for ( version in c("11","8") ) {
-    for ( efc in 0:2 ) {
+  for ( version in c("17","11","8") ) {
+    for ( efc in 0:1 ) {
       Sys.setenv(RSCALA_EXTRACT_FAILURE_COUNT=efc)
       Sys.setenv(RSCALA_JAVA_VERSION=version)
       Sys.setenv(RSCALA_JAVA_ARCH="x86_64")
@@ -435,7 +423,7 @@ verifyDownloads <- function() {
       close(s)
     }
   }
-  for ( version in c("1.3") ) {
+  for ( version in c("1.8") ) {
     for ( efc in 0:1 ) {
       Sys.setenv(RSCALA_EXTRACT_FAILURE_COUNT=efc)
       Sys.setenv(RSCALA_SBT_VERSION=version)

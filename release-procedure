@@ -1,16 +1,18 @@
+Maintenance mode....
+
 Run 'install-R --devel'
 Bump version number in build.sbt
 Update version number in README.md
 Update R/rscala/NEWS detailing changes (including the date)
 Try to bump to latest versions
   project/build.properties
-  project/plugins.sbt
+  project/plugins.sbt  #  Skip in maintenance mode
   R/rscala/inst/data-raw/urls.txt (with sysdata script)
 Run './bin/check'
 Move source package from 'R' directory to 'deliveries' directory.
 Commit everything to Git, including the package in the deliveries directory.
-Run 'deploy-R-package'
 Run rscala:::verifyDownloads() on Linux, Windows, and Mac OS platforms
+
 Rerun benchmarks on an otherwise idle machine: cd benchmarks; ./all
 Test on Linux, Mac OS, and Windows
   For Windows, use https://win-builder.r-project.org/

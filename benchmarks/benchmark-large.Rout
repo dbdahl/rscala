@@ -1,6 +1,6 @@
 
-R version 3.5.1 (2018-07-02) -- "Feather Spray"
-Copyright (C) 2018 The R Foundation for Statistical Computing
+R Under development (unstable) (2023-01-21 r83656) -- "Unsuffered Consequences"
+Copyright (C) 2023 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -21,52 +21,48 @@ Type 'q()' to quit R.
 > library(microbenchmark)
 > 
 > cat(system2("hostname",stdout=TRUE),"\n",sep="")
-ramah
+abish
 > scalaConfig()
 
-Read existing configuration file: ~/.rscala/config.R
+Read configuration file from rscala home: /home/dahl/.rscala/config.R
 
 $format
-[1] 3
-
-$osArchitecture
-[1] 64
+[1] 4
 
 $scalaHome
-[1] "/home/dahl/local/scala/scala/scala-2.12.7"
+[1] "/home/dahl/.rscala/scala"
 
 $scalaCmd
-[1] "/home/dahl/local/scala/scala/scala-2.12.7/bin/scala"
+[1] "/home/dahl/.rscala/scala/bin/scala"
 
 $scalaMajorVersion
-[1] "2.12"
+[1] "2.13"
 
 $scalaFullVersion
-[1] "2.12.7"
+[1] "2.13.10"
 
 $javaHome
-[1] "/home/dahl/local/java/jdk-11"
+[1] "/home/dahl/.rscala/java/jre"
 
 $javaCmd
-[1] "/home/dahl/local/java/jdk-11/bin/java"
+[1] "/home/dahl/.rscala/java/bin/java"
 
 $javaMajorVersion
-[1] 11
+[1] 8
 
 $javaArchitecture
 [1] 64
 
 $sbtCmd
-[1] "/usr/bin/sbt"
+[1] "/home/dahl/.rscala/sbt/bin/sbt"
 
 > sessionInfo()
-R version 3.5.1 (2018-07-02)
+R Under development (unstable) (2023-01-21 r83656)
 Platform: x86_64-pc-linux-gnu (64-bit)
-Running under: Ubuntu 16.04.5 LTS
+Running under: Pop!_OS 22.04 LTS
 
 Matrix products: default
-BLAS: /usr/lib/libblas/libblas.so.3.6.0
-LAPACK: /usr/lib/lapack/liblapack.so.3.6.0
+BLAS/LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so;  LAPACK version 3.10.0
 
 locale:
  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
@@ -76,14 +72,17 @@ locale:
  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
 [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 
+time zone: America/Denver
+tzcode source: system (glibc)
+
 attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] microbenchmark_1.4-4 rscala_3.2.4        
+[1] microbenchmark_1.4.9 rscala_3.2.20       
 
 loaded via a namespace (and not attached):
-[1] compiler_3.5.1
+[1] compiler_4.3.0 tools_4.3.0   
 > 
 > s <- scala()
 > nReps <- 100
@@ -97,9 +96,9 @@ loaded via a namespace (and not attached):
 +   times=nReps
 + )
 Unit: milliseconds
-             expr       min        lq     mean    median        uq       max
-   s(x = big)^"x"  84.36138  89.96256 120.6522  91.48618  93.58012 2761.0043
- s(x = big) * "x" 251.89080 258.67188 275.0095 265.66575 283.73396  389.7998
+             expr       min        lq      mean   median       uq        max
+   s(x = big)^"x"  114.5183  120.4203  135.3956  123.163  125.108   722.7929
+ s(x = big) * "x" 7480.4226 7629.0354 7905.8090 7690.537 7817.965 12090.7945
  neval
    100
    100
@@ -110,4 +109,4 @@ Unit: milliseconds
 > 
 > proc.time()
    user  system elapsed 
- 13.716  11.732  40.682 
+ 68.290 613.525 805.350 
