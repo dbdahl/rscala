@@ -32,7 +32,7 @@ object Main extends App {
   }
 
   // Start session killer
-  if ( debugger.on ) debugger("starting session killer.")
+  debugger("starting session killer.")
 
   object killer extends Thread {
 
@@ -40,14 +40,14 @@ object Main extends App {
       val watchService = FileSystems.getDefault().newWatchService()
       val sessionFile = Paths.get(sessionFilename)
       if ( ! Files.exists(sessionFile) ) {
-        if ( debugger.on ) debugger("session file has already been deleted (#1), exiting...")
+        debugger("session file has already been deleted (#1), exiting...")
         sys.exit(0)
       }
       try {
         sessionFile.getParent.register(watchService, StandardWatchEventKinds.ENTRY_DELETE)
       } catch {
         case e: NoSuchFileException => {
-          if ( debugger.on ) debugger("session file has already been deleted (#2), exiting...")
+          debugger("session file has already been deleted (#2), exiting...")
           sys.exit(0)
         }
       }
@@ -59,7 +59,7 @@ object Main extends App {
           watchKey.reset()
         }
         if ( ! Files.exists(sessionFile) ) {
-          if ( debugger.on ) debugger("session file no longer exists, exiting...")
+          debugger("session file no longer exists, exiting...")
           sys.exit(0)
         }
       }
@@ -71,7 +71,7 @@ object Main extends App {
   killer.start()
 
   // Instantiate interpreter
-  if ( debugger.on ) debugger("starting interpreter.")
+  debugger("starting interpreter.")
 
   val settings = new Settings()
   settings.embeddedDefaults[Datum]
@@ -86,11 +86,11 @@ object Main extends App {
   // Set up interpreter
   val referenceMap = new HashMap[Int, (Any,String)]()
 
-  if ( debugger.on ) debugger("binding conduit.")
+  debugger("binding conduit.")
   val conduit = new Conduit(debugger)
   intp.bind("conduit",conduit)
 
-  if ( debugger.on ) debugger("binding r client.")
+  debugger("binding r client.")
   val rClient = new org.ddahl.rscala.RClient()
   intp.bind("R",rClient)
 
@@ -99,7 +99,7 @@ object Main extends App {
   val (out,in) = sockets.acceptAndSetup()
 
   // Start main loop
-  if ( debugger.on ) debugger("entering main loop.")
+  debugger("entering main loop.")
   val server = new Server(intp, sockets, referenceMap, conduit, out, in, debugger, serializeOutput, prntWrtr, baos)
   rClient.server = server
   server.run()

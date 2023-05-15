@@ -19,7 +19,7 @@ class Server(intp: IMain, sockets: Sockets, referenceMap: HashMap[Int, (Any,Stri
   unary.setAccessible(true)
 
   private def exit(): Unit = {
-    if ( debugger.on ) debugger("exit.")
+    debugger("exit.")
     out.close()
     in.close()
   }
@@ -72,7 +72,7 @@ class Server(intp: IMain, sockets: Sockets, referenceMap: HashMap[Int, (Any,Stri
   private def boolean2Byte(x: Boolean): Byte = if ( x ) one else zero
 
   private[rscala] def push(withName: Boolean): Unit = {
-    if ( debugger.on ) debugger("push with" + (if (withName) "" else "out") +" name.")
+    debugger("push with" + (if (withName) "" else "out") +" name.")
     val tipe = in.readByte()
     val value = tipe match {
       case TCODE_REFERENCE =>
@@ -129,12 +129,12 @@ class Server(intp: IMain, sockets: Sockets, referenceMap: HashMap[Int, (Any,Stri
   }
 
   private def clear(): Unit = {
-    if ( debugger.on ) debugger("clear.")
+    debugger("clear.")
     conduit.reset(in.readInt())
   }
 
   private[rscala] def pop(datum: Datum): Unit = {
-    if ( debugger.on ) debugger("pop on " + datum + ".")
+    debugger("pop on " + datum + ".")
     if ( serializeOutput ) {
       prntWrtr.flush()
       writeString(baos.toString)
@@ -224,7 +224,7 @@ class Server(intp: IMain, sockets: Sockets, referenceMap: HashMap[Int, (Any,Stri
   }
 
   private def invoke(withReference: Boolean, freeForm: Boolean): Unit = {
-    if ( debugger.on ) debugger("invoke with" + (if (withReference) "" else "out") +" reference.")
+    debugger("invoke with" + (if (withReference) "" else "out") +" reference.")
     val nArgs = in.readInt()
     val snippet = readString()
     val header = conduit.mkHeader(nArgs)
@@ -273,7 +273,7 @@ class Server(intp: IMain, sockets: Sockets, referenceMap: HashMap[Int, (Any,Stri
       }
       val result = wrap(intp.interpret(body))
       if ( result != Success ) {
-        if ( debugger.on ) debugger("error in defining function.")
+        debugger("error in defining function.")
         conduit.reset(nArgs)
         pop(Datum(body,TCODE_ERROR_DEF,None))
         return
@@ -285,7 +285,7 @@ class Server(intp: IMain, sockets: Sockets, referenceMap: HashMap[Int, (Any,Stri
           val r = intp.symbolOfLine(functionName).info.toString.substring(6) // Drop "() => " in the return type.
           r.replace("iw$", "")
         }
-        if (debugger.on) debugger("function definition is okay, result type " + resultType + ".")
+         debugger("function definition is okay, result type " + resultType + ".")
         val tuple = (jvmFunction, resultType)
         functionMap(body) = tuple
         tuple
@@ -298,20 +298,20 @@ class Server(intp: IMain, sockets: Sockets, referenceMap: HashMap[Int, (Any,Stri
     if ( globalDefinitionOnly ) {
       pop(Datum((), TCODE_UNIT, None))
     } else {
-      if (debugger.on) debugger("starting function invocation.")
+       debugger("starting function invocation.")
       val result = try {
         wrap(unary.invoke(jvmFunction))
       } catch {
         case e: Throwable =>
           prntWrtr.println(e)
           if (e.getCause != null) e.getCause.printStackTrace(prntWrtr) else e.printStackTrace(prntWrtr)
-          if (debugger.on) debugger("error in executing function.")
+           debugger("error in executing function.")
           pop(Datum(e, TCODE_ERROR_INVOKE, None))
           return
       }
-      if (debugger.on) debugger("function invocation is okay.")
+       debugger("function invocation is okay.")
       val tipe = if ((!forceReference) && typeMapper2.contains(resultType)) {
-        val tipe = typeMapper2.get(resultType).get
+        val tipe = typeMapper2(resultType)
         tipe match {
           case TCODE_INT_2 | TCODE_DOUBLE_2 | TCODE_LOGICAL_2 | TCODE_CHARACTER_2 =>
             val a = result.asInstanceOf[Array[Array[_]]]
@@ -333,7 +333,7 @@ class Server(intp: IMain, sockets: Sockets, referenceMap: HashMap[Int, (Any,Stri
   }
 
   private def gc(): Unit = {
-    if ( debugger.on ) debugger("garbage collect.")
+    debugger("garbage collect.")
     (0 until in.readInt()).foreach { i =>
       val key = in.readInt()
       referenceMap.remove(key)
@@ -352,7 +352,7 @@ class Server(intp: IMain, sockets: Sockets, referenceMap: HashMap[Int, (Any,Stri
       in.readByte()
     } catch {
       case e: Throwable =>
-        if ( debugger.on ) {
+        {
           prntWrtr.println(e)
           e.printStackTrace(prntWrtr)
           debugger("fatal error at loop main.")
@@ -364,14 +364,14 @@ class Server(intp: IMain, sockets: Sockets, referenceMap: HashMap[Int, (Any,Stri
 
   @tailrec
   final def run(): Unit = {
-    if ( debugger.on ) debugger("main, stack size = " + conduit.size + ".")
+    debugger("main, stack size = " + conduit.size + ".")
     val request = getCmd()
     request match {
       case PCODE_SHUTDOWN =>
         exit()
         return
       case PCODE_REXIT =>
-        if ( debugger.on ) debugger("R exits main loop.")
+        debugger("R exits main loop.")
         return
       case PCODE_PUSH_WITH_NAME => push(true)
       case PCODE_PUSH_WITHOUT_NAME => push(false)
