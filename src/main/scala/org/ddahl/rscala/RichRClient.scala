@@ -29,7 +29,7 @@ private[rscala] object RichClientUtil {
         val result = simpleName match {
           case matrix if matrix.endsWith("[][]") => s"$storageMode .rs"
           case vector if vector.endsWith("[]") => s"$storageMode I(.rs)"
-          case basic if "^.*[a-zA-Z]$".r.matches(basic) => s"$storageMode .rs[1]"
+          case "int" | "double" | "boolean" | "byte" | "String" => s"$storageMode .rs[1]"
         }
         s".rs <- {$template}; $result"
     }
@@ -129,8 +129,7 @@ object RichRClient {
     }
 
 
-    /**
-      * This method takes an array of type T and an integer batchSize and returns an RObject representing a data frame.
+    /** This method takes an array of type T and an integer batchSize and returns an RObject representing a data frame.
       * It splits the input array into batches of size batchSize, calls createDataFrame on each batch, and combines the results using combineDataFrames.
       *
       * @tparam T the type of the elements in the input array
