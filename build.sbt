@@ -16,7 +16,9 @@ Compile / doc / sources ~= (_ filter (_.getName endsWith ".scala"))
 Compile / doc / scalacOptions ++= Seq("-no-link-warnings", "-skip-packages", "scala:org.ddahl.rscala.server")
 
 libraryDependencies ++= List(
-  "org.scala-lang" % "scala-compiler" % scalaVersion.value
+  "org.scala-lang" % "scala-compiler" % scalaVersion.value,
+// https://mvnrepository.com/artifact/org.scalatest/scalatest
+  "org.scalatest" %% "scalatest" % "3.2.15" % Test
 )
 
 publishTo := sonatypePublishTo.value

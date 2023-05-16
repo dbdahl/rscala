@@ -2,6 +2,9 @@ package org.ddahl.rscala
 
 import server._
 import Protocol._
+import org.ddahl.rscala.library.LibraryBase
+
+import scala.annotation.tailrec
 import scala.sys.process.Process
 
 final class RObject private[rscala] (val x: Array[Byte]) {
@@ -52,6 +55,10 @@ class RClient private[rscala] () {
   private[rscala] var server: Server = null
   private[rscala] var rProcessInstance: Process = null
 
+  object implicits extends LibraryBase {
+    override protected[rscala] val r: RClient = RClient.this
+  }
+
   def quit(): Unit = synchronized {
     if ( rProcessInstance == null ) throw new IllegalStateException("The 'quit' method can only be called when R is embedded in Scala.")
     rProcessInstance.destroy()
@@ -96,44 +103,13 @@ class RClient private[rscala] () {
     server.conduit.pop[A]()
   }
 
-  private def evalEngine(template: String, values: Seq[Any]): Unit = synchronized {
-    val values2 = values.map(v => any2Datum(v))
+  private[rscala] def evalEngine(template: String, values: Seq[Any]): Unit = synchronized {
+    val values2 = values.map(v => RClient.any2Datum(v))
     server.pop(Datum(values.length, TCODE_CALLBACK, Some(template)))
     values2.foreach(server.pop)
     server.run()
     if ( server.getCmd() != PCODE_PUSH_WITHOUT_NAME ) throw new RuntimeException("Protocol error.")
     server.push(false)
-  }
-
-  private def any2Datum(any: Any): Datum = {
-    val c = any.getClass
-    val tipe = if (c.isArray) {
-      c.getName match {
-        case "[I" => TCODE_INT_1
-        case "[D" => TCODE_DOUBLE_1
-        case "[Z" => TCODE_LOGICAL_1
-        case "[B" => TCODE_RAW_1
-        case "[Ljava.lang.String;" => TCODE_CHARACTER_1
-        case "[[I" => TCODE_INT_2
-        case "[[D" => TCODE_DOUBLE_2
-        case "[[Z" => TCODE_LOGICAL_2
-        case "[[B" => TCODE_RAW_2
-        case "[[Ljava.lang.String;" => TCODE_CHARACTER_2
-        case _ => throw new RuntimeException("Unsupported array type.")
-      }
-    } else {
-      c.getName match {
-        case "java.lang.Integer" => TCODE_INT_0
-        case "java.lang.Double" => TCODE_DOUBLE_0
-        case "java.lang.Boolean" => TCODE_LOGICAL_0
-        case "java.lang.Byte" => TCODE_RAW_0
-        case "java.lang.String" => TCODE_CHARACTER_0
-        case "org.ddahl.rscala.RObject" => TCODE_ROBJECT
-        case o => throw new RuntimeException("Unsupported type: <"+o+">")
-      }
-    }
-    if ( tipe == TCODE_ROBJECT ) Datum(any.asInstanceOf[RObject].x, tipe, None)
-    else Datum(any, tipe, None)
   }
 
 }
@@ -162,7 +138,7 @@ object RClient {
     case false => Array[String]("--interactive")
   }
 
-  def defaultRCmd = isWindows match {
+  def defaultRCmd: String = isWindows match {
     case true  => findROnWindows
     case false => """R"""
   }
@@ -173,6 +149,7 @@ object RClient {
       if ( file.exists && file.isFile ) file.getAbsolutePath
       else ""
     }
+    @tailrec
     def versionCompare(a: String, b: String): Boolean = {
       val Seq(aa,bb) = Seq(a,b).map(_.takeWhile(_!='.'))
       val Seq(al,bl) = Seq(a,b).map(_.length)
@@ -240,7 +217,7 @@ object RClient {
     val command = rCmd +: ( defaultArguments ++ interactiveArguments )
     val processCmd = Process(command)
     var echo = false
-    def reader(label: String)(input: InputStream) = {
+    def reader(label: String)(input: InputStream): Unit = {
       val in = new BufferedReader(new InputStreamReader(input))
       var line = in.readLine()
       while ( line != null ) {
@@ -281,6 +258,43 @@ object RClient {
     while ( sourceFile.exists() ) Thread.sleep(100)
     echo = true
     rClient
+  }
+
+  val classCharMap: Map[String, Byte] = Map(
+    "[I" -> TCODE_INT_1,
+    "[D" -> TCODE_DOUBLE_1,
+    "[Z" -> TCODE_LOGICAL_1,
+    "[B" -> TCODE_RAW_1,
+    "[Ljava.lang.String;" -> TCODE_CHARACTER_1,
+    "[[I" -> TCODE_INT_2,
+    "[[D" -> TCODE_DOUBLE_2,
+    "[[Z" -> TCODE_LOGICAL_2,
+    "[[B" -> TCODE_RAW_2,
+    "[[Ljava.lang.String;" -> TCODE_CHARACTER_2,
+    "java.lang.Integer" -> TCODE_INT_0,
+    "java.lang.Double" -> TCODE_DOUBLE_0,
+    "java.lang.Boolean" -> TCODE_LOGICAL_0,
+    "java.lang.Byte" -> TCODE_RAW_0,
+    "java.lang.String" -> TCODE_CHARACTER_0,
+    "org.ddahl.rscala.RObject" -> TCODE_ROBJECT
+  ).withDefault {
+    case name if name.startsWith("[") =>
+      throw new RuntimeException(s"Unsupported array type. $name")
+    case o => throw new RuntimeException("Unsupported type: <" + o + ">")
+  }
+
+  private[rscala] def any2Datum(any: Any): Datum = {
+    any2Datum(any.getClass.getName,any)
+  }
+
+  private[rscala] def any2Datum(key: String, any: Any): Datum = {
+
+    classCharMap(key) match {
+      case TCODE_ROBJECT =>
+        Datum(any.asInstanceOf[RObject].x, TCODE_ROBJECT, None)
+      case tpe =>
+        Datum(any, tpe, None)
+    }
   }
 
 }
