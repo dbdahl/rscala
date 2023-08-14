@@ -136,7 +136,7 @@ scalaDevelInfo <- function() {
     i <- 1
     while ( ( i < 3 ) && ( length(search(i)) != 1 ) ) i <- i + 1
     if ( i < 3 ) normalizePath(dirname(search(i)))
-    else stop("Cannot find package root directory.")
+    else stop("Cannot find package root directory.  More than one directory containing a DESCRIPTION file?")
   }
   name <- as.vector(read.dcf(file.path(packageRoot,"DESCRIPTION"),"Package"))
   list(name=name, projectRoot=getwd(), packageRoot=packageRoot, buildSystem=buildSystem)

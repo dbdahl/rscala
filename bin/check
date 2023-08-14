@@ -4,6 +4,8 @@ set -e
 
 cd $(dirname $(readlink -f "$0"))/..
 
+rm -rf rscala.Rcheck
+rm -rf R/rscala.Rcheck
 bin/package --vignette
 
 cd R

@@ -284,6 +284,7 @@ extractArchive <- function(archivePath, parentDirectory, directoryName) {
 }
 
 #' @importFrom utils download.file
+#' @importFrom tools md5sum
 #' 
 installSoftware <- function(installPath, software, version, os, arch, verbose=FALSE, downloadFailureCount=0, extractFailureCount=0) {
   sel <- urls$software == software
@@ -310,21 +311,24 @@ installSoftware <- function(installPath, software, version, os, arch, verbose=FA
     sel & sapply(urls$arch, function(re) grepl(re,arch))
   }
   urls2 <- urls[sel, ]
-  candidates <- urls2[order(as.numeric(urls2$priority),decreasing=TRUE),"url"]
+  urls3 <- urls2[order(as.numeric(urls2$priority),decreasing=TRUE), ]
   if ( verbose ) {
-    len <- length(candidates)
+    len <- nrow(urls3)
     if ( len == 1 ) cat(paste0("There is 1 candidate.\n\n"))
     else cat(paste0("There are ",len," candidates.\n\n"))
   }
   if ( missing(downloadFailureCount) && ( Sys.getenv("RSCALA_DOWNLOAD_FAILURE_COUNT","") != "" ) ) downloadFailureCount <- as.integer(Sys.getenv("RSCALA_DOWNLOAD_FAILURE_COUNT",""))
   if ( missing(extractFailureCount)  && ( Sys.getenv("RSCALA_EXTRACT_FAILURE_COUNT", "") != "" ) ) extractFailureCount  <- as.integer(Sys.getenv("RSCALA_EXTRACT_FAILURE_COUNT", ""))
   dfc <- efc <- 0
-  for ( candidate in candidates ) {
-    archivePath <- file.path(tempdir(), basename(candidate))
-    result <- try(download.file(candidate, archivePath, mode="wb"), silent=TRUE)
+  for ( candidate in seq_len(nrow(urls3)) ) {
+    archivePath <- file.path(tempdir(), basename(urls3$url[candidate]))
+    result <- try(download.file(urls3$url[candidate], archivePath, mode="wb"), silent=TRUE)
     if ( inherits(result,"try-error") || ( result != 0 ) || ( dfc < downloadFailureCount ) ) {
       dfc <- dfc + 1
       next
+    }
+    if ( tools::md5sum(archivePath) != urls3$md5sum[candidate] ) {
+      stop("Security error: md5sum do not match.")
     }
     finalPath <- try(extractArchive(archivePath, installPath, software), silent=TRUE)
     unlink(archivePath,FALSE,TRUE)

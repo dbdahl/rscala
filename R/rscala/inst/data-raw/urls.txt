@@ -1,14 +1,14 @@
-software  os                   arch     version  priority  url
-    java  windows      ^x86(-|_)64$          17        50  https://byu.box.com/shared/static/6z39cqiwgavu2aa9abzw9elh1wwszxlg.zip
-    java  mac          ^x86(-|_)64$          17        50  https://byu.box.com/shared/static/0un5w0z4ymyl4yzuk96rxn2g6s7wjz81.gz
-    java  linux        ^x86(-|_)64$          17        50  https://byu.box.com/shared/static/8jzcanepzchor5pgw9rzudky9hea3ktg.gz
-    java  windows      ^x86(-|_)64$          11        50  https://byu.box.com/shared/static/qvs2mbdavtapdshblzxie7ux2c7vdzgx.zip
-    java  mac          ^x86(-|_)64$          11        50  https://byu.box.com/shared/static/95tn11gly297sh45zto3n0jb6uxvtphu.gz
-    java  linux        ^x86(-|_)64$          11        50  https://byu.box.com/shared/static/bzbmxwbi6f2ins09chfjh23szpvmmlo7.gz
-    java  windows      ^x86(-|_)64$           8        50  https://byu.box.com/shared/static/oe0yhw9blpu8hvw68so024jdynmtrc1k.zip
-    java  mac          ^x86(-|_)64$           8        50  https://byu.box.com/shared/static/i5k2p517ihuqjfexsp58z0ulv9ak18jz.gz
-    java  linux        ^x86(-|_)64$           8        50  https://byu.box.com/shared/static/yuc35fmwaqgebw26k0ib02ry0s51blpw.gz
-   scala  any                   any        2.11        50  https://byu.box.com/shared/static/wcos9t0i91m9xfhnkkfj9c5j9cwegv78.tgz
-   scala  any                   any        2.12        50  https://byu.box.com/shared/static/pc2zrk2cna8dojore95sja5h4ze97mpi.tgz
-   scala  any                   any        2.13        50  https://byu.box.com/shared/static/dzqtxa2qyexzi77o0udviili64dgbkkq.tgz
-     sbt  any                   any         1.8        50  https://byu.box.com/shared/static/ya3y5lh2afukpewc681mu6i1d0tly9qb.tgz
+software  os                   arch     version  priority  url                                                                      md5sum
+    java  windows      ^x86(-|_)64$          17        50  https://byu.box.com/shared/static/6z39cqiwgavu2aa9abzw9elh1wwszxlg.zip   ee4509eadec4d1398162120a2f6d4c54
+    java  mac          ^x86(-|_)64$          17        50  https://byu.box.com/shared/static/0un5w0z4ymyl4yzuk96rxn2g6s7wjz81.gz    7cfe7b66322cb4f9d42dd9839e4a8a45
+    java  linux        ^x86(-|_)64$          17        50  https://byu.box.com/shared/static/8jzcanepzchor5pgw9rzudky9hea3ktg.gz    ce3ed32b9acd33b779f9255a402968e5
+    java  windows      ^x86(-|_)64$          11        50  https://byu.box.com/shared/static/qvs2mbdavtapdshblzxie7ux2c7vdzgx.zip   17b41763ad332124e816aa48f7a3f1fe
+    java  mac          ^x86(-|_)64$          11        50  https://byu.box.com/shared/static/95tn11gly297sh45zto3n0jb6uxvtphu.gz    d44de64c4a1c2133b9b5c21600a0dfbb
+    java  linux        ^x86(-|_)64$          11        50  https://byu.box.com/shared/static/bzbmxwbi6f2ins09chfjh23szpvmmlo7.gz    0d7ccef71451af2579dfc51a7ec45773
+    java  windows      ^x86(-|_)64$           8        50  https://byu.box.com/shared/static/oe0yhw9blpu8hvw68so024jdynmtrc1k.zip   3b4fb7294c658629e3e841be6d54434b
+    java  mac          ^x86(-|_)64$           8        50  https://byu.box.com/shared/static/i5k2p517ihuqjfexsp58z0ulv9ak18jz.gz    77cd00fb7bfa9e3732a5b4ce24903566
+    java  linux        ^x86(-|_)64$           8        50  https://byu.box.com/shared/static/yuc35fmwaqgebw26k0ib02ry0s51blpw.gz    806755e9d331f8cb0b5c7b21f3f39001
+   scala  any                   any        2.11        50  https://byu.box.com/shared/static/wcos9t0i91m9xfhnkkfj9c5j9cwegv78.tgz   853bfdd9d89a99b2b54ad4e04111b88c
+   scala  any                   any        2.12        50  https://byu.box.com/shared/static/pc2zrk2cna8dojore95sja5h4ze97mpi.tgz   e42ac31e64ad73e7dfd135c27c432a20
+   scala  any                   any        2.13        50  https://byu.box.com/shared/static/dzqtxa2qyexzi77o0udviili64dgbkkq.tgz   79e3cc22cbd363a6ea66c225113385c2
+     sbt  any                   any         1.8        50  https://byu.box.com/shared/static/ya3y5lh2afukpewc681mu6i1d0tly9qb.tgz   2486e6022886524e17eac9bd085ce779
