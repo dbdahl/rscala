@@ -17,7 +17,6 @@ In R, install the package by executing:
 
 ```R
 install.packages("remotes")
-library("remotes")
 remotes::install_github("dbdahl/rscala/R/rscala")
 ```
 

@@ -1,8 +1,6 @@
 /target
 /project/target
 /project/project/target
-/R/rscala/man
-/R/rscala/NAMESPACE
 /R/rscala/R/INTERNAL-protocol.R
 /R/rscala/inst/java
 /R/rscala/java/
