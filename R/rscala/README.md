@@ -16,7 +16,9 @@ enables arbitrary R code to be embedded within a Scala application.
 In R, install the package by executing:
 
 ```R
-install.packages("rscala") 
+install.packages("remotes")
+library("remotes")
+remotes::install_github("dbdahl/rscala/R/rscala")
 ```
 
 To install --- or check the compatability of your existing installation of ---
@@ -56,23 +58,8 @@ The citation information is available using:
 citation("rscala")
 ```
 
-An [updated version of the paper](https://cran.r-project.org/package=rscala/vignettes/rscala.pdf)
-is available [here](https://cran.r-project.org/package=rscala/vignettes/rscala.pdf)
-or as a vignette in R (once the package is installed):
-
-```R
-vignette("rscala")
-```
-
-The functionality of the software is also described and demonstrated in the
-help files:
-
-```R
-library(help="rscala")
-library(rscala)
-example(scala)
-
-```
+An [updated version of the paper](https://github.com/dbdahl/rscala/blob/master/R/rscala/inst/doc/rscala.pdf?raw=true)
+is available [here](https://github.com/cran/rscala/blob/master/inst/doc/rscala.pdf?raw=true).
 
 
 ## Example packages built with rscala
@@ -80,15 +67,14 @@ example(scala)
 R extensions can be written using this package, as demonstrated by these
 packages:
 
-* [aibd](https://cran.r-project.org/package=aibd)
-* [shallot](https://cran.r-project.org/package=shallot)
-* [bamboo](https://cran.r-project.org/package=bamboo)
+* [aibd](https://github.com/dbdahl/aibd)
+* [shallot](https://github.com/dbdahl/shallot)
+* [bamboo](https://github.com/dbdahl/bamboo)
 
 
 ## Resources
 
-* [Vignette](https://cran.r-project.org/package=rscala/vignettes/rscala.pdf) describing the package usage.
+* [Vignette](https://github.com/cran/rscala/blob/master/inst/doc/rscala.pdf?raw=true) describing the package usage.
 * [Git repository](https://github.com/dbdahl/rscala) containing source code and build & test scripts.
 * [Scaladoc](https://dahl.byu.edu/rscala/org/ddahl/rscala/RClient.html) for RClient class to access R from Scala.
-* [Package on CRAN](https://cran.R-project.org/package=rscala).
 

@@ -4,5 +4,6 @@ jss\.cls$
 jss\.bst$
 rscala.bbl$
 rscala.blg$
-rnw2pdf$
-clean$
+build-vignette$
+^doc$
+^Meta$

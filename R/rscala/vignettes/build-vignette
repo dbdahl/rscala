@@ -1,0 +1,20 @@
+#!/bin/bash
+
+cd $(dirname $(readlink -f $0))
+
+rm -rf ../doc
+rm -rf ../inst/doc
+
+Rscript -e 'devtools::build_vignettes()'
+Rscript -e 'tools::compactPDF("../doc/rscala.pdf", gs_quality = "ebook")'
+
+mv ../doc ../inst/doc
+
+# R --slave -e 'Sweave("rscala.Rnw")'
+# 
+# pdflatex rscala
+# bibtex rscala
+# pdflatex rscala
+# pdflatex rscala
+# pdflatex rscala
+

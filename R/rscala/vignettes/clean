@@ -1,4 +1,0 @@
-#!/bin/bash
-
-/bin/rm -f *.tex *.lof *.lot *.dvi *.aux *.log *.tex.backup *.tex~ *.bib~ *.out *.bak *.blg *.bbl *.toc *.snm *.nav *.ttt *.fff *.vrb *.thm *.fls *.*_latexmk *.synctex.gz *.synctex *.dbdCapture
-
