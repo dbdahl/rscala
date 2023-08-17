@@ -1,7 +1,6 @@
 /target
 /project/target
 /project/project/target
-/R/rscala/R/INTERNAL-protocol.R
 /R/rscala_*.tar.gz
 /R/rscala.Rcheck
 /R/rscala/vignettes/rscala.aux
