@@ -60,6 +60,20 @@ citation("rscala")
 An [updated version of the paper](https://github.com/dbdahl/rscala/blob/master/R/rscala/inst/doc/rscala.pdf?raw=true)
 is available [here](https://github.com/cran/rscala/blob/master/inst/doc/rscala.pdf?raw=true).
 
+```R
+vignette("rscala")
+```
+
+The functionality of the software is also described and demonstrated in the
+help files:
+
+```R
+library(help="rscala")
+library(rscala)
+example(scala)
+
+```
+
 
 ## Example packages built with rscala
 
