@@ -6,7 +6,7 @@ import java.net.{InetAddress, ServerSocket}
 class Sockets(val port: Int, val buffer: Boolean, val debugger: Debugger) {
 
    // Start server
-  if ( debugger.on ) debugger("starting server.")
+  debugger("starting server.")
   private val ( portS2R, portR2S) = if ( port == 0 ) (0, 0) else (port, port+1)
   private val localhost = InetAddress.getByName(null)
   private val serverOut = new ServerSocket(portS2R,0, localhost)
@@ -58,14 +58,14 @@ class Sockets(val port: Int, val buffer: Boolean, val debugger: Debugger) {
   }
 
   def acceptAndSetup(): (DataOutputStream, DataInputStream) = {
-    if (debugger.on) debugger("socket S2R waiting for client on port " + serverOut.getLocalPort + ".")
+     debugger("socket S2R waiting for client on port " + serverOut.getLocalPort + ".")
     val sOut = serverOut.accept()
-    if (debugger.on) debugger("socket R2S waiting for client on port " + serverIn.getLocalPort + ".")
+     debugger("socket R2S waiting for client on port " + serverIn.getLocalPort + ".")
     val sIn = serverIn.accept()
     val bos = if ( buffer ) new BufferedOutputStream(sOut.getOutputStream) else sOut.getOutputStream
     val out = new DataOutputStream(bos)
     val in = new DataInputStream(sIn.getInputStream)
-    if ( debugger.on ) debugger("connections established.")
+    debugger("connections established.")
     (out,in)
   }
 
